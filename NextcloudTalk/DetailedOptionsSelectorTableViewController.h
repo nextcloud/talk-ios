@@ -48,8 +48,8 @@ typedef enum DetailedOptionsSelectorType {
 @property (nonatomic, strong) NSString *senderId;
 @property (nonatomic, assign) DetailedOptionsSelectorType type;
 
-- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId;
-- (instancetype)initWithAccounts:(NSArray *)accounts;
+- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId andStyle:(UITableViewStyle)style;
+- (instancetype)initWithAccounts:(NSArray *)accounts andStyle:(UITableViewStyle)style;
 
 @end
 

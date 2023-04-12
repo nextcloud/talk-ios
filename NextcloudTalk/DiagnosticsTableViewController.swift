@@ -121,7 +121,7 @@ class DiagnosticsTableViewController: UITableViewController {
         signalingSections.append(AllSignalingSections.kSignalingSectionStunServers.rawValue)
         signalingSections.append(AllSignalingSections.kSignalingSectionTurnServers.rawValue)
 
-        super.init(style: .grouped)
+        super.init(style: .insetGrouped)
     }
 
     required init?(coder: NSCoder) {

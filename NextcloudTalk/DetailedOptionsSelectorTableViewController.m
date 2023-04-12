@@ -34,9 +34,9 @@
 
 @implementation DetailedOptionsSelectorTableViewController
 
-- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId
+- (instancetype)initWithOptions:(NSArray *)options forSenderIdentifier:(NSString *)senderId andStyle:(UITableViewStyle)style
 {
-    self = [super initWithStyle:UITableViewStyleGrouped];
+    self = [super initWithStyle:style];
 
     self.options = options;
     self.senderId = senderId;
@@ -45,9 +45,9 @@
     return self;
 }
 
-- (instancetype)initWithAccounts:(NSArray *)accounts
+- (instancetype)initWithAccounts:(NSArray *)accounts andStyle:(UITableViewStyle)style
 {
-    self = [super initWithStyle:UITableViewStyleGrouped];
+    self = [super initWithStyle:style];
 
     self.options = accounts;
     self.type = DetailedOptionsSelectorTypeAccounts;

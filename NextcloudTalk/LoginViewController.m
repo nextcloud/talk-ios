@@ -287,7 +287,7 @@
         [importedAccounts addObject:option];
     }
 
-    DetailedOptionsSelectorTableViewController *accountSelectorVC = [[DetailedOptionsSelectorTableViewController alloc] initWithAccounts:importedAccounts];
+    DetailedOptionsSelectorTableViewController *accountSelectorVC = [[DetailedOptionsSelectorTableViewController alloc] initWithAccounts:importedAccounts andStyle:UITableViewStyleInsetGrouped];
     accountSelectorVC.title = NSLocalizedString(@"Import account", nil);
     accountSelectorVC.delegate = self;
     NCNavigationController *accountSelectorNC = [[NCNavigationController alloc] initWithRootViewController:accountSelectorVC];
