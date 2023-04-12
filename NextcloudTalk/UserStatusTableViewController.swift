@@ -32,7 +32,7 @@ class UserStatusTableViewController: UITableViewController, DetailedOptionsSelec
     var userStatus: NCUserStatus?
 
     init(userStatus: NCUserStatus?) {
-        super.init(style: .grouped)
+        super.init(style: .insetGrouped)
         self.userStatus = userStatus
     }
 
@@ -102,7 +102,7 @@ class UserStatusTableViewController: UITableViewController, DetailedOptionsSelec
         options.append(dndOption)
         options.append(invisibleOption)
 
-        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: nil)
+        let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: nil, andStyle: .insetGrouped)
         if let optionSelectorVC = optionSelectorVC {
             optionSelectorVC.title = NSLocalizedString("Online status", comment: "")
             optionSelectorVC.delegate = self

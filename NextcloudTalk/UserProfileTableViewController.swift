@@ -106,7 +106,7 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     }
 
     init(withAccount account: TalkAccount) {
-        super.init(style: .grouped)
+        super.init(style: .insetGrouped)
         self.account = account
     }
 
