@@ -26,7 +26,6 @@ class UserSettingsTableViewCell: UITableViewCell {
 
     @IBOutlet weak var userImageView: UIImageView!
     @IBOutlet weak var userDisplayNameLabel: UILabel!
-    @IBOutlet weak var userStatusImageView: UIImageView!
     @IBOutlet weak var serverAddressLabel: UILabel!
 
     override func awakeFromNib() {
