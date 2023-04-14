@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -57,13 +57,16 @@
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="Pye-fe-c7r"/>
                 <constraints>
-                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="12" id="W2o-1a-DHQ"/>
-                    <constraint firstItem="5eI-x8-VQH" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="12" id="XyY-WJ-Sov"/>
-                    <constraint firstItem="Pye-fe-c7r" firstAttribute="trailing" secondItem="ifa-Ff-Eac" secondAttribute="trailing" constant="15" id="ZFF-EU-3yR"/>
-                    <constraint firstItem="5eI-x8-VQH" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="12" id="fQR-A3-gQb"/>
-                    <constraint firstItem="vfg-pq-jRm" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="45" id="hXM-ju-rXF"/>
+                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottom" constant="-12" id="83b-zt-HfV"/>
+                    <constraint firstItem="5eI-x8-VQH" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottom" constant="-12" id="AVW-ML-8YO"/>
+                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="W2o-1a-DHQ"/>
+                    <constraint firstItem="5eI-x8-VQH" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="XyY-WJ-Sov"/>
+                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailing" constant="-15" id="ZFF-EU-3yR"/>
+                    <constraint firstItem="5eI-x8-VQH" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="12" id="fQR-A3-gQb"/>
+                    <constraint firstItem="vfg-pq-jRm" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="45" id="hXM-ju-rXF"/>
+                    <constraint firstItem="vfg-pq-jRm" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottom" constant="-4" id="pqA-H1-JwO"/>
                     <constraint firstItem="ifa-Ff-Eac" firstAttribute="leading" secondItem="vfg-pq-jRm" secondAttribute="trailing" constant="10" id="sVo-dR-gTF"/>
-                    <constraint firstItem="vfg-pq-jRm" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="48" id="xJ5-xb-XdK"/>
+                    <constraint firstItem="vfg-pq-jRm" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="48" id="xJ5-xb-XdK"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="Hom-0H-2YQ"/>
