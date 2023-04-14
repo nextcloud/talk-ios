@@ -257,7 +257,7 @@ import UIKit
             cell.textLabel?.numberOfLines = 4
             cell.textLabel?.lineBreakMode = .byWordWrapping
             cell.textLabel?.sizeToFit()
-            cell.imageView?.image = UIImage(named: "poll")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = UIImage(systemName: "chart.bar")
             cell.imageView?.tintColor = UIColor.label
 
         case PollSection.kPollSectionOptions.rawValue:

@@ -61,6 +61,7 @@
     _objectContainerView.layer.borderColor = [NCAppBranding placeholderColor].CGColor;
     
     _objectTypeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kObjectShareMessageCellObjectTypeImageSize, kObjectShareMessageCellObjectTypeImageSize)];
+    _objectTypeImageView.contentMode = UIViewContentModeScaleAspectFit;
     _objectTypeImageView.translatesAutoresizingMaskIntoConstraints = NO;
     _objectTypeImageView.userInteractionEnabled = NO;
     _objectTypeImageView.layer.cornerRadius = 4.0;
@@ -196,7 +197,7 @@
     self.objectTitle.text = self.objectParameter.name;
     
     if (message.poll) {
-        [self.objectTypeImageView setImage:[[UIImage imageNamed:@"poll"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        [self.objectTypeImageView setImage:[UIImage systemImageNamed:@"chart.bar"]];
         [self.objectTypeImageView setTintColor:[UIColor labelColor]];
     }
     

@@ -249,21 +249,22 @@ import QuickLook
         }
     }
 
-    func imageNameForMessage(message: NCChatMessage) -> String {
-        var imageName = "file"
+    func imageForMessage(message: NCChatMessage) -> UIImage {
+        var image = UIImage(named: "file")
         if message.file() != nil {
-            imageName = NCUtils.previewImage(forFileMIMEType: message.file().mimetype)
+            let imageName = NCUtils.previewImage(forFileMIMEType: message.file().mimetype)
+            image = UIImage(named: imageName)
         }
         if message.geoLocation() != nil {
-            imageName = "location-item"
+            image = UIImage(systemName: "mappin")
         }
         if message.deckCard() != nil {
-            imageName = "deck-item"
+            image = UIImage(named: "deck-item")
         }
         if message.poll() != nil {
-            imageName = "poll-item"
+            image = UIImage(systemName: "chart.bar")
         }
-        return imageName
+        return image ?? UIImage()
     }
 
     // MARK: - File downloader
@@ -395,8 +396,9 @@ import QuickLook
         }
         cell.fileInfoLabel?.text = infoLabelText
 
-        let image = UIImage(named: imageNameForMessage(message: message))
+        let image = imageForMessage(message: message)
         cell.fileImageView?.image = image
+        cell.fileImageView?.tintColor = .secondaryLabel
         if message.file()?.previewAvailable != nil {
             cell.fileImageView?
                 .setImageWith(NCAPIController.sharedInstance().createPreviewRequest(forFile: message.file().parameterId,
