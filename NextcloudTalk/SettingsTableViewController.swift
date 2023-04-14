@@ -793,6 +793,7 @@ extension SettingsTableViewController {
             cell.textLabel?.text = NSLocalizedString("Phone number integration", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
             cell.detailTextLabel?.numberOfLines = 0
+            cell.detailTextLabel?.textColor = .secondaryLabel
             cell.selectionStyle = .none
             cell.imageView?.image = UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
