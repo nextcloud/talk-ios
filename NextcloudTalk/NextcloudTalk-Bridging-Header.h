@@ -33,7 +33,6 @@
 #import "NBPhoneNumberUtil.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCAvatarSessionManager.h"
 #import "NCConnectionController.h"
 #import "NCContactsManager.h"
 #import "NCDatabaseManager.h"

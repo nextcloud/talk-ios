@@ -131,11 +131,7 @@ import UIKit
 
         // Actor avatar
         if detail.actorType == "users" {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            if let request = NCAPIController.sharedInstance().createAvatarRequest(forUser: detail.actorId, with: self.traitCollection.userInterfaceStyle, andSize: 96, using: activeAccount) {
-                cell.avatarImageView.setImageWith(request, placeholderImage: nil, success: nil, failure: nil)
-                cell.avatarImageView.contentMode = .scaleToFill
-            }
+            cell.avatarImageView.setUserAvatar(for: detail.actorId, with: self.traitCollection.userInterfaceStyle)
         } else {
             let color = UIColor(red: 0.73, green: 0.73, blue: 0.73, alpha: 1.0) /*#b9b9b9*/
             let image = NCUtils.getImageWith("?", withBackgroundColor: color, withBounds: cell.avatarImageView.bounds, isCircular: true)

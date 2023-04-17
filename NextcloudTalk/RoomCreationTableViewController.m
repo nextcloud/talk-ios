@@ -22,8 +22,6 @@
 
 #import "RoomCreationTableViewController.h"
 
-#import "UIImageView+AFNetworking.h"
-
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
@@ -31,6 +29,8 @@
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "RoomCreation2TableViewController.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @interface RoomCreationTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
@@ -358,13 +358,11 @@
     cell.labelTitle.text = participant.name;
     
     if ([participant.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                 placeholderImage:nil success:nil failure:nil];
-        [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
+        [cell.contactImage setUserAvatarFor:participant.userId with:self.traitCollection.userInterfaceStyle];
     } else if ([participant.source isEqualToString:kParticipantTypeEmail]) {
-        [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
     } else {
-        [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
     }
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];

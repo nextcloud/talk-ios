@@ -24,7 +24,6 @@
 
 #import "MaterialActivityIndicator.h"
 #import "SLKUIConstants.h"
-#import "UIButton+AFNetworking.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -57,7 +56,7 @@
 
 - (void)configureSubviews
 {
-    _avatarButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
+    _avatarButton = [[AvatarButton alloc] initWithFrame:CGRectMake(0, 0, kChatCellAvatarHeight, kChatCellAvatarHeight)];
     _avatarButton.translatesAutoresizingMaskIntoConstraints = NO;
     _avatarButton.backgroundColor = [NCAppBranding placeholderColor];
     _avatarButton.layer.cornerRadius = kChatCellAvatarHeight/2.0;
@@ -180,9 +179,8 @@
 
     [_referenceView prepareForReuse];
 
-    [self.avatarButton cancelImageDownloadTaskForState:UIControlStateNormal];
+    [self.avatarButton cancelCurrentRequest];
     [self.avatarButton setImage:nil forState:UIControlStateNormal];
-    self.avatarButton.imageView.contentMode = UIViewContentModeScaleToFill;
     
     self.userStatusImageView.image = nil;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
@@ -312,16 +310,7 @@
             [self setBotAvatar];
         }
     } else {
-        [self.avatarButton setImageForState:UIControlStateNormal
-                             withURLRequest:[[NCAPIController sharedInstance]
-                                              createAvatarRequestForUser:message.actorId
-                                              withStyle:self.traitCollection.userInterfaceStyle
-                                              andSize:96
-                                              usingAccount:activeAccount]
-                           placeholderImage:nil
-                                    success:nil
-                                    failure:nil];
-
+        [self.avatarButton setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle using:activeAccount];
         _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
     }
     
@@ -416,7 +405,7 @@
 
 - (void)setChangelogAvatar
 {
-    [_avatarButton setImage:[UIImage imageNamed:@"changelog"] forState:UIControlStateNormal];
+    [_avatarButton setImage:[UIImage imageNamed:@"changelog-avatar"] forState:UIControlStateNormal];
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state

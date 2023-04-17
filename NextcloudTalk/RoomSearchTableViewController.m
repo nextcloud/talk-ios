@@ -24,8 +24,6 @@
 
 @import NextcloudKit;
 
-#import "UIImageView+AFNetworking.h"
-
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
@@ -34,6 +32,8 @@
 #import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "RoomTableViewCell.h"
+
+#import "NextcloudTalk-Swift.h"
 
 typedef enum RoomSearchSection {
     RoomSearchSectionFiltered = 0,
@@ -197,10 +197,7 @@ typedef enum RoomSearchSection {
     NSString *actorId = [messageEntry.attributes objectForKey:@"actorId"];
     NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
     if ([actorType isEqualToString:@"users"] && actorId) {
-        [cell.roomImage setImageWithURLRequest:
-         [[NCAPIController sharedInstance] createAvatarRequestForUser:actorId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                              placeholderImage:nil success:nil failure:nil];
-        cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+        [cell.roomImage setUserAvatarFor:actorId with:self.traitCollection.userInterfaceStyle];
     } else if ([actorType isEqualToString:@"guests"]) {
         UIImage *image = [NCUtils getImageWithString:@"?" withBackgroundColor:[UIColor clearColor] withBounds:cell.roomImage.bounds isCircular:YES];
         [cell.roomImage setImage:image];
@@ -305,43 +302,9 @@ typedef enum RoomSearchSection {
         BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
-    
-    // Set room image
-    switch (room.type) {
-        case kNCRoomTypeOneToOne:
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                  placeholderImage:nil success:nil failure:nil];
-            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
-            break;
-            
-        case kNCRoomTypeGroup:
-            [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
-            break;
-            
-        case kNCRoomTypePublic:
-            [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
-            break;
-            
-        case kNCRoomTypeChangelog:
-            [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
-            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
-            break;
 
-        case kNCRoomTypeFormerOneToOne:
-            [cell.roomImage setImage:[UIImage imageNamed:@"user"]];
-            break;
+    [cell.roomImage setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
 
-        default:
-            break;
-    }
-    
-    // Set objectType image
-    if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"file"]];
-    } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"password"]];
-    }
-    
     // Set favorite image
     if (room.isFavorite) {
         [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];

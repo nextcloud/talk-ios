@@ -26,7 +26,6 @@
 
 #import <QuickLook/QuickLook.h>
 
-#import "UIImageView+AFNetworking.h"
 #import "UIView+Toast.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -1739,47 +1738,8 @@ typedef enum FileAction {
             }
             
             cell.roomNameTextField.text = _room.name;
-            
-            switch (_room.type) {
-                case kNCRoomTypeOneToOne:
-                {
-                    cell.roomNameTextField.text = _room.displayName;
-                    [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                          placeholderImage:nil success:nil failure:nil];
-                    [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
-                }
-                    break;
-                    
-                case kNCRoomTypeGroup:
-                    [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
-                    break;
-                    
-                case kNCRoomTypePublic:
-                    [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
-                    break;
-                    
-                case kNCRoomTypeChangelog:
-                {
-                    cell.roomNameTextField.text = _room.displayName;
-                    [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
-                    [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
-                }
-                    break;
 
-                case kNCRoomTypeFormerOneToOne:
-                    [cell.roomImage setImage:[UIImage imageNamed:@"user"]];
-                    break;
-
-                default:
-                    break;
-            }
-            
-            // Set objectType image
-            if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-                [cell.roomImage setImage:[UIImage imageNamed:@"file-conv"]];
-            } else if ([_room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-                [cell.roomImage setImage:[UIImage imageNamed:@"pass-conv"]];
-            }
+            [cell.roomImage setAvatarFor:_room with:self.traitCollection.userInterfaceStyle];
             
             if (_room.isNameEditable) {
                 _roomNameTextField = cell.roomNameTextField;
@@ -2229,9 +2189,9 @@ typedef enum FileAction {
             
             // Avatar
             if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
-                [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
+                [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
             } else if (participant.isGroup || participant.isCircle) {
-                [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
+                [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
             } else if (participant.isGuest) {
                 UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
                 NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
@@ -2239,9 +2199,7 @@ typedef enum FileAction {
                 UIImage *image = [NCUtils getImageWithString:avatarName withBackgroundColor:guestAvatarColor withBounds:cell.contactImage.bounds isCircular:YES];
                 [cell.contactImage setImage:image];
             } else {
-                [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.participantId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                         placeholderImage:nil success:nil failure:nil];
-                [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
+                [cell.contactImage setUserAvatarFor:participant.participantId with:self.traitCollection.userInterfaceStyle];
             }
             
             // Online status

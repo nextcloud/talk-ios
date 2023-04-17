@@ -22,8 +22,6 @@
 
 #import "CallParticipantViewCell.h"
 
-#import "UIImageView+AFNetworking.h"
-
 #import "CallViewController.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
@@ -136,8 +134,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     }
     
     if (userId && userId.length > 0) {
-        [self.peerAvatarImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:userId withStyle:self.traitCollection.userInterfaceStyle andSize:256 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                        placeholderImage:nil success:nil failure:nil];
+        [self.peerAvatarImageView setUserAvatarFor:userId with:self.traitCollection.userInterfaceStyle];
     } else {
         UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#b9b9b9*/
 

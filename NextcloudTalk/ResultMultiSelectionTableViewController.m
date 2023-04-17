@@ -22,13 +22,13 @@
 
 #import "ResultMultiSelectionTableViewController.h"
 
-#import "UIImageView+AFNetworking.h"
-
 #import "NCAppBranding.h"
 #import "NCUser.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "PlaceholderView.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @interface ResultMultiSelectionTableViewController ()
 {
@@ -121,13 +121,11 @@
     cell.labelTitle.text = contact.name;
     
     if ([contact.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                 placeholderImage:nil success:nil failure:nil];
-        [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
+        [cell.contactImage setUserAvatarFor:contact.userId with:self.traitCollection.userInterfaceStyle];
     } else if ([contact.source isEqualToString:kParticipantTypeEmail]) {
-        [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
     } else {
-        [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
     }
     
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];

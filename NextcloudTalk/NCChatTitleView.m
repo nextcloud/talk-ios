@@ -22,11 +22,11 @@
 
 #import "NCChatTitleView.h"
 
-#import "UIImageView+AFNetworking.h"
-
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCUserStatus.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @interface NCChatTitleView ()
 
@@ -101,44 +101,7 @@
 - (void)updateForRoom:(NCRoom *)room
 {
     // Set room image
-    switch (room.type) {
-        case kNCRoomTypeOneToOne:
-        {
-            // Request user avatar to the server and set it if exist
-            [self.avatarimage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name
-                                                                                                        withStyle:self.traitCollection.userInterfaceStyle
-                                                                                                          andSize:96
-                                                                                                     usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                    placeholderImage:nil success:nil failure:nil];
-        }
-            break;
-        case kNCRoomTypeGroup:
-            [self.avatarimage setImage:[UIImage imageNamed:@"group-15"]];
-            [self.avatarimage setContentMode:UIViewContentModeCenter];
-            break;
-        case kNCRoomTypePublic:
-            [self.avatarimage setImage:[UIImage imageNamed:@"public-15"]];
-            [self.avatarimage setContentMode:UIViewContentModeCenter];
-            break;
-        case kNCRoomTypeChangelog:
-            [self.avatarimage setImage:[UIImage imageNamed:@"changelog"]];
-            break;
-        case kNCRoomTypeFormerOneToOne:
-            [self.avatarimage setImage:[UIImage imageNamed:@"user-15"]];
-            [self.avatarimage setContentMode:UIViewContentModeCenter];
-            break;
-        default:
-            break;
-    }
-
-    // Set objectType image
-    if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [self.userStatusImage setImage:[UIImage imageNamed:@"file-conv-15"]];
-        [self.userStatusImage setContentMode:UIViewContentModeCenter];
-    } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [self.userStatusImage setImage:[UIImage imageNamed:@"pass-conv-15"]];
-        [self.userStatusImage setContentMode:UIViewContentModeCenter];
-    }
+    [self.avatarimage setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
 
     NSString *subtitle = nil;
     

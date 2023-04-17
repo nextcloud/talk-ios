@@ -34,6 +34,7 @@ static CGFloat kLocationMessageCellPreviewHeight    = 120.0;
 static NSString *LocationMessageCellIdentifier          = @"LocationMessageCellIdentifier";
 static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessageCellIdentifier";
 
+@class AvatarButton;
 @class LocationMessageTableViewCell;
 
 @protocol LocationMessageTableViewCellDelegate <ChatTableViewCellDelegate>
@@ -50,7 +51,7 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) UIImageView *previewImageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
-@property (nonatomic, strong) UIButton *avatarButton;
+@property (nonatomic, strong) AvatarButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) GeoLocationRichObject *geoLocationRichObject;
 @property (nonatomic, strong) ReactionsView *reactionsView;

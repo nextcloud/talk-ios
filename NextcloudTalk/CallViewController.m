@@ -30,7 +30,6 @@
 #import <WebRTC/RTCVideoTrack.h>
 
 #import "JDStatusBarNotification.h"
-#import "UIImageView+AFNetworking.h"
 
 #import "CallKitManager.h"
 #import "CallParticipantViewCell.h"
@@ -610,29 +609,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     self.avatarBackgroundImageView.backgroundColor = [NCAppBranding themeColor];
 
     if (_room.type == kNCRoomTypeOneToOne) {
-        __weak AvatarBackgroundImageView *weakBGView = self.avatarBackgroundImageView;
-        __weak NSString *weakRoomDisplayName = self.room.displayName;
-        [self.avatarBackgroundImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:_room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                              placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-                                                  NSDictionary *headers = [response allHeaderFields];
-                                                  id customAvatarHeader = [headers objectForKey:@"X-NC-IsCustomAvatar"];
-                                                  BOOL shouldShowBlurBackground = YES;
-                                                  if (customAvatarHeader) {
-                                                      shouldShowBlurBackground = [customAvatarHeader boolValue];
-                                                  } else if ([response statusCode] == 201) {
-                                                      shouldShowBlurBackground = NO;
-                                                  }
-                                                  
-                                                  if (shouldShowBlurBackground) {
-                                                      UIImage *blurImage = [NCUtils blurImageFromImage:image];
-                                                      [weakBGView setImage:blurImage];
-                                                      weakBGView.contentMode = UIViewContentModeScaleAspectFill;
-                                                  } else {
-                                                      UIColor *bgColor = [[ColorGenerator shared] usernameToColor:weakRoomDisplayName];
-                                                      [weakBGView setBackgroundColor:bgColor];
-                                                      weakBGView.backgroundColor = [weakBGView.backgroundColor colorWithAlphaComponent:0.8];
-                                                  }
-                                              } failure:nil];
+        UIColor *bgColor = [[ColorGenerator shared] usernameToColor:self.room.displayName];
+        [self.avatarBackgroundImageView setBackgroundColor:bgColor];
+        self.avatarBackgroundImageView.backgroundColor = [self.avatarBackgroundImageView.backgroundColor colorWithAlphaComponent:0.8];
     }
     
     [self setWaitingScreenText];

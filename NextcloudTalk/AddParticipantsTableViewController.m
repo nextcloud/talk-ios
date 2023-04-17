@@ -22,8 +22,6 @@
 
 #import "AddParticipantsTableViewController.h"
 
-#import "UIImageView+AFNetworking.h"
-
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
@@ -32,6 +30,8 @@
 #import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @interface AddParticipantsTableViewController () <UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
@@ -377,13 +377,11 @@
     cell.labelTitle.text = participant.name;
     
     if ([participant.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:participant.userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                 placeholderImage:nil success:nil failure:nil];
-        [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
+        [cell.contactImage setUserAvatarFor:participant.userId with:self.traitCollection.userInterfaceStyle];
     } else if ([participant.source isEqualToString:kParticipantTypeEmail]) {
-        [cell.contactImage setImage:[UIImage imageNamed:@"mail"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
     } else {
-        [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
+        [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
     }
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];

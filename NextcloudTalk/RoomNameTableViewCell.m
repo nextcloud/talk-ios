@@ -24,6 +24,8 @@
 
 #import "NCAppBranding.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString *const kRoomNameCellIdentifier     = @"RoomNameCellIdentifier";
 NSString *const kRoomNameTableCellNibName   = @"RoomNameTableViewCell";
 
@@ -31,10 +33,12 @@ NSString *const kRoomNameTableCellNibName   = @"RoomNameTableViewCell";
 
 - (void)awakeFromNib {
     [super awakeFromNib];
+
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
     self.roomImage.backgroundColor = [NCAppBranding placeholderColor];
-    self.roomImage.contentMode = UIViewContentModeCenter;
+    self.roomImage.contentMode = UIViewContentModeScaleToFill;
+
     self.favoriteImage.contentMode = UIViewContentModeCenter;
     self.roomNameTextField.placeholder = NSLocalizedString(@"Conversation name", nil);
 }

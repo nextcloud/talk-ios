@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2023 Marcel Müller <marcel.mueller@nextcloud.com>
  *
- * @author Ivan Sein <ivan@nextcloud.com>
+ * @author Marcel Müller <marcel.mueller@nextcloud.com>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -20,17 +20,12 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+#ifndef NextcloudTalk_Bridging_Header_Extensions_h
+#define NextcloudTalk_Bridging_Header_Extensions_h
 
-extern NSString *const kRoomNameCellIdentifier;
-extern NSString *const kRoomNameTableCellNibName;
+#import "NCAPIController.h"
+#import "NCDatabaseManager.h"
+#import "NCRoom.h"
+#import "TalkAccount.h"
 
-@class AvatarImageView;
-
-@interface RoomNameTableViewCell : UITableViewCell
-
-@property (weak, nonatomic) IBOutlet AvatarImageView *roomImage;
-@property (weak, nonatomic) IBOutlet UITextField *roomNameTextField;
-@property (weak, nonatomic) IBOutlet UIImageView *favoriteImage;
-
-@end
+#endif /* NextcloudTalk_Bridging_Header_h */

@@ -22,6 +22,7 @@
 import UIKit
 import NextcloudKit
 import SafariServices
+import SDWebImage
 
 enum SettingsSection: Int {
     case kSettingsSectionUser = 0
@@ -484,8 +485,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             preferredStyle: .alert)
 
         let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
-            NCAvatarSessionManager.sharedInstance().cache.removeAllCachedResponses()
             NCImageSessionManager.sharedInstance().cache.removeAllCachedResponses()
+
+            SDImageCache.shared.clearMemory()
+            SDImageCache.shared.clearDisk()
 
             self.tableView.reloadData()
         }
@@ -831,9 +834,9 @@ extension SettingsTableViewController {
             return cell
 
         } else if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue {
-            let avatarCacheSize = NCAvatarSessionManager.sharedInstance().cache.currentDiskUsage
             let imageCacheSize = NCImageSessionManager.sharedInstance().cache.currentDiskUsage
-            let totalCacheSize = avatarCacheSize + imageCacheSize
+            let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
+            let totalCacheSize = imageCacheSize + Int(sdImageCacheSize)
 
             let byteFormatter = ByteCountFormatter()
             byteFormatter.allowedUnits = [.useMB]
