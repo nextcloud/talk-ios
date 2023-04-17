@@ -2166,8 +2166,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         endpoint = [NSString stringWithFormat:@"%@/dark", endpoint];
     }
 
-    // TODO: Include avatar version
-    endpoint = [NSString stringWithFormat:@"%@?avatarVersion=%@", endpoint, @"12345"];
+    endpoint = [NSString stringWithFormat:@"%@?avatarVersion=%@", endpoint, room.avatarVersion];
 
     NSInteger avatarAPIVersion = 1;
     NSString *urlString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
