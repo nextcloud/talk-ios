@@ -29,6 +29,9 @@
 "%d votes" = "%d votes";
 
 /* No comment provided by engineer. */
+"%ld notifications" = "%ld notifications";
+
+/* No comment provided by engineer. */
 "%ld participants" = "%ld participants";
 
 /* No comment provided by engineer. */
@@ -248,9 +251,6 @@
 "Call notification sent" = "Call notification sent";
 
 /* No comment provided by engineer. */
-"Call options" = "Call options";
-
-/* No comment provided by engineer. */
 "Call recording failed. Please contact your administrator" = "Call recording failed. Please contact your administrator";
 
 /* No comment provided by engineer. */
@@ -357,9 +357,6 @@
 
 /* No comment provided by engineer. */
 "Continue to next step of conversation creation" = "Continue to next step of conversation creation";
-
-/* No comment provided by engineer. */
-"Conversation info" = "Conversation info";
 
 /* No comment provided by engineer. */
 "Conversation name" = "Conversation name";
@@ -1269,9 +1266,6 @@
 
 /* No comment provided by engineer. */
 "Send message" = "Send message";
-
-/* No comment provided by engineer. */
-"Send options" = "Send options";
 
 /* No comment provided by engineer. */
 "Send without notification" = "Send without notification";
