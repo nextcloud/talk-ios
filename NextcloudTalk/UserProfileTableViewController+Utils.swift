@@ -247,8 +247,15 @@ extension UserProfileTableViewController {
         options.append(localOption)
 
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        // Legacy capability
         if serverCapabilities.accountPropertyScopesFederationEnabled {
             options.append(federatedOption)
+            options.append(publishedOption)
+        }
+        if serverCapabilities.accountPropertyScopesFederatedEnabled {
+            options.append(federatedOption)
+        }
+        if serverCapabilities.accountPropertyScopesPublishedEnabled {
             options.append(publishedOption)
         }
 

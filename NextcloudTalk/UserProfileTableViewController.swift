@@ -238,7 +238,8 @@ extension UserProfileTableViewController {
         var headerView = HeaderWithButton()
         headerView.button.addTarget(self, action: #selector(showScopeSelectionDialog(_:)), for: .touchUpInside)
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        let shouldEnableNameAndEmailScopeButton = serverCapabilities.accountPropertyScopesFederationEnabled
+        let shouldEnableNameAndEmailScopeButton = serverCapabilities.accountPropertyScopesFederationEnabled ||
+        serverCapabilities.accountPropertyScopesFederatedEnabled || serverCapabilities.accountPropertyScopesPublishedEnabled
 
         switch profileSection {
         case ProfileSection.kProfileSectionName.rawValue:

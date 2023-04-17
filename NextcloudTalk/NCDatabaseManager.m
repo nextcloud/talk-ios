@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 47;
+uint64_t const kTalkDatabaseSchemaVersion           = 48;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -374,6 +374,8 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.readStatusPrivacy = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"read-privacy"] boolValue];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
     capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
+    capabilities.accountPropertyScopesFederatedEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederatedEnabled"] boolValue];
+    capabilities.accountPropertyScopesPublishedEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesPublishedEnabled"] boolValue];
     capabilities.talkVersion = [talkCaps objectForKey:@"version"];
     capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     capabilities.referenceApiSupported = [[coreCaps objectForKey:@"reference-api"] boolValue];
