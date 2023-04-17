@@ -15,16 +15,7 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 - [CocoaPods](https://cocoapods.org/)
 
 ## Development setup
-
-Clone this repository and download the [WebRTC library](#webrtc-library)
-
-```
-$ pod install
-
-$ git submodule update --init
-
-$ open NextcloudTalk.xcworkspace
-```
+After cloning this repository, you can use `pod install` to install all dependencies. After that, open the project with `open NextcloudTalk.xcworkspace`.
 
 Pull Requests will be checked with [SwiftLint](https://github.com/realm/SwiftLint). We strongly encourage the installation of SwiftLint to detect issues as early as possible.
 
@@ -61,7 +52,7 @@ We are using our own builds of the WebRTC library. They can be found in this [re
 
 Current version: [108.5359.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/108.5359.0).
 \
-Download `WebRTC.xcframework.zip`, unzip it and place it in the `ThirdParty` folder of the project.
+Update the download URL in `download_webrtc.sh` for newer versions.
 
 ## Push notifications
 

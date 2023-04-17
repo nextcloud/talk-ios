@@ -1,4 +1,4 @@
-source 'https://github.com/CocoaPods/Specs.git'
+source 'https://cdn.cocoapods.org/'
 platform :ios, '14.0'
 
 target "NextcloudTalk" do
@@ -32,6 +32,15 @@ end
 
 pre_install do |installer|
     puts 'pre_install begin....'
+
+    if not File.directory?("ThirdParty/WebRTC.xcframework")
+      puts 'WebRTC not found in folder ThirdParty, fetching...'
+      system("./download_webrtc.sh")
+    end
+
+    puts 'Update submodules...'
+    system('git submodule update --init')
+
     dir_af = File.join(installer.sandbox.pod_dir('AFNetworking'), 'UIKit+AFNetworking')
     Dir.foreach(dir_af) {|x|
       real_path = File.join(dir_af, x)
