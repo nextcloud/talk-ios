@@ -55,6 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL readStatusPrivacy;
 @property BOOL accountPropertyScopesVersion2;
 @property BOOL accountPropertyScopesFederationEnabled;
+@property BOOL accountPropertyScopesFederatedEnabled;
+@property BOOL accountPropertyScopesPublishedEnabled;
 @property BOOL callEnabled;
 @property NSString *talkVersion;
 @property NSString *externalSignalingServerVersion;
