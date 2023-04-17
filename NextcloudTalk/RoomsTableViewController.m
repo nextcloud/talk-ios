@@ -755,7 +755,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         UIGraphicsEndImageContext();
         [profileButton setImage:profileImage forState:UIControlStateNormal];
     } else {
-        [profileButton setImage:[UIImage imageNamed:@"settings-white"] forState:UIControlStateNormal];
+        [profileButton setImage:[UIImage systemImageNamed:@"gear"] forState:UIControlStateNormal];
         profileButton.contentMode = UIViewContentModeCenter;
     }
     
@@ -994,8 +994,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                    [self addRoomToFavoritesAtIndexPath:indexPath];
                                                                }
                                                            }];
-    NSString *favImageName = (room.isFavorite) ? @"favorite-action" : @"fav-setting";
-    [favoriteAction setValue:[[UIImage imageNamed:favImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+    NSString *favImageName = (room.isFavorite) ? @"star" : @"star.fill";
+    [favoriteAction setValue:[UIImage systemImageNamed:favImageName] forKey:@"image"];
     [optionsActionSheet addAction:favoriteAction];
     // Mark room as read/unread
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
@@ -1006,7 +1006,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self markRoomAsReadAtIndexPath:indexPath];
                                                                     }];
-            [markReadkAction setValue:[[UIImage imageNamed:@"visibility"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+            [markReadkAction setValue:[UIImage systemImageNamed:@"eye"] forKey:@"image"];
             [optionsActionSheet addAction:markReadkAction];
         } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatUnread]) {
             // Mark room as unread
@@ -1015,7 +1015,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                       handler:^void (UIAlertAction *action) {
                                                                         [self markRoomAsUnreadAtIndexPath:indexPath];
                                                                     }];
-            [markUnreadkAction setValue:[[UIImage imageNamed:@"visibility-off"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+            [markUnreadkAction setValue:[UIImage systemImageNamed:@"eye.slash"] forKey:@"image"];
             [optionsActionSheet addAction:markUnreadkAction];
         }
     }
@@ -1026,7 +1026,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                     handler:^void (UIAlertAction *action) {
                                                                         [self setNotificationLevelForRoomAtIndexPath:indexPath];
                                                                     }];
-        [notificationsAction setValue:[[UIImage imageNamed:@"notifications"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [notificationsAction setValue:[UIImage systemImageNamed:@"bell"] forKey:@"image"];
         [optionsActionSheet addAction:notificationsAction];
     }
 
@@ -1038,17 +1038,17 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                 handler:^void (UIAlertAction *action) {
                                                                     [self shareLinkFromRoomAtIndexPath:indexPath];
                                                                 }];
-        [shareLinkAction setValue:[[UIImage imageNamed:@"share"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+        [shareLinkAction setValue:[UIImage systemImageNamed:@"square.and.arrow.up"] forKey:@"image"];
         [optionsActionSheet addAction:shareLinkAction];
     }
 
     // Room info
-    UIAlertAction *roomInfoAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Conversation info", nil)
+    UIAlertAction *roomInfoAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Conversation settings", nil)
                                                              style:UIAlertActionStyleDefault
                                                            handler:^void (UIAlertAction *action) {
                                                                [self presentRoomInfoForRoomAtIndexPath:indexPath];
                                                            }];
-    [roomInfoAction setValue:[[UIImage imageNamed:@"info"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forKey:@"image"];
+    [roomInfoAction setValue:[UIImage systemImageNamed:@"gearshape"] forKey:@"image"];
     [optionsActionSheet addAction:roomInfoAction];
     
     [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
@@ -1117,14 +1117,14 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                                 [self presentMoreActionsForRoomAtIndexPath:indexPath];
                                                                                 completionHandler(false);
                                                                             }];
-    moreAction.image = [UIImage imageNamed:@"more-action"];
+    moreAction.image = [UIImage systemImageNamed:@"ellipsis"];
     
     UIContextualAction *deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
                                                                             handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                 [self deleteRoomAtIndexPath:indexPath];
                                                                                 completionHandler(false);
                                                                             }];
-    deleteAction.image = [UIImage imageNamed:@"delete"];
+    deleteAction.image = [UIImage systemImageNamed:@"trash"];
     
     NCRoom *room = [self roomForIndexPath:indexPath];
     
@@ -1137,7 +1137,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                  [self leaveRoomAtIndexPath:indexPath];
                                                                  completionHandler(false);
                                                              }];
-        deleteAction.image = [UIImage imageNamed:@"exit-white"];
+        deleteAction.image = [UIImage systemImageNamed:@"arrow.right.square"];
     }
     
     return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction, moreAction]];
@@ -1159,7 +1159,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
                                                                                    }
                                                                                    completionHandler(true);
                                                                                }];
-    favoriteAction.image = [UIImage imageNamed:@"fav-white"];
+    NSString *favImageName = (room.isFavorite) ? @"star" : @"star.fill";
+    favoriteAction.image = [UIImage systemImageNamed:favImageName];
     favoriteAction.backgroundColor = [UIColor colorWithRed:0.97 green:0.80 blue:0.27 alpha:1.0]; // Favorite yellow
     
     return [UISwipeActionsConfiguration configurationWithActions:@[favoriteAction]];
@@ -1243,7 +1244,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     // Set favorite image
     if (room.isFavorite) {
-        [cell.favoriteImage setImage:[UIImage imageNamed:@"favorite-room"]];
+        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
 
     cell.roomToken = room.token;

@@ -48,6 +48,7 @@ typedef enum ShareLocationSection {
     MKPointAnnotation *_dropPinAnnotation;
     CLPlacemark *_dropPinPlacemark;
     UIView *_dropPinGuideView;
+    UIImageSymbolConfiguration *_iconsConfiguration;
 }
 
 @end
@@ -65,6 +66,8 @@ typedef enum ShareLocationSection {
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.navigationController.navigationBar.translucent = NO;
     
+    _iconsConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:20];
+
     _locationManager = [[CLLocationManager alloc] init];
     _locationManager.delegate = self;
     [_locationManager requestWhenInUseAuthorization];
@@ -352,8 +355,8 @@ typedef enum ShareLocationSection {
     if (tableView == _resultTableViewController.tableView) {
         MKMapItem *searchedPlace = [_searchedPlaces objectAtIndex:indexPath.row];
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"SearchedLocationCellIdentifier"];
-        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-        cell.imageView.tintColor = [NCAppBranding placeholderColor];
+        [cell.imageView setImage:[UIImage systemImageNamed:@"mappin" withConfiguration:_iconsConfiguration]];
+        cell.imageView.tintColor = [UIColor secondaryLabelColor];
         cell.textLabel.text = searchedPlace.name;
         NSString *subtitle = nil;
         if (searchedPlace.placemark.thoroughfare && searchedPlace.placemark.subThoroughfare) {
@@ -372,13 +375,13 @@ typedef enum ShareLocationSection {
     // Main view table view
     if (indexPath.section == kShareLocationSectionCurrent) {
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"UserLocationCellIdentifier"];
-        [cell.imageView setImage:[[UIImage imageNamed:@"my-location-fill"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        [cell.imageView setImage:[UIImage systemImageNamed:@"location.fill" withConfiguration:_iconsConfiguration]];
         cell.textLabel.text = NSLocalizedString(@"Share current location", nil);
         cell.detailTextLabel.text = [NSString stringWithFormat:@"%@: %.0fm", NSLocalizedString(@"Accuracy", nil), _currentLocation.horizontalAccuracy];
         return cell;
     } else if (indexPath.section == kShareLocationSectionDropPin) {
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DropPinCellIdentifier"];
-        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        [cell.imageView setImage:[UIImage systemImageNamed:@"mappin" withConfiguration:_iconsConfiguration]];
         cell.textLabel.text = NSLocalizedString(@"Share pin location", @"Share the location of a pin that has been dropped in a map view");
         if (_dropPinPlacemark.thoroughfare && _dropPinPlacemark.subThoroughfare) {
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ %@", _dropPinPlacemark.thoroughfare, _dropPinPlacemark.subThoroughfare];
@@ -387,8 +390,8 @@ typedef enum ShareLocationSection {
     } else if (indexPath.section == kShareLocationSectionNearby) {
         MKMapItem *nearbyPlace = [_nearbyPlaces objectAtIndex:indexPath.row];
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"NearbyLocationCellIdentifier"];
-        [cell.imageView setImage:[[UIImage imageNamed:@"location"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-        cell.imageView.tintColor = [NCAppBranding placeholderColor];
+        [cell.imageView setImage:[UIImage systemImageNamed:@"mappin" withConfiguration:_iconsConfiguration]];
+        cell.imageView.tintColor = [UIColor secondaryLabelColor];
         cell.textLabel.text = nearbyPlace.name;
         cell.detailTextLabel.text = nil;
         if (nearbyPlace.placemark.thoroughfare && nearbyPlace.placemark.subThoroughfare) {

@@ -151,7 +151,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     self.navigationController.navigationBar.topItem.leftBarButtonItem.accessibilityHint = NSLocalizedString(@"Cancel conversation creation", nil);
     
     if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
-        UIBarButtonItem *moreOptionButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"more-action"]
+        UIBarButtonItem *moreOptionButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"ellipsis"]
                                                                              style:UIBarButtonItemStylePlain
                                                                             target:self
                                                                             action:@selector(moreOptionsButtonPressed)];

@@ -385,11 +385,17 @@
     } else {
         [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
     }
-    
-    UIImageView *checkboxChecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-checked"]];
-    UIImageView *checkboxUnchecked = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"checkbox-unchecked"]];
-    cell.accessoryView = ([self isParticipantAlreadySelected:participant]) ? checkboxChecked : checkboxUnchecked;
-    
+
+    UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
+    UIColor *selectionImageColor = [UIColor tertiaryLabelColor];
+    if ([self isParticipantAlreadySelected:participant]) {
+        selectionImage = [UIImage systemImageNamed:@"checkmark.circle.fill"];
+        selectionImageColor = [NCAppBranding elementColor];
+    }
+    UIImageView *selectionImageView = [[UIImageView alloc] initWithImage:selectionImage];
+    selectionImageView.tintColor = selectionImageColor;
+    cell.accessoryView = selectionImageView;
+
     return cell;
 }
 
