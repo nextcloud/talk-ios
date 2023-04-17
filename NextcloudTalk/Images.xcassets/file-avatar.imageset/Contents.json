@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "icon-conversation-public-bright.svg",
+      "filename" : "icon-conversation-text-bright.svg",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "icon-conversation-public-dark.svg",
+      "filename" : "icon-conversation-text-dark.svg",
       "idiom" : "universal"
     }
   ],
