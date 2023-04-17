@@ -22,6 +22,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import <SDWebImage/SDWebImageManager.h>
+#import <SDWebImageSVGCoderDefine.h>
+
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
 #import "NCPoll.h"
@@ -90,6 +93,10 @@ typedef void (^GetUserActionsCompletionBlock)(NSDictionary *userActions, NSError
 
 typedef void (^GetUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
 
+typedef void (^GetAvatarForConversationWithImageCompletionBlock)(UIImage *image, NSError *error);
+typedef void (^SetAvatarForConversationWithImageCompletionBlock)(NSError *error);
+typedef void (^RemoveAvatarForConversationWithImageCompletionBlock)(NSError *error);
+
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 typedef void (^GetUserProfileEditableFieldsCompletionBlock)(NSArray *userProfileEditableFields, NSError *error);
 typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger statusCode);
@@ -128,7 +135,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 @property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
 @property (nonatomic, strong) NSMutableDictionary *longPollingApiSessionManagers;
 @property (nonatomic, strong) AFImageDownloader *imageDownloader;
-@property (nonatomic, strong) AFImageDownloader *imageDownloaderAvatars;
 @property (nonatomic, strong) AFImageDownloader *imageDownloaderNoCache;
 
 + (instancetype)sharedInstance;
@@ -142,6 +148,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)breakoutRoomsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
+- (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
 // Contacts Controller
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
@@ -231,8 +238,12 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (void)checkOrCreateAttachmentFolderForAccount:(TalkAccount *)account withCompletionBlock:(CheckAttachmentFolderCompletionBlock)block;
 
 // User avatars
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withStyle:(UIUserInterfaceStyle) style andSize:(NSInteger)size usingAccount:(TalkAccount *)account;
-- (void)getUserAvatarForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block;
+- (SDWebImageCombinedOperation *)getUserAvatarForUser:(NSString *)userId usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block;
+
+// Conversation avatars
+- (SDWebImageCombinedOperation *)getAvatarForRoom:(NCRoom *)room forAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block;
+- (NSURLSessionDataTask *)setAvatarForRoom:(NCRoom *)room withImage:(UIImage *)image forAccount:(TalkAccount *)account withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block;
+- (NSURLSessionDataTask *)removeAvatarForRoom:(NCRoom *)room forAccount:(TalkAccount *)account withCompletionBlock:(RemoveAvatarForConversationWithImageCompletionBlock)block;
 
 // User actions
 - (NSURLSessionDataTask *)getUserActionsForUser:(NSString *)userId usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserActionsCompletionBlock)block;

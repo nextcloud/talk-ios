@@ -24,11 +24,12 @@
 
 @import NextcloudKit;
 
+#import <SDWebImage/SDImageCache.h>
+
 #import "CCCertificate.h"
 #import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCAvatarSessionManager.h"
 #import "NCImageSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCKeyChainController.h"
@@ -125,18 +126,26 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                         downloadPrioritization:AFImageDownloadPrioritizationFIFO
                         maximumActiveDownloads:4
                                     imageCache:[[AFAutoPurgingImageCache alloc] init]];
-
-    _imageDownloaderAvatars = [[AFImageDownloader alloc]
-                              initWithSessionManager:[NCAvatarSessionManager sharedInstance]
-                              downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                              maximumActiveDownloads:4
-                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
     
     _imageDownloaderNoCache = [[AFImageDownloader alloc]
                                initWithSessionManager:[NCImageSessionManager sharedInstance]
                                downloadPrioritization:AFImageDownloadPrioritizationFIFO
                                maximumActiveDownloads:4
                                             imageCache:nil];
+
+    // By default SDWebImageDownloader defaults to 6 concurrent downloads (see SDWebImageDownloaderConfig)
+
+    // Make sure we support download SVGs with SDImageDownloader
+    [[SDImageCodersManager sharedManager] addCoder:[SDImageSVGCoder sharedCoder]];
+
+    // Set the caching path to be in our app group and limit size to 100 MB
+    NSURL *avatarCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
+    SDImageCache.defaultDiskCacheDirectory = avatarCacheURL.path;
+    [SDImageCache sharedImageCache].config.maxDiskSize = 100 * 1024 * 1024;
+
+    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
+                  [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+    [[SDWebImageDownloader sharedDownloader] setValue:userAgent forHTTPHeaderField:@"User-Agent"];
 }
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
@@ -146,6 +155,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
     
     return [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
+}
+
+- (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account
+{
+    NSMutableDictionary *headerDictionary = [[NSMutableDictionary alloc] init];
+    [headerDictionary setObject:[self authHeaderForAccount:account] forKey:@"Authorization"];
+
+    return [[SDWebImageDownloaderRequestModifier alloc] initWithHeaders:headerDictionary];
 }
 
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account
@@ -2100,40 +2117,140 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - User avatars
 
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withStyle:(UIUserInterfaceStyle)style andSize:(NSInteger)size usingAccount:(TalkAccount *)account
-{
-    return [self createAvatarRequestForUser:userId withCachePolicy:NSURLRequestReturnCacheDataElseLoad style:style andSize:size usingAccount:account];
-}
-
-- (NSURLRequest *)createAvatarRequestForUser:(NSString *)userId withCachePolicy:(NSURLRequestCachePolicy)cachePolicy style:(UIUserInterfaceStyle)style andSize:(NSInteger)size usingAccount:(TalkAccount *)account
+- (SDWebImageCombinedOperation *)getUserAvatarForUser:(NSString *)userId usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block
 {
     NSString *encodedUser = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    NSString *urlString;
-    if (style == UIUserInterfaceStyleDark && serverCapabilities.versionMajor >= 25) {
-        urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld/dark", account.server, encodedUser, (long)size];
-    } else {
-        urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", account.server, encodedUser, (long)size];
-    }
-    NSMutableURLRequest *avatarRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:cachePolicy timeoutInterval:60];
-    [avatarRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
-    return avatarRequest;
-}
 
-- (void)getUserAvatarForUser:(NSString *)userId andSize:(NSInteger)size usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block
-{
-    NSURLRequest *request = [self createAvatarRequestForUser:userId withStyle:UIUserInterfaceStyleLight andSize:size usingAccount:account];
-    [_imageDownloaderAvatars downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
-        NSData *pngData = UIImagePNGRepresentation(responseObject);
-        UIImage *image = [UIImage imageWithData:pngData];
+    // Since https://github.com/nextcloud/server/pull/31010 we can only request avatars in 64px or 512px
+    // As we never request lower than 96px, we always get 512px anyway
+    long avatarSize = 512;
+
+    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/avatar/%@/%ld", account.server, encodedUser, avatarSize];
+
+    if (style == UIUserInterfaceStyleDark && serverCapabilities.versionMajor >= 25) {
+        urlString = [NSString stringWithFormat:@"%@/dark", urlString];
+    }
+
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
+    // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
+    // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
+    SDWebImageOptions options = SDWebImageRefreshCached;
+    SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
+
+    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        if (error) {
+            if (block) {
+                block(nil, error);
+            }
+
+            return;
+        }
+
         if (image && block) {
             block(image, nil);
         }
-    } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error);
+    }];
+}
+
+#pragma mark - Conversation avatars
+
+- (SDWebImageCombinedOperation *)getAvatarForRoom:(NCRoom *)room forAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
+
+    if (style == UIUserInterfaceStyleDark) {
+        endpoint = [NSString stringWithFormat:@"%@/dark", endpoint];
+    }
+
+    // TODO: Include avatar version
+    endpoint = [NSString stringWithFormat:@"%@?avatarVersion=%@", endpoint, @"12345"];
+
+    NSInteger avatarAPIVersion = 1;
+    NSString *urlString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
+    // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
+    // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
+    SDWebImageOptions options = SDWebImageRefreshCached;
+    SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
+
+    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        if (error) {
+            if (block) {
+                block(nil, error);
+            }
+
+            return;
+        }
+
+        if (image && block) {
+            block(image, nil);
         }
     }];
+}
+
+- (NSURLSessionDataTask *)setAvatarForRoom:(NCRoom *)room withImage:(UIImage *)image forAccount:(TalkAccount *)account withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
+    NSInteger avatarAPIVersion = 1;
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
+
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
+
+    if (!imageData) {
+        if (block) {
+            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            block(error);
+        }
+
+        return nil;
+    }
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        [formData appendPartWithFileData:imageData name:@"file" fileName:@"avatar.jpg" mimeType:@"image/jpeg"];
+    } progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
+}
+
+- (NSURLSessionDataTask *)removeAvatarForRoom:(NCRoom *)room forAccount:(TalkAccount *)account withCompletionBlock:(RemoveAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
+    NSInteger avatarAPIVersion = 1;
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
 }
 
 #pragma mark - User actions
@@ -2300,18 +2417,25 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)getAndStoreProfileImageForAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style
 {
-    NSURLRequest *request = [self createAvatarRequestForUser:account.userId withCachePolicy:NSURLRequestReloadIgnoringCacheData style:style andSize:160 usingAccount:account];
-    [_imageDownloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
+    __block SDWebImageCombinedOperation *operation;
+
+    operation = [self getUserAvatarForUser:account.userId usingAccount:account withStyle:style withCompletionBlock:^(UIImage *image, NSError *error) {
+        SDWebImageDownloadToken *token = operation.loaderOperation;
+        if (![token isKindOfClass:[SDWebImageDownloadToken class]]) {
+            return;
+        }
+
+        NSURLResponse *response = token.response;
+        NSDictionary *headers = ((NSHTTPURLResponse *)response).allHeaderFields;
         
-        NSDictionary *headers = [response allHeaderFields];
         RLMRealm *realm = [RLMRealm defaultRealm];
         [realm beginWriteTransaction];
         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
         TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
         managedAccount.hasCustomAvatar = [[headers objectForKey:@"X-NC-IsCustomAvatar"] boolValue];
         [realm commitWriteTransaction];
-        
-        NSData *pngData = UIImagePNGRepresentation(responseObject);
+
+        NSData *pngData = UIImagePNGRepresentation(image);
         NSString *documentsPath = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
         NSString *fileName;
         if (style == UIUserInterfaceStyleDark) {
@@ -2321,16 +2445,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
         NSString *filePath = [documentsPath stringByAppendingPathComponent:fileName];
         [pngData writeToFile:filePath atomically:YES];
-        
+
         ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
         if (style == UIUserInterfaceStyleLight && !managedAccount.hasCustomAvatar && serverCapabilities.versionMajor >= 25) {
             [self getAndStoreProfileImageForAccount:account withStyle:UIUserInterfaceStyleDark];
             return;
         }
-        
+
         [[NSNotificationCenter defaultCenter] postNotificationName:NCUserProfileImageUpdatedNotification object:self userInfo:nil];
-    } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
-        NSLog(@"Could not download user profile image");
     }];
 }
 
