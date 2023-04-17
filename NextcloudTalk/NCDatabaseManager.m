@@ -304,22 +304,26 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
 
 - (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(nonnull NSString *)hash
 {
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateTalkConfigurationHashForAccountId" expirationHandler:nil];
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm beginWriteTransaction];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
     account.lastReceivedConfigurationHash = hash;
     [realm commitWriteTransaction];
+    [bgTask stopBackgroundTask];
 }
 
 - (void)updateLastModifiedSinceForAccountId:(NSString *)accountId with:(nonnull NSString *)modifiedSince
 {
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateLastModifiedSinceForAccountId" expirationHandler:nil];
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm beginWriteTransaction];
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
     account.lastReceivedModifiedSince = modifiedSince;
     [realm commitWriteTransaction];
+    [bgTask stopBackgroundTask];
 }
 
 #pragma mark - Server capabilities
