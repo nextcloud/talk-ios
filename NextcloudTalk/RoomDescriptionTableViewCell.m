@@ -33,6 +33,7 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
     self.textView.dataDetectorTypes = UIDataDetectorTypeAll;
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
+    self.textView.scrollEnabled = NO;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated

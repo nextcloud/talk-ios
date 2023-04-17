@@ -1612,33 +1612,6 @@ typedef enum FileAction {
     return 1;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    NSArray *sections = [self getRoomInfoSections];
-    RoomInfoSection infoSection = [[sections objectAtIndex:indexPath.section] intValue];
-    switch (infoSection) {
-        case kRoomInfoSectionName:
-            return 80;
-            break;
-        case kRoomInfoSectionDescription:
-            return [self heightForDescription:_room.roomDescription];
-            break;
-        case kRoomInfoSectionSIP:
-            if (indexPath.row == kSIPActionSIPInfo) {
-                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];
-                return [self heightForDescription:[activeAccountSignalingConfig objectForKey:@"sipDialinInfo"]];
-            }
-            break;
-        case kRoomInfoSectionParticipants:
-            return kContactsTableCellHeight;
-            break;
-        default:
-            break;
-    }
-    return 48;
-}
-
 - (CGFloat)heightForDescription:(NSString *)description
 {
     CGFloat width = CGRectGetWidth(self.tableView.frame) - 32;
@@ -1852,6 +1825,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Chat messages", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.detailTextLabel.text = _room.notificationLevelString;
                     [cell.imageView setImage:[UIImage systemImageNamed:@"bell"]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
@@ -1867,6 +1841,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Calls", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _callNotificationSwitch;
                     _callNotificationSwitch.on = _room.notificationCalls;
@@ -1892,6 +1867,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Preview", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     [cell.imageView setImage:[UIImage systemImageNamed:@"eye"]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
@@ -1912,6 +1888,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Open in %@", nil), filesAppName];
+                    cell.textLabel.numberOfLines = 0;
                     
                     UIImage *nextcloudActionImage = [[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
                     [cell.imageView setImage:nextcloudActionImage];
@@ -1931,6 +1908,7 @@ typedef enum FileAction {
             }
             
             cell.textLabel.text = NSLocalizedString(@"Images, files, voice messages…", nil);
+            cell.textLabel.numberOfLines = 0;
             [cell.imageView setImage:[UIImage systemImageNamed:@"photo.on.rectangle.angled"]];
             cell.imageView.tintColor = [UIColor secondaryLabelColor];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -1951,6 +1929,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Allow guests", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwitch;
                     _publicSwitch.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
@@ -1969,6 +1948,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = (_room.hasPassword) ? NSLocalizedString(@"Change password", nil) : NSLocalizedString(@"Set password", nil);
+                    cell.textLabel.numberOfLines = 0;
                     [cell.imageView setImage:(_room.hasPassword) ? [UIImage systemImageNamed:@"lock"] : [UIImage systemImageNamed:@"lock.open"]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
@@ -1984,6 +1964,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Resend invitations", nil);
+                    cell.textLabel.numberOfLines = 0;
                     
                     [cell.imageView setImage:[UIImage systemImageNamed:@"envelope"]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
@@ -2007,6 +1988,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Message expiration", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.detailTextLabel.text = _room.messageExpirationString;
                     [cell.imageView setImage:[UIImage systemImageNamed:@"timer"]];
                      cell.imageView.tintColor = [UIColor secondaryLabelColor];
@@ -2022,6 +2004,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Open conversation to registered users", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _listableSwitch;
                     _listableSwitch.on = (_room.listable != NCRoomListableScopeParticipantsOnly);
@@ -2039,6 +2022,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Also open to guest app users", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _listableForEveryoneSwitch;
                     _listableForEveryoneSwitch.on = (_room.listable == NCRoomListableScopeEveryone);
@@ -2059,6 +2043,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Lock conversation", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _readOnlySwitch;
                     _readOnlySwitch.on = _room.readOnlyState;
@@ -2077,6 +2062,7 @@ typedef enum FileAction {
                     }
 
                     cell.textLabel.text = NSLocalizedString(@"Share link", nil);
+                    cell.textLabel.numberOfLines = 0;
                     [cell.imageView setImage:[UIImage systemImageNamed:@"square.and.arrow.up"]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
 
@@ -2099,6 +2085,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Lobby", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _lobbySwitch;
                     _lobbySwitch.on = (_room.lobbyState == NCRoomLobbyStateModeratorsOnly) ? YES : NO;
@@ -2116,6 +2103,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Start time", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.textLabel.adjustsFontSizeToFitWidth = YES;
                     cell.textLabel.minimumScaleFactor = 0.6;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -2136,6 +2124,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"SIP dial-in", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _sipSwitch;
                     _sipSwitch.on = _room.sipState > NCRoomSIPStateDisabled;
@@ -2153,6 +2142,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Allow to dial-in without a pin", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _sipNoPINSwitch;
                     _sipNoPINSwitch.on = _room.sipState > NCRoomSIPStateEnabled;
@@ -2189,11 +2179,16 @@ typedef enum FileAction {
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipMeetingIDCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:sipMeetingIDCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sipMeetingIDCellIdentifier];
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Meeting ID", nil);
-                    cell.detailTextLabel.text = _room.token;
+                    cell.textLabel.numberOfLines = 0;
+                    UILabel *valueLabel = [UILabel new];
+                    valueLabel.text = _room.token;
+                    valueLabel.textColor = [UIColor secondaryLabelColor];
+                    [valueLabel sizeToFit];
+                    cell.accessoryView = valueLabel;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     
                     return cell;
@@ -2203,11 +2198,16 @@ typedef enum FileAction {
                 {
                     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:sipUserPINCellIdentifier];
                     if (!cell) {
-                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:sipUserPINCellIdentifier];
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:sipUserPINCellIdentifier];
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Your PIN", nil);
-                    cell.detailTextLabel.text = _room.attendeePin;
+                    cell.textLabel.numberOfLines = 0;
+                    UILabel *valueLabel = [UILabel new];
+                    valueLabel.text = _room.attendeePin;
+                    valueLabel.textColor = [UIColor secondaryLabelColor];
+                    [valueLabel sizeToFit];
+                    cell.accessoryView = valueLabel;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     
                     return cell;
@@ -2295,6 +2295,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Leave conversation", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.textLabel.textColor = [UIColor systemRedColor];
                     [cell.imageView setImage:[UIImage systemImageNamed:@"arrow.right.square"]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
@@ -2310,6 +2311,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete all messages", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.textLabel.textColor = [UIColor systemRedColor];
                     if (@available(iOS 16.0, *)) {
                         [cell.imageView setImage:[UIImage systemImageNamed:@"eraser"]];
@@ -2329,6 +2331,7 @@ typedef enum FileAction {
                     }
                     
                     cell.textLabel.text = NSLocalizedString(@"Delete conversation", nil);
+                    cell.textLabel.numberOfLines = 0;
                     cell.textLabel.textColor = [UIColor systemRedColor];
                     [cell.imageView setImage:[UIImage systemImageNamed:@"trash"]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];

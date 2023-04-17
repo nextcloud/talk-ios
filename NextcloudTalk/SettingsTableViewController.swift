@@ -556,15 +556,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         return 1
     }
 
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let sections = getSettingsSections()
-        let currentSection = sections[indexPath.section]
-        if currentSection == SettingsSection.kSettingsSectionUser.rawValue {
-            return 100
-        }
-        return 48
-    }
-
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let sections = getSettingsSections()
         let settingsSection = sections[section]
@@ -766,20 +757,28 @@ extension SettingsTableViewController {
         var cell = UITableViewCell()
         switch option {
         case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
-            cell = UITableViewCell(style: .value1, reuseIdentifier: videoConfigurationCellIdentifier)
+            cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Video quality", comment: "")
             cell.imageView?.image = UIImage(systemName: "video")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
             let resolution = NCSettingsController.sharedInstance().videoSettingsModel.currentVideoResolutionSettingFromStore()
-            cell.detailTextLabel?.text = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(resolution)
+            let resolutionLabel = UILabel()
+            resolutionLabel.text = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(resolution)
+            resolutionLabel.textColor = .secondaryLabel
+            resolutionLabel.sizeToFit()
+            cell.accessoryView = resolutionLabel
         case ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue:
-            cell = UITableViewCell(style: .value1, reuseIdentifier: browserConfigurationCellIdentifier)
+            cell = UITableViewCell(style: .default, reuseIdentifier: browserConfigurationCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Open links in", comment: "")
             cell.imageView?.image = UIImage(systemName: "network")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
-            cell.detailTextLabel?.text = NCUserDefaults.defaultBrowser()
+            let browserLabel = UILabel()
+            browserLabel.text = NCUserDefaults.defaultBrowser()
+            browserLabel.textColor = .secondaryLabel
+            browserLabel.sizeToFit()
+            cell.accessoryView = browserLabel
         case ConfigurationSectionOption.kConfigurationSectionOptionReadStatus.rawValue:
-            cell = UITableViewCell(style: .subtitle, reuseIdentifier: readStatusCellIdentifier)
+            cell = UITableViewCell(style: .default, reuseIdentifier: readStatusCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Read status", comment: "")
             cell.selectionStyle = .none
             cell.imageView?.image = UIImage(named: "check-all")?.withRenderingMode(.alwaysTemplate)
@@ -793,6 +792,8 @@ extension SettingsTableViewController {
             cell = UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Phone number integration", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
+            cell.detailTextLabel?.numberOfLines = 0
+            cell.detailTextLabel?.textColor = .secondaryLabel
             cell.selectionStyle = .none
             cell.imageView?.image = UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
@@ -801,6 +802,7 @@ extension SettingsTableViewController {
         default:
             break
         }
+        cell.textLabel?.numberOfLines = 0
         return cell
     }
 
@@ -811,6 +813,7 @@ extension SettingsTableViewController {
         if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue {
             let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
+            cell.textLabel?.numberOfLines = 0
             cell.imageView?.image = UIImage(systemName: "gear")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
             cell.accessoryType = .disclosureIndicator
@@ -820,6 +823,7 @@ extension SettingsTableViewController {
         } else if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue {
             let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Calls from old accounts", comment: "")
+            cell.textLabel?.numberOfLines = 0
             cell.imageView?.image = UIImage(systemName: "exclamationmark.triangle.fill")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = UIColor.systemOrange
             cell.accessoryType = .disclosureIndicator
@@ -835,11 +839,16 @@ extension SettingsTableViewController {
             byteFormatter.allowedUnits = [.useMB]
             byteFormatter.countStyle = .file
 
-            let cell = UITableViewCell(style: .value1, reuseIdentifier: advancedCellValue1Identifier)
+            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
             cell.textLabel?.text = NSLocalizedString("Cached images", comment: "")
+            cell.textLabel?.numberOfLines = 0
             cell.imageView?.image = UIImage(systemName: "photo")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
-            cell.detailTextLabel?.text = byteFormatter.string(fromByteCount: Int64(totalCacheSize))
+            let byteCounterLabel = UILabel()
+            byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(totalCacheSize))
+            byteCounterLabel.textColor = .secondaryLabel
+            byteCounterLabel.sizeToFit()
+            cell.accessoryView = byteCounterLabel
 
             return cell
 
@@ -860,11 +869,16 @@ extension SettingsTableViewController {
             byteFormatter.allowedUnits = [.useMB]
             byteFormatter.countStyle = .file
 
-            let cell = UITableViewCell(style: .value1, reuseIdentifier: advancedCellValue1Identifier)
+            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
             cell.textLabel?.text = NSLocalizedString("Cached files", comment: "")
+            cell.textLabel?.numberOfLines = 0
             cell.imageView?.image = UIImage(systemName: "doc")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
-            cell.detailTextLabel?.text = byteFormatter.string(fromByteCount: Int64(cacheSize))
+            let byteCounterLabel = UILabel()
+            byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(cacheSize))
+            byteCounterLabel.textColor = .secondaryLabel
+            byteCounterLabel.sizeToFit()
+            cell.accessoryView = byteCounterLabel
 
             return cell
         }
@@ -891,6 +905,7 @@ extension SettingsTableViewController {
         default:
             break
         }
+        cell.textLabel?.numberOfLines = 0
         return cell
     }
 }
