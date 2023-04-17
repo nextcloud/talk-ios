@@ -26,7 +26,6 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCAvatarSessionManager.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
 #import "NCRoom.h"
@@ -34,7 +33,8 @@
 #import "PlaceholderView.h"
 #import "ShareConfirmationViewController.h"
 #import "ShareTableViewCell.h"
-#import "UIImageView+AFNetworking.h"
+#import "NCKeyChainController.h"
+#import "NextcloudTalk-Swift.h"
 
 @interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating, ShareConfirmationViewControllerDelegate>
 {
@@ -132,15 +132,6 @@
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
     }
     _realm = [RLMRealm realmWithConfiguration:configuration error:&error];
-
-    // Setup image downloader
-    AFImageDownloader *imageDownloader = [[AFImageDownloader alloc]
-                                          initWithSessionManager:[NCAvatarSessionManager sharedInstance]
-                                          downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                          maximumActiveDownloads:4
-                                          imageCache:[[AFAutoPurgingImageCache alloc] init]];
-    
-    [ShareAvatarImageView setSharedImageDownloader:imageDownloader];
     
     if (self.extensionContext && self.extensionContext.intent && [self.extensionContext.intent isKindOfClass:[INSendMessageIntent class]]) {
         INSendMessageIntent *intent = (INSendMessageIntent *)self.extensionContext.intent;
@@ -567,44 +558,8 @@
     }
     
     cell.titleLabel.text = room.displayName;
-    
-    // Set room image
-    switch (room.type) {
-        case kNCRoomTypeOneToOne:
-        {
-            NSURLRequest *request = [[NCAPIController sharedInstance] createAvatarRequestForUser:room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:_shareAccount];
-            [cell.avatarImageView setImageWithURLRequest:request placeholderImage:nil success:nil failure:nil];
-            [cell.avatarImageView setContentMode:UIViewContentModeScaleToFill];
-        }
-            break;
-            
-        case kNCRoomTypeGroup:
-            [cell.avatarImageView setImage:[UIImage imageNamed:@"group-18"]];
-            break;
-            
-        case kNCRoomTypePublic:
-            [cell.avatarImageView setImage:[UIImage imageNamed:@"public-18"]];
-            break;
-            
-        case kNCRoomTypeChangelog:
-            [cell.avatarImageView setImage:[UIImage imageNamed:@"changelog"]];
-            [cell.avatarImageView setContentMode:UIViewContentModeScaleToFill];
-            break;
 
-        case kNCRoomTypeFormerOneToOne:
-            [cell.avatarImageView setImage:[UIImage imageNamed:@"user-18"]];
-            break;
-            
-        default:
-            break;
-    }
-    
-    // Set objectType image
-    if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [cell.avatarImageView setImage:[UIImage imageNamed:@"file-conv-18"]];
-    } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [cell.avatarImageView setImage:[UIImage imageNamed:@"pass-conv-18"]];
-    }
+    [cell.avatarImageView setAvatarFor:room with:self.traitCollection.userInterfaceStyle using:_shareAccount];
     
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         

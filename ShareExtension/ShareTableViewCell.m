@@ -25,16 +25,13 @@
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
 #import "NCAppBranding.h"
-#import "NCAvatarSessionManager.h"
-#import "UIImageView+AFNetworking.h"
+
+#import "NextcloudTalk-Swift.h"
 
 NSString *const kShareCellIdentifier = @"ShareCellIdentifier";
 NSString *const kShareTableCellNibName = @"ShareTableViewCell";
 
 CGFloat const kShareTableCellHeight = 56.0f;
-
-@implementation ShareAvatarImageView : UIImageView
-@end
 
 @implementation ShareTableViewCell
 
@@ -52,11 +49,9 @@ CGFloat const kShareTableCellHeight = 56.0f;
     [super prepareForReuse];
     
     // Fix problem of rendering downloaded image in a reused cell
-    [self.avatarImageView cancelImageDownloadTask];
+    [self.avatarImageView cancelCurrentRequest];
     self.avatarImageView.image = nil;
-    self.avatarImageView.contentMode = UIViewContentModeCenter;
-    
-    self.avatarImageView.image = nil;
+
     self.titleLabel.text = @"";
 }
 
