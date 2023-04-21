@@ -868,6 +868,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [items addObject:speakerAction];
     }
 
+    // Raise hand
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRaiseHand]) {
         NSString *raiseHandTitel = NSLocalizedString(@"Raise hand", nil);
 
@@ -884,6 +885,30 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [items addObject:raiseHandAction];
     }
 
+    // Send a reaction
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+
+    if (serverCapabilities.callReactions.count > 0) {
+        NSMutableArray *reactionItems = [[NSMutableArray alloc] init];
+
+        for (NSString *reaction in serverCapabilities.callReactions) {
+            UIAction *reactionAction = [UIAction actionWithTitle:reaction image:nil identifier:nil handler:^(UIAction *action) {
+                [self addReaction:reaction fromUser:activeAccount.userDisplayName];
+            }];
+
+            [reactionItems addObject:reactionAction];
+        }
+
+        UIMenu *reactionsMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Send a reaction", nil)
+                                                image:[UIImage systemImageNamed:@"face.smiling"]
+                                           identifier:nil
+                                              options:0
+                                             children:reactionItems];
+        [items addObject:reactionsMenu];
+    }
+
+    // Start/Stop recording
     if ([self->_room isUserOwnerOrModerator] && [[NCSettingsController sharedInstance] isRecordingEnabled]) {
         UIImage *recordingImage = [UIImage systemImageNamed:@"record.circle.fill"];
         NSString *recordingActionTitle = NSLocalizedString(@"Start recording", nil);

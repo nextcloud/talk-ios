@@ -402,6 +402,12 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         capabilities.recordingEnabled = NO;
     }
 
+    if ([callConfigKeys containsObject:@"supported-reactions"]) {
+        capabilities.callReactions = [callConfig objectForKey:@"supported-reactions"];
+    } else {
+        capabilities.callReactions = (RLMArray<RLMString> *)@[];
+    }
+
     NSDictionary *conversationConfig = [talkConfig objectForKey:@"conversation"];
     NSArray *conversationConfigKeys = [conversationConfig allKeys];
 

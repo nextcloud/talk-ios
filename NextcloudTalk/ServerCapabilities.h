@@ -58,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL accountPropertyScopesFederatedEnabled;
 @property BOOL accountPropertyScopesPublishedEnabled;
 @property BOOL callEnabled;
+@property RLMArray<RLMString> *callReactions;
 @property NSString *talkVersion;
 @property NSString *externalSignalingServerVersion;
 @property BOOL guestsAppEnabled;
