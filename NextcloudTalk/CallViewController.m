@@ -1535,6 +1535,53 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
+#pragma mark - Call Reactions
+
+- (void)addReaction:(NSString *)reaction fromUser:(NSString *)user
+{
+    CallReactionView *callReactionView = [[CallReactionView alloc] initWithFrame:CGRectZero];
+    [callReactionView setReactionWithReaction:reaction actor:user];
+
+    CGSize callViewSize = self.view.bounds.size;
+    CGSize callReactionSize = callReactionView.expectedSize;
+
+    CGFloat minLeftPosition = callViewSize.width * 0.05;
+    CGFloat maxLeftPosition = callViewSize.width * 0.2;
+    CGFloat randomLeftPosition = minLeftPosition + arc4random_uniform(maxLeftPosition - minLeftPosition + 1);
+
+    CGFloat startPosition = callViewSize.height - self.view.safeAreaInsets.bottom - callReactionSize.height;
+    CGFloat minTopPosition = startPosition / 2;
+    CGFloat maxTopPosition = minTopPosition * 1.2;
+    CGFloat randomTopPosition = minTopPosition + arc4random_uniform(maxTopPosition - minTopPosition + 1);
+
+    if (callViewSize.width - callReactionSize.width < 0) {
+        randomLeftPosition = minLeftPosition;
+    }
+
+    CGRect reactionInitialPosition = CGRectMake(randomLeftPosition,
+                                                startPosition,
+                                                callReactionSize.width,
+                                                callReactionSize.height);
+
+    callReactionView.frame = reactionInitialPosition;
+
+    [self.view addSubview:callReactionView];
+    [self.view bringSubviewToFront:callReactionView];
+
+    [UIView animateWithDuration:2.0 animations:^{
+        callReactionView.frame = CGRectMake(reactionInitialPosition.origin.x,
+                                            randomTopPosition,
+                                            reactionInitialPosition.size.width,
+                                            reactionInitialPosition.size.height);
+    }];
+
+    [UIView animateWithDuration:1.0 delay:1.0 options:0 animations:^{
+        callReactionView.alpha = 0;
+    } completion:^(BOOL finished) {
+        //
+    }];
+}
+
 #pragma mark - CallParticipantViewCell delegate
 
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell
