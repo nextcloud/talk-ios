@@ -894,6 +894,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         for (NSString *reaction in serverCapabilities.callReactions) {
             UIAction *reactionAction = [UIAction actionWithTitle:reaction image:nil identifier:nil handler:^(UIAction *action) {
+                [self->_callController sendReaction:reaction];
                 [self addReaction:reaction fromUser:activeAccount.userDisplayName];
             }];
 
@@ -1851,6 +1852,21 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     } else {
         NSLog(@"Peer was force muted: %@", peerId);
     }
+}
+
+- (void)callController:(NCCallController *)callController didReceiveReaction:(NSString *)reaction fromPeer:(NCPeerConnection *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (reaction.length == 0) {
+            return;
+        }
+        NSString *user = peer.peerName;
+        if (user.length == 0) {
+            user = NSLocalizedString(@"Guest", nil);
+        }
+
+        [self addReaction:reaction fromUser:user];
+    });
 }
 
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController
