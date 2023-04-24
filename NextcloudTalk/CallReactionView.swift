@@ -50,8 +50,9 @@ import Foundation
         addSubview(contentView)
         contentView.frame = frame
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        actorLabelView.layer.cornerRadius = 4
-        actorLabelView.clipsToBounds = true
+        actorLabelView.layer.cornerRadius = 4.0
+        actorLabelView.layer.shadowOpacity = 0.8
+        actorLabelView.layer.shadowOffset = CGSize(width: 2.0, height: 2.0)
     }
 
     func setReaction(reaction: String, actor: String) {
