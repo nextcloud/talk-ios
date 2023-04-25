@@ -54,7 +54,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateSwitchingToAnotherRoom
 };
 
-CGFloat const kSidebarWidth = 350;
+CGFloat const kSidebarWidth                     = 350;
+CGFloat const kReactionViewAnimationDuration    = 2.0;
+CGFloat const kReactionViewHidingDuration       = 1.0;
+CGFloat const kMaxReactionsInScreen             = 5.0;
 
 typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell);
 
@@ -101,6 +104,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSMutableArray *_pendingPeerUpdates;
     NSTimer *_batchUpdateTimer;
     UIImageSymbolConfiguration *_barButtonsConfiguration;
+    CGFloat _lastScheduledReaction;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -151,6 +155,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     _pendingPeerInserts = [[NSMutableArray alloc] init];
     _pendingPeerDeletions = [[NSMutableArray alloc] init];
     _pendingPeerUpdates = [[NSMutableArray alloc] init];
+    _lastScheduledReaction = 0.0;
 
     _barButtonsConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:20];
     
@@ -1568,6 +1573,25 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     CallReactionView *callReactionView = [[CallReactionView alloc] initWithFrame:CGRectZero];
     [callReactionView setReactionWithReaction:reaction actor:user];
 
+    // Schedule when to show reaction
+    CGFloat delayBetweenReactions = kReactionViewAnimationDuration / kMaxReactionsInScreen;
+    CGFloat now = [[NSDate date] timeIntervalSince1970];
+
+    if (_lastScheduledReaction < now) {
+        delayBetweenReactions = (now - _lastScheduledReaction > delayBetweenReactions) ? 0 : delayBetweenReactions;
+        _lastScheduledReaction = now;
+    }
+
+    _lastScheduledReaction += delayBetweenReactions;
+
+    CGFloat delay = _lastScheduledReaction - now;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+        [self showReaction:callReactionView];
+    });
+}
+
+- (void)showReaction:(CallReactionView *)callReactionView
+{
     CGSize callViewSize = self.view.bounds.size;
     CGSize callReactionSize = callReactionView.expectedSize;
 
@@ -1604,7 +1628,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [UIView animateWithDuration:1.0 delay:1.0 options:0 animations:^{
         callReactionView.alpha = 0;
     } completion:^(BOOL finished) {
-        //
+        [callReactionView removeFromSuperview];
     }];
 }
 
