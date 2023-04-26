@@ -252,11 +252,13 @@ import UIKit
 
     // MARK: - UITextField delegate
 
-    func textFieldDidEndEditing(_ textField: UITextField) {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+
         let newRoomValue = textField.text!.trimmingCharacters(in: CharacterSet.whitespaces)
 
         if newRoomValue == self.room.name {
-            return
+            return true
         }
 
         if newRoomValue.isEmpty {
@@ -266,7 +268,7 @@ import UIKit
 
             self.tableView.reloadData()
 
-            return
+            return true
         }
 
         self.showModifyingView()
@@ -280,10 +282,7 @@ import UIKit
 
             self.updateRoomAndRemoveModifyingView()
         }
-    }
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
         return true
     }
 }
