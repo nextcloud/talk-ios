@@ -99,6 +99,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     
     self.roomImage.image = nil;
     self.favoriteImage.image = nil;
+    self.favoriteImage.tintColor = [UIColor clearColor];
     self.subtitleLabel.text = @"";
     self.dateLabel.text = @"";
     
