@@ -50,8 +50,7 @@
 
 - (void)getInteractionForRoom:(NCRoom *)room withTitle:(NSString *)title withCompletionBlock:(GetInteractionForRoomCompletionBlock)block
 {
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-    (void)[[AvatarManager shared] getAvatarFor:room with:UIUserInterfaceStyleLight using:account completionBlock:^(UIImage *avatarImage) {
+    (void)[[AvatarManager shared] getAvatarFor:room with:UIUserInterfaceStyleLight completionBlock:^(UIImage *avatarImage) {
         if (!avatarImage) {
             if (block) {
                 block(nil);
@@ -113,8 +112,7 @@
                                                                                       sender:nil
                                                                                  attachments:nil];
 
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-    (void)[[AvatarManager shared] getAvatarFor:room with:UIUserInterfaceStyleLight using:account completionBlock:^(UIImage *image) {
+    (void)[[AvatarManager shared] getAvatarFor:room with:UIUserInterfaceStyleLight completionBlock:^(UIImage *image) {
         if (image) {
             if (image.sd_isVector) {
                 // INImage does not support SVGs -> render them
