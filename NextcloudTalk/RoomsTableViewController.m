@@ -1242,8 +1242,12 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         [cell.roomImage setImage:[UIImage imageNamed:@"pass-conv"]];
     }
     
-    // Set favorite image
-    if (room.isFavorite) {
+    // Set favorite or call image
+    if (room.hasCall) {
+        [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
+        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"video.fill"]];
+    } else if (room.isFavorite) {
+        [cell.favoriteImage setTintColor:[UIColor systemYellowColor]];
         [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
 
