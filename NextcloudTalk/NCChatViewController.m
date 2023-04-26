@@ -2640,7 +2640,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 // Dispatch it in the next cycle so reloadData is always completed.
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSIndexPath *indexPath = [self getIndexPathOfUnreadMessageSeparator];
-                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
                 });
             } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
                 [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
