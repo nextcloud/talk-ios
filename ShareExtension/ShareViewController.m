@@ -559,7 +559,7 @@
     
     cell.titleLabel.text = room.displayName;
 
-    [cell.avatarImageView setAvatarFor:room with:self.traitCollection.userInterfaceStyle using:_shareAccount];
+    [cell.avatarImageView setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
     
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         

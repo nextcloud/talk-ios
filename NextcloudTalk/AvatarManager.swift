@@ -27,26 +27,23 @@ import SDWebImageSVGCoder
 
     public static let shared = AvatarManager()
 
-    // MARK: Conversation avatars
+    // MARK: - Conversation avatars
 
-    public func getAvatar(for room: NCRoom, with style: UIUserInterfaceStyle, using account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        let account = account ?? NCDatabaseManager.sharedInstance().activeAccount()
-
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: account.accountId) {
+    public func getAvatar(for room: NCRoom, with style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: room.accountId) {
             // Server supports conversation avatars -> try to get the avatar using this API
 
-            return NCAPIController.sharedInstance().getAvatarFor(room, for: account, with: style) { image, _ in
+            return NCAPIController.sharedInstance().getAvatarFor(room, with: style) { image, _ in
                 completionBlock(image)
             }
         } else {
             // Server does not support conversation avatars -> use the legacy way to obtain an avatar
-            return self.getFallbackAvatar(for: room, with: style, using: account, completionBlock: completionBlock)
+            return self.getFallbackAvatar(for: room, with: style, completionBlock: completionBlock)
         }
     }
 
     private func getFallbackAvatar(for room: NCRoom,
                                    with style: UIUserInterfaceStyle,
-                                   using account: TalkAccount,
                                    completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
 
         let traitCollection = UITraitCollection(userInterfaceStyle: style)
@@ -58,6 +55,7 @@ import SDWebImageSVGCoder
         } else {
             switch room.type {
             case kNCRoomTypeOneToOne:
+                let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId)
                 return self.getUserAvatar(for: room.name, with: style, using: account, completionBlock: completionBlock)
             case kNCRoomTypeFormerOneToOne:
                 completionBlock(UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection))
@@ -75,7 +73,7 @@ import SDWebImageSVGCoder
         return nil
     }
 
-    // MARK: User avatars
+    // MARK: - User avatars
 
     public func getUserAvatar(for user: String, with style: UIUserInterfaceStyle, using account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         let account = account ?? NCDatabaseManager.sharedInstance().activeAccount()
@@ -92,7 +90,7 @@ import SDWebImageSVGCoder
         }
     }
 
-    // MARK: Utils
+    // MARK: - Utils
 
     public func createRenderedImage(image: UIImage) -> UIImage? {
         return self.createRenderedImage(image: image, width: 512, height: 512)

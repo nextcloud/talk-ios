@@ -30,7 +30,7 @@ import SDWebImage
         self.currentRequest?.cancel()
     }
 
-    // MARK: Init
+    // MARK: - Init
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,16 +46,12 @@ import SDWebImage
         self.contentMode = .scaleToFill
     }
 
-    // MARK: Conversation avatars
+    // MARK: - Conversation avatars
 
     public func setAvatar(for room: NCRoom, with style: UIUserInterfaceStyle) {
-        self.setAvatar(for: room, with: style, using: nil)
-    }
-
-    public func setAvatar(for room: NCRoom, with style: UIUserInterfaceStyle, using account: TalkAccount?) {
         self.cancelCurrentRequest()
 
-        self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: style, using: account) { image in
+        self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: style) { image in
             guard let image = image else {
                 return
             }
@@ -65,7 +61,7 @@ import SDWebImage
         }
     }
 
-    // MARK: User avatars
+    // MARK: - User avatars
 
     public func setUserAvatar(for userId: String, with style: UIUserInterfaceStyle) {
         self.setUserAvatar(for: userId, with: style, using: nil)

@@ -60,7 +60,6 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     var editButton = UIBarButtonItem()
     var activeTextField: UITextField?
     var modifyingProfileView = UIActivityIndicatorView()
-    var editAvatarButton = UIButton()
     var imagePicker: UIImagePickerController?
     var setPhoneAction = UIAlertAction()
     var phoneUtil = NBPhoneNumberUtil()
@@ -97,7 +96,7 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         // Workaround to fix label width
-        guard let headerView = self.tableView.tableHeaderView as? AvatarHeaderView else {return}
+        guard let headerView = self.tableView.tableHeaderView as? AvatarEditView else {return}
         guard var labelFrame = headerView.nameLabel?.frame else {return}
         let padding: CGFloat = 16
         labelFrame.origin.x = padding

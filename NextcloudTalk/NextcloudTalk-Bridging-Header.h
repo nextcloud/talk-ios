@@ -23,7 +23,6 @@
 #ifndef NextcloudTalk_Bridging_Header_h
 #define NextcloudTalk_Bridging_Header_h
 
-#import "AvatarHeaderView.h"
 #import "CallParticipantViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
 #import "DirectoryTableViewCell.h"
@@ -41,6 +40,7 @@
 #import "NCImageSessionManager.h"
 #import "NCNavigationController.h"
 #import "NCPoll.h"
+#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserDefaults.h"
 #import "NCUserInterfaceController.h"

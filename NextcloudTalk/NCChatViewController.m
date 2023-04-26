@@ -2403,21 +2403,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         // After we joined a room, check if there are offline messages for this particular room which need to be send
         [[NCRoomsManager sharedInstance] resendOfflineMessagesForToken:self->_room.token withCompletionBlock:nil];
     });
-
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
- /*   [[NCAPIController sharedInstance] setAvatarForConversationWithImage:[UIImage imageNamed:@"file-zip-chat-preview"] forRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
-        NSLog(@"ABC");
-    }];
-     /*
-
-    [[NCAPIController sharedInstance] removeAvatarForConversation:_room.token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
-        NSLog(@"ABC");
-    }];
-
-    [[NCAPIController sharedInstance] getAvatarForConversation:_room.token forAccount:activeAccount withCompletionBlock:^(UIImage *image, NSError *error) {
-        NSLog(@"ABC");
-    }];
-      */
 }
 
 - (void)didLeaveRoom:(NSNotification *)notification
