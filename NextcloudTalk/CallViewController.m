@@ -1593,7 +1593,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)showReaction:(CallReactionView *)callReactionView
 {
     CGSize callViewSize = self.view.bounds.size;
-    CGSize callReactionSize = callReactionView.expectedSize;
+    CGSize callReactionSize = [callReactionView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
 
     CGFloat minLeftPosition = callViewSize.width * 0.05;
     CGFloat maxLeftPosition = callViewSize.width * 0.2;

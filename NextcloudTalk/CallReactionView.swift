@@ -28,13 +28,6 @@ import Foundation
     @IBOutlet weak var actorLabelView: UIView!
     @IBOutlet weak var actorLabel: UILabel!
 
-    @IBOutlet weak var labelLeftPadding: NSLayoutConstraint!
-    @IBOutlet weak var labelRightPadding: NSLayoutConstraint!
-    @IBOutlet weak var labelViewRightPadding: NSLayoutConstraint!
-
-    @IBOutlet weak var reactionTopPadding: NSLayoutConstraint!
-    @IBOutlet weak var reactionBottomPadding: NSLayoutConstraint!
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         commonInit()
@@ -59,13 +52,5 @@ import Foundation
         reactionLabel.text = reaction
         actorLabel.text = actor
         actorLabelView.backgroundColor = ColorGenerator.shared.usernameToColor(actor)
-    }
-
-    func expectedSize() -> CGSize {
-        let expectedLabelWidth = actorLabel.text?.width(withConstrainedHeight: frame.height, font: actorLabel.font) ?? 0
-        let expectedReactionWidth = actorLabelView.frame.origin.x + labelLeftPadding.constant + labelRightPadding.constant + expectedLabelWidth + labelViewRightPadding.constant
-        let expectedReactionHeight = reactionTopPadding.constant + reactionLabel.frame.height + reactionBottomPadding.constant
-
-        return CGSize(width: expectedReactionWidth, height: expectedReactionHeight)
     }
 }

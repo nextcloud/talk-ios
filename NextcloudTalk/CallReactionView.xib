@@ -12,12 +12,7 @@
                 <outlet property="actorLabel" destination="baK-5w-yBh" id="KPi-q7-cLI"/>
                 <outlet property="actorLabelView" destination="bdL-Go-Q3E" id="jYc-Ly-74d"/>
                 <outlet property="contentView" destination="CYW-lL-z7e" id="90l-rX-zxJ"/>
-                <outlet property="labelLeftPadding" destination="XKH-tm-rIA" id="4wg-Jg-NM8"/>
-                <outlet property="labelRightPadding" destination="2hg-5o-sVf" id="jIX-Kk-Hrs"/>
-                <outlet property="labelViewRightPadding" destination="xKF-K3-8uF" id="Blx-iN-6x3"/>
-                <outlet property="reactionBottomPadding" destination="wnm-H5-xwv" id="O2U-F2-3Xs"/>
                 <outlet property="reactionLabel" destination="LOU-Zb-7yV" id="q8j-ks-oNB"/>
-                <outlet property="reactionTopPadding" destination="c9M-bQ-ok1" id="9sn-7A-Ua9"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
