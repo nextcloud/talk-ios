@@ -25,6 +25,7 @@ extension UserProfileTableViewController {
 
     func avatarHeaderView() -> UIView? {
         let headerView = AvatarEditView()
+        headerView.delegate = self
 
         headerView.avatarImageView?.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 160, height: 160))
 
@@ -37,45 +38,15 @@ extension UserProfileTableViewController {
         headerView.scopeButton?.addTarget(self, action: #selector(showScopeSelectionDialog(_:)), for: .touchUpInside)
         headerView.scopeButton?.isHidden = !(isEditable && showScopes)
 
-        headerView.editButton?.isHidden = !(isEditable && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTempUserAvatarAPI, forAccountId: account.accountId))
-        headerView.editButton?.setTitle(NSLocalizedString("Edit", comment: ""), for: .normal)
-        headerView.editButton?.addTarget(self, action: #selector(showAvatarOptions), for: .touchUpInside)
-        if let editButton = headerView.editButton {
-            editAvatarButton = editButton
-        }
+        headerView.editView?.isHidden = !(isEditable && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTempUserAvatarAPI, forAccountId: account.accountId))
+
+        // Removal is only allowed for custom avatars
+        headerView.trashButton.isHidden = !account.hasCustomAvatar
 
         // Need to have an explicit size here for the header view
         let size = headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         headerView.frame = CGRect(origin: .zero, size: size)
         return headerView
-    }
-
-    @objc func showAvatarOptions() {
-        let optionsActionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let cameraAction = UIAlertAction(title: NSLocalizedString("Camera", comment: ""), style: .default) { _ in
-            self.checkAndPresentCamera()
-        }
-        cameraAction.setValue(UIImage(systemName: "camera"), forKey: "image")
-        let photoLibraryAction = UIAlertAction(title: NSLocalizedString("Photo Library", comment: ""), style: .default) { _ in
-            self.presentPhotoLibrary()
-        }
-        photoLibraryAction.setValue(UIImage(systemName: "photo.on.rectangle.angled"), forKey: "image")
-        let removeAction = UIAlertAction(title: NSLocalizedString("Remove", comment: ""), style: .destructive) { _ in
-            self.removeUserProfileImage()
-        }
-        removeAction.setValue(UIImage(systemName: "trash"), forKey: "image")
-        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            optionsActionSheet.addAction(cameraAction)
-        }
-        optionsActionSheet.addAction(photoLibraryAction)
-        if account.hasCustomAvatar {
-            optionsActionSheet.addAction(removeAction)
-        }
-        optionsActionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
-        // Presentation on iPads
-        optionsActionSheet.popoverPresentationController?.sourceView = editAvatarButton
-        optionsActionSheet.popoverPresentationController?.sourceRect = editAvatarButton.frame
-        self.present(optionsActionSheet, animated: true, completion: nil)
     }
 
     func checkAndPresentCamera() {

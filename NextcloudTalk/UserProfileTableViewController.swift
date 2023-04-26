@@ -60,7 +60,6 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     var editButton = UIBarButtonItem()
     var activeTextField: UITextField?
     var modifyingProfileView = UIActivityIndicatorView()
-    var editAvatarButton = UIButton()
     var imagePicker: UIImagePickerController?
     var setPhoneAction = UIAlertAction()
     var phoneUtil = NBPhoneNumberUtil()

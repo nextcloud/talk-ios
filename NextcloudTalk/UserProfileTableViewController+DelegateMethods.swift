@@ -21,7 +21,7 @@
 
 import Foundation
 
-extension UserProfileTableViewController: UINavigationControllerDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate {
+extension UserProfileTableViewController: UINavigationControllerDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, AvatarEditViewDelegate {
 
     // MARK: - DetailedOptionSelector Delegate
 
@@ -138,5 +138,19 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+
+    // MARK: - AvatarEditView Delegate
+
+    func avatarEditViewPresentCamera(_ controller: AvatarEditView?) {
+        self.checkAndPresentCamera()
+    }
+
+    func avatarEditViewPresentPhotoLibrary(_ controller: AvatarEditView?) {
+        self.presentPhotoLibrary()
+    }
+
+    func avatarEditViewRemoveAvatar(_ controller: AvatarEditView?) {
+        self.removeUserProfileImage()
     }
 }
