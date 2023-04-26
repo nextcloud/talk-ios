@@ -2119,6 +2119,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (SDWebImageCombinedOperation *)getUserAvatarForUser:(NSString *)userId usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block
 {
+    return [self getUserAvatarForUser:userId usingAccount:account withStyle:style ignoreCache:NO withCompletionBlock:block];
+}
+
+- (SDWebImageCombinedOperation *)getUserAvatarForUser:(NSString *)userId usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style ignoreCache:(BOOL)ignoreCache withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block
+{
     NSString *encodedUser = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
 
@@ -2134,10 +2139,19 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
     NSURL *url = [NSURL URLWithString:urlString];
 
-    // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
-    // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
-    // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
-    SDWebImageOptions options = SDWebImageRefreshCached;
+    SDWebImageOptions options = SDWebImageRetryFailed;
+
+    if (ignoreCache) {
+        // In case we want to ignore our local caches, we can't provide SDWebImageRefreshCached, as this will
+        // always use NSURLCache and could still return a cached value here
+        options |= SDWebImageFromLoaderOnly;
+    } else {
+        // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
+        // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
+        // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
+        options |= SDWebImageRefreshCached;
+    }
+
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
     return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
@@ -2157,8 +2171,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Conversation avatars
 
-- (SDWebImageCombinedOperation *)getAvatarForRoom:(NCRoom *)room forAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block
+- (SDWebImageCombinedOperation *)getAvatarForRoom:(NCRoom *)room withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block
 {
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
     NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
 
@@ -2175,7 +2190,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
     // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
     // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
-    SDWebImageOptions options = SDWebImageRefreshCached;
+    // Also in case of a failed attempt, we don't want to blacklist this URL but retry again
+    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
     return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
@@ -2193,8 +2209,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (NSURLSessionDataTask *)setAvatarForRoom:(NCRoom *)room withImage:(UIImage *)image forAccount:(TalkAccount *)account withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
+- (NSURLSessionDataTask *)setAvatarForRoom:(NCRoom *)room withImage:(UIImage *)image withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
 {
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
     NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
     NSInteger avatarAPIVersion = 1;
@@ -2229,8 +2246,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)removeAvatarForRoom:(NCRoom *)room forAccount:(TalkAccount *)account withCompletionBlock:(RemoveAvatarForConversationWithImageCompletionBlock)block
+- (NSURLSessionDataTask *)removeAvatarForRoom:(NCRoom *)room withCompletionBlock:(RemoveAvatarForConversationWithImageCompletionBlock)block
 {
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
     NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
     NSInteger avatarAPIVersion = 1;
@@ -2418,7 +2436,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     __block SDWebImageCombinedOperation *operation;
 
-    operation = [self getUserAvatarForUser:account.userId usingAccount:account withStyle:style withCompletionBlock:^(UIImage *image, NSError *error) {
+    // When getting our own profile image, we need to ignore any cache to always get the latest version
+    operation = [self getUserAvatarForUser:account.userId usingAccount:account withStyle:style ignoreCache:YES withCompletionBlock:^(UIImage *image, NSError *error) {
         SDWebImageDownloadToken *token = operation.loaderOperation;
         if (![token isKindOfClass:[SDWebImageDownloadToken class]]) {
             return;
