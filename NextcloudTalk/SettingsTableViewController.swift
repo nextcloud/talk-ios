@@ -96,14 +96,12 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         self.navigationItem.scrollEdgeAppearance = appearance
 
         tableView.register(UINib(nibName: kUserSettingsTableCellNibName, bundle: nil), forCellReuseIdentifier: kUserSettingsCellIdentifier)
-
         tableView.register(UINib(nibName: kAccountTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kAccountCellIdentifier)
 
         NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChanged, object: nil)
-
         NotificationCenter.default.addObserver(self, selector: #selector(contactsHaveBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsUpdated, object: nil)
-
         NotificationCenter.default.addObserver(self, selector: #selector(contactsAccessHasBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsAccessUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -239,6 +237,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
+    }
+
+    @objc func userProfileImageUpdated(notification: NSNotification) {
+        self.tableView.reloadSections(IndexSet(integer: SettingsSection.kSettingsSectionUser.rawValue), with: .none)
     }
 
     // MARK: User Interface
@@ -626,7 +628,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
-           cell = userSettingsCell(for: indexPath)
+            cell = userSettingsCell(for: indexPath)
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
             cell = userStatusCell(for: indexPath)
         case SettingsSection.kSettingsSectionAccounts.rawValue:
