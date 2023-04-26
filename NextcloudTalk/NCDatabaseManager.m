@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 49;
+uint64_t const kTalkDatabaseSchemaVersion           = 50;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -400,6 +400,12 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         capabilities.recordingEnabled = [[callConfig objectForKey:@"recording"] boolValue];
     } else {
         capabilities.recordingEnabled = NO;
+    }
+
+    if ([callConfigKeys containsObject:@"supported-reactions"]) {
+        capabilities.callReactions = [callConfig objectForKey:@"supported-reactions"];
+    } else {
+        capabilities.callReactions = (RLMArray<RLMString> *)@[];
     }
 
     NSDictionary *conversationConfig = [talkConfig objectForKey:@"conversation"];

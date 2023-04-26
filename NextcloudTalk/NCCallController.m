@@ -480,6 +480,28 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
 }
 
+- (void)sendReaction:(NSString *)reaction
+{
+    [[WebRTCCommon shared] dispatch:^{
+        NSDictionary *payload = @{
+            @"reaction": reaction
+        };
+
+        for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
+            NCReactionMessage *message = [[NCReactionMessage alloc] initWithFrom:[self signalingSessionId]
+                                                                          sendTo:peer.peerId
+                                                                     withPayload:payload
+                                                                     forRoomType:peer.roomType];
+
+            if ([self->_externalSignalingController isEnabled]) {
+                [self->_externalSignalingController sendCallMessage:message];
+            } else {
+                [self->_signalingController sendSignalingMessage:message];
+            }
+        }
+    }];
+}
+
 - (void)startRecording
 {
     [[NCAPIController sharedInstance] startRecording:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
@@ -1144,6 +1166,15 @@ static NSString * const kNCVideoTrackKind = @"video";
             self->_room.callRecording = recordingMessage.status;
             [self.delegate callControllerDidChangeRecording:self];
 
+            break;
+        }
+        case kNCSignalingMessageTypeReaction:
+        {
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            if (peerConnectionWrapper) {
+                NSString *reaction = [signalingMessage.payload objectForKey:@"reaction"];
+                [self.delegate callController:self didReceiveReaction:reaction fromPeer:peerConnectionWrapper];
+            }
             break;
         }
         case kNCSignalingMessageTypeUnknown:

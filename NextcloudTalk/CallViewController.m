@@ -54,7 +54,10 @@ typedef NS_ENUM(NSInteger, CallState) {
     CallStateSwitchingToAnotherRoom
 };
 
-CGFloat const kSidebarWidth = 350;
+CGFloat const kSidebarWidth                     = 350;
+CGFloat const kReactionViewAnimationDuration    = 2.0;
+CGFloat const kReactionViewHidingDuration       = 1.0;
+CGFloat const kMaxReactionsInScreen             = 5.0;
 
 typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell);
 
@@ -101,6 +104,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSMutableArray *_pendingPeerUpdates;
     NSTimer *_batchUpdateTimer;
     UIImageSymbolConfiguration *_barButtonsConfiguration;
+    CGFloat _lastScheduledReaction;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -151,6 +155,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     _pendingPeerInserts = [[NSMutableArray alloc] init];
     _pendingPeerDeletions = [[NSMutableArray alloc] init];
     _pendingPeerUpdates = [[NSMutableArray alloc] init];
+    _lastScheduledReaction = 0.0;
 
     _barButtonsConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:20];
     
@@ -334,6 +339,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)dealloc
 {
+    NSLog(@"CallViewController dealloc");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -849,6 +855,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     // When we target iOS 15, we might want to use an uncached UIDeferredMenuElement
 
     NSMutableArray *items = [[NSMutableArray alloc] init];
+    __weak typeof(self) weakSelf = self;
 
     // Add speaker button to menu if it was hidden from topbar
     NCAudioController *audioController = [NCAudioController sharedInstance];
@@ -868,6 +875,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [items addObject:speakerAction];
     }
 
+    // Raise hand
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRaiseHand]) {
         NSString *raiseHandTitel = NSLocalizedString(@"Raise hand", nil);
 
@@ -876,14 +884,43 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
 
         UIAction *raiseHandAction = [UIAction actionWithTitle:raiseHandTitel image:[UIImage systemImageNamed:@"hand.raised.fill"] identifier:nil handler:^(UIAction *action) {
-            [self->_callController raiseHand:!self->_isHandRaised];
-            self->_isHandRaised = !self->_isHandRaised;
-            [self adjustTopBar];
+            __strong typeof(self) strongSelf = weakSelf;
+
+            [strongSelf->_callController raiseHand:!strongSelf->_isHandRaised];
+            strongSelf->_isHandRaised = !strongSelf->_isHandRaised;
+            [strongSelf adjustTopBar];
         }];
 
         [items addObject:raiseHandAction];
     }
 
+    // Send a reaction
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+
+    if (serverCapabilities.callReactions.count > 0) {
+        NSMutableArray *reactionItems = [[NSMutableArray alloc] init];
+
+        for (NSString *reaction in serverCapabilities.callReactions) {
+            UIAction *reactionAction = [UIAction actionWithTitle:reaction image:nil identifier:nil handler:^(UIAction *action) {
+                __strong typeof(self) strongSelf = weakSelf;
+
+                [strongSelf->_callController sendReaction:reaction];
+                [strongSelf addReaction:reaction fromUser:activeAccount.userDisplayName];
+            }];
+
+            [reactionItems addObject:reactionAction];
+        }
+
+        UIMenu *reactionsMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Send a reaction", nil)
+                                                image:[UIImage systemImageNamed:@"face.smiling"]
+                                           identifier:nil
+                                              options:0
+                                             children:reactionItems];
+        [items addObject:reactionsMenu];
+    }
+
+    // Start/Stop recording
     if ([self->_room isUserOwnerOrModerator] && [[NCSettingsController sharedInstance] isRecordingEnabled]) {
         UIImage *recordingImage = [UIImage systemImageNamed:@"record.circle.fill"];
         NSString *recordingActionTitle = NSLocalizedString(@"Start recording", nil);
@@ -894,10 +931,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
 
         UIAction *recordingAction = [UIAction actionWithTitle:recordingActionTitle image:recordingImage identifier:nil handler:^(UIAction *action) {
-            if ([self->_room callRecordingIsInActiveState]) {
-                [self showStopRecordingConfirmationDialog];
+            __strong typeof(self) strongSelf = weakSelf;
+
+            if ([strongSelf->_room callRecordingIsInActiveState]) {
+                [strongSelf showStopRecordingConfirmationDialog];
             } else {
-                [self->_callController startRecording];
+                [strongSelf->_callController startRecording];
             }
         }];
 
@@ -1535,6 +1574,73 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
+#pragma mark - Call Reactions
+
+- (void)addReaction:(NSString *)reaction fromUser:(NSString *)user
+{
+    CallReactionView *callReactionView = [[CallReactionView alloc] initWithFrame:CGRectZero];
+    [callReactionView setReactionWithReaction:reaction actor:user];
+
+    // Schedule when to show reaction
+    CGFloat delayBetweenReactions = kReactionViewAnimationDuration / kMaxReactionsInScreen;
+    CGFloat now = [[NSDate date] timeIntervalSince1970];
+
+    if (_lastScheduledReaction < now) {
+        delayBetweenReactions = (now - _lastScheduledReaction > delayBetweenReactions) ? 0 : delayBetweenReactions;
+        _lastScheduledReaction = now;
+    }
+
+    _lastScheduledReaction += delayBetweenReactions;
+
+    __weak typeof(self) weakSelf = self;
+    CGFloat delay = _lastScheduledReaction - now;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+        [weakSelf showReaction:callReactionView];
+    });
+}
+
+- (void)showReaction:(CallReactionView *)callReactionView
+{
+    CGSize callViewSize = self.view.bounds.size;
+    CGSize callReactionSize = [callReactionView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+
+    CGFloat minLeftPosition = callViewSize.width * 0.05;
+    CGFloat maxLeftPosition = callViewSize.width * 0.2;
+    CGFloat randomLeftPosition = minLeftPosition + arc4random_uniform(maxLeftPosition - minLeftPosition + 1);
+
+    CGFloat startPosition = callViewSize.height - self.view.safeAreaInsets.bottom - callReactionSize.height;
+    CGFloat minTopPosition = startPosition / 2;
+    CGFloat maxTopPosition = minTopPosition * 1.2;
+    CGFloat randomTopPosition = minTopPosition + arc4random_uniform(maxTopPosition - minTopPosition + 1);
+
+    if (callViewSize.width - callReactionSize.width < 0) {
+        randomLeftPosition = minLeftPosition;
+    }
+
+    CGRect reactionInitialPosition = CGRectMake(randomLeftPosition,
+                                                startPosition,
+                                                callReactionSize.width,
+                                                callReactionSize.height);
+
+    callReactionView.frame = reactionInitialPosition;
+
+    [self.view addSubview:callReactionView];
+    [self.view bringSubviewToFront:callReactionView];
+
+    [UIView animateWithDuration:2.0 animations:^{
+        callReactionView.frame = CGRectMake(reactionInitialPosition.origin.x,
+                                            randomTopPosition,
+                                            reactionInitialPosition.size.width,
+                                            reactionInitialPosition.size.height);
+    }];
+
+    [UIView animateWithDuration:1.0 delay:1.0 options:0 animations:^{
+        callReactionView.alpha = 0;
+    } completion:^(BOOL finished) {
+        [callReactionView removeFromSuperview];
+    }];
+}
+
 #pragma mark - CallParticipantViewCell delegate
 
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell
@@ -1779,6 +1885,21 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     } else {
         NSLog(@"Peer was force muted: %@", peerId);
     }
+}
+
+- (void)callController:(NCCallController *)callController didReceiveReaction:(NSString *)reaction fromPeer:(NCPeerConnection *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (reaction.length == 0) {
+            return;
+        }
+        NSString *user = peer.peerName;
+        if (user.length == 0) {
+            user = NSLocalizedString(@"Guest", nil);
+        }
+
+        [self addReaction:reaction fromUser:user];
+    });
 }
 
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController

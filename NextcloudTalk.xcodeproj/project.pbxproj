@@ -218,6 +218,8 @@
 		2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */; };
 		2C7A245E24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */; };
 		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
+		2C84BCCC29EEB9C6001BA6DA /* CallReactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */; };
+		2C84BCCE29EEDCE8001BA6DA /* CallReactionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */; };
 		2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
 		2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
 		2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */; };
@@ -618,6 +620,8 @@
 		2C7A245924FE7B5300921A21 /* ShareConfirmationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareConfirmationViewController.m; sourceTree = "<group>"; };
 		2C7A245A24FE7B5300921A21 /* ShareConfirmationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareConfirmationViewController.xib; sourceTree = "<group>"; };
 		2C7F47AB20289B9600081CC7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallReactionView.swift; sourceTree = "<group>"; };
+		2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CallReactionView.xib; sourceTree = "<group>"; };
 		2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewController.h; sourceTree = "<group>"; };
 		2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DirectoryTableViewController.m; sourceTree = "<group>"; };
 		2C8A2BCB221FEEFE00DE6D2C /* DirectoryTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewCell.h; sourceTree = "<group>"; };
@@ -1181,6 +1185,8 @@
 				2C4DE9F121F732B40096940D /* NCAudioController.m */,
 				2C4446FA265D5BEF00DF1DBC /* CallConstants.h */,
 				1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */,
+				2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */,
+				2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */,
 			);
 			name = Calls;
 			sourceTree = "<group>";
@@ -1694,6 +1700,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C84BCCE29EEDCE8001BA6DA /* CallReactionView.xib in Resources */,
 				2CC007BE20D8F24B0096D91F /* RoomCreation2TableViewController.xib in Resources */,
 				2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */,
 				2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */,
@@ -2072,6 +2079,7 @@
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
 				2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
+				2C84BCCC29EEB9C6001BA6DA /* CallReactionView.swift in Sources */,
 				2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */,
 				2CC32E8D27F4540E00BB8C39 /* ReactionsView.swift in Sources */,
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
