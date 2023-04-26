@@ -339,6 +339,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)dealloc
 {
+    NSLog(@"CallViewController dealloc");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -854,6 +855,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     // When we target iOS 15, we might want to use an uncached UIDeferredMenuElement
 
     NSMutableArray *items = [[NSMutableArray alloc] init];
+    __weak typeof(self) weakSelf = self;
 
     // Add speaker button to menu if it was hidden from topbar
     NCAudioController *audioController = [NCAudioController sharedInstance];
@@ -882,9 +884,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
 
         UIAction *raiseHandAction = [UIAction actionWithTitle:raiseHandTitel image:[UIImage systemImageNamed:@"hand.raised.fill"] identifier:nil handler:^(UIAction *action) {
-            [self->_callController raiseHand:!self->_isHandRaised];
-            self->_isHandRaised = !self->_isHandRaised;
-            [self adjustTopBar];
+            __strong typeof(self) strongSelf = weakSelf;
+
+            [strongSelf->_callController raiseHand:!strongSelf->_isHandRaised];
+            strongSelf->_isHandRaised = !strongSelf->_isHandRaised;
+            [strongSelf adjustTopBar];
         }];
 
         [items addObject:raiseHandAction];
@@ -899,8 +903,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         for (NSString *reaction in serverCapabilities.callReactions) {
             UIAction *reactionAction = [UIAction actionWithTitle:reaction image:nil identifier:nil handler:^(UIAction *action) {
-                [self->_callController sendReaction:reaction];
-                [self addReaction:reaction fromUser:activeAccount.userDisplayName];
+                __strong typeof(self) strongSelf = weakSelf;
+
+                [strongSelf->_callController sendReaction:reaction];
+                [strongSelf addReaction:reaction fromUser:activeAccount.userDisplayName];
             }];
 
             [reactionItems addObject:reactionAction];
@@ -925,10 +931,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
 
         UIAction *recordingAction = [UIAction actionWithTitle:recordingActionTitle image:recordingImage identifier:nil handler:^(UIAction *action) {
-            if ([self->_room callRecordingIsInActiveState]) {
-                [self showStopRecordingConfirmationDialog];
+            __strong typeof(self) strongSelf = weakSelf;
+
+            if ([strongSelf->_room callRecordingIsInActiveState]) {
+                [strongSelf showStopRecordingConfirmationDialog];
             } else {
-                [self->_callController startRecording];
+                [strongSelf->_callController startRecording];
             }
         }];
 
@@ -1584,9 +1592,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     _lastScheduledReaction += delayBetweenReactions;
 
+    __weak typeof(self) weakSelf = self;
     CGFloat delay = _lastScheduledReaction - now;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
-        [self showReaction:callReactionView];
+        [weakSelf showReaction:callReactionView];
     });
 }
 
