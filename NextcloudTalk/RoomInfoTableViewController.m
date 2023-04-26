@@ -1674,7 +1674,11 @@ typedef enum FileAction {
 
             [cell.roomImage setAvatarFor:_room with:self.traitCollection.userInterfaceStyle];
 
-            if (_room.isFavorite) {
+            if (_room.hasCall) {
+                [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
+                [cell.favoriteImage setImage:[UIImage systemImageNamed:@"video.fill"]];
+            } else if (_room.isFavorite) {
+                [cell.favoriteImage setTintColor:[UIColor systemYellowColor]];
                 [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
             }
 
