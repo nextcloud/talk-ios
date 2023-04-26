@@ -34,7 +34,7 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 
-typedef void (^GetAvatarForRoomCompletionBlock)(UIImage *image);
+#import "NextcloudTalk-Swift.h"
 
 @implementation NCIntentController
 
@@ -48,50 +48,20 @@ typedef void (^GetAvatarForRoomCompletionBlock)(UIImage *image);
     return sharedInstance;
 }
 
-- (void)getAvatarForRoom:(NCRoom *)room withCompletionBlock:(GetAvatarForRoomCompletionBlock)block
-{
-    switch (room.type) {
-        case kNCRoomTypeOneToOne:
-        {
-            TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-            [[NCAPIController sharedInstance] getUserAvatarForUser:room.name andSize:512 usingAccount:account withCompletionBlock:^(UIImage *image, NSError *error) {
-                if (image) {
-                    block(image);
-                } else {
-                    NSLog(@"NCIntentController: Unable to get user avatar: %@", error.description);
-                    block(nil);
-                }
-            }];
-            break;
-        }
-        case kNCRoomTypeGroup:
-        {
-            block([UIImage imageNamed:@"group-avatar"]);
-            break;
-        }
-
-        case kNCRoomTypePublic:
-        {
-            block([UIImage imageNamed:@"public-avatar"]);
-            break;
-        }
-
-        default:
-        {
-            block(nil);
-            break;
-        }
-    }
-}
-
 - (void)getInteractionForRoom:(NCRoom *)room withTitle:(NSString *)title withCompletionBlock:(GetInteractionForRoomCompletionBlock)block
 {
-    [self getAvatarForRoom:room withCompletionBlock:^(UIImage *avatarImage) {
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
+    (void)[[AvatarManager shared] getAvatarFor:room with:UIUserInterfaceStyleLight using:account completionBlock:^(UIImage *avatarImage) {
         if (!avatarImage) {
             if (block) {
                 block(nil);
             }
             return;
+        }
+
+        if (avatarImage.sd_isVector) {
+            // INImage does not support SVGs -> render them
+            avatarImage = [[AvatarManager shared] createRenderedImageWithImage:avatarImage];
         }
 
         INSpeakableString *groupName = [[INSpeakableString alloc] initWithSpokenPhrase:title];
@@ -143,8 +113,14 @@ typedef void (^GetAvatarForRoomCompletionBlock)(UIImage *image);
                                                                                       sender:nil
                                                                                  attachments:nil];
 
-    [self getAvatarForRoom:room withCompletionBlock:^(UIImage *image) {
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
+    (void)[[AvatarManager shared] getAvatarFor:room with:UIUserInterfaceStyleLight using:account completionBlock:^(UIImage *image) {
         if (image) {
+            if (image.sd_isVector) {
+                // INImage does not support SVGs -> render them
+                image = [[AvatarManager shared] createRenderedImageWithImage:image];
+            }
+
             [sendMessageIntent setImage:[INImage imageWithUIImage:image] forParameterNamed:@"speakableGroupName"];
             [self donateMessageSentIntent:sendMessageIntent];
         }

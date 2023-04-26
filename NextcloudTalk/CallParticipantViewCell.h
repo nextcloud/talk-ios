@@ -28,6 +28,8 @@ extern NSString *const kCallParticipantCellNibName;
 extern CGFloat const kCallParticipantCellMinHeight;
 
 @class CallParticipantViewCell;
+@class AvatarImageView;
+
 @protocol CallParticipantViewCellDelegate <NSObject>
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell;
 - (void)cellWantsToChangeZoom:(CallParticipantViewCell *)participantCell showOriginalSize:(BOOL)showOriginalSize;
@@ -47,7 +49,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 
 @property (nonatomic, weak) IBOutlet UIView *peerVideoView;
 @property (nonatomic, weak) IBOutlet UILabel *peerNameLabel;
-@property (nonatomic, weak) IBOutlet UIImageView *peerAvatarImageView;
+@property (nonatomic, weak) IBOutlet AvatarImageView *peerAvatarImageView;
 @property (nonatomic, weak) IBOutlet UIButton *audioOffIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *screensharingIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *raisedHandIndicator;

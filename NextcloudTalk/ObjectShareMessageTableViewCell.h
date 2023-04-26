@@ -30,6 +30,7 @@ static CGFloat kObjectShareMessageCellObjectTypeImageSize   = 24.0;
 static NSString *ObjectShareMessageCellIdentifier           = @"ObjectShareMessageCellIdentifier";
 static NSString *GroupedObjectShareMessageCellIdentifier    = @"GroupedObjectShareMessageCellIdentifier";
 
+@class AvatarButton;
 @class ObjectShareMessageTableViewCell;
 
 @protocol ObjectShareMessageTableViewCellDelegate <ChatTableViewCellDelegate>
@@ -47,7 +48,7 @@ static NSString *GroupedObjectShareMessageCellIdentifier    = @"GroupedObjectSha
 @property (nonatomic, strong) UIView *objectContainerView;
 @property (nonatomic, strong) UIImageView *objectTypeImageView;
 @property (nonatomic, strong) UITextView *objectTitle;
-@property (nonatomic, strong) UIButton *avatarButton;
+@property (nonatomic, strong) AvatarButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) NCMessageParameter *objectParameter;
 @property (nonatomic, strong) ReactionsView *reactionsView;

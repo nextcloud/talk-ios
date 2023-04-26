@@ -22,17 +22,16 @@
 
 #import <UIKit/UIKit.h>
 
+@class AvatarImageView;
+
 extern NSString *const kShareCellIdentifier;
 extern NSString *const kShareTableCellNibName;
 
 extern CGFloat const kShareTableCellHeight;
 
-@interface ShareAvatarImageView : UIImageView
-@end
-
 @interface ShareTableViewCell : UITableViewCell
 
-@property (weak, nonatomic) IBOutlet ShareAvatarImageView *avatarImageView;
+@property (weak, nonatomic) IBOutlet AvatarImageView *avatarImageView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 
 @end

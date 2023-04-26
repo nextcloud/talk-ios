@@ -24,6 +24,7 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
+
 #import "NextcloudTalk-Swift.h"
 
 NSInteger const kChatMessageGroupTimeDifference = 30;

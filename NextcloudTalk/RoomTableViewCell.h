@@ -27,9 +27,11 @@ extern NSString *const kRoomTableCellNibName;
 
 extern CGFloat const kRoomTableCellHeight;
 
+@class AvatarImageView;
+
 @interface RoomTableViewCell : UITableViewCell
 
-@property (nonatomic, weak) IBOutlet UIImageView *roomImage;
+@property (nonatomic, weak) IBOutlet AvatarImageView *roomImage;
 @property (nonatomic, weak) IBOutlet UILabel *titleLabel;
 @property (nonatomic, weak) IBOutlet UILabel *subtitleLabel;
 @property (nonatomic, weak) IBOutlet UIView *unreadMessagesView;

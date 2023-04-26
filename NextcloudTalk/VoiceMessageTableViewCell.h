@@ -32,6 +32,8 @@ static CGFloat kVoiceMessageCellPlayerHeight         = 44.0;
 static NSString *VoiceMessageCellIdentifier          = @"VoiceMessageCellIdentifier";
 static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCellIdentifier";
 
+@class AvatarButton;
+
 @protocol VoiceMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 
 - (void)cellWantsToPlayAudioFile:(NCMessageFileParameter *)fileParameter;
@@ -47,7 +49,7 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
-@property (nonatomic, strong) UIButton *avatarButton;
+@property (nonatomic, strong) AvatarButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) NCMessageFileParameter *fileParameter;

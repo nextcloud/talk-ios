@@ -25,9 +25,11 @@
 extern NSString *const kRoomNameCellIdentifier;
 extern NSString *const kRoomNameTableCellNibName;
 
+@class AvatarImageView;
+
 @interface RoomNameTableViewCell : UITableViewCell
 
-@property (weak, nonatomic) IBOutlet UIImageView *roomImage;
+@property (weak, nonatomic) IBOutlet AvatarImageView *roomImage;
 @property (weak, nonatomic) IBOutlet UITextField *roomNameTextField;
 @property (weak, nonatomic) IBOutlet UIImageView *favoriteImage;
 

@@ -25,11 +25,6 @@
 @import NextcloudKit;
 #import <Realm/Realm.h>
 
-#import "AFNetworking.h"
-#import "AFImageDownloader.h"
-#import "UIButton+AFNetworking.h"
-#import "UIImageView+AFNetworking.h"
-
 #import "NextcloudTalk-Swift.h"
 
 #import "CCCertificate.h"
@@ -82,8 +77,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     [super viewDidLoad];
     
     __weak typeof(self) weakSelf = self;
-    _rlmNotificationToken = [[RLMRealm defaultRealm] addNotificationBlock:^(NSString *notification, RLMRealm * realm) {
-        [weakSelf refreshRoomList];
+    _rlmNotificationToken = [[NCRoom allObjects] addNotificationBlock:^(RLMResults * _Nullable results, RLMCollectionChange * _Nullable change, NSError * _Nullable error) {
+       [weakSelf refreshRoomList];
     }];
     
     [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
@@ -92,9 +87,7 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     
     self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
-    
-    [UIImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloaderAvatars]];
-    
+
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     _resultTableViewController = [[RoomSearchTableViewController alloc] init];
@@ -1196,35 +1189,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
-    
-    // Set room image
-    switch (room.type) {
-        case kNCRoomTypeOneToOne:
-            [cell.roomImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:room.name withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                                  placeholderImage:nil success:nil failure:nil];
-            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
-            break;
-            
-        case kNCRoomTypeGroup:
-            [cell.roomImage setImage:[UIImage imageNamed:@"group"]];
-            break;
-            
-        case kNCRoomTypePublic:
-            [cell.roomImage setImage:[UIImage imageNamed:@"public"]];
-            break;
-            
-        case kNCRoomTypeChangelog:
-            [cell.roomImage setImage:[UIImage imageNamed:@"changelog"]];
-            [cell.roomImage setContentMode:UIViewContentModeScaleToFill];
-            break;
 
-        case kNCRoomTypeFormerOneToOne:
-            [cell.roomImage setImage:[UIImage imageNamed:@"user"]];
-            break;
-
-        default:
-            break;
-    }
+    [cell.roomImage setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
 
     //Show User Status
     if (room.type == kNCRoomTypeOneToOne && [room.status length] != 0) {
@@ -1233,13 +1199,6 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
         } else {
             [cell setUserStatus:room.status];
         }
-    }
-    
-    // Set objectType image
-    if ([room.objectType isEqualToString:NCRoomObjectTypeFile]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"file-conv"]];
-    } else if ([room.objectType isEqualToString:NCRoomObjectTypeSharePassword]) {
-        [cell.roomImage setImage:[UIImage imageNamed:@"pass-conv"]];
     }
     
     // Set favorite image

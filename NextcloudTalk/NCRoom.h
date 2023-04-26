@@ -151,6 +151,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, assign) NSInteger defaultPermissions;
 @property (nonatomic, assign) NSInteger callRecording;
 @property (nonatomic, assign) NSInteger callStartTime;
+@property (nonatomic, copy) NSString *avatarVersion;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;

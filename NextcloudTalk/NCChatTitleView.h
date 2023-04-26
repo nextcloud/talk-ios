@@ -24,6 +24,7 @@
 
 #import "NCRoom.h"
 
+@class AvatarImageView;
 @class NCChatTitleView;
 @protocol NCChatTitleViewDelegate <NSObject>
 
@@ -35,7 +36,7 @@
 
 @property (nonatomic, weak) id<NCChatTitleViewDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UITextView *titleTextView;
-@property (weak, nonatomic) IBOutlet UIImageView *avatarimage;
+@property (weak, nonatomic) IBOutlet AvatarImageView *avatarimage;
 @property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
 @property (assign, nonatomic) BOOL showSubtitle;
 @property (strong, nonatomic) UIColor *titleTextColor;

@@ -40,6 +40,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @interface FilePreviewImageView : UIImageView
 @end
 
+@class AvatarButton;
 @class FileMessageTableViewCell;
 
 @protocol FileMessageTableViewCellDelegate <ChatTableViewCellDelegate>
@@ -58,7 +59,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) FilePreviewImageView *previewImageView;
 @property (nonatomic, strong) UIImageView *playIconImageView;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
-@property (nonatomic, strong) UIButton *avatarButton;
+@property (nonatomic, strong) AvatarButton *avatarButton;
 @property (nonatomic, strong) UIView *statusView;
 @property (nonatomic, strong) UIView *fileStatusView;
 @property (nonatomic, strong) UIStackView *statusStackView;

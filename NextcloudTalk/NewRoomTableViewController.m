@@ -22,8 +22,6 @@
 
 #import "NewRoomTableViewController.h"
 
-#import "UIImageView+AFNetworking.h"
-
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
@@ -36,6 +34,8 @@
 #import "RoomCreationTableViewController.h"
 #import "RoomCreation2TableViewController.h"
 #import "SearchTableViewController.h"
+
+#import "NextcloudTalk-Swift.h"
 
 typedef enum HeaderSection {
     kHeaderSectionNewGroup = 0,
@@ -386,7 +386,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
                 cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new group conversation", nil);
                 cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new group conversation", nil);
                 cell.labelTitle.textColor = [UIColor systemBlueColor];
-                [cell.contactImage setImage:[UIImage imageNamed:@"group"]];
+                [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
                 break;
                 
             case kHeaderSectionNewPublic:
@@ -394,7 +394,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
                 cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new public conversation", nil);
                 cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new public conversation", nil);
                 cell.labelTitle.textColor = [UIColor systemBlueColor];
-                [cell.contactImage setImage:[UIImage imageNamed:@"public"]];
+                [cell.contactImage setImage:[UIImage imageNamed:@"public-avatar"]];
                 break;
                 
             default:
@@ -413,11 +413,9 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     cell.labelTitle.text = contact.name;
     cell.labelTitle.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Create a conversation with %@", nil), contact.name];
     cell.labelTitle.accessibilityHint = [NSString stringWithFormat:NSLocalizedString(@"Double tap to create a conversation with %@", nil), contact.name];
-    
-    [cell.contactImage setImageWithURLRequest:[[NCAPIController sharedInstance] createAvatarRequestForUser:contact.userId withStyle:self.traitCollection.userInterfaceStyle andSize:96 usingAccount:[[NCDatabaseManager sharedInstance] activeAccount]]
-                             placeholderImage:nil success:nil failure:nil];
-    [cell.contactImage setContentMode:UIViewContentModeScaleToFill];
-    
+
+    [cell.contactImage setUserAvatarFor:contact.userId with:self.traitCollection.userInterfaceStyle];
+ 
     return cell;
 }
 
