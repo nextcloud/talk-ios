@@ -66,6 +66,13 @@ import Foundation
         self.avatarImageView.layer.cornerRadius = self.avatarImageView.frame.size.height / 2
     }
 
+    func changeButtonState(to state: Bool) {
+        self.scopeButton.isEnabled = state
+        self.cameraButton.isEnabled = state
+        self.photoLibraryButton.isEnabled = state
+        self.trashButton.isEnabled = state
+    }
+
     @IBAction func cameraButtonTouchUpInside(_ sender: Any) {
         self.delegate?.avatarEditViewPresentCamera(self)
     }

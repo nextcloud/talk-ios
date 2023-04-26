@@ -124,12 +124,14 @@ import UIKit
 
     func showModifyingView() {
         modifyingView.startAnimating()
+        self.headerView.changeButtonState(to: false)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: modifyingView)
         self.tableView.isUserInteractionEnabled = false
     }
 
     func removeModifyingView() {
         modifyingView.stopAnimating()
+        self.headerView.changeButtonState(to: true)
         self.tableView.isUserInteractionEnabled = true
     }
 
