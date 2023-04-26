@@ -326,6 +326,16 @@
     }
 }
 
+- (void)presentAlertWithTitle:(NSString *)title withMessage:(NSString *)message
+{
+    UIAlertController *alertDialog = [UIAlertController alertControllerWithTitle:title
+                                                                         message:message
+                                                                  preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil];
+    [alertDialog addAction:okAction];
+    [self presentAlertViewController:alertDialog];
+}
+
 - (void)presentConversationsList
 {
     [_mainViewController dismissViewControllerAnimated:YES completion:nil];
