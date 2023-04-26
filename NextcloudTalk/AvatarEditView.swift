@@ -22,13 +22,24 @@
 
 import Foundation
 
-@objcMembers class AvatarEditView: UIView {
+@objc protocol AvatarEditViewDelegate {
+    @objc func avatarEditViewPresentCamera(_ controller: AvatarEditView?)
+    @objc func avatarEditViewPresentPhotoLibrary(_ controller: AvatarEditView?)
+    @objc func avatarEditViewRemoveAvatar(_ controller: AvatarEditView?)
+}
+
+@objcMembers class AvatarEditView: UIView, UIImagePickerControllerDelegate, UINavigationControllerDelegate, TOCropViewControllerDelegate {
+
+    public weak var delegate: AvatarEditViewDelegate?
 
     @IBOutlet var contentView: UIView!
     @IBOutlet weak var avatarImageView: AvatarImageView!
     @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var editButton: UIButton!
+    @IBOutlet weak var editView: UIView!
     @IBOutlet weak var scopeButton: UIButton!
+    @IBOutlet weak var cameraButton: UIButton!
+    @IBOutlet weak var photoLibraryButton: UIButton!
+    @IBOutlet weak var trashButton: UIButton!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,20 +53,28 @@ import Foundation
 
     func commonInit() {
         Bundle.main.loadNibNamed("AvatarEditView", owner: self, options: nil)
+
         contentView.frame = self.bounds
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         self.avatarImageView.layer.masksToBounds = true
-
-        self.editButton.titleLabel?.textAlignment = .center
-        self.editButton.titleLabel?.minimumScaleFactor = 0.9
-        self.editButton.titleLabel?.numberOfLines = 1
-        self.editButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
         self.addSubview(contentView)
     }
 
     override func layoutSubviews() {
         self.avatarImageView.layer.cornerRadius = self.avatarImageView.frame.size.height / 2
+    }
+
+    @IBAction func cameraButtonTouchUpInside(_ sender: Any) {
+        self.delegate?.avatarEditViewPresentCamera(self)
+    }
+
+    @IBAction func photoLibraryTouchUpInside(_ sender: Any) {
+        self.delegate?.avatarEditViewPresentPhotoLibrary(self)
+    }
+
+    @IBAction func trashTouchUpInside(_ sender: Any) {
+        self.delegate?.avatarEditViewRemoveAvatar(self)
     }
 }

@@ -5,60 +5,116 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AvatarEditView" customModule="NextcloudTalk" customModuleProvider="target">
             <connections>
                 <outlet property="avatarImageView" destination="P5c-gH-ijQ" id="jla-8k-Ttl"/>
+                <outlet property="cameraButton" destination="DOh-QQ-Zuc" id="541-2C-APt"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="9z6-a7-d0W"/>
-                <outlet property="editButton" destination="c4X-rZ-dTo" id="w4J-F8-fEs"/>
+                <outlet property="editView" destination="f8R-m5-KRj" id="A73-fq-npa"/>
                 <outlet property="nameLabel" destination="cHc-KT-D8F" id="9TU-eh-vjt"/>
+                <outlet property="photoLibraryButton" destination="Uio-mq-k5m" id="3L3-8f-paz"/>
                 <outlet property="scopeButton" destination="qSd-WE-0Jc" id="9gD-KD-zgi"/>
+                <outlet property="trashButton" destination="qDP-Sw-Ndu" id="8kG-IB-Fqi"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="200" height="195"/>
+            <rect key="frame" x="0.0" y="0.0" width="459" height="267"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="iFx-jE-7z7">
-                    <rect key="frame" x="0.0" y="0.0" width="200" height="195"/>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="iFx-jE-7z7">
+                    <rect key="frame" x="0.0" y="0.0" width="459" height="267"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="toF-wm-Jvh">
-                            <rect key="frame" x="0.0" y="0.0" width="200" height="120"/>
+                            <rect key="frame" x="0.0" y="0.0" width="459" height="110"/>
                             <subviews>
                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="P5c-gH-ijQ" customClass="AvatarImageView" customModule="NextcloudTalk" customModuleProvider="target">
-                                    <rect key="frame" x="60" y="20" width="80" height="80"/>
+                                    <rect key="frame" x="189.5" y="20" width="80" height="80"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="80" id="60X-el-yu8"/>
                                         <constraint firstAttribute="height" constant="80" id="M7l-w4-bd2"/>
                                     </constraints>
                                 </imageView>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qSd-WE-0Jc">
-                                    <rect key="frame" x="140" y="20" width="30" height="30"/>
+                                    <rect key="frame" x="269.5" y="20" width="30" height="30"/>
                                 </button>
                             </subviews>
                             <constraints>
                                 <constraint firstItem="P5c-gH-ijQ" firstAttribute="centerX" secondItem="toF-wm-Jvh" secondAttribute="centerX" id="Epd-Lt-BDN"/>
                                 <constraint firstItem="qSd-WE-0Jc" firstAttribute="leading" secondItem="P5c-gH-ijQ" secondAttribute="trailing" id="ZRv-Cn-hW5"/>
-                                <constraint firstAttribute="bottom" secondItem="P5c-gH-ijQ" secondAttribute="bottom" constant="20" id="fb6-Wk-zq7"/>
+                                <constraint firstAttribute="bottom" secondItem="P5c-gH-ijQ" secondAttribute="bottom" constant="10" id="fb6-Wk-zq7"/>
                                 <constraint firstItem="P5c-gH-ijQ" firstAttribute="top" secondItem="toF-wm-Jvh" secondAttribute="top" constant="20" id="iyo-n2-Cok"/>
                                 <constraint firstItem="qSd-WE-0Jc" firstAttribute="top" secondItem="toF-wm-Jvh" secondAttribute="top" constant="20" id="mO4-y1-aN0"/>
                             </constraints>
                         </view>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c4X-rZ-dTo">
-                            <rect key="frame" x="0.0" y="120" width="200" height="44"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                            <state key="normal" title="Edit"/>
-                        </button>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.59999999999999998" translatesAutoresizingMaskIntoConstraints="NO" id="cHc-KT-D8F">
-                            <rect key="frame" x="0.0" y="164" width="200" height="31"/>
+                        <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f8R-m5-KRj" userLabel="EditView">
+                            <rect key="frame" x="0.0" y="110" width="459" height="84"/>
+                            <subviews>
+                                <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="top" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="lFq-aG-VCf">
+                                    <rect key="frame" x="147.5" y="0.0" width="164" height="74"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DOh-QQ-Zuc" userLabel="Camera Button">
+                                            <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="44" id="0a5-qp-s0h"/>
+                                                <constraint firstAttribute="height" constant="44" id="IRa-Vy-2OR"/>
+                                            </constraints>
+                                            <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                            <state key="normal" image="camera" catalog="system"/>
+                                            <connections>
+                                                <action selector="cameraButtonTouchUpInside:" destination="-1" eventType="touchUpInside" id="D5Q-GZ-ufL"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uio-mq-k5m" userLabel="Photo Library Button">
+                                            <rect key="frame" x="60" y="0.0" width="44" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="44" id="5io-pC-8Bl"/>
+                                                <constraint firstAttribute="width" constant="44" id="krh-i6-eDy"/>
+                                            </constraints>
+                                            <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                            <state key="normal" image="photo.on.rectangle.angled" catalog="system"/>
+                                            <connections>
+                                                <action selector="photoLibraryTouchUpInside:" destination="-1" eventType="touchUpInside" id="HDu-vL-hSU"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" role="destructive" translatesAutoresizingMaskIntoConstraints="NO" id="qDP-Sw-Ndu" userLabel="Trash Button">
+                                            <rect key="frame" x="120" y="0.0" width="44" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="44" id="NJ7-jc-j3t"/>
+                                                <constraint firstAttribute="width" constant="44" id="but-G4-cvK"/>
+                                            </constraints>
+                                            <color key="tintColor" systemColor="systemRedColor"/>
+                                            <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                            <state key="normal" image="trash" catalog="system"/>
+                                            <connections>
+                                                <action selector="trashTouchUpInside:" destination="-1" eventType="touchUpInside" id="a7B-2x-XoO"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                </stackView>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="lFq-aG-VCf" secondAttribute="bottom" constant="10" id="80w-pE-AI3"/>
+                                <constraint firstItem="lFq-aG-VCf" firstAttribute="top" secondItem="f8R-m5-KRj" secondAttribute="top" id="pzz-XK-rKE"/>
+                                <constraint firstItem="lFq-aG-VCf" firstAttribute="centerX" secondItem="f8R-m5-KRj" secondAttribute="centerX" id="vKW-ZO-Hmc"/>
+                            </constraints>
+                        </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.59999999999999998" translatesAutoresizingMaskIntoConstraints="NO" id="cHc-KT-D8F" userLabel="NameLabel">
+                            <rect key="frame" x="199" y="194" width="61.5" height="73"/>
                             <fontDescription key="fontDescription" type="system" pointSize="26"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
                         </label>
                     </subviews>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="f8R-m5-KRj" secondAttribute="trailing" id="dlH-x0-EOq"/>
+                        <constraint firstItem="f8R-m5-KRj" firstAttribute="leading" secondItem="iFx-jE-7z7" secondAttribute="leading" id="qAU-tY-EtW"/>
+                    </constraints>
                 </stackView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
@@ -69,7 +125,15 @@
                 <constraint firstItem="iFx-jE-7z7" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="ZWG-zG-m66"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="114.49275362318842" y="-144.30803571428569"/>
+            <point key="canvasLocation" x="-73.188405797101453" y="-120.20089285714285"/>
         </view>
     </objects>
+    <resources>
+        <image name="camera" catalog="system" width="128" height="93"/>
+        <image name="photo.on.rectangle.angled" catalog="system" width="128" height="98"/>
+        <image name="trash" catalog="system" width="117" height="128"/>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
 </document>
