@@ -1678,6 +1678,8 @@ typedef enum FileAction {
                 [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
             }
 
+            cell.roomNameTextField.userInteractionEnabled = NO;
+
             if (_room.canModerate) {
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.userInteractionEnabled = YES;
