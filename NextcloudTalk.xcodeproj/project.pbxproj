@@ -15,8 +15,8 @@
 		1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
-		1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoViewController.swift */; };
-		1F3C41A129EDAC8800F58435 /* RoomAvatarInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A029EDAC8800F58435 /* RoomAvatarInfoViewController.xib */; };
+		1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift */; };
+		1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */; };
 		1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C41A229EDF05700F58435 /* AvatarEditView.swift */; };
 		1F3C41A529EDF0B800F58435 /* AvatarEditView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */; };
 		1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
@@ -396,8 +396,8 @@
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
 		1F24B5A328E0649200654457 /* ReferenceGithubView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubView.xib; sourceTree = "<group>"; };
-		1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomAvatarInfoViewController.swift; sourceTree = "<group>"; };
-		1F3C41A029EDAC8800F58435 /* RoomAvatarInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoomAvatarInfoViewController.xib; sourceTree = "<group>"; };
+		1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomAvatarInfoTableViewController.swift; sourceTree = "<group>"; };
+		1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoomAvatarInfoTableViewController.xib; sourceTree = "<group>"; };
 		1F3C41A229EDF05700F58435 /* AvatarEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarEditView.swift; sourceTree = "<group>"; };
 		1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AvatarEditView.xib; sourceTree = "<group>"; };
 		1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarButtonItemWithActivity.m; sourceTree = "<group>"; };
@@ -1121,8 +1121,8 @@
 				2C98F77821622445001A6A73 /* RoomSearchTableViewController.m */,
 				2CC1FF4228147F10009F7288 /* RoomSharedItemsTableViewController.swift */,
 				2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */,
-				1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoViewController.swift */,
-				1F3C41A029EDAC8800F58435 /* RoomAvatarInfoViewController.xib */,
+				1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift */,
+				1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -1741,7 +1741,7 @@
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
-				1F3C41A129EDAC8800F58435 /* RoomAvatarInfoViewController.xib in Resources */,
+				1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */,
 				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
 				1F3C41A529EDF0B800F58435 /* AvatarEditView.xib in Resources */,
 			);
@@ -2007,7 +2007,7 @@
 				1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */,
 				2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
-				1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoViewController.swift in Sources */,
+				1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */,
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
