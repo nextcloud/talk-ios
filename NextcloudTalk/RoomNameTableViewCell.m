@@ -52,6 +52,7 @@ NSString *const kRoomNameTableCellNibName   = @"RoomNameTableViewCell";
     self.roomImage.image = nil;
     self.roomImage.contentMode = UIViewContentModeCenter;
     self.favoriteImage.image = nil;
+    self.favoriteImage.tintColor = [UIColor clearColor];
 }
 
 @end
