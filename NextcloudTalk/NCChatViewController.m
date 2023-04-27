@@ -186,8 +186,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         self.tableView.estimatedSectionHeaderHeight = 0;
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
-        // Register ReplyMessageView class, conforming to SLKTypingIndicatorProtocol, as a custom typing indicator view.
-        [self registerClassForTypingIndicatorView:[ReplyMessageView class]];
+        // Register ReplyMessageView class, conforming to SLKReplyViewProtocol, as a custom reply view.
+        [self registerClassForReplyView:[ReplyMessageView class]];
         // Set image downloader to file preview imageviews.
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         // Initialize the animation dispatch group/queue
@@ -1489,7 +1489,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         BOOL isAtBottom = [self shouldScrollOnNewMessages];
         
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
+        self.replyMessageView = (ReplyMessageView *)self.replyProxyView;
         [self.replyMessageView presentReplyViewWithMessage:message withUserId:activeAccount.userId];
         [self presentKeyboard:YES];
 
