@@ -90,7 +90,7 @@
 }
 
 
-#pragma mark - SLKTypingIndicatorProtocol
+#pragma mark - SLKReplyViewProtocol
 
 - (void)dismiss
 {
