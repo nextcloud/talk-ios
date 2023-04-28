@@ -42,6 +42,11 @@ import SDWebImageSVGCoder
         }
     }
 
+    public func getGroupAvatar(with style: UIUserInterfaceStyle) -> UIImage? {
+        let traitCollection = UITraitCollection(userInterfaceStyle: style)
+        return UIImage(named: "group-avatar", in: nil, compatibleWith: traitCollection)
+    }
+
     private func getFallbackAvatar(for room: NCRoom,
                                    with style: UIUserInterfaceStyle,
                                    completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {

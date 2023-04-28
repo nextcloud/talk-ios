@@ -429,7 +429,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             // Default replacement string is the parameter name
             NSString *replaceString = messageParameter.name;
             // Format user and call mentions
-            if ([messageParameter.type isEqualToString:@"user"] || [messageParameter.type isEqualToString:@"guest"] || [messageParameter.type isEqualToString:@"call"]) {
+            if ([messageParameter.type isEqualToString:@"user"] || [messageParameter.type isEqualToString:@"guest"] ||
+                [messageParameter.type isEqualToString:@"user-group"] || [messageParameter.type isEqualToString:@"call"]) {
                 replaceString = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
             }
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];
@@ -459,7 +460,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions
-        if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] || [param.type isEqualToString:@"call"]) {
+        if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] ||
+            [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"]) {
             [attributedMessage addAttribute:NSForegroundColorAttributeName value:(param.shouldBeHighlighted) ? highlightedColor : defaultColor range:param.range];
             [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
         }
