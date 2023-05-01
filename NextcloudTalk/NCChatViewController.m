@@ -3741,6 +3741,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             mention.type = @"call";
         } else if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"users"]) {
             mention.type = @"user";
+        } else if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"guests"]) {
+            mention.type = @"guest";
+        } else if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"groups"]) {
+            mention.type = @"user-group";
         }
         
         NSString *mentionKey = [NSString stringWithFormat:@"mention-%ld", _mentionsDict.allKeys.count];
