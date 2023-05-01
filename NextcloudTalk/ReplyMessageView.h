@@ -21,14 +21,14 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "SLKReplyViewProtocol.h"
+#import "SLKVisibleViewProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class NCChatMessage;
 @class QuotedMessageView;
 
-@interface ReplyMessageView : UIView <SLKReplyViewProtocol>
+@interface ReplyMessageView : UIView <SLKVisibleViewProtocol>
 
 @property (nonatomic, strong) NCChatMessage *message;
 @property (nonatomic, strong) QuotedMessageView *quotedMessageView;
