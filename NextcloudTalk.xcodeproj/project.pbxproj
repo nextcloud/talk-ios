@@ -36,6 +36,11 @@
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
 		1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F628CB92842BAAF0083A425 /* QRCodeReader */; };
+		1F66B71F29FA703B003FB168 /* TypingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */; };
+		1F66B72129FA7089003FB168 /* TypingIndicatorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */; };
+		1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */; };
+		1F66B72C29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */; };
+		1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F66B72E29FABD01003FB168 /* SwiftyAttributes */; };
 		1F7625E52901B0DB00834869 /* CallsFromOldAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */; };
 		1F7625E72901B0E800834869 /* CallsFromOldAccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */; };
 		1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F785DDA2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m */; };
@@ -265,7 +270,6 @@
 		2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A32264775E0053078A /* SLKTextView+SLKAdditions.m */; };
 		2CB3041D2264775E0053078A /* SLKTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A52264775E0053078A /* SLKTextView.m */; };
 		2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A72264775E0053078A /* SLKTextViewController.m */; };
-		2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */; };
 		2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */; };
 		2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */; };
 		2CB304222264775E0053078A /* UIView+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303B12264775E0053078A /* UIView+SLKAdditions.m */; };
@@ -414,6 +418,12 @@
 		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
 		1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTableViewController.swift; sourceTree = "<group>"; };
+		1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorView.swift; sourceTree = "<group>"; };
+		1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TypingIndicatorView.xib; sourceTree = "<group>"; };
+		1F66B72729FA936E003FB168 /* SLKDefaultReplyView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLKDefaultReplyView.h; sourceTree = "<group>"; };
+		1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLKDefaultReplyView.m; sourceTree = "<group>"; };
+		1F66B72A29FA9414003FB168 /* SLKDefaultTypingIndicatorView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLKDefaultTypingIndicatorView.h; sourceTree = "<group>"; };
+		1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLKDefaultTypingIndicatorView.m; sourceTree = "<group>"; };
 		1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallsFromOldAccountViewController.swift; sourceTree = "<group>"; };
 		1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallsFromOldAccountViewController.xib; sourceTree = "<group>"; };
 		1F785DDA2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageTranscribeViewController.m; sourceTree = "<group>"; };
@@ -719,9 +729,7 @@
 		2CB303A52264775E0053078A /* SLKTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKTextView.m; sourceTree = "<group>"; };
 		2CB303A62264775E0053078A /* SLKTextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTextViewController.h; sourceTree = "<group>"; };
 		2CB303A72264775E0053078A /* SLKTextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKTextViewController.m; sourceTree = "<group>"; };
-		2CB303A82264775E0053078A /* SLKTypingIndicatorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTypingIndicatorProtocol.h; sourceTree = "<group>"; };
-		2CB303A92264775E0053078A /* SLKTypingIndicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKTypingIndicatorView.h; sourceTree = "<group>"; };
-		2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLKTypingIndicatorView.m; sourceTree = "<group>"; };
+		2CB303A82264775E0053078A /* SLKVisibleViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKVisibleViewProtocol.h; sourceTree = "<group>"; };
 		2CB303AB2264775E0053078A /* SLKUIConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLKUIConstants.h; sourceTree = "<group>"; };
 		2CB303AC2264775E0053078A /* UIResponder+SLKAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIResponder+SLKAdditions.h"; sourceTree = "<group>"; };
 		2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIResponder+SLKAdditions.m"; sourceTree = "<group>"; };
@@ -840,6 +848,7 @@
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
 				1FDCC3D729EC326400DEB39B /* SDWebImage in Frameworks */,
 				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
+				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
 				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
@@ -1325,6 +1334,8 @@
 				2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */,
 				2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */,
 				2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */,
+				1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */,
+				1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -1417,9 +1428,7 @@
 				2CB303A52264775E0053078A /* SLKTextView.m */,
 				2CB303A62264775E0053078A /* SLKTextViewController.h */,
 				2CB303A72264775E0053078A /* SLKTextViewController.m */,
-				2CB303A82264775E0053078A /* SLKTypingIndicatorProtocol.h */,
-				2CB303A92264775E0053078A /* SLKTypingIndicatorView.h */,
-				2CB303AA2264775E0053078A /* SLKTypingIndicatorView.m */,
+				2CB303A82264775E0053078A /* SLKVisibleViewProtocol.h */,
 				2CB303AB2264775E0053078A /* SLKUIConstants.h */,
 				2CB303AC2264775E0053078A /* UIResponder+SLKAdditions.h */,
 				2CB303AD2264775E0053078A /* UIResponder+SLKAdditions.m */,
@@ -1427,6 +1436,10 @@
 				2CB303AF2264775E0053078A /* UIScrollView+SLKAdditions.m */,
 				2CB303B02264775E0053078A /* UIView+SLKAdditions.h */,
 				2CB303B12264775E0053078A /* UIView+SLKAdditions.m */,
+				1F66B72729FA936E003FB168 /* SLKDefaultReplyView.h */,
+				1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */,
+				1F66B72A29FA9414003FB168 /* SLKDefaultTypingIndicatorView.h */,
+				1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1559,6 +1572,7 @@
 				1F7AE07729142CA1009F72AD /* NextcloudKit */,
 				1FDCC3D629EC326400DEB39B /* SDWebImage */,
 				1FDCC3D929EC367700DEB39B /* SDWebImageSVGCoder */,
+				1F66B72E29FABD01003FB168 /* SwiftyAttributes */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1687,6 +1701,7 @@
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 				1FDCC3D529EC326400DEB39B /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				1FDCC3D829EC367700DEB39B /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */,
+				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -1715,6 +1730,7 @@
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				1F46CE2B28E05B3C00E7D88E /* ReferenceDefaultView.xib in Resources */,
 				1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */,
+				1F66B72129FA7089003FB168 /* TypingIndicatorView.xib in Resources */,
 				2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */,
 				2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */,
 				2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */,
@@ -2035,6 +2051,7 @@
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
+				1F66B72C29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m in Sources */,
 				1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */,
 				2C444706265E59B100DF1DBC /* ShareConfirmationCollectionViewCell.m in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
@@ -2074,7 +2091,6 @@
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
-				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
@@ -2091,9 +2107,11 @@
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
 				2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */,
+				1F66B71F29FA703B003FB168 /* TypingIndicatorView.swift in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,
 				2C4CDCD026A84AEA0023F403 /* ShareViewController.m in Sources */,
 				1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */,
+				1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */,
 				1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */,
@@ -2903,6 +2921,14 @@
 				minimumVersion = 10.1.1;
 			};
 		};
+		1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/eddiekaiger/SwiftyAttributes.git";
+			requirement = {
+				kind = revision;
+				revision = 1ae513a1617309455a115c3fc2d558f744b43788;
+			};
+		};
 		1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud/NextcloudKit";
@@ -2947,6 +2973,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
 			productName = QRCodeReader;
+		};
+		1F66B72E29FABD01003FB168 /* SwiftyAttributes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
+			productName = SwiftyAttributes;
 		};
 		1F7AE07729142CA1009F72AD /* NextcloudKit */ = {
 			isa = XCSwiftPackageProductDependency;
