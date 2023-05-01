@@ -40,7 +40,9 @@ typedef enum {
     kNCSignalingMessageTypeNickChanged,
     kNCSignalingMessageTypeRaiseHand,
     kNCSignalingMessageTypeRecording,
-    kNCSignalingMessageTypeReaction
+    kNCSignalingMessageTypeReaction,
+    kNCSignalingMessageTypeStartedTyping,
+    kNCSignalingMessageTypeStoppedTyping
 } NCSignalingMessageType;
 
 
@@ -159,6 +161,28 @@ typedef enum {
 @interface NCReactionMessage : NCSignalingMessage
 
 @property(nonatomic, readonly) NSString *reaction;
+
+- (instancetype)initWithFrom:(NSString *)from
+                      sendTo:(NSString *)to
+                 withPayload:(NSDictionary *)payload
+                 forRoomType:(NSString *)roomType;
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end
+
+@interface NCStartedTypingMessage : NCSignalingMessage
+
+- (instancetype)initWithFrom:(NSString *)from
+                      sendTo:(NSString *)to
+                 withPayload:(NSDictionary *)payload
+                 forRoomType:(NSString *)roomType;
+
+- (instancetype)initWithValues:(NSDictionary *)values;
+
+@end
+
+@interface NCStoppedTypingMessage : NCSignalingMessage
 
 - (instancetype)initWithFrom:(NSString *)from
                       sendTo:(NSString *)to
