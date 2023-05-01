@@ -656,6 +656,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self savePendingMessage];
     [_chatController stopChatController];
     [_messageExpirationTimer invalidate];
+    [self stopTyping];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
