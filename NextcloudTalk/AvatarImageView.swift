@@ -61,6 +61,12 @@ import SDWebImage
         }
     }
 
+    public func setGroupAvatar(with style: UIUserInterfaceStyle) {
+        if let image = AvatarManager.shared.getGroupAvatar(with: style) {
+            self.image = image
+        }
+    }
+
     // MARK: - User avatars
 
     public func setUserAvatar(for userId: String, with style: UIUserInterfaceStyle) {

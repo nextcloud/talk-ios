@@ -3501,6 +3501,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
             UIImage *image = [NCUtils getImageWithString:name withBackgroundColor:guestAvatarColor withBounds:suggestionCell.avatarButton.bounds isCircular:YES];
             [suggestionCell.avatarButton setImage:image forState:UIControlStateNormal];
+        } else if ([suggestionSource isEqualToString:@"groups"]) {
+            [suggestionCell.avatarButton setGroupAvatarWith:self.traitCollection.userInterfaceStyle];
         } else {
             [suggestionCell.avatarButton setUserAvatarFor:suggestionId with:self.traitCollection.userInterfaceStyle];
         }
@@ -3725,6 +3727,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"guests"]) {
             mention.mentionId = [NSString stringWithFormat:@"@\"%@\"", mention.parameterId];
         }
+        // Group mentions are wrapped with double quotes @"group/groupId"
+        if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"groups"]) {
+            mention.mentionId = [NSString stringWithFormat:@"@\"%@\"", mention.parameterId];
+        }
         // User-ids with a space should be wrapped in double quoutes
         NSRange whiteSpaceRange = [mention.parameterId rangeOfCharacterFromSet:[NSCharacterSet whitespaceCharacterSet]];
         if (whiteSpaceRange.location != NSNotFound) {
@@ -3735,6 +3741,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             mention.type = @"call";
         } else if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"users"]) {
             mention.type = @"user";
+        } else if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"guests"]) {
+            mention.type = @"guest";
+        } else if ([[self.autocompletionUsers[indexPath.row] objectForKey:@"source"] isEqualToString:@"groups"]) {
+            mention.type = @"user-group";
         }
         
         NSString *mentionKey = [NSString stringWithFormat:@"mention-%ld", _mentionsDict.allKeys.count];
