@@ -84,9 +84,7 @@ import UIKit
         self.headerView.avatarImageView.setAvatar(for: self.room, with: self.traitCollection.userInterfaceStyle)
 
         self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: self.room.accountId)
-
-        // TODO: When all avatars have a version, this needs to be adjusted to
-        self.headerView.trashButton.isHidden = self.room.avatarVersion.isEmpty
+        self.headerView.trashButton.isHidden = !self.room.isCustomAvatar
 
         // Need to have an explicit size here for the header view
         let size = self.headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)

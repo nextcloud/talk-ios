@@ -79,6 +79,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     room.callRecording = [[roomDict objectForKey:@"callRecording"] integerValue];
     room.callStartTime = [[roomDict objectForKey:@"callStartTime"] integerValue];
     room.avatarVersion = [roomDict objectForKey:@"avatarVersion"];
+    room.isCustomAvatar = [roomDict objectForKey:@"isCustomAvatar"];
     
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -186,6 +187,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.callRecording = room.callRecording;
     managedRoom.callStartTime = room.callStartTime;
     managedRoom.avatarVersion = room.avatarVersion;
+    managedRoom.isCustomAvatar = room.isCustomAvatar;
 }
 
 + (NSString *)primaryKey {
