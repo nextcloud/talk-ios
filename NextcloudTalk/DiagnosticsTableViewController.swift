@@ -507,7 +507,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
         case ServerSections.kServerSectionNotificationsAppEnabled.rawValue:
             cell.textLabel?.text = NSLocalizedString("Notifications app enabled?", comment: "")
-            cell.detailTextLabel?.text = readableBool(for: serverCapabilities.notificationsAppEnabled)
+            cell.detailTextLabel?.text = readableBool(for: serverCapabilities.notificationsCapabilities.count > 0)
 
         case ServerSections.kServerSectionReachable.rawValue:
             cell.textLabel?.text = NSLocalizedString("Reachable?", comment: "")

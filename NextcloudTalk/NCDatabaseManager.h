@@ -75,6 +75,8 @@ extern NSString * const kCapabilitySingleConvStatus;
 extern NSString * const kCapabilityChatKeepNotifications;
 extern NSString * const kCapabilityConversationAvatars;
 
+extern NSString * const kNotificationsCapabilityExists;
+
 extern NSString * const kMinimumRequiredTalkCapability;
 
 @interface NCDatabaseManager : NSObject
@@ -104,6 +106,7 @@ extern NSString * const kMinimumRequiredTalkCapability;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId;
+- (BOOL)serverHasNotificationsCapability:(NSString *)capability forAccountId:(NSString *)accountId;
 - (void)setExternalSignalingServerVersion:(NSString *)version forAccountId:(NSString *)accountId;
 
 @end
