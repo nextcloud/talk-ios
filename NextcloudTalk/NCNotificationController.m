@@ -306,7 +306,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
 
-        if (!serverCapabilities || !serverCapabilities.notificationsAppEnabled) {
+        if (!serverCapabilities || [serverCapabilities.notificationsCapabilities count] == 0) {
             continue;
         }
 
@@ -326,7 +326,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
 
             for (NSDictionary *notification in notifications) {
                 NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
-                
+
                 // Only process Talk notifications
                 if (!serverNotification || ![serverNotification.app isEqualToString:kNCPNAppIdKey]) {
                     continue;
@@ -386,6 +386,65 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
             block(nil);
         }
     });
+}
+
+- (void)checkNotificationExistanceWithCompletionBlock:(CheckNotificationExistanceCompletionBlock)block
+{
+    dispatch_group_t notificationsGroup = dispatch_group_create();
+
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
+        if (![[NCDatabaseManager sharedInstance] serverHasNotificationsCapability:kNotificationsCapabilityExists forAccountId:account.accountId]) {
+            continue;
+        }
+
+        dispatch_group_enter(notificationsGroup);
+
+        [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
+            NSMutableArray *notificationIdsOnDevice = [[NSMutableArray alloc] init];
+
+            for (UNNotification *notification in notifications) {
+                UNNotificationRequest *notificationRequest = notification.request;
+                NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
+                NSInteger notificationId = [[notificationRequest.content.userInfo objectForKey:@"notificationId"] integerValue];
+
+                if (![notificationAccountId isEqualToString:account.accountId]) {
+                    return;
+                }
+
+                [notificationIdsOnDevice addObject:@(notificationId)];
+            }
+
+            if ([notificationIdsOnDevice count] == 0) {
+                // No notifications for this account are currently shown on the system -> no need to check anything
+
+                dispatch_group_leave(notificationsGroup);
+                return;
+            }
+
+            [[NCAPIController sharedInstance] checkNotificationExistance:notificationIdsOnDevice forAccount:account withCompletionBlock:^(NSArray *notificationIds, NSError *error) {
+                if (error) {
+                    dispatch_group_leave(notificationsGroup);
+                    return;
+                }
+
+                // Remove all notificationIds which are still on the server
+                for (id notificationId in notificationIds) {
+                    [notificationIdsOnDevice removeObject:notificationId];
+                }
+
+                [self removeNotificationWithNotificationIds:notificationIdsOnDevice forAccountId:account.accountId];
+
+                dispatch_group_leave(notificationsGroup);
+            }];
+        }];
+
+        dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
+            // Notify backgroundFetch that we're finished
+            if (block) {
+                block(nil);
+            }
+        });
+    }
 }
 
 #pragma mark - UNUserNotificationCenter delegate

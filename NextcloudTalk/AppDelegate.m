@@ -418,6 +418,18 @@
         dispatch_group_leave(backgroundRefreshGroup);
     }];
 
+    // Check if the shown notifications are still available on the server
+    dispatch_group_enter(backgroundRefreshGroup);
+    [[NCNotificationController sharedInstance] checkNotificationExistanceWithCompletionBlock:^(NSError *error) {
+        [NCUtils log:@"CompletionHandler checkNotificationExistance"];
+
+        if (error) {
+            errorOccurred = YES;
+        }
+
+        dispatch_group_leave(backgroundRefreshGroup);
+    }];
+
     /* Disable checking for new messages for now, until we can prevent them from showing twice
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCNotificationController sharedInstance] checkForNewNotificationsWithCompletionBlock:^(NSError *error) {
