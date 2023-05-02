@@ -2713,6 +2713,31 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
 }
 
+- (NSURLSessionDataTask *)checkNotificationExistance:(NSArray *)notificationIds forAccount:(TalkAccount *)account withCompletionBlock:(CheckNotificationExistanceBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/notifications/exists", account.server];
+
+    NSDictionary *parameters = @{
+        @"ids" : notificationIds,
+    };
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSArray *responseArray = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(responseArray, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error);
+        }
+    }];
+
+    return task;
+}
+
 
 #pragma mark - Push Notifications
 
