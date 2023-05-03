@@ -119,6 +119,16 @@
 
             referenceView.addSubview(githubView)
             foundReferenceView = true
+        } else if richObjectType == "integration_github_code_permalink",
+                  let reference = firstReference["richObject"] as? [String: AnyObject] {
+
+            let githubPermalinkView = ReferenceGithubPermalinkView(frame: self.frame)
+            githubPermalinkView.update(for: reference, and: url)
+            githubPermalinkView.frame = self.bounds
+            githubPermalinkView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+            referenceView.addSubview(githubPermalinkView)
+            foundReferenceView = true
         } else if richObjectType == "deck-card",
                   let reference = firstReference["richObject"] as? [String: AnyObject] {
 
@@ -131,6 +141,7 @@
             foundReferenceView = true
         } else if let reference = firstReference["openGraphObject"] as? [String: String?] {
             let defaultView = ReferenceDefaultView(frame: self.frame)
+
             defaultView.update(for: reference, and: url)
             defaultView.frame = self.bounds
             defaultView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
