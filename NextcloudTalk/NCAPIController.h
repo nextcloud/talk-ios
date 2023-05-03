@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 
 #import <SDWebImage/SDWebImageManager.h>
-#import <SDWebImageSVGCoderDefine.h>
+#import <SDWebImageSVGKitDefine.h>
 
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"

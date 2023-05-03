@@ -20,6 +20,12 @@
 		1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C41A229EDF05700F58435 /* AvatarEditView.swift */; };
 		1F3C41A529EDF0B800F58435 /* AvatarEditView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */; };
 		1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
+		1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1152A01D6EC005FE87D /* SDWebImage */; };
+		1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1192A01D70E005FE87D /* SDWebImage */; };
+		1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A11D2A01D719005FE87D /* SDWebImage */; };
+		1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */; };
+		1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */; };
+		1F45A1252A01D8F7005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */; };
 		1F468E7628DCC6C60099597B /* Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 1F468E7528DCC6C60099597B /* Dynamic */; };
 		1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F468E7728DCC7310099597B /* EmojiTextField.swift */; };
 		1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */; };
@@ -66,12 +72,6 @@
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
-		1FDCC3D729EC326400DEB39B /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1FDCC3D629EC326400DEB39B /* SDWebImage */; };
-		1FDCC3DA29EC367700DEB39B /* SDWebImageSVGCoder in Frameworks */ = {isa = PBXBuildFile; productRef = 1FDCC3D929EC367700DEB39B /* SDWebImageSVGCoder */; };
-		1FDCC3DC29EC449900DEB39B /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1FDCC3DB29EC449900DEB39B /* SDWebImage */; };
-		1FDCC3DE29EC449900DEB39B /* SDWebImageSVGCoder in Frameworks */ = {isa = PBXBuildFile; productRef = 1FDCC3DD29EC449900DEB39B /* SDWebImageSVGCoder */; };
-		1FDCC3E029EC44A400DEB39B /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1FDCC3DF29EC44A400DEB39B /* SDWebImage */; };
-		1FDCC3E229EC44A400DEB39B /* SDWebImageSVGCoder in Frameworks */ = {isa = PBXBuildFile; productRef = 1FDCC3E129EC44A400DEB39B /* SDWebImageSVGCoder */; };
 		1FDCC3E329EC787400DEB39B /* AvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */; };
 		1FDCC3ED29EC7E6700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
 		1FDCC3EE29EC7E8500DEB39B /* AvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */; };
@@ -842,15 +842,15 @@
 				2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */,
 				2CCCD21D2835088F00F076CE /* OpenSSL in Frameworks */,
 				1F90EFC725FE4BE700F3FA55 /* IntentsUI.framework in Frameworks */,
-				1FDCC3DA29EC367700DEB39B /* SDWebImageSVGCoder in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
+				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
+				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
-				1FDCC3D729EC326400DEB39B /* SDWebImage in Frameworks */,
 				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
 				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
 				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
@@ -862,10 +862,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FDCC3E029EC44A400DEB39B /* SDWebImage in Frameworks */,
 				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
-				1FDCC3E229EC44A400DEB39B /* SDWebImageSVGCoder in Frameworks */,
+				1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */,
+				1F45A1252A01D8F7005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -873,11 +873,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
 				1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */,
-				1FDCC3DC29EC449900DEB39B /* SDWebImage in Frameworks */,
-				1FDCC3DE29EC449900DEB39B /* SDWebImageSVGCoder in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
+				1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1576,9 +1576,9 @@
 				1F468E7528DCC6C60099597B /* Dynamic */,
 				1F628CB92842BAAF0083A425 /* QRCodeReader */,
 				1F7AE07729142CA1009F72AD /* NextcloudKit */,
-				1FDCC3D629EC326400DEB39B /* SDWebImage */,
-				1FDCC3D929EC367700DEB39B /* SDWebImageSVGCoder */,
 				1F66B72E29FABD01003FB168 /* SwiftyAttributes */,
+				1F45A1152A01D6EC005FE87D /* SDWebImage */,
+				1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1601,8 +1601,8 @@
 			name = ShareExtension;
 			packageProductDependencies = (
 				1F7AE07B29142E6A009F72AD /* NextcloudKit */,
-				1FDCC3DF29EC44A400DEB39B /* SDWebImage */,
-				1FDCC3E129EC44A400DEB39B /* SDWebImageSVGCoder */,
+				1F45A1192A01D70E005FE87D /* SDWebImage */,
+				1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -1624,8 +1624,8 @@
 			name = NotificationServiceExtension;
 			packageProductDependencies = (
 				1F7AE07929142E62009F72AD /* NextcloudKit */,
-				1FDCC3DB29EC449900DEB39B /* SDWebImage */,
-				1FDCC3DD29EC449900DEB39B /* SDWebImageSVGCoder */,
+				1F45A11D2A01D719005FE87D /* SDWebImage */,
+				1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -1705,9 +1705,9 @@
 				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
 				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
-				1FDCC3D529EC326400DEB39B /* XCRemoteSwiftPackageReference "SDWebImage" */,
-				1FDCC3D829EC367700DEB39B /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */,
 				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
+				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -2913,6 +2913,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = exactVersion;
+				version = 5.15.6;
+			};
+		};
+		1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSVGKitPlugin.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.4.0;
+			};
+		};
 		1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mhdhejazi/Dynamic.git";
@@ -2945,22 +2961,6 @@
 				version = 1.6.0;
 			};
 		};
-		1FDCC3D529EC326400DEB39B /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
-			requirement = {
-				kind = exactVersion;
-				version = 5.15.5;
-			};
-		};
-		1FDCC3D829EC367700DEB39B /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSVGCoder.git";
-			requirement = {
-				kind = exactVersion;
-				version = 1.6.1;
-			};
-		};
 		2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/krzyzanowskim/OpenSSL";
@@ -2972,6 +2972,36 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1F45A1152A01D6EC005FE87D /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		1F45A1192A01D70E005FE87D /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		1F45A11D2A01D719005FE87D /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			productName = SDWebImageSVGKitPlugin;
+		};
+		1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			productName = SDWebImageSVGKitPlugin;
+		};
+		1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			productName = SDWebImageSVGKitPlugin;
+		};
 		1F468E7528DCC6C60099597B /* Dynamic */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
@@ -3001,36 +3031,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
 			productName = NextcloudKit;
-		};
-		1FDCC3D629EC326400DEB39B /* SDWebImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FDCC3D529EC326400DEB39B /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImage;
-		};
-		1FDCC3D929EC367700DEB39B /* SDWebImageSVGCoder */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FDCC3D829EC367700DEB39B /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */;
-			productName = SDWebImageSVGCoder;
-		};
-		1FDCC3DB29EC449900DEB39B /* SDWebImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FDCC3D529EC326400DEB39B /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImage;
-		};
-		1FDCC3DD29EC449900DEB39B /* SDWebImageSVGCoder */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FDCC3D829EC367700DEB39B /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */;
-			productName = SDWebImageSVGCoder;
-		};
-		1FDCC3DF29EC44A400DEB39B /* SDWebImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FDCC3D529EC326400DEB39B /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImage;
-		};
-		1FDCC3E129EC44A400DEB39B /* SDWebImageSVGCoder */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FDCC3D829EC367700DEB39B /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */;
-			productName = SDWebImageSVGCoder;
 		};
 		2CCCD21C2835088F00F076CE /* OpenSSL */ = {
 			isa = XCSwiftPackageProductDependency;
