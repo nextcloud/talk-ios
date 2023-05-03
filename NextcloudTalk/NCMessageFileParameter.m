@@ -32,6 +32,7 @@
         self.mimetype = [parameterDict objectForKey:@"mimetype"];
         self.size = [[parameterDict objectForKey:@"size"] integerValue];
         self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
+        self.previewImageHeight = [[parameterDict objectForKey:@"preview-image-height"] intValue];
     }
     
     return self;
