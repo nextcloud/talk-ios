@@ -73,6 +73,8 @@ typedef void (^ClearChatHistoryCompletionBlock)(NSDictionary *messageDict, NSErr
 typedef void (^GetSharedItemsOverviewCompletionBlock)(NSDictionary *sharedItemsOverview, NSError *error, NSInteger statusCode);
 typedef void (^GetSharedItemsCompletionBlock)(NSArray *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 
+typedef void (^MessageTranslationCompletionBlock)(NSDictionary *translationDict, NSError *error, NSInteger statusCode);
+
 typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
 
 typedef void (^PollCompletionBlock)(NCPoll *poll, NSError *error, NSInteger statusCode);
@@ -208,6 +210,9 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)markChatAsUnreadInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)getSharedItemsOverviewInRoom:(NSString *)token withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsOverviewCompletionBlock)block;
 - (NSURLSessionDataTask *)getSharedItemsOfType:(NSString *)objectType fromLastMessageId:(NSInteger)messageId withLimit:(NSInteger)limit inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsCompletionBlock)block;
+
+// Translations
+- (NSURLSessionDataTask *)translateMessage:(NSString *)message from:(NSString *)from to:(NSString *)to forAccount:(TalkAccount *)account withCompletionBlock:(MessageTranslationCompletionBlock)block;
 
 // Reactions Controller
 - (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;

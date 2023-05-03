@@ -1592,6 +1592,36 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+#pragma mark - Translations Controller
+
+- (NSURLSessionDataTask *)translateMessage:(NSString *)message from:(NSString *)from to:(NSString *)to forAccount:(TalkAccount *)account withCompletionBlock:(MessageTranslationCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/translation/translate", account.server];
+    NSMutableDictionary *parameters = [NSMutableDictionary new];
+    [parameters setValue:message forKey:@"text"];
+    [parameters setValue:to forKey:@"toLanguage"];
+    if (from.length > 0) {
+        [parameters setValue:from forKey:@"fromLanguage"];
+    }
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *translationDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(translationDict, nil, httpResponse.statusCode);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        NSDictionary *failureDict = [[[self getFailureResponseObjectFromError:error] objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(failureDict, error, statusCode);
+        }
+    }];
+
+    return task;
+}
+
 #pragma mark - Reactions Controller
 
 - (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block
@@ -2955,6 +2985,31 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         statusCode = httpResponse.statusCode;
     }
     return statusCode;
+}
+
+- (NSDictionary *)getFailureResponseObjectFromError:(NSError *)error
+{
+    NSDictionary *responseDict = @{};
+    NSString* errorResponse = [[NSString alloc] initWithData:(NSData *)error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey] encoding:NSUTF8StringEncoding];
+
+    if (errorResponse.length == 0) {
+        return nil;
+    }
+
+    NSData *data = [errorResponse dataUsingEncoding:NSUTF8StringEncoding];
+    if (data) {
+        NSError* error;
+        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:0
+                                                                   error:&error];
+        if (jsonData) {
+            responseDict = jsonData;
+        } else {
+            NSLog(@"Error retrieving failure response object JSON data: %@", error);
+        }
+    }
+
+    return responseDict;
 }
 
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account
