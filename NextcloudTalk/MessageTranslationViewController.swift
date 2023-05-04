@@ -201,11 +201,7 @@ import UIKit
         self.setTranslatingUI()
         NCAPIController.sharedInstance().translateMessage(originalMessage, from: from, to: to, for: activeAccount) { responseDict, error, _ in
             self.removeTranslatingUI()
-            if error != nil {
-                self.configureFromButton(title: nil, enabled: true)
-                self.configureToButton(title: nil, enabled: false, fromLanguageCode: "")
-                self.showTranslationError(message: NSLocalizedString("An error occurred trying to translate message", comment: ""))
-            }
+
             if let responseDict = responseDict as? [String: String] {
                 if let translatedText = responseDict["text"] {
                     self.translatedText = translatedText
@@ -221,10 +217,19 @@ import UIKit
                 }
                 if let errorMessage = responseDict["message"] {
                     self.translationErrorMessage = errorMessage
+                }
+            }
+
+            if error != nil {
+                if self.detectedFromLanguageCode.isEmpty {
                     self.configureFromButton(title: nil, enabled: true)
                     self.configureToButton(title: nil, enabled: false, fromLanguageCode: "")
-                    self.showTranslationError(message: errorMessage)
                 }
+                var errorMessage = NSLocalizedString("An error occurred trying to translate message", comment: "")
+                if !self.translationErrorMessage.isEmpty {
+                    errorMessage = self.translationErrorMessage
+                }
+                self.showTranslationError(message: errorMessage)
             }
         }
     }
