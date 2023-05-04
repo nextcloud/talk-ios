@@ -73,6 +73,10 @@
 		1FDCC3F029ECB4CE00DEB39B /* AvatarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */; };
 		1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDE7C9928DE14A200CB718E /* ReferenceView.swift */; };
 		1FDE7C9C28DE14B000CB718E /* ReferenceView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */; };
+		1FEC459C2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */; };
+		1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */; };
+		1FEC45A32A02F92700A636AA /* GithubPermalinkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEC45A22A02F92700A636AA /* GithubPermalinkViewController.swift */; };
+		1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FEC45A42A02F92B00A636AA /* GithubPermalinkViewController.xib */; };
 		1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
 		1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
 		1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
@@ -438,6 +442,10 @@
 		1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvatarButton.swift; sourceTree = "<group>"; };
 		1FDE7C9928DE14A200CB718E /* ReferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceView.swift; sourceTree = "<group>"; };
 		1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReferenceView.xib; sourceTree = "<group>"; };
+		1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubPermalinkView.xib; sourceTree = "<group>"; };
+		1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubPermalinkView.swift; sourceTree = "<group>"; };
+		1FEC45A22A02F92700A636AA /* GithubPermalinkViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GithubPermalinkViewController.swift; sourceTree = "<group>"; };
+		1FEC45A42A02F92B00A636AA /* GithubPermalinkViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GithubPermalinkViewController.xib; sourceTree = "<group>"; };
 		1FEDE3C4257D439500853F79 /* NCChatFileController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCChatFileController.m; sourceTree = "<group>"; };
 		1FEDE3C5257D439500853F79 /* NCChatFileController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCChatFileController.h; sourceTree = "<group>"; };
 		1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCMessageFileParameter.m; sourceTree = "<group>"; };
@@ -905,6 +913,10 @@
 				1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */,
 				1F24B5A128E0648600654457 /* ReferenceGithubView.swift */,
 				1F24B5A328E0649200654457 /* ReferenceGithubView.xib */,
+				1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */,
+				1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */,
+				1FEC45A22A02F92700A636AA /* GithubPermalinkViewController.swift */,
+				1FEC45A42A02F92B00A636AA /* GithubPermalinkViewController.xib */,
 				1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */,
 				1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */,
 			);
@@ -1738,6 +1750,7 @@
 				2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */,
+				1FEC459C2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib in Resources */,
 				2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */,
 				2C7A245D24FE7B5300921A21 /* ShareConfirmationViewController.xib in Resources */,
 				1FDE7C9C28DE14B000CB718E /* ReferenceView.xib in Resources */,
@@ -1747,6 +1760,7 @@
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
+				1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */,
 				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
@@ -1940,6 +1954,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */,
 				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
@@ -2114,6 +2129,7 @@
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
 				2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */,
+				1FEC45A32A02F92700A636AA /* GithubPermalinkViewController.swift in Sources */,
 				2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
