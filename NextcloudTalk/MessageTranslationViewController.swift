@@ -49,6 +49,7 @@ import UIKit
     var selectedToLanguageCode: String = ""
     var translationErrorMessage: String = ""
     var modifyingProfileView = UIActivityIndicatorView()
+    var didTriggerInitialTranslation: Bool = false
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -101,12 +102,15 @@ import UIKit
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
-        self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
+        if !didTriggerInitialTranslation {
+            self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
+            self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
 
-        self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
+            self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
 
-        self.translateOriginalText(from: "", to: userLanguageCode ?? "")
+            self.didTriggerInitialTranslation = true
+            self.translateOriginalText(from: "", to: userLanguageCode ?? "")
+        }
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
