@@ -33,6 +33,7 @@
 #import "NCImageSessionManager.h"
 #import "NCPushProxySessionManager.h"
 #import "NCKeyChainController.h"
+#import "NCWebImageDownloaderOperation.h"
 #import "NotificationCenterNotifications.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -137,6 +138,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
     // Make sure we support download SVGs with SDImageDownloader
     [[SDImageCodersManager sharedManager] addCoder:[SDImageSVGKCoder sharedCoder]];
+
+    // Make sure we support self-signed certificates we trusted before
+    [[SDWebImageDownloader sharedDownloader].config setOperationClass:[NCWebImageDownloaderOperation class]];
 
     // Set the caching path to be in our app group and limit size to 100 MB
     NSURL *avatarCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
