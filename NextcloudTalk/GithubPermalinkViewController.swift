@@ -88,6 +88,10 @@ import SwiftyAttributes
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
 
+        let githubButton = UIBarButtonItem(image: UIImage(named: "github")?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(githubButtonPressed))
+        self.navigationItem.rightBarButtonItem = githubButton
+        self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+
         let font = Font.systemFont(ofSize: 16)
         let fontSemibold = Font.systemFont(ofSize: 16, weight: .semibold)
 
@@ -124,9 +128,6 @@ import SwiftyAttributes
         formattedPath = formattedPath.withFont(fontSemibold).withTextColor(.secondaryLabel)
         formattedPath += self.filePath.withFont(font)
         self.fileLabel.attributedText = formattedPath
-
-        let githubButton = UIBarButtonItem(image: UIImage(named: "github")?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(githubButtonPressed))
-        self.navigationItem.rightBarButtonItem = githubButton
     }
 
     func githubButtonPressed() {
