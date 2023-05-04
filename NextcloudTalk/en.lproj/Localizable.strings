@@ -191,6 +191,9 @@
 "An error occurred while removing a reaction from message" = "An error occurred while removing a reaction from message";
 
 /* No comment provided by engineer. */
+"An error occurred while removing the avatar" = "An error occurred while removing the avatar";
+
+/* No comment provided by engineer. */
 "An error occurred while sending the message" = "An error occurred while sending the message";
 
 /* No comment provided by engineer. */
@@ -201,6 +204,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while setting status message" = "An error occurred while setting status message";
+
+/* No comment provided by engineer. */
+"An error occurred while setting the avatar" = "An error occurred while setting the avatar";
 
 /* No comment provided by engineer. */
 "An error occurred while sharing the file" = "An error occurred while sharing the file";
@@ -357,6 +363,9 @@
 
 /* No comment provided by engineer. */
 "Continue to next step of conversation creation" = "Continue to next step of conversation creation";
+
+/* No comment provided by engineer. */
+"Conversation details" = "Conversation details";
 
 /* No comment provided by engineer. */
 "Conversation name" = "Conversation name";
@@ -668,9 +677,6 @@
 "Duplicate session" = "Duplicate session";
 
 /* No comment provided by engineer. */
-"Edit" = "Edit";
-
-/* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
 
 /* No comment provided by engineer. */
@@ -708,6 +714,9 @@
 
 /* No comment provided by engineer. */
 "Fetching status …" = "Fetching status …";
+
+/* Filename of a file */
+"File" = "File";
 
 /* No comment provided by engineer. */
 "Files" = "Files";
@@ -1096,6 +1105,9 @@
 /* No comment provided by engineer. */
 "Others" = "Others";
 
+/* Owner of a repository */
+"Owner" = "Owner";
+
 /* No comment provided by engineer. */
 "Password" = "Password";
 
@@ -1228,6 +1240,9 @@
 /* No comment provided by engineer. */
 "Reply privately" = "Reply privately";
 
+/* Name of a repository */
+"Repo" = "Repo";
+
 /* No comment provided by engineer. */
 "Resend" = "Resend";
 
@@ -1260,6 +1275,9 @@
 
 /* No comment provided by engineer. */
 "Send" = "Send";
+
+/* No comment provided by engineer. */
+"Send a reaction" = "Send a reaction";
 
 /* No comment provided by engineer. */
 "Send call notification" = "Send call notification";
@@ -1350,6 +1368,9 @@
 
 /* No comment provided by engineer. */
 "Some messages not shown, will be downloaded when online" = "Some messages not shown, will be downloaded when online";
+
+/* No comment provided by engineer. */
+"Sourcecode" = "Sourcecode";
 
 /* No comment provided by engineer. */
 "Speaker" = "Speaker";
