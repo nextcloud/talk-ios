@@ -111,16 +111,16 @@ import SwiftyAttributes
             var localizedSuffix: NSAttributedString
 
             if self.typingUsers.count == 1 {
-                localizedSuffix = NSLocalizedString("is typing...", comment: "Alice is typing...").withTextColor(.tertiaryLabel)
+                localizedSuffix = NSLocalizedString("is typing…", comment: "Alice is typing…").withTextColor(.tertiaryLabel)
 
             } else if self.typingUsers.count == 2 || self.typingUsers.count == 3 {
-                localizedSuffix = NSLocalizedString("are typing...", comment: "Alice and Bob are typing...").withTextColor(.tertiaryLabel)
+                localizedSuffix = NSLocalizedString("are typing…", comment: "Alice and Bob are typing…").withTextColor(.tertiaryLabel)
 
             } else if self.typingUsers.count == 4 {
-                localizedSuffix = NSLocalizedString("and 1 other is typing...", comment: "Alice, Bob, Charlie and 1 other is typing...").withTextColor(.tertiaryLabel)
+                localizedSuffix = NSLocalizedString("and 1 other is typing…", comment: "Alice, Bob, Charlie and 1 other is typing…").withTextColor(.tertiaryLabel)
 
             } else {
-                let localizedString = NSLocalizedString("and %ld others are typing...", comment: "Alice, Bob, Charlie and 3 others are typing...")
+                let localizedString = NSLocalizedString("and %ld others are typing…", comment: "Alice, Bob, Charlie and 3 others are typing…")
                 let formattedString = String(format: localizedString, self.typingUsers.count - 3)
                 localizedSuffix = formattedString.withTextColor(.tertiaryLabel)
             }
