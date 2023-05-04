@@ -21,7 +21,6 @@
 
 import UIKit
 import SDWebImage
-import SDWebImageSVGCoder
 
 @objcMembers class AvatarManager: NSObject {
 

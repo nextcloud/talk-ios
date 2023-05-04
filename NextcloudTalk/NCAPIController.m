@@ -136,7 +136,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     // By default SDWebImageDownloader defaults to 6 concurrent downloads (see SDWebImageDownloaderConfig)
 
     // Make sure we support download SVGs with SDImageDownloader
-    [[SDImageCodersManager sharedManager] addCoder:[SDImageSVGCoder sharedCoder]];
+    [[SDImageCodersManager sharedManager] addCoder:[SDImageSVGKCoder sharedCoder]];
 
     // Set the caching path to be in our app group and limit size to 100 MB
     NSURL *avatarCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
@@ -2224,7 +2224,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
-    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+    // Make sure we get at least a 512x512 image when retrieving an SVG with SVGKit
+    SDWebImageContext *context = @{
+        SDWebImageContextDownloadRequestModifier : requestModifier,
+        SDWebImageContextImageThumbnailPixelSize : @(CGSizeMake(512, 512))
+    };
+    
+    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         if (error) {
             if (block) {
                 block(nil, error);
