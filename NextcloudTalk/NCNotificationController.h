@@ -32,6 +32,7 @@ extern NSString * const NCNotificationActionDismissRecordingNotification;
 extern NSString * const NCNotificationActionReplyToChat;
 
 typedef void (^CheckForNewNotificationsCompletionBlock)(NSError *error);
+typedef void (^CheckNotificationExistanceCompletionBlock)(NSError *error);
 
 typedef enum {
     kNCLocalNotificationTypeMissedCall = 1,
@@ -53,5 +54,6 @@ typedef enum {
 - (void)showIncomingCallForOldAccount;
 - (void)removeAllNotificationsForAccountId:(NSString *)accountId;
 - (void)checkForNewNotificationsWithCompletionBlock:(CheckForNewNotificationsCompletionBlock)block;
+- (void)checkNotificationExistanceWithCompletionBlock:(CheckNotificationExistanceCompletionBlock)block;
 
 @end

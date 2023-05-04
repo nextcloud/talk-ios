@@ -107,9 +107,11 @@ typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *
 typedef void (^SetUserStatusCompletionBlock)(NSError *error);
 
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
+
 typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
 typedef void (^GetServerNotificationsCompletionBlock)(NSArray *notifications, NSString *ETag, NSString *userStatus, NSError *error);
 typedef void (^ExecuteNotificationActionCompletionBlock)(NSError *error);
+typedef void (^CheckNotificationExistanceBlock)(NSArray *notificationIds, NSError *error);
 
 typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
 typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
@@ -279,6 +281,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getServerNotification:(NSInteger)notificationId forAccount:(TalkAccount *)account withCompletionBlock:(GetServerNotificationCompletionBlock)block;
 - (NSURLSessionDataTask *)getServerNotificationsForAccount:(TalkAccount *)account withLastETag:(NSString *)lastETag withCompletionBlock:(GetServerNotificationsCompletionBlock)block;
 - (void)executeNotificationAction:(NCNotificationAction *)action forAccount:(TalkAccount *)account withCompletionBlock:(ExecuteNotificationActionCompletionBlock)block;
+- (NSURLSessionDataTask *)checkNotificationExistance:(NSArray *)notificationIds forAccount:(TalkAccount *)account withCompletionBlock:(CheckNotificationExistanceBlock)block;
 
 // Push Notifications
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account withPublicKey:(NSData *)publicKey toNextcloudServerWithCompletionBlock:(SubscribeToNextcloudServerCompletionBlock)block;

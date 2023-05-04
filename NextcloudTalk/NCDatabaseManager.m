@@ -80,6 +80,8 @@ NSString * const kCapabilityChatKeepNotifications   = @"chat-keep-notifications"
 NSString * const kCapabilityConversationAvatars     = @"avatar";
 NSString * const kCapabilityTypingIndicators        = @"typing-indicators";
 
+NSString * const kNotificationsCapabilityExists     = @"exists";
+
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
 @implementation NCDatabaseManager
@@ -385,7 +387,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.talkVersion = [talkCaps objectForKey:@"version"];
     capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     capabilities.referenceApiSupported = [[coreCaps objectForKey:@"reference-api"] boolValue];
-    capabilities.notificationsAppEnabled = ([notificationsCaps objectForKey:@"ocs-endpoints"] != nil);
+    capabilities.notificationsCapabilities = [notificationsCaps objectForKey:@"ocs-endpoints"];
 
     NSDictionary *talkConfig = [talkCaps objectForKey:@"config"];
     NSDictionary *callConfig = [talkConfig objectForKey:@"call"];
@@ -454,6 +456,19 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     }
     return NO;
 }
+
+- (BOOL)serverHasNotificationsCapability:(NSString *)capability forAccountId:(NSString *)accountId
+{
+    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+    if (serverCapabilities) {
+        NSArray *notificationsFeatures = [serverCapabilities.notificationsCapabilities valueForKey:@"self"];
+        if ([notificationsFeatures containsObject:capability]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 
 - (void)setExternalSignalingServerVersion:(NSString *)version forAccountId:(NSString *)accountId
 {
