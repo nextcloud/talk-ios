@@ -30,6 +30,12 @@ import SwiftyAttributes
     @IBOutlet weak var referenceBody: UITextView!
 
     var url: String?
+    var allLines: [String]?
+    var lineBegin = 0
+    var lineEnd = 0
+    var fileName = ""
+    var owner = ""
+    var repo = ""
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -63,8 +69,72 @@ import SwiftyAttributes
     }
 
     func handleTap() {
-        if let url = url {
-            NCUtils.openLink(inBrowser: url)
+        if let url = url, let allLines = allLines {
+            // Use a monospaced font here to make overlaying the two textViews possible
+            guard let font = Font(name: "Menlo", size: 16) else {
+                return
+            }
+
+            // Calculate the size/width of the line numbers at the front of each line
+            let sizeOfLineNumbersAndTab = ("\(self.lineEnd):  " as NSString).size(withAttributes: [NSAttributedString.Key.font: font])
+
+            // Create a paragraph with
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.headIndent = sizeOfLineNumbersAndTab.width.rounded(.up)
+
+            // We have actually two different attributed strings, one has line numbers prefixed to the actual line
+            // and one is without line numbers to allow overlaying it in the view controller
+            var sourceWithNumbers = NSAttributedString()
+            var sourceWithoutNumbers = NSAttributedString()
+
+            var lineCounter = self.lineBegin
+
+            // Remove any global indentation (preview only does it for the first 3 lines)
+            var tempLines = removeIndentation(for: " ", in: allLines)
+            tempLines = removeIndentation(for: "\t", in: tempLines)
+
+            // We need to pad the line numbers with a space to have them align properly
+            // so we determine the character count of the largest linenumber
+            let maximumLineNumberLength = String(lineEnd).count
+
+            for line in tempLines {
+                // Tabs might have a bad impact on indentation, so we replace them by default with spaces
+                var tempLine = line.replacingOccurrences(of: "\t", with: "   ")
+
+                // Empty lines have a different height in the textview, so we replace them with a space
+                if line.isEmpty {
+                    tempLine = " "
+                }
+
+                // Create the plain source code as a attributed string
+                let formattedLine = tempLine.withFont(font).withTextColor(.label) + "\n".attributedString
+                sourceWithoutNumbers += formattedLine
+
+                // Make sure the line numbers are probably padded to the left
+                let lineCounterString = String(lineCounter)
+                let lineNumberString = String(repeating: " ", count: maximumLineNumberLength - lineCounterString.count) + lineCounterString
+
+                // Create the source code as a attributed string including the line counter
+                var attributedLineNumber = lineNumberString.withTextColor(.secondaryLabel) + ":  ".withTextColor(.secondaryLabel)
+                attributedLineNumber = attributedLineNumber.withFont(font)
+
+                // Include a paragraph style to make sure that breaked lines are indented after the line numbers
+                let formattedLineWithLineNumber = attributedLineNumber + formattedLine
+                sourceWithNumbers += formattedLineWithLineNumber.withParagraphStyle(paragraphStyle)
+
+                lineCounter += 1
+            }
+
+            let permalinkVC = GithubPermalinkViewController(url: url,
+                                                            sourceWithLineNumbers: sourceWithNumbers,
+                                                            sourceWithoutLineNumbers: sourceWithoutNumbers,
+                                                            owner: self.owner,
+                                                            repo: self.repo,
+                                                            filePath: self.fileName,
+                                                            lineNumberWidth: sizeOfLineNumbersAndTab.width)
+
+            let navigationVC = UINavigationController(rootViewController: permalinkVC)
+            NCUserInterfaceController.sharedInstance().mainViewController.present(navigationVC, animated: true)
         }
     }
 
@@ -91,7 +161,7 @@ import SwiftyAttributes
             if totalIndentation == nil {
                 // There was no previous totalIdentation, so we use this one as a starting point
                 totalIndentation = lineIndentation
-            } else if lineIndentation < totalIndentation ?? 0 {
+            } else if lineIndentation < totalIndentation ?? 0, !line.isEmpty {
                 // We found a line with a lower number of intendation characters -> use this
                 totalIndentation = lineIndentation
             }
@@ -134,18 +204,23 @@ import SwiftyAttributes
         if let filePath = reference["filePath"] as? String {
             let filePathUrl = URL(string: filePath)
             self.referenceTitle.text = filePathUrl?.lastPathComponent
+            self.fileName = filePathUrl?.lastPathComponent ?? ""
         }
 
         self.referenceTypeIcon.image = UIImage(named: "github")?.withTintColor(UIColor.systemGray)
 
-        if let lines = reference["lines"] as? [String], !lines.isEmpty {
-            let firstLines = Array(lines.prefix(upTo: min(3, lines.count) ))
+        self.lineBegin = reference["lineBegin"] as? Int ?? 0
+        self.lineEnd = reference["lineEnd"] as? Int ?? 0
+        self.owner = reference["owner"] as? String ?? ""
+        self.repo = reference["repo"] as? String ?? ""
 
+        if let lines = reference["lines"] as? [String], !lines.isEmpty {
             // Remove global indentation if possible
-            var tempLines = removeIndentation(for: " ", in: firstLines)
+            let previewLines = Array(lines.prefix(upTo: min(3, lines.count)))
+            var tempLines = removeIndentation(for: " ", in: previewLines)
             tempLines = removeIndentation(for: "\t", in: tempLines)
 
-            var resultLines = NSAttributedString()
+            var previewString = NSAttributedString()
 
             // Each line should have its own lineBreakMode, therefore each line has a paragraph style attached
             let paragraphStyle = NSMutableParagraphStyle()
@@ -155,11 +230,13 @@ import SwiftyAttributes
 
             for line in tempLines {
                 let attributedLine = line.withParagraphStyle(paragraphStyle).withFont(font).withTextColor(.secondaryLabel)
-                resultLines += attributedLine + NSAttributedString(string: "\n")
+                previewString += attributedLine + NSAttributedString(string: "\n")
             }
 
-            self.referenceBody.attributedText = resultLines
+            self.allLines = lines
+            self.referenceBody.attributedText = previewString
         } else {
+            self.allLines = []
             self.referenceBody.text = ""
         }
     }
