@@ -789,4 +789,40 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return NO;
 }
 
+- (void)setPreviewImageHeight:(CGFloat)height
+{
+    // Since the messageParameters property is a non-mutable dictionary, we create a mutable copy
+    NSMutableDictionary *messageParameterDict = [[NSMutableDictionary alloc] initWithDictionary:self.messageParameters];
+    NSMutableDictionary *fileParameterDict = [[NSMutableDictionary alloc] initWithDictionary:[messageParameterDict objectForKey:@"file"]];
+
+    if (!fileParameterDict) {
+        return;
+    }
+
+    [messageParameterDict setObject:fileParameterDict forKey:@"file"];
+    [fileParameterDict setObject:@(height) forKey:@"preview-image-height"];
+
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messageParameterDict
+                                                       options:0
+                                                         error:nil];
+
+    if (jsonData) {
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+        // Only the JSON String is stored inside of the database
+        self.messageParametersJSONString = jsonString;
+
+        // Since we previously accessed the 'file' property, it would not be created from the JSON String again
+        // Manually set it for the lifetime of this message
+        self.file.previewImageHeight = height;
+
+        // Save our changes to the database
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        [realm transactionWithBlock:^{
+            NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.internalId].firstObject;
+            [NCChatMessage updateChatMessage:managedMessage withChatMessage:self isRoomLastMessage:NO];
+        }];
+    }
+}
+
 @end

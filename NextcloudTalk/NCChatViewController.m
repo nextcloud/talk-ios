@@ -4183,7 +4183,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     BOOL isAtBottom = [self shouldScrollOnNewMessages];
 
-    message.file.previewImageHeight = height;
+    [message setPreviewImageHeight:height];
 
     [CATransaction begin];
     [CATransaction setCompletionBlock:^{
