@@ -28,6 +28,9 @@
 @class TalkAccount;
 
 extern NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification;
+extern NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipant;
+extern NSString * const NCExternalSignalingControllerDidReceiveStartedTypingNotification;
+extern NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotification;
 
 typedef enum NCExternalSignalingSendMessageStatus {
     SendMessageSuccess = 0,
@@ -65,6 +68,7 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId;
+- (NSMutableDictionary *)getParticipantMap;
 - (void)connect;
 - (void)forceConnect;
 - (void)disconnect;

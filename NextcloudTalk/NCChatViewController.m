@@ -117,7 +117,8 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
                                     AVAudioPlayerDelegate,
                                     CNContactPickerDelegate,
                                     NCChatTitleViewDelegate,
-                                    VLCKitVideoViewControllerDelegate>
+                                    VLCKitVideoViewControllerDelegate,
+                                    UITextViewDelegate>
 
 @property (nonatomic, strong) NCChatTitleView *titleView;
 @property (nonatomic, strong) PlaceholderView *chatBackgroundView;
@@ -165,6 +166,8 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) NSTimer *messageExpirationTimer;
 @property (nonatomic, strong) UIButton *scrollToBottomButton;
 @property (nonatomic, strong) PHPickerViewController *photoPicker;
+@property (nonatomic, assign) BOOL isTyping;
+@property (nonatomic, strong) NSTimer *typingTimer;
 
 @end
 
@@ -184,10 +187,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         // Fixes problem with tableView contentSize on iOS 11
         self.tableView.estimatedRowHeight = 0;
         self.tableView.estimatedSectionHeaderHeight = 0;
+
         // Register a SLKTextView subclass, if you need any special appearance and/or behavior customisation.
         [self registerClassForTextView:[NCMessageTextView class]];
-        // Register ReplyMessageView class, conforming to SLKTypingIndicatorProtocol, as a custom typing indicator view.
-        [self registerClassForTypingIndicatorView:[ReplyMessageView class]];
+
+        // Register ReplyMessageView class, conforming to SLKVisibleViewProtocol, as a custom reply view.
+        [self registerClassForReplyView:[ReplyMessageView class]];
+
+        // Register TypingIndicatorView class, conforming to SLKVisibleViewProtocol, as a custom typing indicator view.
+        [self registerClassForTypingIndicatorView:[TypingIndicatorView class]];
+
         // Set image downloader to file preview imageviews.
         [FilePreviewImageView setSharedImageDownloader:[[NCAPIController sharedInstance] imageDownloader]];
         // Initialize the animation dispatch group/queue
@@ -217,6 +226,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFailRequestingCallTransaction:) name:CallKitManagerDidFailRequestingCallTransaction object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateParticipants:) name:NCExternalSignalingControllerDidUpdateParticipantsNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveStartedTyping:) name:NCExternalSignalingControllerDidReceiveStartedTypingNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveStoppedTyping:) name:NCExternalSignalingControllerDidReceiveStoppedTypingNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveParticipantJoin:) name:NCExternalSignalingControllerDidReceiveJoinOfParticipant object:nil];
 
         // Notifications when runing on Mac 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:@"NSApplicationDidBecomeActiveNotification" object:nil];
@@ -247,7 +259,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     self.messages = [[NSMutableDictionary alloc] init];
     self.mentionsDict = [[NSMutableDictionary alloc] init];
     self.dateSections = [[NSMutableArray alloc] init];
-    
+
     self.bounces = NO;
     self.shakeToClearEnabled = YES;
     self.keyboardPanningEnabled = YES;
@@ -320,6 +332,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _emojiTextField = [[EmojiTextField alloc] init];
     _emojiTextField.delegate = self;
     [self.view addSubview:_emojiTextField];
+
+    // Set delegate to retrieve typing events
+    self.textView.delegate = self;
 
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:ChatMessageCellIdentifier];
@@ -574,6 +589,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [_lobbyCheckTimer invalidate];
     [_messageExpirationTimer invalidate];
     [_chatController stopChatController];
+
+    // In case we're typing when we leave the chat, make sure we notify everyone
+    // The 'stopTyping' method makes sure to only send signaling messages when we were typing before
+    [self stopTyping];
     
     // If this chat view controller is for the same room as the one owned by the rooms manager
     // then we should not try to leave the chat. Since we will leave the chat when the
@@ -637,6 +656,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self savePendingMessage];
     [_chatController stopChatController];
     [_messageExpirationTimer invalidate];
+    [self stopTyping];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -1219,6 +1239,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [_replyMessageView dismiss];
     [super didPressRightButton:self];
     [self clearPendingMessage];
+    [self stopTyping];
 }
 
 - (BOOL)canPressRightButton
@@ -1489,7 +1510,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         BOOL isAtBottom = [self shouldScrollOnNewMessages];
         
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        self.replyMessageView = (ReplyMessageView *)self.typingIndicatorProxyView;
+        self.replyMessageView = (ReplyMessageView *)self.replyProxyView;
         [self.replyMessageView presentReplyViewWithMessage:message withUserId:activeAccount.userId];
         [self presentKeyboard:YES];
 
@@ -1662,6 +1683,124 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (textField == _emojiTextField && _reactingMessage) {
         _reactingMessage = nil;
     }
+}
+
+
+#pragma mark UITextViewDelegate
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+    [self stopTyping];
+}
+
+- (void)textViewDidChange:(UITextView *)textView {
+    [self startTyping];
+}
+
+#pragma mark TypingIndicator support
+
+- (void)sendStartedTypingMessageToSessionId:(NSString *)sessionId
+{
+    NCExternalSignalingController *signalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_room.accountId];
+
+    if (signalingController) {
+        NSString *mySessionId = [signalingController sessionId];
+        NCStartedTypingMessage *message = [[NCStartedTypingMessage alloc] initWithFrom:mySessionId
+                                                                                sendTo:sessionId
+                                                                           withPayload:@{}
+                                                                           forRoomType:@""];
+
+        [signalingController sendCallMessage:message];
+
+    }
+}
+
+- (void)sendStartedTypingMessageToAll
+{
+    NCExternalSignalingController *signalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_room.accountId];
+
+    if (signalingController) {
+        NSString *mySessionId = [signalingController sessionId];
+        NSMutableDictionary *participantMap = [signalingController getParticipantMap];
+
+        for(id sessionId in participantMap) {
+            NCStartedTypingMessage *message = [[NCStartedTypingMessage alloc] initWithFrom:mySessionId
+                                                                                    sendTo:sessionId
+                                                                               withPayload:@{}
+                                                                               forRoomType:@""];
+
+            [signalingController sendCallMessage:message];
+        }
+    }
+}
+
+- (void)sendStoppedTypingMessageToAll
+{
+    NCExternalSignalingController *signalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_room.accountId];
+
+    if (signalingController) {
+        NSString *mySessionId = [signalingController sessionId];
+        NSMutableDictionary *participantMap = [signalingController getParticipantMap];
+
+        for(id sessionId in participantMap) {
+            NCStoppedTypingMessage *message = [[NCStoppedTypingMessage alloc] initWithFrom:mySessionId
+                                                                                    sendTo:sessionId
+                                                                               withPayload:@{}
+                                                                               forRoomType:@""];
+
+            [signalingController sendCallMessage:message];
+        }
+    }
+}
+
+- (void)startTyping
+{
+    if (!_isTyping) {
+        _isTyping = YES;
+
+        [self sendStartedTypingMessageToAll];
+    }
+
+    [self setTypingTimer];
+}
+
+- (void)stopTyping
+{
+    if (_isTyping) {
+        _isTyping = NO;
+        [self invalidateTypingTimer];
+        [self sendStoppedTypingMessageToAll];
+    }
+}
+
+- (void)setTypingTimer
+{
+    [self invalidateTypingTimer];
+    _typingTimer = [NSTimer scheduledTimerWithTimeInterval:4.0 target:self selector:@selector(stopTyping) userInfo:nil repeats:NO];
+}
+
+- (void)invalidateTypingTimer
+{
+    [_typingTimer invalidate];
+    _typingTimer = nil;
+}
+
+
+- (void)addTypingIndicatorWithUserId:(NSString *)userId withDisplayName:(NSString *)displayName
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TypingIndicatorView *view = (TypingIndicatorView *)self.textInputbar.typingView;
+        [view addTypingWithUserId:userId displayName:displayName];
+    });
+
+}
+
+- (void)removeTypingIndicatorWithUserId:(NSString *)userId
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TypingIndicatorView *view = (TypingIndicatorView *)self.textInputbar.typingView;
+        [view removeTypingWithUserId:userId];
+    });
+
 }
 
 #pragma mark - PHPhotoPicker Delegate
@@ -2838,6 +2977,54 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
     }
 }
+
+- (void)didReceiveStartedTyping:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    NSString *displayName = [notification.userInfo objectForKey:@"displayName"];
+    NSString *userId = [notification.userInfo objectForKey:@"userId"];
+    
+    if (![roomToken isEqualToString:_room.token] || !displayName || !userId) {
+        return;
+    }
+
+    // Don't show a typing indicator for ourselves
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
+    if ([userId isEqualToString:activeAccount.userId]) {
+        return;
+    }
+
+    [self addTypingIndicatorWithUserId:userId withDisplayName:displayName];
+}
+
+- (void)didReceiveStoppedTyping:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    NSString *userId = [notification.userInfo objectForKey:@"userId"];
+
+    if (![roomToken isEqualToString:_room.token] || !userId) {
+        return;
+    }
+
+    [self removeTypingIndicatorWithUserId:userId];
+}
+
+- (void)didReceiveParticipantJoin:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
+
+    if (![roomToken isEqualToString:_room.token] || !sessionId) {
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_isTyping) {
+            [self sendStartedTypingMessageToSessionId:sessionId];
+        }
+    });
+}
+
 
 #pragma mark - Lobby functions
 

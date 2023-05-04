@@ -34,7 +34,10 @@ static NSTimeInterval kInitialReconnectInterval = 1;
 static NSTimeInterval kMaxReconnectInterval     = 16;
 static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
-NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification = @"NCExternalSignalingControllerDidUpdateParticipantsNotification";
+NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification     = @"NCExternalSignalingControllerDidUpdateParticipantsNotification";
+NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipant           = @"NCExternalSignalingControllerDidReceiveJoinOfParticipant";
+NSString * const NCExternalSignalingControllerDidReceiveStartedTypingNotification   = @"NCExternalSignalingControllerDidReceiveStartedTypingNotification";
+NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotification   = @"NCExternalSignalingControllerDidReceiveStoppedTypingNotification";
 
 @interface NCExternalSignalingController () <NSURLSessionWebSocketDelegate>
 
@@ -477,15 +480,31 @@ NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification 
         NSArray *joins = [eventDict objectForKey:@"join"];
         for (NSDictionary *participant in joins) {
             NSString *participantId = [participant objectForKey:@"userid"];
+
             if (!participantId || [participantId isEqualToString:@""]) {
                 NSLog(@"Guest joined room.");
             } else {
+                NSString *sessionId = [participant objectForKey:@"sessionid"];
+
                 if ([participantId isEqualToString:_userId]) {
                     NSLog(@"App user joined room.");
                 } else {
                     NSLog(@"Participant joined room.");
+
+                    // Only notify if another participant joined the room and not ourselves from a different device
+                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+
+                    if (_currentRoom && sessionId){
+                        [userInfo setObject:_currentRoom forKey:@"roomToken"];
+                        [userInfo setObject:sessionId forKey:@"sessionId"];
+                    }
+
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveJoinOfParticipant
+                                                                        object:self
+                                                                      userInfo:userInfo];
                 }
-                [_participantsMap setObject:participant forKey:[participant objectForKey:@"sessionid"]];
+
+                [_participantsMap setObject:participant forKey:sessionId];
             }
         }
     } else if ([eventType isEqualToString:@"leave"]) {
@@ -553,8 +572,36 @@ NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification 
 
 - (void)messageReceived:(NSDictionary *)messageDict
 {
-    //NSLog(@"Message received");
-    [self.delegate externalSignalingController:self didReceivedSignalingMessage:messageDict];
+    NSString *messageType = [[messageDict objectForKey:@"data"] objectForKey:@"type"];
+    if ([messageType isEqualToString:@"startedTyping"] || [messageType isEqualToString:@"stoppedTyping"]) {
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        NSString *fromSession = [[messageDict objectForKey:@"sender"] objectForKey:@"sessionid"];
+        NSString *fromUser = [[messageDict objectForKey:@"sender"] objectForKey:@"userid"];
+
+        if (_currentRoom && fromSession && fromUser){
+            [userInfo setObject:_currentRoom forKey:@"roomToken"];
+            [userInfo setObject:fromSession forKey:@"sessionId"];
+            [userInfo setObject:fromUser forKey:@"userId"];
+
+            NSString *displayName = [self getDisplayNameFromSessionId:fromSession];
+
+            if (displayName) {
+                [userInfo setObject:displayName forKey:@"displayName"];
+            }
+        }
+
+        if ([messageType isEqualToString:@"startedTyping"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveStartedTypingNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        } else {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveStoppedTypingNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+        }
+    } else {
+        [self.delegate externalSignalingController:self didReceivedSignalingMessage:messageDict];
+    }
 }
 
 #pragma mark - Completion blocks
@@ -711,6 +758,11 @@ NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification 
         }
     }
     return displayName;
+}
+
+- (NSMutableDictionary *)getParticipantMap
+{
+    return _participantsMap;
 }
 
 - (NSDictionary *)getWebSocketMessageFromJSONData:(NSData *)jsonData

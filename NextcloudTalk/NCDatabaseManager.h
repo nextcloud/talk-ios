@@ -74,6 +74,7 @@ extern NSString * const kCapabilityRecordingV1;
 extern NSString * const kCapabilitySingleConvStatus;
 extern NSString * const kCapabilityChatKeepNotifications;
 extern NSString * const kCapabilityConversationAvatars;
+extern NSString * const kCapabilityTypingIndicators;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 
