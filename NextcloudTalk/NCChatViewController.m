@@ -1571,6 +1571,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.view makeToast:NSLocalizedString(@"Message copied", nil) duration:1.5 position:CSToastPositionCenter];
 }
 
+- (void)didPressTranslate:(NCChatMessage *)message {
+    MessageTranslationViewController *translateMessageVC = [[MessageTranslationViewController alloc] initWithMessage:message.parsedMessage.string availableTranslations:[[NCSettingsController sharedInstance] availableTranslations]];
+    NCNavigationController *translateMessageNC = [[NCNavigationController alloc] initWithRootViewController:translateMessageVC];
+    [self presentViewController:translateMessageNC animated:YES completion:nil];
+}
+
 - (void) didPressTranscribeVoiceMessage:(NCChatMessage *) message {
     NCChatFileController *downloader = [[NCChatFileController alloc] init];
     downloader.delegate = self;
@@ -3868,6 +3874,17 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     [actions addObject:copyAction];
     
+    // Translate
+    if ([[NCSettingsController sharedInstance] availableTranslations].count > 0) {
+        UIImage *translateImage = [UIImage systemImageNamed:@"character.book.closed"];
+        UIAction *translateAction = [UIAction actionWithTitle:NSLocalizedString(@"Translate", nil) image:translateImage identifier:nil handler:^(UIAction *action){
+
+            [self didPressTranslate:message];
+        }];
+
+        [actions addObject:translateAction];
+    }
+
     // Open in nextcloud option
     if (message.file && !_offlineMode) {
         NSString *openInNextcloudTitle = [NSString stringWithFormat:NSLocalizedString(@"Open in %@", nil), filesAppName];

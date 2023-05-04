@@ -56,6 +56,15 @@ typedef enum NCPreferredFileSorting {
     NCModificationDateSorting
 } NCPreferredFileSorting;
 
+@interface NCTranslation : NSObject
+
+@property (nonatomic, copy) NSString *from;
+@property (nonatomic, copy) NSString *fromLabel;
+@property (nonatomic, copy) NSString *to;
+@property (nonatomic, copy) NSString *toLabel;
+
+@end
+
 @class NCExternalSignalingController;
 
 @interface NCSettingsController : NSObject
@@ -78,6 +87,7 @@ typedef enum NCPreferredFileSorting {
 - (void)disconnectAllExternalSignalingControllers;
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId withCompletionBlock:(SubscribeForPushNotificationsCompletionBlock)block;
 - (NSInteger)chatMaxLengthConfigCapability;
+- (NSArray *)availableTranslations;
 - (BOOL)canCreateGroupAndPublicRooms;
 - (BOOL)callsEnabledCapability;
 - (BOOL)isGuestsAppEnabled;

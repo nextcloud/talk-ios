@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 50;
+uint64_t const kTalkDatabaseSchemaVersion           = 51;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -417,6 +417,19 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         capabilities.canCreate = YES;
     }
     
+    id translations = [[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"translations"];
+    if ([translations isKindOfClass:[NSArray class]]) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:translations
+                                                           options:0
+                                                             error:&error];
+        if (jsonData) {
+            capabilities.translations = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error generating translations JSON string: %@", error);
+        }
+    }
+
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [realm addOrUpdateObject:capabilities];

@@ -332,6 +332,8 @@
 		2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */; };
 		2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */; };
 		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
+		2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */; };
+		2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */; };
 		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
@@ -799,6 +801,8 @@
 		2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageViewController.swift; sourceTree = "<group>"; };
 		2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusMessageViewController.xib; sourceTree = "<group>"; };
 		2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+Extensions.swift"; sourceTree = "<group>"; };
+		2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTranslationViewController.swift; sourceTree = "<group>"; };
+		2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageTranslationViewController.xib; sourceTree = "<group>"; };
 		2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextInputTableViewCell.xib; sourceTree = "<group>"; };
 		4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.debug.xcconfig"; sourceTree = "<group>"; };
 		4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.release.xcconfig"; sourceTree = "<group>"; };
@@ -1510,6 +1514,8 @@
 				1F785DDC2707865F00AC4B40 /* VoiceMessageTranscribeViewController.h */,
 				1F785DDA2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m */,
 				1F785DDB2707865F00AC4B40 /* VoiceMessageTranscribeViewController.xib */,
+				2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */,
+				2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -1744,6 +1750,7 @@
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */,
+				2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */,
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
@@ -2049,6 +2056,7 @@
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				2CC007CA20E125C20096D91F /* NewRoomTableViewController.m in Sources */,
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
+				2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */,
 				2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */,
 				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,

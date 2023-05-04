@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL extendedSupport;
 @property RLMArray<RLMString> *talkCapabilities;
 @property NSInteger chatMaxLength;
+@property NSString *translations;
 @property BOOL canCreate;
 @property BOOL attachmentsAllowed;
 @property NSString *attachmentsFolder;
