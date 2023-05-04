@@ -1239,6 +1239,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [_replyMessageView dismiss];
     [super didPressRightButton:self];
     [self clearPendingMessage];
+    [self stopTyping];
 }
 
 - (BOOL)canPressRightButton
