@@ -27,6 +27,9 @@ import UIKit
     @IBOutlet weak var fromButton: UIButton!
     @IBOutlet weak var toButton: UIButton!
     @IBOutlet weak var toLabel: UILabel!
+    @IBOutlet weak var textViewsContainerView: UIView!
+    @IBOutlet weak var originalTextView: UITextView!
+    @IBOutlet weak var originalTextViewHeight: NSLayoutConstraint!
     @IBOutlet weak var translateTextView: UITextView!
     @IBOutlet weak var buttonsContainerView: UIView!
     @IBOutlet weak var buttonsContainerViewHeight: NSLayoutConstraint!
@@ -35,6 +38,10 @@ import UIKit
     var availableTranslations: [NCTranslation]?
     var userLanguageCode: String?
     var activeAccount: TalkAccount?
+
+    let textHorizontalPadding = 12.0
+    let textVerticalPadding = 10.0
+    let textContainerPadding = 16.0
 
     var translatedText: String = ""
     var detectedFromLanguageCode: String = ""
@@ -75,8 +82,16 @@ import UIKit
         self.fromLabel.text = (NSLocalizedString("From", comment: "'From' which language user wants to translate text") + ":")
         self.toLabel.text = (NSLocalizedString("To", comment: "'To' which language user wants to translate text") + ":")
 
-        self.translateTextView.textContainerInset = .zero
+        self.originalTextView.text = originalMessage
+
+        self.originalTextView.textContainerInset = UIEdgeInsets(top: textVerticalPadding, left: textHorizontalPadding,
+                                                                bottom: textVerticalPadding, right: textHorizontalPadding)
+        self.translateTextView.textContainerInset = UIEdgeInsets(top: textVerticalPadding, left: textHorizontalPadding,
+                                                                 bottom: textVerticalPadding, right: textHorizontalPadding)
+        self.originalTextView.textContainer.lineFragmentPadding = 0
         self.translateTextView.textContainer.lineFragmentPadding = 0
+        self.originalTextView.layer.cornerRadius = 8
+        self.translateTextView.layer.cornerRadius = 8
 
         self.modifyingProfileView = UIActivityIndicatorView()
         self.modifyingProfileView.color = NCAppBranding.themeTextColor()
@@ -89,11 +104,29 @@ import UIKit
         self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
         self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
 
+        self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
+
         self.translateOriginalText(from: "", to: userLanguageCode ?? "")
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
+        }
     }
 
     func cancelButtonPressed() {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    func adjustOriginalTextViewSizeToViewSize(size: CGSize) {
+        let font = originalTextView.font ?? UIFont.systemFont(ofSize: 16)
+        let height = (originalMessage?.height(withConstrainedWidth: size.width - textContainerPadding * 2 - textHorizontalPadding * 2, font: font) ?? 0) + textVerticalPadding * 2
+        let maxHeight = (size.height - textViewsContainerView.frame.origin.y) / 2.0 - (textVerticalPadding * 2)
+
+        self.originalTextViewHeight.constant = min(height, maxHeight)
     }
 
     func initialToLanguage() -> String {
@@ -169,7 +202,6 @@ import UIKit
         NCAPIController.sharedInstance().translateMessage(originalMessage, from: from, to: to, for: activeAccount) { responseDict, error, _ in
             self.removeTranslatingUI()
             if error != nil {
-                self.translateTextView.text = self.originalMessage
                 self.configureFromButton(title: nil, enabled: true)
                 self.configureToButton(title: nil, enabled: false, fromLanguageCode: "")
                 self.showTranslationError(message: NSLocalizedString("An error occurred trying to translate message", comment: ""))
@@ -189,7 +221,6 @@ import UIKit
                 }
                 if let errorMessage = responseDict["message"] {
                     self.translationErrorMessage = errorMessage
-                    self.translateTextView.text = self.originalMessage
                     self.configureFromButton(title: nil, enabled: true)
                     self.configureToButton(title: nil, enabled: false, fromLanguageCode: "")
                     self.showTranslationError(message: errorMessage)
