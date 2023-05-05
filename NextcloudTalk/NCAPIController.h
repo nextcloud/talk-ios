@@ -84,6 +84,7 @@ typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSE
 typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error);
 
 typedef void (^SetReadStatusPrivacySettingCompletionBlock)(NSError *error);
+typedef void (^SetTypingPrivacySettingCompletionBlock)(NSError *error);
 
 typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
 typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
@@ -235,6 +236,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // Settings Controller
 - (NSURLSessionDataTask *)setReadStatusPrivacySettingEnabled:(BOOL)enabled forAccount:(TalkAccount *)account withCompletionBlock:(SetReadStatusPrivacySettingCompletionBlock)block;
+- (NSURLSessionDataTask *)setTypingPrivacySettingEnabled:(BOOL)enabled forAccount:(TalkAccount *)account withCompletionBlock:(SetTypingPrivacySettingCompletionBlock)block;
 
 // DAV client
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;

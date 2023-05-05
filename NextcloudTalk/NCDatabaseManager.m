@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 51;
+uint64_t const kTalkDatabaseSchemaVersion           = 52;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -376,10 +376,8 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.userStatus = [[userStatusCaps objectForKey:@"enabled"] boolValue];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
-    capabilities.chatMaxLength = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"max-length"] integerValue];
     capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
-    capabilities.readStatusPrivacy = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"read-privacy"] boolValue];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
     capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
     capabilities.accountPropertyScopesFederatedEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederatedEnabled"] boolValue];
@@ -431,6 +429,18 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         } else {
             NSLog(@"Error generating translations JSON string: %@", error);
         }
+    }
+
+    NSDictionary *chatConfig = [talkConfig objectForKey:@"chat"];
+    NSArray *chatConfigKeys = [callConfig allKeys];
+
+    capabilities.readStatusPrivacy = [[chatConfig objectForKey:@"read-privacy"] boolValue];
+    capabilities.chatMaxLength = [[chatConfig objectForKey:@"max-length"] integerValue];
+
+    if ([chatConfigKeys containsObject:@"typing-privacy"]) {
+        capabilities.typingPrivacy = [[chatConfig objectForKey:@"typing-privacy"] boolValue];
+    } else {
+        capabilities.typingPrivacy = YES;
     }
 
     RLMRealm *realm = [RLMRealm defaultRealm];
