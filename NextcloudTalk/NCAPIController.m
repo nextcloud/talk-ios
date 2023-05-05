@@ -145,6 +145,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     // Set the caching path to be in our app group and limit size to 100 MB
     NSURL *avatarCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
     SDImageCache.defaultDiskCacheDirectory = avatarCacheURL.path;
+    [SDImageCache sharedImageCache].config.shouldDisableiCloud = YES;
     [SDImageCache sharedImageCache].config.maxDiskSize = 100 * 1024 * 1024;
 
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
