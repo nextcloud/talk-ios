@@ -2225,7 +2225,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
     // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
     // Also in case of a failed attempt, we don't want to blacklist this URL but retry again
-    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;
+    // When loading images from the disk cache, this is usually done asynchronously and we get a flickering view,
+    // so we set SDWebImageQueryDiskDataSync to avoid this
+    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached | SDWebImageQueryDiskDataSync;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
     // Make sure we get at least a 512x512 image when retrieving an SVG with SVGKit
