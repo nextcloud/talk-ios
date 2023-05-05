@@ -59,7 +59,9 @@ class DiagnosticsTableViewController: UITableViewController {
         case kServerSectionName = 0
         case kServerSectionVersion
         case kServerSectionUserStatusSupported
+        case kServerSectionReferenceApiSupported
         case kServerSectionNotificationsAppEnabled
+        case kServerSectionGuestsAppEnabled
         case kServerSectionReachable
         case kServerSectionCount
     }
@@ -68,6 +70,7 @@ class DiagnosticsTableViewController: UITableViewController {
         case kTalkSectionVersion = 0
         case kTalkSectionCanCreate
         case kTalkSectionCallEnabled
+        case kTalkSectionRecordingEnabled
         case kTalkSectionAttachmentsAllowed
         case kTalkSectionCount
     }
@@ -505,9 +508,17 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.textLabel?.text = NSLocalizedString("User status supported?", comment: "")
             cell.detailTextLabel?.text = readableBool(for: serverCapabilities.userStatus)
 
+        case ServerSections.kServerSectionReferenceApiSupported.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Reference API supported?", comment: "")
+            cell.detailTextLabel?.text = readableBool(for: serverCapabilities.referenceApiSupported)
+
         case ServerSections.kServerSectionNotificationsAppEnabled.rawValue:
             cell.textLabel?.text = NSLocalizedString("Notifications app enabled?", comment: "")
             cell.detailTextLabel?.text = readableBool(for: serverCapabilities.notificationsCapabilities.count > 0)
+
+        case ServerSections.kServerSectionGuestsAppEnabled.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Guests app enabled?", comment: "")
+            cell.detailTextLabel?.text = readableBool(for: serverCapabilities.guestsAppEnabled)
 
         case ServerSections.kServerSectionReachable.rawValue:
             cell.textLabel?.text = NSLocalizedString("Reachable?", comment: "")
@@ -550,6 +561,10 @@ class DiagnosticsTableViewController: UITableViewController {
         case TalkSections.kTalkSectionCallEnabled.rawValue:
             cell.textLabel?.text = NSLocalizedString("Calls enabled?", comment: "")
             cell.detailTextLabel?.text = readableBool(for: serverCapabilities.callEnabled)
+
+        case TalkSections.kTalkSectionRecordingEnabled.rawValue:
+            cell.textLabel?.text = NSLocalizedString("Call recording enabled?", comment: "")
+            cell.detailTextLabel?.text = readableBool(for: serverCapabilities.recordingEnabled)
 
         case TalkSections.kTalkSectionAttachmentsAllowed.rawValue:
             cell.textLabel?.text = NSLocalizedString("Attachments allowed?", comment: "")
