@@ -437,14 +437,14 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
                 dispatch_group_leave(notificationsGroup);
             }];
         }];
-
-        dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
-            // Notify backgroundFetch that we're finished
-            if (block) {
-                block(nil);
-            }
-        });
     }
+
+    dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
+        // Notify backgroundFetch that we're finished
+        if (block) {
+            block(nil);
+        }
+    });
 }
 
 #pragma mark - UNUserNotificationCenter delegate
