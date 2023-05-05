@@ -139,6 +139,17 @@
 
             referenceView.addSubview(deckView)
             foundReferenceView = true
+        } else if richObjectType == "call",
+                  let reference = firstReference["richObject"] as? [String: AnyObject],
+                  let openGraph = firstReference["openGraphObject"] as? [String: String?] {
+
+            let talkView = ReferenceTalkView(frame: self.frame)
+            talkView.update(for: reference, and: openGraph, and: url)
+            talkView.frame = self.bounds
+            talkView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+            referenceView.addSubview(talkView)
+            foundReferenceView = true
         } else if let reference = firstReference["openGraphObject"] as? [String: String?] {
             let defaultView = ReferenceDefaultView(frame: self.frame)
 

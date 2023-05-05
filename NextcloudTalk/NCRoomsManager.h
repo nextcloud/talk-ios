@@ -71,6 +71,7 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 // Chat
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)leaveChatInRoom:(NSString *)token;
+- (void)startChatWithRoomToken:(NSString *)token;
 // Call
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video;
 // Switch to
