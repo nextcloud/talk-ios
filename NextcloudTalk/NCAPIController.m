@@ -2231,7 +2231,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     // Make sure we get at least a 512x512 image when retrieving an SVG with SVGKit
     SDWebImageContext *context = @{
         SDWebImageContextDownloadRequestModifier : requestModifier,
-        SDWebImageContextImageThumbnailPixelSize : @(CGSizeMake(512, 512))
+        SDWebImageContextImageThumbnailPixelSize : @(CGSizeMake(120, 120))
     };
     
     return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
