@@ -2221,12 +2221,23 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *urlString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
     NSURL *url = [NSURL URLWithString:urlString];
 
-    // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
-    // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
-    // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
-    // Also in case of a failed attempt, we don't want to blacklist this URL but retry again
-    // When loading images from the disk cache, this is usually done asynchronously and we get a flickering view,
-    // so we set SDWebImageQueryDiskDataSync to avoid this
+    /*
+     SDWebImageRetryFailed:         By default SDWebImage blacklists URLs that failed to load and does not try to
+                                    load these URLs again, but we want to retry these.
+                                    Also see https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
+
+     SDWebImageRefreshCached:       By default the cache-control header returned by the webserver is ignored and
+                                    images are cached forever. With this parameter we let NSURLCache determine
+                                    if a resource needs to be reloaded from the server again.
+                                    Could be removed if this endpoint returns an avatar version for all calls.
+                                    Also see https://github.com/nextcloud/spreed/issues/9320
+
+     SDWebImageQueryDiskDataSync:   SDImage loads data from the disk cache on a separate (async) queue. This leads
+                                    to 2 problems: 1. It can cause some flickering on a reload, 2. It causes UIImage methods
+                                    being called to leak memory. This is noticeable in NSE with a tight memory constraint.
+                                    SVG images rendered to UIImage with SVGKit will leak data and make NSE crash.
+     */
+
     SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached | SDWebImageQueryDiskDataSync;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
