@@ -2228,7 +2228,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
-    // Make sure we get at least a 512x512 image when retrieving an SVG with SVGKit
+    // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
     SDWebImageContext *context = @{
         SDWebImageContextDownloadRequestModifier : requestModifier,
         SDWebImageContextImageThumbnailPixelSize : @(CGSizeMake(120, 120))
