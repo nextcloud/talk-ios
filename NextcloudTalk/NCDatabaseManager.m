@@ -432,7 +432,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     }
 
     NSDictionary *chatConfig = [talkConfig objectForKey:@"chat"];
-    NSArray *chatConfigKeys = [callConfig allKeys];
+    NSArray *chatConfigKeys = [chatConfig allKeys];
 
     capabilities.readStatusPrivacy = [[chatConfig objectForKey:@"read-privacy"] boolValue];
     capabilities.chatMaxLength = [[chatConfig objectForKey:@"max-length"] integerValue];
