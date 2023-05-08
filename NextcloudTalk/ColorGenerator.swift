@@ -80,7 +80,7 @@ import CryptoKit
         return palette
     }
 
-    private static func genColors(_ steps: Int) -> [UIColor] {
+    public static func genColors(_ steps: Int) -> [UIColor] {
         let red = UIColor(red: 182 / 255, green: 70 / 255, blue: 157 / 255, alpha: 1)
         let yellow = UIColor(red: 221 / 255, green: 203 / 255, blue: 85 / 255, alpha: 1)
         let blue = UIColor(red: 0, green: 130 / 255, blue: 201 / 255, alpha: 1)
@@ -96,7 +96,7 @@ import CryptoKit
     }
 
     public func usernameToColor(_ username: String) -> UIColor {
-        var hash = username.lowercased()
+        let hash = username.lowercased()
         var hashInt = 0
 
         if let usernameData = hash.data(using: .utf8) {

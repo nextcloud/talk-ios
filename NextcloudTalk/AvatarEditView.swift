@@ -25,6 +25,7 @@ import Foundation
 @objc protocol AvatarEditViewDelegate {
     @objc func avatarEditViewPresentCamera(_ controller: AvatarEditView?)
     @objc func avatarEditViewPresentPhotoLibrary(_ controller: AvatarEditView?)
+    @objc optional func avatarEditViewPresentEmojiAvatarPicker(_ controller: AvatarEditView?)
     @objc func avatarEditViewRemoveAvatar(_ controller: AvatarEditView?)
 }
 
@@ -39,6 +40,7 @@ import Foundation
     @IBOutlet weak var scopeButton: UIButton!
     @IBOutlet weak var cameraButton: UIButton!
     @IBOutlet weak var photoLibraryButton: UIButton!
+    @IBOutlet weak var emojiButton: UIButton!
     @IBOutlet weak var trashButton: UIButton!
 
     override init(frame: CGRect) {
@@ -83,5 +85,9 @@ import Foundation
 
     @IBAction func trashTouchUpInside(_ sender: Any) {
         self.delegate?.avatarEditViewRemoveAvatar(self)
+    }
+
+    @IBAction func emojiTouchUpInside(_ sender: Any) {
+        self.delegate?.avatarEditViewPresentEmojiAvatarPicker?(self)
     }
 }

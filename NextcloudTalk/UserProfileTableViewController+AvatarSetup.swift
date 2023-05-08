@@ -40,6 +40,8 @@ extension UserProfileTableViewController {
 
         headerView.editView?.isHidden = !(isEditable && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTempUserAvatarAPI, forAccountId: account.accountId))
 
+        // Avatar emojis are not allowed for now
+        headerView.emojiButton.isHidden = true
         // Removal is only allowed for custom avatars
         headerView.trashButton.isHidden = !account.hasCustomAvatar
 
