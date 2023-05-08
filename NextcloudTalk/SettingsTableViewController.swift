@@ -628,7 +628,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         case SettingsSection.kSettingsSectionOtherAccounts.rawValue:
             return NSLocalizedString("Other Accounts", comment: "")
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
-            return NSLocalizedString("App Configuration", comment: "")
+            return NSLocalizedString("Configuration", comment: "")
         case SettingsSection.kSettingsSectionAdvanced.rawValue:
             return NSLocalizedString("Advanced", comment: "")
         case SettingsSection.kSettingsSectionAbout.rawValue:

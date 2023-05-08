@@ -236,9 +236,6 @@
 "App" = "App";
 
 /* No comment provided by engineer. */
-"App Configuration" = "App Configuration";
-
-/* No comment provided by engineer. */
 "Appear offline" = "Appear offline";
 
 /* Alice and Bob are typing… */
@@ -354,6 +351,9 @@
 
 /* No comment provided by engineer. */
 "Close" = "Close";
+
+/* No comment provided by engineer. */
+"Configuration" = "Configuration";
 
 /* No comment provided by engineer. */
 "Confirm and hide warning" = "Confirm and hide warning";
