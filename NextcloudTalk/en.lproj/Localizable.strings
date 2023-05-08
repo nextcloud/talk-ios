@@ -137,6 +137,9 @@
 "An error occurred changing read status setting" = "An error occurred changing read status setting";
 
 /* No comment provided by engineer. */
+"An error occurred changing typing privacy setting" = "An error occurred changing typing privacy setting";
+
+/* No comment provided by engineer. */
 "An error occurred removing profile image" = "An error occurred removing profile image";
 
 /* No comment provided by engineer. */
@@ -1124,6 +1127,9 @@
 "Open links in" = "Open links in";
 
 /* No comment provided by engineer. */
+"Other Accounts" = "Other Accounts";
+
+/* No comment provided by engineer. */
 "Others" = "Others";
 
 /* Owner of a repository */
@@ -1509,6 +1515,9 @@
 
 /* No comment provided by engineer. */
 "Twitter handle @…" = "Twitter handle @…";
+
+/* No comment provided by engineer. */
+"Typing indicator" = "Typing indicator";
 
 /* No comment provided by engineer. */
 "Unable to load file" = "Unable to load file";

@@ -54,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL attachmentsAllowed;
 @property NSString *attachmentsFolder;
 @property BOOL readStatusPrivacy;
+@property BOOL typingPrivacy;
 @property BOOL accountPropertyScopesVersion2;
 @property BOOL accountPropertyScopesFederationEnabled;
 @property BOOL accountPropertyScopesFederatedEnabled;
