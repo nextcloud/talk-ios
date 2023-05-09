@@ -1749,6 +1749,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)sendStoppedTypingMessageToAll
 {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+
+    if (serverCapabilities.typingPrivacy) {
+        return;
+    }
+
     NCExternalSignalingController *signalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_room.accountId];
 
     if (signalingController) {
