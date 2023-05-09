@@ -166,10 +166,9 @@ BOOL const useServerThemimg = YES;
 
 + (UIColor *)avatarPlaceholderColor
 {
-    // We will only use avatarPlaceholderColor for avatars that are on top theme/custom color.
-    // For avatars that are on top of default background color (light or dark), we will use placeholderColor.
-    UIColor *light = [UIColor colorWithRed: 0.7 green: 0.7 blue: 0.7 alpha: 1.00];
-    UIColor *dark = [UIColor colorWithRed: 0.35 green: 0.35 blue: 0.35 alpha: 1.00];
+    UIColor *light = [NCUtils colorFromHexString:@"#dbdbdb"];
+    UIColor *dark = [NCUtils colorFromHexString:@"#3b3b3b"];
+
     return [self getDynamicColor:light withDarkMode:dark];
 }
 

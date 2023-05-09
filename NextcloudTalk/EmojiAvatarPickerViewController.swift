@@ -36,6 +36,7 @@ import UIKit
 
     public weak var delegate: EmojiAvatarPickerViewControllerDelegate?
 
+    let defaultEmoji: String = "🙂"
     var defaultColors: [UIColor] = []
     var selectedEmoji: String = ""
     var selectedColor: String = ""
@@ -57,12 +58,15 @@ import UIKit
         self.navigationItem.scrollEdgeAppearance = appearance
 
         self.emojiTextField.delegate = self
+        self.emojiTextField.text = self.defaultEmoji
+        self.selectedEmoji = self.defaultEmoji
 
         self.emojiBackgroundView.layer.cornerRadius = self.emojiBackgroundView.frame.height / 2
         self.emojiBackgroundView.clipsToBounds = true
         self.emojiBackgroundView.backgroundColor = NCAppBranding.avatarPlaceholderColor()
 
         self.removeColorButton.layer.cornerRadius = self.removeColorButton.frame.height / 2
+        self.removeColorButton.backgroundColor = NCAppBranding.avatarPlaceholderColor()
 
         self.colorWell.addTarget(self, action: #selector(self.colorWellChanged), for: .valueChanged)
         self.colorWell.supportsAlpha = false
@@ -73,7 +77,6 @@ import UIKit
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.doneButtonPressed))
         self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
-        self.navigationItem.rightBarButtonItem?.isEnabled = false
     }
 
     override func viewDidAppear(_ animated: Bool) {
