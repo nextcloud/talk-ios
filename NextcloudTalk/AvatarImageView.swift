@@ -82,6 +82,7 @@ import SDWebImage
             }
 
             self.image = image
+            self.contentMode = .scaleToFill
         }
     }
 }
