@@ -72,6 +72,7 @@ import Foundation
         self.scopeButton.isEnabled = state
         self.cameraButton.isEnabled = state
         self.photoLibraryButton.isEnabled = state
+        self.emojiButton.isEnabled = state
         self.trashButton.isEnabled = state
     }
 
