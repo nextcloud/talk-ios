@@ -32,6 +32,8 @@
 #import "NCPushNotification.h"
 #import "NCPushNotificationsUtils.h"
 
+#import <SDWebImage/SDWebImage.h>
+
 @interface NotificationService ()
 
 @property (nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
@@ -88,6 +90,9 @@
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
     };
     [RLMRealmConfiguration setDefaultConfiguration:configuration];
+
+    // We don't want to use a memory cache in NSE, because we only have a total of 24MB before we get killed by the OS
+    SDImageCache.sharedImageCache.config.shouldCacheImagesInMemory = NO;
     
     BOOL foundDecryptableMessage = NO;
     

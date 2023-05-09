@@ -97,7 +97,7 @@ import SDWebImage
     // MARK: - Utils
 
     public func createRenderedImage(image: UIImage) -> UIImage? {
-        return self.createRenderedImage(image: image, width: 512, height: 512)
+        return self.createRenderedImage(image: image, width: 120, height: 120)
     }
 
     private func createRenderedImage(image: UIImage, width: Int, height: Int) -> UIImage? {
