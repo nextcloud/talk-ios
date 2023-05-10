@@ -293,6 +293,8 @@
 		2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
+		2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */; };
+		2CB997C62A052449003C41AC /* EmojiAvatarPickerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
@@ -768,6 +770,8 @@
 		2CB6ACE62641954700D3D641 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		2CB6ACE72641954700D3D641 /* MapViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		2CB6ACE82641954700D3D641 /* MapViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MapViewController.xib; sourceTree = "<group>"; };
+		2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiAvatarPickerViewController.swift; sourceTree = "<group>"; };
+		2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EmojiAvatarPickerViewController.xib; sourceTree = "<group>"; };
 		2CBF82AC1FC888FC00636459 /* NCPushNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotification.h; sourceTree = "<group>"; };
 		2CBF82AD1FC888FC00636459 /* NCPushNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotification.m; sourceTree = "<group>"; };
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
@@ -1070,6 +1074,8 @@
 				1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */,
 				1F3C41A229EDF05700F58435 /* AvatarEditView.swift */,
 				1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */,
+				2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */,
+				2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1758,6 +1764,7 @@
 				2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */,
 				2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */,
 				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
+				2CB997C62A052449003C41AC /* EmojiAvatarPickerViewController.xib in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				1F46CE2B28E05B3C00E7D88E /* ReferenceDefaultView.xib in Resources */,
 				1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */,
@@ -2145,6 +2152,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
+				2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */,
 				2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */,
 				1F66B71F29FA703B003FB168 /* TypingIndicatorView.swift in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,

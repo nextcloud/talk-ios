@@ -27,6 +27,7 @@ import UIKit
                                                         UIImagePickerControllerDelegate,
                                                         UITextFieldDelegate,
                                                         AvatarEditViewDelegate,
+                                                        EmojiAvatarPickerViewControllerDelegate,
                                                         TOCropViewControllerDelegate {
 
     var room: NCRoom
@@ -178,6 +179,15 @@ import UIKit
         }
     }
 
+    func presentEmojiAvatarPicker() {
+        DispatchQueue.main.async {
+            let emojiAvatarPickerVC = EmojiAvatarPickerViewController()
+            emojiAvatarPickerVC.delegate = self
+            let emojiAvatarPickerNC = UINavigationController(rootViewController: emojiAvatarPickerVC)
+            self.present(emojiAvatarPickerNC, animated: true, completion: nil)
+        }
+    }
+
     // MARK: - UIImagePickerController Delegate
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
@@ -236,12 +246,33 @@ import UIKit
         self.presentPhotoLibrary()
     }
 
+    func avatarEditViewPresentEmojiAvatarPicker(_ controller: AvatarEditView?) {
+        self.presentEmojiAvatarPicker()
+    }
+
     func avatarEditViewRemoveAvatar(_ controller: AvatarEditView?) {
         self.showModifyingView()
 
         NCAPIController.sharedInstance().removeAvatar(for: room) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while removing the avatar", comment: ""), withMessage: nil)
+            }
+
+            self.updateRoomAndRemoveModifyingView()
+        }
+    }
+
+    // MARK: - EmojiAvatarPickerViewControllerDelegate
+
+    func didSelectEmoji(emoji: NSString, color: NSString) {
+        self.showModifyingView()
+
+        NCAPIController.sharedInstance().setEmojiAvatarFor(room, withEmoji: emoji as String, andColor: color as String) { error in
+            if error != nil {
+                let errorDialog = UIAlertController(title: NSLocalizedString("An error occurred while setting the avatar", comment: ""), message: nil, preferredStyle: .alert)
+                let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)
+                errorDialog.addAction(okAction)
+                self.present(errorDialog, animated: true, completion: nil)
             }
 
             self.updateRoomAndRemoveModifyingView()

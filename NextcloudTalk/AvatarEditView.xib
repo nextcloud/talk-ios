@@ -15,6 +15,7 @@
                 <outlet property="cameraButton" destination="DOh-QQ-Zuc" id="541-2C-APt"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="9z6-a7-d0W"/>
                 <outlet property="editView" destination="f8R-m5-KRj" id="A73-fq-npa"/>
+                <outlet property="emojiButton" destination="hsf-S7-TSS" id="dnb-q9-r7e"/>
                 <outlet property="nameLabel" destination="cHc-KT-D8F" id="9TU-eh-vjt"/>
                 <outlet property="photoLibraryButton" destination="Uio-mq-k5m" id="3L3-8f-paz"/>
                 <outlet property="scopeButton" destination="qSd-WE-0Jc" id="9gD-KD-zgi"/>
@@ -52,10 +53,10 @@
                             </constraints>
                         </view>
                         <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f8R-m5-KRj" userLabel="EditView">
-                            <rect key="frame" x="0.0" y="110" width="459" height="84"/>
+                            <rect key="frame" x="0.0" y="110" width="459" height="104.5"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="top" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="lFq-aG-VCf">
-                                    <rect key="frame" x="147.5" y="0.0" width="164" height="74"/>
+                                    <rect key="frame" x="117.5" y="0.0" width="224" height="94.5"/>
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DOh-QQ-Zuc" userLabel="Camera Button">
                                             <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
@@ -81,8 +82,20 @@
                                                 <action selector="photoLibraryTouchUpInside:" destination="-1" eventType="touchUpInside" id="HDu-vL-hSU"/>
                                             </connections>
                                         </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" role="destructive" translatesAutoresizingMaskIntoConstraints="NO" id="qDP-Sw-Ndu" userLabel="Trash Button">
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hsf-S7-TSS" userLabel="Emoji Button">
                                             <rect key="frame" x="120" y="0.0" width="44" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="44" id="Yv2-J3-02f"/>
+                                                <constraint firstAttribute="width" constant="44" id="eHB-6A-KtS"/>
+                                            </constraints>
+                                            <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                            <state key="normal" image="face.smiling" catalog="system"/>
+                                            <connections>
+                                                <action selector="emojiTouchUpInside:" destination="-1" eventType="touchUpInside" id="62u-tY-5Ve"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" role="destructive" translatesAutoresizingMaskIntoConstraints="NO" id="qDP-Sw-Ndu" userLabel="Trash Button">
+                                            <rect key="frame" x="180" y="0.0" width="44" height="44"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="44" id="NJ7-jc-j3t"/>
                                                 <constraint firstAttribute="width" constant="44" id="but-G4-cvK"/>
@@ -105,7 +118,7 @@
                             </constraints>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.59999999999999998" translatesAutoresizingMaskIntoConstraints="NO" id="cHc-KT-D8F" userLabel="NameLabel">
-                            <rect key="frame" x="199" y="194" width="61.5" height="73"/>
+                            <rect key="frame" x="199" y="214.5" width="61.5" height="52.5"/>
                             <fontDescription key="fontDescription" type="system" pointSize="26"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
@@ -130,6 +143,7 @@
     </objects>
     <resources>
         <image name="camera" catalog="system" width="128" height="93"/>
+        <image name="face.smiling" catalog="system" width="128" height="123"/>
         <image name="photo.on.rectangle.angled" catalog="system" width="128" height="98"/>
         <image name="trash" catalog="system" width="117" height="128"/>
         <systemColor name="systemRedColor">

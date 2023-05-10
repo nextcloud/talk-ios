@@ -376,6 +376,21 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
 }
 
++ (NSString *)hexStringFromColor:(UIColor *)color
+{
+    const CGFloat *components = CGColorGetComponents(color.CGColor);
+
+    CGFloat r = components[0];
+    CGFloat g = components[1];
+    CGFloat b = components[2];
+
+    // Returns hex color string format (e.g."#00FF00")
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX",
+            lroundf(r * 255),
+            lroundf(g * 255),
+            lroundf(b * 255)];
+}
+
 + (BOOL)isValidIndexPath:(NSIndexPath *)indexPath forTableView:(UITableView *)tableView
 {
     return indexPath.section < tableView.numberOfSections && indexPath.row < [tableView numberOfRowsInSection:indexPath.section];
