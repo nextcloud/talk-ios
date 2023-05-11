@@ -26,7 +26,8 @@ import SDWebImage
 
 enum SettingsSection: Int {
     case kSettingsSectionUser = 0
-    case kSettingsSectionActiveAccount
+    case kSettingsSectionUserStatus
+    case kSettingsSectionAccountSettings
     case kSettingsSectionOtherAccounts
     case kSettingsSectionConfiguration
     case kSettingsSectionAdvanced
@@ -34,8 +35,7 @@ enum SettingsSection: Int {
 }
 
 enum AccountSettingsOptions: Int {
-    case kAccountSettingsUserStatus = 0
-    case kAccountSettingsReadStatusPrivacy
+    case kAccountSettingsReadStatusPrivacy = 0
     case kAccountSettingsTypingPrivacy
     case kAccountSettingsContactsSync
 }
@@ -129,13 +129,16 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     func getSettingsSections() -> [Int] {
         var sections = [Int]()
 
-        // Active user sections
+        // Active user section
         sections.append(SettingsSection.kSettingsSectionUser.rawValue)
 
-        // Active account section
-        sections.append(SettingsSection.kSettingsSectionActiveAccount.rawValue)
+        // User status section
+        sections.append(SettingsSection.kSettingsSectionUserStatus.rawValue)
 
-        // Accounts section
+        // Account settings section
+        sections.append(SettingsSection.kSettingsSectionAccountSettings.rawValue)
+
+        // Other accounts section
         if !NCDatabaseManager.sharedInstance().inactiveAccounts().isEmpty {
             sections.append(SettingsSection.kSettingsSectionOtherAccounts.rawValue)
         }
@@ -151,16 +154,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         return sections
     }
 
-    func getAccountSectionOptions() -> [Int] {
+    func getAccountSettingsSectionOptions() -> [Int] {
         var options = [Int]()
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-
-        // Show user status
-        if serverCapabilities.userStatus {
-            options.append(AccountSettingsOptions.kAccountSettingsUserStatus.rawValue)
-        }
 
         // Read status privacy setting
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadStatus) {
@@ -604,8 +602,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
             return 1
-        case SettingsSection.kSettingsSectionActiveAccount.rawValue:
-            return getAccountSectionOptions().count
+        case SettingsSection.kSettingsSectionUserStatus.rawValue:
+            return 1
+        case SettingsSection.kSettingsSectionAccountSettings.rawValue:
+            return getAccountSettingsSectionOptions().count
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
             return getConfigurationSectionOptions().count
         case SettingsSection.kSettingsSectionAdvanced.rawValue:
@@ -649,12 +649,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             return "\(appName) \(NCAppBranding.getAppVersionString())\n\(copyright)"
         }
 
-        if let activeUserStatus = activeUserStatus {
-            if settingsSection == SettingsSection.kSettingsSectionUser.rawValue, activeUserStatus.status == kUserStatusDND {
-                return NSLocalizedString("All notifications are muted", comment: "")
-            }
-        }
-
         if settingsSection == SettingsSection.kSettingsSectionConfiguration.rawValue && contactSyncSwitch.isOn {
             if NCContactsManager.sharedInstance().isContactAccessDetermined() && !NCContactsManager.sharedInstance().isContactAccessAuthorized() {
                 return NSLocalizedString("Contact access has been denied", comment: "")
@@ -693,7 +687,27 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             cell.userImageView.image = NCAPIController.sharedInstance().userProfileImage(for: activeAccount, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 160, height: 160))
             cell.accessoryType = .disclosureIndicator
             return cell
-        case SettingsSection.kSettingsSectionActiveAccount.rawValue:
+        case SettingsSection.kSettingsSectionUserStatus.rawValue:
+            cell = UITableViewCell(style: .subtitle, reuseIdentifier: "UserStatusCellIdentifier")
+            if activeUserStatus != nil {
+                cell.textLabel?.text = activeUserStatus!.readableUserStatus()
+                let statusMessage = activeUserStatus!.readableUserStatusMessage()
+                if !statusMessage.isEmpty {
+                    cell.textLabel?.text = statusMessage
+                }
+                if activeUserStatus!.status == kUserStatusDND {
+                    cell.detailTextLabel?.text = NSLocalizedString("All notifications are muted", comment: "")
+                    cell.detailTextLabel?.numberOfLines = 0
+                    cell.detailTextLabel?.textColor = .secondaryLabel
+                }
+                let statusImage = activeUserStatus!.userStatusImageName(ofSize: 24)
+                cell.imageView?.image = UIImage(named: statusImage)
+            } else {
+                cell.textLabel?.text = NSLocalizedString("Fetching status …", comment: "")
+            }
+            cell.accessoryType = .disclosureIndicator
+            return cell
+        case SettingsSection.kSettingsSectionAccountSettings.rawValue:
             cell = userSettingsCell(for: indexPath)
         case SettingsSection.kSettingsSectionOtherAccounts.rawValue:
             cell = userAccountsCell(for: indexPath)
@@ -707,17 +721,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             break
         }
         return cell
-    }
-
-    func didSelectAccountSectionCell(for indexPath: IndexPath) {
-        let options = getAccountSectionOptions()
-        let option = options[indexPath.row]
-        switch option {
-        case AccountSettingsOptions.kAccountSettingsUserStatus.rawValue:
-            self.presentUserStatusOptions()
-        default:
-            break
-        }
     }
 
     func didSelectOtherAccountSectionCell(for indexPath: IndexPath) {
@@ -777,8 +780,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         case SettingsSection.kSettingsSectionUser.rawValue:
             self.userProfilePressed()
 
-        case SettingsSection.kSettingsSectionActiveAccount.rawValue:
-            self.didSelectAccountSectionCell(for: indexPath)
+        case SettingsSection.kSettingsSectionUserStatus.rawValue:
+            self.presentUserStatusOptions()
 
         case SettingsSection.kSettingsSectionOtherAccounts.rawValue:
             self.didSelectOtherAccountSectionCell(for: indexPath)
@@ -801,32 +804,15 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 extension SettingsTableViewController {
     // Cell configuration for every section
     func userSettingsCell(for indexPath: IndexPath) -> UITableViewCell {
-        let userStatusCellIdentifier = "UserStatusCellIdentifier"
         let readStatusCellIdentifier = "ReadStatusCellIdentifier"
         let typingIndicatorCellIdentifier = "TypingIndicatorCellIdentifier"
         let contactsSyncCellIdentifier = "ContactsSyncCellIdentifier"
 
-        let options = getAccountSectionOptions()
+        let options = getAccountSettingsSectionOptions()
         let option = options[indexPath.row]
         var cell = UITableViewCell()
 
         switch option {
-        case AccountSettingsOptions.kAccountSettingsUserStatus.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: userStatusCellIdentifier)
-            if activeUserStatus != nil {
-                cell.textLabel?.text = activeUserStatus!.readableUserStatus()
-                let statusMessage = activeUserStatus!.readableUserStatusMessage()
-                if !statusMessage.isEmpty {
-                    cell.textLabel?.text = statusMessage
-                }
-                let statusImage = activeUserStatus!.userStatusImageName(ofSize: 24)
-                cell.imageView?.image = UIImage(named: statusImage)
-            } else {
-                cell.textLabel?.text = NSLocalizedString("Fetching status …", comment: "")
-            }
-            cell.accessoryType = .disclosureIndicator
-            return cell
-
         case AccountSettingsOptions.kAccountSettingsReadStatusPrivacy.rawValue:
             cell = tableView.dequeueReusableCell(withIdentifier: readStatusCellIdentifier) ?? UITableViewCell(style: .default, reuseIdentifier: readStatusCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Read status", comment: "")
@@ -855,8 +841,6 @@ extension SettingsTableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: contactsSyncCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Phone number integration", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
-            cell.detailTextLabel?.numberOfLines = 0
-            cell.detailTextLabel?.textColor = .secondaryLabel
             cell.selectionStyle = .none
             cell.imageView?.image = UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
@@ -865,7 +849,9 @@ extension SettingsTableViewController {
         default:
             break
         }
-
+        cell.textLabel?.numberOfLines = 0
+        cell.detailTextLabel?.numberOfLines = 0
+        cell.detailTextLabel?.textColor = .secondaryLabel
         return cell
     }
 
