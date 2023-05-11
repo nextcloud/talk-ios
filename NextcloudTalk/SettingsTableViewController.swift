@@ -649,7 +649,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             return "\(appName) \(NCAppBranding.getAppVersionString())\n\(copyright)"
         }
 
-        if settingsSection == SettingsSection.kSettingsSectionConfiguration.rawValue && contactSyncSwitch.isOn {
+        if settingsSection == SettingsSection.kSettingsSectionAccountSettings.rawValue && contactSyncSwitch.isOn {
             if NCContactsManager.sharedInstance().isContactAccessDetermined() && !NCContactsManager.sharedInstance().isContactAccessAuthorized() {
                 return NSLocalizedString("Contact access has been denied", comment: "")
             }
