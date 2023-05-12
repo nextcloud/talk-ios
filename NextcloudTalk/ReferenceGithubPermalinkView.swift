@@ -89,6 +89,11 @@ import SwiftyAttributes
 
             var lineCounter = self.lineBegin
 
+            // In case of a single line reference, we don't receive a lineEnd property
+            if self.lineEnd < self.lineBegin {
+                self.lineEnd = self.lineBegin
+            }
+
             // Remove any global indentation (preview only does it for the first 3 lines)
             var tempLines = removeIndentation(for: " ", in: allLines)
             tempLines = removeIndentation(for: "\t", in: tempLines)
