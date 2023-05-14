@@ -205,14 +205,29 @@ import SwiftyAttributes
 
     func update(for reference: [String: AnyObject], and url: String) {
         self.url = url
+        self.referenceTypeIcon.image = UIImage(named: "github")?.withTintColor(.systemGray)
+
+        let font = Font.systemFont(ofSize: 15)
+
+        if let type = reference["github_type"] as? String, type == "code-error" {
+            referenceTitle.text = NSLocalizedString("GitHub API error", comment: "")
+
+            if let bodyDict = reference["body"] as? [String: String],
+               let body = bodyDict["message"] {
+
+                referenceBody.attributedText = body.withFont(font).withTextColor(.secondaryLabel)
+            } else {
+                referenceBody.attributedText = NSLocalizedString("Unknown error", comment: "").withFont(font).withTextColor(.secondaryLabel)
+            }
+
+            return
+        }
 
         if let filePath = reference["filePath"] as? String {
             let filePathUrl = URL(string: filePath)
             self.referenceTitle.text = filePathUrl?.lastPathComponent
             self.fileName = filePathUrl?.lastPathComponent ?? ""
         }
-
-        self.referenceTypeIcon.image = UIImage(named: "github")?.withTintColor(UIColor.systemGray)
 
         self.lineBegin = reference["lineBegin"] as? Int ?? 0
         self.lineEnd = reference["lineEnd"] as? Int ?? 0
@@ -230,8 +245,6 @@ import SwiftyAttributes
             // Each line should have its own lineBreakMode, therefore each line has a paragraph style attached
             let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.lineBreakMode = .byTruncatingTail
-
-            let font = Font.systemFont(ofSize: 16)
 
             for line in tempLines {
                 let attributedLine = line.withParagraphStyle(paragraphStyle).withFont(font).withTextColor(.secondaryLabel)
