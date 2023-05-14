@@ -2213,7 +2213,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
     return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         if (error) {
-            if (block) {
+            // When the request was cancelled before completing, we expect no completion handler to be called
+            if (block && error.code != SDWebImageErrorCancelled) {
                 block(nil, error);
             }
 
@@ -2272,7 +2273,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         if (error) {
-            if (block) {
+            // When the request was cancelled before completing, we expect no completion handler to be called
+            if (block && error.code != SDWebImageErrorCancelled) {
                 block(nil, error);
             }
 
