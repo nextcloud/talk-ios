@@ -128,12 +128,16 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func getSettingsSections() -> [Int] {
         var sections = [Int]()
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
 
         // Active user section
         sections.append(SettingsSection.kSettingsSectionUser.rawValue)
 
         // User status section
-        sections.append(SettingsSection.kSettingsSectionUserStatus.rawValue)
+        if serverCapabilities.userStatus {
+            sections.append(SettingsSection.kSettingsSectionUserStatus.rawValue)
+        }
 
         // Account settings section
         sections.append(SettingsSection.kSettingsSectionAccountSettings.rawValue)
