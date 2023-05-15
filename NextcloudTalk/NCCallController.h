@@ -73,7 +73,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;
 - (void)startCall;
-- (void)leaveCall;
+- (void)leaveCallForAll:(BOOL)allParticipants;
 - (void)getVideoEnabledStateWithCompletionBlock:(GetVideoEnabledStateCompletionBlock)block;
 - (void)getAudioEnabledStateWithCompletionBlock:(GetAudioEnabledStateCompletionBlock)block;
 - (void)switchCamera;

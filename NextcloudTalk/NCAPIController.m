@@ -1215,15 +1215,20 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)leaveCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(LeaveCallCompletionBlock)block
+- (NSURLSessionDataTask *)leaveCall:(NSString *)token forAllParticipants:(BOOL)allParticipants forAccount:(TalkAccount *)account withCompletionBlock:(LeaveCallCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"call/%@", encodedToken];
     NSInteger callAPIVersion = [self callAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:callAPIVersion forAccount:account];
+    NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
+
+    if (allParticipants) {
+        [parameters setObject:@(1) forKey:@"all"];
+    }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }

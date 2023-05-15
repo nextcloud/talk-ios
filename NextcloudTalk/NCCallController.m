@@ -270,7 +270,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
         [self stopCallController];
 
-        [self leaveCallInServerWithCompletionBlock:^(NSError *error) {
+        [self leaveCallInServerForAll:NO withCompletionBlock:^(NSError *error) {
             if (error) {
                 NSLog(@"Could not leave call. Error: %@", error.description);
             }
@@ -303,7 +303,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)rejoinCallUsingInternalSignaling
 {
-    [[NCAPIController sharedInstance] leaveCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] leaveCall:_room.token forAllParticipants:NO forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             self->_shouldRejoinCallUsingInternalSignaling = YES;
         }
@@ -337,10 +337,10 @@ static NSString * const kNCVideoTrackKind = @"video";
     _joinCallTask = nil;
 }
 
-- (void)leaveCallInServerWithCompletionBlock:(LeaveCallCompletionBlock)block
+- (void)leaveCallInServerForAll:(BOOL)allParticipants withCompletionBlock:(LeaveCallCompletionBlock)block
 {
     if (_userInCall) {
-        [[NCAPIController sharedInstance] leaveCall:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] leaveCall:_room.token forAllParticipants:allParticipants forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             block(error);
         }];
     } else {
@@ -348,11 +348,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
 }
 
-- (void)leaveCall
+- (void)leaveCallForAll:(BOOL)allParticipants
 {
     [self stopCallController];
 
-    [self leaveCallInServerWithCompletionBlock:^(NSError *error) {
+    [self leaveCallInServerForAll:allParticipants withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Could not leave call. Error: %@", error.description);
         }
