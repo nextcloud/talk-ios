@@ -147,6 +147,17 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
 + (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage
 {
+    int previewImageHeight = 0;
+
+    // Try to keep our locally saved previewImageHeight when updating this messages with the server message
+    // This happens when updating the last message of a room for example
+    if (managedChatMessage.file && chatMessage.file) {
+        // Only do this, if the new message does not include a height, to prevent an infinite recursion
+        if (managedChatMessage.file.previewImageHeight > 0 && chatMessage.file.previewImageHeight == 0) {
+            previewImageHeight = managedChatMessage.file.previewImageHeight;
+        }
+    }
+
     managedChatMessage.actorDisplayName = chatMessage.actorDisplayName;
     managedChatMessage.actorId = chatMessage.actorId;
     managedChatMessage.actorType = chatMessage.actorType;
@@ -165,6 +176,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
+    }
+
+    if (previewImageHeight > 0) {
+        [managedChatMessage setPreviewImageHeight:previewImageHeight];
     }
 }
 
@@ -818,10 +833,19 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
         // Save our changes to the database
         RLMRealm *realm = [RLMRealm defaultRealm];
-        [realm transactionWithBlock:^{
+
+        void (^update)(void) = ^void(){
             NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.internalId].firstObject;
             [NCChatMessage updateChatMessage:managedMessage withChatMessage:self isRoomLastMessage:NO];
-        }];
+        };
+
+        if ([realm inWriteTransaction]) {
+            update();
+        } else {
+            [realm transactionWithBlock:^{
+                update();
+            }];
+        }
     }
 }
 
