@@ -79,6 +79,7 @@ NSString * const kCapabilitySingleConvStatus        = @"single-conversation-stat
 NSString * const kCapabilityChatKeepNotifications   = @"chat-keep-notifications";
 NSString * const kCapabilityConversationAvatars     = @"avatar";
 NSString * const kCapabilityTypingIndicators        = @"typing-privacy";
+NSString * const kCapabilityPublishingPermissions   = @"publishing-permissions";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 

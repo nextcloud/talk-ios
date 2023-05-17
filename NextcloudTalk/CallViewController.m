@@ -443,7 +443,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         return;
     }
     
-    [self hangup];
+    [self hangupForAll:NO];
 }
 
 - (void)providerWantsToUpgradeToVideoCall:(NSNotification *)notification
@@ -813,6 +813,17 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
 
         [self adjustMoreButtonMenu];
+
+        if ([self->_room canModerate] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions]) {
+            __weak typeof(self) weakSelf = self;
+            UIAction *hangupForAllAction = [UIAction actionWithTitle:NSLocalizedString(@"End call for everyone", @"") image:[UIImage systemImageNamed:@"phone.down.fill"] identifier:nil handler:^(UIAction *action) {
+                [weakSelf hangupForAll:YES];
+            }];
+
+            hangupForAllAction.attributes = UIMenuElementAttributesDestructive;
+
+            self.hangUpButton.menu = [UIMenu menuWithTitle:@"" children:@[hangupForAllAction]];
+        }
     });
 }
 
@@ -993,7 +1004,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     UIAlertAction* okButton = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                        style:UIAlertActionStyleDefault
                                                      handler:^(UIAlertAction * _Nonnull action) {
-                                                         [self hangup];
+                                                         [self hangupForAll:NO];
                                                      }];
     [alert addAction:okButton];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -1252,10 +1263,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (IBAction)hangupButtonPressed:(id)sender
 {
-    [self hangup];
+    [self hangupForAll:NO];
 }
 
-- (void)hangup
+- (void)hangupForAll:(BOOL)allParticipants
 {
     if (!_hangingUp) {
         _hangingUp = YES;
@@ -1292,7 +1303,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         });
         
         if (_callController) {
-            [_callController leaveCall];
+            [_callController leaveCallForAll:allParticipants];
         } else {
             [self finishCall];
         }
@@ -1322,7 +1333,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)upgradeToVideoCall
 {
     _videoCallUpgrade = YES;
-    [self hangup];
+    [self hangupForAll:NO];
 }
 
 - (IBAction)toggleChatButtonPressed:(id)sender
@@ -1910,7 +1921,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self hangup];
+        [self hangupForAll:NO];
     });
 }
 
