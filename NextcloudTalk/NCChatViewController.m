@@ -964,6 +964,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return 0;
 }
 
+-(NCChatMessage *)getLastNonUpdateMessage
+{
+    for (NSInteger sectionIndex = (self->_dateSections.count - 1); sectionIndex >= 0; sectionIndex--) {
+        NSDate *dateSection = [self->_dateSections objectAtIndex:sectionIndex];
+        NSMutableArray *messagesInSection = [self->_messages objectForKey:dateSection];
+
+        for (NSInteger messageIndex = (messagesInSection.count - 1); messageIndex >= 0; messageIndex--) {
+            NCChatMessage *chatMessage = [messagesInSection objectAtIndex:messageIndex];
+
+            if (chatMessage && ![chatMessage isUpdateMessage]) {
+                return chatMessage;
+            }
+        }
+    }
+
+    return nil;
+}
+
 - (NCChatMessage *)getFirstRealMessage
 {
     for (int section = 0; section < [_dateSections count]; section++) {
@@ -3560,6 +3578,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)setTemporaryReaction:(NSString *)reaction withState:(NCChatReactionState)state toMessage:(NCChatMessage *)message
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL isAtBottom = [self shouldScrollOnNewMessages];
+        
         NSMutableArray *reloadIndexPaths = [NSMutableArray new];
         NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:message.messageId];
         if (indexPath) {
@@ -3576,10 +3596,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 [currentMessage removeReactionTemporarily:reaction];
             }
         }
-        
-        [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
-        [self.tableView endUpdates];
+
+        [self.tableView performBatchUpdates:^{
+            [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        } completion:^(BOOL finished) {
+            if (!isAtBottom) {
+                return;
+            }
+
+            NCChatMessage *lastNonUpdateMessage = [self getLastNonUpdateMessage];
+
+            if (lastNonUpdateMessage) {
+                NSIndexPath *indexPath = [self indexPathForMessage:lastNonUpdateMessage];
+
+                if (indexPath) {
+                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                }
+            }
+        }];
     });
 }
 
