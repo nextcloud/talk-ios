@@ -2765,58 +2765,95 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             BOOL shouldScrollOnNewMessages = [self shouldScrollOnNewMessages] ;
             
             BOOL newMessagesContainVisibleMessages = [self messagesContainVisibleMessages:messages];
+
+            NSMutableArray *insertIndexPaths = [[NSMutableArray alloc] init];
+            NSMutableIndexSet *insertSectionIndexSet = [[NSMutableIndexSet alloc] init];
+            NSMutableArray *reloadIndexPaths = [[NSMutableArray alloc] init];
+
             // Check if unread messages separator should be added (only if it's not already shown)
-            NSIndexPath *indexPathUnreadMessageSeparator;
+            __block NSIndexPath *indexPathUnreadMessageSeparator;
             if (firstNewMessagesAfterHistory && [self getLastReadMessage] > 0 && ![self getIndexPathOfUnreadMessageSeparator] && newMessagesContainVisibleMessages) {
                 NSMutableArray *messagesForLastDateBeforeUpdate = [self->_messages objectForKey:[self->_dateSections lastObject]];
                 [messagesForLastDateBeforeUpdate addObject:self->_unreadMessagesSeparator];
                 indexPathUnreadMessageSeparator = [NSIndexPath indexPathForRow:messagesForLastDateBeforeUpdate.count - 1 inSection: self->_dateSections.count - 1];
                 [self->_messages setObject:messagesForLastDateBeforeUpdate forKey:[self->_dateSections lastObject]];
+                [insertIndexPaths addObject:indexPathUnreadMessageSeparator];
             }
             
             // Sort received messages
             [self appendMessages:messages inDictionary:self->_messages];
             
             NSMutableArray *messagesForLastDate = [self->_messages objectForKey:[self->_dateSections lastObject]];
-            NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
-            
-            // Load messages in chat view keeping scroll position
-            CGPoint contentOffset = self.tableView.contentOffset;
-            [self.tableView reloadData];
-            [self.tableView layoutIfNeeded];
-            [self.tableView setContentOffset:contentOffset animated:NO];
-            
-            BOOL newMessagesContainUserMessage = [self newMessagesContainUserMessage:messages];
-            // Remove unread messages separator when user writes a message
-            if (newMessagesContainUserMessage) {
-                [self removeUnreadMessagesSeparator];
-                indexPathUnreadMessageSeparator = nil;
-                // Update last message index path
-                lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
+            __block NSIndexPath *lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
+
+            for (NCChatMessage *newMessage in messages) {
+                NSIndexPath *indexPath = [self indexPathForMessage:newMessage];
+
+                if (indexPath.section >= self.tableView.numberOfSections) {
+                    // New section -> insert the section
+                    [insertSectionIndexSet addIndex:indexPath.section];
+                }
+
+                if (indexPath.section < self.tableView.numberOfSections && indexPath.row < [self.tableView numberOfRowsInSection:indexPath.section]) {
+                    // This is a already known indexPath, so we want to reload the cell
+                    [reloadIndexPaths addObject:indexPath];
+                } else {
+                    // New indexPath -> insert it
+                    [insertIndexPaths addObject:indexPath];
+                }
+
+                if ([newMessage isUpdateMessage] && newMessage.parent != nil) {
+                    NSIndexPath *parentPath = [self indexPathForMessage:newMessage.parent];
+
+                    if (parentPath != nil && parentPath.section < self.tableView.numberOfSections && parentPath.row < [self.tableView numberOfRowsInSection:parentPath.section]) {
+                        // We received an update message to a message which is already part of our current data, therefore we need to reload it
+                        [reloadIndexPaths addObject:parentPath];
+                    }
+                }
             }
-            
-            NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
-            // This variable is needed since several calls to receiveMessages API might be needed
-            // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
-            // to receive all the unread messages.
-            BOOL areReallyNewMessages = firstNewMessage.timestamp >= self->_chatViewPresentedTimestamp;
-            
-            // Position chat view
-            if (indexPathUnreadMessageSeparator) {
-                // Dispatch it in the next cycle so reloadData is always completed.
-                dispatch_async(dispatch_get_main_queue(), ^{
+
+            [self.tableView performBatchUpdates:^{
+                if (insertSectionIndexSet.count > 0) {
+                    [self.tableView insertSections:insertSectionIndexSet withRowAnimation:UITableViewRowAnimationAutomatic];
+                }
+
+                if (insertIndexPaths.count > 0) {
+                    [self.tableView insertRowsAtIndexPaths:insertIndexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+                }
+
+                if (reloadIndexPaths.count > 0) {
+                    [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+                }
+            } completion:^(BOOL finished) {
+                BOOL newMessagesContainUserMessage = [self newMessagesContainUserMessage:messages];
+                // Remove unread messages separator when user writes a message
+                if (newMessagesContainUserMessage) {
+                    [self removeUnreadMessagesSeparator];
+                    indexPathUnreadMessageSeparator = nil;
+                    // Update last message index path
+                    lastMessageIndexPath = [NSIndexPath indexPathForRow:messagesForLastDate.count - 1 inSection:self->_dateSections.count - 1];
+                }
+
+                NCChatMessage *firstNewMessage = [messages objectAtIndex:0];
+                // This variable is needed since several calls to receiveMessages API might be needed
+                // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
+                // to receive all the unread messages.
+                BOOL areReallyNewMessages = firstNewMessage.timestamp >= self->_chatViewPresentedTimestamp;
+
+                // Position chat view
+                if (indexPathUnreadMessageSeparator) {
                     NSIndexPath *indexPath = [self getIndexPathOfUnreadMessageSeparator];
                     [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
-                });
-            } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
-                [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-            } else if (!self->_firstUnreadMessage && areReallyNewMessages && newMessagesContainVisibleMessages) {
-                [self showNewMessagesViewUntilMessage:firstNewMessage];
-            }
-            
-            // Set last received message as last read message
-            NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
-            self->_lastReadMessage = lastReceivedMessage.messageId;
+                } else if (shouldScrollOnNewMessages || newMessagesContainUserMessage) {
+                    [self.tableView scrollToRowAtIndexPath:lastMessageIndexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+                } else if (!self->_firstUnreadMessage && areReallyNewMessages && newMessagesContainVisibleMessages) {
+                    [self showNewMessagesViewUntilMessage:firstNewMessage];
+                }
+
+                // Set last received message as last read message
+                NCChatMessage *lastReceivedMessage = [messages objectAtIndex:messages.count - 1];
+                self->_lastReadMessage = lastReceivedMessage.messageId;
+            }];
         }
         
         if (firstNewMessagesAfterHistory) {
