@@ -3497,6 +3497,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)addReaction:(NSString *)reaction toChatMessage:(NCChatMessage *)message
 {
+    for (NCChatReaction *existingReaction in message.reactionsArray) {
+        if ([existingReaction.reaction isEqualToString:reaction] && existingReaction.userReacted) {
+            // We can't add the same reaction twice
+            return;
+        }
+    }
+
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [self setTemporaryReaction:reaction withState:NCChatReactionStateAdding toMessage:message];
     [[NCAPIController sharedInstance] addReaction:reaction toMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
