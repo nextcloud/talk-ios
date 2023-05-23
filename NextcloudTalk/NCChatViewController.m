@@ -4276,7 +4276,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             emojiShortcutButton.layer.cornerRadius = emojiButtonSize / 2;
 
             [emojiShortcutButton.titleLabel setFont:[UIFont systemFontOfSize:20]];
-            [emojiShortcutButton addAction:reactionShortcut forControlEvents:UIControlEventAllTouchEvents];
+            [emojiShortcutButton addAction:reactionShortcut forControlEvents:UIControlEventTouchUpInside];
             [emojiShortcutButton setTitle:emoji forState:UIControlStateNormal];
             [emojiShortcutButton setBackgroundColor:UIColor.systemBackgroundColor];
 
@@ -4307,7 +4307,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         addReactionButton.layer.cornerRadius = emojiButtonSize / 2;
 
         [addReactionButton.titleLabel setFont:[UIFont systemFontOfSize:22]];
-        [addReactionButton addAction:addReactionAction forControlEvents:UIControlEventAllTouchEvents];
+        [addReactionButton addAction:addReactionAction forControlEvents:UIControlEventTouchUpInside];
         [addReactionButton setImage:[UIImage systemImageNamed:@"plus"] forState:UIControlStateNormal];
         [addReactionButton setTintColor:UIColor.labelColor];
         [addReactionButton setBackgroundColor:UIColor.systemBackgroundColor];
