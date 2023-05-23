@@ -743,7 +743,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     return peerConnectionWrapper;
 }
 
-- (NCPeerConnection *)getOrCreatePeerConnectionWrapperForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
+- (NCPeerConnection *)getOrCreatePeerConnectionWrapperForSessionId:(NSString *)sessionId withSid:(NSString *)sid ofType:(NSString *)roomType
 {
     [[WebRTCCommon shared] assertQueue];
 
@@ -755,7 +755,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         NSLog(@"Creating a peer for %@", sessionId);
         NSArray *iceServers = [_signalingController getIceServers];
         BOOL screensharingPeer = [roomType isEqualToString:kRoomTypeScreen];
-        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:screensharingPeer ? NO : _isAudioOnly];
+        peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId sid:sid andICEServers:iceServers forAudioOnlyCall:screensharingPeer ? NO : _isAudioOnly];
         peerConnectionWrapper.roomType = roomType;
         peerConnectionWrapper.delegate = self;
         
@@ -1107,7 +1107,15 @@ static NSString * const kNCVideoTrackKind = @"video";
         case kNCSignalingMessageTypeOffer:
         case kNCSignalingMessageTypeAnswer:
         {
-            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            // If there is already a peer connection but a new offer is received with a different sid the existing
+            // peer connection is stale, so it needs to be removed and a new one created instead.
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            if (signalingMessage.messageType == kNCSignalingMessageTypeOffer && peerConnectionWrapper &&
+                signalingMessage.sid.length > 0 && ![signalingMessage.sid isEqualToString:peerConnectionWrapper.sid]) {
+                [self cleanPeerConnectionForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            }
+
+            peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType];
             NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
             RTCSessionDescription *sessionDescription = sdpMessage.sessionDescription;
             [peerConnectionWrapper setPeerName:sdpMessage.nick];
@@ -1116,7 +1124,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
         case kNCSignalingMessageTypeCandidate:
         {
-            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType];
             NCICECandidateMessage *candidateMessage = (NCICECandidateMessage *)signalingMessage;
             [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
             break;
@@ -1262,7 +1270,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             // When using a MCU we request an offer, but in case there are no streams published, we won't get an offer.
             // When using internal signaling if we and the other participant are not publishing any stream,
             // we won't receive or send any offer.
-            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:sessionId ofType:kRoomTypeVideo];
+            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:sessionId withSid:nil ofType:kRoomTypeVideo];
             if ([_externalSignalingController hasMCU]) {
                 // Only request offer if user is sharing audio or video streams
                 if ([self userHasStreams:sessionId]) {
@@ -1437,7 +1445,7 @@ static NSString * const kNCVideoTrackKind = @"video";
     NCICECandidateMessage *message = [[NCICECandidateMessage alloc] initWithCandidate:candidate
                                                                                  from:[self signalingSessionId]
                                                                                    to:peerConnection.peerId
-                                                                                  sid:nil
+                                                                                  sid:peerConnection.sid
                                                                              roomType:peerConnection.roomType];
     
     if ([_externalSignalingController isEnabled]) {
@@ -1453,7 +1461,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                                             initWithSessionDescription:sessionDescription
                                             from:[self signalingSessionId]
                                             to:peerConnection.peerId
-                                            sid:nil
+                                            sid:peerConnection.sid
                                             roomType:peerConnection.roomType
                                             nick:_userDisplayName];
     

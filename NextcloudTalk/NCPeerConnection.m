@@ -45,7 +45,7 @@
 
 @implementation NCPeerConnection
 
-- (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
+- (instancetype)initWithSessionId:(NSString *)sessionId sid:(NSString *)sid andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
 {
     self = [super init];
     
@@ -67,6 +67,8 @@
         
         _peerConnection = peerConnection;
         _peerId = sessionId;
+        NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
+        _sid = sid ? sid : [NSString stringWithFormat:@"%.0f", timeStamp];
         _isAudioOnly = audioOnly;
     }
     
@@ -75,7 +77,7 @@
 
 - (instancetype)initForPublisherWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
 {
-    self = [self initWithSessionId:sessionId andICEServers:iceServers forAudioOnlyCall:audioOnly];
+    self = [self initWithSessionId:sessionId sid:nil andICEServers:iceServers forAudioOnlyCall:audioOnly];
     
     if (self) {
         _isMCUPublisherPeer = YES;
