@@ -4187,6 +4187,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         // Only set these, when the context menu is fully visible
         self->_contextMenuReactionView.alpha = 1;
         self->_contextMenuMessageView.layer.cornerRadius = 10;
+        self->_contextMenuMessageView.layer.mask = nil;
     }];
 }
 
@@ -4232,6 +4233,16 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     UIView *previewMessageView = previewTableViewCell.contentView;
     previewMessageView.frame = CGRectMake(0, 0, maxPreviewWidth, cellHeight);
     previewMessageView.layer.masksToBounds = YES;
+
+    // Create a mask to not show the avatar part when showing a grouped messages while animating
+    // The mask will be reset in willDisplayContextMenuWithConfiguration so the avatar is visible when the context menu is shown
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    CGRect maskRect = CGRectMake(0, previewMessageView.frame.size.height - heightOfOriginalCell, previewMessageView.frame.size.width, heightOfOriginalCell);
+    CGPathRef path = CGPathCreateWithRect(maskRect, NULL);
+    maskLayer.path = path;
+    CGPathRelease(path);
+
+    previewMessageView.layer.mask = maskLayer;
     [previewMessageView setBackgroundColor:UIColor.systemBackgroundColor];
     self.contextMenuMessageView = previewMessageView;
 
