@@ -893,7 +893,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         // Request new offer
         [self->_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
         // Set timeout to request new offer
-        NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
+        NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
 
         NSString *peerKey = [sessionId stringByAppendingString:roomType];
         [self->_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
