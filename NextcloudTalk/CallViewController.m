@@ -923,12 +923,65 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [reactionItems addObject:reactionAction];
         }
 
-        UIMenu *reactionsMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Send a reaction", nil)
-                                                image:[UIImage systemImageNamed:@"face.smiling"]
-                                           identifier:nil
-                                              options:0
-                                             children:reactionItems];
-        [items addObject:reactionsMenu];
+        UIMenu *reactionMenu;
+
+        if (@available(iOS 16.0, *)) {
+            NSInteger currentItemsCount = 0;
+            NSMutableArray *temporaryReactionItems = [[NSMutableArray alloc] init];
+            NSMutableArray *temporaryReactionMenus = [[NSMutableArray alloc] init];
+
+            for (UIAction *reactionAction in reactionItems) {
+                currentItemsCount += 1;
+
+                [temporaryReactionItems addObject:reactionAction];
+
+                if (currentItemsCount >= 2) {
+                    UIMenu *inlineReactionMenu = [UIMenu menuWithTitle:@""
+                                                                 image:nil
+                                                            identifier:nil
+                                                               options:UIMenuOptionsDisplayInline
+                                                              children:temporaryReactionItems];
+
+                    inlineReactionMenu.preferredElementSize = UIMenuElementSizeSmall;
+
+                    [temporaryReactionMenus addObject:inlineReactionMenu];
+                    temporaryReactionItems = [[NSMutableArray alloc] init];
+                    currentItemsCount = 0;
+                }
+            }
+
+            if (currentItemsCount > 0) {
+                UIMenu *inlineReactionMenu = [UIMenu menuWithTitle:@""
+                                                             image:nil
+                                                        identifier:nil
+                                                           options:UIMenuOptionsDisplayInline
+                                                          children:temporaryReactionItems];
+
+                inlineReactionMenu.preferredElementSize = UIMenuElementSizeSmall;
+
+                [temporaryReactionMenus addObject:inlineReactionMenu];
+            }
+
+            reactionMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Send a reaction", nil)
+                                           image:[UIImage systemImageNamed:@"face.smiling"]
+                                      identifier:nil
+                                         options:0
+                                        children:temporaryReactionMenus];
+
+        } else {
+            // Show the menu as one long list on devices < iOS 16
+            reactionMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Send a reaction", nil)
+                                           image:[UIImage systemImageNamed:@"face.smiling"]
+                                      identifier:nil
+                                         options:0
+                                        children:reactionItems];
+        }
+
+
+
+
+
+        [items addObject:reactionMenu];
     }
 
     // Start/Stop recording
