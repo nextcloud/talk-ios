@@ -1276,6 +1276,9 @@ static NSString * const kNCVideoTrackKind = @"video";
                 if ([self userHasStreams:sessionId]) {
                     NSLog(@"Requesting offer to the MCU for session: %@", sessionId);
                     [self requestOfferWithRepetitionForSessionId:sessionId andRoomType:kRoomTypeVideo];
+                } else {
+                    // Set peer as dummyPeer if it has no streams
+                    peerConnectionWrapper.isDummyPeer = YES;
                 }
             } else {
                 NSComparisonResult result = [sessionId compare:[self signalingSessionId]];

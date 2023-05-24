@@ -64,6 +64,7 @@
 @property (nonatomic, copy) NSString *roomType;
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL isMCUPublisherPeer;
+@property (nonatomic, assign) BOOL isDummyPeer;
 @property (nonatomic, strong) RTCPeerConnection *peerConnection;
 @property (nonatomic, strong) RTCDataChannel *localDataChannel;
 @property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
