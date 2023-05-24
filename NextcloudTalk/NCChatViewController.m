@@ -168,6 +168,9 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) PHPickerViewController *photoPicker;
 @property (nonatomic, assign) BOOL isTyping;
 @property (nonatomic, strong) NSTimer *typingTimer;
+@property (nonatomic, strong) UIView *contextMenuReactionView;
+@property (nonatomic, strong) UIView *contextMenuMessageView;
+@property (nonatomic, copy, nullable) void (^contextMenuActionBlock)(void);
 
 @end
 
@@ -962,6 +965,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return _lastReadMessage;
     }
     return 0;
+}
+
+-(NCChatMessage *)getLastNonUpdateMessage
+{
+    for (NSInteger sectionIndex = (self->_dateSections.count - 1); sectionIndex >= 0; sectionIndex--) {
+        NSDate *dateSection = [self->_dateSections objectAtIndex:sectionIndex];
+        NSMutableArray *messagesInSection = [self->_messages objectForKey:dateSection];
+
+        for (NSInteger messageIndex = (messagesInSection.count - 1); messageIndex >= 0; messageIndex--) {
+            NCChatMessage *chatMessage = [messagesInSection objectAtIndex:messageIndex];
+
+            if (chatMessage && ![chatMessage isUpdateMessage]) {
+                return chatMessage;
+            }
+        }
+    }
+
+    return nil;
 }
 
 - (NCChatMessage *)getFirstRealMessage
@@ -3534,6 +3555,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)addReaction:(NSString *)reaction toChatMessage:(NCChatMessage *)message
 {
+    for (NCChatReaction *existingReaction in message.reactionsArray) {
+        if ([existingReaction.reaction isEqualToString:reaction] && existingReaction.userReacted) {
+            // We can't add the same reaction twice
+            return;
+        }
+    }
+
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [self setTemporaryReaction:reaction withState:NCChatReactionStateAdding toMessage:message];
     [[NCAPIController sharedInstance] addReaction:reaction toMessage:message.messageId inRoom:_room.token forAccount:activeAccount withCompletionBlock:^(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode) {
@@ -3590,6 +3618,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)setTemporaryReaction:(NSString *)reaction withState:(NCChatReactionState)state toMessage:(NCChatMessage *)message
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL isAtBottom = [self shouldScrollOnNewMessages];
+        
         NSMutableArray *reloadIndexPaths = [NSMutableArray new];
         NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:message.messageId];
         if (indexPath) {
@@ -3606,10 +3636,24 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 [currentMessage removeReactionTemporarily:reaction];
             }
         }
-        
-        [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
-        [self.tableView endUpdates];
+
+        [self.tableView performBatchUpdates:^{
+            [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        } completion:^(BOOL finished) {
+            if (!isAtBottom) {
+                return;
+            }
+
+            NCChatMessage *lastNonUpdateMessage = [self getLastNonUpdateMessage];
+
+            if (lastNonUpdateMessage) {
+                NSIndexPath *indexPath = [self indexPathForMessage:lastNonUpdateMessage];
+
+                if (indexPath) {
+                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                }
+            }
+        }];
     });
 }
 
@@ -4071,18 +4115,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         
         [actions addObject:replyAction];
     }
-    
-    // Add reaction option
-    if ([self isMessageReactable:message] && hasChatPermission) {
-        UIImage *reactionImage = [UIImage systemImageNamed:@"face.smiling"];
-        UIAction *reactionAction = [UIAction actionWithTitle:NSLocalizedString(@"Add reaction", nil) image:reactionImage identifier:nil handler:^(UIAction *action){
-            
-            [self didPressAddReaction:message atIndexPath:indexPath];
-        }];
-        
-        [actions addObject:reactionAction];
-    }
-    
+
     // Reply-privately option (only to other users and not in one-to-one)
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if ([self isMessageReplyable:message] && _room.type != kNCRoomTypeOneToOne && [message.actorType isEqualToString:@"users"] && ![message.actorId isEqualToString:activeAccount.userId] )
@@ -4175,9 +4208,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     UIMenu *menu = [UIMenu menuWithTitle:@"" children:actions];
-    
-    UIContextMenuConfiguration *configuration = [UIContextMenuConfiguration configurationWithIdentifier:nil previewProvider:^UIViewController * _Nullable{
-        return [self getPreviewViewControllerForTableView:tableView withIndexPath:indexPath];
+
+    UIContextMenuConfiguration *configuration = [UIContextMenuConfiguration configurationWithIdentifier:indexPath previewProvider:^UIViewController * _Nullable{
+        return nil;
     } actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
         return menu;
     }];
@@ -4185,46 +4218,186 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return configuration;
 }
 
-- (UIViewController *)getPreviewViewControllerForTableView:(UITableView *)tableView withIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)tableView willDisplayContextMenuWithConfiguration:(UIContextMenuConfiguration *)configuration animator:(id<UIContextMenuInteractionAnimating>)animator
 {
-    if (SLK_IS_IPAD) {
-        return nil;
-    }
-    
+    [animator addAnimations:^{
+        // Only set these, when the context menu is fully visible
+        self->_contextMenuReactionView.alpha = 1;
+        self->_contextMenuMessageView.layer.cornerRadius = 10;
+        self->_contextMenuMessageView.layer.mask = nil;
+    }];
+}
+
+- (void)tableView:(UITableView *)tableView willEndContextMenuInteractionWithConfiguration:(UIContextMenuConfiguration *)configuration animator:(id<UIContextMenuInteractionAnimating>)animator
+{
+    [animator addCompletion:^{
+        // Wait until the context menu is completely hidden before we execut any method
+        if (self->_contextMenuActionBlock) {
+            self->_contextMenuActionBlock();
+            self->_contextMenuActionBlock = nil;
+        }
+    }];
+}
+
+- (UITargetedPreview *)tableView:(UITableView *)tableView previewForHighlightingContextMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
+{
+    NSIndexPath *indexPath = (NSIndexPath *)configuration.identifier;
     NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
     NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
-    
+
+    CGFloat maxPreviewWidth = self.view.bounds.size.width - self.view.safeAreaInsets.left - self.view.safeAreaInsets.right;
+    CGFloat maxPreviewHeight = self.view.bounds.size.height * 0.6;
+
+    // TODO: Take padding into account
+    CGFloat maxTextWidth = maxPreviewWidth - kChatCellAvatarHeight;
+
+    // We need to get the height of the original cell to center the preview correctly (as the preview is always non-grouped)
+    CGFloat heightOfOriginalCell = [self getCellHeightForMessage:message withWidth:maxTextWidth];
+
     // Remember grouped-status -> Create a previewView which always is a non-grouped-message
     BOOL isGroupMessage = message.isGroupMessage;
     message.isGroupMessage = NO;
-    
-    CGFloat maxPreviewWidth = self.view.bounds.size.width;
-    CGFloat maxPreviewHeight = self.view.bounds.size.height * 0.6;
-    
-    if (SLK_IS_IPHONE && SLK_IS_LANDSCAPE) {
-        maxPreviewWidth = self.view.bounds.size.width / 3;
-    }
-    
-    UITableViewCell *previewView = [self getCellForMessage:message];
-    CGFloat maxTextWidth = maxPreviewWidth - kChatCellAvatarHeight;
+
+    UITableViewCell *previewTableViewCell = [self getCellForMessage:message];
     CGFloat cellHeight = [self getCellHeightForMessage:message withWidth:maxTextWidth];
-    
+
     // Cut the height if bigger than max height
     if (cellHeight > maxPreviewHeight) {
         cellHeight = maxPreviewHeight;
     }
-    
-    // Make sure the previewView has the correct size
-    previewView.contentView.frame = CGRectMake(0,0, maxPreviewWidth, cellHeight);
-    
+
+    // Use the contentView of the UITableViewCell as a preview view
+    UIView *previewMessageView = previewTableViewCell.contentView;
+    previewMessageView.frame = CGRectMake(0, 0, maxPreviewWidth, cellHeight);
+    previewMessageView.layer.masksToBounds = YES;
+
+    // Create a mask to not show the avatar part when showing a grouped messages while animating
+    // The mask will be reset in willDisplayContextMenuWithConfiguration so the avatar is visible when the context menu is shown
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    CGRect maskRect = CGRectMake(0, previewMessageView.frame.size.height - heightOfOriginalCell, previewMessageView.frame.size.width, heightOfOriginalCell);
+    CGPathRef path = CGPathCreateWithRect(maskRect, NULL);
+    maskLayer.path = path;
+    CGPathRelease(path);
+
+    previewMessageView.layer.mask = maskLayer;
+    [previewMessageView setBackgroundColor:UIColor.systemBackgroundColor];
+    self.contextMenuMessageView = previewMessageView;
+
     // Restore grouped-status
     message.isGroupMessage = isGroupMessage;
-    
-    UIViewController *previewController = [[UIViewController alloc] init];
-    [previewController.view addSubview:previewView.contentView];
-    previewController.preferredContentSize = previewView.contentView.frame.size;
-    
-    return previewController;
+
+    UIView *containerView;
+    CGPoint cellCenter;
+
+    BOOL hasChatPermission = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] || (_room.permissions & NCPermissionChat) != 0;
+
+    if ([self isMessageReactable:message] && hasChatPermission) {
+        NSInteger reactionViewPadding = 10;
+        NSInteger emojiButtonPadding = 10;
+        NSInteger emojiButtonSize = 48;
+        NSArray *frequentlyUsedEmojis = [[NSArray alloc] initWithObjects:@"👍", @"❤️", @"😂", @"😅", nil];
+
+        NSInteger totalEmojiButtonWidth = [frequentlyUsedEmojis count] * emojiButtonSize;
+        NSInteger totalEmojiButtonPadding = [frequentlyUsedEmojis count] * emojiButtonPadding;
+        NSInteger addButtonWidth = emojiButtonSize + emojiButtonPadding;
+
+        // We need to add an extra padding to the right so the buttons are correctly padded
+        NSInteger reactionViewWidth = totalEmojiButtonWidth + totalEmojiButtonPadding + addButtonWidth + emojiButtonPadding;
+        UIView *reactionView = [[UIView alloc] initWithFrame:CGRectMake(0, cellHeight + reactionViewPadding, reactionViewWidth, emojiButtonSize)];
+        self->_contextMenuReactionView = reactionView;
+
+        NSInteger positionX = emojiButtonPadding;
+        __weak typeof(self) weakSelf = self;
+
+        for (NSString *emoji in frequentlyUsedEmojis) {
+            UIAction *reactionShortcut = [UIAction actionWithTitle:@"" image:nil identifier:nil handler:^(UIAction *action) {
+                [self.tableView.contextMenuInteraction dismissMenu];
+
+                // Since we want to set the emoji only after the context menu disappeared, we store a block to execute afterwards
+                self->_contextMenuActionBlock = ^void() {
+                    [weakSelf addReaction:emoji toChatMessage:message];
+                };
+            }];
+
+            UIButton *emojiShortcutButton = [UIButton buttonWithType:UIButtonTypeSystem];
+            emojiShortcutButton.frame = CGRectMake(positionX, 0, emojiButtonSize, emojiButtonSize);
+            emojiShortcutButton.layer.cornerRadius = emojiButtonSize / 2;
+
+            [emojiShortcutButton.titleLabel setFont:[UIFont systemFontOfSize:20]];
+            [emojiShortcutButton addAction:reactionShortcut forControlEvents:UIControlEventTouchUpInside];
+            [emojiShortcutButton setTitle:emoji forState:UIControlStateNormal];
+            [emojiShortcutButton setBackgroundColor:UIColor.systemBackgroundColor];
+
+            // Disable shortcuts, if we already reacted with that emoji
+            for (NCChatReaction *reaction in message.reactionsArray) {
+                if ([reaction.reaction isEqualToString:emoji] && reaction.userReacted) {
+                    [emojiShortcutButton setEnabled:NO];
+                    emojiShortcutButton.alpha = 0.4;
+                }
+            }
+
+            [reactionView addSubview:emojiShortcutButton];
+
+            positionX += emojiButtonSize + emojiButtonPadding;
+        }
+
+        UIAction *addReactionAction = [UIAction actionWithTitle:@"" image:nil identifier:nil handler:^(UIAction *action) {
+            [self.tableView.contextMenuInteraction dismissMenu];
+
+            // Since we want to set the emoji only after the context menu disappeared, we store a block to execute afterwards
+            self->_contextMenuActionBlock = ^void() {
+                [weakSelf didPressAddReaction:message atIndexPath:indexPath];
+            };
+        }];
+
+        UIButton *addReactionButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        addReactionButton.frame = CGRectMake(positionX, 0, emojiButtonSize, emojiButtonSize);
+        addReactionButton.layer.cornerRadius = emojiButtonSize / 2;
+
+        [addReactionButton.titleLabel setFont:[UIFont systemFontOfSize:22]];
+        [addReactionButton addAction:addReactionAction forControlEvents:UIControlEventTouchUpInside];
+        [addReactionButton setImage:[UIImage systemImageNamed:@"plus"] forState:UIControlStateNormal];
+        [addReactionButton setTintColor:UIColor.labelColor];
+        [addReactionButton setBackgroundColor:UIColor.systemBackgroundColor];
+
+        [reactionView addSubview:addReactionButton];
+
+        // The reactionView will be shown after the animation finishes, otherwise we see the view already when animating and this looks odd
+        reactionView.alpha = 0;
+        reactionView.layer.cornerRadius = emojiButtonSize / 2;
+        [reactionView setBackgroundColor:UIColor.systemBackgroundColor];
+
+        containerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, maxPreviewWidth, cellHeight + emojiButtonSize + reactionViewPadding)];
+        containerView.backgroundColor = UIColor.clearColor;
+        [containerView addSubview:previewMessageView];
+        [containerView addSubview:reactionView];
+
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+
+        // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
+        CGFloat cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2;
+        cellCenter = CGPointMake(cellCenterX, cell.center.y + (emojiButtonSize + reactionViewPadding) / 2 - (cellHeight - heightOfOriginalCell) / 2);
+    } else {
+        containerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, maxPreviewWidth, cellHeight)];
+        containerView.backgroundColor = UIColor.clearColor;
+        [containerView addSubview:previewMessageView];
+
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+        
+        // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
+        CGFloat cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2;
+        cellCenter = CGPointMake(cellCenterX, cell.center.y - (cellHeight - heightOfOriginalCell) / 2);
+    }
+
+    // Create a preview target which allows us to have a transparent background
+    UIPreviewTarget *previewTarget = [[UIPreviewTarget alloc] initWithContainer:self.tableView center:cellCenter];
+    UIPreviewParameters *previewParameter = [[UIPreviewParameters alloc] init];
+
+    // Remove the background and the drop shadow from our custom preview view
+    previewParameter.backgroundColor = UIColor.clearColor;
+    previewParameter.shadowPath = [[UIBezierPath alloc] init];
+
+    return [[UITargetedPreview alloc] initWithView:containerView parameters:previewParameter target:previewTarget];
 }
 
 #pragma mark - FileMessageTableViewCellDelegate
