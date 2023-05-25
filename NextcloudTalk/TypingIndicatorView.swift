@@ -27,12 +27,10 @@ import SwiftyAttributes
     private class TypingUser {
         var userId: String
         var displayName: String
-        var sessionCount: Int = 0
 
         init(userId: String, displayName: String) {
             self.userId = userId
             self.displayName = displayName
-            self.sessionCount = 1
         }
     }
 
@@ -161,10 +159,7 @@ import SwiftyAttributes
     func addTyping(userId: String, displayName: String) {
         let existingEntry = self.typingUsers.first(where: { $0.userId == userId})
 
-        if let existingEntry = existingEntry {
-            // We already have this userId in our array, so probably we received this from a different session
-            existingEntry.sessionCount += 1
-        } else {
+        if existingEntry == nil {
             let newEntry = TypingUser(userId: userId, displayName: displayName)
             self.typingUsers.append(newEntry)
         }
@@ -173,16 +168,10 @@ import SwiftyAttributes
     }
 
     func removeTyping(userId: String) {
-        let existingIndex = self.typingUsers.firstIndex(where: { $0.userId == userId})
+        let existingIndex = self.typingUsers.firstIndex(where: { $0.userId == userId })
 
         if let existingIndex = existingIndex {
-            let existingEntry = self.typingUsers[existingIndex]
-
-            if existingEntry.sessionCount == 1 {
-                self.typingUsers.remove(at: existingIndex)
-            } else {
-                existingEntry.sessionCount -= 1
-            }
+            self.typingUsers.remove(at: existingIndex)
         }
 
         self.updateTypingIndicatorDebounced()
