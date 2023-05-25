@@ -883,20 +883,24 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)requestOfferWithRepetitionForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSNumber *timeout = [NSNumber numberWithInt:[[NSDate date] timeIntervalSince1970] + 60];
-        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:sessionId forKey:@"sessionId"];
-        [userInfo setObject:roomType forKey:@"roomType"];
-        [userInfo setValue:timeout forKey:@"timeout"];
+    [[WebRTCCommon shared] assertQueue];
 
-        // Request new offer
-        [self->_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
-        // Set timeout to request new offer
+    NSNumber *timeout = [NSNumber numberWithInt:[[NSDate date] timeIntervalSince1970] + 60];
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:sessionId forKey:@"sessionId"];
+    [userInfo setObject:roomType forKey:@"roomType"];
+    [userInfo setValue:timeout forKey:@"timeout"];
+
+    // Request new offer
+    [self->_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
+    // Set timeout to request new offer
+    dispatch_async(dispatch_get_main_queue(), ^{
         NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
 
         NSString *peerKey = [sessionId stringByAppendingString:roomType];
-        [self->_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
+        [[WebRTCCommon shared] dispatch:^{
+            [self->_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
+        }];
     });
 }
 
