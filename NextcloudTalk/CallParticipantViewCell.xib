@@ -27,6 +27,13 @@
                             <constraint firstAttribute="height" priority="750" constant="100" id="hFb-Kv-gry"/>
                         </constraints>
                     </imageView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eHf-UZ-Ya0" customClass="MDCActivityIndicator">
+                        <rect key="frame" x="97.5" y="66" width="100" height="100"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="100" id="TgK-JJ-TAh"/>
+                            <constraint firstAttribute="width" constant="100" id="nsX-XY-5La"/>
+                        </constraints>
+                    </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bj2-hS-1pF">
                         <rect key="frame" x="241" y="22" width="32" height="32"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -96,8 +103,10 @@
                 <constraint firstItem="zYx-Of-3tH" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="22" id="Cpi-Oj-lKf"/>
                 <constraint firstItem="zYx-Of-3tH" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="Ejn-6A-Tbm"/>
                 <constraint firstItem="2xo-Od-0bZ" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="KOw-nZ-G8t"/>
+                <constraint firstItem="eHf-UZ-Ya0" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="QeX-QA-hWf"/>
                 <constraint firstItem="Tog-ZY-cO4" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="22" id="RH0-ZW-O57"/>
                 <constraint firstAttribute="bottom" secondItem="Tog-ZY-cO4" secondAttribute="bottom" constant="22" id="UXP-Gm-lYX"/>
+                <constraint firstItem="eHf-UZ-Ya0" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="ZNb-4N-V6e"/>
                 <constraint firstItem="bj2-hS-1pF" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="22" id="f5w-bM-AbI"/>
                 <constraint firstItem="zYx-Of-3tH" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="fL4-Jy-Q1U"/>
                 <constraint firstAttribute="trailing" secondItem="2xo-Od-0bZ" secondAttribute="trailing" id="gTd-Es-Nku"/>
@@ -108,6 +117,7 @@
             </constraints>
             <size key="customSize" width="295" height="202"/>
             <connections>
+                <outlet property="activityIndicator" destination="eHf-UZ-Ya0" id="KEG-cC-sSn"/>
                 <outlet property="audioOffIndicator" destination="vlO-GV-Y3B" id="cIm-dZ-peB"/>
                 <outlet property="peerAvatarImageView" destination="zYx-Of-3tH" id="fkR-av-PMY"/>
                 <outlet property="peerNameLabel" destination="D5h-T2-aB9" id="m82-2d-znc"/>

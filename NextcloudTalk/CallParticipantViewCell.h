@@ -28,6 +28,7 @@ extern NSString *const kCallParticipantCellNibName;
 extern CGFloat const kCallParticipantCellMinHeight;
 
 @class CallParticipantViewCell;
+@class MDCActivityIndicator;
 @class AvatarImageView;
 
 @protocol CallParticipantViewCellDelegate <NSObject>
@@ -49,6 +50,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 
 @property (nonatomic, weak) IBOutlet UIView *peerVideoView;
 @property (nonatomic, weak) IBOutlet UILabel *peerNameLabel;
+@property (nonatomic, weak) IBOutlet MDCActivityIndicator *activityIndicator;
 @property (nonatomic, weak) IBOutlet AvatarImageView *peerAvatarImageView;
 @property (nonatomic, weak) IBOutlet UIButton *audioOffIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *screensharingIndicator;

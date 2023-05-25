@@ -1748,6 +1748,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [cell.peerNameLabel setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
     [cell.audioOffIndicator setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
 
+    RTCIceConnectionState connectionState = peerConnection.isDummyPeer ?
+    RTCIceConnectionStateConnected : peerConnection.peerConnection.iceConnectionState;
+    [cell setConnectionState:connectionState];
+
     [[WebRTCCommon shared] dispatch:^{
         NSString *userId = [self->_callController getUserIdFromSessionId:peerConnection.peerId];
 

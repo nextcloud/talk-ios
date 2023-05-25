@@ -56,7 +56,10 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     self.audioOffIndicator.clipsToBounds = YES;
     self.screensharingIndicator.layer.cornerRadius = 4;
     self.screensharingIndicator.clipsToBounds = YES;
-    
+
+    self.activityIndicator.radius = 50.0f;
+    self.activityIndicator.cycleColors = @[UIColor.lightGrayColor];
+
     self.peerAvatarImageView.hidden = YES;
     self.peerAvatarImageView.layer.cornerRadius = self.peerAvatarImageView.bounds.size.width / 2;
     self.peerAvatarImageView.layer.masksToBounds = YES;
@@ -81,6 +84,8 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     _videoView = nil;
     _showOriginalSize = NO;
     self.layer.borderWidth = 0.0f;
+    [self hideLoadingSpinner];
+    [self invalidateDisconnectedTimer];
 }
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
@@ -115,6 +120,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     [self.contentView layoutSubviews];
 
     self.peerAvatarImageView.layer.cornerRadius = self.peerAvatarImageView.bounds.size.width / 2;
+    self.activityIndicator.radius = self.peerAvatarImageView.bounds.size.width / 2;
 }
 
 - (void)toggleZoom
@@ -180,12 +186,14 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 - (void)setConnectionState:(RTCIceConnectionState)connectionState
 {
     _connectionState = connectionState;
-    
+
     [self invalidateDisconnectedTimer];
     if (connectionState == RTCIceConnectionStateDisconnected) {
         [self setDisconnectedTimer];
     } else if (connectionState == RTCIceConnectionStateFailed) {
         [self setFailedConnectionUI];
+    } else if (connectionState != RTCIceConnectionStateCompleted && connectionState != RTCIceConnectionStateConnected) {
+        [self setConnectingUI];
     } else {
         [self setConnectedUI];
     }
@@ -208,8 +216,17 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         dispatch_async(dispatch_get_main_queue(), ^{
             self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Connecting to %@ …", nil), self->_displayName];
             self.peerAvatarImageView.alpha = 0.3;
+            [self hideLoadingSpinner];
         });
     }
+}
+
+- (void)setConnectingUI
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.peerAvatarImageView.alpha = 0.3;
+        [self showLoadingSpinner];
+    });
 }
 
 - (void)setFailedConnectionUI
@@ -225,7 +242,20 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = self->_displayName;
         self.peerAvatarImageView.alpha = 1;
+        [self hideLoadingSpinner];
     });
+}
+
+- (void)showLoadingSpinner
+{
+    [self.activityIndicator startAnimating];
+    [self.activityIndicator setHidden:NO];
+}
+
+- (void)hideLoadingSpinner
+{
+    [self.activityIndicator stopAnimating];
+    [self.activityIndicator setHidden:YES];
 }
 
 - (IBAction)screenSharingButtonPressed:(id)sender

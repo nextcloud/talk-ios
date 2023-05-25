@@ -59,10 +59,12 @@
 @property (nonatomic, weak) id<NCPeerConnectionDelegate> delegate;
 
 @property (nonatomic, copy) NSString *peerId;
+@property (nonatomic, copy) NSString *sid;
 @property (nonatomic, copy) NSString *peerName;
 @property (nonatomic, copy) NSString *roomType;
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL isMCUPublisherPeer;
+@property (nonatomic, assign) BOOL isDummyPeer;
 @property (nonatomic, strong) RTCPeerConnection *peerConnection;
 @property (nonatomic, strong) RTCDataChannel *localDataChannel;
 @property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
@@ -74,7 +76,7 @@
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
 @property (nonatomic, strong) RTCMediaStream *remoteStream;
 
-- (instancetype)initWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
+- (instancetype)initWithSessionId:(NSString *)sessionId sid:(NSString *)sid andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
 - (instancetype)initForPublisherWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
 - (void)addICECandidate:(RTCIceCandidate *)candidate;
 - (void)setRemoteDescription:(RTCSessionDescription *)sessionDescription;
