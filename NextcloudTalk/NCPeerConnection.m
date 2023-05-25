@@ -105,6 +105,15 @@
 
 #pragma mark - Public
 
+- (NSString *)peerIdentifier
+{
+    if (_sid != nil) {
+        return [NSString stringWithFormat:@"%@-%@", _peerId, _sid];
+    }
+
+    return _peerId;
+}
+
 - (void)addICECandidate:(RTCIceCandidate *)candidate
 {
     [[WebRTCCommon shared] assertQueue];

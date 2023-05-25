@@ -40,7 +40,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 
 @property (nonatomic, weak) id<CallParticipantViewCellDelegate> actionsDelegate;
 
-@property (nonatomic, strong)  NSString *peerId;
+@property (nonatomic, strong)  NSString *peerIdentifier;
 @property (nonatomic, strong)  NSString *displayName;
 @property (nonatomic, assign)  BOOL audioDisabled;
 @property (nonatomic, assign)  BOOL videoDisabled;

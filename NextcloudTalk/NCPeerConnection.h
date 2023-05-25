@@ -58,6 +58,7 @@
 
 @property (nonatomic, weak) id<NCPeerConnectionDelegate> delegate;
 
+@property (nonatomic, copy, readonly) NSString *peerIdentifier; // "peerId-sid"
 @property (nonatomic, copy) NSString *peerId;
 @property (nonatomic, copy) NSString *sid;
 @property (nonatomic, copy) NSString *peerName;

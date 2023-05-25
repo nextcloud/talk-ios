@@ -1341,12 +1341,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NCPeerConnection *peerConnection in self->_peersInCall) {
                 // Video renderers
-                RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peerConnection.peerId];
-                [self->_videoRenderersDict removeObjectForKey:peerConnection.peerId];
+                RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peerConnection.peerIdentifier];
+                [self->_videoRenderersDict removeObjectForKey:peerConnection.peerIdentifier];
 
                 // Screen renderers
-                RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerId];
-                [self->_screenRenderersDict removeObjectForKey:peerConnection.peerId];
+                RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerIdentifier];
+                [self->_screenRenderersDict removeObjectForKey:peerConnection.peerIdentifier];
 
                 [[WebRTCCommon shared] dispatch:^{
                     [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
@@ -1709,12 +1709,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell
 {
-    [self showScreenOfPeerId:participantCell.peerId];
+    [self showScreenOfPeerIdentifier:participantCell.peerIdentifier];
 }
 
 - (void)cellWantsToChangeZoom:(CallParticipantViewCell *)participantCell showOriginalSize:(BOOL)showOriginalSize
 {
-    NCPeerConnection *peer = [self peerConnectionForPeerId:participantCell.peerId];
+    NCPeerConnection *peer = [self peerConnectionForPeerIdentifier:participantCell.peerIdentifier];
     
     if (peer) {
         [peer setShowRemoteVideoInOriginalSize:showOriginalSize];
@@ -1737,11 +1737,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         isVideoDisabled = YES;
     }
     
-    [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerId]];
+    [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerIdentifier]];
 
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
-    [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
+    [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerIdentifier]];
     [cell setVideoDisabled: isVideoDisabled];
     [cell setShowOriginalSize:peerConnection.showRemoteVideoInOriginalSize];
     [cell setRaiseHand:peerConnection.isHandRaised];
@@ -1765,7 +1765,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     CallParticipantViewCell *cell = (CallParticipantViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCallParticipantCellIdentifier forIndexPath:indexPath];
     NCPeerConnection *peerConnection = [_peersInCall objectAtIndex:indexPath.row];
-    cell.peerId = peerConnection.peerId;
+    cell.peerIdentifier = peerConnection.peerIdentifier;
     cell.actionsDelegate = self;
         
     return cell;
@@ -1856,8 +1856,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }];
 
         if ([remotePeer.roomType isEqualToString:kRoomTypeVideo]) {
-            [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerId];
-            NSIndexPath *indexPath = [self indexPathForPeerId:remotePeer.peerId];
+            [self->_videoRenderersDict setObject:renderView forKey:remotePeer.peerIdentifier];
+            NSIndexPath *indexPath = [self indexPathForPeerIdentifier:remotePeer.peerIdentifier];
 
             if (!indexPath) {
                 // This is a new peer, add it
@@ -1874,8 +1874,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                 }];
             }
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
-            [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
-            [self showScreenOfPeerId:remotePeer.peerId];
+            [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerIdentifier];
+            [self showScreenOfPeerIdentifier:remotePeer.peerIdentifier];
             [self updatePeer:remotePeer block:^(CallParticipantViewCell *cell) {
                 [cell setScreenShared:YES];
             }];
@@ -2037,10 +2037,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 #pragma mark - Screensharing
 
-- (void)showScreenOfPeerId:(NSString *)peerId
+- (void)showScreenOfPeerIdentifier:(NSString *)peerIdentifier
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerId];
+        RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerIdentifier];
 
         [self->_screensharingView replaceContentView:renderView];
         [self->_screensharingView bringSubviewToFront:self->_closeScreensharingButton];
@@ -2062,8 +2062,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)removeScreensharingOfPeer:(NCPeerConnection *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
-        [self->_screenRenderersDict removeObjectForKey:peer.peerId];
+        RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerIdentifier];
+        [self->_screenRenderersDict removeObjectForKey:peer.peerIdentifier];
         [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
             [cell setScreenShared:NO];
         }];
@@ -2112,7 +2112,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                 rendererView.frame = CGRectMake(0, 0, size.width, size.height);
                 NSArray *keys = [self->_videoRenderersDict allKeysForObject:videoView];
                 if (keys.count) {
-                    NSIndexPath *indexPath = [self indexPathForPeerId:keys[0]];
+                    NSIndexPath *indexPath = [self indexPathForPeerIdentifier:keys[0]];
                     if (indexPath) {
                         CallParticipantViewCell *participantCell = (CallParticipantViewCell *) [self.collectionView cellForItemAtIndexPath:indexPath];
                         [participantCell setRemoteVideoSize:size];
@@ -2135,12 +2135,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 #pragma mark - Cell updates
 
-- (NSIndexPath *)indexPathForPeerId:(NSString *)peerId
+- (NSIndexPath *)indexPathForPeerIdentifier:(NSString *)peerIdentifier
 {
     NSIndexPath *indexPath = nil;
     for (int i = 0; i < _peersInCall.count; i ++) {
         NCPeerConnection *peer = [_peersInCall objectAtIndex:i];
-        if ([peer.peerId isEqualToString:peerId]) {
+        if ([peer.peerIdentifier isEqualToString:peerIdentifier]) {
             indexPath = [NSIndexPath indexPathForRow:i inSection:0];
         }
     }
@@ -2151,7 +2151,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)updatePeer:(NCPeerConnection *)peer block:(UpdateCallParticipantViewCellBlock)block
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+        NSIndexPath *indexPath = [self indexPathForPeerIdentifier:peer.peerIdentifier];
         if (indexPath) {
             CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
             block(cell);
@@ -2167,9 +2167,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     });
 }
 
-- (NCPeerConnection *)peerConnectionForPeerId:(NSString *)peerId {
+- (NCPeerConnection *)peerConnectionForPeerIdentifier:(NSString *)peerIdentifier {
     for (NCPeerConnection *peerConnection in self->_peersInCall) {
-        if ([peerConnection.peerId isEqualToString:peerId]) {
+        if ([peerConnection.peerIdentifier isEqualToString:peerIdentifier]) {
             return peerConnection;
         }
     }
@@ -2262,8 +2262,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // Determine all indexPaths we want to delete and remove the renderers
         for (NCPeerConnection *peer in _pendingPeerDeletions) {
             // Video renderers
-            RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerId];
-            [self->_videoRenderersDict removeObjectForKey:peer.peerId];
+            RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peer.peerIdentifier];
+            [self->_videoRenderersDict removeObjectForKey:peer.peerIdentifier];
 
             [[WebRTCCommon shared] dispatch:^{
                 [[peer.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
@@ -2272,7 +2272,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             // Screen renderers
             [self removeScreensharingOfPeer:peer];
 
-            NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+            NSIndexPath *indexPath = [self indexPathForPeerIdentifier:peer.peerIdentifier];
 
             // Make sure we remove every index path only once
             if (indexPath && ![indexPathsToDelete containsObject:indexPath]) {
@@ -2291,7 +2291,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         // Add all new peers
         for (NCPeerConnection *peer in _pendingPeerInserts) {
-            NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
+            NSIndexPath *indexPath = [self indexPathForPeerIdentifier:peer.peerIdentifier];
             if (!indexPath) {
                 [self->_peersInCall addObject:peer];
                 NSIndexPath *insertionIndexPath = [NSIndexPath indexPathForRow:self->_peersInCall.count - 1 inSection:0];
