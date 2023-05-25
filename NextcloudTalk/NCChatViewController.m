@@ -4161,7 +4161,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [actions addObject:copyAction];
     
     // Translate
-    if ([[NCSettingsController sharedInstance] availableTranslations].count > 0) {
+    if (!message.isDeletedMessage && !_offlineMode && [[NCSettingsController sharedInstance] availableTranslations].count > 0) {
         UIImage *translateImage = [UIImage systemImageNamed:@"character.book.closed"];
         UIAction *translateAction = [UIAction actionWithTitle:NSLocalizedString(@"Translate", nil) image:translateImage identifier:nil handler:^(UIAction *action){
 
