@@ -38,7 +38,6 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     UIView<RTCVideoRenderer> *_videoView;
     CGSize _remoteVideoSize;
     NSTimer *_disconnectedTimer;
-    MDCActivityIndicator *_activityIndicator;
 }
 
 @end
@@ -58,9 +57,8 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     self.screensharingIndicator.layer.cornerRadius = 4;
     self.screensharingIndicator.clipsToBounds = YES;
 
-    _activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-    _activityIndicator.radius = 50.0f;
-    _activityIndicator.cycleColors = @[UIColor.lightGrayColor];
+    self.activityIndicator.radius = 50.0f;
+    self.activityIndicator.cycleColors = @[UIColor.lightGrayColor];
 
     self.peerAvatarImageView.hidden = YES;
     self.peerAvatarImageView.layer.cornerRadius = self.peerAvatarImageView.bounds.size.width / 2;
@@ -85,7 +83,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     _videoView = nil;
     _showOriginalSize = NO;
     self.layer.borderWidth = 0.0f;
-    [self removeLoadingSpinner];
+    [self hideLoadingSpinner];
     [self invalidateDisconnectedTimer];
 }
 
@@ -121,7 +119,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     [self.contentView layoutSubviews];
 
     self.peerAvatarImageView.layer.cornerRadius = self.peerAvatarImageView.bounds.size.width / 2;
-    _activityIndicator.radius = self.peerAvatarImageView.bounds.size.width / 2;
+    self.activityIndicator.radius = self.peerAvatarImageView.bounds.size.width / 2;
 }
 
 - (void)toggleZoom
@@ -217,7 +215,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         dispatch_async(dispatch_get_main_queue(), ^{
             self.peerNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Connecting to %@ …", nil), self->_displayName];
             self.peerAvatarImageView.alpha = 0.3;
-            [self addLoadingSpinner];
+            [self hideLoadingSpinner];
         });
     }
 }
@@ -226,7 +224,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerAvatarImageView.alpha = 0.3;
-        [self addLoadingSpinner];
+        [self showLoadingSpinner];
     });
 }
 
@@ -243,25 +241,20 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = self->_displayName;
         self.peerAvatarImageView.alpha = 1;
-        [self removeLoadingSpinner];
+        [self hideLoadingSpinner];
     });
 }
 
-- (void)addLoadingSpinner
+- (void)showLoadingSpinner
 {
-    [_activityIndicator startAnimating];
-
-    [self.contentView addSubview:_activityIndicator];
-    [self.contentView bringSubviewToFront:_activityIndicator];
-
-    _activityIndicator.center = self.contentView.center;
+    [self.activityIndicator startAnimating];
+    [self.activityIndicator setHidden:NO];
 }
 
-- (void)removeLoadingSpinner
+- (void)hideLoadingSpinner
 {
-    [_activityIndicator stopAnimating];
-
-    [_activityIndicator removeFromSuperview];
+    [self.activityIndicator stopAnimating];
+    [self.activityIndicator setHidden:YES];
 }
 
 - (IBAction)screenSharingButtonPressed:(id)sender
