@@ -446,8 +446,14 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
 - (void)roomMessageReceived:(NSDictionary *)messageDict
 {
-    _participantsMap = [NSMutableDictionary new];
-    _currentRoom = [[messageDict objectForKey:@"room"] objectForKey:@"roomid"];
+    NSString *newRoomId = [[messageDict objectForKey:@"room"] objectForKey:@"roomid"];
+
+    // Only reset the participant map when the room actually changed
+    // Otherwise we would loose participant information for example when a recording is started
+    if (![_currentRoom isEqualToString:newRoomId]) {
+        _participantsMap = [NSMutableDictionary new];
+        _currentRoom = newRoomId;
+    }
     
     NSString *messageId = [messageDict objectForKey:@"id"];
     [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageSuccess];
