@@ -985,6 +985,25 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return nil;
 }
 
+- (NCChatMessage *)getLastRealMessage
+{
+    for (NSInteger sectionIndex = (self->_dateSections.count - 1); sectionIndex >= 0; sectionIndex--) {
+        NSDate *dateSection = [self->_dateSections objectAtIndex:sectionIndex];
+        NSMutableArray *messagesInSection = [self->_messages objectForKey:dateSection];
+
+        for (NSInteger messageIndex = (messagesInSection.count - 1); messageIndex >= 0; messageIndex--) {
+            NCChatMessage *chatMessage = [messagesInSection objectAtIndex:messageIndex];
+
+            // Ignore temporary messages
+            if (chatMessage && chatMessage.messageId > 0) {
+                return chatMessage;
+            }
+        }
+    }
+
+    return nil;
+}
+
 - (NCChatMessage *)getFirstRealMessage
 {
     for (int section = 0; section < [_dateSections count]; section++) {
@@ -3515,7 +3534,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)checkForNewStoredMessages
 {
-    NCChatMessage *lastMessage = [[self->_messages objectForKey:[self->_dateSections lastObject]] lastObject];
+    // Get the last "real" message. For temporary messages the messageId would be 0
+    // which would load all stored messages of the current conversation
+    NCChatMessage *lastMessage = [self getLastRealMessage];
 
     if (lastMessage) {
         [self.chatController checkForNewMessagesFromMessageId:lastMessage.messageId];
