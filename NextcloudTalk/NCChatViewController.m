@@ -139,7 +139,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) NCChatMessage *unreadMessagesSeparator;
 @property (nonatomic, assign) NSInteger chatViewPresentedTimestamp;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingHistoryView;
-@property (nonatomic, assign) NCChatMessage *firstUnreadMessage;
+@property (nonatomic, strong) NCChatMessage *firstUnreadMessage;
 @property (nonatomic, strong) UIButton *unreadMessageButton;
 @property (nonatomic, strong) NSTimer *lobbyCheckTimer;
 @property (nonatomic, strong) ReplyMessageView *replyMessageView;
