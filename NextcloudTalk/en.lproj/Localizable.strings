@@ -92,9 +92,6 @@
 "Add participants to new group conversation" = "Add participants to new group conversation";
 
 /* No comment provided by engineer. */
-"Add reaction" = "Add reaction";
-
-/* No comment provided by engineer. */
 "Add to favorites" = "Add to favorites";
 
 /* No comment provided by engineer. */
@@ -1379,7 +1376,7 @@
 "Share pin location" = "Share pin location";
 
 /* No comment provided by engineer. */
-"Share recording to chat" = "Share recording to chat";
+"Share to chat" = "Share to chat";
 
 /* No comment provided by engineer. */
 "Share with" = "Share with";
