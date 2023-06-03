@@ -97,7 +97,7 @@ import SwiftyAttributes
                 self.referenceTypeIcon.layer.cornerRadius = self.referenceTypeIcon.frame.height / 2
             } else {
                 self.referenceTypeIcon.layer.cornerRadius = 0
-                self.referenceTypeIcon.image = UIImage(named: "talk-20")
+                self.referenceTypeIcon.image = UIImage(named: "talk-20")?.withTintColor(.systemGray, renderingMode: .alwaysOriginal)
             }
         }
     }
