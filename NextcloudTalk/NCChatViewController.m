@@ -1327,11 +1327,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         self.voiceMessageLongPressGesture = nil;
     }
 
+    __weak typeof(self) weakSelf = self;
     UIAction *silentSendAction = [UIAction actionWithTitle:NSLocalizedString(@"Send without notification", nil)
                                                  image:[UIImage systemImageNamed:@"bell.slash"]
                                             identifier:nil
                                                handler:^(UIAction *action) {
-        [self sendCurrentMessageSilently:YES];
+        [weakSelf sendCurrentMessageSilently:YES];
     }];
 
     self.rightButton.menu = [UIMenu menuWithTitle:@"" children:@[silentSendAction]];
@@ -1339,22 +1340,28 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)addMenuToCallButtons
 {
+    __weak typeof(self) weakSelf = self;
+
     UIAction *voiceCallAction = [UIAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
                                                     image:[UIImage systemImageNamed:@"bell.slash"]
                                                identifier:nil
                                                   handler:^(UIAction *action) {
-        [self.voiceCallButton showActivityIndicator];
-        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:NO andDisplayName:self->_room.displayName
-                                          silently:YES withAccountId:self->_room.accountId];
+        __strong typeof(self) strongSelf = weakSelf;
+
+        [weakSelf.voiceCallButton showActivityIndicator];
+        [[CallKitManager sharedInstance] startCall:strongSelf->_room.token withVideoEnabled:NO andDisplayName:strongSelf->_room.displayName
+                                          silently:YES withAccountId:strongSelf->_room.accountId];
     }];
 
     UIAction *videoCallAction = [UIAction actionWithTitle:NSLocalizedString(@"Call without notification", nil)
                                                      image:[UIImage systemImageNamed:@"bell.slash"]
                                                 identifier:nil
                                                    handler:^(UIAction *action) {
-        [self.videoCallButton showActivityIndicator];
-        [[CallKitManager sharedInstance] startCall:self->_room.token withVideoEnabled:YES andDisplayName:self->_room.displayName
-                                          silently:YES withAccountId:self->_room.accountId];
+        __strong typeof(self) strongSelf = weakSelf;
+        
+        [weakSelf.videoCallButton showActivityIndicator];
+        [[CallKitManager sharedInstance] startCall:strongSelf->_room.token withVideoEnabled:YES andDisplayName:strongSelf->_room.displayName
+                                          silently:YES withAccountId:strongSelf->_room.accountId];
     }];
 
     self.voiceCallButton.innerButton.menu = [UIMenu menuWithTitle:@"" children:@[voiceCallAction]];
@@ -1366,61 +1373,62 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     // The keyboard will be hidden when an action is invoked. Depending on what
     // attachment is shared, not resigning might lead to a currupted chat view
     NSMutableArray *items = [[NSMutableArray alloc] init];
+    __weak typeof(self) weakSelf = self;
 
     UIAction *cameraAction = [UIAction actionWithTitle:NSLocalizedString(@"Camera", nil)
                                                  image:[UIImage systemImageNamed:@"camera"]
                                             identifier:nil
                                                handler:^(UIAction *action) {
-        [self.textView resignFirstResponder];
-        [self checkAndPresentCamera];
+        [weakSelf.textView resignFirstResponder];
+        [weakSelf checkAndPresentCamera];
     }];
 
     UIAction *photoLibraryAction = [UIAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
                                                        image:[UIImage systemImageNamed:@"photo"]
                                                   identifier:nil
                                                      handler:^(UIAction *action) {
-        [self.textView resignFirstResponder];
-        [self presentPhotoLibrary];
+        [weakSelf.textView resignFirstResponder];
+        [weakSelf presentPhotoLibrary];
     }];
 
     UIAction *shareLocationAction = [UIAction actionWithTitle:NSLocalizedString(@"Location", nil)
                                                         image:[UIImage systemImageNamed:@"location"]
                                                    identifier:nil
                                                       handler:^(UIAction *action) {
-        [self.textView resignFirstResponder];
-        [self presentShareLocation];
+        [weakSelf.textView resignFirstResponder];
+        [weakSelf presentShareLocation];
     }];
 
     UIAction *contactShareAction = [UIAction actionWithTitle:NSLocalizedString(@"Contacts", nil)
                                                        image:[UIImage systemImageNamed:@"person"]
                                                   identifier:nil
                                                      handler:^(UIAction *action) {
-        [self.textView resignFirstResponder];
-        [self presentShareContact];
+        [weakSelf.textView resignFirstResponder];
+        [weakSelf presentShareContact];
     }];
 
     UIAction *filesAction = [UIAction actionWithTitle:NSLocalizedString(@"Files", nil)
                                                 image:[UIImage systemImageNamed:@"doc"]
                                            identifier:nil
                                               handler:^(UIAction *action) {
-        [self.textView resignFirstResponder];
-        [self presentDocumentPicker];
+        [weakSelf.textView resignFirstResponder];
+        [weakSelf presentDocumentPicker];
     }];
 
     UIAction *ncFilesAction = [UIAction actionWithTitle:filesAppName
                                                 image:[[UIImage imageNamed:@"logo-action"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
                                            identifier:nil
                                               handler:^(UIAction *action) {
-        [self.textView resignFirstResponder];
-        [self presentNextcloudFilesBrowser];
+        [weakSelf.textView resignFirstResponder];
+        [weakSelf presentNextcloudFilesBrowser];
     }];
 
     UIAction *pollAction = [UIAction actionWithTitle:NSLocalizedString(@"Poll", nil)
                                                image:[UIImage systemImageNamed:@"chart.bar"]
                                           identifier:nil
                                              handler:^(UIAction *action) {
-        [self.textView resignFirstResponder];
-        [self presentPollCreation];
+        [weakSelf.textView resignFirstResponder];
+        [weakSelf presentPollCreation];
     }];
 
     // Add actions (inverted)
