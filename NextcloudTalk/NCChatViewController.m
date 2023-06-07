@@ -1846,20 +1846,20 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 }
 
 
-- (void)addTypingIndicatorWithUserId:(NSString *)userId withDisplayName:(NSString *)displayName
+- (void)addTypingIndicatorWithUserIdentifier:(NSString *)userIdentifier withDisplayName:(NSString *)displayName
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         TypingIndicatorView *view = (TypingIndicatorView *)self.textInputbar.typingView;
-        [view addTypingWithUserId:userId displayName:displayName];
+        [view addTypingWithUserIdentifier:userIdentifier displayName:displayName];
     });
 
 }
 
-- (void)removeTypingIndicatorWithUserId:(NSString *)userId
+- (void)removeTypingIndicatorWithUserIdentifier:(NSString *)userIdentifier
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         TypingIndicatorView *view = (TypingIndicatorView *)self.textInputbar.typingView;
-        [view removeTypingWithUserId:userId];
+        [view removeTypingWithUserIdentifier:userIdentifier];
     });
 
 }
@@ -3081,8 +3081,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     NSString *displayName = [notification.userInfo objectForKey:@"displayName"];
     NSString *userId = [notification.userInfo objectForKey:@"userId"];
+    NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
     
-    if (![roomToken isEqualToString:_room.token] || !displayName || !userId) {
+    if (![roomToken isEqualToString:_room.token] || !displayName || (!userId && !sessionId)) {
         return;
     }
 
@@ -3093,15 +3094,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return;
     }
 
-    [self addTypingIndicatorWithUserId:userId withDisplayName:displayName];
+    // For guests we use the sessionId as identifiert, for users we use the userId
+    NSString *userIdentifier = sessionId;
+
+    if (userId && ![userId isEqualToString:@""]) {
+        userIdentifier = userId;
+    }
+
+    [self addTypingIndicatorWithUserIdentifier:userIdentifier withDisplayName:displayName];
 }
 
 - (void)didReceiveStoppedTyping:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     NSString *userId = [notification.userInfo objectForKey:@"userId"];
+    NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
 
-    if (![roomToken isEqualToString:_room.token] || !userId) {
+    if (![roomToken isEqualToString:_room.token] || (!userId && !sessionId)) {
         return;
     }
 
@@ -3112,7 +3121,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return;
     }
 
-    [self removeTypingIndicatorWithUserId:userId];
+    // For guests we use the sessionId as identifiert, for users we use the userId
+    NSString *userIdentifier = sessionId;
+
+    if (userId && ![userId isEqualToString:@""]) {
+        userIdentifier = userId;
+    }
+
+    [self removeTypingIndicatorWithUserIdentifier:userIdentifier];
 }
 
 - (void)didReceiveParticipantJoin:(NSNotification *)notification

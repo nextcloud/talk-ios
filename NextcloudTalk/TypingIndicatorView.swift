@@ -25,12 +25,18 @@ import SwiftyAttributes
 
 @objcMembers class TypingIndicatorView: UIView, SLKVisibleViewProtocol {
     private class TypingUser {
-        var userId: String
+        var userIdentifier: String
         var displayName: String
+        var lastUpdate: TimeInterval
 
-        init(userId: String, displayName: String) {
-            self.userId = userId
+        init(userIdentifier: String, displayName: String) {
+            self.userIdentifier = userIdentifier
             self.displayName = displayName
+            self.lastUpdate = Date().timeIntervalSinceReferenceDate
+        }
+
+        public func updateTimestamp() {
+            self.lastUpdate = Date().timeIntervalSinceReferenceDate
         }
     }
 
@@ -39,6 +45,7 @@ import SwiftyAttributes
     private var typingUsers: [TypingUser] = []
     private var previousUpdateTimestamp: TimeInterval = .zero
     private var updateTimer: Timer?
+    private var removeTimer: Timer?
 
     @IBOutlet var contentView: UIView!
     @IBOutlet weak var typingLabel: UILabel!
@@ -61,6 +68,14 @@ import SwiftyAttributes
         contentView.backgroundColor = .clear
 
         typingLabel.text = ""
+
+       // removeTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
+     //       self?.checkInactiveTypingUsers()
+     //   })
+    }
+
+    deinit {
+        self.removeTimer?.invalidate()
     }
 
     private func getUsersTypingString() -> NSAttributedString {
@@ -156,19 +171,41 @@ import SwiftyAttributes
         }
     }
 
-    func addTyping(userId: String, displayName: String) {
-        let existingEntry = self.typingUsers.first(where: { $0.userId == userId})
+    func checkInactiveTypingUsers() {
+        let currentUpdateTimestamp: TimeInterval = Date().timeIntervalSinceReferenceDate
+        var usersToRemove: [TypingUser] = []
+
+        for typingUser in typingUsers {
+            let timestampDiff = currentUpdateTimestamp - typingUser.lastUpdate
+
+            if timestampDiff >= 15 {
+                // We did not receive an update for that user in the last 15 seconds -> remove it
+                usersToRemove.append(typingUser)
+            }
+        }
+
+        // Remove the users. Do that after iterating typingUsers to not alter the collection while iterating
+        for typingUser in usersToRemove {
+            self.removeTyping(userIdentifier: typingUser.userIdentifier)
+        }
+    }
+
+    func addTyping(userIdentifier: String, displayName: String) {
+        let existingEntry = self.typingUsers.first(where: { $0.userIdentifier == userIdentifier })
 
         if existingEntry == nil {
-            let newEntry = TypingUser(userId: userId, displayName: displayName)
+            let newEntry = TypingUser(userIdentifier: userIdentifier, displayName: displayName)
             self.typingUsers.append(newEntry)
+        } else {
+            // We received another startedTyping message, so we want to restart the remove timer
+            existingEntry?.updateTimestamp()
         }
 
         self.updateTypingIndicatorDebounced()
     }
 
-    func removeTyping(userId: String) {
-        let existingIndex = self.typingUsers.firstIndex(where: { $0.userId == userId })
+    func removeTyping(userIdentifier: String) {
+        let existingIndex = self.typingUsers.firstIndex(where: { $0.userIdentifier == userIdentifier })
 
         if let existingIndex = existingIndex {
             self.typingUsers.remove(at: existingIndex)
