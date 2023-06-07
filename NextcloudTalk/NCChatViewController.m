@@ -167,6 +167,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) UIButton *scrollToBottomButton;
 @property (nonatomic, strong) PHPickerViewController *photoPicker;
 @property (nonatomic, assign) BOOL isTyping;
+@property (nonatomic, strong) NSTimer *stopTypingTimer;
 @property (nonatomic, strong) NSTimer *typingTimer;
 @property (nonatomic, strong) UIView *contextMenuReactionView;
 @property (nonatomic, strong) UIView *contextMenuMessageView;
@@ -1819,30 +1820,55 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         _isTyping = YES;
 
         [self sendStartedTypingMessageToAll];
+        [self setTypingTimer];
     }
 
-    [self setTypingTimer];
+    [self setStopTypingTimer];
 }
 
 - (void)stopTyping
 {
     if (_isTyping) {
         _isTyping = NO;
-        [self invalidateTypingTimer];
-        [self sendStoppedTypingMessageToAll];
+        [self invalidateStopTypingTimer];
     }
 }
 
+// TypingTimer is used to continously send "startedTyping" messages, while we are typing
 - (void)setTypingTimer
 {
     [self invalidateTypingTimer];
-    _typingTimer = [NSTimer scheduledTimerWithTimeInterval:4.0 target:self selector:@selector(stopTyping) userInfo:nil repeats:NO];
+    _typingTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(checkTypingTimer) userInfo:nil repeats:NO];
 }
 
 - (void)invalidateTypingTimer
 {
     [_typingTimer invalidate];
     _typingTimer = nil;
+}
+
+- (void)checkTypingTimer {
+    if (_isTyping) {
+        // We're still typing, send signaling messsage again to all participants
+        [self sendStartedTypingMessageToAll];
+        [self setTypingTimer];
+    } else {
+        // We stopped typing, we don't send anything to the participants, we just remove our timer
+        [self invalidateTypingTimer];
+    }
+}
+
+// StopTypingTimer is used to detect when we stop typing (locally)
+- (void)setStopTypingTimer
+{
+    [self invalidateStopTypingTimer];
+    _stopTypingTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(stopTyping) userInfo:nil repeats:NO];
+}
+
+- (void)invalidateStopTypingTimer
+{
+    [_stopTypingTimer invalidate];
+    _stopTypingTimer = nil;
 }
 
 
