@@ -3116,8 +3116,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NSString *userId = [notification.userInfo objectForKey:@"userId"];
     NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
     
-    if (![roomToken isEqualToString:_room.token] || !displayName || (!userId && !sessionId)) {
+    if (![roomToken isEqualToString:_room.token] || (!userId && !sessionId)) {
         return;
+    }
+
+    // Waiting for https://github.com/nextcloud/spreed/issues/9726 to receive the correct displayname for guests
+    if (!displayName) {
+        displayName = NSLocalizedString(@"Guest", nil);
     }
 
     // Don't show a typing indicator for ourselves or if typing indicator setting is disabled

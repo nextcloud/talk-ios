@@ -608,10 +608,13 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         NSString *fromSession = [[messageDict objectForKey:@"sender"] objectForKey:@"sessionid"];
         NSString *fromUser = [[messageDict objectForKey:@"sender"] objectForKey:@"userid"];
 
-        if (_currentRoom && fromSession && fromUser){
+        if (_currentRoom && fromSession){
             [userInfo setObject:_currentRoom forKey:@"roomToken"];
             [userInfo setObject:fromSession forKey:@"sessionId"];
-            [userInfo setObject:fromUser forKey:@"userId"];
+
+            if (fromUser) {
+                [userInfo setObject:fromUser forKey:@"userId"];
+            }
 
             NSString *displayName = [self getDisplayNameFromSessionId:fromSession];
 
