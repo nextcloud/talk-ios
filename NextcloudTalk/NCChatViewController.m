@@ -167,6 +167,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) UIButton *scrollToBottomButton;
 @property (nonatomic, strong) PHPickerViewController *photoPicker;
 @property (nonatomic, assign) BOOL isTyping;
+@property (nonatomic, strong) NSTimer *stopTypingTimer;
 @property (nonatomic, strong) NSTimer *typingTimer;
 @property (nonatomic, strong) UIView *contextMenuReactionView;
 @property (nonatomic, strong) UIView *contextMenuMessageView;
@@ -232,6 +233,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveStartedTyping:) name:NCExternalSignalingControllerDidReceiveStartedTypingNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveStoppedTyping:) name:NCExternalSignalingControllerDidReceiveStoppedTypingNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveParticipantJoin:) name:NCExternalSignalingControllerDidReceiveJoinOfParticipant object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveParticipantLeave:) name:NCExternalSignalingControllerDidReceiveLeaveOfParticipant object:nil];
 
         // Notifications when runing on Mac 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:@"NSApplicationDidBecomeActiveNotification" object:nil];
@@ -595,7 +597,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // In case we're typing when we leave the chat, make sure we notify everyone
     // The 'stopTyping' method makes sure to only send signaling messages when we were typing before
-    [self stopTyping];
+    [self stopTyping:NO];
     
     // If this chat view controller is for the same room as the one owned by the rooms manager
     // then we should not try to leave the chat. Since we will leave the chat when the
@@ -659,7 +661,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self savePendingMessage];
     [_chatController stopChatController];
     [_messageExpirationTimer invalidate];
-    [self stopTyping];
+    [self stopTyping:NO];
     [[NCRoomsManager sharedInstance] leaveChatInRoom:_room.token];
 }
 
@@ -1279,7 +1281,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [_replyMessageView dismiss];
     [super didPressRightButton:self];
     [self clearPendingMessage];
-    [self stopTyping];
+    [self stopTyping:YES];
 }
 
 - (BOOL)canPressRightButton
@@ -1736,10 +1738,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 #pragma mark UITextViewDelegate
 
-- (void)textViewDidEndEditing:(UITextView *)textView {
-    [self stopTyping];
-}
-
 - (void)textViewDidChange:(UITextView *)textView {
     [self startTyping];
 }
@@ -1827,24 +1825,35 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         _isTyping = YES;
 
         [self sendStartedTypingMessageToAll];
+        [self setTypingTimer];
     }
 
-    [self setTypingTimer];
+    [self setStopTypingTimer];
 }
 
-- (void)stopTyping
+- (void)stopTyping:(BOOL)force
+{
+    if (_isTyping || force) {
+        _isTyping = NO;
+        [self sendStoppedTypingMessageToAll];
+        [self invalidateStopTypingTimer];
+        [self invalidateTypingTimer];
+    }
+}
+
+- (void)stopTypingDetected
 {
     if (_isTyping) {
         _isTyping = NO;
-        [self invalidateTypingTimer];
-        [self sendStoppedTypingMessageToAll];
+        [self invalidateStopTypingTimer];
     }
 }
 
+// TypingTimer is used to continously send "startedTyping" messages, while we are typing
 - (void)setTypingTimer
 {
     [self invalidateTypingTimer];
-    _typingTimer = [NSTimer scheduledTimerWithTimeInterval:4.0 target:self selector:@selector(stopTyping) userInfo:nil repeats:NO];
+    _typingTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(checkTypingTimer) userInfo:nil repeats:NO];
 }
 
 - (void)invalidateTypingTimer
@@ -1853,21 +1862,45 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _typingTimer = nil;
 }
 
+- (void)checkTypingTimer {
+    if (_isTyping) {
+        // We're still typing, send signaling messsage again to all participants
+        [self sendStartedTypingMessageToAll];
+        [self setTypingTimer];
+    } else {
+        // We stopped typing, we don't send anything to the participants, we just remove our timer
+        [self invalidateTypingTimer];
+    }
+}
 
-- (void)addTypingIndicatorWithUserId:(NSString *)userId withDisplayName:(NSString *)displayName
+// StopTypingTimer is used to detect when we stop typing (locally)
+- (void)setStopTypingTimer
+{
+    [self invalidateStopTypingTimer];
+    _stopTypingTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(stopTypingDetected) userInfo:nil repeats:NO];
+}
+
+- (void)invalidateStopTypingTimer
+{
+    [_stopTypingTimer invalidate];
+    _stopTypingTimer = nil;
+}
+
+
+- (void)addTypingIndicatorWithUserIdentifier:(NSString *)userIdentifier withDisplayName:(NSString *)displayName
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         TypingIndicatorView *view = (TypingIndicatorView *)self.textInputbar.typingView;
-        [view addTypingWithUserId:userId displayName:displayName];
+        [view addTypingWithUserIdentifier:userIdentifier displayName:displayName];
     });
 
 }
 
-- (void)removeTypingIndicatorWithUserId:(NSString *)userId
+- (void)removeTypingIndicatorWithUserIdentifier:(NSString *)userIdentifier
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         TypingIndicatorView *view = (TypingIndicatorView *)self.textInputbar.typingView;
-        [view removeTypingWithUserId:userId];
+        [view removeTypingWithUserIdentifier:userIdentifier];
     });
 
 }
@@ -3089,9 +3122,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     NSString *displayName = [notification.userInfo objectForKey:@"displayName"];
     NSString *userId = [notification.userInfo objectForKey:@"userId"];
+    NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
     
-    if (![roomToken isEqualToString:_room.token] || !displayName || !userId) {
+    if (![roomToken isEqualToString:_room.token] || (!userId && !sessionId)) {
         return;
+    }
+
+    // Waiting for https://github.com/nextcloud/spreed/issues/9726 to receive the correct displayname for guests
+    if (!displayName) {
+        displayName = NSLocalizedString(@"Guest", nil);
     }
 
     // Don't show a typing indicator for ourselves or if typing indicator setting is disabled
@@ -3101,15 +3140,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return;
     }
 
-    [self addTypingIndicatorWithUserId:userId withDisplayName:displayName];
+    // For guests we use the sessionId as identifiert, for users we use the userId
+    NSString *userIdentifier = sessionId;
+
+    if (userId && ![userId isEqualToString:@""]) {
+        userIdentifier = userId;
+    }
+
+    [self addTypingIndicatorWithUserIdentifier:userIdentifier withDisplayName:displayName];
 }
 
 - (void)didReceiveStoppedTyping:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     NSString *userId = [notification.userInfo objectForKey:@"userId"];
+    NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
 
-    if (![roomToken isEqualToString:_room.token] || !userId) {
+    if (![roomToken isEqualToString:_room.token] || (!userId && !sessionId)) {
         return;
     }
 
@@ -3120,7 +3167,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         return;
     }
 
-    [self removeTypingIndicatorWithUserId:userId];
+    // For guests we use the sessionId as identifiert, for users we use the userId
+    NSString *userIdentifier = sessionId;
+
+    if (userId && ![userId isEqualToString:@""]) {
+        userIdentifier = userId;
+    }
+
+    [self removeTypingIndicatorWithUserIdentifier:userIdentifier];
 }
 
 - (void)didReceiveParticipantJoin:(NSNotification *)notification
@@ -3138,6 +3192,27 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
     });
 }
+
+- (void)didReceiveParticipantLeave:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
+    NSString *userId = [notification.userInfo objectForKey:@"userId"];
+
+    if (![roomToken isEqualToString:_room.token] || !sessionId) {
+        return;
+    }
+
+    // For guests we use the sessionId as identifiert, for users we use the userId
+    NSString *userIdentifier = sessionId;
+
+    if (userId && ![userId isEqualToString:@""]) {
+        userIdentifier = userId;
+    }
+
+    [self removeTypingIndicatorWithUserIdentifier:userIdentifier];
+}
+
 
 
 #pragma mark - Lobby functions
