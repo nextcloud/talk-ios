@@ -69,9 +69,9 @@ import SwiftyAttributes
 
         typingLabel.text = ""
 
-       // removeTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
-     //       self?.checkInactiveTypingUsers()
-     //   })
+        removeTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
+            self?.checkInactiveTypingUsers()
+        })
     }
 
     deinit {
