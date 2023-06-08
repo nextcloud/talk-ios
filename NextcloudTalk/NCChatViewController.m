@@ -233,6 +233,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveStartedTyping:) name:NCExternalSignalingControllerDidReceiveStartedTypingNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveStoppedTyping:) name:NCExternalSignalingControllerDidReceiveStoppedTypingNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveParticipantJoin:) name:NCExternalSignalingControllerDidReceiveJoinOfParticipant object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveParticipantLeave:) name:NCExternalSignalingControllerDidReceiveLeaveOfParticipant object:nil];
 
         // Notifications when runing on Mac 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:@"NSApplicationDidBecomeActiveNotification" object:nil];
@@ -3178,6 +3179,27 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
     });
 }
+
+- (void)didReceiveParticipantLeave:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
+    NSString *sessionId = [notification.userInfo objectForKey:@"sessionId"];
+    NSString *userId = [notification.userInfo objectForKey:@"userId"];
+
+    if (![roomToken isEqualToString:_room.token] || !sessionId) {
+        return;
+    }
+
+    // For guests we use the sessionId as identifiert, for users we use the userId
+    NSString *userIdentifier = sessionId;
+
+    if (userId && ![userId isEqualToString:@""]) {
+        userIdentifier = userId;
+    }
+
+    [self removeTypingIndicatorWithUserIdentifier:userIdentifier];
+}
+
 
 
 #pragma mark - Lobby functions

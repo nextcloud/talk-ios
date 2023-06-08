@@ -36,6 +36,7 @@ static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
 NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification     = @"NCExternalSignalingControllerDidUpdateParticipantsNotification";
 NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipant           = @"NCExternalSignalingControllerDidReceiveJoinOfParticipant";
+NSString * const NCExternalSignalingControllerDidReceiveLeaveOfParticipant          = @"NCExternalSignalingControllerDidReceiveLeaveOfParticipant";
 NSString * const NCExternalSignalingControllerDidReceiveStartedTypingNotification   = @"NCExternalSignalingControllerDidReceiveStartedTypingNotification";
 NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotification   = @"NCExternalSignalingControllerDidReceiveStoppedTypingNotification";
 
@@ -514,7 +515,30 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
             }
         }
     } else if ([eventType isEqualToString:@"leave"]) {
-        NSLog(@"Participant left room.");
+        NSArray *leftSessions = [eventDict objectForKey:@"leave"];
+        for (NSString *sessionId in leftSessions) {
+            NSString *userId = [self getUserIdFromSessionId:sessionId];
+
+            if ([sessionId isEqualToString:_sessionId] || [userId isEqualToString:_userId]) {
+                // Ignore own session
+                continue;
+            }
+
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+
+            if (_currentRoom && sessionId){
+                [userInfo setObject:_currentRoom forKey:@"roomToken"];
+                [userInfo setObject:sessionId forKey:@"sessionId"];
+
+                if (userId) {
+                    [userInfo setObject:userId forKey:@"userId"];
+                }
+            }
+
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveLeaveOfParticipant
+                                                                object:self
+                                                              userInfo:userInfo];
+        }
     } else if ([eventType isEqualToString:@"message"]) {
         [self processRoomMessageEvent:[eventDict objectForKey:@"message"]];
     } else if ([eventType isEqualToString:@"switchto"]) {
