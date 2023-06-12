@@ -1672,6 +1672,10 @@ typedef enum FileAction {
             
             cell.roomNameTextField.text = _room.name;
 
+            if (_room.type == kNCRoomTypeOneToOne || _room.type == kNCRoomTypeFormerOneToOne || _room.type == kNCRoomTypeChangelog) {
+                cell.roomNameTextField.text = _room.displayName;
+            }
+
             [cell.roomImage setAvatarFor:_room with:self.traitCollection.userInterfaceStyle];
 
             if (_room.hasCall) {
