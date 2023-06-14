@@ -830,7 +830,7 @@ extension SettingsTableViewController {
             readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
 
         case AccountSettingsOptions.kAccountSettingsTypingPrivacy.rawValue:
-            cell = tableView.dequeueReusableCell(withIdentifier: typingIndicatorCellIdentifier) ?? UITableViewCell(style: .default, reuseIdentifier: typingIndicatorCellIdentifier)
+            cell = tableView.dequeueReusableCell(withIdentifier: typingIndicatorCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: typingIndicatorCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Typing indicator", comment: "")
             cell.selectionStyle = .none
             cell.imageView?.image = UIImage(systemName: "rectangle.and.pencil.and.ellipsis")
@@ -840,6 +840,15 @@ extension SettingsTableViewController {
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
             typingIndicatorSwitch.isOn = !serverCapabilities.typingPrivacy
+
+            let externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
+            let externalSignalingServerUsed = externalSignalingController?.isEnabled() ?? false
+
+            if !externalSignalingServerUsed {
+                cell.detailTextLabel?.text = NSLocalizedString("Typing indicators are only available when using a high performance backend (HPB)", comment: "")
+            } else {
+                cell.detailTextLabel?.text = nil
+            }
 
         case AccountSettingsOptions.kAccountSettingsContactsSync.rawValue:
             cell = tableView.dequeueReusableCell(withIdentifier: contactsSyncCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
