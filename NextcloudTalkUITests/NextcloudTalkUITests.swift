@@ -23,7 +23,7 @@ import XCTest
 
 final class NextcloudTalkUITests: XCTestCase {
 
-    let timeoutSeconds: Double = 60
+    let timeoutLong: Double = 60
     let timeoutShort: Double = 15
     let server = "http://localhost:8080"
     let username = "admin"
@@ -41,13 +41,13 @@ final class NextcloudTalkUITests: XCTestCase {
     func waitForEnabled(object: Any?) {
         let enabledPredicate = NSPredicate(format: "enabled == true")
         expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
-        waitForExpectations(timeout: timeoutSeconds, handler: nil)
+        waitForExpectations(timeout: timeoutLong, handler: nil)
     }
 
     func waitForHittable(object: Any?) {
         let enabledPredicate = NSPredicate(format: "hittable == true")
         expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
-        waitForExpectations(timeout: timeoutSeconds, handler: nil)
+        waitForExpectations(timeout: timeoutLong, handler: nil)
     }
 
     func launchAndLogin() -> XCUIApplication {
@@ -61,36 +61,37 @@ final class NextcloudTalkUITests: XCTestCase {
         // Wait shortly until the app is fully started
         _ = accountSwitcherButton.waitForExistence(timeout: timeoutShort)
 
-        if accountSwitcherButton.exists, accountSwitcherButton.isEnabled {
+        // When the account switcher button exists, we have atleast one account configured
+        if accountSwitcherButton.exists {
             return app
         }
 
         let serverAddressHttpsTextField = app.textFields["Server address https://…"]
-        XCTAssert(serverAddressHttpsTextField.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(serverAddressHttpsTextField.waitForExistence(timeout: timeoutLong))
         serverAddressHttpsTextField.tap()
         serverAddressHttpsTextField.typeText(server)
 
         let loginButton = app.buttons["Log in"]
-        XCTAssert(loginButton.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(loginButton.waitForExistence(timeout: timeoutLong))
         loginButton.tap()
 
         let webViewsQuery = app.webViews.webViews.webViews
         let loginButton2 = webViewsQuery.buttons["Log in"]
 
         // Wait for the login button to be available and to get enabled
-        XCTAssert(loginButton2.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(loginButton2.waitForExistence(timeout: timeoutLong))
         waitForEnabled(object: loginButton2)
 
         loginButton2.tap()
 
         let main = webViewsQuery.otherElements["main"]
-        XCTAssert(main.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(main.waitForExistence(timeout: timeoutLong))
 
         let usernameTextField = main.descendants(matching: .textField).firstMatch
         let passwordTextField = main.descendants(matching: .secureTextField).firstMatch
 
-        XCTAssert(usernameTextField.waitForExistence(timeout: timeoutSeconds))
-        XCTAssert(passwordTextField.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(usernameTextField.waitForExistence(timeout: timeoutLong))
+        XCTAssert(passwordTextField.waitForExistence(timeout: timeoutLong))
 
         usernameTextField.tap()
         usernameTextField.typeText(username + "\n")
@@ -99,14 +100,14 @@ final class NextcloudTalkUITests: XCTestCase {
         passwordTextField.typeText(password + "\n")
 
         let grantAccessButton = webViewsQuery.buttons["Grant access"]
-        XCTAssert(grantAccessButton.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(grantAccessButton.waitForExistence(timeout: timeoutLong))
         waitForEnabled(object: grantAccessButton)
         waitForHittable(object: grantAccessButton)
 
         grantAccessButton.tap()
 
         // When the account switcher gets enabled, we have atleast 1 account in the app and are online
-        XCTAssert(accountSwitcherButton.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(accountSwitcherButton.waitForExistence(timeout: timeoutLong))
         waitForEnabled(object: accountSwitcherButton)
 
         return app
@@ -118,7 +119,7 @@ final class NextcloudTalkUITests: XCTestCase {
 
         // Check if the profile button is available
         let profileButton = app.buttons["User profile and settings"]
-        XCTAssert(profileButton.waitForExistence(timeout: timeoutSeconds))
+        XCTAssert(profileButton.waitForExistence(timeout: timeoutLong))
 
         // Open profile menu
         profileButton.tap()
@@ -142,19 +143,19 @@ final class NextcloudTalkUITests: XCTestCase {
 
         // Wait for titleView
         let chatTitleView = chatNavBar.textViews.staticTexts[newConversationName]
-        XCTAssert(chatNavBar.waitForExistence(timeout: timeoutShort))
+        XCTAssert(chatNavBar.waitForExistence(timeout: timeoutLong))
 
         // Open conversation settings
         chatTitleView.tap()
 
         // Check if if the name of the conversation is shown
-        XCTAssert(app.textFields[newConversationName].waitForExistence(timeout: timeoutShort))
+        XCTAssert(app.textFields[newConversationName].waitForExistence(timeout: timeoutLong))
 
         // Go back to conversation list
         app.navigationBars["Conversation settings"].buttons["Back"].tap()
         chatNavBar.buttons["Back"].tap()
 
         // Check if the conversation appears in the conversation list
-        XCTAssert(app.tables.cells.staticTexts[newConversationName].waitForExistence(timeout: timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts[newConversationName].waitForExistence(timeout: timeoutLong))
     }
 }
