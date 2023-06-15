@@ -66,5 +66,4 @@ jobs:
         -enableCodeCoverage YES \
         -test-iterations 3 \
         -retry-tests-on-failure \
-        -verbose \
         | xcpretty
