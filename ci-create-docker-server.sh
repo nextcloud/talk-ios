@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 # Based on the script from Milen Pivchev in nextcloud/ios repository
 
-# This script installs docker and starts a nextcloud test instance
-
-echo "Setup docker..."
-
-brew install docker
-colima start
+# This script starts a nextcloud test instance
 
 echo "Creating nextcloud instance for branch $TEST_BRANCH..."
 

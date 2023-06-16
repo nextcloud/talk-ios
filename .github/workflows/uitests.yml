@@ -41,6 +41,11 @@ jobs:
       uses: actions/checkout@v3
       with:
         submodules: true
+    
+    - name: Install docker
+      run: |
+        brew install docker
+        colima start
 
     - name: Create docker test server
       run: |
@@ -63,7 +68,6 @@ jobs:
         set -o pipefail && xcodebuild test -workspace $WORKSPACE \
         -scheme "$SCHEME" \
         -destination "$DESTINATION" \
-        -enableCodeCoverage YES \
         -test-iterations 3 \
         -retry-tests-on-failure \
         | xcpretty

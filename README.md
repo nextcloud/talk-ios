@@ -54,6 +54,19 @@ Current version: [108.5359.0](https://github.com/nextcloud-releases/talk-clients
 \
 Update the download URL in `download_webrtc.sh` for newer versions.
 
+## Running tests locally
+
+The tests included in `talk-ios` require a running Nextcloud instance. To run this locally, make sure you have a working docker enviroment and run the file `start-instance-for-tests.sh` - this will install a Nextcloud instance, install Nextcloud Talk and wait for everything to be up and running. By default this uses the `master` branch of Nextcloud and NextcloudTalk. You can edit the file to specify a different branch (e.g. `stable27`).
+After that you can run the tests directly from Xcode or alternatively from the command line you can use:
+
+```
+xcodebuild test -workspace NextcloudTalk.xcworkspace \
+    -scheme "NextcloudTalk" \
+    -destination "platform=iOS Simulator,name=iPhone 14,OS=16.2" \
+    -test-iterations 3 \
+    -retry-tests-on-failure
+```
+
 ## Push notifications
 
 If you are experiencing problems with push notifications, please check this [document](https://github.com/nextcloud/talk-ios/blob/master/docs/notifications.md) to detect possible issues.
