@@ -43,7 +43,7 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>other</key>
-            <string>%d 分钟前</string>
+            <string>%d分钟前</string>
         </dict>
     </dict>
     
@@ -58,7 +58,7 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>other</key>
-            <string>%d 小时前</string>
+            <string>%d小时前</string>
         </dict>
     </dict>
     
