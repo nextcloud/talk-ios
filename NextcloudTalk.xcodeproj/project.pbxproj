@@ -73,6 +73,7 @@
 		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
+		1FD8AE6B2A3A216300787C16 /* NextcloudTalkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* NextcloudTalkUITests.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
 		1FDCC3E329EC787400DEB39B /* AvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */; };
@@ -367,6 +368,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1FD8AD902A3A162100787C16 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C05747C1EDD9E8E00D9E7F2;
+			remoteInfo = NextcloudTalk;
+		};
 		2C62AFAC24C08845007E460A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
@@ -439,6 +447,7 @@
 		1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLKDefaultReplyView.m; sourceTree = "<group>"; };
 		1F66B72A29FA9414003FB168 /* SLKDefaultTypingIndicatorView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLKDefaultTypingIndicatorView.h; sourceTree = "<group>"; };
 		1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLKDefaultTypingIndicatorView.m; sourceTree = "<group>"; };
+		1F73AE97F443E386D0C0B96D /* libPods-NextcloudTalkUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalkUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallsFromOldAccountViewController.swift; sourceTree = "<group>"; };
 		1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallsFromOldAccountViewController.xib; sourceTree = "<group>"; };
 		1F785DDA2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageTranscribeViewController.m; sourceTree = "<group>"; };
@@ -457,6 +466,15 @@
 		1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallFlowLayout.swift; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
+		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FD8AD8C2A3A162100787C16 /* NextcloudTalkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudTalkUITests.swift; sourceTree = "<group>"; };
+		1FD8AD992A3A170F00787C16 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
+		1FD8AD9D2A3A171A00787C16 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/iOSSupport/System/Library/Frameworks/IntentsUI.framework; sourceTree = DEVELOPER_DIR; };
+		1FD8AD9F2A3A172000787C16 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		1FD8ADA32A3A172900787C16 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/iOSSupport/System/Library/PrivateFrameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		1FD8ADA52A3A172D00787C16 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/iOSSupport/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		1FD8ADA72A3A173300787C16 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
+		1FD8ADA92A3A173900787C16 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
 		1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvatarImageView.swift; sourceTree = "<group>"; };
 		1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header-Extensions.h"; sourceTree = "<group>"; };
@@ -856,6 +874,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1FD8AD872A3A162100787C16 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C05747A1EDD9E8E00D9E7F2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -960,11 +985,20 @@
 			name = Siri;
 			sourceTree = "<group>";
 		};
+		1FD8AD8B2A3A162100787C16 /* NextcloudTalkUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1FD8AD8C2A3A162100787C16 /* NextcloudTalkUITests.swift */,
+			);
+			path = NextcloudTalkUITests;
+			sourceTree = "<group>";
+		};
 		2C0574741EDD9E8E00D9E7F2 = {
 			isa = PBXGroup;
 			children = (
 				2CC0015024A1F0E900A20167 /* NotificationServiceExtension */,
 				2C62AFA424C08845007E460A /* ShareExtension */,
+				1FD8AD8B2A3A162100787C16 /* NextcloudTalkUITests */,
 				2C05747E1EDD9E8E00D9E7F2 /* Products */,
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */,
@@ -979,6 +1013,7 @@
 				2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */,
 				2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */,
 				2C62AFA324C08845007E460A /* ShareExtension.appex */,
+				1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1580,6 +1615,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1FD8AD892A3A162100787C16 /* NextcloudTalkUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1FD8AD922A3A162100787C16 /* Build configuration list for PBXNativeTarget "NextcloudTalkUITests" */;
+			buildPhases = (
+				1FD8AD862A3A162100787C16 /* Sources */,
+				1FD8AD872A3A162100787C16 /* Frameworks */,
+				1FD8AD882A3A162100787C16 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1FD8AD912A3A162100787C16 /* PBXTargetDependency */,
+			);
+			name = NextcloudTalkUITests;
+			productName = NextcloudTalkUITests;
+			productReference = 1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C0574971EDD9E8E00D9E7F2 /* Build configuration list for PBXNativeTarget "NextcloudTalk" */;
@@ -1668,9 +1721,14 @@
 		2C0574751EDD9E8E00D9E7F2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
+					1FD8AD892A3A162100787C16 = {
+						CreatedOnToolsVersion = 14.3;
+						TestTargetID = 2C05747C1EDD9E8E00D9E7F2;
+					};
 					2C05747C1EDD9E8E00D9E7F2 = {
 						CreatedOnToolsVersion = 8.3.2;
 						LastSwiftMigration = 1220;
@@ -1747,11 +1805,19 @@
 				2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */,
 				2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */,
 				2C62AFA224C08845007E460A /* ShareExtension */,
+				1FD8AD892A3A162100787C16 /* NextcloudTalkUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1FD8AD882A3A162100787C16 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C05747B1EDD9E8E00D9E7F2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1993,6 +2059,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1FD8AD862A3A162100787C16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1FD8AE6B2A3A216300787C16 /* NextcloudTalkUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C0574791EDD9E8E00D9E7F2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2282,6 +2356,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1FD8AD912A3A162100787C16 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
+			targetProxy = 1FD8AD902A3A162100787C16 /* PBXContainerItemProxy */;
+		};
 		2C62AFAD24C08845007E460A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2C62AFA224C08845007E460A /* ShareExtension */;
@@ -2383,6 +2462,62 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		1FD8AD932A3A162100787C16 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = NextcloudTalk;
+			};
+			name = Debug;
+		};
+		1FD8AD942A3A162100787C16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = NextcloudTalk;
+			};
+			name = Release;
+		};
 		2C0574951EDD9E8E00D9E7F2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2512,6 +2647,7 @@
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -2556,7 +2692,9 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
+				ENABLE_TESTABILITY = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -2916,6 +3054,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1FD8AD922A3A162100787C16 /* Build configuration list for PBXNativeTarget "NextcloudTalkUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FD8AD932A3A162100787C16 /* Debug */,
+				1FD8AD942A3A162100787C16 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2C0574781EDD9E8E00D9E7F2 /* Build configuration list for PBXProject "NextcloudTalk" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

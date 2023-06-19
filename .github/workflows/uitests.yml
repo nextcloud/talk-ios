@@ -1,0 +1,73 @@
+name: Build main target
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - NextcloudTalk.xcodeproj/**
+      - NextcloudTalk/**
+      - NotificationServiceExtension/**
+      - ShareExtension/**
+
+    push:
+      branches:
+        - main
+        - master
+        - stable*
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: macOS-latest
+    if: github.event.pull_request.draft == false
+
+    strategy:
+      matrix:
+        test-branches: ['stable27', 'master']
+
+    env:
+      WORKSPACE: NextcloudTalk.xcworkspace
+      DESTINATION: platform=iOS Simulator,name=iPhone 14,OS=16.2
+      SCHEME: NextcloudTalk
+      TEST_BRANCH: ${{ matrix.test-branches }}
+      CONTAINER_NAME: nextcloud_test
+      SERVER_PORT: 8080
+
+    steps:
+    - name: Checkout app
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+    
+    - name: Install docker
+      run: |
+        brew install docker
+        colima start
+
+    - name: Create docker test server
+      run: |
+        source ./ci-create-docker-server.sh
+
+    - name: Set up dependencies talk-ios
+      run: |
+        pod install
+
+    - name: Wait for server
+      run: |
+        source ./ci-wait-for-server.sh
+
+    - name: Install talk
+      run: |
+        source ./ci-install-talk.sh             
+
+    - name: Build & Test NextcloudTalk iOS
+      run: |
+        set -o pipefail && xcodebuild test -workspace $WORKSPACE \
+        -scheme "$SCHEME" \
+        -destination "$DESTINATION" \
+        -test-iterations 3 \
+        -retry-tests-on-failure \
+        | xcpretty
