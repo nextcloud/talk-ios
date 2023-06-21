@@ -37,11 +37,11 @@
 
 #import "NextcloudTalk-Swift.h"
 
-typedef enum HeaderSection {
+typedef enum HeaderSectionAction {
     kHeaderSectionNewGroup = 0,
     kHeaderSectionNewPublic,
-    kHeaderSectionNumber
-} HeaderSection;
+    kHeaderSectionOpenConversations
+} HeaderSectionAction;
 
 NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForChatNotification";
 
@@ -204,6 +204,22 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     // Dispose of any resources that can be recreated.
 }
 
+- (NSArray *)getHeaderActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+
+    if ([[NCSettingsController sharedInstance] canCreateGroupAndPublicRooms]) {
+        [actions addObject:[NSNumber numberWithInt:kHeaderSectionNewGroup]];
+        [actions addObject:[NSNumber numberWithInt:kHeaderSectionNewPublic]];
+    }
+
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
+        [actions addObject:[NSNumber numberWithInt:kHeaderSectionOpenConversations]];
+    }
+
+    return [NSArray arrayWithArray:actions];
+}
+
 #pragma mark - Actions
 
 - (void)cancelButtonPressed
@@ -262,6 +278,12 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 {
     RoomCreation2TableViewController *roomCreationVC = [[RoomCreation2TableViewController alloc] initForPublicRoom];
     [self.navigationController pushViewController:roomCreationVC animated:YES];
+}
+
+- (void)showOpenConversations
+{
+    OpenConversationsTableViewController *openConversationsVC = [[OpenConversationsTableViewController alloc] init];
+    [self.navigationController pushViewController:openConversationsVC animated:YES];
 }
 
 #pragma mark - Contacts
@@ -348,8 +370,7 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section == 0) {
-        BOOL canCreate = [[NCSettingsController sharedInstance] canCreateGroupAndPublicRooms];
-        return canCreate ? kHeaderSectionNumber : 0;
+        return [self getHeaderActions].count;
     }
     NSString *index = [_indexes objectAtIndex:section];
     NSArray *contacts = [_contacts objectForKey:index];
@@ -380,7 +401,9 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
         if (!cell) {
             cell = [[ContactsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kContactCellIdentifier];
         }
-        switch (indexPath.row) {
+        NSArray *actions = [self getHeaderActions];
+        HeaderSectionAction action = [[actions objectAtIndex:indexPath.row] intValue];
+        switch (action) {
             case kHeaderSectionNewGroup:
                 cell.labelTitle.text = NSLocalizedString(@"Group conversation", nil);
                 cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Create a new group conversation", nil);
@@ -395,6 +418,14 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
                 cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to start creating a new public conversation", nil);
                 cell.labelTitle.textColor = [UIColor systemBlueColor];
                 [cell.contactImage setImage:[UIImage imageNamed:@"public-avatar"]];
+                break;
+
+            case kHeaderSectionOpenConversations:
+                cell.labelTitle.text = NSLocalizedString(@"List open conversations", nil);
+                cell.labelTitle.accessibilityLabel = NSLocalizedString(@"Show list of open conversations", nil);
+                cell.labelTitle.accessibilityHint = NSLocalizedString(@"Double tap to show list of open conversations", nil);
+                cell.labelTitle.textColor = [UIColor systemBlueColor];
+                [cell.contactImage setImage:[UIImage imageNamed:@"open-avatar"]];
                 break;
                 
             default:
@@ -422,13 +453,19 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (!(_searchController.active && _resultTableViewController.contacts.count > 0) && indexPath.section == 0) {
-        switch (indexPath.row) {
+        NSArray *actions = [self getHeaderActions];
+        HeaderSectionAction action = [[actions objectAtIndex:indexPath.row] intValue];
+        switch (action) {
             case kHeaderSectionNewGroup:
                 [self startCreatingNewGroup];
                 break;
                 
             case kHeaderSectionNewPublic:
                 [self startCreatingNewPublicRoom];
+                break;
+
+            case kHeaderSectionOpenConversations:
+                [self showOpenConversations];
                 break;
                 
             default:

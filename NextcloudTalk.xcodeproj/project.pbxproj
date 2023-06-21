@@ -345,6 +345,7 @@
 		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CCCD21D2835088F00F076CE /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 2CCCD21C2835088F00F076CE /* OpenSSL */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
+		2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */; };
 		2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */; };
 		2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */; };
 		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
@@ -447,7 +448,6 @@
 		1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLKDefaultReplyView.m; sourceTree = "<group>"; };
 		1F66B72A29FA9414003FB168 /* SLKDefaultTypingIndicatorView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLKDefaultTypingIndicatorView.h; sourceTree = "<group>"; };
 		1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLKDefaultTypingIndicatorView.m; sourceTree = "<group>"; };
-		1F73AE97F443E386D0C0B96D /* libPods-NextcloudTalkUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalkUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallsFromOldAccountViewController.swift; sourceTree = "<group>"; };
 		1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallsFromOldAccountViewController.xib; sourceTree = "<group>"; };
 		1F785DDA2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageTranscribeViewController.m; sourceTree = "<group>"; };
@@ -468,13 +468,6 @@
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD8AD8C2A3A162100787C16 /* NextcloudTalkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudTalkUITests.swift; sourceTree = "<group>"; };
-		1FD8AD992A3A170F00787C16 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
-		1FD8AD9D2A3A171A00787C16 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/iOSSupport/System/Library/Frameworks/IntentsUI.framework; sourceTree = DEVELOPER_DIR; };
-		1FD8AD9F2A3A172000787C16 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
-		1FD8ADA32A3A172900787C16 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/iOSSupport/System/Library/PrivateFrameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
-		1FD8ADA52A3A172D00787C16 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/iOSSupport/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		1FD8ADA72A3A173300787C16 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
-		1FD8ADA92A3A173900787C16 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
 		1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvatarImageView.swift; sourceTree = "<group>"; };
 		1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header-Extensions.h"; sourceTree = "<group>"; };
@@ -843,6 +836,7 @@
 		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
+		2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenConversationsTableViewController.swift; sourceTree = "<group>"; };
 		2CEA990828B8B5780029216A /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header.h"; sourceTree = "<group>"; };
 		2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageViewController.swift; sourceTree = "<group>"; };
@@ -1204,6 +1198,7 @@
 				2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */,
 				1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift */,
 				1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */,
+				2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -2072,6 +2067,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */,
 				1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */,
 				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
