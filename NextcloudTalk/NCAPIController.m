@@ -574,15 +574,21 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSString *sessionId = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"sessionId"];
+        NSDictionary *dataDictionary = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSString *sessionId = [dataDictionary objectForKey:@"sessionId"];
+        // Room object is returned only since Talk 11
+        NCRoom *room = nil;
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms forAccountId:account.accountId]) {
+            room = [NCRoom roomWithDictionary:dataDictionary andAccountId:account.accountId];
+        }
         if (block) {
-            block(sessionId, nil, 0);
+            block(sessionId, room, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
         [self checkResponseStatusCode:statusCode forAccount:account];
         if (block) {
-            block(nil, error, statusCode);
+            block(nil, nil, error, statusCode);
         }
     }];
     
