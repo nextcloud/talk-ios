@@ -76,7 +76,10 @@ class OpenConversationsTableViewController: UITableViewController {
         let openConversation = openConversations[indexPath.row]
 
         cell.labelTitle.text = openConversation.displayName
-
+        // Set group avatar as default avatar
+        cell.contactImage.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
+        // Try to get room avatar even though at the moment (Talk 17) it is not exposed
+        cell.contactImage.setAvatar(for: openConversation, with: self.traitCollection.userInterfaceStyle)
         return cell
     }
 
