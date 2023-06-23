@@ -25,6 +25,8 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
 
     var openConversations: [NCRoom] = []
     var filteredConversations: [NCRoom] = []
+    var didTriggerInitialSearch: Bool = false
+    let tableBackgroundView: PlaceholderView = PlaceholderView()
     let searchController: UISearchController = UISearchController(searchResultsController: nil)
 
     override func viewDidLoad() {
@@ -46,6 +48,12 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
 
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
+
+        tableBackgroundView.setImage(UIImage(named: "conversations-placeholder"))
+        tableBackgroundView.placeholderTextView.text = NSLocalizedString("No results found", comment: "")
+        tableBackgroundView.placeholderView.isHidden = true
+        tableBackgroundView.loadingView.startAnimating()
+        self.tableView.backgroundView = tableBackgroundView
 
         searchController.searchBar.placeholder = NSLocalizedString("Search", comment: "")
         searchController.searchResultsUpdater = self
@@ -84,25 +92,43 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        searchForListableRooms()
         self.navigationItem.hidesSearchBarWhenScrolling = false
+
+        if !didTriggerInitialSearch {
+            searchForListableRooms()
+            didTriggerInitialSearch = true
+        }
     }
 
     // MARK: - Search open conversations
 
     func searchForListableRooms() {
         NCAPIController.sharedInstance().getListableRooms(for: NCDatabaseManager.sharedInstance().activeAccount(), withSearchTerm: "") { listableRooms, _, _ in
+
+            self.tableBackgroundView.loadingView.stopAnimating()
+            self.tableBackgroundView.loadingView.isHidden = true
+
             if let listableRooms = listableRooms as? [NCRoom] {
                 self.openConversations = listableRooms
+                self.tableBackgroundView.placeholderView.isHidden = !listableRooms.isEmpty
+            } else {
+                self.tableBackgroundView.placeholderView.isHidden = false
             }
+
             self.tableView.reloadData()
         }
     }
 
     func filterConversationsWithSearchTerm(searchTerm: String) {
-        filteredConversations = openConversations.filter({ (room: NCRoom) -> Bool in
-            return room.displayName!.range(of: searchTerm, options: NSString.CompareOptions.caseInsensitive) != nil
-        })
+        if searchTerm.isEmpty {
+            filteredConversations = openConversations
+        } else {
+            filteredConversations = openConversations.filter({ (room: NCRoom) -> Bool in
+                return room.displayName!.range(of: searchTerm, options: NSString.CompareOptions.caseInsensitive) != nil
+            })
+        }
+
+        self.tableBackgroundView.placeholderView.isHidden = !filteredConversations.isEmpty
     }
 
     func updateSearchResults(for searchController: UISearchController) {
