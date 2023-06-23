@@ -668,6 +668,9 @@
 "Double tap to share with selected conversations" = "Double tap to share with selected conversations";
 
 /* No comment provided by engineer. */
+"Double tap to show list of open conversations" = "Double tap to show list of open conversations";
+
+/* No comment provided by engineer. */
 "Double tap to show more actions" = "Double tap to show more actions";
 
 /* No comment provided by engineer. */
@@ -870,6 +873,9 @@
 
 /* No comment provided by engineer. */
 "Linked file" = "Linked file";
+
+/* No comment provided by engineer. */
+"List open conversations" = "List open conversations";
 
 /* No comment provided by engineer. */
 "Load more results" = "Load more results";
@@ -1386,6 +1392,9 @@
 
 /* No comment provided by engineer. */
 "Shared location" = "Shared location";
+
+/* No comment provided by engineer. */
+"Show list of open conversations" = "Show list of open conversations";
 
 /* No comment provided by engineer. */
 "Show more…" = "Show more…";
