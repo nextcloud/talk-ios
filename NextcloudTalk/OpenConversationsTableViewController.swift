@@ -21,9 +21,11 @@
 
 import UIKit
 
-class OpenConversationsTableViewController: UITableViewController {
+class OpenConversationsTableViewController: UITableViewController, UISearchResultsUpdating {
 
     var openConversations: [NCRoom] = []
+    var filteredConversations: [NCRoom] = []
+    let searchController: UISearchController = UISearchController(searchResultsController: nil)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,11 +46,49 @@ class OpenConversationsTableViewController: UITableViewController {
 
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
+
+        searchController.searchBar.placeholder = NSLocalizedString("Search", comment: "")
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.sizeToFit()
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = NCAppBranding.themeTextColor()
+
+        if let searchTextField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+            searchTextField.tintColor = NCAppBranding.themeTextColor()
+            searchTextField.textColor = NCAppBranding.themeTextColor()
+
+            DispatchQueue.main.async {
+                // Search bar placeholder
+                searchTextField.attributedPlaceholder = NSAttributedString(string: NSLocalizedString("Search", comment: ""),
+                                                                           attributes: [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor().withAlphaComponent(0.5)])
+                // Search bar search icon
+                if let searchImageView = searchTextField.leftView as? UIImageView {
+                    searchImageView.image = searchImageView.image?.withRenderingMode(.alwaysTemplate)
+                    searchImageView.tintColor = NCAppBranding.themeTextColor().withAlphaComponent(0.5)
+                }
+                // Search bar search clear button
+                if let clearButton = searchTextField.value(forKey: "_clearButton") as? UIButton {
+                    let clearButtonImage = clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
+                    clearButton.setImage(clearButtonImage, for: .normal)
+                    clearButton.setImage(clearButtonImage, for: .highlighted)
+                    clearButton.tintColor = NCAppBranding.themeTextColor()
+                }
+            }
+        }
+
+        self.navigationItem.searchController = searchController
+        self.navigationItem.searchController?.searchBar.searchTextField.backgroundColor = NCUtils.searchbarBGColor(for: NCAppBranding.themeColor())
+        // Fix uisearchcontroller animation
+        self.extendedLayoutIncludesOpaqueBars = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
         searchForListableRooms()
+        self.navigationItem.hidesSearchBarWhenScrolling = false
     }
+
+    // MARK: - Search open conversations
 
     func searchForListableRooms() {
         NCAPIController.sharedInstance().getListableRooms(for: NCDatabaseManager.sharedInstance().activeAccount(), withSearchTerm: "") { listableRooms, _, _ in
@@ -59,6 +99,19 @@ class OpenConversationsTableViewController: UITableViewController {
         }
     }
 
+    func filterConversationsWithSearchTerm(searchTerm: String) {
+        filteredConversations = openConversations.filter({ (room: NCRoom) -> Bool in
+            return room.displayName!.range(of: searchTerm, options: NSString.CompareOptions.caseInsensitive) != nil
+        })
+    }
+
+    func updateSearchResults(for searchController: UISearchController) {
+        if let searchTerm = searchController.searchBar.text {
+            filterConversationsWithSearchTerm(searchTerm: searchTerm)
+            tableView.reloadData()
+        }
+    }
+
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -66,6 +119,9 @@ class OpenConversationsTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if searchController.isActive {
+            return filteredConversations.count
+        }
         return openConversations.count
     }
 
@@ -73,19 +129,28 @@ class OpenConversationsTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: kContactCellIdentifier) as? ContactsTableViewCell ??
         ContactsTableViewCell(style: .default, reuseIdentifier: kContactCellIdentifier)
 
-        let openConversation = openConversations[indexPath.row]
+        var openConversation = openConversations[indexPath.row]
+        if searchController.isActive {
+            openConversation = filteredConversations[indexPath.row]
+        }
 
         cell.labelTitle.text = openConversation.displayName
         // Set group avatar as default avatar
         cell.contactImage.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
         // Try to get room avatar even though at the moment (Talk 17) it is not exposed
         cell.contactImage.setAvatar(for: openConversation, with: self.traitCollection.userInterfaceStyle)
+
         return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        var openConversation = openConversations[indexPath.row]
+        if searchController.isActive {
+            openConversation = filteredConversations[indexPath.row]
+        }
+
         NCUserInterfaceController.sharedInstance().presentConversationsList()
-        NCRoomsManager.sharedInstance().startChat(in: openConversations[indexPath.row])
+        NCRoomsManager.sharedInstance().startChat(in: openConversation)
     }
 
 }
