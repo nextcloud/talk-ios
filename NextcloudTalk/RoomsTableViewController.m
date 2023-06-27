@@ -50,10 +50,17 @@
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
+typedef enum RoomsFilter {
+    kRoomsFilterAll = 0,
+    kRoomsFilterUnread,
+    kRoomsFilterMentioned
+} RoomsFilter;
+
 @interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     RLMNotificationToken *_rlmNotificationToken;
     NSMutableArray *_rooms;
+    NSMutableArray *_allRooms;
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
     UISearchController *_searchController;
@@ -94,6 +101,13 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
+
+    if (@available(iOS 16.0, *)) {
+        _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
+    } else {
+        _searchController.automaticallyShowsScopeBar = YES;
+    }
+    _searchController.searchBar.scopeButtonTitles = [self getFilters];
     
     [self setupNavigationBar];
     
@@ -497,10 +511,29 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
 }
 
+- (void)willDismissSearchController:(UISearchController *)searchController
+{
+    _searchController.searchBar.selectedScopeButtonIndex = kRoomsFilterAll;
+    [self filterRooms];
+}
+
+- (void)searchBar:(UISearchBar *)searchBar selectedScopeButtonIndexDidChange:(NSInteger)selectedScope
+{
+    [self filterRooms];
+}
+
 - (void)filterRooms
 {
+    RoomsFilter filter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
+    NSArray *filteredRooms = [self filterRoomsWithFilter:filter];
+
     NSString *searchString = _searchController.searchBar.text;
-    _resultTableViewController.rooms = [self filterRoomsWithString:searchString];
+    if ([searchString isEqualToString:@""]) {
+        _rooms = [[NSMutableArray alloc] initWithArray:filteredRooms];
+        [self.tableView reloadData];
+    } else {
+        _resultTableViewController.rooms = [self filterRooms:filteredRooms withString:searchString];
+    }
 }
 
 - (void)searchListableRoomsAndMessages
@@ -535,10 +568,21 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }];
 }
 
-- (NSArray *)filterRoomsWithString:(NSString *)searchString
+- (NSArray *)filterRoomsWithFilter:(RoomsFilter)filter
 {
-    NSPredicate *sPredicate = [NSPredicate predicateWithFormat:@"displayName CONTAINS[c] %@", searchString];
-    return [_rooms filteredArrayUsingPredicate:sPredicate];
+    switch (filter) {
+        case kRoomsFilterUnread:
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"unreadMessages > 0"]];
+        case kRoomsFilterMentioned:
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES"]];
+        default:
+            return _allRooms;
+    }
+}
+
+- (NSArray *)filterRooms:(NSArray *)rooms withString:(NSString *)searchString
+{
+    return [rooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName CONTAINS[c] %@", searchString]];
 }
 
 - (void)setLoadMoreButtonHidden:(BOOL)hidden
@@ -563,12 +607,49 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
     }
 }
 
+#pragma mark - Rooms filter
+
+- (NSArray *)availableFilters
+{
+    NSMutableArray *filters = [[NSMutableArray alloc] init];
+    [filters addObject:[NSNumber numberWithInt:kRoomsFilterAll]];
+    [filters addObject:[NSNumber numberWithInt:kRoomsFilterUnread]];
+    [filters addObject:[NSNumber numberWithInt:kRoomsFilterMentioned]];
+
+    return [NSArray arrayWithArray:filters];
+}
+
+- (NSString *)filterName:(RoomsFilter)filter
+{
+    switch (filter) {
+        case kRoomsFilterAll:
+            return NSLocalizedString(@"All", @"'All' meaning 'All conversations'");
+        case kRoomsFilterUnread:
+            return NSLocalizedString(@"Unread", @"'Unread' meaning 'Unread conversations'");
+        case kRoomsFilterMentioned:
+            return NSLocalizedString(@"Mentioned", @"'Mentioned' meaning 'Mentioned conversations'");
+        default:
+            return @"";
+    }
+}
+
+- (NSArray *)getFilters
+{
+    NSMutableArray *filters = [[NSMutableArray alloc] init];
+    for (NSNumber *filter in [self availableFilters]) {
+        [filters addObject:[self filterName:filter.intValue]];
+    }
+
+    return [NSArray arrayWithArray:filters];
+}
+
 #pragma mark - User Interface
 
 - (void)refreshRoomList
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId witRealm:nil];
+    _allRooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
     // Show/Hide placeholder view
