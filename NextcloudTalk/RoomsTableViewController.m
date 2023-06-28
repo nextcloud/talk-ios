@@ -528,8 +528,9 @@ typedef enum RoomsFilter {
     NSArray *filteredRooms = [self filterRoomsWithFilter:filter];
 
     NSString *searchString = _searchController.searchBar.text;
-    if ([searchString isEqualToString:@""]) {
+    if (searchString.length == 0) {
         _rooms = [[NSMutableArray alloc] initWithArray:filteredRooms];
+        [self calculateLastRoomWithMention];
         [self.tableView reloadData];
     } else {
         _resultTableViewController.rooms = [self filterRooms:filteredRooms withString:searchString];
@@ -656,22 +657,9 @@ typedef enum RoomsFilter {
     [_roomsBackgroundView.loadingView stopAnimating];
     [_roomsBackgroundView.loadingView setHidden:YES];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
-    
-    // Calculate index of last room with a mention
-    _lastRoomWithMentionIndexPath = nil;
-    for (int i = 0; i < _rooms.count; i++) {
-        NCRoom *room = [_rooms objectAtIndex:i];
-        if (room.hasUnreadMention) {
-            _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
-        }
-    }
-    
-    // Reload search controller if active
-    NSString *searchString = _searchController.searchBar.text;
-    if (_searchController.isActive && searchString.length > 0) {
-        // Filter rooms to show updated rooms
-        [self filterRooms];
-    }
+
+    // Filter rooms
+    [self filterRooms];
     
     // Reload room list
     [self.tableView reloadData];
@@ -806,6 +794,17 @@ typedef enum RoomsFilter {
 {
     if (_nextRoomWithMentionIndexPath) {
         [self.tableView scrollToRowAtIndexPath:_nextRoomWithMentionIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
+    }
+}
+
+- (void)calculateLastRoomWithMention
+{
+    _lastRoomWithMentionIndexPath = nil;
+    for (int i = 0; i < _rooms.count; i++) {
+        NCRoom *room = [_rooms objectAtIndex:i];
+        if (room.hasUnreadMention) {
+            _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:0];
+        }
     }
 }
 
