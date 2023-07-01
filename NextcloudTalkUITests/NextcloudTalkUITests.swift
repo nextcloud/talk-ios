@@ -134,6 +134,9 @@ final class NextcloudTalkUITests: XCTestCase {
         let newConversationName = "Test conversation"
 
         app.navigationBars["Nextcloud Talk"].buttons["Create a new conversation"].tap()
+        XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExistence(timeout: timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExistence(timeout: timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Show list of open conversations"].waitForExistence(timeout: timeoutShort))
         app.tables.cells.staticTexts["Create a new group conversation"].tap()
         app.navigationBars["RoomCreationTableView"].buttons["Next"].tap()
         app.typeText(newConversationName)

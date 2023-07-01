@@ -131,7 +131,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
     if (!roomController) {
         _joiningRoomToken = token;
-        [self joinRoomHelper:token forCall:call withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        [self joinRoomHelper:token forCall:call withCompletionBlock:^(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode) {
             if (statusCode == kNotJoiningAnymoreStatusCode){
                 // Not joining the room any more. Ignore response.
                 return;
@@ -143,6 +143,9 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                 controller.inChat = !call;
                 controller.inCall = call;
                 [userInfo setObject:controller forKey:@"roomController"];
+                if (room) {
+                    [userInfo setObject:room forKey:@"room"];
+                }
 
                 // Set room as active room
                 [self->_activeRooms setObject:controller forKey:token];
@@ -194,14 +197,14 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)joinRoomHelper:(NSString *)token forCall:(BOOL)call withCompletionBlock:(JoinRoomCompletionBlock)block
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+    _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode) {
 
         // If we left the room before the request completed or tried to join another room, there's nothing for us to do here anymore
         if (![self isJoiningRoomWithToken:token]) {
             [NCUtils log:@"Not joining the room any more. Ignore response."];
 
             if (block) {
-                block(nil, nil, kNotJoiningAnymoreStatusCode);
+                block(nil, nil, nil, kNotJoiningAnymoreStatusCode);
             }
 
             return;
@@ -210,7 +213,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         // Failed to join room in NC.
         if (error) {
             if (block) {
-                block(nil, error, statusCode);
+                block(nil, nil, error, statusCode);
             }
 
             return;
@@ -232,7 +235,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                     [NCUtils log:@"Not joining the room any more or joining the same room with a different sessionId. Ignore external signaling completion block."];
 
                     if (block) {
-                        block(nil, nil, kNotJoiningAnymoreStatusCode);
+                        block(nil, nil, nil, kNotJoiningAnymoreStatusCode);
                     }
 
                     return;
@@ -240,15 +243,15 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
                 if (!error) {
                     [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in external signaling server successfully.", token]];
-                    block(sessionId, nil, 0);
+                    block(sessionId, room, nil, 0);
                 } else if (block) {
                     [NCUtils log:[NSString stringWithFormat:@"Failed joining room %@ in external signaling server.", token]];
-                    block(nil, error, statusCode);
+                    block(nil, nil, error, statusCode);
                 }
             }];
         } else if (block) {
             // Joined room in NC successfully and no external signaling server configured.
-            block(sessionId, nil, 0);
+            block(sessionId, room, nil, 0);
         }
     }];
 }
@@ -289,7 +292,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if (roomController) {
         _joiningRoomToken = [token copy];
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NSError *error, NSInteger statusCode) {
+        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode) {
             if (!error) {
                 roomController.userSessionId = sessionId;
                 roomController.inChat = YES;

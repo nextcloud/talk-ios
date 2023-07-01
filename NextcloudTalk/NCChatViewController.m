@@ -126,6 +126,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) NSMutableArray *dateSections;
 @property (nonatomic, strong) NSMutableDictionary *mentionsDict;
 @property (nonatomic, strong) NSMutableArray *autocompletionUsers;
+@property (nonatomic, assign) BOOL hasPresentedLobby;
 @property (nonatomic, assign) BOOL hasRequestedInitialHistory;
 @property (nonatomic, assign) BOOL hasReceiveInitialHistory;
 @property (nonatomic, assign) BOOL retrievingHistory;
@@ -890,6 +891,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)checkLobbyState
 {
     if ([self shouldPresentLobbyView]) {
+        _hasPresentedLobby = YES;
         NSString *placeHolderText = NSLocalizedString(@"You are currently waiting in the lobby", nil);
         // Lobby timer
         if (_room.lobbyTimer > 0) {
@@ -919,11 +921,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [_chatBackgroundView.loadingView setHidden:NO];
         // Stop checking lobby flag
         [_lobbyCheckTimer invalidate];
-        // Retrieve initial chat history
-        if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory) {
+        // Retrieve initial chat history if lobby was enabled and we didn't retrieve it before
+        if (!_hasReceiveInitialHistory && !_hasRequestedInitialHistory && _hasPresentedLobby) {
             _hasRequestedInitialHistory = YES;
             [_chatController getInitialChatHistory];
         }
+        _hasPresentedLobby = NO;
     }
 }
 
@@ -2629,6 +2632,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [self disableRoomControls];
         [self checkRoomControlsAvailability];
         return;
+    }
+
+    NCRoom *room = [notification.userInfo objectForKey:@"room"];
+    if (room) {
+        _room = room;
     }
     
     _hasJoinedRoom = YES;
