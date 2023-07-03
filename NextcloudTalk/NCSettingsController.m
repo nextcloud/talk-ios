@@ -118,6 +118,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         [self configureAppSettings];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRevokedResponseReceived:) name:NCTokenRevokedResponseReceivedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(upgradeRequiredResponseReceived:) name:NCUpgradeRequiredResponseReceivedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(talkConfigurationHasChanged:) name:NCTalkConfigurationHashChangedNotification object:nil];
     }
     return self;
@@ -204,6 +205,69 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
         [[NCConnectionController sharedInstance] checkAppState];
     }];
+}
+
+- (void)upgradeRequiredResponseReceived:(NSNotification *)notification
+{
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    if (!_updateAlertController || ![_updateAlertControllerAccountId isEqualToString:accountId]) {
+        [self createUpdateAlertContollerForAccountId:accountId];
+    }
+
+    [[NCUserInterfaceController sharedInstance] presentAlertIfNotPresentedAlready:_updateAlertController];
+
+}
+
+- (void)createUpdateAlertContollerForAccountId:(NSString *)accountId
+{
+    _updateAlertController = [UIAlertController
+                              alertControllerWithTitle:NSLocalizedString(@"App is outdated", nil)
+                              message:NSLocalizedString(@"The app is too old and no longer supported by this server. Please update.", nil)
+                              preferredStyle:UIAlertControllerStyleAlert];
+
+    _updateAlertControllerAccountId = accountId;
+
+    UIAlertAction* updateButton = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"Update", nil)
+                                   style:UIAlertActionStyleDefault
+                                   handler:^(UIAlertAction * _Nonnull action) {
+
+        [[NCAPIController sharedInstance] getAppStoreAppIdWithCompletionBlock:^(NSString *appId, NSError *error) {
+            if (appId.length > 0) {
+                NSURL *appStoreURL = [NSURL URLWithString:[NSString stringWithFormat:@"itms-apps://itunes.apple.com/app/id%@",appId]];
+                [[UIApplication sharedApplication] openURL:appStoreURL options:@{} completionHandler:nil];
+            }
+
+            self->_updateAlertControllerAccountId = nil;
+        }];
+    }];
+
+    [_updateAlertController addAction:updateButton];
+
+    NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
+    if (inactiveAccounts.count > 0) {
+        UIAlertAction* switchAccountButton = [UIAlertAction
+                                              actionWithTitle:NSLocalizedString(@"Switch account", nil)
+                                              style:UIAlertActionStyleDefault
+                                              handler:^(UIAlertAction * _Nonnull action) {
+
+            [self switchToAnyInactiveAccount];
+            self->_updateAlertControllerAccountId = nil;
+        }];
+
+        [_updateAlertController addAction:switchAccountButton];
+    }
+
+    UIAlertAction* logoutButton = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"Log out", nil)
+                                   style:UIAlertActionStyleDestructive
+                                   handler:^(UIAlertAction * _Nonnull action) {
+
+        [[NCUserInterfaceController sharedInstance] logOutAccountWithAccountId:accountId];
+        self->_updateAlertControllerAccountId = nil;
+    }];
+
+    [_updateAlertController addAction:logoutButton];
 }
 
 - (void)talkConfigurationHasChanged:(NSNotification *)notification
@@ -385,13 +449,18 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [self createAccountsFile];
     
     // Activate any of the inactive accounts
+    [self switchToAnyInactiveAccount];
+
+    if (block) block(nil);
+}
+
+- (void)switchToAnyInactiveAccount
+{
     NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
     if (inactiveAccounts.count > 0) {
         TalkAccount *inactiveAccount = [inactiveAccounts objectAtIndex:0];
         [self setActiveAccountWithAccountId:inactiveAccount.accountId];
     }
-    
-    if (block) block(nil);
 }
 
 #pragma mark - App settings

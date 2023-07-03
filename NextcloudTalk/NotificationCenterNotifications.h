@@ -29,6 +29,7 @@ extern NSString * const NCOutdatedTalkVersionNotification;
 extern NSString * const NCServerCapabilitiesUpdatedNotification;
 extern NSString * const NCUserProfileImageUpdatedNotification;
 extern NSString * const NCTokenRevokedResponseReceivedNotification;
+extern NSString * const NCUpgradeRequiredResponseReceivedNotification;
 extern NSString * const NCURLWantsToOpenConversationNotification;
 extern NSString * const NCServerMaintenanceModeNotification;
 extern NSString * const NCTalkConfigurationHashChangedNotification;

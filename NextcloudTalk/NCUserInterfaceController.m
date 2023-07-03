@@ -229,13 +229,18 @@
     }
 }
 
-- (void)logOutCurrentUser
+- (void)logOutAccountWithAccountId:(NSString *)accountId
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCSettingsController sharedInstance] logoutAccountWithAccountId:activeAccount.accountId withCompletionBlock:^(NSError *error) {
+    [[NCSettingsController sharedInstance] logoutAccountWithAccountId:accountId withCompletionBlock:^(NSError *error) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
         [[NCConnectionController sharedInstance] checkAppState];
     }];
+}
+
+- (void)logOutCurrentUser
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [self logOutAccountWithAccountId:activeAccount.accountId];
 }
 
 - (void)presentChatForLocalNotification:(NSDictionary *)userInfo
@@ -323,6 +328,13 @@
         [_mainViewController.presentedViewController presentViewController:alertViewController animated:YES completion:nil];
     } else {
         [_mainViewController presentViewController:alertViewController animated:YES completion:nil];
+    }
+}
+
+- (void)presentAlertIfNotPresentedAlready:(UIAlertController *)alertViewController
+{
+    if (alertViewController != _mainViewController.presentedViewController) {
+        [self presentAlertViewController:alertViewController];
     }
 }
 
