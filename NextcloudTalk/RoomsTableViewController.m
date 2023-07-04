@@ -492,15 +492,13 @@ typedef enum RoomsFilter {
     // Cancel previous call to search listable rooms and messages
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(searchListableRoomsAndMessages) object:nil];
     
-    // Filer rooms and search for listable rooms and messages
+    // Search for listable rooms and messages
     if (searchString.length > 0) {
         // Set searchingMessages flag if we are going to search for messages
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityUnifiedSearch]) {
             [self setLoadMoreButtonHidden:YES];
             _resultTableViewController.searchingMessages = YES;
         }
-        // Filter rooms
-        [self filterRooms];
         // Throttle listable rooms and messages search
         [self performSelector:@selector(searchListableRoomsAndMessages) withObject:nil afterDelay:1];
     } else {
@@ -509,6 +507,9 @@ typedef enum RoomsFilter {
         _resultTableViewController.searchingMessages = NO;
         [_resultTableViewController clearSearchedResults];
     }
+
+    // Filter rooms
+    [self filterRooms];
 }
 
 - (void)willDismissSearchController:(UISearchController *)searchController
