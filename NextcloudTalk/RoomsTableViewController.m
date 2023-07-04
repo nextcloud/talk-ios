@@ -513,7 +513,9 @@ typedef enum RoomsFilter {
 
 - (void)willDismissSearchController:(UISearchController *)searchController
 {
+    _searchController.searchBar.text = @"";
     _searchController.searchBar.selectedScopeButtonIndex = kRoomsFilterAll;
+
     [self filterRooms];
 }
 
