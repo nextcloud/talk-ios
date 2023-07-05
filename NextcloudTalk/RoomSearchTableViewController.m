@@ -37,6 +37,7 @@
 
 typedef enum RoomSearchSection {
     RoomSearchSectionFiltered = 0,
+    RoomSearchSectionUsers,
     RoomSearchSectionListable,
     RoomSearchSectionMessages
 } RoomSearchSection;
@@ -73,6 +74,12 @@ typedef enum RoomSearchSection {
 - (void)setRooms:(NSArray *)rooms
 {
     _rooms = rooms;
+    [self reloadAndCheckSearchingIndicator];
+}
+
+- (void)setUsers:(NSArray *)users
+{
+    _users = users;
     [self reloadAndCheckSearchingIndicator];
 }
 
@@ -135,6 +142,7 @@ typedef enum RoomSearchSection {
 - (void)clearSearchedResults
 {
     _rooms = @[];
+    _users = @[];
     _listableRooms = @[];
     _messages = @[];
     
@@ -149,6 +157,9 @@ typedef enum RoomSearchSection {
     NSMutableArray *sections = [NSMutableArray new];
     if (_rooms.count > 0) {
         [sections addObject:@(RoomSearchSectionFiltered)];
+    }
+    if (_users.count > 0) {
+        [sections addObject:@(RoomSearchSectionUsers)];
     }
     if (_listableRooms.count > 0) {
         [sections addObject:@(RoomSearchSectionListable)];
@@ -224,6 +235,31 @@ typedef enum RoomSearchSection {
     return cell;
 }
 
+- (NCUser *)userForIndexPath:(NSIndexPath *)indexPath
+{
+    NSInteger searchSection = [[[self searchSections] objectAtIndex:indexPath.section] integerValue];
+    if (searchSection == RoomSearchSectionUsers && indexPath.row < _users.count) {
+        return [_users objectAtIndex:indexPath.row];;
+    }
+
+    return nil;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForUserAtIndexPath:(NSIndexPath *)indexPath
+{
+    NCUser *user = [_users objectAtIndex:indexPath.row];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    if (!cell) {
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
+    }
+
+    cell.titleLabel.text = user.name;
+    cell.titleOnly = YES;
+    [cell.roomImage setUserAvatarFor:user.userId with:self.traitCollection.userInterfaceStyle];
+
+    return cell;
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -237,6 +273,8 @@ typedef enum RoomSearchSection {
     switch (searchSection) {
         case RoomSearchSectionFiltered:
             return _rooms.count;
+        case RoomSearchSectionUsers:
+            return _users.count;
         case RoomSearchSectionListable:
             return _listableRooms.count;
         case RoomSearchSectionMessages:
@@ -257,6 +295,8 @@ typedef enum RoomSearchSection {
     switch (searchSection) {
         case RoomSearchSectionFiltered:
             return NSLocalizedString(@"Conversations", @"");
+        case RoomSearchSectionUsers:
+            return NSLocalizedString(@"Users", @"");
         case RoomSearchSectionListable:
             return NSLocalizedString(@"Open conversations", @"TRANSLATORS 'Open conversations' as a type of conversation. 'Open conversations' are conversations that can be found by other users");
         case RoomSearchSectionMessages:
@@ -269,8 +309,13 @@ typedef enum RoomSearchSection {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSInteger searchSection = [[[self searchSections] objectAtIndex:indexPath.section] integerValue];
+    // Messages
     if (searchSection == RoomSearchSectionMessages) {
         return [self tableView:tableView cellForMessageAtIndexPath:indexPath];
+    }
+    // Contacts
+    if (searchSection == RoomSearchSectionUsers) {
+        return [self tableView:tableView cellForUserAtIndexPath:indexPath];
     }
     
     NCRoom *room = [self roomForIndexPath:indexPath];

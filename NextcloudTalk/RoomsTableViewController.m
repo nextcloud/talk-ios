@@ -108,7 +108,7 @@ typedef enum RoomsFilter {
         _searchController.automaticallyShowsScopeBar = YES;
     }
     _searchController.searchBar.scopeButtonTitles = [self getFilters];
-    
+
     [self setupNavigationBar];
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
@@ -544,6 +544,13 @@ typedef enum RoomsFilter {
 {
     NSString *searchString = _searchController.searchBar.text;
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+    // Search for contacts
+    _resultTableViewController.users = @[];
+    [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+        if (!error) {
+            self->_resultTableViewController.users = contactList;
+        }
+    }];
     // Search for listable rooms
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
         _resultTableViewController.listableRooms = @[];
@@ -1169,6 +1176,40 @@ typedef enum RoomsFilter {
     [self presentViewController:leaveRoomFailedDialog animated:YES completion:nil];
 }
 
+#pragma mark - Search results
+
+- (void)presentSelectedMessageInChat:(NKSearchEntry *)message
+{
+    NSString *roomToken = [message.attributes objectForKey:@"conversation"];
+    NSString *messageId = [message.attributes objectForKey:@"messageId"];
+    if (roomToken && messageId) {
+        // Present message in chat view
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:roomToken forKey:@"token"];
+        [userInfo setObject:messageId forKey:@"messageId"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCPresentChatHighlightingMessageNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }
+}
+
+- (void)createRoomForSelectedUser:(NCUser *)user
+{
+    [[NCAPIController sharedInstance]
+     createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] with:user.userId
+     ofType:kNCRoomTypeOneToOne
+     andName:nil
+     withCompletionBlock:^(NSString *token, NSError *error) {
+        if (!error) {
+            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForChatNotification
+                                                                    object:self
+                                                                  userInfo:@{@"token":token}];
+            }];
+        }
+    }];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -1302,20 +1343,19 @@ typedef enum RoomsFilter {
 {
     [self setSelectedRoomToken:nil];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    
-    // Present searched messages
+
     if (tableView == _resultTableViewController.tableView) {
-        NKSearchEntry *searchMessage = [_resultTableViewController messageForIndexPath:indexPath];
-        NSString *roomToken = [searchMessage.attributes objectForKey:@"conversation"];
-        NSString *messageId = [searchMessage.attributes objectForKey:@"messageId"];
-        if (roomToken && messageId) {
-            // Present message in chat view
-            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:roomToken forKey:@"token"];
-            [userInfo setObject:messageId forKey:@"messageId"];
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCPresentChatHighlightingMessageNotification
-                                                                object:self
-                                                              userInfo:userInfo];
+        // Messages
+        NKSearchEntry *message = [_resultTableViewController messageForIndexPath:indexPath];
+        if (message) {
+            [self presentSelectedMessageInChat:message];
+            return;
+        }
+
+        // Users
+        NCUser *user = [_resultTableViewController userForIndexPath:indexPath];
+        if (user) {
+            [self createRoomForSelectedUser:user];
             return;
         }
     }
