@@ -58,6 +58,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.roomImage.layer.masksToBounds = YES;
     self.roomImage.backgroundColor = [NCAppBranding placeholderColor];
 
+    self.unreadMessagesView.hidden = YES;
+
     self.favoriteImage.contentMode = UIViewContentModeCenter;
     
     if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:_dateLabel.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
@@ -107,7 +109,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
     
     [self.userStatusLabel setHidden:YES];
-    
+
+    _unreadMessagesView.hidden = YES;
     _unreadMessagesBadge = nil;
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];
