@@ -1207,6 +1207,8 @@ typedef enum RoomsFilter {
                                                                   userInfo:@{@"token":token}];
             }];
         }
+
+        [self->_searchController setActive:NO];
     }];
 }
 
