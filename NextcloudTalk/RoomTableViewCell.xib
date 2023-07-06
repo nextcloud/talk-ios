@@ -3,7 +3,7 @@
     <device id="retina4_7" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -118,6 +118,7 @@
                 <outlet property="roomImage" destination="j70-Qd-IKC" id="YvW-c3-hxL"/>
                 <outlet property="subtitleLabel" destination="Tc2-b5-oRl" id="1mD-EQ-Jhs"/>
                 <outlet property="titleLabel" destination="4oj-Ge-nSq" id="SPq-KL-y2z"/>
+                <outlet property="titleLabelTopConstraint" destination="mha-g7-USc" id="0fY-Qe-pU5"/>
                 <outlet property="unreadMessageViewWidth" destination="YY6-7s-vjB" id="JeI-Ch-rdW"/>
                 <outlet property="unreadMessagesView" destination="Xb6-vq-E0C" id="wXP-Vy-8sF"/>
                 <outlet property="userStatusImageView" destination="mxr-4b-6AO" id="MJo-C9-yUh"/>

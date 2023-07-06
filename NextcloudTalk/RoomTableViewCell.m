@@ -44,6 +44,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 }
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *unreadMessageViewWidth;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleLabelTopConstraint;
 
 @end
 
@@ -110,6 +111,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     
     [self.userStatusLabel setHidden:YES];
 
+    self.titleLabelTopConstraint.constant = kTitleOriginY;
+
     _unreadMessagesView.hidden = YES;
     _unreadMessagesBadge = nil;
     for (UIView *subview in [self.unreadMessagesView subviews]) {
@@ -120,10 +123,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 - (void)setTitleOnly:(BOOL)titleOnly
 {
     _titleOnly = titleOnly;
-    
-    CGRect frame = self.titleLabel.frame;
-    frame.origin.y = _titleOnly ? kTitleOnlyOriginY : kTitleOriginY;
-    self.titleLabel.frame = frame;
+
+    _titleLabelTopConstraint.constant = _titleOnly ? kTitleOnlyOriginY : kTitleOriginY;
 }
 
 - (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned groupMentioned:(BOOL)groupMentioned
