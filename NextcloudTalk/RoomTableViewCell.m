@@ -29,7 +29,7 @@
 #import "NextcloudTalk-Swift.h"
 
 #define kTitleOriginY       12
-#define kTitleOnlyOriginY   28
+#define kTitleOnlyOriginY   26
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
