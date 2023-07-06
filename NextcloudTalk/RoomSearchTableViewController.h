@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class NCRoom;
 @class NCUser;
-@class NCCSearchEntry;
+@class NKSearchEntry;
 
 @interface RoomSearchTableViewController : UITableViewController
 
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NCRoom *)roomForIndexPath:(NSIndexPath *)indexPath;
 - (NCUser *)userForIndexPath:(NSIndexPath *)indexPath;
-- (NCCSearchEntry *)messageForIndexPath:(NSIndexPath *)indexPath;
+- (NKSearchEntry *)messageForIndexPath:(NSIndexPath *)indexPath;
 - (void)showSearchingFooterView;
 - (void)clearSearchedResults;
 

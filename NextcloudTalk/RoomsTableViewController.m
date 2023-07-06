@@ -570,7 +570,7 @@ typedef enum RoomsFilter {
 
 - (void)searchForMessagesWithCurrentSearchTerm
 {
-    [_unifiedSearchController searchMessagesWithCompletionHandler:^(NSArray<NCCSearchEntry *> *entries) {
+    [_unifiedSearchController searchMessagesWithCompletionHandler:^(NSArray<NKSearchEntry *> *entries) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self->_resultTableViewController.searchingMessages = NO;
             self->_resultTableViewController.messages = entries;
