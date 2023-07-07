@@ -548,7 +548,7 @@ typedef enum RoomsFilter {
     _resultTableViewController.users = @[];
     [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            self->_resultTableViewController.users = contactList;
+            self->_resultTableViewController.users = [self usersWithoutOneToOneConversations:contactList];
         }
     }];
     // Search for listable rooms
@@ -566,6 +566,15 @@ typedef enum RoomsFilter {
         _resultTableViewController.messages = @[];
         [self searchForMessagesWithCurrentSearchTerm];
     }
+}
+
+- (NSArray *)usersWithoutOneToOneConversations:(NSArray *)users
+{
+    NSPredicate *oneToOnePredicate = [NSPredicate predicateWithFormat:@"type == %ld", kNCRoomTypeOneToOne];
+    NSArray *oneToOneRooms = [_rooms filteredArrayUsingPredicate:oneToOnePredicate];
+    NSPredicate *namePredicate = [NSPredicate predicateWithFormat:@"NOT (userId  IN %@)", [oneToOneRooms valueForKey:@"name"]];
+
+    return [users filteredArrayUsingPredicate:namePredicate];
 }
 
 - (void)searchForMessagesWithCurrentSearchTerm
