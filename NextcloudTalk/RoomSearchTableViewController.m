@@ -239,7 +239,7 @@ typedef enum RoomSearchSection {
 {
     NSInteger searchSection = [[[self searchSections] objectAtIndex:indexPath.section] integerValue];
     if (searchSection == RoomSearchSectionUsers && indexPath.row < _users.count) {
-        return [_users objectAtIndex:indexPath.row];;
+        return [_users objectAtIndex:indexPath.row];
     }
 
     return nil;
