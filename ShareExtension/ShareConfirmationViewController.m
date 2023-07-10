@@ -372,11 +372,11 @@
 {
     [[NCAPIController sharedInstance] sendChatMessage:self.shareTextView.text toRoom:_room.token displayName:nil replyTo:-1 referenceId:nil silently:NO forAccount:_account withCompletionBlock:^(NSError *error) {
         if (error) {
-            [self.delegate shareConfirmationViewControllerDidFailed:self];
             NSLog(@"Failed to send shared item");
+            [self.delegate shareConfirmationViewControllerDidFailed:self];
         } else {
-            [self.delegate shareConfirmationViewControllerDidFinish:self];
             [[NCIntentController sharedInstance] donateSendMessageIntentForRoom:self->_room];
+            [self.delegate shareConfirmationViewControllerDidFinish:self];
         }
         [self stopAnimatingSharingIndicator];
     }];
