@@ -1623,7 +1623,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     if (message.isObjectShare) {
         shareViewController = [[ShareViewController alloc] initToForwardObjectShareMessage:message fromChatViewController:self];
     } else {
-        shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessageForChat.string fromChatViewController:self];
+        shareViewController = [[ShareViewController alloc] initToForwardMessage:message.parsedMessage.string fromChatViewController:self];
     }
     shareViewController.delegate = self;
     NCNavigationController *forwardMessageNC = [[NCNavigationController alloc] initWithRootViewController:shareViewController];
@@ -1641,7 +1641,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)didPressCopy:(NCChatMessage *)message {
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-    pasteboard.string = message.parsedMessageForChat.string;
+    pasteboard.string = message.parsedMessage.string;
     [self.view makeToast:NSLocalizedString(@"Message copied", nil) duration:1.5 position:CSToastPositionCenter];
 }
 
@@ -4049,14 +4049,26 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Chat messages
-    NSMutableAttributedString *messageString = message.parsedMessageForChat;
+    NSMutableAttributedString *messageString = message.parsedMarkdownForChat;
     width -= (message.isSystemMessage)? 80.0 : 30.0; // 4*right(10) + dateLabel(40) : 3*right(10)
     if (message.poll) {
         messageString = [[NSMutableAttributedString alloc] initWithString:message.poll.name];
         [messageString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[ObjectShareMessageTableViewCell defaultFontSize]] range:NSMakeRange(0,messageString.length)];
         width -= kObjectShareMessageCellObjectTypeImageSize + 25; // 2*right(10) + left(5)
     }
-    CGRect bodyBounds = [messageString boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:NULL];
+
+    // Calculate the height of the message. "boundingRectWithSize" does not work correctly with markdown, so we use this
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:message.parsedMarkdownForChat];
+    CGRect targetBounding = CGRectMake(0, 0, width, CGFLOAT_MAX);
+    NSTextContainer *container = [[NSTextContainer alloc] initWithSize:targetBounding.size];
+    container.lineFragmentPadding = 0;
+
+    NSLayoutManager *manager = [[NSLayoutManager alloc] init];
+    [manager addTextContainer:container];
+    [textStorage addLayoutManager:manager];
+
+    [manager glyphRangeForBoundingRect:targetBounding inTextContainer:container];
+    CGRect bodyBounds = [manager usedRectForTextContainer:container];
     
     CGFloat height = kChatCellAvatarHeight;
     height += ceil(CGRectGetHeight(bodyBounds));

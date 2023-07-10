@@ -349,7 +349,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
         actorName = [NSString stringWithFormat:@"%@: ", [[actorName componentsSeparatedByString:@" "] objectAtIndex:0]];
     }
     // Add the last message
-    NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, self.lastMessage.parsedMessage.string];
+    NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, self.lastMessage.parsedMarkdown.string];
     
     return lastMessage;
 }

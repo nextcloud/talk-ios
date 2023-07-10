@@ -422,22 +422,22 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     if (!self.message) {
         return nil;
     }
-    
+
     NSString *originalMessage = self.file.contactName ? self.file.contactName : self.message;
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
-    
+
     NSRegularExpression *parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
     NSArray *matches = [parameterRegex matchesInString:originalMessage
                                                options:0
                                                  range:NSMakeRange(0, [originalMessage length])];
-    
+
     // Find message parameters
     NSMutableArray *parameters = [NSMutableArray new];
     for (NSTextCheckingResult *match in matches) {
         NSString* parameter = [originalMessage substringWithRange:match.range];
         NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
-                                 stringByReplacingOccurrencesOfString:@"}" withString:@""];
+                                  stringByReplacingOccurrencesOfString:@"}" withString:@""];
         NSDictionary *parameterDict = [[self messageParameters] objectForKey:parameterKey];
         if (parameterDict) {
             NCMessageParameter *messageParameter = [[NCMessageParameter alloc] initWithDictionary:parameterDict] ;
@@ -460,19 +460,19 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             [parameters addObject:messageParameter];
         }
     }
-    
+
     UIColor *defaultColor = [NCAppBranding chatForegroundColor];
     UIColor *highlightedColor = [NCAppBranding elementColor];
-    
+
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
-    [attributedMessage addAttribute:NSForegroundColorAttributeName value:defaultColor range:NSMakeRange(0,parsedMessage.length)];
-    
+    [attributedMessage addAttribute:NSForegroundColorAttributeName value:defaultColor range:NSMakeRange(0, parsedMessage.length)];
+
     if (self.isEmojiMessage) {
-        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:36.0f] range:NSMakeRange(0,parsedMessage.length)];
+        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:36.0f] range:NSMakeRange(0, parsedMessage.length)];
     } else {
-        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0,parsedMessage.length)];
+        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0, parsedMessage.length)];
     }
-    
+
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions
         if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] ||
@@ -490,18 +490,35 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             }
         }
     }
-    
+
     return attributedMessage;
 }
 
-- (NSMutableAttributedString *)parsedMessageForChat
+- (NSMutableAttributedString *)parsedMarkdown
+{
+    NSMutableAttributedString *parsedMessage = self.parsedMessage;
+
+    if (!parsedMessage) {
+        return nil;
+    }
+
+    return [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
+}
+
+- (NSMutableAttributedString *)parsedMarkdownForChat
 {
     // In some circumstances we want/need to hide the message in the chat, but still want to show it in other parts like the conversation list
     if ([self getDeckCardUrlForReferenceProvider]) {
         return nil;
     }
 
-    return self.parsedMessage;
+    NSMutableAttributedString *parsedMessage = self.parsedMessage;
+
+    if (!parsedMessage) {
+        return nil;
+    }
+
+    return [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
 }
 
 - (NSMutableAttributedString *)systemMessageFormat

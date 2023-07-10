@@ -32,6 +32,8 @@
 #import "NCPushNotification.h"
 #import "NCPushNotificationsUtils.h"
 
+#import "NextcloudTalk-Swift.h"
+
 #import <SDWebImage/SDWebImage.h>
 
 @interface NotificationService ()
@@ -190,8 +192,11 @@
                         self.bestAttemptContent.userInfo = userInfo;
 
                         if (serverNotification.notificationType == kNCNotificationTypeChat) {
+                            NSAttributedString *attributedMessage = [[NSAttributedString alloc] initWithString:serverNotification.message];
+                            NSAttributedString *markdownMessage = [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:attributedMessage];
+
                             self.bestAttemptContent.title = serverNotification.chatMessageTitle;
-                            self.bestAttemptContent.body = serverNotification.message;
+                            self.bestAttemptContent.body = markdownMessage.string;
                             self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
                         } else if (serverNotification.notificationType == kNCNotificationTypeRecording) {
                             self.bestAttemptContent.categoryIdentifier = @"CATEGORY_RECORDING";
