@@ -29,7 +29,7 @@
 #import "NextcloudTalk-Swift.h"
 
 #define kTitleOriginY       12
-#define kTitleOnlyOriginY   28
+#define kTitleOnlyOriginY   26
 
 NSString *const kRoomCellIdentifier = @"RoomCellIdentifier";
 NSString *const kRoomTableCellNibName = @"RoomTableViewCell";
@@ -44,6 +44,7 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 }
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *unreadMessageViewWidth;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleLabelTopConstraint;
 
 @end
 
@@ -57,6 +58,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.roomImage.layer.cornerRadius = 24.0;
     self.roomImage.layer.masksToBounds = YES;
     self.roomImage.backgroundColor = [NCAppBranding placeholderColor];
+
+    self.unreadMessagesView.hidden = YES;
 
     self.favoriteImage.contentMode = UIViewContentModeCenter;
     
@@ -107,7 +110,10 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     self.userStatusImageView.backgroundColor = [UIColor clearColor];
     
     [self.userStatusLabel setHidden:YES];
-    
+
+    self.titleLabelTopConstraint.constant = kTitleOriginY;
+
+    _unreadMessagesView.hidden = YES;
     _unreadMessagesBadge = nil;
     for (UIView *subview in [self.unreadMessagesView subviews]) {
         [subview removeFromSuperview];
@@ -117,10 +123,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
 - (void)setTitleOnly:(BOOL)titleOnly
 {
     _titleOnly = titleOnly;
-    
-    CGRect frame = self.titleLabel.frame;
-    frame.origin.y = _titleOnly ? kTitleOnlyOriginY : kTitleOriginY;
-    self.titleLabel.frame = frame;
+
+    _titleLabelTopConstraint.constant = _titleOnly ? kTitleOnlyOriginY : kTitleOriginY;
 }
 
 - (void)setUnreadMessages:(NSInteger)number mentioned:(BOOL)mentioned groupMentioned:(BOOL)groupMentioned
