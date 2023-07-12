@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>%d votes</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@votes@</string>
+        <key>votes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>%d أصوات</string>
+            <key>one</key>
+            <string>%d صوت</string>
+            <key>two</key>
+            <string>%d أصوات</string>
+            <key>few</key>
+            <string>%d أصوات</string>
+            <key>many</key>
+            <string>%d أصوات</string>
+            <key>other</key>
+            <string>%d أصوات</string>
+        </dict>
+    </dict>
+    
+    <key>%ld participants</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@participants@</string>
+        <key>participants</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>zero</key>
+            <string>%ld مشاركين</string>
+            <key>one</key>
+            <string>%ld مشارك</string>
+            <key>two</key>
+            <string>%ld مشاركين</string>
+            <key>few</key>
+            <string>%ld مشاركين</string>
+            <key>many</key>
+            <string>%ld مشاركين</string>
+            <key>other</key>
+            <string>%ld مشاركين</string>
+        </dict>
+    </dict>
+    
+    <key>%d minutes ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@minutes@</string>
+        <key>minutes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>قبل %d دقائق</string>
+            <key>one</key>
+            <string>قبل %d دقيقة</string>
+            <key>two</key>
+            <string>قبل %d دقائق</string>
+            <key>few</key>
+            <string>قبل %d دقائق</string>
+            <key>many</key>
+            <string>قبل %d دقائق</string>
+            <key>other</key>
+            <string>قبل %d دقائق</string>
+        </dict>
+    </dict>
+    
+    <key>%d hours ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@hours@</string>
+        <key>hours</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>قبل %d ساعات</string>
+            <key>one</key>
+            <string>قبل %d ساعة</string>
+            <key>two</key>
+            <string>قبل %d ساعات</string>
+            <key>few</key>
+            <string>قبل %d ساعات</string>
+            <key>many</key>
+            <string>قبل %d ساعات</string>
+            <key>other</key>
+            <string>قبل %d ساعات</string>
+        </dict>
+    </dict>
+    
+    <key>%d days ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>قبل %d أيام</string>
+            <key>one</key>
+            <string>قبل %d يوم</string>
+            <key>two</key>
+            <string>قبل %d أيام</string>
+            <key>few</key>
+            <string>قبل %d أيام</string>
+            <key>many</key>
+            <string>قبل %d أيام</string>
+            <key>other</key>
+            <string>قبل %d أيام</string>
+        </dict>
+    </dict>
+
+    <key>%ld notifications</key>
+    <dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@notifications@</string>
+	</dict>
+</dict>
+</plist>
