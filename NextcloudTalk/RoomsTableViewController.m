@@ -90,8 +90,9 @@ typedef enum RoomsFilter {
     
     [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
-    
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
+    self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
+
     self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
     self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
 
