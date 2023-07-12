@@ -54,9 +54,10 @@ typedef enum RoomSearchSection {
 {
     [super viewDidLoad];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
-    // Align header's title to ContactsTableViewCell's label
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 72, 0, 0);
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    // Align header's title to ContactsTableViewCell's label
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
+    self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
     // Contacts placeholder view
     _roomSearchBackgroundView = [[PlaceholderView alloc] init];
     [_roomSearchBackgroundView setImage:[UIImage imageNamed:@"conversations-placeholder"]];
