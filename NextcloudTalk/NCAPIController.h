@@ -107,6 +107,8 @@ typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger sta
 typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *error);
 typedef void (^SetUserStatusCompletionBlock)(NSError *error);
 
+typedef void (^GetAppIdCompletionBlock)(NSString *appId, NSError *error);
+
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
 
 typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
@@ -154,6 +156,9 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
+
+// App Store
+- (NSURLSessionDataTask *)getAppStoreAppIdWithCompletionBlock:(GetAppIdCompletionBlock)block;
 
 // Contacts Controller
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;

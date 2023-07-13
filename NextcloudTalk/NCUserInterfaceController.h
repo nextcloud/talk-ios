@@ -49,6 +49,7 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification;
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
+- (void)presentAlertIfNotPresentedAlready:(UIAlertController *)alertViewController;
 - (void)presentAlertWithTitle:(NSString *)title withMessage:(NSString *)message;
 - (void)presentChatViewController:(NCChatViewController *)chatViewController;
 - (void)presentCallViewController:(CallViewController *)callViewController withCompletionBlock:(PresentCallControllerCompletionBlock)block;
@@ -56,5 +57,6 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 - (void)presentChatForURL:(NSURLComponents *)urlComponents;
 - (void)presentLoginViewControllerForServerURL:(NSString *)serverURL withUser:(NSString *)user;
 - (void)presentSettingsViewController;
+- (void)logOutAccountWithAccountId:(NSString *)accountId;
 
 @end

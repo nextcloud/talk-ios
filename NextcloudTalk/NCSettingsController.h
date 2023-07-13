@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import "ARDSettingsModel.h"
 
@@ -71,6 +72,8 @@ typedef enum NCPreferredFileSorting {
 
 @property (nonatomic, strong) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
+@property (nonatomic, strong) UIAlertController *updateAlertController;
+@property (nonatomic, strong) NSString *updateAlertControllerAccountId;
 @property (nonatomic, strong) NSMutableDictionary *signalingConfigurations; // accountId -> signalingConfigutation
 @property (nonatomic, strong) NSMutableDictionary *externalSignalingControllers; // accountId -> externalSignalingController
 
