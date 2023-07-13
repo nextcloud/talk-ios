@@ -1177,8 +1177,14 @@
 /* No comment provided by engineer. */
 "Please check that you entered the correct Nextcloud server address." = "Please check that you entered the correct Nextcloud server address.";
 
+/* No comment provided by engineer. */
+"Please contact your system administrator." = "Please contact your system administrator.";
+
 /* Please update your server with the latest {app name} version available. */
 "Please update your server with the latest %@ version available." = "Please update your server with the latest %@ version available.";
+
+/* No comment provided by engineer. */
+"Please update." = "Please update.";
 
 /* No comment provided by engineer. */
 "Please, set a name for this conversation." = "Please, set a name for this conversation.";
@@ -1481,7 +1487,7 @@
 "Tap and hold to record a voice message, release the button to send it." = "Tap and hold to record a voice message, release the button to send it.";
 
 /* No comment provided by engineer. */
-"The app is too old and no longer supported by this server. Please update." = "The app is too old and no longer supported by this server. Please update.";
+"The app is too old and no longer supported by this server." = "The app is too old and no longer supported by this server.";
 
 /* No comment provided by engineer. */
 "The password is wrong" = "The password is wrong";
