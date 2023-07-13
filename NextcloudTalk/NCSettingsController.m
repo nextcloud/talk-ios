@@ -220,29 +220,38 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
 - (void)createUpdateAlertContollerForAccountId:(NSString *)accountId
 {
+    NSString *appStoreURLString = @"itms-apps://itunes.apple.com/app/id";
+    BOOL canOpenAppStore = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:appStoreURLString]];
+
+    NSString *messageNotification = NSLocalizedString(@"The app is too old and no longer supported by this server.", nil);
+    NSString *messageAction = canOpenAppStore ? NSLocalizedString(@"Please update.", nil) : NSLocalizedString(@"Please contact your system administrator.", nil);
+    NSString *message = [NSString stringWithFormat:@"%@ %@", messageNotification, messageAction];
+
     _updateAlertController = [UIAlertController
                               alertControllerWithTitle:NSLocalizedString(@"App is outdated", nil)
-                              message:NSLocalizedString(@"The app is too old and no longer supported by this server. Please update.", nil)
+                              message:message
                               preferredStyle:UIAlertControllerStyleAlert];
 
     _updateAlertControllerAccountId = accountId;
 
-    UIAlertAction* updateButton = [UIAlertAction
-                                   actionWithTitle:NSLocalizedString(@"Update", nil)
-                                   style:UIAlertActionStyleDefault
-                                   handler:^(UIAlertAction * _Nonnull action) {
+    if (canOpenAppStore) {
+        UIAlertAction* updateButton = [UIAlertAction
+                                       actionWithTitle:NSLocalizedString(@"Update", nil)
+                                       style:UIAlertActionStyleDefault
+                                       handler:^(UIAlertAction * _Nonnull action) {
 
-        [[NCAPIController sharedInstance] getAppStoreAppIdWithCompletionBlock:^(NSString *appId, NSError *error) {
-            if (appId.length > 0) {
-                NSURL *appStoreURL = [NSURL URLWithString:[NSString stringWithFormat:@"itms-apps://itunes.apple.com/app/id%@",appId]];
-                [[UIApplication sharedApplication] openURL:appStoreURL options:@{} completionHandler:nil];
-            }
+            [[NCAPIController sharedInstance] getAppStoreAppIdWithCompletionBlock:^(NSString *appId, NSError *error) {
+                if (appId.length > 0) {
+                    NSURL *appStoreURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", appStoreURLString, appId]];
+                    [[UIApplication sharedApplication] openURL:appStoreURL options:@{} completionHandler:nil];
+                }
 
-            self->_updateAlertControllerAccountId = nil;
+                self->_updateAlertControllerAccountId = nil;
+            }];
         }];
-    }];
 
-    [_updateAlertController addAction:updateButton];
+        [_updateAlertController addAction:updateButton];
+    }
 
     NSArray *inactiveAccounts = [[NCDatabaseManager sharedInstance] inactiveAccounts];
     if (inactiveAccounts.count > 0) {
