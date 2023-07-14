@@ -263,20 +263,21 @@
 
 - (void)addMenuToAddButton
 {
+    __weak typeof(self) weakSelf = self;
     NSMutableArray *items = [[NSMutableArray alloc] init];
 
     UIAction *cameraAction = [UIAction actionWithTitle:NSLocalizedString(@"Camera", nil)
                                                  image:[UIImage systemImageNamed:@"camera"]
                                             identifier:nil
                                                handler:^(UIAction *action) {
-        [self checkAndPresentCamera];
+        [weakSelf checkAndPresentCamera];
     }];
 
     UIAction *photoLibraryAction = [UIAction actionWithTitle:NSLocalizedString(@"Photo Library", nil)
                                                        image:[UIImage systemImageNamed:@"photo"]
                                                   identifier:nil
                                                      handler:^(UIAction *action) {
-        [self presentPhotoLibrary];
+        [weakSelf presentPhotoLibrary];
     }];
 
 
@@ -284,7 +285,7 @@
                                                 image:[UIImage systemImageNamed:@"doc"]
                                            identifier:nil
                                               handler:^(UIAction *action) {
-        [self presentDocumentPicker];
+        [weakSelf presentDocumentPicker];
     }];
 
 
