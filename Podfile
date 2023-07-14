@@ -44,7 +44,7 @@ pre_install do |installer|
     dir_af = File.join(installer.sandbox.pod_dir('AFNetworking'), 'UIKit+AFNetworking')
     Dir.foreach(dir_af) {|x|
       real_path = File.join(dir_af, x)
-      if (!File.directory?(real_path) && File.exists?(real_path))
+      if (!File.directory?(real_path) && File.exist?(real_path))
         if((x.start_with?('UIWebView') || x == 'UIKit+AFNetworking.h'))
           File.delete(real_path)
           puts 'delete:'+ x
