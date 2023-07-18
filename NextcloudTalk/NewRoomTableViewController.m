@@ -169,6 +169,9 @@ NSString * const NCSelectedContactForChatNotification = @"NCSelectedContactForCh
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+
+    // Fix uisearchcontroller animation
+    self.extendedLayoutIncludesOpaqueBars = YES;
 }
 
 - (void)viewDidAppear:(BOOL)animated
