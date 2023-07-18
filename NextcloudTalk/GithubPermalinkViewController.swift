@@ -75,7 +75,7 @@ import SwiftyAttributes
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
         self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationItem.title = NSLocalizedString("Sourcecode", comment: "")
+        self.navigationItem.title = NSLocalizedString("Source code", comment: "")
 
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
