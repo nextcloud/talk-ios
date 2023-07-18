@@ -25,6 +25,7 @@
 #import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
+#import "NCImageSessionManager.h"
 #import "NCIntentController.h"
 #import "NCRoom.h"
 #import "NCKeyChainController.h"
@@ -32,6 +33,7 @@
 #import "NCPushNotification.h"
 #import "NCPushNotificationsUtils.h"
 
+#import "AFImageDownloader.h"
 #import "NextcloudTalk-Swift.h"
 
 #import <SDWebImage/SDWebImage.h>
@@ -48,25 +50,25 @@
 - (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
-    
+
     self.bestAttemptContent.title = @"";
     self.bestAttemptContent.body = NSLocalizedString(@"You received a new notification", nil);
-    
+
     // Configure database
     NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
     NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
-    
+
     if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
         @try {
             NSError *error = nil;
-            
+
             // schemaVersionAtURL throws an exception when file is not readable
             uint64_t currentSchemaVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
-            
+
             if (error || currentSchemaVersion != kTalkDatabaseSchemaVersion) {
                 NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
                 NSLog(@"Database needs migration -> don't open database from extension");
-                
+
                 self.contentHandler(self.bestAttemptContent);
                 return;
             } else {
@@ -83,7 +85,7 @@
         self.contentHandler(self.bestAttemptContent);
         return;
     }
-    
+
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     configuration.fileURL = databaseURL;
     configuration.schemaVersion= kTalkDatabaseSchemaVersion;
@@ -95,9 +97,9 @@
 
     // We don't want to use a memory cache in NSE, because we only have a total of 24MB before we get killed by the OS
     SDImageCache.sharedImageCache.config.shouldCacheImagesInMemory = NO;
-    
+
     BOOL foundDecryptableMessage = NO;
-    
+
     // Decrypt message
     NSString *message = [self.bestAttemptContent.userInfo objectForKey:@"subject"];
     for (TalkAccount *talkAccount in [TalkAccount allObjects]) {
@@ -108,16 +110,16 @@
                 NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
-                    
+
                     if (pushNotification.type == NCPushNotificationTypeAdminNotification) {
                         // Test notification send through "occ notification:test-push --talk <userid>"
                         // No need to increase the badge or query the server about it
-                        
+
                         self.bestAttemptContent.body = pushNotification.subject;
                         self.contentHandler(self.bestAttemptContent);
                         return;
                     }
-                    
+
                     foundDecryptableMessage = YES;
 
                     [[RLMRealm defaultRealm] transactionWithBlock:^{
@@ -133,23 +135,23 @@
                             managedAccount.lastNotificationId = pushNotification.notificationId;
                         }
                     }];
-                    
+
                     // Get the total number of unread notifications
                     NSInteger unreadNotifications = 0;
                     for (TalkAccount *user in [TalkAccount allObjects]) {
                         unreadNotifications += user.unreadBadgeNumber;
                     }
-                    
+
                     self.bestAttemptContent.body = pushNotification.bodyForRemoteAlerts;
                     self.bestAttemptContent.threadIdentifier = pushNotification.roomToken;
                     self.bestAttemptContent.sound = [UNNotificationSound defaultSound];
                     self.bestAttemptContent.badge = @(unreadNotifications);
-                    
+
                     if (pushNotification.type == NCPushNotificationTypeChat) {
                         // Set category for chat messages to allow interactive notifications
                         self.bestAttemptContent.categoryIdentifier = @"CATEGORY_CHAT";
                     }
-                    
+
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
                     [userInfo setObject:pushNotification.jsonString forKey:@"pushNotification"];
                     [userInfo setObject:pushNotification.accountId forKey:@"accountId"];
@@ -177,7 +179,9 @@
                     NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]];
                     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
                     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
-                    [apiSessionManager.requestSerializer setValue:[[NSString alloc]initWithFormat:@"Basic %@",base64Encoded] forHTTPHeaderField:@"Authorization"];
+                    NSString *authorizationHeader = [[NSString alloc] initWithFormat:@"Basic %@", base64Encoded];
+                    [apiSessionManager.requestSerializer setValue:authorizationHeader forHTTPHeaderField:@"Authorization"];
+                    [apiSessionManager.requestSerializer setTimeoutInterval:25];
 
                     [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                         NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
@@ -197,12 +201,42 @@
 
                             self.bestAttemptContent.title = serverNotification.chatMessageTitle;
                             self.bestAttemptContent.body = markdownMessage.string;
-                            self.bestAttemptContent.summaryArgument = serverNotification.chatMessageAuthor;
+
+                            NSDictionary *fileDict = [serverNotification.messageRichParameters objectForKey:@"file"];
+                            if (fileDict) {
+                                NSString *fileId = [fileDict objectForKey:@"id"];
+                                NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, 512L];
+
+                                AFImageDownloader *downloader = [[AFImageDownloader alloc]
+                                                                 initWithSessionManager:[NCImageSessionManager sharedInstance]
+                                                                 downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                                                                 maximumActiveDownloads:1
+                                                                 imageCache:nil];
+
+                                NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+                                [request setValue:authorizationHeader forHTTPHeaderField:@"Authorization"];
+                                [request setTimeoutInterval:25];
+
+                                [downloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                    UNNotificationAttachment *attachment = [self getNotificationAttachmentFromImage:image forAccountId:account.accountId];
+
+                                    if (attachment) {
+                                        self.bestAttemptContent.attachments = @[attachment];
+                                    }
+
+                                    [self createConversationNotificationWithPushNotification:pushNotification];
+                                } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+                                    [self createConversationNotificationWithPushNotification:pushNotification];
+                                }];
+
+                                // Stop here because the downloader completion blocks will take care of creating the conversation notification
+                                return;
+                            }
+
                         } else if (serverNotification.notificationType == kNCNotificationTypeRecording) {
                             self.bestAttemptContent.categoryIdentifier = @"CATEGORY_RECORDING";
                             self.bestAttemptContent.title = serverNotification.subject;
                             self.bestAttemptContent.body = serverNotification.message;
-                            self.bestAttemptContent.summaryArgument = serverNotification.objectId;
                         }
 
                         [self createConversationNotificationWithPushNotification:pushNotification];
@@ -217,7 +251,7 @@
             }
         }
     }
-    
+
     if (!foundDecryptableMessage) {
         // At this point we tried everything to decrypt the received message
         // No need to wait for the extension timeout, nothing is happening anymore
@@ -226,26 +260,48 @@
 }
 
 - (void)createConversationNotificationWithPushNotification:(NCPushNotification *)pushNotification {
-    if (@available(iOS 15.0, *)) {
-        NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
+    NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
 
-        if (room) {
-            [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:self.bestAttemptContent.title withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
-                __block NSError *error;
+    if (room) {
+        [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:self.bestAttemptContent.title withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
+            __block NSError *error;
 
-                if (sendMessageIntent) {
-                    self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:sendMessageIntent error:&error]);
-                } else {
-                    NSLog(@"Did not receive sendMessageIntent -> showing non-communication notification");
-                    self.contentHandler(self.bestAttemptContent);
-                }
-            }];
-            
-            return;
-        }
+            if (sendMessageIntent) {
+                self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:sendMessageIntent error:&error]);
+            } else {
+                NSLog(@"Did not receive sendMessageIntent -> showing non-communication notification");
+                self.contentHandler(self.bestAttemptContent);
+            }
+        }];
+
+        return;
     }
 
     self.contentHandler(self.bestAttemptContent);
+}
+
+- (UNNotificationAttachment *)getNotificationAttachmentFromImage:(UIImage *)image forAccountId:(NSString *)accountId
+{
+    NSString *encodedAccountId = [accountId stringByAddingPercentEncodingWithAllowedCharacters:NSCharacterSet.URLHostAllowedCharacterSet];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *tempDirectoryPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"/download/"];
+    tempDirectoryPath = [tempDirectoryPath stringByAppendingPathComponent:encodedAccountId];
+
+    if (![fileManager fileExistsAtPath:tempDirectoryPath]) {
+        // Make sure our download directory exists
+        [fileManager createDirectoryAtPath:tempDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+
+    NSString *fileName = [NSString stringWithFormat:@"NotificationPreview_%@.jpg", [[NSUUID UUID] UUIDString]];
+    NSString *filePath = [tempDirectoryPath stringByAppendingPathComponent:fileName];
+
+    // Write the received image to the temporary directory and create the corresponding attachment object
+    if ([UIImageJPEGRepresentation(image, 1.0) writeToFile:filePath atomically:YES]) {
+        UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:fileName URL:[NSURL fileURLWithPath:filePath] options:nil error:nil];
+        return attachment;
+    }
+
+    return nil;
 }
 
 - (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
