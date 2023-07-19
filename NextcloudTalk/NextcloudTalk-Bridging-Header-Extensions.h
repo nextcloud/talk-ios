@@ -24,6 +24,7 @@
 #define NextcloudTalk_Bridging_Header_Extensions_h
 
 #import "NCAPIController.h"
+#import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "TalkAccount.h"

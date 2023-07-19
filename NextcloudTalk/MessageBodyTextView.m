@@ -29,12 +29,17 @@
 
 - (instancetype)init
 {
-    self = [super init];
+    // Use TextKit1 to have the background of code/syntax blocks span the whole line
+    if (@available(iOS 16.0, *)) {
+        self = [MessageBodyTextView textViewUsingTextLayoutManager:false];
+    } else {
+        self = [super init];
+    }
     
     if (!self) {
         return nil;
     }
-    
+
     self.dataDetectorTypes = UIDataDetectorTypeAll;
     self.textContainer.lineFragmentPadding = 0;
     self.textContainerInset = UIEdgeInsetsZero;

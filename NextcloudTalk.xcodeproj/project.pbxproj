@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
+		1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF42A68274400921E90 /* CDMarkdownKit */; };
+		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
+		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
 		1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */; };
@@ -73,6 +77,8 @@
 		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
+		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
+		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FD8AE6B2A3A216300787C16 /* NextcloudTalkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* NextcloudTalkUITests.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
@@ -419,6 +425,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftMarkdownObjCBridge.swift; sourceTree = "<group>"; };
 		1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCZoomableView.swift; sourceTree = "<group>"; };
 		1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VLCKitVideoViewController.xib; sourceTree = "<group>"; };
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
@@ -891,6 +898,7 @@
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
+				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
 				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
 				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
 				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
@@ -903,6 +911,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
+				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
 				1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */,
 				1F45A1252A01D8F7005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
@@ -914,6 +923,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
+				1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */,
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
 				1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
@@ -1371,6 +1381,7 @@
 				2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */,
 				2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */,
 				2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */,
+				1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */,
 			);
 			name = "Chat cells";
 			sourceTree = "<group>";
@@ -1658,6 +1669,7 @@
 				1F66B72E29FABD01003FB168 /* SwiftyAttributes */,
 				1F45A1152A01D6EC005FE87D /* SDWebImage */,
 				1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */,
+				1F0ECBF42A68274400921E90 /* CDMarkdownKit */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1682,6 +1694,7 @@
 				1F7AE07B29142E6A009F72AD /* NextcloudKit */,
 				1F45A1192A01D70E005FE87D /* SDWebImage */,
 				1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */,
+				1F0ECBF82A68277C00921E90 /* CDMarkdownKit */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -1705,6 +1718,7 @@
 				1F7AE07929142E62009F72AD /* NextcloudKit */,
 				1F45A11D2A01D719005FE87D /* SDWebImage */,
 				1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */,
+				1F0ECBF62A68277000921E90 /* CDMarkdownKit */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -1792,6 +1806,7 @@
 				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
 				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */,
+				1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -2203,6 +2218,7 @@
 				2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
 				DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */,
+				1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
@@ -2293,6 +2309,7 @@
 				2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */,
 				2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */,
+				1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2C4446D52658147900DF1DBC /* TalkAccount.m in Sources */,
 				2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				1FEDE3D0257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
@@ -2330,6 +2347,7 @@
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
 				2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
+				1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */,
@@ -3098,6 +3116,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nextcloud-deps/CDMarkdownKit.git";
+			requirement = {
+				kind = revision;
+				revision = 5581a065b865a88accea1a305923d83e14d1beba;
+			};
+		};
 		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
@@ -3157,6 +3183,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1F0ECBF42A68274400921E90 /* CDMarkdownKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			productName = CDMarkdownKit;
+		};
+		1F0ECBF62A68277000921E90 /* CDMarkdownKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			productName = CDMarkdownKit;
+		};
+		1F0ECBF82A68277C00921E90 /* CDMarkdownKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			productName = CDMarkdownKit;
+		};
 		1F45A1152A01D6EC005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
