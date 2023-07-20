@@ -788,6 +788,17 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
             NSString *signature = [responseDict objectForKey:@"signature"];
 
+            if (!publicKey || !deviceIdentifier || !signature) {
+                [NCUtils log:@"Something went wrong subscribing to NC server. Aborting subscribe to Push Notification server."];
+
+                if (block) {
+                    block(NO);
+                }
+
+                [bgTask stopBackgroundTask];
+                return;
+            }
+
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm beginWriteTransaction];
             NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
