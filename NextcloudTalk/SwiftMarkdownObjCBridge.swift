@@ -26,7 +26,7 @@ import UIKit
 @objcMembers class SwiftMarkdownObjCBridge: NSObject {
 
     static func parseMarkdown(markdownString: NSAttributedString) -> NSMutableAttributedString {
-        let markdownParser = CDMarkdownParser()
+        let markdownParser = CDMarkdownParser(font: .systemFont(ofSize: 16), fontColor: NCAppBranding.chatForegroundColor())
         markdownParser.code.backgroundColor = .secondarySystemBackground
         markdownParser.code.font =  CDFont.monospacedSystemFont(ofSize: 16, weight: .regular)
 
