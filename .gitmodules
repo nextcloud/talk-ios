@@ -1,6 +1,6 @@
 [submodule "ThirdParty/SlackTextViewController"]
 	path = ThirdParty/SlackTextViewController
-	url = https://github.com/Ivansss/SlackTextViewController.git
+	url = https://github.com/nextcloud-deps/SlackTextViewController.git
 [submodule "ThirdParty/DRCellSlideGestureRecognizer"]
 	path = ThirdParty/DRCellSlideGestureRecognizer
-	url = https://github.com/Ivansss/DRCellSlideGestureRecognizer.git
+	url = https://github.com/nextcloud-deps/DRCellSlideGestureRecognizer.git
