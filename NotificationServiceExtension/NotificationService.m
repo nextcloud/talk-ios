@@ -38,10 +38,13 @@
 
 #import <SDWebImage/SDWebImage.h>
 
+typedef void (^CreateConversationNotificationCompletionBlock)(void);
+
 @interface NotificationService ()
 
 @property (nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
 @property (nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
+@property (nonatomic, strong) INSendMessageIntent *sendMessageIntent;
 
 @end
 
@@ -50,6 +53,7 @@
 - (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
+    self.sendMessageIntent = nil;
 
     self.bestAttemptContent.title = @"";
     self.bestAttemptContent.body = NSLocalizedString(@"You received a new notification", nil);
@@ -204,29 +208,32 @@
 
                             NSDictionary *fileDict = [serverNotification.messageRichParameters objectForKey:@"file"];
                             if (fileDict) {
-                                NSString *fileId = [fileDict objectForKey:@"id"];
-                                NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, 512L];
+                                // First try to create the conversation notification, and only afterwards try to retrieve the image preview
+                                [self createConversationNotificationWithPushNotification:pushNotification withCompletionBlock:^{
+                                    NSString *fileId = [fileDict objectForKey:@"id"];
+                                    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, 512L];
 
-                                AFImageDownloader *downloader = [[AFImageDownloader alloc]
-                                                                 initWithSessionManager:[NCImageSessionManager sharedInstance]
-                                                                 downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                                                 maximumActiveDownloads:1
-                                                                 imageCache:nil];
+                                    AFImageDownloader *downloader = [[AFImageDownloader alloc]
+                                                                     initWithSessionManager:[NCImageSessionManager sharedInstance]
+                                                                     downloadPrioritization:AFImageDownloadPrioritizationFIFO
+                                                                     maximumActiveDownloads:1
+                                                                     imageCache:nil];
 
-                                NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-                                [request setValue:authorizationHeader forHTTPHeaderField:@"Authorization"];
-                                [request setTimeoutInterval:25];
+                                    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+                                    [request setValue:authorizationHeader forHTTPHeaderField:@"Authorization"];
+                                    [request setTimeoutInterval:25];
 
-                                [downloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-                                    UNNotificationAttachment *attachment = [self getNotificationAttachmentFromImage:image forAccountId:account.accountId];
+                                    [downloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                        UNNotificationAttachment *attachment = [self getNotificationAttachmentFromImage:image forAccountId:account.accountId];
 
-                                    if (attachment) {
-                                        self.bestAttemptContent.attachments = @[attachment];
-                                    }
+                                        if (attachment) {
+                                            self.bestAttemptContent.attachments = @[attachment];
+                                        }
 
-                                    [self createConversationNotificationWithPushNotification:pushNotification];
-                                } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
-                                    [self createConversationNotificationWithPushNotification:pushNotification];
+                                        [self showBestAttemptNotification];
+                                    } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+                                        [self showBestAttemptNotification];
+                                    }];
                                 }];
 
                                 // Stop here because the downloader completion blocks will take care of creating the conversation notification
@@ -239,10 +246,10 @@
                             self.bestAttemptContent.body = serverNotification.message;
                         }
 
-                        [self createConversationNotificationWithPushNotification:pushNotification];
+                        [self createConversationNotificationWithPushNotificationAndShow:pushNotification];
                     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                         // Even if the server request fails, we should try to create a conversation notifications
-                        [self createConversationNotificationWithPushNotification:pushNotification];
+                        [self createConversationNotificationWithPushNotificationAndShow:pushNotification];
                     }];
                 }
             } @catch (NSException *exception) {
@@ -259,25 +266,42 @@
     }
 }
 
-- (void)createConversationNotificationWithPushNotification:(NCPushNotification *)pushNotification {
+- (void)createConversationNotificationWithPushNotification:(NCPushNotification *)pushNotification withCompletionBlock:(CreateConversationNotificationCompletionBlock)block {
+    // There's no reason to create a conversation notification, if we can't ever do something with it
+    if (!block) {
+        return;
+    }
+
     NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
 
     if (room) {
         [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:self.bestAttemptContent.title withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
-            __block NSError *error;
-
-            if (sendMessageIntent) {
-                self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:sendMessageIntent error:&error]);
-            } else {
-                NSLog(@"Did not receive sendMessageIntent -> showing non-communication notification");
-                self.contentHandler(self.bestAttemptContent);
-            }
+            self.sendMessageIntent = sendMessageIntent;
+            block();
         }];
 
         return;
     }
 
-    self.contentHandler(self.bestAttemptContent);
+    block();
+}
+
+- (void)createConversationNotificationWithPushNotificationAndShow:(NCPushNotification *)pushNotification
+{
+    [self createConversationNotificationWithPushNotification:pushNotification withCompletionBlock:^{
+        [self showBestAttemptNotification];
+    }];
+}
+
+- (void)showBestAttemptNotification
+{
+    // When we have a send message intent, we use it, otherwise we fall back to the non-conversation-notification one
+    if (self.sendMessageIntent) {
+        __block NSError *error;
+        self.contentHandler([self.bestAttemptContent contentByUpdatingWithProvider:self.sendMessageIntent error:&error]);
+    } else {
+        self.contentHandler(self.bestAttemptContent);
+    }
 }
 
 - (UNNotificationAttachment *)getNotificationAttachmentFromImage:(UIImage *)image forAccountId:(NSString *)accountId
@@ -320,7 +344,7 @@
 - (void)serviceExtensionTimeWillExpire {
     // Called just before the extension will be terminated by the system.
     // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
-    self.contentHandler(self.bestAttemptContent);
+    [self showBestAttemptNotification];
 }
 
 @end
