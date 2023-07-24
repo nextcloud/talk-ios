@@ -218,9 +218,13 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                                                                      downloadPrioritization:AFImageDownloadPrioritizationFIFO
                                                                      maximumActiveDownloads:1
                                                                      imageCache:nil];
+                                    
+                                    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
+                                                  [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
 
                                     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
                                     [request setValue:authorizationHeader forHTTPHeaderField:@"Authorization"];
+                                    [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
                                     [request setTimeoutInterval:25];
 
                                     [downloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
