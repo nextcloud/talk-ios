@@ -207,7 +207,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                             self.bestAttemptContent.body = markdownMessage.string;
 
                             NSDictionary *fileDict = [serverNotification.messageRichParameters objectForKey:@"file"];
-                            if (fileDict) {
+                            if (fileDict && [[fileDict objectForKey:@"preview-available"] boolValue]) {
                                 // First try to create the conversation notification, and only afterwards try to retrieve the image preview
                                 [self createConversationNotificationWithPushNotification:pushNotification withCompletionBlock:^{
                                     NSString *fileId = [fileDict objectForKey:@"id"];
