@@ -105,6 +105,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSTimer *_batchUpdateTimer;
     UIImageSymbolConfiguration *_barButtonsConfiguration;
     CGFloat _lastScheduledReaction;
+    NSTimer *_callDurationTimer;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -281,6 +282,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
                                                  name:UIDeviceProximityStateDidChangeNotification object:nil];
+
+    // callStartTime is only available if we have the "recording-v1" capability
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRecordingV1]) {
+        _callDurationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(callDurationTimerUpdate) userInfo:nil repeats:YES];
+    }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
@@ -1123,6 +1129,23 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 }
 
+- (void)callDurationTimerUpdate
+{
+    // In case we are the ones who start the call, we don't have the server-side callStartTime, so we set it locally
+    if (self.room.callStartTime == 0) {
+        self.room.callStartTime = [[NSDate date] timeIntervalSince1970];
+    }
+
+    NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
+    int callDuration = (int)(currentTimestamp - self.room.callStartTime);
+    int oneHourInSeconds = 60 * 60;
+
+    if (callDuration == oneHourInSeconds) {
+        NSString *callRunningFor1h = NSLocalizedString(@"Note the call is running since 1 hour already", nil);
+        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:callRunningFor1h dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+    }
+}
+
 #pragma mark - Call actions
 
 -(void)handlePushToTalk:(UILongPressGestureRecognizer *)gestureRecognizer
@@ -1353,6 +1376,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                     [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
                 }];
             }
+
+            [self->_callDurationTimer invalidate];
         });
         
         if (_callController) {
