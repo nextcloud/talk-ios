@@ -11,6 +11,9 @@
 		1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF42A68274400921E90 /* CDMarkdownKit */; };
 		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
 		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
+		1F0ECBFD2A73F21A00921E90 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBFC2A73F21A00921E90 /* Realm */; };
+		1F0ECBFF2A73F22900921E90 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBFE2A73F22900921E90 /* Realm */; };
+		1F0ECC012A73F22F00921E90 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECC002A73F22F00921E90 /* Realm */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
 		1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */; };
@@ -892,6 +895,7 @@
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */,
+				1F0ECBFD2A73F21A00921E90 /* Realm in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
@@ -910,6 +914,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F0ECC012A73F22F00921E90 /* Realm in Frameworks */,
 				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
 				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
@@ -922,6 +927,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F0ECBFF2A73F22900921E90 /* Realm in Frameworks */,
 				1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */,
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
@@ -1670,6 +1676,7 @@
 				1F45A1152A01D6EC005FE87D /* SDWebImage */,
 				1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF42A68274400921E90 /* CDMarkdownKit */,
+				1F0ECBFC2A73F21A00921E90 /* Realm */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1695,6 +1702,7 @@
 				1F45A1192A01D70E005FE87D /* SDWebImage */,
 				1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF82A68277C00921E90 /* CDMarkdownKit */,
+				1F0ECC002A73F22F00921E90 /* Realm */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -1719,6 +1727,7 @@
 				1F45A11D2A01D719005FE87D /* SDWebImage */,
 				1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF62A68277000921E90 /* CDMarkdownKit */,
+				1F0ECBFE2A73F22900921E90 /* Realm */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -1800,13 +1809,14 @@
 			mainGroup = 2C0574741EDD9E8E00D9E7F2;
 			packageReferences = (
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
-				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
-				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
+				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic.git" */,
+				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */,
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
-				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
-				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
-				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */,
-				1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */,
+				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes.git" */,
+				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */,
+				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */,
+				1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */,
+				1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -3116,7 +3126,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */ = {
+		1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud-deps/CDMarkdownKit.git";
 			requirement = {
@@ -3124,7 +3134,15 @@
 				revision = 5581a065b865a88accea1a305923d83e14d1beba;
 			};
 		};
-		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+		1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 10.41.1;
+			};
+		};
+		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
 			requirement = {
@@ -3132,7 +3150,7 @@
 				version = 5.15.7;
 			};
 		};
-		1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */ = {
+		1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSVGKitPlugin.git";
 			requirement = {
@@ -3140,7 +3158,7 @@
 				version = 1.4.0;
 			};
 		};
-		1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */ = {
+		1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mhdhejazi/Dynamic.git";
 			requirement = {
@@ -3148,7 +3166,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
+		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
 			requirement = {
@@ -3156,7 +3174,7 @@
 				minimumVersion = 10.1.1;
 			};
 		};
-		1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */ = {
+		1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/eddiekaiger/SwiftyAttributes.git";
 			requirement = {
@@ -3185,62 +3203,77 @@
 /* Begin XCSwiftPackageProductDependency section */
 		1F0ECBF42A68274400921E90 /* CDMarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */;
 			productName = CDMarkdownKit;
 		};
 		1F0ECBF62A68277000921E90 /* CDMarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */;
 			productName = CDMarkdownKit;
 		};
 		1F0ECBF82A68277C00921E90 /* CDMarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */;
 			productName = CDMarkdownKit;
+		};
+		1F0ECBFC2A73F21A00921E90 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
+			productName = Realm;
+		};
+		1F0ECBFE2A73F22900921E90 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
+			productName = Realm;
+		};
+		1F0ECC002A73F22F00921E90 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
+			productName = Realm;
 		};
 		1F45A1152A01D6EC005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */;
 			productName = SDWebImage;
 		};
 		1F45A1192A01D70E005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */;
 			productName = SDWebImage;
 		};
 		1F45A11D2A01D719005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */;
 			productName = SDWebImage;
 		};
 		1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */;
 			productName = SDWebImageSVGKitPlugin;
 		};
 		1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */;
 			productName = SDWebImageSVGKitPlugin;
 		};
 		1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */;
 			productName = SDWebImageSVGKitPlugin;
 		};
 		1F468E7528DCC6C60099597B /* Dynamic */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
+			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic.git" */;
 			productName = Dynamic;
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */;
 			productName = QRCodeReader;
 		};
 		1F66B72E29FABD01003FB168 /* SwiftyAttributes */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
+			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes.git" */;
 			productName = SwiftyAttributes;
 		};
 		1F7AE07729142CA1009F72AD /* NextcloudKit */ = {

@@ -1,12 +1,11 @@
 source 'https://cdn.cocoapods.org/'
-platform :ios, '14.0'
+platform :ios, '15.0'
 
 target "NextcloudTalk" do
 pod 'AFNetworking', "3.2.0"
 pod 'DateTools'
 pod 'JDStatusBarNotification'
 pod 'UICKeyChainStore'
-pod 'Realm', '10.30.0'
 pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod 'MBProgressHUD', '~> 1.2.0'
@@ -19,13 +18,11 @@ end
 target "NotificationServiceExtension" do
 pod 'AFNetworking', "3.2.0"
 pod 'UICKeyChainStore'
-pod 'Realm', '10.30.0'
 end
 
 target "ShareExtension" do
 pod 'AFNetworking', "3.2.0"
 pod 'UICKeyChainStore'
-pod 'Realm', '10.30.0'
 pod 'MBProgressHUD', '~> 1.2.0'
 pod 'TOCropViewController', '~> 2.6.0'
 end
