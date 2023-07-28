@@ -1809,14 +1809,14 @@
 			mainGroup = 2C0574741EDD9E8E00D9E7F2;
 			packageReferences = (
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
-				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic.git" */,
-				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */,
+				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
+				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
-				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes.git" */,
-				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */,
-				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */,
-				1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */,
-				1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */,
+				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
+				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */,
+				1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */,
+				1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -2690,7 +2690,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 17.0.0;
+				MARKETING_VERSION = 17.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2737,7 +2737,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 17.0.0;
+				MARKETING_VERSION = 17.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2824,7 +2824,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICKeyChainStore\"",
 					"\"${PODS_ROOT}/Realm/core\"",
 				);
-				MARKETING_VERSION = 17.0.0;
+				MARKETING_VERSION = 17.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
@@ -2917,7 +2917,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICKeyChainStore\"",
 					"\"${PODS_ROOT}/Realm/core\"",
 				);
-				MARKETING_VERSION = 17.0.0;
+				MARKETING_VERSION = 17.1.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
 				PRODUCT_NAME = ShareExtension;
@@ -2989,7 +2989,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 17.0.0;
+				MARKETING_VERSION = 17.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
@@ -3062,7 +3062,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 17.0.0;
+				MARKETING_VERSION = 17.1.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3126,7 +3126,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */ = {
+		1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud-deps/CDMarkdownKit.git";
 			requirement = {
@@ -3134,7 +3134,7 @@
 				revision = 5581a065b865a88accea1a305923d83e14d1beba;
 			};
 		};
-		1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */ = {
+		1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
@@ -3142,7 +3142,7 @@
 				version = 10.41.1;
 			};
 		};
-		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */ = {
+		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
 			requirement = {
@@ -3150,7 +3150,7 @@
 				version = 5.15.7;
 			};
 		};
-		1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */ = {
+		1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSVGKitPlugin.git";
 			requirement = {
@@ -3158,7 +3158,7 @@
 				version = 1.4.0;
 			};
 		};
-		1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic.git" */ = {
+		1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mhdhejazi/Dynamic.git";
 			requirement = {
@@ -3166,7 +3166,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */ = {
+		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
 			requirement = {
@@ -3174,7 +3174,7 @@
 				minimumVersion = 10.1.1;
 			};
 		};
-		1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes.git" */ = {
+		1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/eddiekaiger/SwiftyAttributes.git";
 			requirement = {
@@ -3203,77 +3203,77 @@
 /* Begin XCSwiftPackageProductDependency section */
 		1F0ECBF42A68274400921E90 /* CDMarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
 			productName = CDMarkdownKit;
 		};
 		1F0ECBF62A68277000921E90 /* CDMarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
 			productName = CDMarkdownKit;
 		};
 		1F0ECBF82A68277C00921E90 /* CDMarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit.git" */;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
 			productName = CDMarkdownKit;
 		};
 		1F0ECBFC2A73F21A00921E90 /* Realm */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
+			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = Realm;
 		};
 		1F0ECBFE2A73F22900921E90 /* Realm */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
+			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = Realm;
 		};
 		1F0ECC002A73F22F00921E90 /* Realm */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
+			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = Realm;
 		};
 		1F45A1152A01D6EC005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
 			productName = SDWebImage;
 		};
 		1F45A1192A01D70E005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
 			productName = SDWebImage;
 		};
 		1F45A11D2A01D719005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage.git" */;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
 			productName = SDWebImage;
 		};
 		1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
 			productName = SDWebImageSVGKitPlugin;
 		};
 		1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
 			productName = SDWebImageSVGKitPlugin;
 		};
 		1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin.git" */;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
 			productName = SDWebImageSVGKitPlugin;
 		};
 		1F468E7528DCC6C60099597B /* Dynamic */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic.git" */;
+			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
 			productName = Dynamic;
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
 			productName = QRCodeReader;
 		};
 		1F66B72E29FABD01003FB168 /* SwiftyAttributes */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes.git" */;
+			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
 			productName = SwiftyAttributes;
 		};
 		1F7AE07729142CA1009F72AD /* NextcloudKit */ = {
