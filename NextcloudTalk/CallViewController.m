@@ -772,6 +772,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         self->_lowerHandButton.hidden = !self->_isHandRaised;
 
+        // Only when the server supports recording-v1 we have access to callStartTime, otherwise hide the label
+        self->_callTimeLabel.hidden = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRecordingV1];
+
         NCAudioController *audioController = [NCAudioController sharedInstance];
         self->_speakerButton.hidden = ![audioController isAudioRouteChangeable];
 
@@ -816,6 +819,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
         if (self->_topBarButtonStackView.frame.origin.x < 0) {
             self->_speakerButton.hidden = YES;
+        }
+
+        [self->_topBarView setNeedsLayout];
+        [self->_topBarView layoutIfNeeded];
+
+        if (self->_topBarButtonStackView.frame.origin.x < 0) {
+            self->_callTimeLabel.hidden = YES;
         }
 
         [self adjustMoreButtonMenu];
@@ -1137,8 +1147,22 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 
     NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
-    int callDuration = (int)(currentTimestamp - self.room.callStartTime);
-    int oneHourInSeconds = 60 * 60;
+    long callDuration = currentTimestamp - self.room.callStartTime;
+    long oneHourInSeconds = 60 * 60;
+
+    long hours = callDuration / 3600;
+    long minutes = (callDuration / 60) % 60;
+    long seconds = callDuration % 60;
+
+    if (hours > 0) {
+        [self.callTimeLabel setText:[NSString stringWithFormat:@"%lu:%02lu:%02lu", hours, minutes, seconds]];
+    } else {
+        [self.callTimeLabel setText:[NSString stringWithFormat:@"%02lu:%02lu", minutes, seconds]];
+    }
+
+    if (self->_topBarButtonStackView.frame.origin.x < 0) {
+        [self adjustTopBar];
+    }
 
     if (callDuration == oneHourInSeconds) {
         NSString *callRunningFor1h = NSLocalizedString(@"Note the call is running since 1 hour already", nil);

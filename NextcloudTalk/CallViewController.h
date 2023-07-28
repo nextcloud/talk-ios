@@ -55,6 +55,7 @@
 @property (nonatomic, strong) IBOutlet AvatarBackgroundImageView *avatarBackgroundImageView;
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 @property (nonatomic, strong) IBOutlet NCChatTitleView *titleView;
+@property (nonatomic, strong) IBOutlet UILabel *callTimeLabel;
 
 - (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;
 - (void)toggleChatView;
