@@ -154,6 +154,12 @@ import UIKit
         // We can't use UIColor with systemBlueColor directly, because it will switch to indigo. So make sure we actually get a blue tint here
         self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
 
+        // Markdown formatting options
+        self.textView.registerMarkdownFormattingSymbol("**", withTitle: NSLocalizedString("Bold", comment: "Bold text"))
+        self.textView.registerMarkdownFormattingSymbol("_", withTitle: NSLocalizedString("Italic", comment: "Italic text"))
+        self.textView.registerMarkdownFormattingSymbol("~~", withTitle: NSLocalizedString("Strikethrough", comment: "Strikethrough text"))
+        self.textView.registerMarkdownFormattingSymbol("`", withTitle: NSLocalizedString("Code", comment: "Code block"))
+
         self.restorePendingMessage()
 
         self.rightButton.setTitle("", for: .normal)
