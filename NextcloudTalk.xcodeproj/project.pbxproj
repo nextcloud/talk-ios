@@ -65,6 +65,7 @@
 		1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07929142E62009F72AD /* NextcloudKit */; };
 		1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07B29142E6A009F72AD /* NextcloudKit */; };
 		1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
+		1F8848122A75B68D00063860 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
 		1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B22970644C00CABA33 /* ColorGenerator.swift */; };
 		1F8995B52973547700CABA33 /* WebRTCCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B42973547700CABA33 /* WebRTCCommon.swift */; };
 		1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */; };
@@ -919,6 +920,7 @@
 				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
 				1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */,
+				1F8848122A75B68D00063860 /* IntentsUI.framework in Frameworks */,
 				1F45A1252A01D8F7005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
