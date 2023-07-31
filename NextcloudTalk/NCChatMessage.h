@@ -80,6 +80,10 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) BOOL isSilent;
 @property (nonatomic, assign) BOOL isOfflineMessage;
 @property (nonatomic, assign) NSInteger offlineMessageRetryCount;
+@property (nonatomic, strong) RLMArray<RLMInt> *collapsedMessages;
+@property (nonatomic, strong) NCChatMessage *collapsedBy;
+@property (nonatomic, strong) NSString *collapsedMessage;
+@property (nonatomic, assign) BOOL isCollapsed;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;

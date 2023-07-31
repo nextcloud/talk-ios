@@ -525,6 +525,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     NSMutableAttributedString *message = [self parsedMessage];
 
+    if (self.collapsedMessage.length > 0) {
+        message = [[NSMutableAttributedString alloc] initWithString:self.collapsedMessage];
+        [message addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0, message.length)];
+    }
+
     //TODO: Further adjust for dark-mode ?
     [message addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:NSMakeRange(0,message.length)];
     

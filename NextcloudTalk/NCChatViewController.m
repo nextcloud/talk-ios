@@ -113,6 +113,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
                                     VoiceMessageTableViewCellDelegate,
                                     ObjectShareMessageTableViewCellDelegate,
                                     PollCreationViewControllerDelegate,
+                                    SystemMessageTableViewCellDelegate,
                                     AVAudioRecorderDelegate,
                                     AVAudioPlayerDelegate,
                                     CNContactPickerDelegate,
@@ -3497,8 +3498,68 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     BOOL sameActor = [newMessage.actorId isEqualToString:lastMessage.actorId];
     BOOL sameType = ([newMessage isSystemMessage] == [lastMessage isSystemMessage]);
     BOOL timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference;
+
+    if ([newMessage isSystemMessage] && [lastMessage isSystemMessage]) {
+        [self tryToGroupSystemMessage:newMessage withMessage:lastMessage];
+    }
     
     return sameActor & sameType & timeDiff;
+}
+
+- (void)tryToGroupSystemMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage
+{
+    if ([newMessage.systemMessage isEqualToString:lastMessage.systemMessage] &&
+        [newMessage.actorId isEqualToString:lastMessage.actorId]) {
+
+        if ([newMessage.systemMessage isEqualToString:@"user_added"]) {
+            [self collapseSystemMessage:newMessage withMessage:lastMessage];
+        }
+    }
+}
+
+- (void)collapseSystemMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage
+{
+    NCChatMessage *collapseByMessage = lastMessage;
+    if (lastMessage.collapsedBy) {
+        collapseByMessage = lastMessage.collapsedBy;
+    }
+
+    newMessage.collapsedBy = collapseByMessage;
+    newMessage.isCollapsed = YES;
+
+    [collapseByMessage.collapsedMessages addObject:@(newMessage.messageId)];
+    collapseByMessage.isCollapsed = YES;
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    if ([collapseByMessage.systemMessage isEqualToString:@"user_added"]) {
+        NSString *user0 = [[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
+        NSString *user1 = [[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
+        if ([collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"]) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:@"You added %@ and %@", user0, user1];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:@"You added %@ and %ld more participants", user0, collapseByMessage.collapsedMessages.count];
+            }
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:@"An administrator added %@ and %@", user0, user1];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:@"An administrator added %@ and %ld more participants", user0, collapseByMessage.collapsedMessages.count];
+            }
+        }
+    }
+
+    // Reload collapsedBy message if it's already laoded in the chat
+    NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+    NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:collapseByMessage.messageId];
+    if (indexPath) {
+        [reloadIndexPaths addObject:indexPath];
+
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    }
 }
 
 - (BOOL)couldRetireveHistory
@@ -3956,6 +4017,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
+        systemCell.delegate = self;
         [systemCell setupForMessage:message];
         return systemCell;
     }
@@ -4050,7 +4112,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Update messages (the ones that notify about an update in one message, they should not be displayed)
-    if (message.message.length == 0 || [message isUpdateMessage]) {
+    if (message.message.length == 0 || [message isUpdateMessage] || ([message isCollapsed] && message.collapsedBy > 0)) {
         return 0.0;
     }
     
@@ -4062,9 +4124,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [messageString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[ObjectShareMessageTableViewCell defaultFontSize]] range:NSMakeRange(0,messageString.length)];
         width -= kObjectShareMessageCellObjectTypeImageSize + 25; // 2*right(10) + left(5)
     }
+    if (message.collapsedMessage) {
+        messageString = [[NSMutableAttributedString alloc] initWithString:message.collapsedMessage];
+        [messageString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[SystemMessageTableViewCell defaultFontSize]] range:NSMakeRange(0,messageString.length)];
+    }
 
     // Calculate the height of the message. "boundingRectWithSize" does not work correctly with markdown, so we use this
-    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:message.parsedMarkdownForChat];
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:messageString];
     CGRect targetBounding = CGRectMake(0, 0, width, CGFLOAT_MAX);
     NSTextContainer *container = [[NSTextContainer alloc] initWithSize:targetBounding.size];
     container.lineFragmentPadding = 0;
@@ -4790,6 +4856,39 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             [pollCreationViewController close];
         }
     }];
+}
+
+#pragma mark - SystemMessageTableViewCellDelegate
+
+- (void)cellWantsToCollapseMessagesWithMessage:(NCChatMessage *)message
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+
+        BOOL collapse = !message.isCollapsed;
+        NSArray *messageIds = [message.collapsedMessages valueForKey:@"self"];
+        NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+
+        NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:message.messageId];
+        if (indexPath) {
+            [reloadIndexPaths addObject:indexPath];
+            message.isCollapsed = collapse;
+        }
+
+        for (NSNumber *messageId in messageIds) {
+            NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:messageId.intValue];
+            if (indexPath) {
+                [reloadIndexPaths addObject:indexPath];
+                NSDate *keyDate = [self->_dateSections objectAtIndex:indexPath.section];
+                NSMutableArray *messages = [self->_messages objectForKey:keyDate];
+                NCChatMessage *message = messages[indexPath.row];
+                message.isCollapsed = collapse;
+            }
+        }
+
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    });
 }
 
 #pragma mark - ChatMessageTableViewCellDelegate
