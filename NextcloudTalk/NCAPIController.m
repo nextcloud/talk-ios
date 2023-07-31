@@ -3116,6 +3116,37 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+#pragma mark - Remind me later
+
+- (NSURLSessionDataTask *)setReminderForMessage:(NCChatMessage *)message withTimestamp:(NSString *)timestamp withCompletionBlock:(SetReminderForMessage)block
+{
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:message.accountId];
+    NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
+    NSString *encodedToken = [message.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"chat/%@/%ld/reminder", encodedToken, (long)message.messageId];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
+
+    NSDictionary *parameters = @{
+        @"timestamp" : timestamp
+    };
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
+}
+
+
 #pragma mark - Error handling
 
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response

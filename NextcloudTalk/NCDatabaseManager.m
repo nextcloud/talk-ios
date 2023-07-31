@@ -80,6 +80,7 @@ NSString * const kCapabilityChatKeepNotifications   = @"chat-keep-notifications"
 NSString * const kCapabilityConversationAvatars     = @"avatar";
 NSString * const kCapabilityTypingIndicators        = @"typing-privacy";
 NSString * const kCapabilityPublishingPermissions   = @"publishing-permissions";
+NSString * const kCapabilityRemindMeLater           = @"remind-me-later";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 
