@@ -3508,17 +3508,22 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)tryToGroupSystemMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage
 {
-    if ([newMessage.systemMessage isEqualToString:lastMessage.systemMessage] &&
-        [newMessage.actorId isEqualToString:lastMessage.actorId]) {
-
-        if ([newMessage.systemMessage isEqualToString:@"user_added"]) {
-            [self collapseSystemMessage:newMessage withMessage:lastMessage];
-        } else if ([newMessage.systemMessage isEqualToString:@"user_removed"]) {
-            [self collapseSystemMessage:newMessage withMessage:lastMessage];
-        } else if ([newMessage.systemMessage isEqualToString:@"moderator_promoted"]) {
-            [self collapseSystemMessage:newMessage withMessage:lastMessage];
-        } else if ([newMessage.systemMessage isEqualToString:@"moderator_demoted"]) {
-            [self collapseSystemMessage:newMessage withMessage:lastMessage];
+    if ([newMessage.systemMessage isEqualToString:lastMessage.systemMessage]) {
+        // Same action and actor
+        if ([newMessage.actorId isEqualToString:lastMessage.actorId]) {
+            if ([newMessage.systemMessage isEqualToString:@"user_added"] ||
+                [newMessage.systemMessage isEqualToString:@"user_removed"] ||
+                [newMessage.systemMessage isEqualToString:@"moderator_promoted"] ||
+                [newMessage.systemMessage isEqualToString:@"moderator_demoted"]) {
+                [self collapseSystemMessage:newMessage withMessage:lastMessage];
+            }
+        }
+        // Same action different actors
+        else {
+            if ([newMessage.systemMessage isEqualToString:@"call_joined"] ||
+                [newMessage.systemMessage isEqualToString:@"call_left"]) {
+                [self collapseSystemMessage:newMessage withMessage:lastMessage];
+            }
         }
     }
 }
@@ -3600,6 +3605,46 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted %@ and %@ from moderators", nil), user0, user1];
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted %@ and %ld more participants from moderators", nil), user0, collapseByMessage.collapsedMessages.count];
+            }
+        }
+    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_joined"]) {
+        NSString *actor0 = collapseByMessage.actorDisplayName;
+        NSString *actor1 = newMessage.actorDisplayName;
+        BOOL isActor0Self = [collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"];
+        BOOL isActor1Self = [newMessage.actorId isEqualToString:activeAccount.userId] && [newMessage.actorType isEqualToString:@"users"];
+
+        if (isActor0Self || isActor1Self || collapseByMessage.collapsedIncludesSelf) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %@ joined the call", nil), isActor0Self ? actor1 : actor0];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %ld more participants joined the call", nil), collapseByMessage.collapsedMessages.count];
+            }
+            collapseByMessage.collapsedIncludesSelf = YES;
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %@ joined the call", nil), actor0, actor1];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %ld more participants joined the call", nil), actor0, collapseByMessage.collapsedMessages.count];
+            }
+        }
+    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_left"]) {
+        NSString *actor0 = collapseByMessage.actorDisplayName;
+        NSString *actor1 = newMessage.actorDisplayName;
+        BOOL isActor0Self = [collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"];
+        BOOL isActor1Self = [newMessage.actorId isEqualToString:activeAccount.userId] && [newMessage.actorType isEqualToString:@"users"];
+
+        if (isActor0Self || isActor1Self || collapseByMessage.collapsedIncludesSelf) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %@ left the call", nil), isActor0Self ? actor1 : actor0];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %ld more participants left the call", nil), collapseByMessage.collapsedMessages.count];
+            }
+            collapseByMessage.collapsedIncludesSelf = YES;
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %@ left the call", nil), actor0, actor1];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %ld more participants left the call", nil), actor0, collapseByMessage.collapsedMessages.count];
             }
         }
     }
