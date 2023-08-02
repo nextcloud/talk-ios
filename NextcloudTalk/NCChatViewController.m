@@ -3543,83 +3543,186 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
 
+    NSString *user0 = [[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
+    NSString *user1 = [[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
+    BOOL isUser0Self = [[[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"id"] isEqualToString:activeAccount.userId] &&
+                        [[[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"type"] isEqualToString:@"user"];
+    BOOL isUser1Self = [[[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"id"] isEqualToString:activeAccount.userId] &&
+                        [[[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"type"] isEqualToString:@"user"];
+    NSString *actor0 = collapseByMessage.actorDisplayName;
+    NSString *actor1 = newMessage.actorDisplayName;
+    BOOL isActor0Self = [collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"];
+    BOOL isActor1Self = [newMessage.actorId isEqualToString:activeAccount.userId] && [newMessage.actorType isEqualToString:@"users"];
+    BOOL isActor0Admin = [collapseByMessage.actorId isEqualToString:@"cli"] && [collapseByMessage.actorType isEqualToString:@"guests"];
+
+    if (isUser0Self || isUser1Self) {
+        collapseByMessage.collapsedIncludesUserSelf = YES;
+    }
+
+    if (isActor0Self || isActor1Self) {
+        collapseByMessage.collapsedIncludesActorSelf = YES;
+    }
+
     if ([collapseByMessage.systemMessage isEqualToString:@"user_added"]) {
-        NSString *user0 = [[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        NSString *user1 = [[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        if ([collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"]) {
+
+        if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You added %@ and %@", nil), user0, user1];
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You added %@ and %ld more participants", nil), user0, collapseByMessage.collapsedMessages.count];
             }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added you and %@", nil), isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added %@ and %@", nil), user0, user1];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added you and %ld more participants", nil), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added %@ and %ld more participants", nil), user0, collapseByMessage.collapsedMessages.count];
+                }
+            }
         } else {
             if (collapseByMessage.collapsedMessages.count == 1) {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added %@ and %@", nil), user0, user1];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ added you and %@", nil), actor0, isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ added %@ and %@", nil), actor0, user0, user1];
+                }
             } else {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added %@ and %ld more participants", nil), user0, collapseByMessage.collapsedMessages.count];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ added you and %ld more participants", nil), actor0, collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ added %@ and %ld more participants", nil), actor0, user0, collapseByMessage.collapsedMessages.count];
+                }
             }
         }
+
     } else if ([collapseByMessage.systemMessage isEqualToString:@"user_removed"]) {
-        NSString *user0 = [[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        NSString *user1 = [[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        if ([collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"]) {
+
+        if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You removed %@ and %@", nil), user0, user1];
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You removed %@ and %ld more participants", nil), user0, collapseByMessage.collapsedMessages.count];
             }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed you and %@", nil), isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed %@ and %@", nil), user0, user1];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed you and %ld more participants", nil), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed %@ and %ld more participants", nil), user0, collapseByMessage.collapsedMessages.count];
+                }
+            }
         } else {
             if (collapseByMessage.collapsedMessages.count == 1) {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed %@ and %@", nil), user0, user1];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ removed you and %@", nil), actor0, isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ removed %@ and %@", nil), actor0, user0, user1];
+                }
             } else {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed %@ and %ld more participants", nil), user0, collapseByMessage.collapsedMessages.count];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ removed you and %ld more participants", nil), actor0, collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ removed %@ and %ld more participants", nil), actor0, user0, collapseByMessage.collapsedMessages.count];
+                }
             }
         }
+
     } else if ([collapseByMessage.systemMessage isEqualToString:@"moderator_promoted"]) {
-        NSString *user0 = [[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        NSString *user1 = [[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        if ([collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"]) {
+
+        if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You promoted %@ and %@ to moderators", nil), user0, user1];
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You promoted %@ and %ld more participants to moderators", nil), user0, collapseByMessage.collapsedMessages.count];
             }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted you and %@ to moderators", nil), isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted %@ and %@ to moderators", nil), user0, user1];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted you and %ld more participants to moderators", nil), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted %@ and %ld more participants to moderators", nil), user0, collapseByMessage.collapsedMessages.count];
+                }
+            }
         } else {
             if (collapseByMessage.collapsedMessages.count == 1) {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted %@ and %@ to moderators", nil), user0, user1];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ promoted you and %@ to moderators", nil), actor0, isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ promoted %@ and %@ to moderators", nil), actor0, user0, user1];
+                }
             } else {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted %@ and %ld more participants to moderators", nil), user0, collapseByMessage.collapsedMessages.count];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ promoted you and %ld more participants to moderators", nil), actor0, collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ promoted %@ and %ld more participants to moderators", nil), actor0, user0, collapseByMessage.collapsedMessages.count];
+                }
             }
         }
+
     } else if ([collapseByMessage.systemMessage isEqualToString:@"moderator_demoted"]) {
-        NSString *user0 = [[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        NSString *user1 = [[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"name"];
-        if ([collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"]) {
+
+        if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You demoted %@ and %@ from moderators", nil), user0, user1];
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You demoted %@ and %ld more participants from moderators", nil), user0, collapseByMessage.collapsedMessages.count];
             }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted you and %@ from moderators", nil), isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted %@ and %@ from moderators", nil), user0, user1];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted you and %ld more participants from moderators", nil), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted %@ and %ld more participants from moderators", nil), user0, collapseByMessage.collapsedMessages.count];
+                }
+            }
         } else {
             if (collapseByMessage.collapsedMessages.count == 1) {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted %@ and %@ from moderators", nil), user0, user1];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ demoted you and %@ from moderators", nil), actor0, isUser0Self ? user1 : user0];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ demoted %@ and %@ from moderators", nil), actor0, user0, user1];
+                }
             } else {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted %@ and %ld more participants from moderators", nil), user0, collapseByMessage.collapsedMessages.count];
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ demoted you and %ld more participants from moderators", nil), actor0, collapseByMessage.collapsedMessages.count];;
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ demoted %@ and %ld more participants from moderators", nil), actor0, user0, collapseByMessage.collapsedMessages.count];
+                }
             }
         }
-    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_joined"]) {
-        NSString *actor0 = collapseByMessage.actorDisplayName;
-        NSString *actor1 = newMessage.actorDisplayName;
-        BOOL isActor0Self = [collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"];
-        BOOL isActor1Self = [newMessage.actorId isEqualToString:activeAccount.userId] && [newMessage.actorType isEqualToString:@"users"];
 
-        if (isActor0Self || isActor1Self || collapseByMessage.collapsedIncludesSelf) {
+    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_joined"]) {
+
+        if (collapseByMessage.collapsedIncludesActorSelf) {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %@ joined the call", nil), isActor0Self ? actor1 : actor0];
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %ld more participants joined the call", nil), collapseByMessage.collapsedMessages.count];
             }
-            collapseByMessage.collapsedIncludesSelf = YES;
         } else {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %@ joined the call", nil), actor0, actor1];
@@ -3627,19 +3730,15 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %ld more participants joined the call", nil), actor0, collapseByMessage.collapsedMessages.count];
             }
         }
-    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_left"]) {
-        NSString *actor0 = collapseByMessage.actorDisplayName;
-        NSString *actor1 = newMessage.actorDisplayName;
-        BOOL isActor0Self = [collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"];
-        BOOL isActor1Self = [newMessage.actorId isEqualToString:activeAccount.userId] && [newMessage.actorType isEqualToString:@"users"];
 
-        if (isActor0Self || isActor1Self || collapseByMessage.collapsedIncludesSelf) {
+    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_left"]) {
+
+        if (collapseByMessage.collapsedIncludesActorSelf) {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %@ left the call", nil), isActor0Self ? actor1 : actor0];
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %ld more participants left the call", nil), collapseByMessage.collapsedMessages.count];
             }
-            collapseByMessage.collapsedIncludesSelf = YES;
         } else {
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %@ left the call", nil), actor0, actor1];

@@ -83,7 +83,8 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, strong) RLMArray<RLMInt> *collapsedMessages;
 @property (nonatomic, strong) NCChatMessage *collapsedBy;
 @property (nonatomic, strong) NSString *collapsedMessage;
-@property (nonatomic, assign) BOOL collapsedIncludesSelf;
+@property (nonatomic, assign) BOOL collapsedIncludesActorSelf;
+@property (nonatomic, assign) BOOL collapsedIncludesUserSelf;
 @property (nonatomic, assign) BOOL isCollapsed;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
