@@ -525,7 +525,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     NSMutableAttributedString *message = [self parsedMessage];
 
-    if (self.collapsedMessage.length > 0) {
+    if (self.collapsedMessage && self.isCollapsed) {
         message = [[NSMutableAttributedString alloc] initWithString:self.collapsedMessage];
         [message addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0, message.length)];
     }

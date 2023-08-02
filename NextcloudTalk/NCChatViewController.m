@@ -4223,7 +4223,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [messageString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[ObjectShareMessageTableViewCell defaultFontSize]] range:NSMakeRange(0,messageString.length)];
         width -= kObjectShareMessageCellObjectTypeImageSize + 25; // 2*right(10) + left(5)
     }
-    if (message.collapsedMessage) {
+    if (message.collapsedMessage && message.isCollapsed) {
         messageString = [[NSMutableAttributedString alloc] initWithString:message.collapsedMessage];
         [messageString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[SystemMessageTableViewCell defaultFontSize]] range:NSMakeRange(0,messageString.length)];
     }
