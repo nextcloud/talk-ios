@@ -1165,7 +1165,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 
     if (callDuration == oneHourInSeconds) {
-        NSString *callRunningFor1h = NSLocalizedString(@"Note the call is running since 1 hour already", nil);
+        NSString *callRunningFor1h = NSLocalizedString(@"The call has been running for one hour", nil);
         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:callRunningFor1h dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
     }
 }
