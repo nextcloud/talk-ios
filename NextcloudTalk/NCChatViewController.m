@@ -3499,7 +3499,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     BOOL sameType = ([newMessage isSystemMessage] == [lastMessage isSystemMessage]);
     BOOL timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference;
 
-    if ([newMessage isSystemMessage] && [lastMessage isSystemMessage]) {
+    // Try to collapse system messages if the new message is not already collapsing some messages
+    if ([newMessage isSystemMessage] && [lastMessage isSystemMessage] && newMessage.collapsedMessages.count == 0) {
         [self tryToGroupSystemMessage:newMessage withMessage:lastMessage];
     }
     
