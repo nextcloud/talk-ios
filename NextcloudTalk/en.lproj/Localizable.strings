@@ -728,6 +728,9 @@
 "External" = "External";
 
 /* No comment provided by engineer. */
+"Failed to add reminder" = "Failed to add reminder";
+
+/* No comment provided by engineer. */
 "Failed to connect to %@" = "Failed to connect to %@";
 
 /* No comment provided by engineer. */
@@ -864,6 +867,9 @@
 
 /* No comment provided by engineer. */
 "Last sync" = "Last sync";
+
+/* Remind me later today about that message */
+"Later today" = "Later today";
 
 /* No comment provided by engineer. */
 "Leave" = "Leave";
@@ -1048,6 +1054,12 @@
 /* No comment provided by engineer. */
 "Next" = "Next";
 
+/* Remind me next monday about that message */
+"Next Monday" = "Next Monday";
+
+/* Remind me next saturday about that message */
+"Next Saturday" = "Next Saturday";
+
 /* No comment provided by engineer. */
 "Nextcloud server not found" = "Nextcloud server not found";
 
@@ -1178,6 +1190,9 @@
 "Photo library access" = "Photo library access";
 
 /* No comment provided by engineer. */
+"Pick date & time" = "Pick date & time";
+
+/* No comment provided by engineer. */
 "Please check that you entered a valid server address." = "Please check that you entered a valid server address.";
 
 /* No comment provided by engineer. */
@@ -1266,6 +1281,9 @@
 
 /* No comment provided by engineer. */
 "Reference API supported?" = "Reference API supported?";
+
+/* Remind me later about that message */
+"Remind me later" = "Remind me later";
 
 /* No comment provided by engineer. */
 "Remove" = "Remove";
@@ -1472,6 +1490,9 @@
 "Submit vote" = "Submit vote";
 
 /* No comment provided by engineer. */
+"Successfully added reminder" = "Successfully added reminder";
+
+/* No comment provided by engineer. */
 "Switch account" = "Switch account";
 
 /* No comment provided by engineer. */
@@ -1530,6 +1551,9 @@
 
 /* No comment provided by engineer. */
 "Today" = "Today";
+
+/* Remind me tomorrow about that message */
+"Tomorrow" = "Tomorrow";
 
 /* TRANSLATORS this is for transcribing a voice message to text */
 "Transcribe" = "Transcribe";

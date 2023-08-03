@@ -162,8 +162,9 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
 @property (nonatomic, strong) NSTimer *playerProgressTimer;
 @property (nonatomic, strong) NCChatFileStatus *playerAudioFileStatus;
 @property (nonatomic, strong) EmojiTextField *emojiTextField;
-@property (nonatomic, strong) NCChatMessage *reactingMessage;
-@property (nonatomic, strong) NSIndexPath *lastMessageBeforeReaction;
+@property (nonatomic, strong) DatePickerTextField *datePickerTextField;
+@property (nonatomic, strong) NCChatMessage *interactingMessage;
+@property (nonatomic, strong) NSIndexPath *lastMessageBeforeInteraction;
 @property (nonatomic, strong) NSTimer *messageExpirationTimer;
 @property (nonatomic, strong) UIButton *scrollToBottomButton;
 @property (nonatomic, strong) PHPickerViewController *photoPicker;
@@ -338,6 +339,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     _emojiTextField = [[EmojiTextField alloc] init];
     _emojiTextField.delegate = self;
     [self.view addSubview:_emojiTextField];
+
+    // Add datePicker textfield for remind me later
+    _datePickerTextField = [[DatePickerTextField alloc] init];
+    _datePickerTextField.delegate = self;
+    [self.view addSubview:_datePickerTextField];
 
     // Set delegate to retrieve typing events
     self.textView.delegate = self;
@@ -682,12 +688,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     UIResponder *currentResponder = [UIResponder slk_currentFirstResponder];
     // Skips if it's not the emoji text field
-    if (currentResponder && ![currentResponder isKindOfClass:[EmojiTextField class]]) {
+    if (currentResponder && ![currentResponder isKindOfClass:[EmojiTextField class]] && ![currentResponder isKindOfClass:[DatePickerTextField class]]) {
         return;
     }
     CGRect keyboardRect = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     [self updateViewToShowOrHideEmojiKeyboard:keyboardRect.size.height];
-    NSIndexPath *indexPath = [self indexPathForMessage:self->_reactingMessage];
+    NSIndexPath *indexPath = [self indexPathForMessage:self->_interactingMessage];
     if (indexPath) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             CGRect cellRect = [self.tableView rectForRowAtIndexPath:indexPath];
@@ -703,14 +709,14 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 {
     UIResponder *currentResponder = [UIResponder slk_currentFirstResponder];
     // Skips if it's not the emoji text field
-    if (currentResponder && ![currentResponder isKindOfClass:[EmojiTextField class]]) {
+    if (currentResponder && ![currentResponder isKindOfClass:[EmojiTextField class]] && ![currentResponder isKindOfClass:[DatePickerTextField class]]) {
         return;
     }
     
     [self updateViewToShowOrHideEmojiKeyboard:0.0];
-    if (_lastMessageBeforeReaction && [NCUtils isValidIndexPath:_lastMessageBeforeReaction forTableView:self.tableView]) {
+    if (_lastMessageBeforeInteraction && [NCUtils isValidIndexPath:_lastMessageBeforeInteraction forTableView:self.tableView]) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.tableView scrollToRowAtIndexPath:self->_lastMessageBeforeReaction atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+            [self.tableView scrollToRowAtIndexPath:self->_lastMessageBeforeInteraction atScrollPosition:UITableViewScrollPositionBottom animated:YES];
         });
     }
 }
@@ -1591,8 +1597,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     // Present emoji keyboard
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.reactingMessage = message;
-        self.lastMessageBeforeReaction = [[self.tableView indexPathsForVisibleRows] lastObject];
+        self.interactingMessage = message;
+        self.lastMessageBeforeInteraction = [[self.tableView indexPathsForVisibleRows] lastObject];
 
         if ([NCUtils isiOSAppOnMac]) {
             // Move the emojiTextField to the position of the cell
@@ -1715,8 +1721,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-    if (textField == _emojiTextField && _reactingMessage) {
-        _reactingMessage = nil;
+    if (textField == _emojiTextField && _interactingMessage) {
+        _interactingMessage = nil;
         [textField resignFirstResponder];
     }
     return YES;
@@ -1724,8 +1730,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    if (textField == _emojiTextField && string.isSingleEmoji && _reactingMessage) {
-        [self addReaction:string toChatMessage:_reactingMessage];
+    if (textField == _emojiTextField && string.isSingleEmoji && _interactingMessage) {
+        [self addReaction:string toChatMessage:_interactingMessage];
         [textField resignFirstResponder];
     }
     return YES;
@@ -1733,8 +1739,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
-    if (textField == _emojiTextField && _reactingMessage) {
-        _reactingMessage = nil;
+    if (textField == _emojiTextField && _interactingMessage) {
+        _interactingMessage = nil;
     }
 }
 
@@ -4181,6 +4187,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [self acceptAutoCompletionWithString:mentionWithWhiteSpace keepPrefix:YES];
     } else {
         [self.emojiTextField resignFirstResponder];
+        [self.datePickerTextField resignFirstResponder];
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
@@ -4262,6 +4269,96 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }];
         
         [actions addObject:forwardAction];
+    }
+
+    // Remind me later
+    if (!message.sendingFailed && !message.isOfflineMessage && !message.isDeletedMessage && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRemindMeLater]) {
+        UIImage *remindMeLaterImage = [UIImage systemImageNamed:@"alarm"];
+        NSDate *now = [NSDate date];
+
+        void (^setReminderCompletion)(NSError * error) = ^void(NSError *error) {
+            if (error) {
+                [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Failed to add reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleError];
+            } else {
+                [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Successfully added reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+            }
+        };
+
+        // Remind me later today
+        NSDate *reminderTime = [NCUtils todayWithHour:18 withMinute:0 withSecond:0];
+        UIAction *laterToday = [UIAction actionWithTitle:NSLocalizedString(@"Later today", @"Remind me later today about that message") image:nil identifier:nil handler:^(UIAction *action) {
+            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+        }];
+        laterToday.subtitle = [NCUtils getTimeFromDate:reminderTime];
+
+        // Remind me tomorrow
+        reminderTime = [[NCUtils todayWithHour:8 withMinute:0 withSecond:0] dateByAddingDays:1];
+        UIAction *tomorrow = [UIAction actionWithTitle:NSLocalizedString(@"Tomorrow", @"Remind me tomorrow about that message") image:nil identifier:nil handler:^(UIAction *action) {
+            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+        }];
+        tomorrow.subtitle = [NCUtils getTimeFromDate:reminderTime];
+
+        // Remind me next saturday
+        reminderTime = [NCUtils todayWithHour:8 withMinute:0 withSecond:0];
+        reminderTime = [NCUtils getNextWeekday:7 fromReferenceDate:reminderTime];
+        UIAction *nextSaturday = [UIAction actionWithTitle:NSLocalizedString(@"Next Saturday", @"Remind me next saturday about that message") image:nil identifier:nil handler:^(UIAction *action) {
+            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+        }];
+        nextSaturday.subtitle = [NCUtils getTimeFromDate:reminderTime];
+
+        // Remind me next monday
+        reminderTime = [NCUtils todayWithHour:8 withMinute:0 withSecond:0];
+        reminderTime = [NCUtils getNextWeekday:2 fromReferenceDate:reminderTime];
+        UIAction *nextMonday = [UIAction actionWithTitle:NSLocalizedString(@"Next Monday", @"Remind me next monday about that message") image:nil identifier:nil handler:^(UIAction *action) {
+            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+        }];
+        nextMonday.subtitle = [NCUtils getTimeFromDate:reminderTime];
+
+        // Custom reminder
+        __weak typeof(self) weakSelf = self;
+        UIAction *customReminderAction = [UIAction actionWithTitle:NSLocalizedString(@"Pick date & time", @"") image:[UIImage systemImageNamed:@"calendar.badge.clock"] identifier:nil handler:^(UIAction *action) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.interactingMessage = message;
+                self.lastMessageBeforeInteraction = [[self.tableView indexPathsForVisibleRows] lastObject];
+
+                [weakSelf.datePickerTextField getDateWithCompletion:^(NSDate * _Nonnull selectedDate) {
+                    NSString *timestamp = [NSString stringWithFormat:@"%.0f", [selectedDate timeIntervalSince1970]];
+
+                    [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+                }];
+            });
+        }];
+
+        // Show custom reminder with a separator -> use inline menu
+        UIMenu *customReminder = [UIMenu menuWithTitle:@""
+                                                 image:nil
+                                            identifier:nil
+                                               options:UIMenuOptionsDisplayInline
+                                              children:@[customReminderAction]];
+
+        NSArray *subActions;
+
+        if (now.hour >= 18) {
+            subActions = @[tomorrow, nextSaturday, nextMonday, customReminder];
+        } else {
+            subActions = @[laterToday, tomorrow, nextSaturday, nextMonday, customReminder];
+        }
+
+        UIMenu *remindeMeLaterMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Remind me later", @"Remind me later about that message")
+                                                     image:remindMeLaterImage
+                                                identifier:nil
+                                                   options:0
+                                                  children:subActions];
+
+        [actions addObject:remindeMeLaterMenu];
     }
 
     // Re-send option
