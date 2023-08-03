@@ -1282,9 +1282,6 @@
 /* No comment provided by engineer. */
 "Reference API supported?" = "Reference API supported?";
 
-/* Remind me later about that message */
-"Remind me later" = "Remind me later";
-
 /* No comment provided by engineer. */
 "Remove" = "Remove";
 
@@ -1389,6 +1386,9 @@
 
 /* No comment provided by engineer. */
 "Set password:" = "Set password:";
+
+/* Remind me later about that message */
+"Set reminder" = "Set reminder";
 
 /* No comment provided by engineer. */
 "Set status message" = "Set status message";

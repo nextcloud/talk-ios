@@ -4354,7 +4354,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             subActions = @[laterToday, tomorrow, nextSaturday, nextMonday, customReminder];
         }
 
-        UIMenu *remindeMeLaterMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Remind me later", @"Remind me later about that message")
+        UIMenu *remindeMeLaterMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Set reminder", @"Remind me later about that message")
                                                      image:remindMeLaterImage
                                                 identifier:nil
                                                    options:0
