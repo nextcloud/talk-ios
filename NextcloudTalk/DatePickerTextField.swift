@@ -39,7 +39,7 @@
         self.tintColor = .clear
     }
 
-    public func getDate(completion: @escaping (Date) -> Void) {
+    public func getDate(startingDate: Date?, minimumDate: Date?, completion: @escaping (Date) -> Void) {
         guard self.canBecomeFirstResponder else {
             return
         }
@@ -47,6 +47,14 @@
         datePicker.datePickerMode = .dateAndTime
         datePicker.locale = .current
         datePicker.preferredDatePickerStyle = .wheels
+
+        if let startingDate {
+            datePicker.date = startingDate
+        }
+
+        if let minimumDate {
+            datePicker.minimumDate = minimumDate
+        }
 
         self.inputView = datePicker
 
