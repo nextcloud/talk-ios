@@ -3516,20 +3516,26 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 [newMessage.systemMessage isEqualToString:@"user_removed"] ||
                 [newMessage.systemMessage isEqualToString:@"moderator_promoted"] ||
                 [newMessage.systemMessage isEqualToString:@"moderator_demoted"]) {
-                [self collapseSystemMessage:newMessage withMessage:lastMessage];
+                [self collapseSystemMessage:newMessage andMessage:lastMessage withAction:newMessage.systemMessage];
             }
         }
         // Same action different actors
         else {
             if ([newMessage.systemMessage isEqualToString:@"call_joined"] ||
                 [newMessage.systemMessage isEqualToString:@"call_left"]) {
-                [self collapseSystemMessage:newMessage withMessage:lastMessage];
+                [self collapseSystemMessage:newMessage andMessage:lastMessage withAction:newMessage.systemMessage];
             }
+        }
+    } else if ([newMessage.actorId isEqualToString:lastMessage.actorId]) {
+        // Call reconnection
+        if ([newMessage.systemMessage isEqualToString:@"call_joined"] &&
+            [lastMessage.systemMessage isEqualToString:@"call_left"]) {
+            [self collapseSystemMessage:newMessage andMessage:lastMessage withAction:@"call_reconnected"];
         }
     }
 }
 
-- (void)collapseSystemMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage
+- (void)collapseSystemMessage:(NCChatMessage *)newMessage andMessage:(NCChatMessage *)lastMessage withAction:(NSString *)action
 {
     NCChatMessage *collapseByMessage = lastMessage;
     if (lastMessage.collapsedBy) {
@@ -3568,7 +3574,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         collapseByMessage.collapsedIncludesActorSelf = YES;
     }
 
-    if ([collapseByMessage.systemMessage isEqualToString:@"user_added"]) {
+    if ([action isEqualToString:@"user_added"]) {
 
         if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
@@ -3606,7 +3612,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
         }
 
-    } else if ([collapseByMessage.systemMessage isEqualToString:@"user_removed"]) {
+    } else if ([action isEqualToString:@"user_removed"]) {
 
         if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
@@ -3644,7 +3650,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
         }
 
-    } else if ([collapseByMessage.systemMessage isEqualToString:@"moderator_promoted"]) {
+    } else if ([action isEqualToString:@"moderator_promoted"]) {
 
         if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
@@ -3682,7 +3688,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
         }
 
-    } else if ([collapseByMessage.systemMessage isEqualToString:@"moderator_demoted"]) {
+    } else if ([action isEqualToString:@"moderator_demoted"]) {
 
         if (isActor0Self) {
             if (collapseByMessage.collapsedMessages.count == 1) {
@@ -3720,7 +3726,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
         }
 
-    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_joined"]) {
+    } else if ([action isEqualToString:@"call_joined"]) {
 
         if (collapseByMessage.collapsedIncludesActorSelf) {
             if (collapseByMessage.collapsedMessages.count == 1) {
@@ -3736,7 +3742,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             }
         }
 
-    } else if ([collapseByMessage.systemMessage isEqualToString:@"call_left"]) {
+    } else if ([action isEqualToString:@"call_left"]) {
 
         if (collapseByMessage.collapsedIncludesActorSelf) {
             if (collapseByMessage.collapsedMessages.count == 1) {
@@ -3750,6 +3756,12 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             } else {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ and %ld more participants left the call", nil), actor0, collapseByMessage.collapsedMessages.count];
             }
+        }
+    } else if ([action isEqualToString:@"call_reconnected"]) {
+        if (collapseByMessage.collapsedIncludesActorSelf) {
+            collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You reconnected to the call", nil)];
+        } else {
+            collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"%@ reconnected to the call", nil), actor0];
         }
     }
 
