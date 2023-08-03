@@ -3534,6 +3534,10 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     NCChatMessage *collapseByMessage = lastMessage;
     if (lastMessage.collapsedBy) {
         collapseByMessage = lastMessage.collapsedBy;
+        collapseByMessage.collapsedBy = nil;
+
+        [self tryToGroupSystemMessage:newMessage withMessage:collapseByMessage];
+        return;
     }
 
     newMessage.collapsedBy = collapseByMessage;
