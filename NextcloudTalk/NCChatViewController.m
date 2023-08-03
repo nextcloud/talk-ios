@@ -4329,8 +4329,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                 self.interactingMessage = message;
                 self.lastMessageBeforeInteraction = [[self.tableView indexPathsForVisibleRows] lastObject];
 
-                NSDate *startingDate = [[NSDate date] dateByAddingHours:1];
-                NSDate *minimumDate = [[NSDate date] dateByAddingMinutes:15];
+                NSDate *startingDate = [now dateByAddingHours:1];
+                NSDate *minimumDate = [now dateByAddingMinutes:15];
                 [weakSelf.datePickerTextField getDateWithStartingDate:startingDate minimumDate:minimumDate completion:^(NSDate * _Nonnull selectedDate) {
                     NSString *timestamp = [NSString stringWithFormat:@"%.0f", [selectedDate timeIntervalSince1970]];
 
