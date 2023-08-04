@@ -424,6 +424,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 
     NSString *originalMessage = self.file.contactName ? self.file.contactName : self.message;
+    if (self.collapsedMessage && self.isCollapsed) {
+        originalMessage = self.collapsedMessage;
+    }
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
 
@@ -439,6 +442,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         NSString *parameterKey = [[parameter stringByReplacingOccurrencesOfString:@"{" withString:@""]
                                   stringByReplacingOccurrencesOfString:@"}" withString:@""];
         NSDictionary *parameterDict = [[self messageParameters] objectForKey:parameterKey];
+        if (self.collapsedMessage && self.isCollapsed) {
+            parameterDict = [[self collapsedMessageParameters] objectForKey:parameterKey];
+        }
         if (parameterDict) {
             NCMessageParameter *messageParameter = [[NCMessageParameter alloc] initWithDictionary:parameterDict] ;
             // Default replacement string is the parameter name
@@ -524,11 +530,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 - (NSMutableAttributedString *)systemMessageFormat
 {
     NSMutableAttributedString *message = [self parsedMessage];
-
-    if (self.collapsedMessage && self.isCollapsed) {
-        message = [[NSMutableAttributedString alloc] initWithString:self.collapsedMessage];
-        [message addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0, message.length)];
-    }
 
     //TODO: Further adjust for dark-mode ?
     [message addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:NSMakeRange(0,message.length)];
@@ -867,6 +868,39 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             [realm transactionWithBlock:^{
                 update();
             }];
+        }
+    }
+}
+
+- (NSDictionary *)collapsedMessageParameters
+{
+    NSDictionary *messageParametersDict = @{};
+    NSData *data = [self.collapsedMessageParametersJSONString dataUsingEncoding:NSUTF8StringEncoding];
+    if (data) {
+        NSError* error;
+        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:0
+                                                                   error:&error];
+        if (jsonData) {
+            messageParametersDict = jsonData;
+        } else {
+            NSLog(@"Error retrieving collapsed message parameters JSON data: %@", error);
+        }
+    }
+    return messageParametersDict;
+}
+
+- (void)setCollapsedMessageParameters:(NSDictionary *)messageParameters
+{
+    if ([messageParameters isKindOfClass:[NSDictionary class]]) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messageParameters
+                                                           options:0
+                                                             error:&error];
+        if (jsonData) {
+            self.collapsedMessageParametersJSONString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error generating collapsed message parameters JSON string: %@", error);
         }
     }
 }
