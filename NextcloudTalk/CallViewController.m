@@ -105,6 +105,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSTimer *_batchUpdateTimer;
     UIImageSymbolConfiguration *_barButtonsConfiguration;
     CGFloat _lastScheduledReaction;
+    NSTimer *_callDurationTimer;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -281,6 +282,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sensorStateChange:)
                                                  name:UIDeviceProximityStateDidChangeNotification object:nil];
+
+    // callStartTime is only available if we have the "recording-v1" capability
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRecordingV1]) {
+        _callDurationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(callDurationTimerUpdate) userInfo:nil repeats:YES];
+    }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
@@ -766,6 +772,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         self->_lowerHandButton.hidden = !self->_isHandRaised;
 
+        // Only when the server supports recording-v1 we have access to callStartTime, otherwise hide the label
+        self->_callTimeLabel.hidden = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRecordingV1];
+
         NCAudioController *audioController = [NCAudioController sharedInstance];
         self->_speakerButton.hidden = ![audioController isAudioRouteChangeable];
 
@@ -810,6 +819,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
         if (self->_topBarButtonStackView.frame.origin.x < 0) {
             self->_speakerButton.hidden = YES;
+        }
+
+        [self->_topBarView setNeedsLayout];
+        [self->_topBarView layoutIfNeeded];
+
+        if (self->_topBarButtonStackView.frame.origin.x < 0) {
+            self->_callTimeLabel.hidden = YES;
         }
 
         [self adjustMoreButtonMenu];
@@ -1123,6 +1139,37 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 }
 
+- (void)callDurationTimerUpdate
+{
+    // In case we are the ones who start the call, we don't have the server-side callStartTime, so we set it locally
+    if (self.room.callStartTime == 0) {
+        self.room.callStartTime = [[NSDate date] timeIntervalSince1970];
+    }
+
+    NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
+    long callDuration = currentTimestamp - self.room.callStartTime;
+    long oneHourInSeconds = 60 * 60;
+
+    long hours = callDuration / 3600;
+    long minutes = (callDuration / 60) % 60;
+    long seconds = callDuration % 60;
+
+    if (hours > 0) {
+        [self.callTimeLabel setText:[NSString stringWithFormat:@"%lu:%02lu:%02lu", hours, minutes, seconds]];
+    } else {
+        [self.callTimeLabel setText:[NSString stringWithFormat:@"%02lu:%02lu", minutes, seconds]];
+    }
+
+    if (self->_topBarButtonStackView.frame.origin.x < 0) {
+        [self adjustTopBar];
+    }
+
+    if (callDuration == oneHourInSeconds) {
+        NSString *callRunningFor1h = NSLocalizedString(@"The call has been running for one hour", nil);
+        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:callRunningFor1h dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+    }
+}
+
 #pragma mark - Call actions
 
 -(void)handlePushToTalk:(UILongPressGestureRecognizer *)gestureRecognizer
@@ -1353,6 +1400,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                     [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
                 }];
             }
+
+            [self->_callDurationTimer invalidate];
         });
         
         if (_callController) {
