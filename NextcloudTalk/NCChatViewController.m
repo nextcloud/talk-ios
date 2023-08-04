@@ -5108,7 +5108,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
 
         [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
         [self.tableView endUpdates];
     });
 }
