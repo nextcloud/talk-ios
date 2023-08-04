@@ -130,6 +130,54 @@
 /* No comment provided by engineer. */
 "Also open to guest app users" = "Also open to guest app users";
 
+/* Please put %ld placeholder in the correct position on the translated text but do not translate it */
+"An administrator added you and %ld more participants" = "An administrator added you and %ld more participants";
+
+/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+"An administrator added you and {user0}" = "An administrator added you and {user0}";
+
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"An administrator added {user0} and %ld more participants" = "An administrator added {user0} and %ld more participants";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"An administrator added {user0} and {user1}" = "An administrator added {user0} and {user1}";
+
+/* Please put %ld placeholder in the correct position on the translated text but do not translate it */
+"An administrator demoted you and %ld more participants from moderators" = "An administrator demoted you and %ld more participants from moderators";
+
+/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+"An administrator demoted you and {user0} from moderators" = "An administrator demoted you and {user0} from moderators";
+
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"An administrator demoted {user0} and %ld more participants from moderators" = "An administrator demoted {user0} and %ld more participants from moderators";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"An administrator demoted {user0} and {user1} from moderators" = "An administrator demoted {user0} and {user1} from moderators";
+
+/* Please put %ld placeholder in the correct position on the translated text but do not translate it */
+"An administrator promoted you and %ld more participants to moderators" = "An administrator promoted you and %ld more participants to moderators";
+
+/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+"An administrator promoted you and {user0} to moderators" = "An administrator promoted you and {user0} to moderators";
+
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"An administrator promoted {user0} and %ld more participants to moderators" = "An administrator promoted {user0} and %ld more participants to moderators";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"An administrator promoted {user0} and {user1} to moderators" = "An administrator promoted {user0} and {user1} to moderators";
+
+/* Please put %ld placeholder in the correct position on the translated text but do not translate it */
+"An administrator removed you and %ld more participants" = "An administrator removed you and %ld more participants";
+
+/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+"An administrator removed you and {user0}" = "An administrator removed you and {user0}";
+
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"An administrator removed {user0} and %ld more participants" = "An administrator removed {user0} and %ld more participants";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"An administrator removed {user0} and {user1}" = "An administrator removed {user0} and {user1}";
+
 /* No comment provided by engineer. */
 "An error occurred changing privacy setting" = "An error occurred changing privacy setting";
 
@@ -1693,6 +1741,24 @@
 /* No comment provided by engineer. */
 "You" = "You";
 
+/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+"You added {user0} and %ld more participants" = "You added {user0} and %ld more participants";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"You added {user0} and {user1}" = "You added {user0} and {user1}";
+
+/* Please put %ld placeholder in the correct position on the translated text but do not translate it */
+"You and %ld more participants joined the call" = "You and %ld more participants joined the call";
+
+/* Please put %ld placeholder in the correct position on the translated text but do not translate it */
+"You and %ld more participants left the call" = "You and %ld more participants left the call";
+
+/* Please put {actor0} placeholder in the correct position on the translated text but do not translate it */
+"You and {actor0} joined the call" = "You and {actor0} joined the call";
+
+/* Please put {actor0} placeholder in the correct position on the translated text but do not translate it */
+"You and {actor0} left the call" = "You and {actor0} left the call";
+
 /* No comment provided by engineer. */
 "You are currently waiting in the lobby" = "You are currently waiting in the lobby";
 
@@ -1705,6 +1771,12 @@
 /* No comment provided by engineer. */
 "You can set your phone number so other users will be able to find you" = "You can set your phone number so other users will be able to find you";
 
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"You demoted {user0} and %ld more participants from moderators" = "You demoted {user0} and %ld more participants from moderators";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"You demoted {user0} and {user1} from moderators" = "You demoted {user0} and {user1} from moderators";
+
 /* No comment provided by engineer. */
 "You have been muted by a moderator" = "You have been muted by a moderator";
 
@@ -1714,8 +1786,23 @@
 /* No comment provided by engineer. */
 "You need to promote a new moderator before you can leave this conversation" = "You need to promote a new moderator before you can leave this conversation";
 
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"You promoted {user0} and %ld more participants to moderators" = "You promoted {user0} and %ld more participants to moderators";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"You promoted {user0} and {user1} to moderators" = "You promoted {user0} and {user1} to moderators";
+
 /* No comment provided by engineer. */
 "You received a new notification" = "You received a new notification";
+
+/* No comment provided by engineer. */
+"You reconnected to the call" = "You reconnected to the call";
+
+/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+"You removed {user0} and %ld more participants" = "You removed {user0} and %ld more participants";
+
+/* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"You removed {user0} and {user1}" = "You removed {user0} and {user1}";
 
 /* No comment provided by engineer. */
 "Your email address" = "Your email address";
@@ -1728,6 +1815,69 @@
 
 /* No comment provided by engineer. */
 "Your postal address" = "Your postal address";
+
+/* Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} added you and %ld more participants" = "{actor0} added you and %ld more participants";
+
+/* Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} added you and {user0}" = "{actor0} added you and {user0}";
+
+/* Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} added {user0} and %ld more participants" = "{actor0} added {user0} and %ld more participants";
+
+/* Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} added {user0} and {user1}" = "{actor0} added {user0} and {user1}";
+
+/* Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} and %ld more participants joined the call" = "{actor0} and %ld more participants joined the call";
+
+/* Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} and %ld more participants left the call" = "{actor0} and %ld more participants left the call";
+
+/* Please put {actor0} and {actor1} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} and {actor1} joined the call" = "{actor0} and {actor1} joined the call";
+
+/* Please put {actor0} and {actor1} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} and {actor1} left the call" = "{actor0} and {actor1} left the call";
+
+/* Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} demoted you and %ld more participants from moderators" = "{actor0} demoted you and %ld more participants from moderators";
+
+/* Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} demoted you and {user0} from moderators" = "{actor0} demoted you and {user0} from moderators";
+
+/* Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} demoted {user0} and %ld more participants from moderators" = "{actor0} demoted {user0} and %ld more participants from moderators";
+
+/* Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} demoted {user0} and {user1} from moderators" = "{actor0} demoted {user0} and {user1} from moderators";
+
+/* Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} promoted you and %ld more participants to moderators" = "{actor0} promoted you and %ld more participants to moderators";
+
+/* Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} promoted you and {user0} to moderators" = "{actor0} promoted you and {user0} to moderators";
+
+/* Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} promoted {user0} and %ld more participants to moderators" = "{actor0} promoted {user0} and %ld more participants to moderators";
+
+/* Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} promoted {user0} and {user1} to moderators" = "{actor0} promoted {user0} and {user1} to moderators";
+
+/* Please put {actor0} placeholder in the correct position on the translated text but do not translate it */
+"{actor0} reconnected to the call" = "{actor0} reconnected to the call";
+
+/* Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} removed you and %ld more participants" = "{actor0} removed you and %ld more participants";
+
+/* Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} removed you and {user0}" = "{actor0} removed you and {user0}";
+
+/* Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them */
+"{actor0} removed {user0} and %ld more participants" = "{actor0} removed {user0} and %ld more participants";
+
+/* Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
+"{actor0} removed {user0} and {user1}" = "{actor0} removed {user0} and {user1}";
 
 /* No comment provided by engineer. */
 "↓ New messages" = "↓ New messages";
