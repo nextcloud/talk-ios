@@ -4209,6 +4209,104 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     return isReactable;
 }
 
+- (NSArray *)getSetReminderOptionsForMessage:(NCChatMessage *)message
+{
+    NSMutableArray *reminderOptions = [[NSMutableArray alloc] init];
+    NSDate *now = [NSDate date];
+
+    NSInteger sunday = 1;
+    NSInteger monday = 2;
+    NSInteger saturday = 7;
+
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"EEE"];
+
+    void (^setReminderCompletion)(NSError * error) = ^void(NSError *error) {
+        if (error) {
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Failed to add reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleError];
+        } else {
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Successfully added reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+        }
+    };
+
+    // Remind me later today
+    NSDate *reminderTime = [NCUtils todayWithHour:18 withMinute:0 withSecond:0];
+    UIAction *laterToday = [UIAction actionWithTitle:NSLocalizedString(@"Later today", @"Remind me later today about that message") image:nil identifier:nil handler:^(UIAction *action) {
+        NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+        [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+    }];
+    laterToday.subtitle = [NCUtils getTimeFromDate:reminderTime];
+
+    // Remind me tomorrow
+    reminderTime = [[NCUtils todayWithHour:8 withMinute:0 withSecond:0] dateByAddingDays:1];
+    UIAction *tomorrow = [UIAction actionWithTitle:NSLocalizedString(@"Tomorrow", @"Remind me tomorrow about that message") image:nil identifier:nil handler:^(UIAction *action) {
+        NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+        [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+    }];
+    tomorrow.subtitle = [NSString stringWithFormat:@"%@, %@", [formatter stringFromDate:reminderTime], [NCUtils getTimeFromDate:reminderTime]];
+
+    // Remind me next saturday
+    reminderTime = [NCUtils todayWithHour:8 withMinute:0 withSecond:0];
+    reminderTime = [NCUtils setWeekday:saturday withDate:reminderTime];
+    UIAction *thisWeekend = [UIAction actionWithTitle:NSLocalizedString(@"This weekend", @"Remind me this weekend about that message") image:nil identifier:nil handler:^(UIAction *action) {
+        NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+        [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+    }];
+    thisWeekend.subtitle = [NSString stringWithFormat:@"%@, %@", [formatter stringFromDate:reminderTime], [NCUtils getTimeFromDate:reminderTime]];
+
+    // Remind me next monday
+    reminderTime = [[NCUtils todayWithHour:8 withMinute:0 withSecond:0] dateByAddingWeeks:1];
+    reminderTime = [NCUtils setWeekday:monday withDate:reminderTime];
+    UIAction *nextWeek = [UIAction actionWithTitle:NSLocalizedString(@"Next week", @"Remind me next week about that message") image:nil identifier:nil handler:^(UIAction *action) {
+        NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
+
+        [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+    }];
+    nextWeek.subtitle = [NSString stringWithFormat:@"%@, %@", [formatter stringFromDate:reminderTime], [NCUtils getTimeFromDate:reminderTime]];
+
+    // Custom reminder
+    __weak typeof(self) weakSelf = self;
+    UIAction *customReminderAction = [UIAction actionWithTitle:NSLocalizedString(@"Pick date & time", @"") image:[UIImage systemImageNamed:@"calendar.badge.clock"] identifier:nil handler:^(UIAction *action) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            weakSelf.interactingMessage = message;
+            weakSelf.lastMessageBeforeInteraction = [[weakSelf.tableView indexPathsForVisibleRows] lastObject];
+
+            NSDate *startingDate = [now dateByAddingHours:1];
+            NSDate *minimumDate = [now dateByAddingMinutes:15];
+            [weakSelf.datePickerTextField getDateWithStartingDate:startingDate minimumDate:minimumDate completion:^(NSDate * _Nonnull selectedDate) {
+                NSString *timestamp = [NSString stringWithFormat:@"%.0f", [selectedDate timeIntervalSince1970]];
+
+                [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
+            }];
+        });
+    }];
+
+    // Show custom reminder with a separator -> use inline menu
+    UIMenu *customReminder = [UIMenu menuWithTitle:@""
+                                             image:nil
+                                        identifier:nil
+                                           options:UIMenuOptionsDisplayInline
+                                          children:@[customReminderAction]];
+
+    if (now.hour < 18) {
+        [reminderOptions addObject:laterToday];
+    }
+
+    [reminderOptions addObject:tomorrow];
+
+    if (now.weekday != sunday && now.weekday != saturday) {
+        [reminderOptions addObject:thisWeekend];
+    }
+
+    [reminderOptions addObject:nextWeek];
+    [reminderOptions addObject:customReminder];
+
+    return reminderOptions;
+}
+
 - (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point
 {
     if ([tableView isEqual:self.autoCompletionView]) {
@@ -4274,91 +4372,39 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     // Remind me later
     if (!message.sendingFailed && !message.isOfflineMessage && !message.isDeletedMessage && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRemindMeLater]) {
         UIImage *remindMeLaterImage = [UIImage systemImageNamed:@"alarm"];
-        NSDate *now = [NSDate date];
 
-        void (^setReminderCompletion)(NSError * error) = ^void(NSError *error) {
-            if (error) {
-                [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Failed to add reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleError];
-            } else {
-                [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Successfully added reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
-            }
-        };
-
-        // Remind me later today
-        NSDate *reminderTime = [NCUtils todayWithHour:18 withMinute:0 withSecond:0];
-        UIAction *laterToday = [UIAction actionWithTitle:NSLocalizedString(@"Later today", @"Remind me later today about that message") image:nil identifier:nil handler:^(UIAction *action) {
-            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
-
-            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
-        }];
-        laterToday.subtitle = [NCUtils getTimeFromDate:reminderTime];
-
-        // Remind me tomorrow
-        reminderTime = [[NCUtils todayWithHour:8 withMinute:0 withSecond:0] dateByAddingDays:1];
-        UIAction *tomorrow = [UIAction actionWithTitle:NSLocalizedString(@"Tomorrow", @"Remind me tomorrow about that message") image:nil identifier:nil handler:^(UIAction *action) {
-            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
-
-            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
-        }];
-        tomorrow.subtitle = [NCUtils getTimeFromDate:reminderTime];
-
-        // Remind me next saturday
-        reminderTime = [NCUtils todayWithHour:8 withMinute:0 withSecond:0];
-        reminderTime = [NCUtils getNextWeekday:7 fromReferenceDate:reminderTime];
-        UIAction *nextSaturday = [UIAction actionWithTitle:NSLocalizedString(@"Next Saturday", @"Remind me next saturday about that message") image:nil identifier:nil handler:^(UIAction *action) {
-            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
-
-            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
-        }];
-        nextSaturday.subtitle = [NCUtils getTimeFromDate:reminderTime];
-
-        // Remind me next monday
-        reminderTime = [NCUtils todayWithHour:8 withMinute:0 withSecond:0];
-        reminderTime = [NCUtils getNextWeekday:2 fromReferenceDate:reminderTime];
-        UIAction *nextMonday = [UIAction actionWithTitle:NSLocalizedString(@"Next Monday", @"Remind me next monday about that message") image:nil identifier:nil handler:^(UIAction *action) {
-            NSString *timestamp = [NSString stringWithFormat:@"%.0f", [reminderTime timeIntervalSince1970]];
-
-            [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
-        }];
-        nextMonday.subtitle = [NCUtils getTimeFromDate:reminderTime];
-
-        // Custom reminder
         __weak typeof(self) weakSelf = self;
-        UIAction *customReminderAction = [UIAction actionWithTitle:NSLocalizedString(@"Pick date & time", @"") image:[UIImage systemImageNamed:@"calendar.badge.clock"] identifier:nil handler:^(UIAction *action) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.interactingMessage = message;
-                self.lastMessageBeforeInteraction = [[self.tableView indexPathsForVisibleRows] lastObject];
+        UIDeferredMenuElement *deferredMenuElement = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
+            [[NCAPIController sharedInstance] getReminderForMessage:message withCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
+                if (responseDict && !error) {
+                    // There's already an existing reminder set for this message
+                    // -> offer a delete option
+                    NSInteger timestamp = [[responseDict objectForKey:@"timestamp"] intValue];
+                    NSDate *timestampDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
 
-                NSDate *startingDate = [now dateByAddingHours:1];
-                NSDate *minimumDate = [now dateByAddingMinutes:15];
-                [weakSelf.datePickerTextField getDateWithStartingDate:startingDate minimumDate:minimumDate completion:^(NSDate * _Nonnull selectedDate) {
-                    NSString *timestamp = [NSString stringWithFormat:@"%.0f", [selectedDate timeIntervalSince1970]];
+                    UIAction *infoAction = [UIAction actionWithTitle:[NCUtils readableDateTimeFromDate:timestampDate] image:nil identifier:nil handler:^(UIAction *action){
+                    }];
+                    infoAction.attributes = UIMenuElementAttributesDisabled;
 
-                    [[NCAPIController sharedInstance] setReminderForMessage:message withTimestamp:timestamp withCompletionBlock:setReminderCompletion];
-                }];
-            });
+                    UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", @"") image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(UIAction *action){
+                        [[NCAPIController sharedInstance] deleteReminderForMessage:message withCompletionBlock:^(NSError *error) {
+                            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Successfully deleted reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+                        }];
+                    }];
+                    deleteAction.attributes = UIMenuElementAttributesDestructive;
+
+                    completion(@[infoAction, deleteAction]);
+                } else {
+                    completion([weakSelf getSetReminderOptionsForMessage:message]);
+                }
+            }];
         }];
-
-        // Show custom reminder with a separator -> use inline menu
-        UIMenu *customReminder = [UIMenu menuWithTitle:@""
-                                                 image:nil
-                                            identifier:nil
-                                               options:UIMenuOptionsDisplayInline
-                                              children:@[customReminderAction]];
-
-        NSArray *subActions;
-
-        if (now.hour >= 18) {
-            subActions = @[tomorrow, nextSaturday, nextMonday, customReminder];
-        } else {
-            subActions = @[laterToday, tomorrow, nextSaturday, nextMonday, customReminder];
-        }
 
         UIMenu *remindeMeLaterMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Set reminder", @"Remind me later about that message")
                                                      image:remindMeLaterImage
                                                 identifier:nil
                                                    options:0
-                                                  children:subActions];
+                                                  children:@[deferredMenuElement]];
 
         [actions addObject:remindeMeLaterMenu];
     }

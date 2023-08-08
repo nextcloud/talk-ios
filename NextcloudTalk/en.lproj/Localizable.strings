@@ -1054,11 +1054,8 @@
 /* No comment provided by engineer. */
 "Next" = "Next";
 
-/* Remind me next monday about that message */
-"Next Monday" = "Next Monday";
-
-/* Remind me next saturday about that message */
-"Next Saturday" = "Next Saturday";
+/* Remind me next week about that message */
+"Next week" = "Next week";
 
 /* No comment provided by engineer. */
 "Nextcloud server not found" = "Nextcloud server not found";
@@ -1493,6 +1490,9 @@
 "Successfully added reminder" = "Successfully added reminder";
 
 /* No comment provided by engineer. */
+"Successfully deleted reminder" = "Successfully deleted reminder";
+
+/* No comment provided by engineer. */
 "Switch account" = "Switch account";
 
 /* No comment provided by engineer. */
@@ -1536,6 +1536,9 @@
 
 /* No comment provided by engineer. */
 "This week" = "This week";
+
+/* Remind me this weekend about that message */
+"This weekend" = "This weekend";
 
 /* No comment provided by engineer. */
 "This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";

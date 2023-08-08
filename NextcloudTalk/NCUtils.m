@@ -235,16 +235,9 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     return [calendar dateFromComponents:components];
 }
 
-+ (NSDate *)getNextWeekday:(NSInteger)weekday fromReferenceDate:(NSDate *)referenceDate
++ (NSDate *)setWeekday:(NSInteger)weekday withDate:(NSDate *)date
 {
-    NSDate *result = [referenceDate dateByAddingDays:weekday - referenceDate.weekday];
-
-    if (referenceDate.weekday == weekday) {
-        // Today is the weekday, we're looking for, move to next week
-        result = [result dateByAddingDays:7];
-    }
-
-    return result;
+    return [date dateByAddingDays:weekday - date.weekday];
 }
 
 + (NSString *)sha1FromString:(NSString *)string
