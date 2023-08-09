@@ -4587,10 +4587,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
         for (NSString *emoji in frequentlyUsedEmojis) {
             UIAction *reactionShortcut = [UIAction actionWithTitle:@"" image:nil identifier:nil handler:^(UIAction *action) {
-                [self.tableView.contextMenuInteraction dismissMenu];
+                [weakSelf.tableView.contextMenuInteraction dismissMenu];
 
                 // Since we want to set the emoji only after the context menu disappeared, we store a block to execute afterwards
-                self->_contextMenuActionBlock = ^void() {
+                __strong typeof(self) strongSelf = weakSelf;
+                strongSelf->_contextMenuActionBlock = ^void() {
                     [weakSelf addReaction:emoji toChatMessage:message];
                 };
             }];
@@ -4618,10 +4619,11 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
 
         UIAction *addReactionAction = [UIAction actionWithTitle:@"" image:nil identifier:nil handler:^(UIAction *action) {
-            [self.tableView.contextMenuInteraction dismissMenu];
+            [weakSelf.tableView.contextMenuInteraction dismissMenu];
 
             // Since we want to set the emoji only after the context menu disappeared, we store a block to execute afterwards
-            self->_contextMenuActionBlock = ^void() {
+            __strong typeof(self) strongSelf = weakSelf;
+            strongSelf->_contextMenuActionBlock = ^void() {
                 [weakSelf didPressAddReaction:message atIndexPath:indexPath];
             };
         }];
