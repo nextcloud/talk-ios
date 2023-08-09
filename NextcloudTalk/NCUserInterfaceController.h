@@ -38,6 +38,8 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 
 @property (nonatomic, strong) NCSplitViewController *mainViewController;
 @property (nonatomic, strong) RoomsTableViewController *roomsTableViewController;
+@property (nonatomic, assign) NSInteger numberOfAllocatedChatViewControllers;
+@property (nonatomic, assign) NSInteger numberOfAllocatedCallViewControllers;
 
 + (instancetype)sharedInstance;
 - (void)presentConversationsList;

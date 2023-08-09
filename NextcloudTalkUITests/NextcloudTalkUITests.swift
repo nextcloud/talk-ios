@@ -54,6 +54,7 @@ final class NextcloudTalkUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += ["-AppleLanguages", "(en-US)"]
         app.launchArguments += ["-AppleLocale", "\"en-US\""]
+        app.launchArguments += ["-TestEnvironment"]
         app.launch()
 
         let accountSwitcherButton = app.buttons["Nextcloud Talk"]
@@ -160,5 +161,50 @@ final class NextcloudTalkUITests: XCTestCase {
 
         // Check if the conversation appears in the conversation list
         XCTAssert(app.tables.cells.staticTexts[newConversationName].waitForExistence(timeout: timeoutLong))
+    }
+
+    func testChatViewControllerDeallocation() {
+        let app = launchAndLogin()
+        let newConversationName = "DeAllocTest"
+
+        // Create a new test conversion
+        app.navigationBars["Nextcloud Talk"].buttons["Create a new conversation"].tap()
+        XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExistence(timeout: timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExistence(timeout: timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Show list of open conversations"].waitForExistence(timeout: timeoutShort))
+        app.tables.cells.staticTexts["Create a new group conversation"].tap()
+        app.navigationBars["RoomCreationTableView"].buttons["Next"].tap()
+        app.typeText(newConversationName)
+        app.navigationBars["New group conversation"].buttons["Create"].tap()
+
+        // Send a test message
+        let testMessage = "TestMessage"
+        let toolbar = app.toolbars["Toolbar"]
+        let textView = toolbar.textViews["Write message, @ to mention someone …"]
+        XCTAssert(textView.waitForExistence(timeout: timeoutShort))
+        textView.tap()
+        app.typeText(testMessage)
+        let sendMessageButton = toolbar.buttons["Send message"]
+        sendMessageButton.tap()
+
+        // Wait for temporary message to be replaced
+        sleep(5)
+
+        // Open context menu
+        let tables = app.tables
+        XCTAssert(tables.staticTexts[username].waitForExistence(timeout: timeoutShort))
+        let message = tables.staticTexts[username]
+        message.press(forDuration: 2.0)
+
+        // Add a reaction to close the context menu
+        XCTAssert(app.staticTexts["👍"].waitForExistence(timeout: timeoutShort))
+        app.staticTexts["👍"].tap()
+
+        // Go back to the main view controller
+        let chatNavBar = app.navigationBars["NCChatView"]
+        chatNavBar.buttons["Back"].tap()
+
+        // Check if all chat view controllers are deallocated
+        XCTAssert(app.staticTexts["ChatVC: 0 / CallVC: 0"].waitForExistence(timeout: timeoutShort))
     }
 }

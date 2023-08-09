@@ -51,6 +51,8 @@
 
 @property (nonatomic, strong) NSTimer *keepAliveTimer;
 @property (nonatomic, strong) BGTaskHelper *keepAliveBGTask;
+@property (nonatomic, strong) UILabel *debugLabel;
+@property (nonatomic, strong) NSTimer *debugLabelTimer;
 
 @end
 
@@ -90,6 +92,20 @@
 
     if (@available(iOS 14.5, *)) {
         [NCUserInterfaceController sharedInstance].mainViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
+    }
+
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+
+    if ([arguments containsObject:@"-TestEnvironment"]) {
+        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 30, 200, 50)];
+        [[NCUserInterfaceController sharedInstance].mainViewController.view addSubview:self.debugLabel];
+
+        __weak typeof(self) weakSelf = self;
+        self.debugLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+            long numChatVC = [NCUserInterfaceController sharedInstance].numberOfAllocatedChatViewControllers;
+            long numCallVC = [NCUserInterfaceController sharedInstance].numberOfAllocatedCallViewControllers;
+            [weakSelf.debugLabel setText:[NSString stringWithFormat:@"ChatVC: %ld / CallVC: %ld", numChatVC, numCallVC]];
+        }];
     }
 
     // When we include VLCKit we need to manually call this because otherwise, device rotation might not work
@@ -149,6 +165,9 @@
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+
+    // Invalidate a potentially existing label timer
+    [self.debugLabelTimer invalidate];
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
