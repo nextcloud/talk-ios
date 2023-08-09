@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)readableTimeOrDateFromDate:(NSDate *)date;
 + (NSString *)getTimeFromDate:(NSDate *)date;
 + (NSString *)relativeTimeFromDate:(NSDate *)date;
++ (NSDate *)todayWithHour:(NSInteger)hour withMinute:(NSInteger)minute withSecond:(NSInteger)second;
++ (NSDate *)setWeekday:(NSInteger)weekday withDate:(NSDate *)date;
 
 + (NSString *)sha1FromString:(NSString *)string;
 

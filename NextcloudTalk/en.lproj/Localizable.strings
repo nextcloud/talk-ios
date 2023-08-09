@@ -350,6 +350,9 @@
 "Clear cache" = "Clear cache";
 
 /* No comment provided by engineer. */
+"Clear reminder" = "Clear reminder";
+
+/* No comment provided by engineer. */
 "Clear status message" = "Clear status message";
 
 /* No comment provided by engineer. */
@@ -724,6 +727,9 @@
 /* No comment provided by engineer. */
 "End poll" = "End poll";
 
+/* No comment provided by engineer. */
+"Error occurred when creating a reminder" = "Error occurred when creating a reminder";
+
 /* External signaling used */
 "External" = "External";
 
@@ -864,6 +870,9 @@
 
 /* No comment provided by engineer. */
 "Last sync" = "Last sync";
+
+/* Remind me later today about that message */
+"Later today" = "Later today";
 
 /* No comment provided by engineer. */
 "Leave" = "Leave";
@@ -1048,6 +1057,9 @@
 /* No comment provided by engineer. */
 "Next" = "Next";
 
+/* Remind me next week about that message */
+"Next week" = "Next week";
+
 /* No comment provided by engineer. */
 "Nextcloud server not found" = "Nextcloud server not found";
 
@@ -1178,6 +1190,9 @@
 "Photo library access" = "Photo library access";
 
 /* No comment provided by engineer. */
+"Pick date & time" = "Pick date & time";
+
+/* No comment provided by engineer. */
 "Please check that you entered a valid server address." = "Please check that you entered a valid server address.";
 
 /* No comment provided by engineer. */
@@ -1266,6 +1281,12 @@
 
 /* No comment provided by engineer. */
 "Reference API supported?" = "Reference API supported?";
+
+/* No comment provided by engineer. */
+"Reminder was successfully cleared" = "Reminder was successfully cleared";
+
+/* No comment provided by engineer. */
+"Reminder was successfully set" = "Reminder was successfully set";
 
 /* No comment provided by engineer. */
 "Remove" = "Remove";
@@ -1371,6 +1392,9 @@
 
 /* No comment provided by engineer. */
 "Set password:" = "Set password:";
+
+/* Remind me later about that message */
+"Set reminder" = "Set reminder";
 
 /* No comment provided by engineer. */
 "Set status message" = "Set status message";
@@ -1519,6 +1543,9 @@
 /* No comment provided by engineer. */
 "This week" = "This week";
 
+/* Remind me this weekend about that message */
+"This weekend" = "This weekend";
+
 /* No comment provided by engineer. */
 "This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";
 
@@ -1533,6 +1560,9 @@
 
 /* No comment provided by engineer. */
 "Today" = "Today";
+
+/* Remind me tomorrow about that message */
+"Tomorrow" = "Tomorrow";
 
 /* TRANSLATORS this is for transcribing a voice message to text */
 "Transcribe" = "Transcribe";

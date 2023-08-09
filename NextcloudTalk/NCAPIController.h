@@ -128,6 +128,10 @@ typedef void (^StopRecordingCompletionBlock)(NSError *error);
 typedef void (^DismissStoredRecordingNotificationCompletionBlock)(NSError *error);
 typedef void (^ShareStoredRecordingCompletionBlock)(NSError *error);
 
+typedef void (^SetReminderForMessage)(NSError *error);
+typedef void (^DeleteReminderForMessage)(NSError *error);
+typedef void (^GetReminderForMessage)(NSDictionary *responseDict, NSError *error);
+
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
 extern NSInteger const APIv3;
@@ -306,5 +310,11 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)stopRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StopRecordingCompletionBlock)block;
 - (NSURLSessionDataTask *)dismissStoredRecordingNotificationWithTimestamp:(NSString *)timestamp forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DismissStoredRecordingNotificationCompletionBlock)block;
 - (NSURLSessionDataTask *)shareStoredRecordingWithTimestamp:(NSString *)timestamp withFileId:(NSString *)fileId forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ShareStoredRecordingCompletionBlock)block;
+
+// Remind me later
+- (NSURLSessionDataTask *)setReminderForMessage:(NCChatMessage *)message withTimestamp:(NSString *)timestamp withCompletionBlock:(SetReminderForMessage)block;
+- (NSURLSessionDataTask *)deleteReminderForMessage:(NCChatMessage *)message withCompletionBlock:(DeleteReminderForMessage)block;
+- (NSURLSessionDataTask *)getReminderForMessage:(NCChatMessage *)message withCompletionBlock:(GetReminderForMessage)block;
+
 
 @end

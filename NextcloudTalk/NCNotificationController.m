@@ -108,11 +108,11 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
     
     switch (type) {
         case kNCLocalNotificationTypeMissedCall:
-            {
-                NSString *missedCallString = NSLocalizedString(@"Missed call from", nil);
-                content.body = [NSString stringWithFormat:@"☎️ %@ %@", missedCallString, [userInfo objectForKey:@"displayName"]];
-                content.userInfo = userInfo;
-            }
+        {
+            NSString *missedCallString = NSLocalizedString(@"Missed call from", nil);
+            content.body = [NSString stringWithFormat:@"☎️ %@ %@", missedCallString, [userInfo objectForKey:@"displayName"]];
+            content.userInfo = userInfo;
+        }
             break;
             
         case kNCLocalNotificationTypeCancelledCall:
@@ -481,6 +481,8 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
             [self handlePushNotificationResponseWithUserText:pushNotification];
         } else if (pushNotification.type == NCPushNotificationTypeRecording) {
             [self handlePushNotificationResponseForRecording:response];
+        } else if (pushNotification.type == NCPushNotificationTypeReminder) {
+            [self handlePushNotificationResponseForReminder:response];
         } else {
             [self handlePushNotificationResponse:pushNotification];
         }
@@ -597,8 +599,8 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
 
         for (NCNotificationAction *notificationAction in [serverNotification notificationActions]) {
             UIAlertAction* tempButton = [UIAlertAction actionWithTitle:notificationAction.actionLabel
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^(UIAlertAction * _Nonnull action) {
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^(UIAlertAction * _Nonnull action) {
                 [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
             }];
 
@@ -608,6 +610,43 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
         });
+    }
+}
+
+- (void)handlePushNotificationResponseForReminder:(UNNotificationResponse *)response
+{
+    if ([NCRoomsManager sharedInstance].callViewController) {
+        return;
+    }
+
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForReminder" expirationHandler:^(BGTaskHelper *task) {
+        [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForReminder"];
+    }];
+
+    UNNotificationRequest *notificationRequest = response.notification.request;
+    NSDictionary *userInfo = notificationRequest.content.userInfo;
+
+    NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
+    NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
+
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
+    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
+
+    if (!account || !serverNotification) {
+        [bgTask stopBackgroundTask];
+        return;
+    }
+
+    // Open the conversation for the reminder
+    [[NCRoomsManager sharedInstance] startChatWithRoomToken:serverNotification.roomToken];
+
+    // After opening the notification, we need to execute the DELETE action
+    for (NSDictionary *dict in serverNotification.actions) {
+        NCNotificationAction *notificationAction = [[NCNotificationAction alloc] initWithDictionary:dict];
+
+        if (notificationAction && notificationAction.actionType == NCNotificationActionTypeKNotificationActionTypeDelete) {
+            [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+        }
     }
 }
 

@@ -22,6 +22,7 @@
 		1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
+		1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F371A362A7B921A006CBFB3 /* DatePickerTextField.swift */; };
 		1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift */; };
 		1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */; };
 		1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C41A229EDF05700F58435 /* AvatarEditView.swift */; };
@@ -435,6 +436,7 @@
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
 		1F24B5A328E0649200654457 /* ReferenceGithubView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubView.xib; sourceTree = "<group>"; };
+		1F371A362A7B921A006CBFB3 /* DatePickerTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatePickerTextField.swift; sourceTree = "<group>"; };
 		1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomAvatarInfoTableViewController.swift; sourceTree = "<group>"; };
 		1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoomAvatarInfoTableViewController.xib; sourceTree = "<group>"; };
 		1F3C41A229EDF05700F58435 /* AvatarEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarEditView.swift; sourceTree = "<group>"; };
@@ -1111,6 +1113,7 @@
 				1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */,
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
+				1F371A362A7B921A006CBFB3 /* DatePickerTextField.swift */,
 				2C16A82B28E7284D00EDE523 /* NCButton.swift */,
 				1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */,
 				1F8995B22970644C00CABA33 /* ColorGenerator.swift */,
@@ -2216,6 +2219,7 @@
 				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
+				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
 				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */,
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,

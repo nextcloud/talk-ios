@@ -223,6 +223,23 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     }
 }
 
++ (NSDate *)todayWithHour:(NSInteger)hour withMinute:(NSInteger)minute withSecond:(NSInteger)second
+{
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDate *now = [NSDate date];
+    NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:now];
+    [components setHour:hour];
+    [components setMinute:minute];
+    [components setSecond:second];
+
+    return [calendar dateFromComponents:components];
+}
+
++ (NSDate *)setWeekday:(NSInteger)weekday withDate:(NSDate *)date
+{
+    return [date dateByAddingDays:weekday - date.weekday];
+}
+
 + (NSString *)sha1FromString:(NSString *)string
 {
     NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
