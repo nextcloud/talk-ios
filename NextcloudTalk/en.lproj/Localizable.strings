@@ -350,6 +350,9 @@
 "Clear cache" = "Clear cache";
 
 /* No comment provided by engineer. */
+"Clear reminder" = "Clear reminder";
+
+/* No comment provided by engineer. */
 "Clear status message" = "Clear status message";
 
 /* No comment provided by engineer. */
@@ -724,11 +727,11 @@
 /* No comment provided by engineer. */
 "End poll" = "End poll";
 
+/* No comment provided by engineer. */
+"Error occurred when creating a reminder" = "Error occurred when creating a reminder";
+
 /* External signaling used */
 "External" = "External";
-
-/* No comment provided by engineer. */
-"Failed to add reminder" = "Failed to add reminder";
 
 /* No comment provided by engineer. */
 "Failed to connect to %@" = "Failed to connect to %@";
@@ -1280,6 +1283,12 @@
 "Reference API supported?" = "Reference API supported?";
 
 /* No comment provided by engineer. */
+"Reminder was successfully cleared" = "Reminder was successfully cleared";
+
+/* No comment provided by engineer. */
+"Reminder was successfully set" = "Reminder was successfully set";
+
+/* No comment provided by engineer. */
 "Remove" = "Remove";
 
 /* No comment provided by engineer. */
@@ -1485,12 +1494,6 @@
 
 /* No comment provided by engineer. */
 "Submit vote" = "Submit vote";
-
-/* No comment provided by engineer. */
-"Successfully added reminder" = "Successfully added reminder";
-
-/* No comment provided by engineer. */
-"Successfully deleted reminder" = "Successfully deleted reminder";
 
 /* No comment provided by engineer. */
 "Switch account" = "Switch account";

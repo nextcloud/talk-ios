@@ -4223,9 +4223,9 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     void (^setReminderCompletion)(NSError * error) = ^void(NSError *error) {
         if (error) {
-            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Failed to add reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleError];
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Error occurred when creating a reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleError];
         } else {
-            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Successfully added reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Reminder was successfully set", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
         }
     };
 
@@ -4376,27 +4376,34 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         __weak typeof(self) weakSelf = self;
         UIDeferredMenuElement *deferredMenuElement = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
             [[NCAPIController sharedInstance] getReminderForMessage:message withCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
+                NSMutableArray *menuOptions = [[NSMutableArray alloc] init];
+
+                [menuOptions addObjectsFromArray:[weakSelf getSetReminderOptionsForMessage:message]];
+
                 if (responseDict && !error) {
                     // There's already an existing reminder set for this message
                     // -> offer a delete option
                     NSInteger timestamp = [[responseDict objectForKey:@"timestamp"] intValue];
                     NSDate *timestampDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
 
-                    UIAction *infoAction = [UIAction actionWithTitle:[NCUtils readableDateTimeFromDate:timestampDate] image:nil identifier:nil handler:^(UIAction *action){
-                    }];
-                    infoAction.attributes = UIMenuElementAttributesDisabled;
-
-                    UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", @"") image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(UIAction *action){
+                    UIAction *clearAction = [UIAction actionWithTitle:NSLocalizedString(@"Clear reminder", @"") image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(UIAction *action){
                         [[NCAPIController sharedInstance] deleteReminderForMessage:message withCompletionBlock:^(NSError *error) {
-                            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Successfully deleted reminder", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+                            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Reminder was successfully cleared", @"") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
                         }];
                     }];
-                    deleteAction.attributes = UIMenuElementAttributesDestructive;
+                    clearAction.subtitle = [NCUtils readableDateTimeFromDate:timestampDate];
+                    clearAction.attributes = UIMenuElementAttributesDestructive;
 
-                    completion(@[infoAction, deleteAction]);
-                } else {
-                    completion([weakSelf getSetReminderOptionsForMessage:message]);
+                    UIMenu *clearReminder = [UIMenu menuWithTitle:@""
+                                                            image:nil
+                                                       identifier:nil
+                                                          options:UIMenuOptionsDisplayInline
+                                                         children:@[clearAction]];
+
+                    [menuOptions addObject:clearReminder];
                 }
+
+                completion(menuOptions);
             }];
         }];
 
