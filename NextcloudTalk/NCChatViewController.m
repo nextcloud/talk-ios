@@ -4353,6 +4353,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     } else {
         [self.emojiTextField resignFirstResponder];
         [self.datePickerTextField resignFirstResponder];
+
+        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+        if (message.collapsedMessages.count > 0) {
+            [self cellWantsToCollapseMessagesWithMessage:message];
+        }
+
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }

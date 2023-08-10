@@ -70,6 +70,7 @@
     [super prepareForReuse];
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
+    self.backgroundColor = [NCAppBranding backgroundColor];
     CGFloat pointSize = [SystemMessageTableViewCell defaultFontSize];
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     self.bodyTextView.text = @"";
@@ -108,7 +109,7 @@
         _collapseButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 20)];
         _collapseButton.translatesAutoresizingMaskIntoConstraints = NO;
         [_collapseButton addTarget:self action:@selector(collapseButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [_collapseButton setImage:[UIImage systemImageNamed:@"rectangle.expand.vertical"] forState:UIControlStateNormal];
+        [_collapseButton setImage:[UIImage systemImageNamed:@"rectangle.arrowtriangle.2.inward"] forState:UIControlStateNormal];
         _collapseButton.tintColor = [UIColor tertiaryLabelColor];
     }
     return _collapseButton;
@@ -140,21 +141,22 @@
         self.dateLabel.text = [NCUtils getTimeFromDate:date];
     }
 
-    if (message.collapsedMessages.count > 0) {
+    if (!message.isCollapsed && message.collapsedMessages.count > 0) {
         self.collapseButton.hidden = NO;
-        UIImage *buttonImage = message.isCollapsed ?
-        [UIImage systemImageNamed:@"rectangle.arrowtriangle.2.outward"] :
-        [UIImage systemImageNamed:@"rectangle.arrowtriangle.2.inward"];
-
-        if (@available(iOS 16.0, *)) {
-            buttonImage = message.isCollapsed ?
-            [UIImage systemImageNamed:@"arrow.up.and.line.horizontal.and.arrow.down"] :
-            [UIImage systemImageNamed:@"arrow.down.and.line.horizontal.and.arrow.up"];
-        }
-
-        [_collapseButton setImage:buttonImage forState:UIControlStateNormal];
     } else {
         self.collapseButton.hidden = YES;
+    }
+
+    if (!message.isCollapsed && (message.collapsedBy > 0 || message.collapsedMessages.count > 0)) {
+        self.backgroundColor = [UIColor tertiarySystemFillColor];
+    } else {
+        self.backgroundColor = [NCAppBranding backgroundColor];
+    }
+
+    if (message.collapsedMessages.count > 0) {
+        self.selectionStyle = UITableViewCellSelectionStyleDefault;
+    } else {
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
     }
 }
 
