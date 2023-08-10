@@ -3599,7 +3599,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You added {user0} and {user1}", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
             } else {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You added {user0} and %ld more participants", @"Please put {user0} placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You added {user0} and %ld more participants", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
             }
         } else if (isActor0Admin) {
             if (collapseByMessage.collapsedMessages.count == 1) {
@@ -3637,7 +3637,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             if (collapseByMessage.collapsedMessages.count == 1) {
                 collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You removed {user0} and {user1}", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
             } else {
-                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You removed {user0} and %ld more participants", @"Please put {user0} placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You removed {user0} and %ld more participants", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
             }
         } else if (isActor0Admin) {
             if (collapseByMessage.collapsedMessages.count == 1) {

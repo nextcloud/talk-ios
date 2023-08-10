@@ -1741,7 +1741,7 @@
 /* No comment provided by engineer. */
 "You" = "You";
 
-/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it */
 "You added {user0} and %ld more participants" = "You added {user0} and %ld more participants";
 
 /* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
@@ -1798,7 +1798,7 @@
 /* No comment provided by engineer. */
 "You reconnected to the call" = "You reconnected to the call";
 
-/* Please put {user0} placeholder in the correct position on the translated text but do not translate it */
+/* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it */
 "You removed {user0} and %ld more participants" = "You removed {user0} and %ld more participants";
 
 /* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
