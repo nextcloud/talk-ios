@@ -47,9 +47,11 @@
     
     [self.contentView addSubview:self.dateLabel];
     [self.contentView addSubview:self.bodyTextView];
+    [self.contentView addSubview:self.collapseButton];
     
     NSDictionary *views = @{@"dateLabel": self.dateLabel,
                             @"bodyTextView": self.bodyTextView,
+                            @"collapseButton" : self.collapseButton
                             };
     
     NSDictionary *metrics = @{@"dateLabelWidth": @(kChatCellDateLabelWidth),
@@ -59,8 +61,8 @@
                               };
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-avatarGap-[bodyTextView]-[dateLabel(>=dateLabelWidth)]-right-|" options:0 metrics:metrics views:views]];
+    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-left-[collapseButton(40)]-left-[bodyTextView]-[dateLabel(>=dateLabelWidth)]-right-|" options:NSLayoutFormatAlignAllCenterY metrics:metrics views:views]];
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[bodyTextView(>=0@999)]-left-|" options:0 metrics:metrics views:views]];
-    [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-left-[dateLabel(20)]-(>=0)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)prepareForReuse
@@ -68,6 +70,7 @@
     [super prepareForReuse];
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
+    self.backgroundColor = [NCAppBranding backgroundColor];
     CGFloat pointSize = [SystemMessageTableViewCell defaultFontSize];
     self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
     self.bodyTextView.text = @"";
@@ -100,6 +103,23 @@
     return _dateLabel;
 }
 
+- (UIButton *)collapseButton
+{
+    if (!_collapseButton) {
+        _collapseButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 20)];
+        _collapseButton.translatesAutoresizingMaskIntoConstraints = NO;
+        [_collapseButton addTarget:self action:@selector(collapseButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [_collapseButton setImage:[UIImage systemImageNamed:@"rectangle.arrowtriangle.2.inward"] forState:UIControlStateNormal];
+        _collapseButton.tintColor = [UIColor tertiaryLabelColor];
+    }
+    return _collapseButton;
+}
+
+- (void)collapseButtonPressed
+{
+    [self.delegate cellWantsToCollapseMessagesWithMessage:self.message];
+}
+
 + (CGFloat)defaultFontSize
 {
     CGFloat pointSize = 16.0;
@@ -116,9 +136,27 @@
     self.messageId = message.messageId;
     self.message = message;
     
-    if (!message.isGroupMessage) {
+    if (!message.isGroupMessage && !(message.isCollapsed && message.collapsedBy > 0)) {
         NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
         self.dateLabel.text = [NCUtils getTimeFromDate:date];
+    }
+
+    if (!message.isCollapsed && message.collapsedMessages.count > 0) {
+        self.collapseButton.hidden = NO;
+    } else {
+        self.collapseButton.hidden = YES;
+    }
+
+    if (!message.isCollapsed && (message.collapsedBy > 0 || message.collapsedMessages.count > 0)) {
+        self.backgroundColor = [UIColor tertiarySystemFillColor];
+    } else {
+        self.backgroundColor = [NCAppBranding backgroundColor];
+    }
+
+    if (message.collapsedMessages.count > 0) {
+        self.selectionStyle = UITableViewCellSelectionStyleDefault;
+    } else {
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
     }
 }
 

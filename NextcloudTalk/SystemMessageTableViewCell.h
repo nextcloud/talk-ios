@@ -31,10 +31,19 @@ static CGFloat kSystemMessageCellMinimumHeight  = 30.0;
 static NSString *SystemMessageCellIdentifier            = @"SystemMessageCellIdentifier";
 static NSString *InvisibleSystemMessageCellIdentifier   = @"InvisibleSystemMessageCellIdentifier";
 
+@protocol SystemMessageTableViewCellDelegate <ChatTableViewCellDelegate>
+
+- (void)cellWantsToCollapseMessagesWithMessage:(NCChatMessage *)message;
+
+@end
+
 @interface SystemMessageTableViewCell : ChatTableViewCell
+
+@property (nonatomic, weak) id<SystemMessageTableViewCellDelegate> delegate;
 
 @property (nonatomic, strong) UILabel *dateLabel;
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
+@property (nonatomic, strong) UIButton *collapseButton;
 
 + (CGFloat)defaultFontSize;
 - (void)setupForMessage:(NCChatMessage *)message;

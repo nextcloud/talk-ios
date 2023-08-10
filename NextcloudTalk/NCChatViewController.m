@@ -113,6 +113,7 @@ NSString * const kActionTypeTranscribeVoiceMessage   = @"transcribe-voice-messag
                                     VoiceMessageTableViewCellDelegate,
                                     ObjectShareMessageTableViewCellDelegate,
                                     PollCreationViewControllerDelegate,
+                                    SystemMessageTableViewCellDelegate,
                                     AVAudioRecorderDelegate,
                                     AVAudioPlayerDelegate,
                                     CNContactPickerDelegate,
@@ -3497,8 +3498,302 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     BOOL sameActor = [newMessage.actorId isEqualToString:lastMessage.actorId];
     BOOL sameType = ([newMessage isSystemMessage] == [lastMessage isSystemMessage]);
     BOOL timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference;
+
+    // Try to collapse system messages if the new message is not already collapsing some messages
+    if ([newMessage isSystemMessage] && [lastMessage isSystemMessage] && newMessage.collapsedMessages.count == 0) {
+        [self tryToGroupSystemMessage:newMessage withMessage:lastMessage];
+    }
     
     return sameActor & sameType & timeDiff;
+}
+
+- (void)tryToGroupSystemMessage:(NCChatMessage *)newMessage withMessage:(NCChatMessage *)lastMessage
+{
+    if ([newMessage.systemMessage isEqualToString:lastMessage.systemMessage]) {
+        // Same action and actor
+        if ([newMessage.actorId isEqualToString:lastMessage.actorId]) {
+            if ([newMessage.systemMessage isEqualToString:@"user_added"] ||
+                [newMessage.systemMessage isEqualToString:@"user_removed"] ||
+                [newMessage.systemMessage isEqualToString:@"moderator_promoted"] ||
+                [newMessage.systemMessage isEqualToString:@"moderator_demoted"]) {
+                [self collapseSystemMessage:newMessage andMessage:lastMessage withAction:newMessage.systemMessage];
+            }
+        }
+        // Same action different actors
+        else {
+            if ([newMessage.systemMessage isEqualToString:@"call_joined"] ||
+                [newMessage.systemMessage isEqualToString:@"call_left"]) {
+                [self collapseSystemMessage:newMessage andMessage:lastMessage withAction:newMessage.systemMessage];
+            }
+        }
+    } else if ([newMessage.actorId isEqualToString:lastMessage.actorId]) {
+        // Call reconnection
+        if ([newMessage.systemMessage isEqualToString:@"call_joined"] &&
+            [lastMessage.systemMessage isEqualToString:@"call_left"]) {
+            [self collapseSystemMessage:newMessage andMessage:lastMessage withAction:@"call_reconnected"];
+        }
+    }
+}
+
+- (void)collapseSystemMessage:(NCChatMessage *)newMessage andMessage:(NCChatMessage *)lastMessage withAction:(NSString *)action
+{
+    NCChatMessage *collapseByMessage = lastMessage;
+    if (lastMessage.collapsedBy) {
+        collapseByMessage = lastMessage.collapsedBy;
+        collapseByMessage.collapsedBy = nil;
+
+        [self tryToGroupSystemMessage:newMessage withMessage:collapseByMessage];
+        return;
+    }
+
+    newMessage.collapsedBy = collapseByMessage;
+    newMessage.isCollapsed = YES;
+
+    [collapseByMessage.collapsedMessages addObject:@(newMessage.messageId)];
+    collapseByMessage.isCollapsed = YES;
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    BOOL isUser0Self = [[[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"id"] isEqualToString:activeAccount.userId] &&
+                        [[[collapseByMessage.messageParameters objectForKey:@"user"] objectForKey:@"type"] isEqualToString:@"user"];
+    BOOL isUser1Self = [[[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"id"] isEqualToString:activeAccount.userId] &&
+                        [[[newMessage.messageParameters objectForKey:@"user"] objectForKey:@"type"] isEqualToString:@"user"];
+    BOOL isActor0Self = [collapseByMessage.actorId isEqualToString:activeAccount.userId] && [collapseByMessage.actorType isEqualToString:@"users"];
+    BOOL isActor1Self = [newMessage.actorId isEqualToString:activeAccount.userId] && [newMessage.actorType isEqualToString:@"users"];
+    BOOL isActor0Admin = [collapseByMessage.actorId isEqualToString:@"cli"] && [collapseByMessage.actorType isEqualToString:@"guests"];
+
+    if (isUser0Self || isUser1Self) {
+        collapseByMessage.collapsedIncludesUserSelf = YES;
+    }
+
+    if (isActor0Self || isActor1Self) {
+        collapseByMessage.collapsedIncludesActorSelf = YES;
+    }
+
+    NSMutableDictionary *collapsedMessadeParameters = [NSMutableDictionary new];
+    NSDictionary *actor0Dict = [collapseByMessage.messageParameters objectForKey:@"actor"];
+    NSDictionary *actor1Dict = [newMessage.messageParameters objectForKey:@"actor"];
+    if (actor0Dict && actor1Dict) {
+        if (isActor0Self) {
+            [collapsedMessadeParameters setObject:actor1Dict forKey:@"actor0"];
+        } else {
+            [collapsedMessadeParameters setObject:actor0Dict forKey:@"actor0"];
+        }
+        [collapsedMessadeParameters setObject:actor1Dict forKey:@"actor1"];
+    }
+    NSDictionary *user0Dict = [collapseByMessage.messageParameters objectForKey:@"user"];
+    NSDictionary *user1Dict = [newMessage.messageParameters objectForKey:@"user"];
+    if (user0Dict && user1Dict) {
+        if (isUser0Self) {
+            [collapsedMessadeParameters setObject:user1Dict forKey:@"user0"];
+        } else {
+            [collapsedMessadeParameters setObject:user0Dict forKey:@"user0"];
+        }
+        [collapsedMessadeParameters setObject:user1Dict forKey:@"user1"];
+    }
+    [collapseByMessage setCollapsedMessageParameters:collapsedMessadeParameters];
+
+    if ([action isEqualToString:@"user_added"]) {
+
+        if (isActor0Self) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You added {user0} and {user1}", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You added {user0} and %ld more participants", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+            }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added you and {user0}", @"Please put {user0} placeholder in the correct position on the translated text but do not translate it")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added {user0} and {user1}", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added you and %ld more participants", @"Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator added {user0} and %ld more participants", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} added you and {user0}", @"Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} added {user0} and {user1}", @"Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} added you and %ld more participants", @"Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} added {user0} and %ld more participants", @"Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        }
+
+    } else if ([action isEqualToString:@"user_removed"]) {
+
+        if (isActor0Self) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You removed {user0} and {user1}", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You removed {user0} and %ld more participants", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+            }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed you and {user0}", @"Please put {user0} placeholder in the correct position on the translated text but do not translate it")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed {user0} and {user1}", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed you and %ld more participants", @"Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator removed {user0} and %ld more participants", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} removed you and {user0}", @"Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} removed {user0} and {user1}", @"Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} removed you and %ld more participants", @"Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} removed {user0} and %ld more participants", @"Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        }
+
+    } else if ([action isEqualToString:@"moderator_promoted"]) {
+
+        if (isActor0Self) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You promoted {user0} and {user1} to moderators", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You promoted {user0} and %ld more participants to moderators", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+            }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted you and {user0} to moderators", @"Please put {user0} placeholder in the correct position on the translated text but do not translate it")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted {user0} and {user1} to moderators", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted you and %ld more participants to moderators", @"Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator promoted {user0} and %ld more participants to moderators", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} promoted you and {user0} to moderators", @"Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} promoted {user0} and {user1} to moderators", @"Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} promoted you and %ld more participants to moderators", @"Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} promoted {user0} and %ld more participants to moderators", @"Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        }
+
+    } else if ([action isEqualToString:@"moderator_demoted"]) {
+
+        if (isActor0Self) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You demoted {user0} and {user1} from moderators", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You demoted {user0} and %ld more participants from moderators", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+            }
+        } else if (isActor0Admin) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted you and {user0} from moderators", @"Please put {user0} placeholder in the correct position on the translated text but do not translate it")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted {user0} and {user1} from moderators", @"Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted you and %ld more participants from moderators", @"Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"An administrator demoted {user0} and %ld more participants from moderators", @"Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} demoted you and {user0} from moderators", @"Please put {actor0} and {user0} placeholders in the correct position on the translated text but do not translate them")];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} demoted {user0} and {user1} from moderators", @"Please put {actor0}, {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")];
+                }
+            } else {
+                if (collapseByMessage.collapsedIncludesUserSelf) {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} demoted you and %ld more participants from moderators", @"Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                } else {
+                    collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} demoted {user0} and %ld more participants from moderators", @"Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+                }
+            }
+        }
+
+    } else if ([action isEqualToString:@"call_joined"]) {
+
+        if (collapseByMessage.collapsedIncludesActorSelf) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and {actor0} joined the call", @"Please put {actor0} placeholder in the correct position on the translated text but do not translate it")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %ld more participants joined the call", @"Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+            }
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} and {actor1} joined the call", @"Please put {actor0} and {actor1} placeholders in the correct position on the translated text but do not translate them")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} and %ld more participants joined the call", @"Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+            }
+        }
+
+    } else if ([action isEqualToString:@"call_left"]) {
+
+        if (collapseByMessage.collapsedIncludesActorSelf) {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and {actor0} left the call", @"Please put {actor0} placeholder in the correct position on the translated text but do not translate it")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You and %ld more participants left the call", @"Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count];
+            }
+        } else {
+            if (collapseByMessage.collapsedMessages.count == 1) {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} and {actor1} left the call", @"Please put {actor0} and {actor1} placeholders in the correct position on the translated text but do not translate them")];
+            } else {
+                collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} and %ld more participants left the call", @"Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count];
+            }
+        }
+    } else if ([action isEqualToString:@"call_reconnected"]) {
+        if (collapseByMessage.collapsedIncludesActorSelf) {
+            collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"You reconnected to the call", nil)];
+        } else {
+            collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} reconnected to the call", @"Please put {actor0} placeholder in the correct position on the translated text but do not translate it")];
+        }
+    }
+
+    // Reload collapsedBy message if it's already laoded in the chat
+    NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+    NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:collapseByMessage.messageId];
+    if (indexPath) {
+        [reloadIndexPaths addObject:indexPath];
+
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    }
 }
 
 - (BOOL)couldRetireveHistory
@@ -3956,6 +4251,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             return (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:InvisibleSystemMessageCellIdentifier];
         }
         SystemMessageTableViewCell *systemCell = (SystemMessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:SystemMessageCellIdentifier];
+        systemCell.delegate = self;
         [systemCell setupForMessage:message];
         return systemCell;
     }
@@ -4050,7 +4346,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     // Update messages (the ones that notify about an update in one message, they should not be displayed)
-    if (message.message.length == 0 || [message isUpdateMessage]) {
+    if (message.message.length == 0 || [message isUpdateMessage] || ([message isCollapsed] && message.collapsedBy > 0)) {
         return 0.0;
     }
     
@@ -4064,7 +4360,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
 
     // Calculate the height of the message. "boundingRectWithSize" does not work correctly with markdown, so we use this
-    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:message.parsedMarkdownForChat];
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:messageString];
     CGRect targetBounding = CGRectMake(0, 0, width, CGFLOAT_MAX);
     NSTextContainer *container = [[NSTextContainer alloc] initWithSize:targetBounding.size];
     container.lineFragmentPadding = 0;
@@ -4188,6 +4484,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     } else {
         [self.emojiTextField resignFirstResponder];
         [self.datePickerTextField resignFirstResponder];
+
+        NSDate *sectionDate = [_dateSections objectAtIndex:indexPath.section];
+        NCChatMessage *message = [[_messages objectForKey:sectionDate] objectAtIndex:indexPath.row];
+        if (message.collapsedMessages.count > 0) {
+            [self cellWantsToCollapseMessagesWithMessage:message];
+        }
+
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
@@ -4790,6 +5093,39 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
             [pollCreationViewController close];
         }
     }];
+}
+
+#pragma mark - SystemMessageTableViewCellDelegate
+
+- (void)cellWantsToCollapseMessagesWithMessage:(NCChatMessage *)message
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+
+        BOOL collapse = !message.isCollapsed;
+        NSArray *messageIds = [message.collapsedMessages valueForKey:@"self"];
+        NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+
+        NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:message.messageId];
+        if (indexPath) {
+            [reloadIndexPaths addObject:indexPath];
+            message.isCollapsed = collapse;
+        }
+
+        for (NSNumber *messageId in messageIds) {
+            NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:messageId.intValue];
+            if (indexPath) {
+                [reloadIndexPaths addObject:indexPath];
+                NSDate *keyDate = [self->_dateSections objectAtIndex:indexPath.section];
+                NSMutableArray *messages = [self->_messages objectForKey:keyDate];
+                NCChatMessage *message = messages[indexPath.row];
+                message.isCollapsed = collapse;
+            }
+        }
+
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.tableView endUpdates];
+    });
 }
 
 #pragma mark - ChatMessageTableViewCellDelegate

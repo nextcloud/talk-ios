@@ -80,6 +80,13 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) BOOL isSilent;
 @property (nonatomic, assign) BOOL isOfflineMessage;
 @property (nonatomic, assign) NSInteger offlineMessageRetryCount;
+@property (nonatomic, strong) RLMArray<RLMInt> *collapsedMessages;
+@property (nonatomic, strong) NCChatMessage *collapsedBy;
+@property (nonatomic, strong) NSString *collapsedMessage;
+@property (nonatomic, strong) NSString *collapsedMessageParametersJSONString;
+@property (nonatomic, assign) BOOL collapsedIncludesActorSelf;
+@property (nonatomic, assign) BOOL collapsedIncludesUserSelf;
+@property (nonatomic, assign) BOOL isCollapsed;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
@@ -118,5 +125,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock)block;
 - (BOOL)isSameMessage:(NCChatMessage *)message;
 - (void)setPreviewImageHeight:(CGFloat)height;
+- (NSDictionary *)collapsedMessageParameters;
+- (void)setCollapsedMessageParameters:(NSDictionary *)messageParameters;
 
 @end
