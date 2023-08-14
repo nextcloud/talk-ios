@@ -248,7 +248,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     @objc func appStateHasChanged(notification: NSNotification) {
         let appState = notification.userInfo?["appState"]
-        if let appState = appState as? AppState {
+        if let rawAppState = appState as? UInt32 {
+            let appState = AppState(rawValue: rawAppState)
             self.adaptInterfaceForAppState(appState: appState)
         }
     }
