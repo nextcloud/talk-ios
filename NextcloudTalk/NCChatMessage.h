@@ -87,6 +87,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) BOOL collapsedIncludesActorSelf;
 @property (nonatomic, assign) BOOL collapsedIncludesUserSelf;
 @property (nonatomic, assign) BOOL isCollapsed;
+@property (nonatomic, assign) BOOL isMarkdownMessage;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
