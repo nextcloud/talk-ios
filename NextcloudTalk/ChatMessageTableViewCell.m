@@ -427,12 +427,14 @@
         [checkView setImage:[UIImage imageNamed:@"check"]];
         checkView.image = [checkView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         [checkView setTintColor:[UIColor lightGrayColor]];
+        [checkView setAccessibilityValue:@"MessageSent"];
         [self.statusView addSubview:checkView];
     } else if (state == ChatMessageDeliveryStateRead) {
         UIImageView *checkAllView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
         [checkAllView setImage:[UIImage imageNamed:@"check-all"]];
         checkAllView.image = [checkAllView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         [checkAllView setTintColor:[UIColor lightGrayColor]];
+        [checkAllView setAccessibilityValue:@"MessageSent"];
         [self.statusView addSubview:checkAllView];
     }
 }

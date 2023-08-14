@@ -191,7 +191,7 @@ final class NextcloudTalkUITests: XCTestCase {
         sendMessageButton.tap()
 
         // Wait for temporary message to be replaced
-        sleep(5)
+        XCTAssert(app.images["MessageSent"].waitForExistence(timeout: timeoutShort))
 
         // Open context menu
         let tables = app.tables
