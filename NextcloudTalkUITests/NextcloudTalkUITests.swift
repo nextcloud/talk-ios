@@ -177,6 +177,9 @@ final class NextcloudTalkUITests: XCTestCase {
         app.typeText(newConversationName)
         app.navigationBars["New group conversation"].buttons["Create"].tap()
 
+        // Check if we have one chat view controller allocated
+        XCTAssert(app.staticTexts["ChatVC: 1 / CallVC: 0"].waitForExistence(timeout: timeoutShort))
+
         // Send a test message
         let testMessage = "TestMessage"
         let toolbar = app.toolbars["Toolbar"]
