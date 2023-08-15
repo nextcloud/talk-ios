@@ -80,6 +80,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     message.referenceId = [messageDict objectForKey:@"referenceId"];
     message.messageType = [messageDict objectForKey:@"messageType"];
     message.expirationTimestamp = [[messageDict objectForKey:@"expirationTimestamp"] integerValue];
+    message.isMarkdownMessage = [[messageDict objectForKey:@"markdown"] boolValue];
     
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -169,6 +170,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     managedChatMessage.messageType = chatMessage.messageType;
     managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString;
     managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp;
+    managedChatMessage.isMarkdownMessage = chatMessage.isMarkdownMessage;
     
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
@@ -215,6 +217,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     messageCopy.isDeleting = _isDeleting;
     messageCopy.isOfflineMessage = _isOfflineMessage;
     messageCopy.isSilent = _isSilent;
+    messageCopy.isMarkdownMessage = _isMarkdownMessage;
     
     return messageCopy;
 }
@@ -508,6 +511,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         return nil;
     }
 
+    if (!_isMarkdownMessage) {
+        return parsedMessage;
+    }
+
     return [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
 }
 
@@ -522,6 +529,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
     if (!parsedMessage) {
         return nil;
+    }
+
+    if (!_isMarkdownMessage) {
+        return parsedMessage;
     }
 
     return [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
