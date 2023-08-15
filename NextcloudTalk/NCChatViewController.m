@@ -3784,14 +3784,13 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         }
     }
 
-    // Reload collapsedBy message if it's already laoded in the chat
-    NSMutableArray *reloadIndexPaths = [NSMutableArray new];
+    // Reload collapsedBy message if it's already loaded in the chat
     NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:collapseByMessage.messageId];
-    if (indexPath) {
-        [reloadIndexPaths addObject:indexPath];
 
+    // Make sure the cells are really loaded into the tableView before trying to reload them
+    if (indexPath && indexPath.section < self.tableView.numberOfSections && indexPath.row < [self.tableView numberOfRowsInSection:indexPath.section]) {
         [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:reloadIndexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView endUpdates];
     }
 }
