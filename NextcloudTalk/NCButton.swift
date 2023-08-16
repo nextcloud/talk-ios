@@ -20,6 +20,98 @@
 //
 
 import Foundation
+import UIKit
+import SwiftUI
+
+struct NCButtonSwiftUI: View {
+    @State var title: String
+    @State var action: () -> Void
+    @State var style: NCButtonStyle
+    @State var height: CGFloat
+    @Binding var disabled: Bool
+
+    enum NCButtonStyle: Int {
+        case primary = 0
+        case secondary
+        case tertiary
+        case destructive
+    }
+
+    var body: some View {
+        Button(action: action, label: {
+            HStack {
+                Spacer()
+                Text(title)
+                    .bold()
+                    .foregroundColor(titleColorForStyle(style: style).opacity(disabled ? 0.75 : 1))
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 40)
+                    .frame(height: height)
+                    .background(backgroundColorForStyle(style: style))
+                    .cornerRadius(height / 2)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(borderColorForStyle(style: style), lineWidth: borderWidthForStyle(style: style))
+                    )
+                Spacer()
+            }
+        })
+        .disabled(disabled)
+
+    }
+
+    func backgroundColorForStyle(style: NCButtonStyle) -> Color {
+        switch style {
+        case .primary:
+            return Color(NCAppBranding.themeColor())
+        case .secondary:
+            return .clear
+        case .tertiary:
+            return .clear
+        case .destructive:
+            return .red
+        }
+    }
+
+    func titleColorForStyle(style: NCButtonStyle) -> Color {
+        switch style {
+        case .primary:
+            return Color(NCAppBranding.themeTextColor())
+        case .secondary:
+            return Color(NCAppBranding.elementColor())
+        case .tertiary:
+            return .primary
+        case .destructive:
+            return .white
+        }
+    }
+
+    func borderColorForStyle(style: NCButtonStyle) -> Color {
+        switch style {
+        case .primary:
+            return .clear
+        case .secondary:
+            return Color(NCAppBranding.elementColor())
+        case .tertiary:
+            return Color(NCAppBranding.placeholderColor())
+        case .destructive:
+            return .clear
+        }
+    }
+
+    func borderWidthForStyle(style: NCButtonStyle) -> CGFloat {
+        switch style {
+        case .primary:
+            return 0.0
+        case .secondary:
+            return 1.0
+        case .tertiary:
+            return 1.0
+        case .destructive:
+            return 0.0
+        }
+    }
+}
 
 @objc class NCButton: UIButton {
 
@@ -47,6 +139,11 @@ import Foundation
         self.layer.cornerRadius = self.frame.height / 2
         self.layer.masksToBounds = true
         self.setButtonStyle(style: .primary)
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.layer.cornerRadius = self.frame.height / 2
     }
 
     func backgroundColorForStyle(style: NCButtonStyle) -> UIColor {
