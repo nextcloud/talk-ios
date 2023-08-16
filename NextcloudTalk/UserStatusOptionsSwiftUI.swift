@@ -32,22 +32,14 @@ struct UserStatusOptionsSwiftUI: View {
     @State private var isLoading: Bool = true
 
     init(changed: Binding<Bool>, userStatus: Binding<NCUserStatus>) {
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: NCAppBranding.themeColor()]
-        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-
-        UINavigationBar.appearance().backgroundColor = NCAppBranding.themeColor()
-        UINavigationBar.appearance().barTintColor = NCAppBranding.themeColor()
-
         _changed = changed
         _userStatus = userStatus
-        print("user status: \(userStatus.status)")
     }
 
     var body: some View {
             VStack {
                 List(options, id: \.self) { option in
                     Button(action: {
-                        print("Set new user status")
                         setActiveUserStatus(userStatus: option.identifier)
                     }) {
                         HStack(spacing: 15) {

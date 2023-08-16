@@ -54,13 +54,6 @@ struct UserStatusMessageSwiftUIView: View {
     ]
 
     init(changed: Binding<Bool>) {
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: NCAppBranding.themeColor()]
-        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-
-        UINavigationBar.appearance().backgroundColor = NCAppBranding.themeColor()
-        UINavigationBar.appearance().barTintColor = NCAppBranding.themeColor()
-        UITableView.appearance().backgroundColor = .clear
-
         _changed = changed
     }
 
