@@ -119,10 +119,3 @@ struct UserStatusOptionsSwiftUI: View {
         options.append(invisibleOption)
     }
 }
-/*
-struct UserStatusOptionsSwiftUI_Previews: PreviewProvider {
-    static var previews: some View {
-        UserStatusOptionsSwiftUI()
-    }
-}
-*/

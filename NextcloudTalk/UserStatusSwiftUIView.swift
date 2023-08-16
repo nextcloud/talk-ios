@@ -128,10 +128,3 @@ class UserStatusOptions: ObservableObject {
         }
     }
 }
-
-/*
-struct UserStatusSwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserStatusSwiftUIView()
-    }
-}*/

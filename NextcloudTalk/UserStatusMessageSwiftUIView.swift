@@ -70,17 +70,10 @@ struct UserStatusMessageSwiftUIView: View {
                                 .frame(maxWidth: 23)
                                 .opacity(selectedIcon.isEmpty ? 0.5 : 1.0)
                                 .onChange(of: selectedIcon) { newString in
-                                    if changedStatusFromPredif {
-                                        customStatusSelected = false
-                                    } else {
-                                        customStatusSelected = true
-                                    }
+                                    customStatusSelected = !changedStatusFromPredif
                                     changedStatusFromPredif = false
-                                    print("Now its: \(newString)")
                                     if newString.count > 1 {
-                                        print("More than one character")
                                         selectedIcon = String(newString.first!)
-                                        print("Now its is: \(selectedIcon)")
                                     }
                                 }
                                 .tint(.primary)
@@ -226,8 +219,6 @@ struct UserStatusMessageSwiftUIView: View {
         if !customStatusSelected {
             NextcloudKit.shared.setCustomMessagePredefined(messageId: selectedPredifinedStatus!.id!, clearAt: selectedClearAt) { _, error in
                 if error.errorCode == 0 {
-                    //   let clearAtDate = NSDate(timeIntervalSince1970: selectedClearAt)
-                    //   self.delegate?.didSetStatusMessage(icon: self.predefinedStatusSelected?.icon, message: self.predefinedStatusSelected?.message, clearAt: clearAtDate)
                     dismiss()
                     changed.toggle()
                 } else {
@@ -238,8 +229,6 @@ struct UserStatusMessageSwiftUIView: View {
         } else {
             NextcloudKit.shared.setCustomMessageUserDefined(statusIcon: selectedIcon.isEmpty ? "😀" : selectedIcon, message: selectedMessage, clearAt: selectedClearAt) { _, error in
                 if error.errorCode == 0 {
-                    // let clearAtDate = NSDate(timeIntervalSince1970: clearAtDate)
-                    // self.delegate?.didSetStatusMessage(icon: self.iconSelected, message: selectedMessage, clearAt: clearAtDate)
                     dismiss()
                     changed.toggle()
                 } else {
