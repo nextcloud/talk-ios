@@ -21,6 +21,7 @@
 
 import UIKit
 import SwiftUI
+import SwiftUIIntrospect
 
 struct UserStatusSwiftUIView: View {
 
@@ -31,19 +32,13 @@ struct UserStatusSwiftUIView: View {
     @State var changed: Bool = false
 
     init(userStatus: NCUserStatus) {
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: NCAppBranding.themeColor()]
-        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-
-        UINavigationBar.appearance().backgroundColor = NCAppBranding.themeColor()
-        UINavigationBar.appearance().barTintColor = NCAppBranding.themeColor()
-
         _userStatus = State(initialValue: userStatus)
     }
 
     var body: some View {
         NavigationView {
             VStack {
-                List {
+                Form {
                     Section(header: Text("Online status")) {
                         NavigationLink(destination: {
                             UserStatusOptionsSwiftUI(changed: $changed, userStatus: $userStatus)
@@ -55,19 +50,14 @@ struct UserStatusSwiftUIView: View {
                             }
                         })
                     }
-                    Section {
+                    Section(header: Text("Status message")) {
                         NavigationLink(destination: {
                             UserStatusMessageSwiftUIView(changed: $changed)
                         }, label: {
                             Text(userStatus.readableUserStatusMessage().isEmpty ? NSLocalizedString("What is your status?", comment: "") : userStatus.readableUserStatusMessage() )
                         })
-                    } header: {
-                        HStack {
-                            Text("Status message")
-                        }
                     }
                 }
-                .accentColor(.clear)
             }
             .navigationBarTitle(Text(NSLocalizedString("Status", comment: "")), displayMode: .inline)
             .navigationBarHidden(false)
@@ -81,6 +71,10 @@ struct UserStatusSwiftUIView: View {
                             }
                 }
             })
+        }
+        .introspect(.navigationView(style: .stack), on: .iOS(.v15, .v16, .v17)) { navController in
+                    navController.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
+                    navController.navigationBar.backgroundColor = NCAppBranding.themeColor()
         }
         .tint(Color(NCAppBranding.themeTextColor()))
         .onAppear {

@@ -400,6 +400,7 @@
 		807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */; };
 		80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */; };
 		80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */; };
+		80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
 		DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */; };
@@ -932,6 +933,7 @@
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
+				80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
@@ -1723,6 +1725,7 @@
 				1F0ECBFC2A73F21A00921E90 /* Realm */,
 				1FAB2E7C2AC99326001214EB /* TOCropViewController */,
 				1FAB2E872ACD44D0001214EB /* WebRTC */,
+				80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1866,6 +1869,7 @@
 				1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */,
 				1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */,
+				80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -3276,6 +3280,14 @@
 				version = 1.1.1700;
 			};
 		};
+		80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -3393,6 +3405,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */;
 			productName = OpenSSL;
+		};
+		80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
