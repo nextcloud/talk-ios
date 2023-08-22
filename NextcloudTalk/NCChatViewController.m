@@ -241,6 +241,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         // Notifications when runing on Mac 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:@"NSApplicationDidBecomeActiveNotification" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:@"NSApplicationDidResignActiveNotification" object:nil];
+
+        [NCUserInterfaceController sharedInstance].numberOfAllocatedChatViewControllers += 1;
     }
     
     return self;
@@ -249,6 +251,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [NCUserInterfaceController sharedInstance].numberOfAllocatedChatViewControllers -= 1;
     NSLog(@"Dealloc NCChatViewController");
 }
 

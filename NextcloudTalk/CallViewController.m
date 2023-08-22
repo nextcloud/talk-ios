@@ -172,6 +172,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoutingInformation:) name:AudioSessionDidChangeRoutingInformationNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+
+    [NCUserInterfaceController sharedInstance].numberOfAllocatedCallViewControllers += 1;
     
     return self;
 }
@@ -346,6 +348,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)dealloc
 {
     NSLog(@"CallViewController dealloc");
+    [NCUserInterfaceController sharedInstance].numberOfAllocatedCallViewControllers -= 1;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
