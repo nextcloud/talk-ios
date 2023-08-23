@@ -39,6 +39,13 @@ import UIKit
 
         markdownParser.image.enabled = false
 
+        // Don't update the font when we have a listing/quote, just the paragraph style
+        markdownParser.list.font = nil
+        markdownParser.list.color = nil
+
+        markdownParser.quote.font = nil
+        markdownParser.quote.color = nil
+
         return NSMutableAttributedString(attributedString: markdownParser.parse(markdownString))
     }
 }
