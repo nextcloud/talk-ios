@@ -4521,6 +4521,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
     NSInteger sunday = 1;
     NSInteger monday = 2;
+    NSInteger friday = 6;
     NSInteger saturday = 7;
 
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -4596,17 +4597,23 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
                                            options:UIMenuOptionsDisplayInline
                                           children:@[customReminderAction]];
 
-    if (now.hour < 18) {
+    // Hide "Later today" when it's past 5pm
+    if (now.hour < 17) {
         [reminderOptions addObject:laterToday];
     }
 
     [reminderOptions addObject:tomorrow];
 
-    if (now.weekday != sunday && now.weekday != saturday) {
+    // Only show "This weekend" for Mon-Thu
+    if (now.weekday != friday && now.weekday != saturday && now.weekday != sunday) {
         [reminderOptions addObject:thisWeekend];
     }
 
-    [reminderOptions addObject:nextWeek];
+    // "Next week" should be hidden on sundays
+    if (now.weekday != sunday) {
+        [reminderOptions addObject:nextWeek];
+    }
+
     [reminderOptions addObject:customReminder];
 
     return reminderOptions;
