@@ -756,6 +756,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             [userInfo setObject:self->_room.token forKey:@"room"];
+            [userInfo setObject:@(lastCommonReadMessage) forKey:@"lastCommonReadMessage"];
             [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveNewerCommonReadMessageNotification
                                                                 object:self
                                                               userInfo:userInfo];
