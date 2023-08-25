@@ -235,13 +235,16 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
     // Add message as pending message if websocket is not connected
     if (!_helloResponseReceived && !wsMessage.isHelloMessage) {
-        if (wsMessage.isJoinMessage) {
-            // We join a new room, so any message which wasn't send by now is not relevant for the new room anymore
-            _pendingMessages = [NSMutableArray new];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (wsMessage.isJoinMessage) {
+                // We join a new room, so any message which wasn't send by now is not relevant for the new room anymore
+                self->_pendingMessages = [NSMutableArray new];
+            }
 
-        [NCUtils log:@"Trying to send message before we received a hello response -> adding to pendingMessages"];
-        [_pendingMessages addObject:wsMessage];
+            [NCUtils log:@"Trying to send message before we received a hello response -> adding to pendingMessages"];
+            [self->_pendingMessages addObject:wsMessage];
+        });
+
         return;
     }
 
@@ -333,14 +336,15 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     dispatch_async(dispatch_get_main_queue(), ^{
         BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateSignalingVersionTransaction" expirationHandler:nil];
         [[NCDatabaseManager sharedInstance] setExternalSignalingServerVersion:serverVersion forAccountId:self->_account.accountId];
+
+        // Send pending messages
+        for (WSMessage *wsMessage in self->_pendingMessages) {
+            [self sendMessage:wsMessage];
+        }
+        self->_pendingMessages = [NSMutableArray new];
+
         [bgTask stopBackgroundTask];
     });
-    
-    // Send pending messages
-    for (WSMessage *wsMessage in _pendingMessages) {
-        [self sendMessage:wsMessage];
-    }
-    _pendingMessages = [NSMutableArray new];
     
     // Re-join if user was in a room
     if (_currentRoom && _sessionChanged) {
