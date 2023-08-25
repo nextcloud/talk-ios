@@ -727,7 +727,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 }
             }
 
-            NSLog(@"Could not send chat message. Error: %@", error.description);
+            [NCUtils log:[NSString stringWithFormat:@"Could not send chat message. Error: %@", error.description]];
         } else {
             [[NCIntentController sharedInstance] donateSendMessageIntentForRoom:self->_room];
         }
