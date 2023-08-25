@@ -486,23 +486,12 @@ static NSString *const nextcloudScheme = @"nextcloud:";
         }
 
         dispatch_queue_t currentQueue = dispatch_get_current_queue();
-
-        int applicationState = -1;
-        float backgroundTimeRemaining = -1;
-
-    #ifndef APP_EXTENSION
-        applicationState = (int)[UIApplication sharedApplication].applicationState;
-        backgroundTimeRemaining = [UIApplication sharedApplication].backgroundTimeRemaining;
-    #endif
-
         NSDate *now = [NSDate date];
 
-        NSString *logMessage = [NSString stringWithFormat:@"%@ (%@): %@\nState: %d, Time remaining %f\n\n",
+        NSString *logMessage = [NSString stringWithFormat:@"%@ (%@): %@\n",
                                 [now formattedDateWithFormat:@"y-MM-dd H:mm:ss.SSSS"],
                                 [currentQueue description],
-                                message,
-                                applicationState,
-                                backgroundTimeRemaining
+                                message
         ];
 
 
