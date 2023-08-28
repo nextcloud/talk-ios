@@ -4790,7 +4790,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
 
     // Delete option
-    if (message.sendingFailed || message.isOfflineMessage || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] andParticipantType:_room.participantType] && hasChatPermission)) {
+    if (message.sendingFailed || message.isOfflineMessage || ([message isDeletableForAccount:[[NCDatabaseManager sharedInstance] activeAccount] inRoom:_room] && hasChatPermission)) {
         UIImage *deleteImage = [UIImage systemImageNamed:@"trash"];
         UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete", nil) image:deleteImage identifier:nil handler:^(UIAction *action){
             
