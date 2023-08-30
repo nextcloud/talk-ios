@@ -2906,7 +2906,21 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
 
                     if (parentPath != nil && parentPath.section < self.tableView.numberOfSections && parentPath.row < [self.tableView numberOfRowsInSection:parentPath.section]) {
                         // We received an update message to a message which is already part of our current data, therefore we need to reload it
-                        [reloadIndexPaths addObject:parentPath];
+                        if (![reloadIndexPaths containsObject:parentPath]) {
+                            [reloadIndexPaths addObject:parentPath];
+                        }
+                    }
+                }
+
+                if (newMessage.collapsedBy) {
+                    NSIndexPath *parentPath = [self indexPathForMessage:newMessage.collapsedBy];
+
+                    if (parentPath != nil && parentPath.section < self.tableView.numberOfSections && parentPath.row < [self.tableView numberOfRowsInSection:parentPath.section]) {
+                        // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
+
+                        if (![reloadIndexPaths containsObject:parentPath]) {
+                            [reloadIndexPaths addObject:parentPath];
+                        }
                     }
                 }
             }
@@ -3791,16 +3805,6 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         } else {
             collapseByMessage.collapsedMessage = [NSString stringWithFormat:NSLocalizedString(@"{actor0} reconnected to the call", @"Please put {actor0} placeholder in the correct position on the translated text but do not translate it")];
         }
-    }
-
-    // Reload collapsedBy message if it's already loaded in the chat
-    NSIndexPath *indexPath = [self indexPathForMessageWithMessageId:collapseByMessage.messageId];
-
-    // Make sure the cells are really loaded into the tableView before trying to reload them
-    if (indexPath && indexPath.section < self.tableView.numberOfSections && indexPath.row < [self.tableView numberOfRowsInSection:indexPath.section]) {
-        [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-        [self.tableView endUpdates];
     }
 }
 
