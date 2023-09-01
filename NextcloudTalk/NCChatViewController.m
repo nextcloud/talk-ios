@@ -1073,6 +1073,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     temporaryMessage.parentId = parentMessage.internalId;
     temporaryMessage.messageParametersJSONString = messageParameters;
     temporaryMessage.isSilent = silently;
+    temporaryMessage.isMarkdownMessage = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityMarkdownMessages];
 
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
