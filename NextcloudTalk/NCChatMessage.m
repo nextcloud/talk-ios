@@ -268,7 +268,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
 }
 
-- (BOOL)isDeletableForAccount:(TalkAccount *)account andParticipantType:(NCParticipantType)participantType
+- (BOOL)isDeletableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
     
@@ -278,7 +278,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     // Delete files or shared objects
     ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectDelete forAccountId:account.accountId] && (self.file || [self isVoiceMessage] ||[self isObjectShare]));
     
-    BOOL userCanDeleteMessage = (participantType == kNCParticipantTypeOwner || participantType == kNCParticipantTypeModerator || [self isMessageFromUser:account.userId]);
+    BOOL userCanDeleteMessage = [self isMessageFromUser:account.userId]
+    || (room.type != kNCRoomTypeOneToOne
+        && room.type != kNCRoomTypeFormerOneToOne
+        && (room.participantType == kNCParticipantTypeOwner
+            || room.participantType == kNCParticipantTypeModerator));
     
     if (severCanDeleteMessage && userCanDeleteMessage && !self.isDeleting && self.timestamp >= sixHoursAgoTimestamp) {
         return YES;
