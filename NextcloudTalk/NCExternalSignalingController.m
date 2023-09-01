@@ -528,6 +528,8 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         for (NSString *sessionId in leftSessions) {
             NSString *userId = [self getUserIdFromSessionId:sessionId];
 
+            [_participantsMap removeObjectForKey:sessionId];
+
             if ([sessionId isEqualToString:_sessionId] || [userId isEqualToString:_userId]) {
                 // Ignore own session
                 continue;
