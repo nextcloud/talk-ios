@@ -238,7 +238,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveParticipantJoin:) name:NCExternalSignalingControllerDidReceiveJoinOfParticipant object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveParticipantLeave:) name:NCExternalSignalingControllerDidReceiveLeaveOfParticipant object:nil];
 
-        // Notifications when runing on Mac 
+        // Notifications when runing on Mac
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:@"NSApplicationDidBecomeActiveNotification" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:@"NSApplicationDidResignActiveNotification" object:nil];
 
@@ -247,7 +247,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     
     return self;
 }
-    
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -460,19 +460,35 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.textView setTintColor:[UIColor colorWithCGColor:[UIColor systemBlueColor].CGColor]];
 
     [self addMenuToLeftButton];
+    [self.replyMessageView addObserver:self forKeyPath:@"visible" options:NSKeyValueObservingOptionNew context:nil];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+
+    if ([object isEqual:self.replyMessageView] && ![self shouldScrollOnNewMessages]) {
+        // When the visible state of the replyMessageView changes, we need to update the toolbar to show the correct border
+        // Only do this if we are not already at the bottom, otherwise we briefly show the scroll button directly after sending a message
+        [self updateToolbar:YES];
+    }
 }
 
 - (void)updateToolbar:(BOOL)animated
 {
     void (^animations)(void) = ^void() {
         CGFloat minimumOffset = (self.tableView.contentSize.height - self.tableView.frame.size.height) - 10;
-        
+
         if (self.tableView.contentOffset.y < minimumOffset) {
             // Scrolled -> show top border
-            self.inputbarBorderView.hidden = NO;
+
+            // When a reply view is visible, we show the border of that view
+            self.replyMessageView.topBorder.hidden = !self->_replyMessageView.isVisible;
+            self.inputbarBorderView.hidden = self->_replyMessageView.isVisible;
         } else {
             // At the bottom -> no top border
             self.inputbarBorderView.hidden = YES;
+            self.replyMessageView.topBorder.hidden = YES;
         }
     };
 
@@ -4402,7 +4418,7 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     }
     
     if (message.parent) {
-        height += 55; // left(5) + quoteView(50)
+        height += 65; // left(5) + quoteView(60)
         return height;
     }
     

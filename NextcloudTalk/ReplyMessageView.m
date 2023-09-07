@@ -24,13 +24,15 @@
 
 #import "SLKUIConstants.h"
 
+#import "NCAppBranding.h"
 #import "NCChatMessage.h"
 #import "QuotedMessageView.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @interface ReplyMessageView ()
 @property (nonatomic, strong) UIView *quoteContainerView;
 @property (nonatomic, strong) UIButton *cancelButton;
-@property (nonatomic, strong) CALayer *topBorder;
 @end
 
 @implementation ReplyMessageView
@@ -47,23 +49,35 @@
 
 - (void)configureSubviews
 {
-    self.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    self.backgroundColor = [NCAppBranding backgroundColor];
     
     [self addSubview:self.quoteContainerView];
     [self addSubview:self.cancelButton];
     [self.layer addSublayer:self.topBorder];
-    
+
     [_quoteContainerView addSubview:self.quotedMessageView];
     
-    NSDictionary *views = @{@"quoteContainerView": self.quoteContainerView,
-                            @"quotedMessageView": self.quotedMessageView,
-                            @"cancelButton": self.cancelButton
-                            };
+    NSDictionary *views = @{
+        @"quoteContainerView": self.quoteContainerView,
+        @"quotedMessageView": self.quotedMessageView,
+        @"cancelButton": self.cancelButton
+    };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteContainerView]-[cancelButton(44)]|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-16-[quoteContainerView]-4-[cancelButton(44)]-4-|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quoteContainerView]|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cancelButton]|" options:0 metrics:nil views:views]];
+
+    // Center the quotedMessageView inside the container view (if we add a padding in the layout above, we need to break constraints when height is 0)
+    NSLayoutConstraint *centerConstraint = [NSLayoutConstraint constraintWithItem:self.quotedMessageView
+                                                                        attribute:NSLayoutAttributeCenterY
+                                                                        relatedBy:NSLayoutRelationEqual
+                                                                           toItem:self.quoteContainerView
+                                                                        attribute:NSLayoutAttributeCenterY
+                                                                       multiplier:1.0f
+                                                                         constant:0.0f];
+
+    [self.quoteContainerView addConstraints:@[centerConstraint]];
 }
 
 #pragma mark - UIView
@@ -72,20 +86,21 @@
 {
     [super layoutSubviews];
     
-    self.topBorder.frame = CGRectMake(0, 0, self.bounds.size.width, 0.5);
+    self.topBorder.frame = CGRectMake(0, 0, self.bounds.size.width, 1);
 }
 
 - (CGSize)intrinsicContentSize
 {
     // This will indicate the size of the view when calling systemLayoutSizeFittingSize in SLKTextViewController
-    return CGSizeMake(UIViewNoIntrinsicMetric, 50);
+    // QuoteMessageView(60) + 2*Padding(8)
+    return CGSizeMake(UIViewNoIntrinsicMetric, 76);
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
 {
     if (_topBorder && [self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
         // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
-        _topBorder.backgroundColor = [UIColor systemGray4Color].CGColor;
+        _topBorder.backgroundColor = [UIColor systemGray6Color].CGColor;
     }
 }
 
@@ -105,7 +120,7 @@
 - (UIView *)quoteContainerView
 {
     if (!_quoteContainerView) {
-        _quoteContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+        _quoteContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
         _quoteContainerView.translatesAutoresizingMaskIntoConstraints = NO;
     }
     return _quoteContainerView;
@@ -137,8 +152,8 @@
 {
     if (!_topBorder) {
         _topBorder = [CAGradientLayer layer];
-        _topBorder.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(SLKKeyWindowBounds()), 0.5);
-        _topBorder.backgroundColor = [UIColor systemGray4Color].CGColor;
+        _topBorder.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(SLKKeyWindowBounds()), 1);
+        _topBorder.backgroundColor = [UIColor systemGray6Color].CGColor;
     }
     return _topBorder;
 }
@@ -156,6 +171,7 @@
     self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
     self.quotedMessageView.messageLabel.text = message.parsedMarkdownForChat.string;
     self.quotedMessageView.highlighted = [message isMessageFromUser:userId];
+    [self.quotedMessageView.avatarView setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle];
     
     self.visible = YES;
 }
