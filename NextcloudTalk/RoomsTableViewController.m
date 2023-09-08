@@ -1278,7 +1278,8 @@ typedef enum RoomsFilter {
     
     // Do not show swipe actions for open conversations or messages
     if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {return nil;}
-    
+
+    // Add/Remove room to/from favorites
     UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                                handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                    if (room.isFavorite) {
@@ -1291,6 +1292,27 @@ typedef enum RoomsFilter {
     NSString *favImageName = (room.isFavorite) ? @"star" : @"star.fill";
     favoriteAction.image = [UIImage systemImageNamed:favImageName];
     favoriteAction.backgroundColor = [UIColor colorWithRed:0.97 green:0.80 blue:0.27 alpha:1.0]; // Favorite yellow
+
+    // Mark room as read/unread
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+
+        UIContextualAction *markReadAction = [UIContextualAction
+                                              contextualActionWithStyle:UIContextualActionStyleNormal title:nil
+                                              handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+            if (room.unreadMessages > 0) {
+                [self markRoomAsReadAtIndexPath:indexPath];
+            } else {
+                [self markRoomAsUnreadAtIndexPath:indexPath];
+            }
+            completionHandler(true);
+        }];
+
+        NSString *markImageName = (room.unreadMessages > 0) ? @"eye" : @"eye.slash";
+        markReadAction.image = [UIImage systemImageNamed:markImageName];
+        markReadAction.backgroundColor = [UIColor systemBlueColor];
+
+        return [UISwipeActionsConfiguration configurationWithActions:@[markReadAction, favoriteAction]];
+    }
     
     return [UISwipeActionsConfiguration configurationWithActions:@[favoriteAction]];
 }
