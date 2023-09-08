@@ -320,6 +320,7 @@
         self.quotedMessageView.actorLabel.text = ([parent.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : parent.actorDisplayName;
         self.quotedMessageView.messageLabel.text = parent.parsedMarkdownForChat.string;
         self.quotedMessageView.highlighted = [parent isMessageFromUser:activeAccount.userId];
+        [self.quotedMessageView.avatarView setUserAvatarFor:parent.actorId with:self.traitCollection.userInterfaceStyle];
     }
     
     if (message.isDeleting) {

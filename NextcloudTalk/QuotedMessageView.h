@@ -22,6 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class AvatarImageView;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface QuotedMessageView : UIView
@@ -29,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UILabel *actorLabel;
 @property (nonatomic, strong) UILabel *messageLabel;
 @property (nonatomic, assign) BOOL highlighted;
+@property (nonatomic, strong) AvatarImageView *avatarView;
 
 @end
 

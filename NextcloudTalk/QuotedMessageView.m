@@ -24,6 +24,8 @@
 
 #import "NCAppBranding.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @interface QuotedMessageView ()
 @property (nonatomic, strong) UIView *quoteView;
 @end
@@ -41,21 +43,33 @@
 
 - (void)configureSubviews
 {
-    self.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    self.backgroundColor = [NCAppBranding backgroundColor];
+    self.layer.borderColor = [NCAppBranding placeholderColor].CGColor;
+    self.layer.borderWidth = 1.0;
+    self.layer.cornerRadius = 8.0;
 
     [self addSubview:self.quoteView];
     [self addSubview:self.actorLabel];
     [self addSubview:self.messageLabel];
+    [self addSubview:self.avatarView];
+
     
     NSDictionary *views = @{@"quoteView": self.quoteView,
                             @"actorLabel": self.actorLabel,
-                            @"messageLabel": self.messageLabel
+                            @"messageLabel": self.messageLabel,
+                            @"avatarView": self.avatarView
                             };
+
+    NSDictionary *metrics = @{
+        @"padding": @8,
+        @"avatarSize": @20,
+    };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteView(4)]-[actorLabel]-|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quoteView(4)]-[messageLabel]-|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quoteView(50)]|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[actorLabel(18)]-4-[messageLabel(18)]-5-|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[quoteView(padding)]-[avatarView(avatarSize)]-padding-[actorLabel]-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[quoteView(padding)]-[messageLabel]-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-padding-[quoteView(44)]-padding-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-padding-[actorLabel(20)]-4-[messageLabel(20)]-padding-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-padding-[avatarView(20)]-4-[messageLabel(20)]-padding-|" options:0 metrics:metrics views:views]];
 }
 
 
@@ -64,9 +78,10 @@
 - (UIView *)quoteView
 {
     if (!_quoteView) {
-        _quoteView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 50)];
+        _quoteView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 60)];
         _quoteView.translatesAutoresizingMaskIntoConstraints = NO;
         _quoteView.backgroundColor = [UIColor systemFillColor];
+        _quoteView.layer.cornerRadius = 4.0;
     }
     return _quoteView;
 }
@@ -81,7 +96,7 @@
         _actorLabel.numberOfLines = 1;
         _actorLabel.contentMode = UIViewContentModeLeft;
         
-        _actorLabel.font = [UIFont systemFontOfSize:14.0];
+        _actorLabel.font = [UIFont systemFontOfSize:16.0];
         _actorLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _actorLabel;
@@ -97,10 +112,21 @@
         _messageLabel.numberOfLines = 0;
         _messageLabel.contentMode = UIViewContentModeLeft;
         
-        _messageLabel.font = [UIFont systemFontOfSize:14.0];
+        _messageLabel.font = [UIFont systemFontOfSize:16.0];
         _messageLabel.textColor = [NCAppBranding chatForegroundColor];
     }
     return _messageLabel;
+}
+
+- (AvatarImageView *)avatarView
+{
+    if (!_avatarView) {
+        _avatarView = [[AvatarImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
+        _avatarView.layer.cornerRadius = 10;
+        _avatarView.layer.masksToBounds = YES;
+    }
+    return _avatarView;
 }
 
 #pragma mark - Setters
