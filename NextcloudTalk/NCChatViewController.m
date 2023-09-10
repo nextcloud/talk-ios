@@ -786,8 +786,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     UIImage *videoCallImage = [UIImage systemImageNamed:@"video" withConfiguration:symbolConfiguration];
     UIImage *voiceCallImage = [UIImage systemImageNamed:@"phone" withConfiguration:symbolConfiguration];
     
-    CGFloat buttonWidth = 24.0;
-    CGFloat buttonPadding = 30.0;
+    CGFloat buttonWidth = 44.0;
+    CGFloat buttonPadding = 16.0;
     
     _videoCallButton = [[BarButtonItemWithActivity alloc] initWithWidth:buttonWidth withImage:videoCallImage];
     [_videoCallButton.innerButton addTarget:self action:@selector(videoCallButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
