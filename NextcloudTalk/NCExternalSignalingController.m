@@ -181,6 +181,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_resumeId = nil;
+        self->_currentRoom = nil;
         [self reconnect];
     });
 }
@@ -356,6 +357,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 - (void)errorResponseReceived:(NSDictionary *)messageDict
 {
     NSString *errorCode = [[messageDict objectForKey:@"error"] objectForKey:@"code"];
+    NSString *messageId = [messageDict objectForKey:@"id"];
 
     [NCUtils log:[NSString stringWithFormat:@"Received error response %@", errorCode]];
 
@@ -365,9 +367,19 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         [self sendHelloMessage];
 
         return;
+    } else if ([errorCode isEqualToString:@"already_joined"]) {
+        // We already joined this room on the signaling server
+        NSDictionary *details = [[messageDict objectForKey:@"error"] objectForKey:@"details"];
+        NSString *roomId = [[details objectForKey:@"room"] objectForKey:@"roomid"];
+
+        // If we are aware that we were in this room before, we should treat this as a success
+        if ([_currentRoom isEqualToString:roomId]) {
+            [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageSuccess];
+
+            return;
+        }
     }
 
-    NSString *messageId = [messageDict objectForKey:@"id"];
     [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageApplicationError];
 }
 
@@ -394,7 +406,9 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         if (status == SendMessageSocketError && task == self->_webSocket) {
             // Reconnect if this is still the same socket we tried to send the message on
             [NCUtils log:[NSString stringWithFormat:@"Reconnect from joinRoom"]];
-            [self reconnect];
+
+            // When we failed to join a room, we shouldn't try to resume a session but instead do a force reconnect
+            [self forceReconnect];
         }
 
         if (block) {
