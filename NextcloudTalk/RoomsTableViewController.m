@@ -438,7 +438,7 @@ typedef enum RoomsFilter {
 
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSString *accountName = account.userDisplayName;
-        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(72, 72)];
+        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle];
         accountImage = [NCUtils roundedImageFromImage:accountImage];
 
         // Draw a red circle to the image in case we have unread notifications for that account
@@ -839,7 +839,7 @@ typedef enum RoomsFilter {
     profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(90, 90)];
+    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle];
     if (profileImage) {
         UIGraphicsBeginImageContextWithOptions(profileButton.bounds.size, NO, 3.0);
         [[UIBezierPath bezierPathWithRoundedRect:profileButton.bounds cornerRadius:profileButton.bounds.size.height] addClip];

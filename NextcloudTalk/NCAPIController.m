@@ -2595,7 +2595,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style andSize:(CGSize)size
+- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *documentsPath = [[fileManager containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] path];
@@ -2618,7 +2618,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSLog(@"Migrating profile picture. Error: %@", error);
     }
     
-    return [self imageWithImage:[UIImage imageWithContentsOfFile:filePath] convertToSize:size];
+    return [UIImage imageWithContentsOfFile:filePath];
 }
 
 - (void)removeProfileImageForAccount:(TalkAccount *)account
@@ -2636,19 +2636,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *oldDocumentsPath = [paths objectAtIndex:0];
     NSString *oldPath = [oldDocumentsPath stringByAppendingPathComponent:fileName];
     [[NSFileManager defaultManager] removeItemAtPath:oldPath error:nil];
-}
-
-- (UIImage *)imageWithImage:(UIImage *)image convertToSize:(CGSize)size
-{
-    if (image) {
-        UIGraphicsBeginImageContext(size);
-        [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-        UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        return destImage;
-    }
-    
-    return nil;
 }
 
 #pragma mark - User Status

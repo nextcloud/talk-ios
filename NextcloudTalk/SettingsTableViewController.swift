@@ -22,7 +22,6 @@
 import UIKit
 import NextcloudKit
 import SafariServices
-import SDWebImage
 
 enum SettingsSection: Int {
     case kSettingsSectionUser = 0
@@ -74,6 +73,29 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     var setPhoneAction: UIAlertAction?
     var phoneUtil = NBPhoneNumberUtil()
 
+    var totalImageCacheSize = 0
+    var totalFileCacheSize = 0
+
+    var activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+    var inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
+    lazy var serverCapabilities: ServerCapabilities = {
+        NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+    }()
+
+    lazy var profilePictures: [String: UIImage] = {
+        var result: [String: UIImage] = [:]
+
+        for account in NCDatabaseManager.sharedInstance().allAccounts() {
+            guard let account = account as? TalkAccount else {
+                continue
+            }
+
+            result[account.accountId] = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle)
+        }
+
+        return result
+    }()
+
     @IBOutlet weak var cancelButton: UIBarButtonItem!
 
     override func viewDidLoad() {
@@ -111,11 +133,21 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(contactsHaveBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsAccessHasBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsAccessUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
-    }
 
-    override func viewDidAppear(_ animated: Bool) {
+        let imageCacheSize = NCImageSessionManager.sharedInstance().cache.currentDiskUsage
+        let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
+        self.totalImageCacheSize = imageCacheSize + Int(sdImageCacheSize)
+
+        let fileController = NCChatFileController()
+        let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
+
+        if let talkAccounts = talkAccounts as? [TalkAccount] {
+            for account in talkAccounts {
+                self.totalFileCacheSize += Int(fileController.getDiskUsage(for: account))
+            }
+        }
+
         self.adaptInterfaceForAppState(appState: NCConnectionController.sharedInstance().appState)
-        tableView.reloadData()
     }
 
     override func didReceiveMemoryWarning() {
@@ -128,8 +160,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func getSettingsSections() -> [Int] {
         var sections = [Int]()
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
 
         // Active user section
         sections.append(SettingsSection.kSettingsSectionUser.rawValue)
@@ -143,7 +173,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         sections.append(SettingsSection.kSettingsSectionAccountSettings.rawValue)
 
         // Other accounts section
-        if !NCDatabaseManager.sharedInstance().inactiveAccounts().isEmpty {
+        if !inactiveAccounts.isEmpty {
             sections.append(SettingsSection.kSettingsSectionOtherAccounts.rawValue)
         }
 
@@ -160,9 +190,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     func getAccountSettingsSectionOptions() -> [Int] {
         var options = [Int]()
-
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
 
         // Read status privacy setting
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadStatus) {
@@ -227,7 +254,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     // MARK: User Profile
 
     func refreshUserProfile() {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCSettingsController.sharedInstance().getUserProfile(forAccountId: activeAccount.accountId) { _ in
             self.tableView.reloadData()
         }
@@ -235,7 +261,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     func getActiveUserStatus() {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCAPIController.sharedInstance().getUserStatus(for: activeAccount) { userStatus, error in
             if let userStatus = userStatus, error == nil {
                 self.activeUserStatus = NCUserStatus(dictionary: userStatus)
@@ -284,7 +309,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     // MARK: Profile actions
 
     func userProfilePressed() {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let userProfileVC = UserProfileTableViewController(withAccount: activeAccount)
         self.navigationController?.pushViewController(userProfileVC, animated: true)
     }
@@ -301,10 +325,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     // MARK: User phone number
 
     func checkUserPhoneNumber() {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCSettingsController.sharedInstance().getUserProfile(forAccountId: activeAccount.accountId) { _ in
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            if activeAccount.phone.isEmpty {
+            if self.activeAccount.phone.isEmpty {
                 self.presentSetPhoneNumberDialog()
             }
         }
@@ -331,7 +353,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         setPhoneAction = UIAlertAction(title: NSLocalizedString("Set", comment: ""), style: .default, handler: { _ in
             let phoneNumber = setPhoneNumberDialog.textFields?[0].text
 
-            NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, for: NCDatabaseManager.sharedInstance().activeAccount()) { error, _ in
+            NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, for: self.activeAccount) { error, _ in
                 if error != nil {
                     if let phoneNumber = phoneNumber {
                         self.presentPhoneNumberErrorDialog(phoneNumber: phoneNumber)
@@ -469,11 +491,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     @objc func readStatusValueChanged(_ sender: Any?) {
         readStatusSwitch.isEnabled = false
-        let account = NCDatabaseManager.sharedInstance().activeAccount()
 
-        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, for: account) { error in
+        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, for: activeAccount) { error in
             if error == nil {
-                NCSettingsController.sharedInstance().getCapabilitiesForAccountId(account.accountId) { error in
+                NCSettingsController.sharedInstance().getCapabilitiesForAccountId(self.activeAccount.accountId) { error in
                     if error == nil {
                         self.readStatusSwitch.isEnabled = true
                         self.tableView.reloadData()
@@ -501,11 +522,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     @objc func typingIndicatorValueChanged(_ sender: Any?) {
         typingIndicatorSwitch.isEnabled = false
-        let account = NCDatabaseManager.sharedInstance().activeAccount()
 
-        NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(!typingIndicatorSwitch.isOn, for: account) { error in
+        NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(!typingIndicatorSwitch.isOn, for: activeAccount) { error in
             if error == nil {
-                NCSettingsController.sharedInstance().getCapabilitiesForAccountId(account.accountId) { error in
+                NCSettingsController.sharedInstance().getCapabilitiesForAccountId(self.activeAccount.accountId) { error in
                     if error == nil {
                         self.typingIndicatorSwitch.isEnabled = true
                         self.tableView.reloadData()
@@ -534,7 +554,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     // MARK: Advanced actions
 
     func diagnosticsPressed() {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let diagnosticsVC = DiagnosticsTableViewController(withAccount: activeAccount)
 
         self.navigationController?.pushViewController(diagnosticsVC, animated: true)
@@ -618,7 +637,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         case SettingsSection.kSettingsSectionAbout.rawValue:
             return AboutSection.kAboutSectionNumber.rawValue
         case SettingsSection.kSettingsSectionOtherAccounts.rawValue:
-            return NCDatabaseManager.sharedInstance().inactiveAccounts().count
+            return inactiveAccounts.count
         default:
             break
         }
@@ -658,8 +677,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             if NCContactsManager.sharedInstance().isContactAccessDetermined() && !NCContactsManager.sharedInstance().isContactAccessAuthorized() {
                 return NSLocalizedString("Contact access has been denied", comment: "")
             }
-            if NCDatabaseManager.sharedInstance().activeAccount().lastContactSync > 0 {
-                let lastUpdate = Date(timeIntervalSince1970: TimeInterval(NCDatabaseManager.sharedInstance().activeAccount().lastContactSync))
+            if activeAccount.lastContactSync > 0 {
+                let lastUpdate = Date(timeIntervalSince1970: TimeInterval(activeAccount.lastContactSync))
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateStyle = .medium
                 dateFormatter.timeStyle = .short
@@ -668,7 +687,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         }
 
         if settingsSection == SettingsSection.kSettingsSectionUser.rawValue && contactSyncSwitch.isOn {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             if activeAccount.phone.isEmpty {
                 let missingPhoneString = NSLocalizedString("Missing phone number information", comment: "")
                 return "⚠ " + missingPhoneString
@@ -685,11 +703,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? UserSettingsTableViewCell else { return UITableViewCell() }
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             cell.userDisplayNameLabel.text = activeAccount.userDisplayName
             let accountServer = activeAccount.server
             cell.serverAddressLabel.text = accountServer.replacingOccurrences(of: "https://", with: "")
-            cell.userImageView.image = NCAPIController.sharedInstance().userProfileImage(for: activeAccount, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 160, height: 160))
+            cell.userImageView.image = self.getProfilePicture(for: activeAccount)
             cell.accessoryType = .disclosureIndicator
             return cell
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
@@ -729,7 +746,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     }
 
     func didSelectOtherAccountSectionCell(for indexPath: IndexPath) {
-        let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         if let account = inactiveAccounts[indexPath.row] as? TalkAccount {
             NCSettingsController.sharedInstance().setActiveAccountWithAccountId(account.accountId)
         }
@@ -826,8 +842,6 @@ extension SettingsTableViewController {
             cell.imageView?.tintColor = .secondaryLabel
             cell.imageView?.contentMode = .scaleAspectFit
             cell.accessoryView = readStatusSwitch
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
             readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
 
         case AccountSettingsOptions.kAccountSettingsTypingPrivacy.rawValue:
@@ -838,8 +852,6 @@ extension SettingsTableViewController {
             cell.imageView?.tintColor = .secondaryLabel
             cell.imageView?.contentMode = .scaleAspectFit
             cell.accessoryView = typingIndicatorSwitch
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
             typingIndicatorSwitch.isOn = !serverCapabilities.typingPrivacy
 
             let externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
@@ -870,14 +882,13 @@ extension SettingsTableViewController {
     }
 
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
-        let inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
         let account = inactiveAccounts[indexPath.row] as? TalkAccount
         guard let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath) as? AccountTableViewCell else { return UITableViewCell() }
         if let account = account {
             cell.accountNameLabel.text = account.userDisplayName
             let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
             cell.accountServerLabel.text = accountServer
-            cell.accountImageView.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 90, height: 90))
+            cell.accountImageView.image = self.getProfilePicture(for: account)
             cell.accessoryView = nil
             if account.unreadBadgeNumber > 0 {
                 let badgeView = RoundedNumberView()
@@ -949,10 +960,6 @@ extension SettingsTableViewController {
             return cell
 
         } else if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue {
-            let imageCacheSize = NCImageSessionManager.sharedInstance().cache.currentDiskUsage
-            let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
-            let totalCacheSize = imageCacheSize + Int(sdImageCacheSize)
-
             let byteFormatter = ByteCountFormatter()
             byteFormatter.allowedUnits = [.useMB]
             byteFormatter.countStyle = .file
@@ -963,7 +970,7 @@ extension SettingsTableViewController {
             cell.imageView?.image = UIImage(systemName: "photo")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
             let byteCounterLabel = UILabel()
-            byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(totalCacheSize))
+            byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(self.totalImageCacheSize))
             byteCounterLabel.textColor = .secondaryLabel
             byteCounterLabel.sizeToFit()
             cell.accessoryView = byteCounterLabel
@@ -972,16 +979,6 @@ extension SettingsTableViewController {
 
         } else {
             // AdvancedSectionOption.kAdvancedSectionOptionCachedFiles.rawValue
-
-            var cacheSize = 0
-            let fileController = NCChatFileController()
-            let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
-
-            if let talkAccounts = talkAccounts as? [TalkAccount] {
-                for account in talkAccounts {
-                    cacheSize += Int(fileController.getDiskUsage(for: account))
-                }
-            }
 
             let byteFormatter = ByteCountFormatter()
             byteFormatter.allowedUnits = [.useMB]
@@ -993,7 +990,7 @@ extension SettingsTableViewController {
             cell.imageView?.image = UIImage(systemName: "doc")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
             let byteCounterLabel = UILabel()
-            byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(cacheSize))
+            byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(self.totalFileCacheSize))
             byteCounterLabel.textColor = .secondaryLabel
             byteCounterLabel.sizeToFit()
             cell.accessoryView = byteCounterLabel
@@ -1025,5 +1022,13 @@ extension SettingsTableViewController {
         }
         cell.textLabel?.numberOfLines = 0
         return cell
+    }
+
+    func getProfilePicture(for account: TalkAccount) -> UIImage {
+        if let avatar = self.profilePictures[account.accountId] {
+            return avatar
+        }
+
+        return NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle)
     }
 }

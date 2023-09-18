@@ -27,7 +27,7 @@ extension UserProfileTableViewController {
         let headerView = AvatarEditView()
         headerView.delegate = self
 
-        headerView.avatarImageView?.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle, andSize: CGSize(width: 160, height: 160))
+        headerView.avatarImageView?.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle)
 
         headerView.nameLabel?.text = account.userDisplayName
         headerView.nameLabel?.isHidden = self.isEditable
