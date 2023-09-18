@@ -280,7 +280,7 @@
     profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
     profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
     
-    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle andSize:CGSizeMake(90, 90)];
+    UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle];
     if (profileImage) {
         UIGraphicsBeginImageContextWithOptions(profileButton.bounds.size, NO, 3.0);
         [[UIBezierPath bezierPathWithRoundedRect:profileButton.bounds cornerRadius:profileButton.bounds.size.height] addClip];
