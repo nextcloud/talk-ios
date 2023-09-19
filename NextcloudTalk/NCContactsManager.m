@@ -30,6 +30,8 @@
 #import "ABContact.h"
 #import "NCContact.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @interface NCContactsManager ()
 
 @property (nonatomic, strong) CNContactStore *contactStore;
@@ -158,6 +160,7 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
 {
     [[NCAPIController sharedInstance] searchContactsForAccount:account withPhoneNumbers:phoneNumbers andCompletionBlock:^(NSDictionary *contacts, NSError *error) {
         if (!error) {
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateContacts" expirationHandler:nil];
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -190,6 +193,7 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCContactsManagerContactsUpdatedNotification
                                                                     object:self
                                                                   userInfo:nil];
+                [bgTask stopBackgroundTask];
             }];
         }
     }];
