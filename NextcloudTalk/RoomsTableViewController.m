@@ -236,8 +236,13 @@ typedef enum RoomsFilter {
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+
     [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
     [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
+
+    if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+        [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -550,7 +555,13 @@ typedef enum RoomsFilter {
     _resultTableViewController.users = @[];
     [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
         if (!error) {
-            self->_resultTableViewController.users = [self usersWithoutOneToOneConversations:contactList];
+            NSArray *users = [self usersWithoutOneToOneConversations:contactList];
+            if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
+                TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+                NSArray *addressBookContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:nil];
+                users = [NCUser combineUsersArray:addressBookContacts withUsersArray:users];
+            }
+            self->_resultTableViewController.users = users;
         }
     }];
     // Search for listable rooms
