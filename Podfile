@@ -30,6 +30,11 @@ target "ShareExtension" do
 common_dependencies_ext
 end
 
+target "BroadcastUploadExtension" do
+pod 'AFNetworking', "3.2.0"
+pod 'UICKeyChainStore'
+end
+
 pre_install do |installer|
     puts 'pre_install begin....'
 

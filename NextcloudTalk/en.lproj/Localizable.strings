@@ -782,6 +782,9 @@
 "Enable blur" = "Enable blur";
 
 /* No comment provided by engineer. */
+"Enable screensharing" = "Enable screensharing";
+
+/* No comment provided by engineer. */
 "End call" = "End call";
 
 /* No comment provided by engineer. */
@@ -1424,6 +1427,9 @@
 "Scanning QR Codes is not supported on this device." = "Scanning QR Codes is not supported on this device.";
 
 /* No comment provided by engineer. */
+"Screensharing stopped" = "Screensharing stopped";
+
+/* No comment provided by engineer. */
 "Search" = "Search";
 
 /* No comment provided by engineer. */
@@ -1566,6 +1572,9 @@
 
 /* No comment provided by engineer. */
 "Stop recording" = "Stop recording";
+
+/* No comment provided by engineer. */
+"Stop screensharing" = "Stop screensharing";
 
 /* No comment provided by engineer. */
 "STUN servers" = "STUN servers";
