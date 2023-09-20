@@ -71,7 +71,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     room.hasCall = [[roomDict objectForKey:@"hasCall"] boolValue];
     room.canLeaveConversation = [[roomDict objectForKey:@"canLeaveConversation"] boolValue];
     room.canDeleteConversation = [[roomDict objectForKey:@"canDeleteConversation"] boolValue];
-    room.participantFlags = [[roomDict objectForKey:@"participantFlags"] integerValue];
     room.permissions = [[roomDict objectForKey:@"permissions"] integerValue];
     room.attendeePermissions = [[roomDict objectForKey:@"attendeePermissions"] integerValue];
     room.callPermissions = [[roomDict objectForKey:@"callPermissions"] integerValue];
@@ -121,6 +120,12 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     id statusMessage = [roomDict objectForKey:@"statusMessage"];
     if ([statusMessage isKindOfClass:[NSString class]]) {
         room.statusMessage = statusMessage;
+    }
+
+    // Participants flags is null in Talk versions that don't support conversation v4 API
+    id participantFlags = [roomDict objectForKey:@"participantFlags"];
+    if ([participantFlags isKindOfClass:[NSNumber class]]) {
+        room.participantFlags = [participantFlags integerValue];
     }
     
     return room;
