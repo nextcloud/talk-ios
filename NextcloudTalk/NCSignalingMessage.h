@@ -54,6 +54,7 @@ typedef enum {
 @property(nonatomic, readonly) NSString *type;
 @property(nonatomic, readonly) NSDictionary *payload;
 @property(nonatomic, readonly) NSString *roomType;
+@property(nonatomic, assign) NSString *broadcaster;
 
 + (NCSignalingMessage *)messageFromJSONString:(NSString *)jsonString;
 + (NCSignalingMessage *)messageFromJSONDictionary:(NSDictionary *)jsonDict;
@@ -74,7 +75,8 @@ typedef enum {
                              from:(NSString *)from
                                to:(NSString *)to
                               sid:(NSString *)sid
-                         roomType:(NSString *)roomType;
+                         roomType:(NSString *)roomType
+                      broadcaster:(NSString *)broadcaster;
 
 @end
 
@@ -89,6 +91,7 @@ typedef enum {
                                         to:(NSString *)to
                                        sid:(NSString *)sid
                                   roomType:(NSString *)roomType
+                               broadcaster:(NSString *)broadcaster
                                       nick:(NSString *)nick;
 
 
@@ -96,6 +99,7 @@ typedef enum {
 
 @interface NCUnshareScreenMessage : NCSignalingMessage
 
+- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType;
 - (instancetype)initWithValues:(NSDictionary *)values;
 
 @end

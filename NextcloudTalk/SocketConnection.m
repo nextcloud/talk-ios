@@ -10,8 +10,6 @@
 @property(nonatomic, assign) int serverSocket;
 @property(nonatomic, strong) dispatch_source_t listeningSource;
 
-@property(nonatomic, strong) NSThread *networkThread;
-
 @property(nonatomic, strong) NSInputStream *inputStream;
 @property(nonatomic, strong) NSOutputStream *outputStream;
 
@@ -21,8 +19,6 @@
 
 - (instancetype)initWithFilePath:(nonnull NSString *)filePath {
     self = [super init];
-
-    [self setupNetworkThread];
 
     self.serverSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (self.serverSocket < 0) {
@@ -65,11 +61,12 @@
         self.outputStream = (__bridge_transfer NSOutputStream *)writeStream;
         [self.outputStream setProperty:@"kCFBooleanTrue" forKey:@"kCFStreamPropertyShouldCloseNativeSocket"];
 
-        [self.networkThread start];
-        [self performSelector:@selector(scheduleStreams) onThread:self.networkThread withObject:nil waitUntilDone:true];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self scheduleStreams];
 
-        [self.inputStream open];
-        [self.outputStream open];
+            [self.inputStream open];
+            [self.outputStream open];
+        });
     });
 
     self.listeningSource = listeningSource;
@@ -77,32 +74,23 @@
 }
 
 - (void)close {
-    [self performSelector:@selector(unscheduleStreams) onThread:self.networkThread withObject:nil waitUntilDone:true];
+    //[self performSelector:@selector(unscheduleStreams) onThread:self.networkThread withObject:nil waitUntilDone:false];
 
-    self.inputStream.delegate = nil;
-    self.outputStream.delegate = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self unscheduleStreams];
 
-    [self.inputStream close];
-    [self.outputStream close];
+        self.inputStream.delegate = nil;
+        self.outputStream.delegate = nil;
 
-    [self.networkThread cancel];
+        [self.inputStream close];
+        [self.outputStream close];
 
-    dispatch_source_cancel(self.listeningSource);
-    close(self.serverSocket);
+        dispatch_source_cancel(self.listeningSource);
+        close(self.serverSocket);
+    });
 }
 
 // MARK: - Private Methods
-
-- (void)setupNetworkThread {
-    self.networkThread = [[NSThread alloc] initWithBlock:^{
-        do {
-            @autoreleasepool {
-                [[NSRunLoop currentRunLoop] run];
-            }
-        } while (![NSThread currentThread].isCancelled);
-    }];
-    self.networkThread.qualityOfService = NSQualityOfServiceUserInitiated;
-}
 
 - (BOOL)setupSocketWithFileAtPath:(NSString *)filePath {
     struct sockaddr_un addr;
