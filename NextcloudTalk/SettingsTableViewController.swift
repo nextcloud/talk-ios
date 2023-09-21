@@ -90,7 +90,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
                 continue
             }
 
-            result[account.accountId] = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle)
+            if let image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle) {
+                result[account.accountId] = image
+            }
         }
 
         return result
@@ -1024,7 +1026,8 @@ extension SettingsTableViewController {
         return cell
     }
 
-    func getProfilePicture(for account: TalkAccount) -> UIImage {
+    // UIImage should be optional because userProfileImage (objC) can return a nil value
+    func getProfilePicture(for account: TalkAccount) -> UIImage? {
         if let avatar = self.profilePictures[account.accountId] {
             return avatar
         }
