@@ -75,8 +75,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     CallState _callState;
     NSMutableArray *_peersInCall;
-    NSMutableDictionary *_videoRenderersDict;
-    NSMutableDictionary *_screenRenderersDict;
+    NSMutableArray *_screenPeersInCall;
+    NSMutableDictionary *_videoRenderersDict; // peerIdentifier -> renderer
+    NSMutableDictionary *_screenRenderersDict; // peerId -> renderer
     NCCallController *_callController;
     NCChatViewController *_chatViewController;
     UINavigationController *_chatNavigationController;
@@ -150,6 +151,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     _displayName = displayName;
     _isAudioOnly = audioOnly;
     _peersInCall = [[NSMutableArray alloc] init];
+    _screenPeersInCall = [[NSMutableArray alloc] init];
     _videoRenderersDict = [[NSMutableDictionary alloc] init];
     _screenRenderersDict = [[NSMutableDictionary alloc] init];
     _buttonFeedbackGenerator = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleLight)];
@@ -1394,12 +1396,17 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                 RTCMTLVideoView *videoRenderer = [self->_videoRenderersDict objectForKey:peerConnection.peerIdentifier];
                 [self->_videoRenderersDict removeObjectForKey:peerConnection.peerIdentifier];
 
-                // Screen renderers
-                RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerIdentifier];
-                [self->_screenRenderersDict removeObjectForKey:peerConnection.peerIdentifier];
-
                 [[WebRTCCommon shared] dispatch:^{
                     [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:videoRenderer];
+                }];
+            }
+
+            for (NCPeerConnection *peerConnection in self->_screenPeersInCall) {
+                // Screen renderers
+                RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peerConnection.peerId];
+                [self->_screenRenderersDict removeObjectForKey:peerConnection.peerId];
+
+                [[WebRTCCommon shared] dispatch:^{
                     [[peerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
                 }];
             }
@@ -1761,7 +1768,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell
 {
-    [self showScreenOfPeerIdentifier:participantCell.peerIdentifier];
+    NCPeerConnection *peerConnection = [self peerConnectionForPeerIdentifier:participantCell.peerIdentifier];
+    [self showScreenOfPeerId:peerConnection.peerId];
 }
 
 - (void)cellWantsToChangeZoom:(CallParticipantViewCell *)participantCell showOriginalSize:(BOOL)showOriginalSize
@@ -1793,7 +1801,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
-    [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerIdentifier]];
+    [cell setScreenShared:[_screenRenderersDict objectForKey:peerConnection.peerId]];
     [cell setVideoDisabled: isVideoDisabled];
     [cell setShowOriginalSize:peerConnection.showRemoteVideoInOriginalSize];
     [cell setRaiseHand:peerConnection.isHandRaised];
@@ -1926,8 +1934,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                 }];
             }
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
-            [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerIdentifier];
-            [self showScreenOfPeerIdentifier:remotePeer.peerIdentifier];
+            [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
+            [self->_screenPeersInCall addObject:remotePeer];
+            [self showScreenOfPeerId:remotePeer.peerId];
             [self updatePeer:remotePeer block:^(CallParticipantViewCell *cell) {
                 [cell setScreenShared:YES];
             }];
@@ -2089,10 +2098,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 #pragma mark - Screensharing
 
-- (void)showScreenOfPeerIdentifier:(NSString *)peerIdentifier
+- (void)showScreenOfPeerId:(NSString *)peerId
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerIdentifier];
+        RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerId];
 
         [self->_screensharingView replaceContentView:renderView];
         [self->_screensharingView bringSubviewToFront:self->_closeScreensharingButton];
@@ -2114,9 +2123,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)removeScreensharingOfPeer:(NCPeerConnection *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerIdentifier];
-        [self->_screenRenderersDict removeObjectForKey:peer.peerIdentifier];
-        [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
+        RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
+        NCPeerConnection *screenPeerConnection = [self screenPeerConnectionForPeerId:peer.peerId];
+        [self->_screenRenderersDict removeObjectForKey:peer.peerId];
+        [self updatePeer:screenPeerConnection block:^(CallParticipantViewCell *cell) {
             [cell setScreenShared:NO];
         }];
 
@@ -2125,8 +2135,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
 
         [[WebRTCCommon shared] dispatch:^{
-            [[peer.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
+            [[screenPeerConnection.remoteStream.videoTracks firstObject] removeRenderer:screenRenderer];
         }];
+
+        [_screenPeersInCall removeObject:screenPeerConnection];
     });
 }
 
@@ -2200,10 +2212,23 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     return indexPath;
 }
 
+- (NSIndexPath *)indexPathForPeerId:(NSString *)peerId
+{
+    NSIndexPath *indexPath = nil;
+    for (int i = 0; i < _peersInCall.count; i ++) {
+        NCPeerConnection *peer = [_peersInCall objectAtIndex:i];
+        if ([peer.peerId isEqualToString:peerId]) {
+            indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+        }
+    }
+
+    return indexPath;
+}
+
 - (void)updatePeer:(NCPeerConnection *)peer block:(UpdateCallParticipantViewCellBlock)block
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSIndexPath *indexPath = [self indexPathForPeerIdentifier:peer.peerIdentifier];
+        NSIndexPath *indexPath = [self indexPathForPeerId:peer.peerId];
         if (indexPath) {
             CallParticipantViewCell *cell = (id)[self.collectionView cellForItemAtIndexPath:indexPath];
             block(cell);
@@ -2225,7 +2250,33 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             return peerConnection;
         }
     }
+
+    for (NCPeerConnection *peerConnection in self->_screenPeersInCall) {
+        if ([peerConnection.peerIdentifier isEqualToString:peerIdentifier]) {
+            return peerConnection;
+        }
+    }
     
+    return nil;
+}
+
+- (NCPeerConnection *)peerConnectionForPeerId:(NSString *)peerId {
+    for (NCPeerConnection *peerConnection in self->_peersInCall) {
+        if ([peerConnection.peerId isEqualToString:peerId]) {
+            return peerConnection;
+        }
+    }
+
+    return nil;
+}
+
+- (NCPeerConnection *)screenPeerConnectionForPeerId:(NSString *)peerId {
+    for (NCPeerConnection *peerConnection in self->_screenPeersInCall) {
+        if ([peerConnection.peerId isEqualToString:peerId]) {
+            return peerConnection;
+        }
+    }
+
     return nil;
 }
 
