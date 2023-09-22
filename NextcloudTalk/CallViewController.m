@@ -1025,25 +1025,28 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         [items addObject:recordingAction];
     }
 
-    UIImage *blurActionImage = [UIImage systemImageNamed:@"person.crop.rectangle.fill"];
-    NSString *blurActionTitle = NSLocalizedString(@"Enable blur", nil);
+    // Background blur
+    if (!_isAudioOnly) {
+        UIImage *blurActionImage = [UIImage systemImageNamed:@"person.crop.rectangle.fill"];
+        NSString *blurActionTitle = NSLocalizedString(@"Enable blur", nil);
 
-    if (@available(iOS 16.0, *)) {
-        blurActionImage = [UIImage systemImageNamed:@"person.and.background.dotted"];
+        if (@available(iOS 16.0, *)) {
+            blurActionImage = [UIImage systemImageNamed:@"person.and.background.dotted"];
+        }
+
+        if ([self->_callController isBackgroundBlurEnabled]) {
+            blurActionImage = [UIImage systemImageNamed:@"person.crop.rectangle"];
+            blurActionTitle = NSLocalizedString(@"Disable blur", nil);
+        }
+
+        UIAction *toggleBackgroundBlur = [UIAction actionWithTitle:blurActionTitle image:blurActionImage identifier:nil handler:^(UIAction *action) {
+            __strong typeof(self) strongSelf = weakSelf;
+            [strongSelf->_callController enableBackgroundBlur:![strongSelf->_callController isBackgroundBlurEnabled]];
+            [strongSelf adjustTopBar];
+        }];
+
+        [items addObject:toggleBackgroundBlur];
     }
-
-    if ([self->_callController isBackgroundBlurEnabled]) {
-        blurActionImage = [UIImage systemImageNamed:@"person.crop.rectangle"];
-        blurActionTitle = NSLocalizedString(@"Disable blur", nil);
-    }
-
-    UIAction *toggleBackgroundBlur = [UIAction actionWithTitle:blurActionTitle image:blurActionImage identifier:nil handler:^(UIAction *action) {
-        __strong typeof(self) strongSelf = weakSelf;
-        [strongSelf->_callController enableBackgroundBlur:![strongSelf->_callController isBackgroundBlurEnabled]];
-        [strongSelf adjustTopBar];
-    }];
-
-    [items addObject:toggleBackgroundBlur];
 
     self.moreMenuButton.menu = [UIMenu menuWithTitle:@"" children:items];
 }
