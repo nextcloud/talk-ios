@@ -56,6 +56,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController;
 - (void)callControllerDidChangeRecording:(NCCallController *)callController;
+- (void)callControllerDidDrawFirstLocalFrame:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token withAudioEnabled:(BOOL)audioEnabled andVideoEnabled:(BOOL)videoEnabled;
 
 @end

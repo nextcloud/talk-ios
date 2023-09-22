@@ -25,14 +25,21 @@ import Foundation
 import Vision
 import CoreImage.CIFilterBuiltins
 
+@objc protocol NCCameraControllerDelegate {
+    @objc func didDrawFirstFrameOnLocalView()
+}
+
 @objcMembers
 class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, MTKViewDelegate {
+
+    public weak var delegate: NCCameraControllerDelegate?
 
     // State
     private var backgroundBlurEnabled = NCUserDefaults.backgroundBlurEnabled()
     private var usingFrontCamera = true
     private var deviceOrientation: UIDeviceOrientation = UIDevice.current.orientation
     private var videoRotation: RTCVideoRotation = ._0
+    private var firstLocalViewFrameDrawn = false
 
     // AVFoundation
     private var session: AVCaptureSession?
@@ -296,7 +303,15 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         }
 
         self.lastImage = frameImage
-        self.localView?.draw()
+
+        if let localView {
+            localView.draw()
+
+            if !self.firstLocalViewFrameDrawn {
+                self.delegate?.didDrawFirstFrameOnLocalView()
+                self.firstLocalViewFrameDrawn = true
+            }
+        }
 
         // Create the RTCVideoFrame
         let timeStampNs =  CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) * Float64(NSEC_PER_SEC)

@@ -1891,8 +1891,16 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         cameraController.localView = self->_localVideoView;
-        self->_localVideoView.hidden = NO;
     });
+}
+
+- (void)callControllerDidDrawFirstLocalFrame:(NCCallController *)callController
+{
+    [_callController getVideoEnabledStateWithCompletionBlock:^(BOOL isEnabled) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self setLocalVideoViewHidden:!isEnabled];
+        });
+    }];
 }
 
 - (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions
@@ -1908,7 +1916,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
 {
-    [self setLocalVideoViewHidden:!videoTrack.isEnabled];
     [self setVideoDisableButtonActive:videoTrack.isEnabled];
     
     // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.

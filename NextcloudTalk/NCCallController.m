@@ -53,7 +53,7 @@ static NSString * const kNCAudioTrackId = @"NCa0";
 static NSString * const kNCVideoTrackId = @"NCv0";
 static NSString * const kNCVideoTrackKind = @"video";
 
-@interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver, NCExternalSignalingControllerDelegate>
+@interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver, NCExternalSignalingControllerDelegate, NCCameraControllerDelegate>
 
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL leavingCall;
@@ -713,11 +713,12 @@ static NSString * const kNCVideoTrackKind = @"video";
     RTCVideoCapturer *videoCapturer = [[RTCVideoCapturer alloc] initWithDelegate:videoSource];
 
     _localVideoTrack = [peerConnectionFactory videoTrackWithSource:videoSource trackId:kNCVideoTrackId];
-    [_localVideoTrack setIsEnabled:true];
+    [_localVideoTrack setIsEnabled:!_disableVideoAtStart];
 
     [self.delegate callController:self didCreateLocalVideoTrack:_localVideoTrack];
 
     self.cameraController = [[NCCameraController alloc] initWithVideoSource:videoSource videoCapturer:videoCapturer];
+    self.cameraController.delegate = self;
 
     [self.delegate callController:self didCreateCameraController:self.cameraController];
 #endif
@@ -1109,6 +1110,12 @@ static NSString * const kNCVideoTrackKind = @"video";
             NSLog(@"Uknown message: %@", [message objectForKey:@"data"]);
         }
     }];
+}
+
+#pragma mark - NCCamera Controller Delegate
+
+- (void)didDrawFirstFrameOnLocalView {
+    [self.delegate callControllerDidDrawFirstLocalFrame:self];
 }
 
 #pragma mark - Signaling functions
