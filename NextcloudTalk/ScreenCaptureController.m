@@ -1,4 +1,5 @@
 // From https://github.com/react-native-webrtc/react-native-webrtc (MIT License)
+// SPDX-License-Identifier: MIT
 
 #include <sys/socket.h>
 #include <sys/un.h>

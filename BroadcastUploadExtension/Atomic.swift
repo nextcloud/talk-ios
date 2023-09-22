@@ -6,6 +6,7 @@
 //  https://www.onswiftwings.com/posts/atomic-property-wrapper/
 //
 // From https://github.com/jitsi/jitsi-meet-sdk-samples (Apache 2.0 license)
+// SPDX-License-Identifier: Apache-2.0
 
 import Foundation
 

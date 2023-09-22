@@ -1,4 +1,5 @@
 // From https://github.com/react-native-webrtc/react-native-webrtc (MIT License)
+// SPDX-License-Identifier: MIT
 
 #import <AVFoundation/AVFoundation.h>
 #import <WebRTC/RTCVideoCapturer.h>

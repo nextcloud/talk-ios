@@ -5,6 +5,7 @@
 //  Created by Alex-Dan Bumbu on 04.06.2021.
 //
 // From https://github.com/jitsi/jitsi-meet-sdk-samples (Apache 2.0 license)
+// SPDX-License-Identifier: Apache-2.0
 
 import ReplayKit
 
