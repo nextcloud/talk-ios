@@ -253,6 +253,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     self.collectionView.delegate = self;
     
     [self createWaitingScreen];
+
+    // We hide localVideoView until we receive it from cameraController
+    [self setLocalVideoViewHidden:YES];
     
     // We disableLocalVideo here even if the call controller has not been created just to show the video button as disabled
     // also we set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
@@ -1881,10 +1884,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     [self removePeer:peer];
 }
-- (void)callController:(NCCallController *)callController didCreateCameraController:(NCCameraController *)cameraController API_AVAILABLE(ios(15)) {
-
+- (void)callController:(NCCallController *)callController didCreateCameraController:(NCCameraController *)cameraController
+{
     dispatch_async(dispatch_get_main_queue(), ^{
         cameraController.localView = self->_localVideoView;
+        self->_localVideoView.hidden = NO;
     });
 }
 
