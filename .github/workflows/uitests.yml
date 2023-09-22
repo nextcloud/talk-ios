@@ -26,7 +26,8 @@ jobs:
 
     strategy:
       matrix:
-        test-branches: ['stable27', 'master']
+        # Test with stable23 as well to find regressions in older versions
+        test-branches: ['stable23', 'stable27', 'master']
 
     env:
       WORKSPACE: NextcloudTalk.xcworkspace
