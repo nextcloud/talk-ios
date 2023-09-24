@@ -70,4 +70,12 @@ jobs:
         -destination "$DESTINATION" \
         -test-iterations 3 \
         -retry-tests-on-failure \
+        -resultBundlePath "testResult.xcresult" \
         | xcpretty
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: ${{ !cancelled() }}
+      with:
+        name: testResults-${{ matrix.test-branches }}.xcresult
+        path: "testResult.xcresult"
