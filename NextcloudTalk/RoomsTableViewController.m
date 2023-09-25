@@ -439,21 +439,24 @@ typedef enum RoomsFilter {
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSString *accountName = account.userDisplayName;
         UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle];
-        accountImage = [NCUtils roundedImageFromImage:accountImage];
 
-        // Draw a red circle to the image in case we have unread notifications for that account
-        if (account.unreadNotification) {
-            UIGraphicsBeginImageContextWithOptions(CGSizeMake(82, 82), NO, 3);
-            CGContextRef context = UIGraphicsGetCurrentContext();
-            [accountImage drawInRect:CGRectMake(0, 4, 78, 78)];
-            CGContextSaveGState(context);
+        if (accountImage) {
+            accountImage = [NCUtils roundedImageFromImage:accountImage];
 
-            CGContextSetFillColorWithColor(context, [UIColor systemRedColor].CGColor);
-            CGContextFillEllipseInRect(context, CGRectMake(52, 0, 30, 30));
+            // Draw a red circle to the image in case we have unread notifications for that account
+            if (account.unreadNotification) {
+                UIGraphicsBeginImageContextWithOptions(CGSizeMake(82, 82), NO, 3);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [accountImage drawInRect:CGRectMake(0, 4, 78, 78)];
+                CGContextSaveGState(context);
 
-            accountImage = UIGraphicsGetImageFromCurrentImageContext();
+                CGContextSetFillColorWithColor(context, [UIColor systemRedColor].CGColor);
+                CGContextFillEllipseInRect(context, CGRectMake(52, 0, 30, 30));
 
-            UIGraphicsEndImageContext();
+                accountImage = UIGraphicsGetImageFromCurrentImageContext();
+
+                UIGraphicsEndImageContext();
+            }
         }
 
         UIAction *switchAccountAction = [UIAction actionWithTitle:accountName image:accountImage identifier:nil handler:^(UIAction *action) {
