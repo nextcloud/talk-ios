@@ -21,6 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <MetalKit/MetalKit.h>
 
 #import <WebRTC/RTCCameraPreviewView.h>
 #import "AvatarBackgroundImageView.h"
@@ -47,7 +48,7 @@
 @property (nonatomic, assign) BOOL voiceChatModeAtStart;
 @property (nonatomic, assign) BOOL silentCall;
 
-@property (nonatomic, strong) IBOutlet RTCCameraPreviewView *localVideoView;
+@property (nonatomic, strong) IBOutlet MTKView *localVideoView;
 @property (nonatomic, strong) IBOutlet NCZoomableView *screensharingView;
 @property (nonatomic, strong) IBOutlet UIButton *closeScreensharingButton;
 @property (nonatomic, strong) IBOutlet UIButton *toggleChatButton;

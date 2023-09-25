@@ -30,6 +30,7 @@
 #import <WebRTC/RTCAudioTrack.h>
 #import <WebRTC/RTCVideoTrack.h>
 #import <WebRTC/RTCVideoCapturer.h>
+#import <WebRTC/RTCVideoSource.h>
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import <WebRTC/RTCDefaultVideoEncoderFactory.h>
 #import <WebRTC/RTCDefaultVideoDecoderFactory.h>
@@ -52,7 +53,7 @@ static NSString * const kNCAudioTrackId = @"NCa0";
 static NSString * const kNCVideoTrackId = @"NCv0";
 static NSString * const kNCVideoTrackKind = @"video";
 
-@interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver, NCExternalSignalingControllerDelegate>
+@interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver, NCExternalSignalingControllerDelegate, NCCameraControllerDelegate>
 
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL leavingCall;
@@ -75,13 +76,13 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NSMutableDictionary *pendingOffersDict;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
-@property (nonatomic, strong) RTCCameraVideoCapturer *localVideoCapturer;
 @property (nonatomic, strong) ARDCaptureController *localVideoCaptureController;
 @property (nonatomic, strong) NCSignalingController *signalingController;
 @property (nonatomic, strong) NCExternalSignalingController *externalSignalingController;
 @property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *joinCallTask;
 @property (nonatomic, strong) NSURLSessionTask *getPeersForCallTask;
+@property (nonatomic, strong) NCCameraController *cameraController;
 
 @end
 
@@ -317,11 +318,11 @@ static NSString * const kNCVideoTrackKind = @"video";
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     _externalSignalingController.delegate = nil;
+
+    [self->_cameraController stopAVCaptureSession];
     
     [[WebRTCCommon shared] dispatch:^{
         [self cleanCurrentPeerConnections];
-        [self->_localVideoCapturer stopCapture];
-        self->_localVideoCapturer = nil;
         self->_localAudioTrack = nil;
         self->_localVideoTrack = nil;
         self->_connectionsDict = nil;
@@ -404,9 +405,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)switchCamera
 {
-    [[WebRTCCommon shared] dispatch:^{
-        [self->_localVideoCaptureController switchCamera];
-    }];
+    [self.cameraController switchCamera];
 }
 
 - (void)enableVideo:(BOOL)enable
@@ -434,6 +433,21 @@ static NSString * const kNCVideoTrackKind = @"video";
             [self sendMessageToAllOfType:@"stoppedSpeaking" withPayload:nil];
         }
     }];
+}
+
+- (BOOL)isBackgroundBlurEnabled
+{
+    return [self.cameraController isBackgroundBlurEnabled];
+}
+
+- (void)enableBackgroundBlur:(BOOL)enable
+{
+    [self.cameraController enableBackgroundBlurWithEnable:enable];
+}
+
+- (void)stopCapturing
+{
+    [self.cameraController stopAVCaptureSession];
 }
 
 - (void)raiseHand:(BOOL)raised
@@ -695,27 +709,28 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 #if !TARGET_IPHONE_SIMULATOR
     RTCPeerConnectionFactory *peerConnectionFactory = [WebRTCCommon shared].peerConnectionFactory;
-    RTCVideoSource *source = [peerConnectionFactory videoSource];
-    _localVideoCapturer = [[RTCCameraVideoCapturer alloc] initWithDelegate:source];
-    _localVideoCaptureController = [[ARDCaptureController alloc] initWithCapturer:_localVideoCapturer settings:[[NCSettingsController sharedInstance] videoSettingsModel]];
-    [_localVideoCaptureController startCapture];
-    
-    [self.delegate callController:self didCreateLocalVideoCapturer:_localVideoCapturer];
-    
-    _localVideoTrack = [peerConnectionFactory videoTrackWithSource:source trackId:kNCVideoTrackId];
+    RTCVideoSource *videoSource = [peerConnectionFactory videoSource];
+    RTCVideoCapturer *videoCapturer = [[RTCVideoCapturer alloc] initWithDelegate:videoSource];
+
+    _localVideoTrack = [peerConnectionFactory videoTrackWithSource:videoSource trackId:kNCVideoTrackId];
     [_localVideoTrack setIsEnabled:!_disableVideoAtStart];
-    
+
     [self.delegate callController:self didCreateLocalVideoTrack:_localVideoTrack];
+
+    self.cameraController = [[NCCameraController alloc] initWithVideoSource:videoSource videoCapturer:videoCapturer];
+    self.cameraController.delegate = self;
+
+    [self.delegate callController:self didCreateCameraController:self.cameraController];
 #endif
 }
 
 - (void)createLocalMedia
 {
+    [self->_cameraController stopAVCaptureSession];
+    
     [[WebRTCCommon shared] dispatch:^{
         self->_localAudioTrack = nil;
         self->_localVideoTrack = nil;
-        [self->_localVideoCapturer stopCapture];
-        self->_localVideoCapturer = nil;
 
         if ((self->_userPermissions & NCPermissionCanPublishAudio) != 0 || !self->_serverSupportsConversationPermissions) {
             [self createLocalAudioTrack];
@@ -1095,6 +1110,12 @@ static NSString * const kNCVideoTrackKind = @"video";
             NSLog(@"Uknown message: %@", [message objectForKey:@"data"]);
         }
     }];
+}
+
+#pragma mark - NCCamera Controller Delegate
+
+- (void)didDrawFirstFrameOnLocalView {
+    [self.delegate callControllerDidDrawFirstLocalFrame:self];
 }
 
 #pragma mark - Signaling functions

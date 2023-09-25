@@ -255,6 +255,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     self.collectionView.delegate = self;
     
     [self createWaitingScreen];
+
+    // We hide localVideoView until we receive it from cameraController
+    [self setLocalVideoViewHidden:YES];
     
     // We disableLocalVideo here even if the call controller has not been created just to show the video button as disabled
     // also we set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
@@ -901,7 +904,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }
 
         UIAction *speakerAction = [UIAction actionWithTitle:speakerActionTitle image:speakerImage identifier:nil handler:^(UIAction *action) {
-            [self speakerButtonPressed:nil];
+            [weakSelf speakerButtonPressed:nil];
         }];
 
         [items addObject:speakerAction];
@@ -998,10 +1001,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                                         children:reactionItems];
         }
 
-
-
-
-
         [items addObject:reactionMenu];
     }
 
@@ -1026,6 +1025,29 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         }];
 
         [items addObject:recordingAction];
+    }
+
+    // Background blur
+    if (!_isAudioOnly) {
+        UIImage *blurActionImage = [UIImage systemImageNamed:@"person.crop.rectangle.fill"];
+        NSString *blurActionTitle = NSLocalizedString(@"Enable blur", nil);
+
+        if (@available(iOS 16.0, *)) {
+            blurActionImage = [UIImage systemImageNamed:@"person.and.background.dotted"];
+        }
+
+        if ([self->_callController isBackgroundBlurEnabled]) {
+            blurActionImage = [UIImage systemImageNamed:@"person.crop.rectangle"];
+            blurActionTitle = NSLocalizedString(@"Disable blur", nil);
+        }
+
+        UIAction *toggleBackgroundBlur = [UIAction actionWithTitle:blurActionTitle image:blurActionImage identifier:nil handler:^(UIAction *action) {
+            __strong typeof(self) strongSelf = weakSelf;
+            [strongSelf->_callController enableBackgroundBlur:![strongSelf->_callController isBackgroundBlurEnabled]];
+            [strongSelf adjustTopBar];
+        }];
+
+        [items addObject:toggleBackgroundBlur];
     }
 
     self.moreMenuButton.menu = [UIMenu menuWithTitle:@"" children:items];
@@ -1386,8 +1408,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         
         [self.delegate callViewControllerWantsToBeDismissed:self];
         
-        [_localVideoView.captureSession stopRunning];
-        _localVideoView.captureSession = nil;
+        [_callController stopCapturing];
         [_localVideoView setHidden:YES];
 
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1874,10 +1895,20 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     [self removePeer:peer];
 }
-
-- (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer
+- (void)callController:(NCCallController *)callController didCreateCameraController:(NCCameraController *)cameraController
 {
-    _localVideoView.captureSession = videoCapturer.captureSession;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        cameraController.localView = self->_localVideoView;
+    });
+}
+
+- (void)callControllerDidDrawFirstLocalFrame:(NCCallController *)callController
+{
+    [_callController getVideoEnabledStateWithCompletionBlock:^(BOOL isEnabled) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self setLocalVideoViewHidden:!isEnabled];
+        });
+    }];
 }
 
 - (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions
@@ -1893,7 +1924,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
 {
-    [self setLocalVideoViewHidden:!videoTrack.isEnabled];
     [self setVideoDisableButtonActive:videoTrack.isEnabled];
     
     // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.

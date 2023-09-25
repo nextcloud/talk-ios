@@ -28,7 +28,7 @@
 @class NCCallController;
 @class RTCAudioTrack;
 @class RTCVideoTrack;
-@class RTCCameraVideoCapturer;
+@class NCCameraController;
 
 typedef void (^GetVideoEnabledStateCompletionBlock)(BOOL isEnabled);
 typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
@@ -42,7 +42,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack;
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack;
-- (void)callController:(NCCallController *)callController didCreateLocalVideoCapturer:(RTCCameraVideoCapturer *)videoCapturer;
+- (void)callController:(NCCallController *)callController didCreateCameraController:(NCCameraController *)cameraController;
 - (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions;
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer;
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer;
@@ -56,6 +56,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController;
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController;
 - (void)callControllerDidChangeRecording:(NCCallController *)callController;
+- (void)callControllerDidDrawFirstLocalFrame:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token withAudioEnabled:(BOOL)audioEnabled andVideoEnabled:(BOOL)videoEnabled;
 
 @end
@@ -85,6 +86,9 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)stopRecording;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)signalingSessionId;
+- (BOOL)isBackgroundBlurEnabled;
+- (void)enableBackgroundBlur:(BOOL)enable;
+- (void)stopCapturing;
 
 - (void)willSwitchToCall:(NSString *)token;
 

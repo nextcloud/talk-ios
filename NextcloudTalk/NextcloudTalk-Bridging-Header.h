@@ -23,6 +23,7 @@
 #ifndef NextcloudTalk_Bridging_Header_h
 #define NextcloudTalk_Bridging_Header_h
 
+#import "ARDSettingsModel.h"
 #import "CallParticipantViewCell.h"
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"

@@ -617,6 +617,9 @@
 "Diagnostics" = "Diagnostics";
 
 /* No comment provided by engineer. */
+"Disable blur" = "Disable blur";
+
+/* No comment provided by engineer. */
 "Disconnected" = "Disconnected";
 
 /* No comment provided by engineer. */
@@ -765,6 +768,9 @@
 
 /* No comment provided by engineer. */
 "Enable" = "Enable";
+
+/* No comment provided by engineer. */
+"Enable blur" = "Enable blur";
 
 /* No comment provided by engineer. */
 "End call" = "End call";

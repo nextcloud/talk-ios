@@ -99,6 +99,7 @@
 		1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */; };
 		1FEC45A32A02F92700A636AA /* GithubPermalinkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEC45A22A02F92700A636AA /* GithubPermalinkViewController.swift */; };
 		1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FEC45A42A02F92B00A636AA /* GithubPermalinkViewController.xib */; };
+		1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE94733293CE55600D6584C /* NCCameraController.swift */; };
 		1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
 		1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
 		1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
@@ -493,6 +494,7 @@
 		1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubPermalinkView.swift; sourceTree = "<group>"; };
 		1FEC45A22A02F92700A636AA /* GithubPermalinkViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GithubPermalinkViewController.swift; sourceTree = "<group>"; };
 		1FEC45A42A02F92B00A636AA /* GithubPermalinkViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GithubPermalinkViewController.xib; sourceTree = "<group>"; };
+		1FE94733293CE55600D6584C /* NCCameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCameraController.swift; sourceTree = "<group>"; };
 		1FEDE3C4257D439500853F79 /* NCChatFileController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCChatFileController.m; sourceTree = "<group>"; };
 		1FEDE3C5257D439500853F79 /* NCChatFileController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCChatFileController.h; sourceTree = "<group>"; };
 		1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCMessageFileParameter.m; sourceTree = "<group>"; };
@@ -1284,6 +1286,7 @@
 				1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */,
 				2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */,
 				2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */,
+				1FE94733293CE55600D6584C /* NCCameraController.swift */,
 			);
 			name = Calls;
 			sourceTree = "<group>";
@@ -2239,6 +2242,9 @@
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
+				1F538195291CFC08003DA6B7 /* NCAvatarSessionManager.m in Sources */,
+				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
+				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
