@@ -460,10 +460,8 @@ typedef enum RoomsFilter {
             [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
         }];
 
-        if (@available(iOS 15.0, *)) {
-            if (account.unreadBadgeNumber > 0) {
-                switchAccountAction.subtitle = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld notifications", nil), (long)account.unreadBadgeNumber];
-            }
+        if (account.unreadBadgeNumber > 0) {
+            switchAccountAction.subtitle = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld notifications", nil), (long)account.unreadBadgeNumber];
         }
 
         if (account.active) {
