@@ -200,8 +200,16 @@ final class NextcloudTalkUITests: XCTestCase {
         message.press(forDuration: 2.0)
 
         // Add a reaction to close the context menu
-        XCTAssert(app.staticTexts["👍"].waitForExistence(timeout: timeoutShort))
-        app.staticTexts["👍"].tap()
+        let reactionExists = app.staticTexts["👍"].waitForExistence(timeout: timeoutShort)
+
+        if reactionExists {
+            app.staticTexts["👍"].tap()
+        } else {
+            // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
+            // we simply tap the "Reply" button from the context menu
+            XCTAssert(app.buttons["Reply"].waitForExistence(timeout: timeoutShort))
+            app.buttons["Reply"].tap()
+        }
 
         // Go back to the main view controller
         let chatNavBar = app.navigationBars["NCChatView"]

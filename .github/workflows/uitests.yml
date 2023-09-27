@@ -6,6 +6,7 @@ on:
       - '.github/workflows/**'
       - NextcloudTalk.xcodeproj/**
       - NextcloudTalk/**
+      - NextcloudTalkUITests/**
       - NotificationServiceExtension/**
       - ShareExtension/**
 
@@ -26,7 +27,8 @@ jobs:
 
     strategy:
       matrix:
-        test-branches: ['stable27', 'master']
+        # Test with stable23 as well to find regressions in older versions
+        test-branches: ['stable23', 'stable27', 'master']
 
     env:
       WORKSPACE: NextcloudTalk.xcworkspace
@@ -41,7 +43,14 @@ jobs:
       uses: actions/checkout@v3
       with:
         submodules: true
-    
+
+    - uses: actions/cache@v3
+      with:
+        path: Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
+
     - name: Install docker
       run: |
         brew install docker
