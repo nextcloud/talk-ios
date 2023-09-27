@@ -370,10 +370,8 @@ NSString * const NCChatViewControllerTalkToUserNotification = @"NCChatViewContro
     [self.autoCompletionView registerClass:[ChatMessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@"]];
     self.autoCompletionView.backgroundColor = [UIColor secondarySystemBackgroundColor];
-
-    if (@available(iOS 15.0, *)) {
-        self.autoCompletionView.sectionHeaderTopPadding = 0;
-    }
+    self.autoCompletionView.sectionHeaderTopPadding = 0;
+    
     // Align separators to ChatMessageTableViewCell's title label
     self.autoCompletionView.separatorInset = UIEdgeInsetsMake(0, 50, 0, 0);
     

@@ -83,20 +83,12 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
 
     UIDeferredMenuElement *deferredMenuElement;
 
-    if (@available(iOS 15.0, *)) {
-        // When iOS 15 is available, we can use an uncached provider so local time is not cached for example
-        deferredMenuElement = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
-            [self getMenuUserActionsForMessage:message withCompletionBlock:^(NSArray *menuItems) {
-                completion(menuItems);
-            }];
+    // Use an uncached provider so local time is not cached
+    deferredMenuElement = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
+        [self getMenuUserActionsForMessage:message withCompletionBlock:^(NSArray *menuItems) {
+            completion(menuItems);
         }];
-    } else {
-        deferredMenuElement = [UIDeferredMenuElement elementWithProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
-            [self getMenuUserActionsForMessage:message withCompletionBlock:^(NSArray *menuItems) {
-                completion(menuItems);
-            }];
-        }];
-    }
+    }];
 
     return [UIMenu menuWithTitle:message.actorDisplayName children:@[deferredMenuElement]];
 }
