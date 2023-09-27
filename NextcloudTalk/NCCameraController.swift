@@ -220,9 +220,9 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             self.session?.sessionPreset = .inputPriority
 
             if self.usingFrontCamera {
-                self.session?.addInput(getFrontCameraInput())
+                self.session?.addInput(self.getFrontCameraInput())
             } else {
-                self.session?.addInput(getBackCameraInput())
+                self.session?.addInput(self.getBackCameraInput())
             }
 
             let output = AVCaptureVideoDataOutput()
