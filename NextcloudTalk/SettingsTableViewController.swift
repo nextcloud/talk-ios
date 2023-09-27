@@ -283,12 +283,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
     @objc func contactsHaveBeenUpdated(notification: NSNotification) {
         DispatchQueue.main.async {
+            self.activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             self.tableView.reloadData()
         }
     }
 
     @objc func contactsAccessHasBeenUpdated(notification: NSNotification) {
         DispatchQueue.main.async {
+            self.activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             self.tableView.reloadData()
         }
     }
@@ -753,6 +755,17 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         }
     }
 
+    func didSelectAccountSettingsSectionCell(for indexPath: IndexPath) {
+        let options = getAccountSettingsSectionOptions()
+        let option = options[indexPath.row]
+        switch option {
+        case AccountSettingsOptions.kAccountSettingsContactsSync.rawValue:
+            NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: true)
+        default:
+            break
+        }
+    }
+
     func didSelectSettingsSectionCell(for indexPath: IndexPath) {
         let options = getConfigurationSectionOptions()
         let option = options[indexPath.row]
@@ -805,6 +818,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
 
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
             self.presentUserStatusOptions()
+
+        case SettingsSection.kSettingsSectionAccountSettings.rawValue:
+            self.didSelectAccountSettingsSectionCell(for: indexPath)
 
         case SettingsSection.kSettingsSectionOtherAccounts.rawValue:
             self.didSelectOtherAccountSectionCell(for: indexPath)
@@ -869,7 +885,7 @@ extension SettingsTableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: contactsSyncCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Phone number integration", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
-            cell.selectionStyle = .none
+            cell.selectionStyle = contactSyncSwitch.isOn ? .default : .none
             cell.imageView?.image = UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration)
             cell.imageView?.tintColor = .secondaryLabel
             cell.accessoryView = contactSyncSwitch
