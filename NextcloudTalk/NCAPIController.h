@@ -171,6 +171,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Rooms Controller
 - (NSURLSessionDataTask *)getRoomsForAccount:(TalkAccount *)account updateStatus:(BOOL)updateStatus modifiedSince:(NSInteger)modifiedSince withCompletionBlock:(GetRoomsCompletionBlock)block;
 - (NSURLSessionDataTask *)getRoomForAccount:(TalkAccount *)account withToken:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
+- (NSURLSessionDataTask *)getNoteToSelfRoomForAccount:(TalkAccount *)account withCompletionBlock:(GetRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)getListableRoomsForAccount:(TalkAccount *)account withSearchTerm:(NSString *)searchTerm andCompletionBlock:(GetRoomsCompletionBlock)block;
 - (NSURLSessionDataTask *)createRoomForAccount:(TalkAccount *)account with:(NSString *)invite ofType:(NCRoomType)type andName:(NSString *)roomName withCompletionBlock:(CreateRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)renameRoom:(NSString *)token forAccount:(TalkAccount *)account withName:(NSString *)newName andCompletionBlock:(RenameRoomCompletionBlock)block;

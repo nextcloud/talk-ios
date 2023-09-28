@@ -78,6 +78,7 @@ extern NSString * const kCapabilityTypingIndicators;
 extern NSString * const kCapabilityPublishingPermissions;
 extern NSString * const kCapabilityRemindMeLater;
 extern NSString * const kCapabilityMarkdownMessages;
+extern NSString * const kCapabilityNoteToSelf;
 
 extern NSString * const kNotificationsCapabilityExists;
 
