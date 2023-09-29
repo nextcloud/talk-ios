@@ -1124,7 +1124,8 @@ typedef enum RoomsFilter {
         }
     }
     // Notification levels
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels] &&
+        room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf) {
         UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString]
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
@@ -1135,7 +1136,7 @@ typedef enum RoomsFilter {
     }
 
     // Share link
-    if (room.type != kNCRoomTypeChangelog) {
+    if (room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf) {
         // Share Link
         UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Share link", nil)
                                                                   style:UIAlertActionStyleDefault

@@ -227,7 +227,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 - (BOOL)isLockedOneToOne
 {
     return (self.type == kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms])
-        || self.type == kNCRoomTypeFormerOneToOne;
+        || self.type == kNCRoomTypeFormerOneToOne || self.type == kNCRoomTypeNoteToSelf;
 }
 
 - (BOOL)userCanStartCall

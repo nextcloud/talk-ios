@@ -298,7 +298,7 @@ typedef enum FileAction {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSharedItems]];
     }
     // Notifications section
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([self getNotificationsActions].count > 0) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionNotifications]];
     }
     // Conversation section
@@ -339,6 +339,11 @@ typedef enum FileAction {
 - (NSArray *)getNotificationsActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
+
+    if (_room.type == kNCRoomTypeChangelog || _room.type == kNCRoomTypeNoteToSelf) {
+        return actions;
+    }
+
     // Chat notifications levels action
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [actions addObject:[NSNumber numberWithInt:kNotificationActionChatNotifications]];
@@ -426,7 +431,7 @@ typedef enum FileAction {
         }
     }
 
-    if (_room.type != kNCRoomTypeChangelog) {
+    if (_room.type != kNCRoomTypeChangelog && _room.type != kNCRoomTypeNoteToSelf) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionShareLink]];
     }
     
@@ -1374,7 +1379,7 @@ typedef enum FileAction {
 
 - (NSString *)detailedNameForParticipant:(NCRoomParticipant *)participant
 {
-    if (participant.canModerate && (_room.type == kNCRoomTypeOneToOne || _room.type == kNCRoomTypeFormerOneToOne)) {
+    if (participant.canModerate && (_room.type == kNCRoomTypeOneToOne || _room.type == kNCRoomTypeFormerOneToOne || _room.type == kNCRoomTypeNoteToSelf)) {
         return participant.displayName;
     }
     return participant.detailedName;
