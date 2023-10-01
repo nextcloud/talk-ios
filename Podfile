@@ -9,7 +9,6 @@ pod 'UICKeyChainStore'
 pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod 'MBProgressHUD', '~> 1.2.0'
-pod 'TOCropViewController', '~> 2.6.0'
 pod 'libPhoneNumber-iOS'
 pod 'MZTimerLabel'
 pod 'MobileVLCKit', '~>3.3.0'
@@ -24,16 +23,10 @@ target "ShareExtension" do
 pod 'AFNetworking', "3.2.0"
 pod 'UICKeyChainStore'
 pod 'MBProgressHUD', '~> 1.2.0'
-pod 'TOCropViewController', '~> 2.6.0'
 end
 
 pre_install do |installer|
     puts 'pre_install begin....'
-
-    if not File.directory?("ThirdParty/WebRTC.xcframework")
-      puts 'WebRTC not found in folder ThirdParty, fetching...'
-      system("./download_webrtc.sh")
-    end
 
     puts 'Update submodules...'
     system('git submodule update --init')

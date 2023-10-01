@@ -145,10 +145,9 @@
     {
       "identity" : "talk-clients-webrtc",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SystemKeeper/talk-clients-webrtc",
+      "location" : "https://github.com/nextcloud-releases/talk-clients-webrtc",
       "state" : {
-        "branch" : "main",
-        "revision" : "9f25a89130e71fd4c3d41e03e6133f21d654442c"
+        "revision" : "fd8f88a4243f31760617524b8ca86d71e9c903a7"
       }
     },
     {

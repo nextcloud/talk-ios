@@ -28,7 +28,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <QuickLook/QuickLook.h>
 #import <QuickLookThumbnailing/QuickLookThumbnailing.h>
-#import <TOCropViewController/TOCropViewController.h>
 
 #import "CCCertificate.h"
 #import "NCAPIController.h"
@@ -39,6 +38,7 @@
 #import "NCUserDefaults.h"
 #import "NCUtils.h"
 #import "MBProgressHUD.h"
+#import "TOCropViewController.h"
 
 #import "NextcloudTalk-Swift.h"
 
