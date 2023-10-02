@@ -95,6 +95,9 @@
 "Add to favorites" = "Add to favorites";
 
 /* No comment provided by engineer. */
+"Added note to self" = "Added note to self";
+
+/* No comment provided by engineer. */
 "Address" = "Address";
 
 /* No comment provided by engineer. */
@@ -219,6 +222,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while adding a reaction to message" = "An error occurred while adding a reaction to message";
+
+/* No comment provided by engineer. */
+"An error occurred while adding note" = "An error occurred while adding note";
 
 /* No comment provided by engineer. */
 "An error occurred while clearing status message" = "An error occurred while clearing status message";
@@ -1152,6 +1158,9 @@
 
 /* No comment provided by engineer. */
 "Not supported" = "Not supported";
+
+/* No comment provided by engineer. */
+"Note to self" = "Note to self";
 
 /* No comment provided by engineer. */
 "Notifications" = "Notifications";
