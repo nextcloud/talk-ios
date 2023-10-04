@@ -24,6 +24,7 @@ identifier_name:
 excluded:
   - Pods
   - ThirdParty
+  - SourcePackages
 
 reporter: "xcode"
 

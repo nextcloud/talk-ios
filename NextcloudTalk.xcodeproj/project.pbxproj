@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -80,6 +80,9 @@
 		1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
+		1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7C2AC99326001214EB /* TOCropViewController */; };
+		1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7E2AC99367001214EB /* TOCropViewController */; };
+		1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E872ACD44D0001214EB /* WebRTC */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -95,11 +98,11 @@
 		1FDE7C9C28DE14B000CB718E /* ReferenceView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */; };
 		1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */; };
 		1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */; };
+		1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE94733293CE55600D6584C /* NCCameraController.swift */; };
 		1FEC459C2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */; };
 		1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */; };
 		1FEC45A32A02F92700A636AA /* GithubPermalinkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEC45A22A02F92700A636AA /* GithubPermalinkViewController.swift */; };
 		1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FEC45A42A02F92B00A636AA /* GithubPermalinkViewController.xib */; };
-		1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE94733293CE55600D6584C /* NCCameraController.swift */; };
 		1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3C4257D439500853F79 /* NCChatFileController.m */; };
 		1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
 		1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */; };
@@ -140,8 +143,6 @@
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */; };
-		2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */; };
-		2C38D4AD27BBAFCC00BAE015 /* WebRTC.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
 		2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
 		2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCChatController.m */; };
@@ -405,17 +406,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		2C38D4AE27BBAFCC00BAE015 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				2C38D4AD27BBAFCC00BAE015 /* WebRTC.xcframework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -490,11 +480,11 @@
 		1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReferenceView.xib; sourceTree = "<group>"; };
 		1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceTalkView.xib; sourceTree = "<group>"; };
 		1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceTalkView.swift; sourceTree = "<group>"; };
+		1FE94733293CE55600D6584C /* NCCameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCameraController.swift; sourceTree = "<group>"; };
 		1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubPermalinkView.xib; sourceTree = "<group>"; };
 		1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubPermalinkView.swift; sourceTree = "<group>"; };
 		1FEC45A22A02F92700A636AA /* GithubPermalinkViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GithubPermalinkViewController.swift; sourceTree = "<group>"; };
 		1FEC45A42A02F92B00A636AA /* GithubPermalinkViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GithubPermalinkViewController.xib; sourceTree = "<group>"; };
-		1FE94733293CE55600D6584C /* NCCameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCameraController.swift; sourceTree = "<group>"; };
 		1FEDE3C4257D439500853F79 /* NCChatFileController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCChatFileController.m; sourceTree = "<group>"; };
 		1FEDE3C5257D439500853F79 /* NCChatFileController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCChatFileController.h; sourceTree = "<group>"; };
 		1FEDE3CC257D43AB00853F79 /* NCMessageFileParameter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCMessageFileParameter.m; sourceTree = "<group>"; };
@@ -901,14 +891,15 @@
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */,
 				1F0ECBFD2A73F21A00921E90 /* Realm in Frameworks */,
+				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
+				1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */,
 				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
-				2C38D4AC27BBAFCC00BAE015 /* WebRTC.xcframework in Frameworks */,
 				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
 				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
@@ -921,6 +912,7 @@
 			files = (
 				1F0ECC012A73F22F00921E90 /* Realm in Frameworks */,
 				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
+				1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */,
 				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
 				1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */,
@@ -1665,7 +1657,6 @@
 				2C8035721F950BA800501B5C /* ShellScript */,
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
 				2C5E72BC27957FCA004ED7FB /* ShellScript */,
-				2C38D4AE27BBAFCC00BAE015 /* Embed Frameworks */,
 				C21100AE204AFC213989DA96 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
@@ -1685,6 +1676,8 @@
 				1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF42A68274400921E90 /* CDMarkdownKit */,
 				1F0ECBFC2A73F21A00921E90 /* Realm */,
+				1FAB2E7C2AC99326001214EB /* TOCropViewController */,
+				1FAB2E872ACD44D0001214EB /* WebRTC */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1698,7 +1691,6 @@
 				2C62AF9F24C08845007E460A /* Sources */,
 				2C62AFA024C08845007E460A /* Frameworks */,
 				2C62AFA124C08845007E460A /* Resources */,
-				95F4C6F5C8959694D2B7BA03 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1711,6 +1703,7 @@
 				1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF82A68277C00921E90 /* CDMarkdownKit */,
 				1F0ECC002A73F22F00921E90 /* Realm */,
+				1FAB2E7E2AC99367001214EB /* TOCropViewController */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -1825,6 +1818,8 @@
 				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */,
 				1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */,
 				1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */,
+				1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -2004,24 +1999,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		95F4C6F5C8959694D2B7BA03 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ShareExtension/Pods-ShareExtension-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController/TOCropViewControllerBundle.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TOCropViewControllerBundle.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShareExtension/Pods-ShareExtension-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		A3C686B1B84C4462F93441AB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2031,13 +2008,11 @@
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources.sh",
 				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
 				"${PODS_ROOT}/MaterialComponents/components/ActivityIndicator/src/MaterialActivityIndicator.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController/TOCropViewControllerBundle.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DateTools.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialActivityIndicator.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TOCropViewControllerBundle.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2242,9 +2217,7 @@
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
-				1F538195291CFC08003DA6B7 /* NCAvatarSessionManager.m in Sources */,
 				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
-				2CB3041F2264775E0053078A /* SLKTypingIndicatorView.m in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2C7A245B24FE7B5300921A21 /* ShareConfirmationViewController.m in Sources */,
 				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
@@ -3202,6 +3175,22 @@
 				version = 1.6.0;
 			};
 		};
+		1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TimOliver/TOCropViewController";
+			requirement = {
+				kind = exactVersion;
+				version = 2.6.1;
+			};
+		};
+		1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nextcloud-releases/talk-clients-webrtc";
+			requirement = {
+				kind = revision;
+				revision = fd8f88a4243f31760617524b8ca86d71e9c903a7;
+			};
+		};
 		2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/krzyzanowskim/OpenSSL";
@@ -3302,6 +3291,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
 			productName = NextcloudKit;
+		};
+		1FAB2E7C2AC99326001214EB /* TOCropViewController */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */;
+			productName = TOCropViewController;
+		};
+		1FAB2E7E2AC99367001214EB /* TOCropViewController */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */;
+			productName = TOCropViewController;
+		};
+		1FAB2E872ACD44D0001214EB /* WebRTC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */;
+			productName = WebRTC;
 		};
 		2CCCD21C2835088F00F076CE /* OpenSSL */ = {
 			isa = XCSwiftPackageProductDependency;

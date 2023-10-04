@@ -50,6 +50,23 @@ final class NextcloudTalkUITests: XCTestCase {
         waitForExpectations(timeout: timeoutLong, handler: nil)
     }
 
+    // Based on https://stackoverflow.com/a/47947315
+    @discardableResult
+    func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement? {
+        let startTime = NSDate.timeIntervalSinceReferenceDate
+        while !elementA.exists && !elementB.exists { // while neither element exists
+            if NSDate.timeIntervalSinceReferenceDate - startTime > timeout {
+                XCTFail("Timed out waiting for either element to exist.")
+                break
+            }
+            sleep(1)
+        }
+
+        if elementA.exists { return elementA }
+        if elementB.exists { return elementB }
+        return nil
+    }
+
     func launchAndLogin() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += ["-AppleLanguages", "(en-US)"]
@@ -58,17 +75,16 @@ final class NextcloudTalkUITests: XCTestCase {
         app.launch()
 
         let accountSwitcherButton = app.buttons["Nextcloud Talk"]
+        let serverAddressHttpsTextField = app.textFields["Server address https://…"]
 
         // Wait shortly until the app is fully started
-        _ = accountSwitcherButton.waitForExistence(timeout: timeoutShort)
+        let foundElement = waitForEitherElementToExist(accountSwitcherButton, serverAddressHttpsTextField, timeoutLong)
 
         // When the account switcher button exists, we have atleast one account configured
-        if accountSwitcherButton.exists {
+        if foundElement == accountSwitcherButton {
             return app
         }
 
-        let serverAddressHttpsTextField = app.textFields["Server address https://…"]
-        XCTAssert(serverAddressHttpsTextField.waitForExistence(timeout: timeoutLong))
         serverAddressHttpsTextField.tap()
         serverAddressHttpsTextField.typeText(server)
 
@@ -77,15 +93,19 @@ final class NextcloudTalkUITests: XCTestCase {
         loginButton.tap()
 
         let webViewsQuery = app.webViews.webViews.webViews
-        let loginButton2 = webViewsQuery.buttons["Log in"]
-
-        // Wait for the login button to be available and to get enabled
-        XCTAssert(loginButton2.waitForExistence(timeout: timeoutLong))
-        waitForEnabled(object: loginButton2)
-
-        loginButton2.tap()
-
         let main = webViewsQuery.otherElements["main"]
+
+        // Wait for the webview to be available
+        XCTAssert(main.waitForExistence(timeout: timeoutLong))
+
+        // Wait for the login button to be available and to get enabled/hittable
+        let loginButtonWeb = webViewsQuery.buttons["Log in"]
+        XCTAssert(loginButtonWeb.waitForExistence(timeout: timeoutLong))
+        waitForEnabled(object: loginButtonWeb)
+        waitForHittable(object: loginButtonWeb)
+
+        loginButtonWeb.tap()
+
         XCTAssert(main.waitForExistence(timeout: timeoutLong))
 
         let usernameTextField = main.descendants(matching: .textField).firstMatch

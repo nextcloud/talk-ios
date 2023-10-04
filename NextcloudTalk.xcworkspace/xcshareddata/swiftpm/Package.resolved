@@ -1,0 +1,164 @@
+{
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire",
+      "state" : {
+        "revision" : "b2fa556e4e48cbf06cf8c63def138c98f4b811fa",
+        "version" : "5.8.0"
+      }
+    },
+    {
+      "identity" : "cdmarkdownkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud-deps/CDMarkdownKit.git",
+      "state" : {
+        "revision" : "58082fa7952b4bf8f5e46b3ddc5be4d8ba28a5b5"
+      }
+    },
+    {
+      "identity" : "cocoalumberjack",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CocoaLumberjack/CocoaLumberjack.git",
+      "state" : {
+        "revision" : "67ec5818a757aba4d7c534e21a905d878d128dbf",
+        "version" : "3.8.1"
+      }
+    },
+    {
+      "identity" : "dynamic",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mhdhejazi/Dynamic.git",
+      "state" : {
+        "revision" : "ab9a2570862d54aed2663691bb767f881226a12f",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "nextcloudkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud/NextcloudKit",
+      "state" : {
+        "revision" : "0d694aa234210f7c85ab41b05d1429ad0eb50266",
+        "version" : "1.6.0"
+      }
+    },
+    {
+      "identity" : "openssl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/OpenSSL",
+      "state" : {
+        "revision" : "9429bf89fe0df2d2f25f3a9a51cbf7092e69640f",
+        "version" : "1.1.1700"
+      }
+    },
+    {
+      "identity" : "qrcodereader.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/yannickl/QRCodeReader.swift",
+      "state" : {
+        "revision" : "5020b5a47199d8ba80c83a4b4fafd70e9dc9dc7f",
+        "version" : "10.1.1"
+      }
+    },
+    {
+      "identity" : "realm-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-core.git",
+      "state" : {
+        "revision" : "f1e962cd447f8b69f8f7cf46a188b1c6246923c5",
+        "version" : "13.17.0"
+      }
+    },
+    {
+      "identity" : "realm-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-swift.git",
+      "state" : {
+        "revision" : "0155caac1a0830a9fbaaffe5866b909fad3a6fc4",
+        "version" : "10.41.1"
+      }
+    },
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "3289629ef6cbf1ad8c3d1dccf0cf09ac97547cd6",
+        "version" : "5.15.7"
+      }
+    },
+    {
+      "identity" : "sdwebimagesvgkitplugin",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageSVGKitPlugin.git",
+      "state" : {
+        "revision" : "fb16805b772d9a1dfa31a7665f64a557f3b52781",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "svgkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SVGKit/SVGKit.git",
+      "state" : {
+        "revision" : "58152b9f7c85eab239160b36ffdfd364aa43d666",
+        "version" : "3.0.0"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "532d8b529501fb73a2455b179e0bbb6d49b652ed",
+        "version" : "1.5.3"
+      }
+    },
+    {
+      "identity" : "swiftyattributes",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/eddiekaiger/SwiftyAttributes.git",
+      "state" : {
+        "revision" : "1ae513a1617309455a115c3fc2d558f744b43788"
+      }
+    },
+    {
+      "identity" : "swiftyjson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftyJSON/SwiftyJSON",
+      "state" : {
+        "revision" : "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
+        "version" : "5.0.1"
+      }
+    },
+    {
+      "identity" : "swiftyxmlparser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/yahoojapan/SwiftyXMLParser",
+      "state" : {
+        "revision" : "d7a1d23f04c86c1cd2e8f19247dd15d74e0ea8be",
+        "version" : "5.6.0"
+      }
+    },
+    {
+      "identity" : "talk-clients-webrtc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud-releases/talk-clients-webrtc",
+      "state" : {
+        "revision" : "fd8f88a4243f31760617524b8ca86d71e9c903a7"
+      }
+    },
+    {
+      "identity" : "tocropviewcontroller",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TimOliver/TOCropViewController",
+      "state" : {
+        "revision" : "d0470491f56e734731bbf77991944c0dfdee3e0e",
+        "version" : "2.6.1"
+      }
+    }
+  ],
+  "version" : 2
+}

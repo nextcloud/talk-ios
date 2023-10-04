@@ -3,7 +3,15 @@ Podfile.lock
 NextcloudTalk.xcodeproj/xcuserdata
 NextcloudTalk.xcodeproj/xcshareddata
 NextcloudTalk.xcworkspace/xcuserdata
-NextcloudTalk.xcworkspace/xcshareddata
 ThirdParty/WebRTC.xcframework
 .DS_Store
 testResult.xcresult
+
+# Include the resolved spm configuration, so "Package.resolved" can be used for caching
+NextcloudTalk.xcworkspace/**
+!NextcloudTalk.xcworkspace/xcshareddata/
+!NextcloudTalk.xcworkspace/xcshareddata/swiftpm
+!NextcloudTalk.xcworkspace/xcshareddata/swiftpm/**
+
+# Exclude SPM cache on CI
+SourcePackages

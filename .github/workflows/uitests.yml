@@ -51,6 +51,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pods-
 
+    - uses: actions/cache@v3
+      with:
+        path: SourcePackages
+        key: ${{ runner.os }}-spm-${{ hashFiles('NextcloudTalk.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+
     - name: Install docker
       run: |
         brew install docker
@@ -80,6 +87,7 @@ jobs:
         -test-iterations 3 \
         -retry-tests-on-failure \
         -resultBundlePath "testResult.xcresult" \
+        -clonedSourcePackagesDirPath SourcePackages \
         | xcpretty
 
     - name: Upload test results
