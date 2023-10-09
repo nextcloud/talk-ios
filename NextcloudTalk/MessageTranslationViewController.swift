@@ -105,16 +105,22 @@ import UIKit
         if !didTriggerInitialTranslation {
             self.setTranslatingUI()
             self.didTriggerInitialTranslation = true
+            self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
+            self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
+            self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
 
             if NCDatabaseManager.sharedInstance().hasTranslationProviders(forAccountId: activeAccount?.accountId ?? "") {
                 NCAPIController.sharedInstance().getAvailableTranslations(for: activeAccount) { languages, languageDetection, error, _ in
-                    if let translations = languages as? [NCTranslation] {
+                    if let translations = languages as? [NCTranslation], error == nil {
                         self.availableTranslations = translations
-                        self.setupInitialViewAndTriggerIntialTranslation()
+                        self.translateOriginalText(from: "", to: self.userLanguageCode ?? "")
+                    } else {
+                        self.showTranslationError(message: NSLocalizedString("Could not get available languages", comment: ""))
+                        self.removeTranslatingUI()
                     }
                 }
             } else {
-                setupInitialViewAndTriggerIntialTranslation()
+                self.translateOriginalText(from: "", to: userLanguageCode ?? "")
             }
         }
     }
@@ -129,15 +135,6 @@ import UIKit
 
     func cancelButtonPressed() {
         self.dismiss(animated: true, completion: nil)
-    }
-
-    func setupInitialViewAndTriggerIntialTranslation() {
-        self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
-        self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
-
-        self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
-
-        self.translateOriginalText(from: "", to: userLanguageCode ?? "")
     }
 
     func adjustOriginalTextViewSizeToViewSize(size: CGSize) {
