@@ -1638,6 +1638,30 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Translations Controller
 
+- (NSURLSessionDataTask *)getAvailableTranslationsForAccount:(TalkAccount *)account withCompletionBlock:(GetTranslationsCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/translation/languages", account.server];
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *translationDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            NSArray *translations = [[NCDatabaseManager sharedInstance] translationsFromTranslationsArray:[translationDict objectForKey:@"languages"]];
+            BOOL languageDetection = [translationDict objectForKey:@"languageDetection"];
+            block(translations, languageDetection, nil, httpResponse.statusCode);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        NSDictionary *failureDict = [[[self getFailureResponseObjectFromError:error] objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            block(@[], NO, error, statusCode);
+        }
+    }];
+
+    return task;
+}
+
 - (NSURLSessionDataTask *)translateMessage:(NSString *)message from:(NSString *)from to:(NSString *)to forAccount:(TalkAccount *)account withCompletionBlock:(MessageTranslationCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/translation/translate", account.server];

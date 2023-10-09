@@ -103,13 +103,19 @@ import UIKit
 
     override func viewWillAppear(_ animated: Bool) {
         if !didTriggerInitialTranslation {
-            self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
-            self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
-
-            self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
-
+            self.setTranslatingUI()
             self.didTriggerInitialTranslation = true
-            self.translateOriginalText(from: "", to: userLanguageCode ?? "")
+
+            if NCDatabaseManager.sharedInstance().hasTranslationProviders(forAccountId: activeAccount?.accountId ?? "") {
+                NCAPIController.sharedInstance().getAvailableTranslations(for: activeAccount) { languages, languageDetection, error, _ in
+                    if let translations = languages as? [NCTranslation] {
+                        self.availableTranslations = translations
+                        self.setupInitialViewAndTriggerIntialTranslation()
+                    }
+                }
+            } else {
+                setupInitialViewAndTriggerIntialTranslation()
+            }
         }
     }
 
@@ -123,6 +129,15 @@ import UIKit
 
     func cancelButtonPressed() {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    func setupInitialViewAndTriggerIntialTranslation() {
+        self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
+        self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
+
+        self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
+
+        self.translateOriginalText(from: "", to: userLanguageCode ?? "")
     }
 
     func adjustOriginalTextViewSizeToViewSize(size: CGSize) {
@@ -202,7 +217,6 @@ import UIKit
     // MARK: - Translate
 
     func translateOriginalText(from: String, to: String) {
-        self.setTranslatingUI()
         NCAPIController.sharedInstance().translateMessage(originalMessage, from: from, to: to, for: activeAccount) { responseDict, error, _ in
             self.removeTranslatingUI()
 

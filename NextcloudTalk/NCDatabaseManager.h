@@ -84,6 +84,13 @@ extern NSString * const kNotificationsCapabilityExists;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 
+@interface NCTranslation : NSObject
+@property (nonatomic, copy) NSString *from;
+@property (nonatomic, copy) NSString *fromLabel;
+@property (nonatomic, copy) NSString *to;
+@property (nonatomic, copy) NSString *toLabel;
+@end
+
 @interface NCDatabaseManager : NSObject
 
 + (instancetype)sharedInstance;
@@ -114,6 +121,11 @@ extern NSString * const kMinimumRequiredTalkCapability;
 - (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId;
 - (BOOL)serverHasNotificationsCapability:(NSString *)capability forAccountId:(NSString *)accountId;
 - (void)setExternalSignalingServerVersion:(NSString *)version forAccountId:(NSString *)accountId;
+
+- (BOOL)hasAvailableTranslationsForAccountId:(NSString *)accountId;
+- (BOOL)hasTranslationProvidersForAccountId:(NSString *)accountId;
+- (NSArray *)availableTranslationsForAccountId:(NSString *)accountId;
+- (NSArray *)translationsFromTranslationsArray:(NSArray *)translations;
 
 @end
 

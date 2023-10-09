@@ -60,10 +60,6 @@
 
 @end
 
-@implementation NCTranslation
-
-@end
-
 
 @implementation NCSettingsController
 
@@ -648,44 +644,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return chatMaxLength > 0 ? chatMaxLength : kDefaultChatMaxLength;
     }
     return kDefaultChatMaxLength;
-}
-
-- (NSArray<NCTranslation *> *)availableTranslations
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    NSMutableArray *availableTranslations = [NSMutableArray new];
-    if (serverCapabilities) {
-        NSArray *translations = [self translationsArrayFromTranslations:serverCapabilities.translations];
-        for (NSDictionary *translationDict in translations) {
-            NCTranslation *translation = [[NCTranslation alloc] init];
-            translation.from = [translationDict objectForKey:@"from"];
-            translation.fromLabel = [translationDict objectForKey:@"fromLabel"];
-            translation.to = [translationDict objectForKey:@"to"];
-            translation.toLabel = [translationDict objectForKey:@"toLabel"];
-            [availableTranslations addObject:translation];
-        }
-        return availableTranslations;
-    }
-    return @[];
-}
-
-- (NSArray *)translationsArrayFromTranslations:(NSString *)translations
-{
-    NSArray *translationsArray = @[];
-    NSData *data = [translations dataUsingEncoding:NSUTF8StringEncoding];
-    if (data) {
-        NSError* error;
-        NSArray* jsonData = [NSJSONSerialization JSONObjectWithData:data
-                                                            options:0
-                                                              error:&error];
-        if (jsonData) {
-            translationsArray = jsonData;
-        } else {
-            NSLog(@"Error retrieving reactions JSON data: %@", error);
-        }
-    }
-    return translationsArray;
 }
 
 - (BOOL)canCreateGroupAndPublicRooms

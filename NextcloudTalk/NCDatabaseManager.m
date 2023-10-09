@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 54;
+uint64_t const kTalkDatabaseSchemaVersion           = 55;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -87,6 +87,10 @@ NSString * const kCapabilityNoteToSelf              = @"note-to-self";
 NSString * const kNotificationsCapabilityExists     = @"exists";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
+
+@implementation NCTranslation
+
+@end
 
 @implementation NCDatabaseManager
 
@@ -385,6 +389,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     capabilities.userStatus = [[userStatusCaps objectForKey:@"enabled"] boolValue];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
+    capabilities.hasTranslationProviders = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"has-translation-providers"] boolValue];
     capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
@@ -500,6 +505,60 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
             managedServerCapabilities.externalSignalingServerVersion = version;
         }
     }];
+}
+
+- (BOOL)hasAvailableTranslationsForAccountId:(NSString *)accountId
+{
+    return [self hasTranslationProvidersForAccountId:accountId] || [self availableTranslationsForAccountId:accountId].count > 0;
+}
+
+- (BOOL)hasTranslationProvidersForAccountId:(NSString *)accountId
+{
+    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+
+    return serverCapabilities.hasTranslationProviders;
+}
+
+- (NSArray *)availableTranslationsForAccountId:(NSString *)accountId
+{
+    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+    if (serverCapabilities) {
+        NSArray *translations = [self translationsArrayFromTranslationsJSONString:serverCapabilities.translations];
+        return [self translationsFromTranslationsArray:translations];
+    }
+    return @[];
+}
+
+- (NSArray *)translationsArrayFromTranslationsJSONString:(NSString *)translations
+{
+    NSArray *translationsArray = @[];
+    NSData *data = [translations dataUsingEncoding:NSUTF8StringEncoding];
+    if (data) {
+        NSError* error;
+        NSArray* jsonData = [NSJSONSerialization JSONObjectWithData:data
+                                                            options:0
+                                                              error:&error];
+        if (jsonData) {
+            translationsArray = jsonData;
+        } else {
+            NSLog(@"Error retrieving translations JSON data: %@", error);
+        }
+    }
+    return translationsArray;
+}
+
+- (NSArray *)translationsFromTranslationsArray:(NSArray *)translations
+{
+    NSMutableArray *availableTranslations = [NSMutableArray new];
+    for (NSDictionary *translationDict in translations) {
+        NCTranslation *translation = [[NCTranslation alloc] init];
+        translation.from = [translationDict objectForKey:@"from"];
+        translation.fromLabel = [translationDict objectForKey:@"fromLabel"];
+        translation.to = [translationDict objectForKey:@"to"];
+        translation.toLabel = [translationDict objectForKey:@"toLabel"];
+        [availableTranslations addObject:translation];
+    }
+    return availableTranslations;
 }
 
 @end
