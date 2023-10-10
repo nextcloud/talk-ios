@@ -113,7 +113,13 @@ import UIKit
                 NCAPIController.sharedInstance().getAvailableTranslations(for: activeAccount) { languages, languageDetection, error, _ in
                     if let translations = languages as? [NCTranslation], error == nil {
                         self.availableTranslations = translations
-                        self.translateOriginalText(from: "", to: self.userLanguageCode ?? "")
+                        if languageDetection {
+                            self.translateOriginalText(from: "", to: self.userLanguageCode ?? "")
+                        } else {
+                            self.configureFromButton(title: nil, enabled: true)
+                            self.configureToButton(title: nil, enabled: false, fromLanguageCode: "")
+                            self.removeTranslatingUI()
+                        }
                     } else {
                         self.showTranslationError(message: NSLocalizedString("Could not get available languages", comment: ""))
                         self.removeTranslatingUI()
@@ -214,6 +220,7 @@ import UIKit
     // MARK: - Translate
 
     func translateOriginalText(from: String, to: String) {
+        self.setTranslatingUI()
         NCAPIController.sharedInstance().translateMessage(originalMessage, from: from, to: to, for: activeAccount) { responseDict, error, _ in
             self.removeTranslatingUI()
 
