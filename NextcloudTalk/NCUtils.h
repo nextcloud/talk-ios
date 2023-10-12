@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)openFileInNextcloudAppOrBrowser:(NSString *)path withFileLink:(NSString *)link;
 + (void)openLinkInBrowser:(NSString *)link;
 
++ (BOOL)isInstanceRoomLink:(NSString *)link;
+
 // https://www.php.net/manual/en/class.datetimeinterface.php#datetime.constants.atom
 + (NSDate *)dateFromDateAtomFormat:(NSString *)dateAtomFormatString;
 + (NSString *)dateAtomFormatFromDate:(NSDate *)date;
