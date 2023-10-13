@@ -152,7 +152,8 @@ static NSString *const nextcloudScheme = @"nextcloud:";
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *roomPrefix1 = [NSString stringWithFormat:@"%@/call", activeAccount.server];
     NSString *roomPrefix2 = [NSString stringWithFormat:@"%@/index.php/call", activeAccount.server];
-    if ([link hasPrefix:roomPrefix1] || [link hasPrefix:roomPrefix2]) {
+    if ([link rangeOfString:roomPrefix1 options:(NSAnchoredSearch | NSCaseInsensitiveSearch)].location != NSNotFound ||
+        [link rangeOfString:roomPrefix2 options:(NSAnchoredSearch | NSCaseInsensitiveSearch)].location != NSNotFound) {
         return YES;
     }
     return NO;
