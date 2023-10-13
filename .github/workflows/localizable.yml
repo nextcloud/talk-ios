@@ -1,0 +1,39 @@
+name: Check for localizable changes
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - stable*
+  pull_request:
+    branches:
+      - main
+      - master
+      - stable*
+
+permissions:
+  contents: read
+
+jobs:
+  check-localizable:
+    name: Check for localizable changes
+    runs-on: macOS-latest
+
+    steps:
+    - name: Checkout app
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Run localizable generation
+      run: |
+        source ./generate-localizable-strings-file.sh
+
+    - name: Verify Changed files
+      uses: tj-actions/verify-changed-files@v16
+      id: verify-changed-files
+      with:
+        fail-if-changed: true
+        files: |
+            NextcloudTalk/en.lproj/Localizable.strings
