@@ -23,6 +23,7 @@
 #import "ShareViewController.h"
 
 #import <Intents/Intents.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"

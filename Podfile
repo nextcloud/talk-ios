@@ -2,27 +2,27 @@ source 'https://cdn.cocoapods.org/'
 platform :ios, '15.0'
 
 target "NextcloudTalk" do
-pod 'AFNetworking', "3.2.0"
+pod 'AFNetworking'
 pod 'DateTools'
 pod 'JDStatusBarNotification'
 pod 'UICKeyChainStore'
 pod 'MaterialComponents/ActivityIndicator'
-pod 'Toast', '~> 4.0.0'
-pod 'MBProgressHUD', '~> 1.2.0'
+pod 'Toast'
+pod 'MBProgressHUD'
 pod 'libPhoneNumber-iOS'
 pod 'MZTimerLabel'
-pod 'MobileVLCKit', '~>3.3.0'
+pod 'MobileVLCKit'
 end
 
 target "NotificationServiceExtension" do
-pod 'AFNetworking', "3.2.0"
+pod 'AFNetworking'
 pod 'UICKeyChainStore'
 end
 
 target "ShareExtension" do
-pod 'AFNetworking', "3.2.0"
+pod 'AFNetworking'
 pod 'UICKeyChainStore'
-pod 'MBProgressHUD', '~> 1.2.0'
+pod 'MBProgressHUD'
 end
 
 pre_install do |installer|
