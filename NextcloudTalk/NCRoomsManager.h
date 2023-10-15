@@ -25,7 +25,6 @@
 #import "NCAPIController.h"
 #import "NCRoom.h"
 #import "NCChatController.h"
-#import "NCChatViewController.h"
 #import "CallViewController.h"
 
 // Room
@@ -40,6 +39,8 @@ typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, TalkAc
 typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 typedef void (^SendOfflineMessagesCompletionBlock)(void);
 
+@class ChatViewController;
+
 @interface NCRoomController : NSObject
 
 @property (nonatomic, strong) NSString *userSessionId;
@@ -50,7 +51,7 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 
 @interface NCRoomsManager : NSObject
 
-@property (nonatomic, strong) NCChatViewController *chatViewController;
+@property (nonatomic, strong) ChatViewController *chatViewController;
 @property (nonatomic, strong) CallViewController *callViewController;
 
 + (instancetype)sharedInstance;

@@ -106,6 +106,7 @@ extern NSString * const kMinimumRequiredTalkCapability;
 - (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(NSString *)hash;
 - (void)updateLastModifiedSinceForAccountId:(NSString *)accountId with:(nonnull NSString *)modifiedSince;
 
+- (ServerCapabilities *)serverCapabilities;
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;

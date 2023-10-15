@@ -30,7 +30,6 @@
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCChatViewController.h"
 #import "NCDatabaseManager.h"
 #import "NCConnectionController.h"
 #import "NCNavigationController.h"

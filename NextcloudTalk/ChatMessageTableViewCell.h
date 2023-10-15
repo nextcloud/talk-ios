@@ -35,6 +35,7 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @class AvatarButton;
 
 @class ChatMessageTableViewCell;
+@protocol ReactionsViewDelegate;
 
 @protocol ChatMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 

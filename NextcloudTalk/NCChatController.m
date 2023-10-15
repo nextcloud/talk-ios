@@ -315,7 +315,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
 #pragma mark - Chat
 
-- (NSMutableArray *)getTemporaryMessages
+- (NSArray<NCChatMessage *> * _Nonnull)getTemporaryMessages
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND isTemporary = true", _account.accountId, _room.token];
     RLMResults *managedTemporaryMessages = [NCChatMessage objectsWithPredicate:query];
@@ -704,7 +704,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         if (referenceId) {
             [userInfo setObject:referenceId forKey:@"referenceId"];
         }
-        
+
         if (error) {
             [userInfo setObject:error forKey:@"error"];
 

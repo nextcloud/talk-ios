@@ -28,8 +28,8 @@
 @class TalkAccount;
 
 extern NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification;
-extern NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipant;
-extern NSString * const NCExternalSignalingControllerDidReceiveLeaveOfParticipant;
+extern NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification;
+extern NSString * const NCExternalSignalingControllerDidReceiveLeaveOfParticipantNotification;
 extern NSString * const NCExternalSignalingControllerDidReceiveStartedTypingNotification;
 extern NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotification;
 

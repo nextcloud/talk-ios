@@ -30,7 +30,6 @@
 #import "NCChatFileController.h"
 #import "NCDatabaseManager.h"
 #import "NCUtils.h"
-#import "NCChatViewController.h"
 
 #import "NextcloudTalk-Swift.h"
 

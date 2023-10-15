@@ -22,8 +22,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NextcloudTalk-Swift.h"
-
 #import "DRCellSlideGestureRecognizer.h"
 #import "NCChatMessage.h"
 

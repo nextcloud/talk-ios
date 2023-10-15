@@ -29,6 +29,8 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @implementation GroupedChatMessageTableViewCell
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier

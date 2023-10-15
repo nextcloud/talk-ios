@@ -42,6 +42,6 @@
 
 // parametersDict as [NSString:NCMessageParameter]
 + (NSString *)messageParametersJSONStringFromDictionary:(NSDictionary *)parametersDict;
-+ (NSDictionary *)messageParametersDictFromJSONString:(NSString *)parametersJSONString;
++ (NSDictionary<NSString *, NCMessageParameter *> *)messageParametersDictFromJSONString:(NSString *)parametersJSONString;
 
 @end

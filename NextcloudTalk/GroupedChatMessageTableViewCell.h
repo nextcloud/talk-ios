@@ -22,7 +22,9 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NextcloudTalk-Swift.h"
+@class ReactionsView;
+@class ReferenceView;
+@protocol ReactionsViewDelegate;
 
 #import "ChatTableViewCell.h"
 #import "NCChatMessage.h"

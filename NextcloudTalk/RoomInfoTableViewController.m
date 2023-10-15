@@ -129,7 +129,7 @@ typedef enum FileAction {
 @interface RoomInfoTableViewController () <UITextFieldDelegate, AddParticipantsTableViewControllerDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource>
 
 @property (nonatomic, strong) NCRoom *room;
-@property (nonatomic, strong) NCChatViewController *chatViewController;
+@property (nonatomic, strong) ChatViewController *chatViewController;
 @property (nonatomic, strong) NSString *roomName;
 @property (nonatomic, strong) NSMutableArray *roomParticipants;;
 @property (nonatomic, strong) UISwitch *publicSwitch;
@@ -157,7 +157,7 @@ typedef enum FileAction {
     return [self initForRoom:room fromChatViewController:nil];
 }
 
-- (instancetype)initForRoom:(NCRoom *)room fromChatViewController:(NCChatViewController *)chatViewController
+- (instancetype)initForRoom:(NCRoom *)room fromChatViewController:(ChatViewController *)chatViewController
 {
     self = [super init];
     if (self) {

@@ -42,6 +42,8 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 
 @class AvatarButton;
 @class FileMessageTableViewCell;
+@class ReactionsView;
+@protocol ReactionsViewDelegate;
 
 @protocol FileMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 

@@ -49,6 +49,7 @@
 		1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */; };
 		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
+		1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
@@ -83,6 +84,12 @@
 		1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7C2AC99326001214EB /* TOCropViewController */; };
 		1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7E2AC99367001214EB /* TOCropViewController */; };
 		1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E872ACD44D0001214EB /* WebRTC */; };
+		1FAB2E832AC9EC3F001214EB /* BaseChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2E822AC9EC3F001214EB /* BaseChatViewController.swift */; };
+		1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2E842ACB482B001214EB /* ChatViewController.swift */; };
+		1FAB2EEE2AD1BC1B001214EB /* UIControlExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */; };
+		1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
+		1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
+		1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -267,7 +274,6 @@
 		2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
-		2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15544208E41B500CE8EF0 /* NCChatViewController.m */; };
 		2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
 		2CA1554B208F2E5700CE8EF0 /* NCMessageTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */; };
 		2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */; };
@@ -442,6 +448,7 @@
 		1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiUtils.swift; sourceTree = "<group>"; };
 		1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
 		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
+		1F5A24322ADA77DA009939FE /* InputbarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputbarViewController.swift; sourceTree = "<group>"; };
 		1F5CDF622584E78900B0026E /* NCChatFileStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatFileStatus.h; sourceTree = "<group>"; };
 		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
@@ -468,6 +475,10 @@
 		1FA20C89284001D80062B4F3 /* DebounceWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebounceWebView.swift; sourceTree = "<group>"; };
 		1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCNotificationAction.swift; sourceTree = "<group>"; };
 		1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallFlowLayout.swift; sourceTree = "<group>"; };
+		1FAB2E822AC9EC3F001214EB /* BaseChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseChatViewController.swift; sourceTree = "<group>"; };
+		1FAB2E842ACB482B001214EB /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
+		1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControlExtensions.swift; sourceTree = "<group>"; };
+		1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLMSupport.swift; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -709,8 +720,6 @@
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
 		2CA15540208E350300CE8EF0 /* NCChatMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatMessage.m; sourceTree = "<group>"; };
-		2CA15543208E41B500CE8EF0 /* NCChatViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatViewController.h; sourceTree = "<group>"; };
-		2CA15544208E41B500CE8EF0 /* NCChatViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatViewController.m; sourceTree = "<group>"; };
 		2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatMessageTableViewCell.h; sourceTree = "<group>"; };
 		2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatMessageTableViewCell.m; sourceTree = "<group>"; };
 		2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCMessageTextView.h; sourceTree = "<group>"; };
@@ -1059,6 +1068,7 @@
 				2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */,
 				1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */,
 				2C477C1828B79D980044DEB4 /* Localizable.stringsdict */,
+				1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */,
 			);
 			path = NextcloudTalk;
 			sourceTree = "<group>";
@@ -1120,6 +1130,7 @@
 				1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */,
 				2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */,
 				2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */,
+				1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1592,8 +1603,6 @@
 				1F5CDF632584E78900B0026E /* NCChatFileStatus.m */,
 				2C5BFBF0288A97D800E75118 /* NCPoll.h */,
 				2C5BFBF1288A97D800E75118 /* NCPoll.m */,
-				2CA15543208E41B500CE8EF0 /* NCChatViewController.h */,
-				2CA15544208E41B500CE8EF0 /* NCChatViewController.m */,
 				2C43BA7421309A1000B3068A /* NCMessageParameter.h */,
 				2C43BA7521309A1000B3068A /* NCMessageParameter.m */,
 				1FEDE3CD257D43AB00853F79 /* NCMessageFileParameter.h */,
@@ -1607,6 +1616,9 @@
 				1F785DDB2707865F00AC4B40 /* VoiceMessageTranscribeViewController.xib */,
 				2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */,
 				2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */,
+				1F5A24322ADA77DA009939FE /* InputbarViewController.swift */,
+				1FAB2E822AC9EC3F001214EB /* BaseChatViewController.swift */,
+				1FAB2E842ACB482B001214EB /* ChatViewController.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -2082,7 +2094,6 @@
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C4446DD2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				1FDCC3F029ECB4CE00DEB39B /* AvatarButton.swift in Sources */,
-				2CA15545208E41B500CE8EF0 /* NCChatViewController.m in Sources */,
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */,
@@ -2093,6 +2104,7 @@
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
+				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
@@ -2153,6 +2165,7 @@
 				2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */,
+				1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */,
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
@@ -2179,6 +2192,7 @@
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
+				1FAB2EEE2AD1BC1B001214EB /* UIControlExtensions.swift in Sources */,
 				1F7625E52901B0DB00834869 /* CallsFromOldAccountViewController.swift in Sources */,
 				2CB3041E2264775E0053078A /* SLKTextViewController.m in Sources */,
 				2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */,
@@ -2195,6 +2209,7 @@
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
 				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
+				1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */,
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
@@ -2257,6 +2272,7 @@
 				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
+				1FAB2E832AC9EC3F001214EB /* BaseChatViewController.swift in Sources */,
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
 				2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */,
@@ -2292,6 +2308,7 @@
 				2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
+				1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */,
 				2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C4446FE265D5DFA00DF1DBC /* ABContact.m in Sources */,
@@ -2331,6 +2348,7 @@
 				1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
+				1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,

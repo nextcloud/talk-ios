@@ -36,12 +36,12 @@
 
 #import "NextcloudTalk-Swift.h"
 
-NSString * const CallKitManagerDidAnswerCallNotification        = @"CallKitManagerDidAnswerCallNotification";
-NSString * const CallKitManagerDidEndCallNotification           = @"CallKitManagerDidEndCallNotification";
-NSString * const CallKitManagerDidStartCallNotification         = @"CallKitManagerDidStartCallNotification";
-NSString * const CallKitManagerDidChangeAudioMuteNotification   = @"CallKitManagerDidChangeAudioMuteNotification";
-NSString * const CallKitManagerWantsToUpgradeToVideoCall        = @"CallKitManagerWantsToUpgradeToVideoCall";
-NSString * const CallKitManagerDidFailRequestingCallTransaction = @"CallKitManagerDidFailRequestingCallTransaction";
+NSString * const CallKitManagerDidAnswerCallNotification                    = @"CallKitManagerDidAnswerCallNotification";
+NSString * const CallKitManagerDidEndCallNotification                       = @"CallKitManagerDidEndCallNotification";
+NSString * const CallKitManagerDidStartCallNotification                     = @"CallKitManagerDidStartCallNotification";
+NSString * const CallKitManagerDidChangeAudioMuteNotification               = @"CallKitManagerDidChangeAudioMuteNotification";
+NSString * const CallKitManagerWantsToUpgradeToVideoCallNotification        = @"CallKitManagerWantsToUpgradeToVideoCall";
+NSString * const CallKitManagerDidFailRequestingCallTransactionNotification = @"CallKitManagerDidFailRequestingCallTransaction";
 
 NSTimeInterval const kCallKitManagerMaxRingingTimeSeconds       = 45.0;
 NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
@@ -155,7 +155,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     
     // If the app is not active (e.g. in background) and there is an open chat
     BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-    NCChatViewController *chatViewController = [[NCRoomsManager sharedInstance] chatViewController];
+    ChatViewController *chatViewController = [[NCRoomsManager sharedInstance] chatViewController];
     if (!isAppActive && chatViewController) {
         // Leave the chat so it doesn't try to join the chat conversation when the app becomes active.
         [chatViewController leaveChat];
@@ -443,7 +443,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
                         NSLog(@"%@", error.localizedDescription);
                         self->_startCallRetried = NO;
                         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidFailRequestingCallTransaction
+                        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidFailRequestingCallTransactionNotification
                                                                             object:self
                                                                           userInfo:userInfo];
                     } else {
@@ -458,7 +458,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     // for an upgrade if there is an ongoing (audioOnly) call in that room.
     } else if (videoEnabled) {
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:token forKey:@"roomToken"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerWantsToUpgradeToVideoCall
+        [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerWantsToUpgradeToVideoCallNotification
                                                             object:self
                                                           userInfo:userInfo];
     }

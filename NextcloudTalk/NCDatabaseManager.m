@@ -335,6 +335,11 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
 
 #pragma mark - Server capabilities
 
+- (ServerCapabilities *)serverCapabilities {
+    TalkAccount *activeAccount = [self activeAccount];
+    return [self serverCapabilitiesForAccountId:activeAccount.accountId];
+}
+
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];

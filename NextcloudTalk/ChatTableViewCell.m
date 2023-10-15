@@ -21,6 +21,7 @@
  */
 
 #import "ChatTableViewCell.h"
+#import "NextcloudTalk-Swift.h"
 
 typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
 
@@ -134,7 +135,7 @@ typedef void (^GetMenuUserActionsForMessageCompletionBlock)(NSArray *menuItems);
                     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
                     NSString *userId = [userActions objectForKey:@"userId"];
                     [userInfo setObject:userId forKey:@"actorId"];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NCChatViewControllerTalkToUserNotification
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NSNotification.NCChatViewControllerTalkToUserNotification
                                                                         object:self
                                                                       userInfo:userInfo];
                 }];
