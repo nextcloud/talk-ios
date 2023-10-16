@@ -3144,7 +3144,7 @@ import QuickLook
     }
 
     public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage!) {
-        self.addOrRemoveReaction(reaction: reaction, in: message)
+        // Do nothing -> override in subclass
     }
 
     public func cellWantsToReply(to message: NCChatMessage!) {

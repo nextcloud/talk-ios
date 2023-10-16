@@ -1242,6 +1242,12 @@ import UIKit
         }
     }
 
+    // MARK: - ChatMessageTableViewCellDelegate delegate
+
+    override public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage!) {
+        self.addOrRemoveReaction(reaction: reaction, in: message)
+    }
+
     // MARK: - ContextMenu (Long press on message)
 
     func isMessageReplyable(message: NCChatMessage) -> Bool {
