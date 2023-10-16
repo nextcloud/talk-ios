@@ -1614,6 +1614,7 @@ import QuickLook
 
                     if file.parameterId == playerAudioFileStatus.fileId, file.path == playerAudioFileStatus.filePath {
                         cell.setPlayerProgress(voiceMessagesPlayer.currentTime, isPlaying: voiceMessagesPlayer.isPlaying, maximumValue: voiceMessagesPlayer.duration)
+                        continue
                     }
 
                     cell.resetPlayer()
