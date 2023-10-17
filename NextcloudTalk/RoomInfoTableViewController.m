@@ -433,6 +433,17 @@ typedef enum FileAction {
     return [NSArray arrayWithArray:actions];
 }
 
+- (NSIndexPath *)getIndexPathForConversationAction:(ConversationAction)action
+{
+    NSInteger section = [self getSectionForRoomInfoSection:kRoomInfoSectionConversation];
+    NSIndexPath *actionIndexPath = [NSIndexPath indexPathForRow:0 inSection:section];
+    NSInteger actionRow = [[self getConversationActions] indexOfObject:[NSNumber numberWithInt:action]];
+    if(NSNotFound != actionRow) {
+        actionIndexPath = [NSIndexPath indexPathForRow:actionRow inSection:section];
+    }
+    return actionIndexPath;
+}
+
 - (NSArray *)getWebinarActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
@@ -688,8 +699,8 @@ typedef enum FileAction {
     
     // Presentation on iPads
     optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForNotificationAction:kNotificationActionChatNotifications]];
-    
+    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:[self getIndexPathForConversationAction:kConversationActionMessageExpiration]];
+
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
 }
 
