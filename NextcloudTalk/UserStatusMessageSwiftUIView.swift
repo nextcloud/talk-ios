@@ -53,12 +53,8 @@ struct UserStatusMessageSwiftUIView: View {
         NSLocalizedString("This week", comment: "")
     ]
 
-    init(changed: Binding<Bool>) {
-        _changed = changed
-    }
-
     var body: some View {
-        ZStack(alignment: .bottom) {
+        VStack(alignment: .center) {
             if isLoading {
                 ProgressView()
                     .tint(.secondary)
@@ -130,22 +126,33 @@ struct UserStatusMessageSwiftUIView: View {
                         }
                     }
                 }
-                if !textFieldIsFocused {
-                    VStack(spacing: 20) {
-                        VStack(spacing: 10) {
-                            NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
-                                                                     comment: ""),
-                                            action: clearActiveUserStatus,
-                                            style: .tertiary, height: 40,
-                                            disabled: Binding.constant(selectedMessage.isEmpty))
-                            NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
-                                             action: setActiveUserStatus,
-                                            style: .primary, height: 40,
-                                            disabled: Binding.constant(selectedMessage.isEmpty))
+                        if !UIDevice.current.orientation.isLandscape {
+                            VStack(spacing: 10) {
+                                NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
+                                                                         comment: ""),
+                                                action: clearActiveUserStatus,
+                                                style: .tertiary, height: 40,
+                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                                NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
+                                                action: setActiveUserStatus,
+                                                style: .primary, height: 40,
+                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                            }
+                        }else {
+                            HStack(spacing: 10) {
+                                Spacer()
+                                NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
+                                                                         comment: ""),
+                                                action: clearActiveUserStatus,
+                                                style: .tertiary, height: 40,
+                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                                NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
+                                                action: setActiveUserStatus,
+                                                style: .primary, height: 40,
+                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                                Spacer()
+                            }
                         }
-                    }
-                    .padding(.bottom, 25)
-                }
             }
         }
         .navigationBarTitle(Text(NSLocalizedString("Status message", comment: "")), displayMode: .inline)

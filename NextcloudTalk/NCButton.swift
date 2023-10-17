@@ -39,8 +39,6 @@ struct NCButtonSwiftUI: View {
 
     var body: some View {
         Button(action: action, label: {
-            HStack {
-                Spacer()
                 Text(title)
                     .bold()
                     .foregroundColor(titleColorForStyle(style: style).opacity(disabled ? 0.75 : 1))
@@ -53,8 +51,6 @@ struct NCButtonSwiftUI: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(borderColorForStyle(style: style), lineWidth: borderWidthForStyle(style: style))
                     )
-                Spacer()
-            }
         })
         .disabled(disabled)
 

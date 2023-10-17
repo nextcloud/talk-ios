@@ -27,8 +27,6 @@ struct UserStatusSwiftUIView: View {
 
     @Environment(\.dismiss) var dismiss
     @State var userStatus: NCUserStatus
-    @State private var isPresentingUserStatusMessageOptions = false
-    @State private var isPresentingUserStatusOptions = false
     @State var changed: Bool = false
 
     init(userStatus: NCUserStatus) {
@@ -73,8 +71,13 @@ struct UserStatusSwiftUIView: View {
             })
         }
         .introspect(.navigationView(style: .stack), on: .iOS(.v15, .v16, .v17)) { navController in
-                    navController.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-                    navController.navigationBar.backgroundColor = NCAppBranding.themeColor()
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = NCAppBranding.themeColor()
+            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+            navController.navigationBar.standardAppearance = appearance
+            navController.navigationBar.compactAppearance = appearance
+            navController.navigationBar.scrollEdgeAppearance = appearance
         }
         .tint(Color(NCAppBranding.themeTextColor()))
         .onAppear {
@@ -94,31 +97,6 @@ struct UserStatusSwiftUIView: View {
             if error == nil && userStatusDict != nil {
                 userStatus = NCUserStatus(dictionary: userStatusDict!)
             }
-        }
-    }
-}
-
-class UserStatusOptions: ObservableObject {
-    @Published var options: [DetailedOption] = []
-
-    init(userStatus: NCUserStatus?) {
-        let statusOptions: [(status: String, imageName: String, subtitle: String?)] = [
-            (kUserStatusOnline, "online_image_name", nil),
-            (kUserStatusAway, "away_image_name", nil),
-            (kUserStatusDND, "dnd_image_name", NSLocalizedString("Mute all notifications", comment: "")),
-            (kUserStatusInvisible, "invisible_image_name", NSLocalizedString("Appear offline", comment: ""))
-        ]
-
-        self.options = statusOptions.map { status, imageName, subtitle in
-            let option = DetailedOption()
-            option.identifier = status
-            option.image = UIImage(named: imageName)?.withRenderingMode(.alwaysOriginal)
-            option.title = NCUserStatus.readableUserStatus(fromUserStatus: status)
-            option.subtitle = subtitle
-            if let userStatus = userStatus {
-                option.selected = userStatus.status == status
-            }
-            return option
         }
     }
 }

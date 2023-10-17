@@ -31,11 +31,6 @@ struct UserStatusOptionsSwiftUI: View {
     @State private var options: [DetailedOption] = []
     @State private var isLoading: Bool = true
 
-    init(changed: Binding<Bool>, userStatus: Binding<NCUserStatus>) {
-        _changed = changed
-        _userStatus = userStatus
-    }
-
     var body: some View {
             VStack {
                 List(options, id: \.self) { option in
