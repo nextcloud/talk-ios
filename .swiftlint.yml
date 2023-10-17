@@ -10,13 +10,10 @@ disabled_rules:
   - type_body_length
   - file_length
   - function_body_length
+  - line_length
 
 empty_count:
   severity: warning
-
-line_length:
-  # warning: 120
-  warning: 200
 
 identifier_name:
   min_length: 0
@@ -25,6 +22,7 @@ excluded:
   - Pods
   - ThirdParty
   - SourcePackages
+  - NextcloudTalk/RLMSupport.swift
 
 reporter: "xcode"
 

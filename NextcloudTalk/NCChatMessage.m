@@ -718,7 +718,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return reactionsSelfArray;
 }
 
-- (NSMutableArray *)reactionsArray
+- (NSMutableArray<NCChatReaction *> *)reactionsArray
 {
     NSMutableArray *reactionsArray = [NSMutableArray new];
     // Grab message reactions

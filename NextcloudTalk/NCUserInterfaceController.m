@@ -362,7 +362,7 @@
     [_mainViewController showColumn:UISplitViewControllerColumnPrimary];
 }
 
-- (void)presentChatViewController:(NCChatViewController *)chatViewController
+- (void)presentChatViewController:(ChatViewController *)chatViewController
 {
     [self presentConversationsList];
     [_mainViewController showDetailViewController:chatViewController sender:self];

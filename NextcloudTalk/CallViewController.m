@@ -79,7 +79,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSMutableDictionary *_videoRenderersDict; // peerIdentifier -> renderer
     NSMutableDictionary *_screenRenderersDict; // peerId -> renderer
     NCCallController *_callController;
-    NCChatViewController *_chatViewController;
+    ChatViewController *_chatViewController;
     UINavigationController *_chatNavigationController;
     CGSize _screensharingSize;
     UITapGestureRecognizer *_tapGestureForDetailedView;
@@ -168,7 +168,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didJoinRoom:) name:NCRoomsManagerDidJoinRoomNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidEndCall:) name:CallKitManagerDidEndCallNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerDidChangeAudioMute:) name:CallKitManagerDidChangeAudioMuteNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCall object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(providerWantsToUpgradeToVideoCall:) name:CallKitManagerWantsToUpgradeToVideoCallNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoute:) name:AudioSessionDidChangeRouteNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidActivate:) name:AudioSessionWasActivatedByProviderNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeRoutingInformation:) name:AudioSessionDidChangeRoutingInformationNotification object:nil];
@@ -1582,7 +1582,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         // Create new chat controller
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:_room.token forAccountId:activeAccount.accountId];
-        _chatViewController = [[NCChatViewController alloc] initForRoom:room];
+        _chatViewController = [[ChatViewController alloc] initFor:room];
         _chatViewController.presentedInCall = YES;
         _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:_chatViewController];
     }

@@ -90,7 +90,7 @@ typedef enum NCPreferredFileSorting {
 - (void)disconnectAllExternalSignalingControllers;
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId withCompletionBlock:(SubscribeForPushNotificationsCompletionBlock)block;
 - (NSInteger)chatMaxLengthConfigCapability;
-- (NSArray *)availableTranslations;
+- (NSArray<NCTranslation *> *)availableTranslations;
 - (BOOL)canCreateGroupAndPublicRooms;
 - (BOOL)callsEnabledCapability;
 - (BOOL)isGuestsAppEnabled;

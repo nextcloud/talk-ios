@@ -82,7 +82,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) BOOL isOfflineMessage;
 @property (nonatomic, assign) NSInteger offlineMessageRetryCount;
 @property (nonatomic, strong) RLMArray<RLMInt> *collapsedMessages;
-@property (nonatomic, strong) NCChatMessage *collapsedBy;
+@property (nonatomic, strong, nullable) NCChatMessage *collapsedBy;
 @property (nonatomic, strong) NSString *collapsedMessage;
 @property (nonatomic, strong) NSString *collapsedMessageParametersJSONString;
 @property (nonatomic, assign) BOOL collapsedIncludesActorSelf;
@@ -116,18 +116,18 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (NSMutableAttributedString *)parsedMarkdownForChat;
 - (NSMutableAttributedString *)systemMessageFormat;
 - (NSString *)sendingMessage;
-- (NCChatMessage *)parent;
+- (NCChatMessage * _Nullable)parent;
 - (NSInteger)parentMessageId;
-- (NSMutableArray *)reactionsArray;
-- (BOOL)isReactionBeingModified:(NSString *)reaction;
-- (void)addTemporaryReaction:(NSString *)reaction;
-- (void)removeReactionTemporarily:(NSString *)reaction;
-- (void)removeReactionFromTemporayReactions:(NSString *)reaction;
+- (NSArray<NCChatReaction *> * _Nonnull)reactionsArray;
+- (BOOL)isReactionBeingModified:(NSString * _Nonnull)reaction;
+- (void)addTemporaryReaction:(NSString * _Nonnull)reaction;
+- (void)removeReactionTemporarily:(NSString * _Nonnull)reaction;
+- (void)removeReactionFromTemporayReactions:(NSString * _Nonnull)reaction;
 - (BOOL)containsURL;
-- (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock)block;
-- (BOOL)isSameMessage:(NCChatMessage *)message;
+- (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock _Nullable)block;
+- (BOOL)isSameMessage:(NCChatMessage * _Nonnull)message;
 - (void)setPreviewImageHeight:(CGFloat)height;
-- (NSDictionary *)collapsedMessageParameters;
-- (void)setCollapsedMessageParameters:(NSDictionary *)messageParameters;
+- (NSDictionary * _Nonnull)collapsedMessageParameters;
+- (void)setCollapsedMessageParameters:(NSDictionary * _Nonnull)messageParameters;
 
 @end

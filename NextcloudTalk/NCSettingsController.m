@@ -650,7 +650,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     return kDefaultChatMaxLength;
 }
 
-- (NSArray *)availableTranslations
+- (NSArray<NCTranslation *> *)availableTranslations
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];

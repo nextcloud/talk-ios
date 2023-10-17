@@ -36,6 +36,8 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 
 @class AvatarButton;
 @class LocationMessageTableViewCell;
+@class ReactionsView;
+@protocol ReactionsViewDelegate;
 
 @protocol LocationMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 

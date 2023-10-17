@@ -152,7 +152,7 @@
     return messageParametersJSONString;
 }
 
-+ (NSDictionary *)messageParametersDictFromJSONString:(NSString *)parametersJSONString
++ (NSDictionary<NSString *, NCMessageParameter *> *)messageParametersDictFromJSONString:(NSString *)parametersJSONString
 {
     NSDictionary *parametersDict = @{};
     NSData *data = [parametersJSONString dataUsingEncoding:NSUTF8StringEncoding];

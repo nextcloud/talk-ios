@@ -34,11 +34,11 @@ static NSTimeInterval kInitialReconnectInterval = 1;
 static NSTimeInterval kMaxReconnectInterval     = 16;
 static NSTimeInterval kWebSocketTimeoutInterval = 15;
 
-NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification     = @"NCExternalSignalingControllerDidUpdateParticipantsNotification";
-NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipant           = @"NCExternalSignalingControllerDidReceiveJoinOfParticipant";
-NSString * const NCExternalSignalingControllerDidReceiveLeaveOfParticipant          = @"NCExternalSignalingControllerDidReceiveLeaveOfParticipant";
-NSString * const NCExternalSignalingControllerDidReceiveStartedTypingNotification   = @"NCExternalSignalingControllerDidReceiveStartedTypingNotification";
-NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotification   = @"NCExternalSignalingControllerDidReceiveStoppedTypingNotification";
+NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification         = @"NCExternalSignalingControllerDidUpdateParticipantsNotification";
+NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification   = @"NCExternalSignalingControllerDidReceiveJoinOfParticipant";
+NSString * const NCExternalSignalingControllerDidReceiveLeaveOfParticipantNotification  = @"NCExternalSignalingControllerDidReceiveLeaveOfParticipant";
+NSString * const NCExternalSignalingControllerDidReceiveStartedTypingNotification       = @"NCExternalSignalingControllerDidReceiveStartedTypingNotification";
+NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotification       = @"NCExternalSignalingControllerDidReceiveStoppedTypingNotification";
 
 @interface NCExternalSignalingController () <NSURLSessionWebSocketDelegate>
 
@@ -529,7 +529,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
                         [userInfo setObject:sessionId forKey:@"sessionId"];
                     }
 
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveJoinOfParticipant
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification
                                                                         object:self
                                                                       userInfo:userInfo];
                 }
@@ -560,7 +560,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
                 }
             }
 
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveLeaveOfParticipant
+            [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveLeaveOfParticipantNotification
                                                                 object:self
                                                               userInfo:userInfo];
         }

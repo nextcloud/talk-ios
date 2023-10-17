@@ -63,7 +63,7 @@ typedef enum NCRoomSIPState {
     NCRoomSIPStateEnabledWithoutPIN
 } NCRoomSIPState;
 
-typedef enum NCPermission {
+typedef NS_OPTIONS(NSInteger, NCPermission) {
     NCPermissionDefaultPermissions = 0,
     NCPermissionCustomPermissions = 1,
     NCPermissionStartCall = 2,
@@ -73,7 +73,7 @@ typedef enum NCPermission {
     NCPermissionCanPublishVideo = 32,
     NCPermissionCanPublishScreen = 64,
     NCPermissionChat = 128,
-} NCPermission;
+};
 
 typedef enum NCMessageExpiration {
     NCMessageExpirationOff = 0,

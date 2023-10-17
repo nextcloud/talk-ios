@@ -24,13 +24,13 @@
 #import <UIKit/UIKit.h>
 
 #import "CallViewController.h"
-#import "NCChatViewController.h"
 #import "NCNotificationController.h"
 #import "NCNavigationController.h"
 #import "NCPushNotification.h"
 #import "RoomsTableViewController.h"
 
 @class NCSplitViewController;
+@class ChatViewController;
 
 typedef void (^PresentCallControllerCompletionBlock)(void);
 
@@ -53,7 +53,7 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 - (void)presentAlertViewController:(UIAlertController *)alertViewController;
 - (void)presentAlertIfNotPresentedAlready:(UIAlertController *)alertViewController;
 - (void)presentAlertWithTitle:(NSString *)title withMessage:(NSString *)message;
-- (void)presentChatViewController:(NCChatViewController *)chatViewController;
+- (void)presentChatViewController:(ChatViewController *)chatViewController;
 - (void)presentCallViewController:(CallViewController *)callViewController withCompletionBlock:(PresentCallControllerCompletionBlock)block;
 - (void)presentCallKitCallInRoom:(NSString *)token withVideoEnabled:(BOOL)video;
 - (void)presentChatForURL:(NSURLComponents *)urlComponents;

@@ -161,9 +161,10 @@ final class NextcloudTalkUITests: XCTestCase {
         app.tables.cells.staticTexts["Create a new group conversation"].tap()
         app.navigationBars["RoomCreationTableView"].buttons["Next"].tap()
         app.typeText(newConversationName)
+        XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExistence(timeout: timeoutShort))
         app.navigationBars["New group conversation"].buttons["Create"].tap()
 
-        let chatNavBar = app.navigationBars["NCChatView"]
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
 
         // Wait for titleView
         let chatTitleView = chatNavBar.textViews.staticTexts[newConversationName]
@@ -195,6 +196,7 @@ final class NextcloudTalkUITests: XCTestCase {
         app.tables.cells.staticTexts["Create a new group conversation"].tap()
         app.navigationBars["RoomCreationTableView"].buttons["Next"].tap()
         app.typeText(newConversationName)
+        XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExistence(timeout: timeoutShort))
         app.navigationBars["New group conversation"].buttons["Create"].tap()
 
         // Check if we have one chat view controller allocated
@@ -232,7 +234,7 @@ final class NextcloudTalkUITests: XCTestCase {
         }
 
         // Go back to the main view controller
-        let chatNavBar = app.navigationBars["NCChatView"]
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         chatNavBar.buttons["Back"].tap()
 
         // Check if all chat view controllers are deallocated

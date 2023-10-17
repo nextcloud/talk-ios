@@ -86,7 +86,7 @@
                 // Make sure we don't have accidentally a placeholderView in our navigation
                 // while in collapsed mode
                 if let navController = self.viewController(for: .secondary) as? UINavigationController,
-                   vc is NCChatViewController {
+                   vc is ChatViewController {
 
                     // Only set the viewController if there's actually an active one shown by showDetailViewController
                     // Otherwise UI might break or crash (view not loaded correctly)
@@ -120,7 +120,7 @@
         return getActiveChatViewController() != nil
     }
 
-    func getActiveChatViewController() -> NCChatViewController? {
+    func getActiveChatViewController() -> ChatViewController? {
         return getActiveViewController()
     }
 

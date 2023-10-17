@@ -24,10 +24,10 @@
 
 @interface BarButtonItemWithActivity : UIBarButtonItem
 
-@property (nonatomic, strong) UIButton *innerButton;
-@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
+@property (nonatomic, strong) UIButton * _Nonnull innerButton;
+@property (nonatomic, strong) UIActivityIndicatorView * _Nonnull activityIndicator;
 
-- (instancetype)initWithWidth:(CGFloat)buttonWidth withImage:(UIImage *)buttonImage;
+- (nonnull instancetype)initWithWidth:(CGFloat)buttonWidth withImage:(UIImage * _Nullable)buttonImage;
 - (void)showActivityIndicator;
 - (void)hideActivityIndicator;
 

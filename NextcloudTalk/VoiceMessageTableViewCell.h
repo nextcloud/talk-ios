@@ -33,6 +33,8 @@ static NSString *VoiceMessageCellIdentifier          = @"VoiceMessageCellIdentif
 static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCellIdentifier";
 
 @class AvatarButton;
+@class ReactionsView;
+@protocol ReactionsViewDelegate;
 
 @protocol VoiceMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 

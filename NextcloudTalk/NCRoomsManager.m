@@ -26,7 +26,6 @@
 
 #import "AppDelegate.h"
 #import "CallKitManager.h"
-#import "NCChatViewController.h"
 #import "NCChatBlock.h"
 #import "NCChatController.h"
 #import "NCChatMessage.h"
@@ -95,9 +94,9 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(acceptCallForRoom:) name:CallKitManagerDidAnswerCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startCallForRoom:) name:CallKitManagerDidStartCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForCallUpgrades:) name:CallKitManagerDidEndCallNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NCChatViewControllerReplyPrivatelyNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatOfForwardedMessage:) name:NCChatViewControllerForwardNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NCChatViewControllerTalkToUserNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NSNotification.NCChatViewControllerReplyPrivatelyNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatOfForwardedMessage:) name:NSNotification.NCChatViewControllerForwardNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NSNotification.NCChatViewControllerTalkToUserNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChatWithURL:) name:NCURLWantsToOpenConversationNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatHighlightingMessage:) name:NCPresentChatHighlightingMessageNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
@@ -709,7 +708,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         //[[NCRoomsManager sharedInstance].chatViewController leaveChat];
 
         NSLog(@"Creating new chat view controller.");
-        _chatViewController = [[NCChatViewController alloc] initForRoom:room];
+        _chatViewController = [[ChatViewController alloc] initFor:room];
         if (_highlightMessageDict && [[_highlightMessageDict objectForKey:@"token"] isEqualToString:room.token]) {
             _chatViewController.highlightMessageId = [[_highlightMessageDict objectForKey:@"messageId"] integerValue];
             _highlightMessageDict = nil;

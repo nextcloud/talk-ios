@@ -50,7 +50,7 @@ extern NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotificati
 - (instancetype)initForRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently;
 - (void)sendChatMessage:(NCChatMessage *)message;
-- (NSMutableArray *)getTemporaryMessages;
+- (NSArray<NCChatMessage *> * _Nonnull)getTemporaryMessages;
 - (void)getInitialChatHistory;
 - (void)getInitialChatHistoryForOfflineMode;
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId;

@@ -22,13 +22,14 @@
 
 #import <UIKit/UIKit.h>
 #import "NCRoom.h"
-#import "NCChatViewController.h"
+
+@class ChatViewController;
 
 @interface RoomInfoTableViewController : UITableViewController
 
 @property (nonatomic, assign) BOOL hideDestructiveActions;
 
 - (instancetype)initForRoom:(NCRoom *)room;
-- (instancetype)initForRoom:(NCRoom *)room fromChatViewController:(NCChatViewController *)chatViewController;
+- (instancetype)initForRoom:(NCRoom *)room fromChatViewController:(ChatViewController *)chatViewController;
 
 @end

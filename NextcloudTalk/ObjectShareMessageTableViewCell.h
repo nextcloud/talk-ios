@@ -32,6 +32,8 @@ static NSString *GroupedObjectShareMessageCellIdentifier    = @"GroupedObjectSha
 
 @class AvatarButton;
 @class ObjectShareMessageTableViewCell;
+@class ReactionsView;
+@protocol ReactionsViewDelegate;
 
 @protocol ObjectShareMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 
