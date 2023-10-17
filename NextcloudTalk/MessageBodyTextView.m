@@ -22,7 +22,9 @@
 
 #import "MessageBodyTextView.h"
 
+#import "NCRoomsManager.h"
 #import "NCUserDefaults.h"
+#import "NCUtils.h"
 #import "OpenInFirefoxControllerObjC.h"
 
 @implementation MessageBodyTextView
@@ -72,7 +74,11 @@
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(nonnull NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
 {
-    if ([[NCUserDefaults defaultBrowser] isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
+    if ([NCUtils isInstanceRoomLink:URL.absoluteString]) {
+        NSString *token = URL.lastPathComponent;
+        [[NCRoomsManager sharedInstance] startChatWithRoomToken:token];
+        return NO;
+    } else if ([[NCUserDefaults defaultBrowser] isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
         [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:URL];
         return NO;
     }

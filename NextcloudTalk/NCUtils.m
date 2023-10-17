@@ -147,6 +147,18 @@ static NSString *const nextcloudScheme = @"nextcloud:";
 #endif
 }
 
++ (BOOL)isInstanceRoomLink:(NSString *)link
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSString *roomPrefix1 = [NSString stringWithFormat:@"%@/call", activeAccount.server];
+    NSString *roomPrefix2 = [NSString stringWithFormat:@"%@/index.php/call", activeAccount.server];
+    if ([link rangeOfString:roomPrefix1 options:(NSAnchoredSearch | NSCaseInsensitiveSearch)].location != NSNotFound ||
+        [link rangeOfString:roomPrefix2 options:(NSAnchoredSearch | NSCaseInsensitiveSearch)].location != NSNotFound) {
+        return YES;
+    }
+    return NO;
+}
+
 + (NSDate *)dateFromDateAtomFormat:(NSString *)dateAtomFormatString
 {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
