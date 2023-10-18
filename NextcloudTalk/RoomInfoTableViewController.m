@@ -1704,7 +1704,7 @@ typedef enum FileAction {
 
             cell.roomNameTextField.userInteractionEnabled = NO;
 
-            if (_room.canModerate) {
+            if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.userInteractionEnabled = YES;
             } else {
@@ -2266,7 +2266,7 @@ typedef enum FileAction {
     switch (section) {
         case kRoomInfoSectionName:
         {
-            if (_room.canModerate) {
+            if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
                 [self presentNameInfoViewController];
             }
         }
