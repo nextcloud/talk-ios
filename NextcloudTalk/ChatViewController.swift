@@ -93,8 +93,8 @@ import UIKit
     private lazy var voiceCallButton: BarButtonItemWithActivity = {
         let voiceCallButton = self.getBarButton(forVideo: false)
 
-        videoCallButton.accessibilityLabel = NSLocalizedString("Voice call", comment: "")
-        videoCallButton.accessibilityHint = NSLocalizedString("Double tap to start a voice call", comment: "")
+        voiceCallButton.accessibilityLabel = NSLocalizedString("Voice call", comment: "")
+        voiceCallButton.accessibilityHint = NSLocalizedString("Double tap to start a voice call", comment: "")
 
         return voiceCallButton
     }()
@@ -148,7 +148,8 @@ import UIKit
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        if NCSettingsController.sharedInstance().callsEnabledCapability() {
+        if NCSettingsController.sharedInstance().callsEnabledCapability() &&
+            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf {
             let fixedSpace = UIBarButtonItem(systemItem: .fixedSpace)
             fixedSpace.width = 16
             self.navigationItem.rightBarButtonItems = [videoCallButton, fixedSpace, voiceCallButton]
