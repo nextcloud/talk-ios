@@ -926,6 +926,35 @@ import QuickLook
         self.presentWithNavigation(shareViewController, animated: true)
     }
 
+    func didPressNoteToSelf(for message: NCChatMessage) {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        NCAPIController.sharedInstance().getNoteToSelfRoom(for: activeAccount) { roomDict, error in
+            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+
+                if message.isObjectShare() {
+                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare(), inRoom: room.token, for: activeAccount) { error in
+                        if error == nil {
+                            self.view.makeToast(NSLocalizedString("Added note to self", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                        } else {
+                            self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                        }
+                    }
+                } else {
+                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: activeAccount) { error in
+                        if error == nil {
+                            self.view.makeToast(NSLocalizedString("Added note to self", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                        } else {
+                            self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                        }
+                    }
+                }
+            } else {
+                self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+            }
+        }
+    }
+
     func didPressResend(for message: NCChatMessage) {
         // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
         self.removeUnreadMessagesSeparator()
