@@ -472,15 +472,16 @@ typedef enum FileAction {
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Leave room
-    if (_room.isLeavable) {
+    if (_room.isLeavable && _room.type != kNCRoomTypeNoteToSelf) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
     }
     // Clear history
-    if (_room.canModerate && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityClearHistory]) {
+    if ((_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) &&
+        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityClearHistory]) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionClearHistory]];
     }
     // Delete room
-    if (_room.canModerate) {
+    if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionDelete]];
     }
     return [NSArray arrayWithArray:actions];
