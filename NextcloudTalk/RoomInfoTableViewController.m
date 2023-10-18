@@ -298,7 +298,7 @@ typedef enum FileAction {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSharedItems]];
     }
     // Notifications section
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([self getNotificationsActions].count > 0) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionNotifications]];
     }
     // Conversation section
@@ -339,6 +339,11 @@ typedef enum FileAction {
 - (NSArray *)getNotificationsActions
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
+
+    if (_room.type == kNCRoomTypeChangelog || _room.type == kNCRoomTypeNoteToSelf) {
+        return actions;
+    }
+
     // Chat notifications levels action
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [actions addObject:[NSNumber numberWithInt:kNotificationActionChatNotifications]];
@@ -426,7 +431,7 @@ typedef enum FileAction {
         }
     }
 
-    if (_room.type != kNCRoomTypeChangelog) {
+    if (_room.type != kNCRoomTypeChangelog && _room.type != kNCRoomTypeNoteToSelf) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionShareLink]];
     }
     
@@ -467,15 +472,16 @@ typedef enum FileAction {
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     // Leave room
-    if (_room.isLeavable) {
+    if (_room.isLeavable && _room.type != kNCRoomTypeNoteToSelf) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionLeave]];
     }
     // Clear history
-    if (_room.canModerate && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityClearHistory]) {
+    if ((_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) &&
+        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityClearHistory]) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionClearHistory]];
     }
     // Delete room
-    if (_room.canModerate) {
+    if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
         [actions addObject:[NSNumber numberWithInt:kDestructiveActionDelete]];
     }
     return [NSArray arrayWithArray:actions];
@@ -1374,7 +1380,7 @@ typedef enum FileAction {
 
 - (NSString *)detailedNameForParticipant:(NCRoomParticipant *)participant
 {
-    if (participant.canModerate && (_room.type == kNCRoomTypeOneToOne || _room.type == kNCRoomTypeFormerOneToOne)) {
+    if (participant.canModerate && (_room.type == kNCRoomTypeOneToOne || _room.type == kNCRoomTypeFormerOneToOne || _room.type == kNCRoomTypeNoteToSelf)) {
         return participant.displayName;
     }
     return participant.detailedName;
@@ -1699,7 +1705,7 @@ typedef enum FileAction {
 
             cell.roomNameTextField.userInteractionEnabled = NO;
 
-            if (_room.canModerate) {
+            if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.userInteractionEnabled = YES;
             } else {
@@ -2261,7 +2267,7 @@ typedef enum FileAction {
     switch (section) {
         case kRoomInfoSectionName:
         {
-            if (_room.canModerate) {
+            if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
                 [self presentNameInfoViewController];
             }
         }

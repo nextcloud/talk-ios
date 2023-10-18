@@ -371,6 +371,34 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)getNoteToSelfRoomForAccount:(TalkAccount *)account withCompletionBlock:(GetRoomCompletionBlock)block
+{
+    NSString *endpoint = [NSString stringWithFormat:@"room/note-to-self"];
+    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *roomDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
+        NSDictionary *headers = [self getResponseHeaders:response];
+
+        [self checkResponseHeaders:headers forAccount:account];
+
+        if (block) {
+            block(roomDict, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error);
+        }
+    }];
+
+    return task;
+}
+
 - (NSURLSessionDataTask *)getListableRoomsForAccount:(TalkAccount *)account withSearchTerm:(NSString *)searchTerm andCompletionBlock:(GetRoomsCompletionBlock)block
 {
     NSString *endpoint = @"listed-room";

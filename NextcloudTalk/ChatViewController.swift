@@ -93,8 +93,8 @@ import UIKit
     private lazy var voiceCallButton: BarButtonItemWithActivity = {
         let voiceCallButton = self.getBarButton(forVideo: false)
 
-        videoCallButton.accessibilityLabel = NSLocalizedString("Voice call", comment: "")
-        videoCallButton.accessibilityHint = NSLocalizedString("Double tap to start a voice call", comment: "")
+        voiceCallButton.accessibilityLabel = NSLocalizedString("Voice call", comment: "")
+        voiceCallButton.accessibilityHint = NSLocalizedString("Double tap to start a voice call", comment: "")
 
         return voiceCallButton
     }()
@@ -148,7 +148,8 @@ import UIKit
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        if NCSettingsController.sharedInstance().callsEnabledCapability() {
+        if NCSettingsController.sharedInstance().callsEnabledCapability() &&
+            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf {
             let fixedSpace = UIBarButtonItem(systemItem: .fixedSpace)
             fixedSpace.width = 16
             self.navigationItem.rightBarButtonItems = [videoCallButton, fixedSpace, voiceCallButton]
@@ -1479,9 +1480,17 @@ import UIKit
         }
 
         // Forward option (only normal messages for now)
-        if message.file() == nil && message.poll() == nil && !message.isDeletedMessage() {
+        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage() {
             actions.append(UIAction(title: NSLocalizedString("Forward", comment: ""), image: .init(systemName: "arrowshape.turn.up.right")) { _ in
                 self.didPressForward(for: message)
+            })
+        }
+
+        // Note to self
+        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage(), room.type != kNCRoomTypeNoteToSelf,
+           NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityNoteToSelf) {
+            actions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
+                self.didPressNoteToSelf(for: message)
             })
         }
 

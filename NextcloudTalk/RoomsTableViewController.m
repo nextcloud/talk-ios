@@ -1124,7 +1124,8 @@ typedef enum RoomsFilter {
         }
     }
     // Notification levels
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels] &&
+        room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf) {
         UIAlertAction *notificationsAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString]
                                                                       style:UIAlertActionStyleDefault
                                                                     handler:^void (UIAlertAction *action) {
@@ -1135,7 +1136,7 @@ typedef enum RoomsFilter {
     }
 
     // Share link
-    if (room.type != kNCRoomTypeChangelog) {
+    if (room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf) {
         // Share Link
         UIAlertAction *shareLinkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Share link", nil)
                                                                   style:UIAlertActionStyleDefault
@@ -1271,7 +1272,7 @@ typedef enum RoomsFilter {
     // Do not show swipe actions for open conversations or messages
     if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {return nil;}
     
-    if (room.isLeavable) {
+    if (room.isLeavable && room.type != kNCRoomTypeNoteToSelf) {
         deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
                                                              handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                  [self leaveRoomAtIndexPath:indexPath];
