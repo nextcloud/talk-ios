@@ -654,6 +654,16 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             if (messages.count > 0) {
                 [self storeMessages:messages];
                 [self checkForNewMessagesFromMessageId:messageId];
+
+                for (NSDictionary *messageDict in messages) {
+                    NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self->_account.accountId];
+
+                    // When we receive a "history_cleared" message, we don't continue here, as otherwise
+                    // we would request new message, but instead, we need to request the inital history again
+                    if ([message.systemMessage isEqualToString:@"history_cleared"]) {
+                        return;
+                    }
+                }
             }
         }
 
