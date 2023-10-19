@@ -124,7 +124,7 @@ extern NSString * const kMinimumRequiredTalkCapability;
 
 - (BOOL)hasAvailableTranslationsForAccountId:(NSString *)accountId;
 - (BOOL)hasTranslationProvidersForAccountId:(NSString *)accountId;
-- (NSArray *)availableTranslationsForAccountId:(NSString *)accountId;
+- (NSArray<NCTranslation *> *)availableTranslationsForAccountId:(NSString *)accountId;
 - (NSArray *)translationsFromTranslationsArray:(NSArray *)translations;
 
 @end
