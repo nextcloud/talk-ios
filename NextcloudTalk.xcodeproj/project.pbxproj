@@ -83,9 +83,9 @@
 		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
 		1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7C2AC99326001214EB /* TOCropViewController */; };
 		1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7E2AC99367001214EB /* TOCropViewController */; };
-		1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E872ACD44D0001214EB /* WebRTC */; };
 		1FAB2E832AC9EC3F001214EB /* BaseChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2E822AC9EC3F001214EB /* BaseChatViewController.swift */; };
 		1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2E842ACB482B001214EB /* ChatViewController.swift */; };
+		1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E872ACD44D0001214EB /* WebRTC */; };
 		1FAB2EEE2AD1BC1B001214EB /* UIControlExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */; };
 		1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
@@ -3134,7 +3134,7 @@
 			repositoryURL = "https://github.com/nextcloud-deps/CDMarkdownKit.git";
 			requirement = {
 				kind = revision;
-				revision = 58082fa7952b4bf8f5e46b3ddc5be4d8ba28a5b5;
+				revision = a425cc36263996ce4d992178f9847760a166fe8e;
 			};
 		};
 		1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
