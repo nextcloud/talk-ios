@@ -14,7 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nextcloud-deps/CDMarkdownKit.git",
       "state" : {
-        "revision" : "58082fa7952b4bf8f5e46b3ddc5be4d8ba28a5b5"
+        "revision" : "a425cc36263996ce4d992178f9847760a166fe8e"
       }
     },
     {
