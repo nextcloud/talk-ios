@@ -60,6 +60,7 @@ jobs:
 
     - name: Install docker
       run: |
+        brew install colima
         brew install docker
         colima start
 
