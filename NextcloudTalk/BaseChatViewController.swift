@@ -130,7 +130,7 @@ import QuickLook
 
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
-        inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
         inputbarBorderView.frame = .init(x: 0, y: 0, width: self.textInputbar.frame.size.width, height: 1)
         inputbarBorderView.isHidden = true
         inputbarBorderView.backgroundColor = .systemGray6
@@ -3294,7 +3294,7 @@ extension Sequence where Iterator.Element == NCChatMessage {
 
     func containsUserMessage() -> Bool {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        return self.contains(where: { $0.isSystemMessage() && $0.actorId == activeAccount.userId })
+        return self.contains(where: { !$0.isSystemMessage() && $0.actorId == activeAccount.userId })
     }
 
     func containsVisibleMessages() -> Bool {
