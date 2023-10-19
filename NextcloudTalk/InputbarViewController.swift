@@ -165,7 +165,7 @@ import UIKit
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
             // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
-            self.textView.layer.borderColor = UIColor.systemGray.cgColor
+            self.textView.layer.borderColor = UIColor.systemGray4.cgColor
             self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
         }
     }
