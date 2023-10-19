@@ -22,7 +22,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macOS-latest
+    runs-on: macos-13
     if: github.event.pull_request.draft == false
 
     strategy:
