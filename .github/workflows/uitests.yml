@@ -32,7 +32,7 @@ jobs:
 
     env:
       WORKSPACE: NextcloudTalk.xcworkspace
-      DESTINATION: platform=iOS Simulator,name=iPhone 14,OS=16.2
+      DESTINATION: platform=iOS Simulator,name=iPhone 14,OS=16
       SCHEME: NextcloudTalk
       TEST_BRANCH: ${{ matrix.test-branches }}
       CONTAINER_NAME: nextcloud_test
