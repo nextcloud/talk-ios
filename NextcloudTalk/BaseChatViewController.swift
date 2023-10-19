@@ -85,12 +85,10 @@ import QuickLook
 
     internal lazy var chatBackgroundView: PlaceholderView = {
         let chatBackgroundView = PlaceholderView()
-        chatBackgroundView.isHidden = true
+        chatBackgroundView.placeholderView.isHidden = true
         chatBackgroundView.loadingView.startAnimating()
         chatBackgroundView.placeholderTextView.text = NSLocalizedString("No messages yet, start the conversation!", comment: "")
         chatBackgroundView.setImage(UIImage(named: "chat-placeholder"))
-
-        self.tableView?.backgroundView = chatBackgroundView
 
         return chatBackgroundView
     }()
