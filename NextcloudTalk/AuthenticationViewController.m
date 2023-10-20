@@ -195,8 +195,14 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
 
 - (void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation
 {
+    // Disable user interaction to prevent any unwanted zooming while the navigation is ongoing
+    [self.webView setUserInteractionEnabled:NO];
     [_activityIndicatorView stopAnimating];
     [_activityIndicatorView removeFromSuperview];
+}
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    [self.webView setUserInteractionEnabled:YES];
 }
 
 
