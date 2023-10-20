@@ -863,6 +863,8 @@ import UIKit
                 var insertSections: IndexSet = []
                 var reloadIndexPaths: Set<IndexPath> = []
 
+                var addedUnreadMessageSeparator = false
+
                 // Check if unread messages separator should be added (only if it's not already shown)
                 if firstNewMessagesAfterHistory, self.getLastRealMessage() != nil, self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
                    let lastDateSection = self.dateSections.last, var messagesBeforeUpdate = self.messages[lastDateSection] {
@@ -870,6 +872,7 @@ import UIKit
                     messagesBeforeUpdate.append(self.unreadMessagesSeparator)
                     self.messages[lastDateSection] = messagesBeforeUpdate
                     insertIndexPaths.insert(IndexPath(row: messagesBeforeUpdate.count - 1, section: self.dateSections.count - 1))
+                    addedUnreadMessageSeparator = true
                 }
 
                 self.appendMessages(messages: messages)
@@ -925,7 +928,9 @@ import UIKit
                         self.removeUnreadMessagesSeparator()
                     }
 
-                    if let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
+                    // Only scroll to unread message separator if we added it while processing the received messages
+                    // Otherwise we would scroll whenever a unread message separator is available
+                    if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
                         tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
                     } else if (shouldScrollOnNewMessages || messages.containsUserMessage()), let lastIndexPath = self.getLastRealMessage()?.indexPath {
                         tableView.scrollToRow(at: lastIndexPath, at: .none, animated: true)
