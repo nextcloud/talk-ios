@@ -21,7 +21,6 @@ identifier_name:
 excluded:
   - Pods
   - ThirdParty
-  - SourcePackages
   - NextcloudTalk/RLMSupport.swift
 
 reporter: "xcode"
