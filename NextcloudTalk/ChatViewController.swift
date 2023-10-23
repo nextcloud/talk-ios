@@ -1299,7 +1299,7 @@ import UIKit
         // Tomorrow
         var tomorrowTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)
         tomorrowTime = Calendar.current.date(byAdding: .day, value: 1, to: tomorrowTime)!
-        let tomorrow = UIAction(title: NSLocalizedString("Tomorrow", comment: "Remind me tomrrow about that message")) { _ in
+        let tomorrow = UIAction(title: NSLocalizedString("Tomorrow", comment: "Remind me tomorrow about that message")) { _ in
             let timestamp = String(Int(tomorrowTime.timeIntervalSince1970))
             NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
         }
