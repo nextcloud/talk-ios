@@ -53,4 +53,10 @@ import UIKit
     static func parseMarkdown(markdownString: NSAttributedString) -> NSMutableAttributedString {
         return NSMutableAttributedString(attributedString: markdownParser.parse(markdownString))
     }
+
+    static func getLayoutManager() -> CDMarkdownLayoutManager {
+        let manager = CDMarkdownLayoutManager()
+        manager.roundAllCorners = true
+        return manager
+    }
 }

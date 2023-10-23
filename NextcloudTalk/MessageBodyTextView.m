@@ -27,17 +27,22 @@
 #import "NCUtils.h"
 #import "OpenInFirefoxControllerObjC.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @implementation MessageBodyTextView
 
 - (instancetype)init
 {
-    // Use TextKit1 to have the background of code/syntax blocks span the whole line
-    if (@available(iOS 16.0, *)) {
-        self = [MessageBodyTextView textViewUsingTextLayoutManager:false];
-    } else {
-        self = [super init];
-    }
-    
+    NSTextStorage *textStorage = [NSTextStorage new];
+
+    NSLayoutManager *layoutManager = (NSLayoutManager *)[SwiftMarkdownObjCBridge getLayoutManager];
+    [textStorage addLayoutManager: layoutManager];
+
+    NSTextContainer *textContainer = [NSTextContainer new];
+    [layoutManager addTextContainer: textContainer];
+
+    self = [[MessageBodyTextView alloc] initWithFrame:CGRectZero textContainer:textContainer];
+
     if (!self) {
         return nil;
     }
@@ -50,7 +55,6 @@
     self.editable = NO;
     self.scrollEnabled = NO;
     self.delegate = self;
-    
     return self;
 }
 
