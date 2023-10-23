@@ -26,7 +26,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macos-13
+    runs-on: macos-latest
     if: github.event.pull_request.draft == false
 
     strategy:
@@ -54,13 +54,6 @@ jobs:
         key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-pods-
-
-    - uses: actions/cache@v3
-      with:
-        path: SourcePackages
-        key: ${{ runner.os }}-spm-${{ hashFiles('NextcloudTalk.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-        restore-keys: |
-          ${{ runner.os }}-spm-
 
     - name: Set up php 8.2
       uses: shivammathur/setup-php@c5fc0d8281aba02c7fda07d3a70cc5371548067d # v2
@@ -131,7 +124,6 @@ jobs:
         -test-iterations 3 \
         -retry-tests-on-failure \
         -resultBundlePath "testResult.xcresult" \
-        -clonedSourcePackagesDirPath SourcePackages \
         | xcpretty
 
     - name: Upload test results
