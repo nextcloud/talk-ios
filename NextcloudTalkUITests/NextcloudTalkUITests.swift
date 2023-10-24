@@ -79,6 +79,7 @@ final class NextcloudTalkUITests: XCTestCase {
 
         // Wait shortly until the app is fully started
         let foundElement = waitForEitherElementToExist(accountSwitcherButton, serverAddressHttpsTextField, timeoutLong)
+        XCTAssertNotNil(foundElement)
 
         // When the account switcher button exists, we have atleast one account configured
         if foundElement == accountSwitcherButton {
@@ -166,9 +167,18 @@ final class NextcloudTalkUITests: XCTestCase {
 
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
 
-        // Wait for titleView
-        let chatTitleView = chatNavBar.textViews.staticTexts[newConversationName]
+        // Wait for navigationBar
         XCTAssert(chatNavBar.waitForExistence(timeout: timeoutLong))
+
+        // Wait for titleView
+        let chatTitleView = chatNavBar.textViews[newConversationName]
+        XCTAssert(chatTitleView.waitForExistence(timeout: timeoutShort))
+
+        // Wait until we joined the room and the call buttons get active
+        let voiceCallButton = chatNavBar.buttons["Voice call"]
+        XCTAssert(voiceCallButton.waitForExistence(timeout: timeoutShort))
+        waitForEnabled(object: voiceCallButton)
+        waitForHittable(object: voiceCallButton)
 
         // Open conversation settings
         chatTitleView.tap()
