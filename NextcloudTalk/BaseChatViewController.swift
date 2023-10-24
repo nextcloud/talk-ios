@@ -969,7 +969,8 @@ import QuickLook
     }
 
     func didPressTranslate(for message: NCChatMessage) {
-        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCSettingsController.sharedInstance().availableTranslations())
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: activeAccount.accountId))
         self.presentWithNavigation(translateMessageVC, animated: true)
     }
 

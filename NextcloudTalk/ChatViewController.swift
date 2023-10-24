@@ -1467,6 +1467,7 @@ import UIKit
         }
 
         var actions: [UIMenuElement] = []
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let hasChatPermissions = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatPermission) || (self.room.permissions & NCPermission.chat.rawValue) != 0
 
         // Reply option
@@ -1477,7 +1478,6 @@ import UIKit
         }
 
         // Reply-privately option (only to other users and not in one-to-one)
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         if self.isMessageReplyable(message: message), self.room.type != kNCRoomTypeOneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
             actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
                 self.didPressReplyPrivately(for: message)
@@ -1553,7 +1553,7 @@ import UIKit
         })
 
         // Translate
-        if !self.offlineMode, !NCSettingsController.sharedInstance().availableTranslations().isEmpty {
+        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: activeAccount.accountId) {
             actions.append(UIAction(title: NSLocalizedString("Translate", comment: ""), image: .init(systemName: "character.book.closed")) { _ in
                 self.didPressTranslate(for: message)
             })

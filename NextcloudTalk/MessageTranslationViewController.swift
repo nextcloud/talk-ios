@@ -103,13 +103,31 @@ import UIKit
 
     override func viewWillAppear(_ animated: Bool) {
         if !didTriggerInitialTranslation {
+            self.setTranslatingUI()
+            self.didTriggerInitialTranslation = true
             self.configureFromButton(title: NSLocalizedString("Detecting language", comment: ""), enabled: false)
             self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
-
             self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
 
-            self.didTriggerInitialTranslation = true
-            self.translateOriginalText(from: "", to: userLanguageCode ?? "")
+            if NCDatabaseManager.sharedInstance().hasTranslationProviders(forAccountId: activeAccount?.accountId ?? "") {
+                NCAPIController.sharedInstance().getAvailableTranslations(for: activeAccount) { languages, languageDetection, error, _ in
+                    if let translations = languages as? [NCTranslation], error == nil {
+                        self.availableTranslations = translations
+                        if languageDetection {
+                            self.translateOriginalText(from: "", to: self.userLanguageCode ?? "")
+                        } else {
+                            self.configureFromButton(title: nil, enabled: true)
+                            self.configureToButton(title: nil, enabled: false, fromLanguageCode: "")
+                            self.removeTranslatingUI()
+                        }
+                    } else {
+                        self.showTranslationError(message: NSLocalizedString("Could not get available languages", comment: ""))
+                        self.removeTranslatingUI()
+                    }
+                }
+            } else {
+                self.translateOriginalText(from: "", to: userLanguageCode ?? "")
+            }
         }
     }
 

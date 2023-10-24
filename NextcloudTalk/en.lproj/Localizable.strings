@@ -518,6 +518,9 @@
 "Could not delete conversation" = "Could not delete conversation";
 
 /* No comment provided by engineer. */
+"Could not get available languages" = "Could not get available languages";
+
+/* No comment provided by engineer. */
 "Could not join %@ call" = "Could not join %@ call";
 
 /* No comment provided by engineer. */
