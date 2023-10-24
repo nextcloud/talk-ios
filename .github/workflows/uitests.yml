@@ -26,7 +26,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macOS-latest
+    runs-on: macos-latest
     if: github.event.pull_request.draft == false
 
     strategy:
@@ -55,33 +55,66 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pods-
 
-    - uses: actions/cache@v3
+    - name: Set up php 8.2
+      uses: shivammathur/setup-php@c5fc0d8281aba02c7fda07d3a70cc5371548067d # v2
+      if: matrix.test-branches != 'stable23'
       with:
-        path: SourcePackages
-        key: ${{ runner.os }}-spm-${{ hashFiles('NextcloudTalk.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-        restore-keys: |
-          ${{ runner.os }}-spm-
+        php-version: 8.2
+        # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+        extensions: apcu, bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, pgsql, pdo_pgsql
+        coverage: none
+        ini-file: development
+        # Temporary workaround for missing pcntl_* in PHP 8.3: ini-values: apc.enable_cli=on
+        ini-values: apc.enable_cli=on, disable_functions=
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install docker
-      run: |
-        brew install docker
-        colima start
+    - name: Set up php 8.0
+      uses: shivammathur/setup-php@c5fc0d8281aba02c7fda07d3a70cc5371548067d # v2
+      if: matrix.test-branches == 'stable23'
+      with:
+        php-version: 8.0
+        # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+        extensions: apcu, bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, pgsql, pdo_pgsql
+        coverage: none
+        ini-file: development
+        # Temporary workaround for missing pcntl_* in PHP 8.3: ini-values: apc.enable_cli=on
+        ini-values: apc.enable_cli=on, disable_functions=
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}           
 
-    - name: Create docker test server
+    - name: Checkout server
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      with:
+        submodules: true
+        repository: nextcloud/server
+        path: server
+        ref: ${{ matrix.test-branches }}
+
+    - name: Checkout Talk
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      with:
+        repository: nextcloud/spreed
+        path: server/apps/spreed
+        ref: ${{ matrix.test-branches }}
+
+    - name: Set up production dependencies
+      working-directory: server/apps/spreed
+      run: composer i --no-dev 
+
+    - name: Set up Nextcloud
       run: |
-        source ./ci-create-docker-server.sh
+        mkdir server/data
+        ./server/occ maintenance:install --verbose --database=sqlite --database-name=nextcloud --database-host=127.0.0.1 --database-user=root --database-pass=rootpassword --admin-user admin --admin-pass admin
+        ./server/occ config:system:set hashing_default_password --value=true --type=boolean
+        ./server/occ config:system:set memcache.local --value="\\OC\\Memcache\\APCu"
+        ./server/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
+        ./server/occ app:enable --force spreed
+        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &   
 
     - name: Set up dependencies talk-ios
       run: |
-        pod install
-
-    - name: Wait for server
-      run: |
-        source ./ci-wait-for-server.sh
-
-    - name: Install talk
-      run: |
-        source ./ci-install-talk.sh             
+        pod install    
 
     - name: Build & Test NextcloudTalk iOS
       run: |
@@ -91,7 +124,6 @@ jobs:
         -test-iterations 3 \
         -retry-tests-on-failure \
         -resultBundlePath "testResult.xcresult" \
-        -clonedSourcePackagesDirPath SourcePackages \
         | xcpretty
 
     - name: Upload test results
