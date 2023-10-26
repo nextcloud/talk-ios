@@ -2262,7 +2262,7 @@ import QuickLook
 
         NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
-                self.view.makeToast(NSLocalizedString("An error occured while adding a reaction to a message", comment: ""), duration: 5, position: CSToastPositionCenter)
+                self.view.makeToast(NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), duration: 5, position: CSToastPositionCenter)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
             }
         }
@@ -2274,7 +2274,7 @@ import QuickLook
 
         NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
-                self.view.makeToast(NSLocalizedString("An error occured while removing a reaction from a message", comment: ""), duration: 5, position: CSToastPositionCenter)
+                self.view.makeToast(NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), duration: 5, position: CSToastPositionCenter)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
             }
         }
