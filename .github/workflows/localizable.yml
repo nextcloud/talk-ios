@@ -38,9 +38,18 @@ jobs:
       run: |
         git diff
 
+    - name: Install dependencies
+      run: |
+        pip3 install pyspelling
+
+    - name: Spell check
+      run: |
+        python3 -m pyspelling
+
     - name: Verify Changed files
       uses: tj-actions/verify-changed-files@v16
       id: verify-changed-files
+      if: always()
       with:
         fail-if-changed: true
         files: |

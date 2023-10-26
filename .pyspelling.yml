@@ -1,0 +1,10 @@
+matrix:
+- name: English localizable file
+  aspell:
+    lang: en
+    d: en_US
+  dictionary:
+    wordlists:
+      - .pyspelling.wordlist.txt
+  sources:
+  - NextcloudTalk/en.lproj/Localizable.strings 

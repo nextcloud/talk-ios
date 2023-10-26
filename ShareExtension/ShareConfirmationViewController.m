@@ -123,7 +123,7 @@
     NSDictionary *subAttribute = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],
                                    NSForegroundColorAttributeName:[UIColor tertiaryLabelColor]};
     
-    NSString *localizedToString = NSLocalizedString(@"To:", @"TRANSLATORS this is for sending something 'to' a user. Eg. 'To: John Doe'");
+    NSString *localizedToString = NSLocalizedString(@"To:", @"TRANSLATORS this is for sending something 'to' a user. E.g. 'To: John Doe'");
     NSMutableAttributedString *toString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ %@", localizedToString, _room.displayName] attributes:attributes];
     [toString addAttributes:subAttribute range:NSMakeRange(0, [localizedToString length])];
     self.toLabel.attributedText = toString;

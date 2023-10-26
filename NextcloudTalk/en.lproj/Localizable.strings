@@ -1189,7 +1189,7 @@
 /* No comment provided by engineer. */
 "OK" = "OK";
 
-/* Will be used as the caller name when a voip notification can't be decrypted */
+/* Will be used as the caller name when a VoIP notification can't be decrypted */
 "Old account" = "Old account";
 
 /* No comment provided by engineer. */
@@ -1624,7 +1624,7 @@
 /* No comment provided by engineer. */
 "To resolve this issue, use the web interface and go to \"Settings -> Security\"." = "To resolve this issue, use the web interface and go to \"Settings -> Security\".";
 
-/* TRANSLATORS this is for sending something 'to' a user. Eg. 'To: John Doe' */
+/* TRANSLATORS this is for sending something 'to' a user. E.g. 'To: John Doe' */
 "To:" = "To:";
 
 /* No comment provided by engineer. */
