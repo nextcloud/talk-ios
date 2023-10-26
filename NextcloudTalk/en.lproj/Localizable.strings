@@ -1,4 +1,4 @@
-﻿/* No comment provided by engineer. */
+/* No comment provided by engineer. */
 "%@ added to this new group conversation" = "%@ added to this new group conversation";
 
 /* No comment provided by engineer. */
@@ -182,12 +182,6 @@
 "An administrator removed {user0} and {user1}" = "An administrator removed {user0} and {user1}";
 
 /* No comment provided by engineer. */
-"An error occurred while adding a reaction to a message" = "An error occured while adding a reaction to a message";
-
-/* No comment provided by engineer. */
-"An error occurred while removing a reaction from a message" = "An error occured while removing a reaction from a message";
-
-/* No comment provided by engineer. */
 "An error occurred changing privacy setting" = "An error occurred changing privacy setting";
 
 /* No comment provided by engineer. */
@@ -227,6 +221,9 @@
 "An error occurred while adding %@ to the room" = "An error occurred while adding %@ to the room";
 
 /* No comment provided by engineer. */
+"An error occurred while adding a reaction to a message" = "An error occurred while adding a reaction to a message";
+
+/* No comment provided by engineer. */
 "An error occurred while adding note" = "An error occurred while adding note";
 
 /* No comment provided by engineer. */
@@ -243,6 +240,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while opening the file %@" = "An error occurred while opening the file %@";
+
+/* No comment provided by engineer. */
+"An error occurred while removing a reaction from a message" = "An error occurred while removing a reaction from a message";
 
 /* No comment provided by engineer. */
 "An error occurred while removing the avatar" = "An error occurred while removing the avatar";
