@@ -258,7 +258,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 - (void)reportIncomingCallForOldAccount
 {
     CXCallUpdate *update = [self defaultCallUpdate];
-    update.localizedCallerName = NSLocalizedString(@"Old account", @"Will be used as the caller name when a voip notification can't be decrypted");
+    update.localizedCallerName = NSLocalizedString(@"Old account", @"Will be used as the caller name when a VoIP notification can't be decrypted");
 
     NSUUID *callUUID = [NSUUID new];
     CallKitCall *call = [[CallKitCall alloc] init];
