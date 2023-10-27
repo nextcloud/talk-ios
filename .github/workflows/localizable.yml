@@ -34,6 +34,10 @@ jobs:
       run: |
         source ./generate-localizable-strings-file.sh
 
+    - name: Run git diff
+      run: |
+        git diff
+
     - name: Verify Changed files
       uses: tj-actions/verify-changed-files@v16
       id: verify-changed-files
