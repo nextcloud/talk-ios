@@ -241,7 +241,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"search" : phoneNumbers};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseContacts = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(responseContacts, nil);
@@ -279,7 +279,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseContacts = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
         for (NSDictionary *user in responseContacts) {
@@ -321,7 +321,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         URLString = [URLString stringByAppendingString:@"?includeStatus=true"];
     }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
         NSDictionary *headers = [self getResponseHeaders:response];
@@ -350,7 +350,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *roomDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
         NSDictionary *headers = [self getResponseHeaders:response];
@@ -381,7 +381,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         parameters = @{@"searchTerm" : searchTerm};
     }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         NSArray *responseRooms = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *parsedRooms = [NSMutableArray new];
         for (NSDictionary *roomDict in responseRooms) {
@@ -421,7 +421,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *token = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"token"];
         if (block) {
             block(token, nil);
@@ -446,7 +446,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"roomName" : newName};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -469,7 +469,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -492,7 +492,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -515,7 +515,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -539,7 +539,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"password" : password};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil, nil);
         }
@@ -573,7 +573,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *dataDictionary = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSString *sessionId = [dataDictionary objectForKey:@"sessionId"];
         // Room object is returned only since Talk 11
@@ -603,7 +603,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -626,7 +626,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -649,7 +649,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -673,7 +673,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"level" : @(level)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -697,7 +697,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"level" : @(enabled)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -721,7 +721,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"state" : @(state)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -752,7 +752,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -776,7 +776,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"state" : @(state)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -800,7 +800,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"scope" : @(scope)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -824,7 +824,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"seconds" : @(messageExpiration)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -849,7 +849,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:breakoutRoomsAPIVersion forAccount:account];
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -872,7 +872,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:breakoutRoomsAPIVersion forAccount:account];
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -900,7 +900,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         URLString = [URLString stringByAppendingString:@"?includeStatus=true"];
     }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseParticipants = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *participants = [[NSMutableArray alloc] initWithCapacity:responseParticipants.count];
         for (NSDictionary *participantDict in responseParticipants) {
@@ -975,7 +975,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -999,7 +999,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"attendeeId" : @(attendeeId)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1023,7 +1023,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"participant" : user};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1047,7 +1047,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"participant" : guest};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1070,7 +1070,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(0, nil);
         }
@@ -1097,7 +1097,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1124,7 +1124,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1151,7 +1151,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1176,7 +1176,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:callAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responsePeers = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *peers = [[NSMutableArray alloc] initWithArray:responsePeers];
         if (block) {
@@ -1206,7 +1206,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil, 0);
         }
@@ -1234,7 +1234,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1261,7 +1261,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1301,7 +1301,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     }
 
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         // Get X-Chat-Last-Given and X-Chat-Last-Common-Read headers
         NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
@@ -1356,7 +1356,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     }
 
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1384,7 +1384,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *mentions = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *suggestions = [[NSMutableArray alloc] initWithArray:mentions];;
         if (block) {
@@ -1408,7 +1408,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *messageDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
@@ -1432,7 +1432,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *messageDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
@@ -1456,7 +1456,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:richObject headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:richObject progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1479,7 +1479,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"lastReadMessage" : @(lastReadMessage)};
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1501,7 +1501,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1528,7 +1528,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseSharedItems = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         // Create dictionary [String: [NCChatMessage]]
         NSMutableDictionary *sharedItems = [NSMutableDictionary new];
@@ -1574,7 +1574,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         id responseData = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         // Create array [NCChatMessage]
         NSMutableArray *sharedItems = [NSMutableArray new];
@@ -1620,7 +1620,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [parameters setValue:from forKey:@"fromLanguage"];
     }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *translationDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
@@ -1648,7 +1648,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:reactionsAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"reaction" : reaction};
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
@@ -1673,7 +1673,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:reactionsAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"reaction" : reaction};
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
@@ -1701,7 +1701,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         parameters = @{@"reaction" : reaction};
     }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
@@ -1732,7 +1732,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"maxVotes" : @(maxVotes)
     };
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *pollDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NCPoll *poll = [NCPoll initWithPollDictionary:pollDict];
         if (block) {
@@ -1758,7 +1758,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:pollsAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *pollDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NCPoll *poll = [NCPoll initWithPollDictionary:pollDict];
         if (block) {
@@ -1785,7 +1785,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"optionIds" : options};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *pollDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NCPoll *poll = [NCPoll initWithPollDictionary:pollDict];
         if (block) {
@@ -1811,7 +1811,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:pollsAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *pollDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NCPoll *poll = [NCPoll initWithPollDictionary:pollDict];
         if (block) {
@@ -1840,7 +1840,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"messages" : messages};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1864,7 +1864,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager GET:URLString
-                                             parameters:nil headers:nil progress:nil
+                                             parameters:nil progress:nil
                                                 success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = responseObject;
         if (block) {
@@ -1888,7 +1888,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:signalingAPIVersion forAccount:account];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = responseObject;
         if (block) {
             block(responseDict, nil);
@@ -1920,7 +1920,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"value" : @(enabled)};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -1942,7 +1942,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"value" : @(enabled)};
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2015,7 +2015,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [self initSessionManagers];
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     }
-    [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2318,7 +2318,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil headers:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         [formData appendPartWithFileData:imageData name:@"file" fileName:@"avatar.jpg" mimeType:@"image/jpeg"];
     } progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
         if (block) {
@@ -2352,7 +2352,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2376,7 +2376,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2400,7 +2400,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"format" : @"json"};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *actions = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(actions, nil);
@@ -2443,7 +2443,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"format" : @"json"};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *profile = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(profile, nil);
@@ -2465,7 +2465,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"format" : @"json"};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *editableFields = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(editableFields, nil);
@@ -2489,7 +2489,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"value" : value};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil, 0);
         }
@@ -2511,7 +2511,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSData *imageData= UIImageJPEGRepresentation(image, 0.7);
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil headers:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         [formData appendPartWithFileData:imageData name:@"files[]" fileName:@"avatar.jpg" mimeType:@"image/jpeg"];
     } progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
         if (block) {
@@ -2533,7 +2533,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/spreed/temp-user-avatar", account.server];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil, 0);
         }
@@ -2645,7 +2645,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/user_status/api/v1/user_status", account.server];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *userStatus = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(userStatus, nil);
@@ -2667,7 +2667,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"statusType" : status};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2688,7 +2688,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     NSString *URLString = [NSString stringWithFormat:@"http://itunes.apple.com/lookup?bundleId=%@", bundleIdentifier];
 
-    NSURLSessionDataTask *task = [_defaultAPISessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [_defaultAPISessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSString *appId = nil;
         NSArray *results = [responseObject objectForKey:@"results"];
         if (results.count > 0) {
@@ -2714,7 +2714,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", server];
     NSDictionary *parameters = @{@"format" : @"json"};
     
-    NSURLSessionDataTask *task = [_defaultAPISessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [_defaultAPISessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(capabilities, nil);
@@ -2734,7 +2734,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"format" : @"json"};
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(capabilities, nil);
@@ -2762,7 +2762,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [self initSessionManagers];
         apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     }
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(notification, nil, 0);
@@ -2789,7 +2789,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager dataTaskWithRequest:request uploadProgress:nil downloadProgress:nil completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+    NSURLSessionDataTask *task = [apiSessionManager dataTaskWithRequest:request completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
         if (!error) {
             NSArray *notifications = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
             NSDictionary *headers = [self getResponseHeaders:response];
@@ -2826,17 +2826,17 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
 
     if (action.actionType == NCNotificationActionTypeKNotificationActionTypeGet) {
-        [apiSessionManager GET:action.actionLink parameters:nil headers:nil progress:nil success:success failure:failure];
+        [apiSessionManager GET:action.actionLink parameters:nil progress:nil success:success failure:failure];
 
     } else if (action.actionType == NCNotificationActionTypeKNotificationActionTypePut) {
-        [apiSessionManager PUT:action.actionLink parameters:nil headers:nil success:success failure:failure];
+        [apiSessionManager PUT:action.actionLink parameters:nil success:success failure:failure];
 
     } else if (action.actionType == NCNotificationActionTypeKNotificationActionTypePost) {
-        [apiSessionManager POST:action.actionLink parameters:nil headers:nil progress:nil success:success failure:failure];
+        [apiSessionManager POST:action.actionLink parameters:nil progress:nil success:success failure:failure];
 
     } else if (action.actionType == NCNotificationActionTypeKNotificationActionTypeDelete) {
-        [apiSessionManager DELETE:action.actionLink parameters:nil headers:nil success:success failure:failure];
-
+        [apiSessionManager DELETE:action.actionLink parameters:nil success:success failure:failure];
+        
     } else {
         NSLog(@"Trying to execute non-supported notification action type");
         if (block) {
@@ -2855,7 +2855,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     };
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *responseArray = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(responseArray, nil);
@@ -2885,7 +2885,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  };
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             block(responseDict, nil);
@@ -2906,7 +2906,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/notifications/api/v2/push", account.server];
     
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2930,7 +2930,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"userPublicKey" : account.userPublicKey
                                  };
 
-    NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2951,7 +2951,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"userPublicKey" : account.userPublicKey
                                  };
 
-    NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -2972,7 +2972,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSDictionary *parameters = @{@"reference" : url};
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseReferences = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"references"];
         if (block) {
             // When there's no data, the server returns an empty array instead of a dictionary
@@ -3013,7 +3013,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     };
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -3035,7 +3035,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:1 forAccount:account];
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -3061,7 +3061,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     };
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -3088,7 +3088,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     };
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -3118,7 +3118,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     };
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -3142,7 +3142,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil headers:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             NSDictionary *responseDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
             block(nil);
@@ -3167,7 +3167,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
 
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             NSDictionary *responseDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
             block(responseDict, nil);

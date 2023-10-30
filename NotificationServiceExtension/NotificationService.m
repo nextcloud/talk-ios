@@ -187,7 +187,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                     [apiSessionManager.requestSerializer setValue:authorizationHeader forHTTPHeaderField:@"Authorization"];
                     [apiSessionManager.requestSerializer setTimeoutInterval:25];
 
-                    [apiSessionManager GET:URLString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                    [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                         NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
                         NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
 

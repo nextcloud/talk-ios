@@ -2,7 +2,7 @@ source 'https://cdn.cocoapods.org/'
 platform :ios, '15.0'
 
 def common_dependencies
-pod 'AFNetworking', '4.0.1'
+pod 'AFNetworking', '3.2.0'
 pod 'UICKeyChainStore'
 end
 
