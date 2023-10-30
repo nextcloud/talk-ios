@@ -184,7 +184,7 @@ import MobileVLCKit
     private func mediaReachedEnd() -> Bool {
         guard let mediaPlayer = self.mediaPlayer else { return false }
 
-        return mediaPlayer.remainingTime.stringValue == "00:00"
+        return mediaPlayer.remainingTime?.stringValue == "00:00"
     }
 
     // MARK: Controls Visibility
