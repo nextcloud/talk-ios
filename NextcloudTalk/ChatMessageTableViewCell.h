@@ -29,7 +29,6 @@ static CGFloat kChatMessageCellMinimumHeight    = 50.0;
 
 static NSString *ChatMessageCellIdentifier      = @"ChatMessageCellIdentifier";
 static NSString *ReplyMessageCellIdentifier     = @"ReplyMessageCellIdentifier";
-static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier";
 
 @class QuotedMessageView;
 @class AvatarButton;

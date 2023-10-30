@@ -86,11 +86,9 @@
         UITapGestureRecognizer *quoteTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(quoteTapped:)];
         [self.quoteContainerView addGestureRecognizer:quoteTap];
     }
-    
-    if (![self.reuseIdentifier isEqualToString:AutoCompletionCellIdentifier]) {
-        [self.contentView addSubview:self.reactionsView];
-        [self.contentView addSubview:self.referenceView];
-    }
+
+    [self.contentView addSubview:self.reactionsView];
+    [self.contentView addSubview:self.referenceView];
     
     NSDictionary *views = @{@"avatarButton": self.avatarButton,
                             @"userStatusImageView": self.userStatusImageView,
@@ -135,13 +133,6 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[dateLabel(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[titleLabel(avatarSize)]-left-[quoteContainerView]-left-[statusView(statusSize)]-(>=0)-|" options:0 metrics:metrics views:views]];
-    } else if ([self.reuseIdentifier isEqualToString:AutoCompletionCellIdentifier]) {
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-right-[avatarButton(avatarSize)]-right-[titleLabel]-right-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[titleLabel]|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-32-[userStatusImageView(12)]-(>=0)-|" options:0 metrics:metrics views:views]];
-        self.backgroundColor = [UIColor secondarySystemBackgroundColor];
-        self.titleLabel.textColor = [UIColor labelColor];
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-right-[avatarButton(avatarSize)]-(>=0)-|" options:0 metrics:metrics views:views]];

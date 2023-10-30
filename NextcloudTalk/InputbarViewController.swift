@@ -140,7 +140,7 @@ import UIKit
         self.textInputbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         self.textView.delegate = self
 
-        self.autoCompletionView.register(ChatMessageTableViewCell.self, forCellReuseIdentifier: AutoCompletionCellIdentifier)
+        self.autoCompletionView.register(AutoCompletionTableViewCell.self, forCellReuseIdentifier: AutoCompletionCellIdentifier)
         self.registerPrefixes(forAutoCompletion: ["@"])
 
         self.autoCompletionView.backgroundColor = .secondarySystemBackground
@@ -204,7 +204,7 @@ import UIKit
     }
 
     public override func heightForAutoCompletionView() -> CGFloat {
-        return kChatMessageCellMinimumHeight * CGFloat(self.autocompletionUsers.count)
+        return kAutoCompletionCellHeight * CGFloat(self.autocompletionUsers.count)
     }
 
     func showSuggestions(for string: String) {
@@ -263,9 +263,9 @@ import UIKit
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard tableView == self.autoCompletionView,
               indexPath.row < self.autocompletionUsers.count,
-              let cell = self.autoCompletionView.dequeueReusableCell(withIdentifier: AutoCompletionCellIdentifier) as? ChatMessageTableViewCell
+              let cell = self.autoCompletionView.dequeueReusableCell(withIdentifier: AutoCompletionCellIdentifier) as? AutoCompletionTableViewCell
         else {
-            return ChatMessageTableViewCell(style: .default, reuseIdentifier: AutoCompletionCellIdentifier)
+            return AutoCompletionTableViewCell(style: .default, reuseIdentifier: AutoCompletionCellIdentifier)
         }
 
         let suggestion = self.autocompletionUsers[indexPath.row]
@@ -337,6 +337,10 @@ import UIKit
             let mentionWithWhitespace = label + " "
             self.acceptAutoCompletion(with: mentionWithWhitespace, keepPrefix: true)
         }
+    }
+
+    public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return kAutoCompletionCellHeight
     }
 
     // MARK: - TextView functiosn

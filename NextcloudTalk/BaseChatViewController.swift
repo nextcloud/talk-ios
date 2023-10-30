@@ -2555,7 +2555,7 @@ import QuickLook
 
     public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if tableView == self.autoCompletionView {
-            return kChatMessageCellMinimumHeight
+            return super.tableView(tableView, heightForRowAt: indexPath)
         }
 
         if let message = self.message(for: indexPath) {
