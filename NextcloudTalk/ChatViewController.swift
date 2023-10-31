@@ -63,7 +63,7 @@ import UIKit
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
         let buttonImage = UIImage(systemName: video ? "video" : "phone", withConfiguration: symbolConfiguration)
 
-        let button = BarButtonItemWithActivity(width: 44, with: buttonImage)
+        let button = BarButtonItemWithActivity(width: 50, with: buttonImage)
         button.innerButton.addAction { [unowned self] in
             button.showIndicator()
             CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: false, withAccountId: self.room.accountId)
@@ -150,9 +150,7 @@ import UIKit
 
         if NCSettingsController.sharedInstance().callsEnabledCapability() &&
             room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf {
-            let fixedSpace = UIBarButtonItem(systemItem: .fixedSpace)
-            fixedSpace.width = 16
-            self.navigationItem.rightBarButtonItems = [videoCallButton, fixedSpace, voiceCallButton]
+            self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
         }
 
         // Disable room info, input bar and call buttons until joining room
