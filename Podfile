@@ -14,7 +14,7 @@ end
 target "NextcloudTalk" do
 common_dependencies_ext
 pod 'DateTools'
-pod 'JDStatusBarNotification'
+pod 'JDStatusBarNotification', '~> 2.0.0'
 pod 'MaterialComponents/ActivityIndicator'
 pod 'Toast', '~> 4.0.0'
 pod 'libPhoneNumber-iOS'
