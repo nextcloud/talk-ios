@@ -719,7 +719,6 @@ import AVFoundation
                 }
             }
         } else if mediaType == "public.movie" {
-            // TODO: NSURL?
             if let videoUrl = info[.mediaURL] as? URL {
                 self.dismiss(animated: true) {
                     self.shareItemController.addItem(with: videoUrl)
