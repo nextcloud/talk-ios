@@ -95,10 +95,12 @@ import UIKit
         self.textInputbar.counterStyle = .limitExceeded
         self.textInputbar.counterPosition = .top
 
-        let chatMaxLength = NCSettingsController.sharedInstance().chatMaxLengthConfigCapability()
-        self.textInputbar.maxCharCount = UInt(chatMaxLength)
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
 
-        if chatMaxLength == kDefaultChatMaxLength {
+        if serverCapabilities.chatMaxLength > 0 {
+            self.textInputbar.maxCharCount = UInt(serverCapabilities.chatMaxLength)
+        } else {
+            self.textInputbar.maxCharCount = 1000
             self.textInputbar.counterStyle = .countdownReversed
         }
 
