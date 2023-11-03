@@ -595,14 +595,28 @@ import QuickLook
     internal func updateMessage(withMessageId messageId: Int, updatedMessage: NCChatMessage) {
         DispatchQueue.main.async {
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: messageId) else { return }
+            var reloadIndexPaths = [indexPath]
 
             let isAtBottom = self.shouldScrollOnNewMessages()
             let keyDate = self.dateSections[indexPath.section]
             updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots"
             self.messages[keyDate]?[indexPath.row] = updatedMessage
 
+            // Check if there are any messages that reference our message as a parent -> these need to be reloaded as well
+            if let visibleIndexPaths = self.tableView?.indexPathsForVisibleRows {
+                let referencingIndexPaths = visibleIndexPaths.filter({
+                    guard let message = self.message(for: $0),
+                          let parentMessage = message.parent()
+                    else { return false }
+
+                    return parentMessage.messageId == messageId
+                })
+
+                reloadIndexPaths.append(contentsOf: referencingIndexPaths)
+            }
+
             self.tableView?.beginUpdates()
-            self.tableView?.reloadRows(at: [indexPath], with: .none)
+            self.tableView?.reloadRows(at: reloadIndexPaths, with: .none)
             self.tableView?.endUpdates()
 
             if isAtBottom {
