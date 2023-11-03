@@ -805,13 +805,13 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }
 }
 
-- (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video
+- (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video recordingConsent:(BOOL)recordingConsent
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName silently:YES recordingConsent:NO withAccountId:activeAccount.accountId];
+            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName silently:YES recordingConsent:recordingConsent withAccountId:activeAccount.accountId];
         }
     }];
 }
@@ -947,7 +947,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         _upgradeCallToken = nil;
         // Add some delay so CallKit doesn't fail requesting new call
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
-            [self joinCallWithCallToken:token withVideo:YES];
+            [self joinCallWithCallToken:token withVideo:YES recordingConsent:YES];
         });
     }
 }
@@ -993,14 +993,14 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self checkForAccountChange:pushNotification.accountId];
-    [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO];
+    [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO recordingConsent:NO];
 }
 
 - (void)joinVideoCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self checkForAccountChange:pushNotification.accountId];
-    [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES];
+    [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES recordingConsent:NO];
 }
 
 - (void)joinChat:(NSNotification *)notification
