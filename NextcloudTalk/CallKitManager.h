@@ -40,6 +40,7 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransactionNotificati
 @property (nonatomic, assign) BOOL reportedWhileInCall;
 @property (nonatomic, assign) BOOL isRinging;
 @property (nonatomic, assign) BOOL silentCall;
+@property (nonatomic, assign) BOOL recordingConsent;
 
 @end
 
@@ -54,8 +55,8 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransactionNotificati
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
 - (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification;
 - (void)reportIncomingCallForOldAccount;
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently withAccountId:(NSString *)accountId;
-- (void)endCall:(NSString *)token;
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId;
+- (void)endCall:(NSString *)token withStatusCode:(NSInteger)statusCode;
 - (void)changeAudioMuted:(BOOL)muted forCall:(NSString *)token;
 - (void)switchCallFrom:(NSString *)from toCall:(NSString *)to;
 

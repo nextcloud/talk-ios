@@ -47,6 +47,7 @@
 @property (nonatomic, assign) BOOL videoDisabledAtStart;
 @property (nonatomic, assign) BOOL voiceChatModeAtStart;
 @property (nonatomic, assign) BOOL silentCall;
+@property (nonatomic, assign) BOOL recordingConsent;
 
 @property (nonatomic, strong) IBOutlet MTKView *localVideoView;
 @property (nonatomic, strong) IBOutlet NCZoomableView *screensharingView;

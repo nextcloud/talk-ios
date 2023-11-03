@@ -162,7 +162,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 - (void)joinCall
 {
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [self.delegate callControllerDidJoinCall:self];
@@ -187,7 +187,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                     return;
                 }
 
-                [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
+                [self.delegate callControllerDidFailedJoiningCall:self statusCode:statusCode errorReason:[self getJoinCallErrorReason:statusCode]];
                 NSLog(@"Could not join call. Error: %@", error.description);
             }
         }];
@@ -202,7 +202,11 @@ static NSString * const kNCVideoTrackKind = @"video";
         case 0:
             errorReason = NSLocalizedString(@"No response from server", nil);
             break;
-            
+
+        case 400:
+            errorReason = NSLocalizedString(@"Recording consent is required", nil);
+            break;
+
         case 403:
             errorReason = NSLocalizedString(@"This conversation is read-only", nil);
             break;
@@ -223,7 +227,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [self createLocalMedia];
 
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [self.delegate callControllerDidJoinCall:self];
@@ -242,7 +246,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                     return;
                 }
 
-                [self.delegate callControllerDidFailedJoiningCall:self statusCode:@(statusCode) errorReason:[self getJoinCallErrorReason:statusCode]];
+                [self.delegate callControllerDidFailedJoiningCall:self statusCode:statusCode errorReason:[self getJoinCallErrorReason:statusCode]];
                 NSLog(@"Could not rejoin call. Error: %@", error.description);
             }
         }];

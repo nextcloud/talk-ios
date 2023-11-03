@@ -146,7 +146,15 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
             content.userInfo = userInfo;
         }
             break;
-            
+
+        case kNCLocalNotificationTypeRecordingConsentRequired:
+        {
+            NSString *missedCallString = NSLocalizedString(@"Recording consent required for joining the call", nil);
+            content.body = [NSString stringWithFormat:@"⚠️ %@ %@", missedCallString, [userInfo objectForKey:@"displayName"]];
+            content.userInfo = userInfo;
+        }
+            break;
+
         default:
             break;
     }
@@ -688,6 +696,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
             case kNCLocalNotificationTypeCancelledCall:
             case kNCLocalNotificationTypeFailedSendChat:
             case kNCLocalNotificationTypeChatNotification:
+            case kNCLocalNotificationTypeRecordingConsentRequired:
             {
                 [[NCUserInterfaceController sharedInstance] presentChatForLocalNotification:notificationUserInfo];
             }

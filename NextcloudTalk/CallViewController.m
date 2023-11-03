@@ -187,7 +187,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     _callController.disableAudioAtStart = _audioDisabledAtStart;
     _callController.disableVideoAtStart = _videoDisabledAtStart;
     _callController.silentCall = _silentCall;
-    
+    _callController.recordingConsent = _recordingConsent;
+
     [_callController startCall];
 }
 
@@ -1875,9 +1876,17 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     });
 }
 
-- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSNumber *)statusCode errorReason:(NSString *) errorReason
+- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSInteger)statusCode errorReason:(NSString *) errorReason
 {
-    [self presentJoinError:errorReason];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+
+        if (isAppActive) {
+            [self presentJoinError:errorReason];
+        } else {
+            [[CallKitManager sharedInstance] endCall:self->_room.token withStatusCode:statusCode];
+        }
+    });
 }
 
 - (void)callControllerDidEndCall:(NCCallController *)callController

@@ -36,7 +36,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 @protocol NCCallControllerDelegate<NSObject>
 
 - (void)callControllerDidJoinCall:(NCCallController *)callController;
-- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSNumber *)statusCode errorReason:(NSString *)errorReason;
+- (void)callControllerDidFailedJoiningCall:(NCCallController *)callController statusCode:(NSInteger)statusCode errorReason:(NSString *)errorReason;
 - (void)callControllerDidEndCall:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer;
@@ -70,6 +70,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 @property (nonatomic, assign) BOOL disableAudioAtStart;
 @property (nonatomic, assign) BOOL disableVideoAtStart;
 @property (nonatomic, assign) BOOL silentCall;
+@property (nonatomic, assign) BOOL recordingConsent;
 
 
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;

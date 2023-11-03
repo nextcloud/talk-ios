@@ -154,6 +154,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, assign) NSInteger callStartTime;
 @property (nonatomic, copy) NSString *avatarVersion;
 @property (nonatomic, assign) BOOL isCustomAvatar;
+@property (nonatomic, assign) BOOL recordingConsent;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
