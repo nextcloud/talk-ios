@@ -230,6 +230,19 @@ import UIKit
         }
     }
 
+    internal func replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: String, parameters: String) -> String {
+        var resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard let messageParametersDict = NCMessageParameter.messageParametersDict(fromJSONString: parameters) else { return resultMessage }
+
+        for (parameterKey, parameter) in messageParametersDict {
+            let parameterKeyString = "{\(parameterKey)}"
+            resultMessage = resultMessage.replacingOccurrences(of: parameter.mentionDisplayName, with: parameterKeyString)
+        }
+
+        return resultMessage
+    }
+
     // MARK: - UITableViewDataSource methods
 
     public override func numberOfSections(in tableView: UITableView) -> Int {

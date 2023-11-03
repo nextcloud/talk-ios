@@ -507,19 +507,6 @@ import QuickLook
         return unmanagedTemporaryMessage
     }
 
-    internal func replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: String, parameters: String) -> String {
-        var resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard let messageParametersDict = NCMessageParameter.messageParametersDict(fromJSONString: parameters) else { return resultMessage }
-
-        for (parameterKey, parameter) in messageParametersDict {
-            let parameterKeyString = "{\(parameterKey)}"
-            resultMessage = resultMessage.replacingOccurrences(of: parameter.mentionDisplayName, with: parameterKeyString)
-        }
-
-        return resultMessage
-    }
-
     internal func replaceMessageMentionsKeysWithMentionsDisplayNames(message: String, parameters: String) -> String {
         var resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
