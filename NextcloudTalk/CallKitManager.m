@@ -471,7 +471,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     if (call) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
         [userInfo setValue:call.displayName forKey:@"displayName"];
-        [userInfo setValue:@(kNCLocalNotificationTypeMissedCall) forKey:@"localNotificationType"];
+        [userInfo setValue:@(kNCLocalNotificationTypeRecordingConsentRequired) forKey:@"localNotificationType"];
         [userInfo setObject:call.accountId forKey:@"accountId"];
         [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeRecordingConsentRequired withUserInfo:userInfo];
     }
