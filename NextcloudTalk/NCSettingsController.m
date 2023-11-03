@@ -83,8 +83,6 @@ NSString * const kUserProfileScopeLocal         = @"v2-local";
 NSString * const kUserProfileScopeFederated     = @"v2-federated";
 NSString * const kUserProfileScopePublished     = @"v2-published";
 
-NSInteger const kDefaultChatMaxLength           = 1000;
-
 NSString * const kPreferredFileSorting          = @"preferredFileSorting";
 NSString * const kContactSyncEnabled            = @"contactSyncEnabled";
 
@@ -633,17 +631,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
                                                               userInfo:nil];
         }
     }
-}
-
-- (NSInteger)chatMaxLengthConfigCapability
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities) {
-        NSInteger chatMaxLength = serverCapabilities.chatMaxLength;
-        return chatMaxLength > 0 ? chatMaxLength : kDefaultChatMaxLength;
-    }
-    return kDefaultChatMaxLength;
 }
 
 - (BOOL)canCreateGroupAndPublicRooms

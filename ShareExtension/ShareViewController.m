@@ -32,7 +32,6 @@
 #import "NCRoom.h"
 #import "NCUtils.h"
 #import "PlaceholderView.h"
-#import "ShareConfirmationViewController.h"
 #import "ShareTableViewCell.h"
 #import "NCKeyChainController.h"
 #import "NextcloudTalk-Swift.h"

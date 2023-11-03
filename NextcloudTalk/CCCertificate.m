@@ -35,7 +35,7 @@
 NSString *const appCertificates = @"Library/Application Support/Certificates";
 
 //Singleton
-+ (id)sharedManager {
++ (CCCertificate *)sharedManager {
     static CCCertificate *CCCertificate = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{

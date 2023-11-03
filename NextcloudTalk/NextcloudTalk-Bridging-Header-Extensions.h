@@ -29,4 +29,23 @@
 #import "NCRoom.h"
 #import "TalkAccount.h"
 
+#import "NCChatTitleView.h"
+#import "SLKTextViewController.h"
+#import "NCMessageTextView.h"
+#import "ReplyMessageView.h"
+#import "NCSettingsController.h"
+#import "ChatMessageTableViewCell.h"
+#import "NCUtils.h"
+#import "AutoCompletionTableViewCell.h"
+#import "NCKeyChainController.h"
+#import "CCCertificate.h"
+
+#import "ShareConfirmationCollectionViewCell.h"
+#import "ShareItem.h"
+#import "ShareItemController.h"
+#import "MBProgressHUD.h"
+
+#import "NCUserDefaults.h"
+#import "NCIntentController.h"
+
 #endif /* NextcloudTalk_Bridging_Header_h */

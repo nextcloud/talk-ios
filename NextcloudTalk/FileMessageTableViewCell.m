@@ -193,7 +193,7 @@
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
     self.titleLabel.text = message.actorDisplayName;
-    self.bodyTextView.attributedText = message.parsedMessage;
+    self.bodyTextView.attributedText = message.parsedMarkdownForChat;
     self.messageId = message.messageId;
     self.message = message;
 

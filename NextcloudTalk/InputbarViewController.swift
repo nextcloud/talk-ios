@@ -56,10 +56,10 @@ import UIKit
         self.view.addSubview(view)
 
         NSLayoutConstraint.activate([
-            view.leftAnchor.constraint(equalTo: self.view.leftAnchor),
-            view.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            view.topAnchor.constraint(equalTo: self.view.topAnchor),
-            view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            view.leftAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leftAnchor),
+            view.rightAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.rightAnchor),
+            view.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            view.bottomAnchor.constraint(equalTo: self.textInputbar.topAnchor)
         ])
 
         // Make sure our contentView does not hide the inputBar and the autocompletionView
@@ -95,10 +95,12 @@ import UIKit
         self.textInputbar.counterStyle = .limitExceeded
         self.textInputbar.counterPosition = .top
 
-        let chatMaxLength = NCSettingsController.sharedInstance().chatMaxLengthConfigCapability()
-        self.textInputbar.maxCharCount = UInt(chatMaxLength)
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
 
-        if chatMaxLength == kDefaultChatMaxLength {
+        if serverCapabilities.chatMaxLength > 0 {
+            self.textInputbar.maxCharCount = UInt(serverCapabilities.chatMaxLength)
+        } else {
+            self.textInputbar.maxCharCount = 1000
             self.textInputbar.counterStyle = .countdownReversed
         }
 
@@ -116,6 +118,7 @@ import UIKit
 
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
+        self.navigationController?.navigationBar.isTranslucent = false
         self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
 
         let themeColor: UIColor = NCAppBranding.themeColor()
@@ -140,7 +143,7 @@ import UIKit
         self.textInputbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         self.textView.delegate = self
 
-        self.autoCompletionView.register(ChatMessageTableViewCell.self, forCellReuseIdentifier: AutoCompletionCellIdentifier)
+        self.autoCompletionView.register(AutoCompletionTableViewCell.self, forCellReuseIdentifier: AutoCompletionCellIdentifier)
         self.registerPrefixes(forAutoCompletion: ["@"])
 
         self.autoCompletionView.backgroundColor = .secondarySystemBackground
@@ -204,7 +207,7 @@ import UIKit
     }
 
     public override func heightForAutoCompletionView() -> CGFloat {
-        return kChatMessageCellMinimumHeight * CGFloat(self.autocompletionUsers.count)
+        return kAutoCompletionCellHeight * CGFloat(self.autocompletionUsers.count)
     }
 
     func showSuggestions(for string: String) {
@@ -228,6 +231,19 @@ import UIKit
                 }
             }
         }
+    }
+
+    internal func replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: String, parameters: String) -> String {
+        var resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard let messageParametersDict = NCMessageParameter.messageParametersDict(fromJSONString: parameters) else { return resultMessage }
+
+        for (parameterKey, parameter) in messageParametersDict {
+            let parameterKeyString = "{\(parameterKey)}"
+            resultMessage = resultMessage.replacingOccurrences(of: parameter.mentionDisplayName, with: parameterKeyString)
+        }
+
+        return resultMessage
     }
 
     // MARK: - UITableViewDataSource methods
@@ -263,9 +279,9 @@ import UIKit
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard tableView == self.autoCompletionView,
               indexPath.row < self.autocompletionUsers.count,
-              let cell = self.autoCompletionView.dequeueReusableCell(withIdentifier: AutoCompletionCellIdentifier) as? ChatMessageTableViewCell
+              let cell = self.autoCompletionView.dequeueReusableCell(withIdentifier: AutoCompletionCellIdentifier) as? AutoCompletionTableViewCell
         else {
-            return ChatMessageTableViewCell(style: .default, reuseIdentifier: AutoCompletionCellIdentifier)
+            return AutoCompletionTableViewCell(style: .default, reuseIdentifier: AutoCompletionCellIdentifier)
         }
 
         let suggestion = self.autocompletionUsers[indexPath.row]
@@ -337,6 +353,10 @@ import UIKit
             let mentionWithWhitespace = label + " "
             self.acceptAutoCompletion(with: mentionWithWhitespace, keepPrefix: true)
         }
+    }
+
+    public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return kAutoCompletionCellHeight
     }
 
     // MARK: - TextView functiosn

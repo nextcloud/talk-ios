@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2020 Marcel Müller <marcel-mueller@gmx.de>
+ * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
  *
- * @author Marcel Müller <marcel-mueller@gmx.de>
+ * @author Ivan Sein <ivan@nextcloud.com>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -20,23 +20,20 @@
  *
  */
 
-#import "ShareItem.h"
+#import <UIKit/UIKit.h>
 
-@implementation ShareItem
+static CGFloat kAutoCompletionCellHeight        = 50.0;
+static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier";
 
+@class AvatarButton;
 
-+ (instancetype)initWithURL:(NSURL *)fileURL withName:(NSString *)fileName withPlaceholderImage:(UIImage *)placeholderImage isImage:(BOOL)isImage
-{
-    ShareItem* item = [[ShareItem alloc] init];
-    item.fileURL = fileURL;
-    item.filePath = fileURL.path;
-    item.fileName = fileName;
-    item.placeholderImage = placeholderImage;
-    item.uploadProgress = 0;
-    item.isImage = isImage;
-    item.caption = @"";
+@interface AutoCompletionTableViewCell : UITableViewCell
 
-    return item;
-}
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) AvatarButton *avatarButton;
+@property (nonatomic, strong) UIImageView *userStatusImageView;
+
++ (CGFloat)defaultFontSize;
+- (void)setUserStatus:(NSString *)userStatus;
 
 @end

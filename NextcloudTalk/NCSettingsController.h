@@ -44,8 +44,6 @@ extern NSString * const kUserProfileScopeLocal;
 extern NSString * const kUserProfileScopeFederated;
 extern NSString * const kUserProfileScopePublished;
 
-extern NSInteger const kDefaultChatMaxLength;
-
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
