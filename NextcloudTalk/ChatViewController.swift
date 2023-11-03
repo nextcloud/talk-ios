@@ -87,14 +87,13 @@ import UIKit
                                           message: NSLocalizedString("The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.", comment: ""),
                                           preferredStyle: .alert)
 
-            alert.addAction(UIAlertAction(title: NSLocalizedString("Give consent and join call", comment: "Give consent to the recording of the call and join that call"),
-                                          style: .default,
-                                          handler: {(_: UIAlertAction!) in
+            alert.addAction(.init(title: NSLocalizedString("Give consent and join call", comment: "Give consent to the recording of the call and join that call"), style: .default) { _ in
                 CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: silently, recordingConsent: true, withAccountId: self.room.accountId)
-            }))
+            })
 
-            alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: {(_: UIAlertAction!) in button.hideIndicator()
-            }))
+            alert.addAction(.init(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
+                button.hideIndicator()
+            })
 
             NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
 
