@@ -149,8 +149,8 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
 
         case kNCLocalNotificationTypeRecordingConsentRequired:
         {
-            NSString *missedCallString = NSLocalizedString(@"Recording consent required for joining the call", nil);
-            content.body = [NSString stringWithFormat:@"⚠️ %@ %@", missedCallString, [userInfo objectForKey:@"displayName"]];
+            NSString *consentRequiredString = NSLocalizedString(@"Recording consent required for joining the call", nil);
+            content.body = [NSString stringWithFormat:@"⚠️ %@ %@", consentRequiredString, [userInfo objectForKey:@"displayName"]];
             content.userInfo = userInfo;
         }
             break;
