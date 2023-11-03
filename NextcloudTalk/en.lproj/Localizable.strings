@@ -847,6 +847,9 @@
 /* No comment provided by engineer. */
 "GitHub API error" = "GitHub API error";
 
+/* Give consent to the recording of the call and join that call */
+"Give consent and join call" = "Give consent and join call";
+
 /* No comment provided by engineer. */
 "Group conversation" = "Group conversation";
 
@@ -1343,6 +1346,12 @@
 "Recording" = "Recording";
 
 /* No comment provided by engineer. */
+"Recording consent is required" = "Recording consent is required";
+
+/* No comment provided by engineer. */
+"Recording consent required for joining the call" = "Recording consent required for joining the call";
+
+/* No comment provided by engineer. */
 "Recordings" = "Recordings";
 
 /* No comment provided by engineer. */
@@ -1592,7 +1601,13 @@
 "The call has been running for one hour" = "The call has been running for one hour";
 
 /* No comment provided by engineer. */
+"The call might be recorded" = "The call might be recorded";
+
+/* No comment provided by engineer. */
 "The password is wrong" = "The password is wrong";
+
+/* No comment provided by engineer. */
+"The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call." = "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.";
 
 /* No comment provided by engineer. */
 "There is no account for user %@ in server %@ configured in this app." = "There is no account for user %1$@ in server %2$@ configured in this app.";

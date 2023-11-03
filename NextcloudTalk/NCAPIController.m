@@ -1221,7 +1221,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)joinCall:(NSString *)token withCallFlags:(NSInteger)flags silently:(BOOL)silently forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block
+- (NSURLSessionDataTask *)joinCall:(NSString *)token withCallFlags:(NSInteger)flags silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"call/%@", encodedToken];
@@ -1229,6 +1229,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:callAPIVersion forAccount:account];
     NSMutableDictionary *parameters = [NSMutableDictionary new];
     [parameters setObject:@(flags) forKey:@"flags"];
+    [parameters setObject:@(recordingConsent) forKey:@"recordingConsent"];
     if (silently) {
         [parameters setObject:@(silently) forKey:@"silent"];
     }

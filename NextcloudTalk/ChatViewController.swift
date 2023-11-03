@@ -57,7 +57,7 @@ import UIKit
 
     private var lobbyCheckTimer: Timer?
 
-    // MARK: - Video buttons in NavigationBar
+    // MARK: - Call buttons in NavigationBar
 
     func getBarButton(forVideo video: Bool) -> BarButtonItemWithActivity {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
@@ -66,19 +66,40 @@ import UIKit
         let button = BarButtonItemWithActivity(width: 50, with: buttonImage)
         button.innerButton.addAction { [unowned self] in
             button.showIndicator()
-            CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: false, withAccountId: self.room.accountId)
+            startCall(withVideo: video, silently: false, button: button)
         }
 
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySilentCall) {
             let silentCall = UIAction(title: NSLocalizedString("Call without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
                 button.showIndicator()
-                CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: true, withAccountId: self.room.accountId)
+                startCall(withVideo: video, silently: true, button: button)
             }
 
             button.innerButton.menu = UIMenu(children: [silentCall])
         }
 
         return button
+    }
+
+    func startCall(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
+        if self.room.recordingConsent {
+            let alert = UIAlertController(title: "⚠️" + NSLocalizedString("The call might be recorded", comment: ""),
+                                          message: NSLocalizedString("The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.", comment: ""),
+                                          preferredStyle: .alert)
+
+            alert.addAction(.init(title: NSLocalizedString("Give consent and join call", comment: "Give consent to the recording of the call and join that call"), style: .default) { _ in
+                CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: silently, recordingConsent: true, withAccountId: self.room.accountId)
+            })
+
+            alert.addAction(.init(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
+                button.hideIndicator()
+            })
+
+            NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+
+        } else {
+            CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: silently, recordingConsent: false, withAccountId: self.room.accountId)
+        }
     }
 
     private lazy var videoCallButton: BarButtonItemWithActivity = {

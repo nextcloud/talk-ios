@@ -751,7 +751,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 #pragma mark - Call
 
-- (void)startCall:(BOOL)video inRoom:(NCRoom *)room withVideoEnabled:(BOOL)enabled silently:(BOOL)silently andVoiceChatMode:(BOOL)voiceChatMode
+- (void)startCall:(BOOL)video inRoom:(NCRoom *)room withVideoEnabled:(BOOL)enabled silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent andVoiceChatMode:(BOOL)voiceChatMode
 {
     if (!_callViewController) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -759,6 +759,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         _callViewController.videoDisabledAtStart = !enabled;
         _callViewController.voiceChatModeAtStart = voiceChatMode;
         _callViewController.silentCall = silently;
+        _callViewController.recordingConsent = recordingConsent;
         [_callViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         _callViewController.delegate = self;
 
@@ -804,24 +805,24 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }
 }
 
-- (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video
+- (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video recordingConsent:(BOOL)recordingConsent
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName silently:YES withAccountId:activeAccount.accountId];
+            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName silently:YES recordingConsent:recordingConsent withAccountId:activeAccount.accountId];
         }
     }];
 }
 
-- (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video enabledAtStart:(BOOL)enabled silently:(BOOL)silently andVoiceChatMode:(BOOL)voiceChatMode
+- (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video enabledAtStart:(BOOL)enabled silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent andVoiceChatMode:(BOOL)voiceChatMode
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-            [self startCall:video inRoom:room withVideoEnabled:enabled silently:silently andVoiceChatMode:voiceChatMode];
+            [self startCall:video inRoom:room withVideoEnabled:enabled silently:silently recordingConsent:recordingConsent andVoiceChatMode:voiceChatMode];
         }
     }];
 }
@@ -831,7 +832,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     if (_pendingToStartCallToken) {
         // Pending calls can only happen when answering a new call. That's why we start with video disabled at start and in voice chat mode.
         // We also can start call silently because we are joining an already started call so no need to notify.
-        [self startCallWithCallToken:_pendingToStartCallToken withVideo:_pendingToStartCallHasVideo enabledAtStart:NO silently:YES andVoiceChatMode:YES];
+        [self startCallWithCallToken:_pendingToStartCallToken withVideo:_pendingToStartCallHasVideo enabledAtStart:NO silently:YES recordingConsent:NO andVoiceChatMode:YES];
         _pendingToStartCallToken = nil;
     }
 }
@@ -853,7 +854,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         roomController.inCall = NO;
     }
     _upgradeCallToken = room.token;
-    [[CallKitManager sharedInstance] endCall:room.token];
+    [[CallKitManager sharedInstance] endCall:room.token withStatusCode:0];
 }
 
 - (void)leaveCallInRoom:(NSString *)token
@@ -870,7 +871,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     [self leaveCallInRoom:token];
 
-    [[CallKitManager sharedInstance] endCall:token];
+    [[CallKitManager sharedInstance] endCall:token withStatusCode:0];
     
     if ([_chatViewController.room.token isEqualToString:token]) {
         [_chatViewController resumeChat];
@@ -946,7 +947,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         _upgradeCallToken = nil;
         // Add some delay so CallKit doesn't fail requesting new call
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
-            [self joinCallWithCallToken:token withVideo:YES];
+            [self joinCallWithCallToken:token withVideo:YES recordingConsent:YES];
         });
     }
 }
@@ -972,7 +973,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     BOOL activeCalls = [self areThereActiveCalls];
     if (!waitForCallEnd || (!activeCalls && !_leaveRoomTask)) {
         // Calls that have been answered start with video disabled by default, in voice chat mode and silently (without notification).
-        [self startCallWithCallToken:roomToken withVideo:hasVideo enabledAtStart:NO silently:YES andVoiceChatMode:YES];
+        [self startCallWithCallToken:roomToken withVideo:hasVideo enabledAtStart:NO silently:YES recordingConsent:NO andVoiceChatMode:YES];
     } else {
         _pendingToStartCallToken = roomToken;
         _pendingToStartCallHasVideo = hasVideo;
@@ -984,21 +985,22 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     NSString *roomToken = [notification.userInfo objectForKey:@"roomToken"];
     BOOL isVideoEnabled = [[notification.userInfo objectForKey:@"isVideoEnabled"] boolValue];
     BOOL silentCall = [[notification.userInfo objectForKey:@"silentCall"] boolValue];
-    [self startCallWithCallToken:roomToken withVideo:isVideoEnabled enabledAtStart:YES silently:silentCall andVoiceChatMode:NO];
+    BOOL recordingConsent = [[notification.userInfo objectForKey:@"recordingConsent"] boolValue];
+    [self startCallWithCallToken:roomToken withVideo:isVideoEnabled enabledAtStart:YES silently:silentCall recordingConsent:recordingConsent andVoiceChatMode:NO];
 }
 
 - (void)joinAudioCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self checkForAccountChange:pushNotification.accountId];
-    [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO];
+    [self joinCallWithCallToken:pushNotification.roomToken withVideo:NO recordingConsent:NO];
 }
 
 - (void)joinVideoCallAccepted:(NSNotification *)notification
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self checkForAccountChange:pushNotification.accountId];
-    [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES];
+    [self joinCallWithCallToken:pushNotification.roomToken withVideo:YES recordingConsent:NO];
 }
 
 - (void)joinChat:(NSNotification *)notification

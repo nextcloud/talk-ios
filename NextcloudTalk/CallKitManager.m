@@ -397,12 +397,13 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }];
 }
 
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently withAccountId:(NSString *)accountId
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId
 {
     if (![CallKitManager isCallKitAvailable]) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
         [userInfo setValue:@(videoEnabled) forKey:@"isVideoEnabled"];
         [userInfo setValue:@(silently) forKey:@"silentCall"];
+        [userInfo setValue:@(recordingConsent) forKey:@"recordingConsent"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
                                                             object:self
                                                           userInfo:userInfo];
@@ -425,7 +426,8 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         call.accountId = accountId;
         call.update = update;
         call.silentCall = silently;
-        
+        call.recordingConsent = recordingConsent;
+
         CXStartCallAction *startCallAction = [[CXStartCallAction alloc] initWithCallUUID:callUUID handle:handle];
         startCallAction.video = videoEnabled;
         startCallAction.contactIdentifier = displayName;
@@ -448,7 +450,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
                                                                           userInfo:userInfo];
                     } else {
                         self->_startCallRetried = YES;
-                        [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName silently:silently withAccountId:accountId];
+                        [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName silently:silently recordingConsent:recordingConsent withAccountId:accountId];
                     }
                 }
             }];
@@ -464,10 +466,27 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }
 }
 
-- (void)endCall:(NSString *)token
+- (void)presentRecordingConsentRequiredNotificationForCall:(CallKitCall *)call
+{
+    if (call) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
+        [userInfo setValue:call.displayName forKey:@"displayName"];
+        [userInfo setValue:@(kNCLocalNotificationTypeRecordingConsentRequired) forKey:@"localNotificationType"];
+        [userInfo setObject:call.accountId forKey:@"accountId"];
+        [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeRecordingConsentRequired withUserInfo:userInfo];
+    }
+}
+
+- (void)endCall:(NSString *)token withStatusCode:(NSInteger)statusCode
 {
     CallKitCall *call = [self callForToken:token];
     if (call) {
+
+        // Check if recording consent is required
+        if (statusCode == 400) {
+            [self presentRecordingConsentRequiredNotificationForCall:call];
+        }
+
         [self endCallWithUUID:call.uuid];
     }
 }
@@ -529,6 +548,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
         [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
         [userInfo setValue:@(call.silentCall) forKey:@"silentCall"];
+        [userInfo setValue:@(call.recordingConsent) forKey:@"recordingConsent"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
                                                             object:self
                                                           userInfo:userInfo];
