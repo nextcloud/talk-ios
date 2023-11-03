@@ -34,7 +34,8 @@
     item.placeholderImage = placeholderImage;
     item.uploadProgress = 0;
     item.isImage = isImage;
-    
+    item.caption = @"";
+
     return item;
 }
 
