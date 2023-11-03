@@ -1704,7 +1704,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
-            block(reactionsDict, nil, httpResponse.statusCode);
+
+            // When there are no elements, the server returns an empty array instead of an empty dictionary
+            if (![reactionsDict isKindOfClass:[NSDictionary class]]) {
+                block(@{}, nil, httpResponse.statusCode);
+            } else {
+                block(reactionsDict, nil, httpResponse.statusCode);
+            }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
@@ -1729,7 +1735,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSDictionary *reactionsDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         if (block) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
-            block(reactionsDict, nil, httpResponse.statusCode);
+
+            // When there are no elements, the server returns an empty array instead of an empty dictionary
+            if (![reactionsDict isKindOfClass:[NSDictionary class]]) {
+                block(@{}, nil, httpResponse.statusCode);
+            } else {
+                block(reactionsDict, nil, httpResponse.statusCode);
+            }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
