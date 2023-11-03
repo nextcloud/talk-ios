@@ -152,7 +152,7 @@
 {
     if (!_topBorder) {
         _topBorder = [CAGradientLayer layer];
-        _topBorder.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(SLKKeyWindowBounds()), 1);
+        _topBorder.frame = CGRectMake(0.0, 0.0, self.frame.size.width, 1);
         _topBorder.backgroundColor = [UIColor systemGray6Color].CGColor;
     }
     return _topBorder;
