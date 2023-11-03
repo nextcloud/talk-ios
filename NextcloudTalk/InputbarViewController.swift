@@ -56,10 +56,10 @@ import UIKit
         self.view.addSubview(view)
 
         NSLayoutConstraint.activate([
-            view.leftAnchor.constraint(equalTo: self.view.leftAnchor),
-            view.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            view.topAnchor.constraint(equalTo: self.view.topAnchor),
-            view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            view.leftAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leftAnchor),
+            view.rightAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.rightAnchor),
+            view.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            view.bottomAnchor.constraint(equalTo: self.textInputbar.topAnchor)
         ])
 
         // Make sure our contentView does not hide the inputBar and the autocompletionView
@@ -118,6 +118,7 @@ import UIKit
 
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
+        self.navigationController?.navigationBar.isTranslucent = false
         self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
 
         let themeColor: UIColor = NCAppBranding.themeColor()
