@@ -92,11 +92,15 @@
 #import "ShareConfirmationCollectionViewCell.h"
 #import "ShareItem.h"
 #import "ShareItemController.h"
-#import "ShareConfirmationViewController.h"
 #import "ShareLocationViewController.h"
 #import "VoiceMessageTranscribeViewController.h"
 #import "AppDelegate.h"
 #import "DateHeaderView.h"
 #import "RoomInfoTableViewController.h"
+#import "AutoCompletionTableViewCell.h"
+#import "NCKeyChainController.h"
+#import "NCIntentController.h"
+#import "MBProgressHUD.h"
+#import "CCCertificate.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */
