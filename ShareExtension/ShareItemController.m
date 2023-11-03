@@ -32,6 +32,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 
 @property (nonatomic, strong) NSString *tempDirectoryPath;
 @property (nonatomic, strong) NSURL *tempDirectoryURL;
+@property (nonatomic, strong) NSMutableArray *internalShareItems;
 
 @end
 
@@ -41,10 +42,14 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 {
     self = [super init];
     if (self) {
-        self.shareItems = [[NSMutableArray alloc] init];
+        self.internalShareItems = [[NSMutableArray alloc] init];
         [self initTempDirectory];
     }
     return self;
+}
+
+- (NSArray<ShareItem *> *)shareItems {
+    return [self.internalShareItems copy];
 }
 
 - (void)initTempDirectory
@@ -112,7 +117,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     BOOL fileIsImage = (image != nil);
     
     ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:fileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:fileIsImage];
-    [self.shareItems addObject:item];
+    [self.internalShareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
@@ -133,7 +138,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     
     ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:imageName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
 
-    [self.shareItems addObject:item];
+    [self.internalShareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
@@ -171,7 +176,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     
     ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:vCardFileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
 
-    [self.shareItems addObject:item];
+    [self.internalShareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
@@ -210,7 +215,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     
     NSLog(@"Removing shareItem: %@ %@", item.fileName, item.fileURL);
     
-    [self.shareItems removeObject:item];
+    [self.internalShareItems removeObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
@@ -223,11 +228,11 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 
 - (void)removeAllItems
 {
-    for (ShareItem *item in self.shareItems) {
+    for (ShareItem *item in self.internalShareItems) {
         [self cleanupItem:item];
     }
     
-    [self.shareItems removeAllObjects];
+    [self.internalShareItems removeAllObjects];
 }
 
 - (UIImage *)getPlaceholderImageForFileURL:(NSURL *)fileURL

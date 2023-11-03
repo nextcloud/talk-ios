@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ShareItemController : NSObject
 
 @property (nonatomic, weak) id<ShareItemControllerDelegate> delegate;
-@property (strong, nonatomic) NSMutableArray *shareItems;
+@property (strong, nonatomic) NSArray<ShareItem *> *shareItems;
 
 - (void)addItemWithURL:(NSURL *)fileURL;
 - (void)addItemWithURLAndName:(NSURL *)fileURL withName:(NSString *)fileName;
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateItem:(ShareItem *)item withURL:(NSURL *)fileURL;
 - (void)removeItem:(ShareItem *)item;
 - (void)removeAllItems;
-- (UIImage *)getImageFromItem:(ShareItem *)item;
+- (UIImage * _Nullable)getImageFromItem:(ShareItem *)item;
 
 @end
 
