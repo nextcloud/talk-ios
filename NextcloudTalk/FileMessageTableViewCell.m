@@ -190,6 +190,14 @@
     [self clearFileStatusView];
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
+        // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
+        self.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
+    }
+}
+
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
     self.titleLabel.text = message.actorDisplayName;
@@ -272,14 +280,12 @@
     BOOL isVideoFile = [NCUtils isVideoFileType:message.file.mimetype];
     BOOL isMediaFile = isVideoFile || [NCUtils isImageFileType:message.file.mimetype];
 
-    
     NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
     __weak typeof(self) weakSelf = self;
 
     [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:requestedHeight usingAccount:account]
                                      placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
 
-                                       //TODO: How to adjust for dark mode?
                                        weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
                                        weakSelf.previewImageView.layer.borderWidth = 1.0f;
 
