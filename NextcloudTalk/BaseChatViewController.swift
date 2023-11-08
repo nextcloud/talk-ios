@@ -1700,6 +1700,10 @@ import QuickLook
         } else if gestureRecognizer.state == .ended {
             print("Stop recording audio message")
             self.shouldLockInterfaceOrientation(lock: false)
+            if let recordingTime = self.recorder?.currentTime {
+                // Mark record as cancelled if audio message is no longer than one second
+                self.recordCancelled = recordingTime < 1
+            }
             self.stopRecordingVoiceMessage()
         } else if gestureRecognizer.state == .changed {
             guard let longPressStartingPoint,
