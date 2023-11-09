@@ -18,8 +18,53 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-
+import UIKit
+import SwiftUI
 import Dynamic
+
+struct EmojiTextFieldWrapper: UIViewRepresentable {
+    @State var placeholder: String
+    @Binding var text: String
+
+    func makeUIView(context: Context) -> EmojiTextField {
+        let emojiTextField = EmojiTextField()
+        emojiTextField.delegate = context.coordinator
+        return emojiTextField
+    }
+
+    func updateUIView(_ uiView: EmojiTextField, context: Context) {
+        uiView.text = text
+        uiView.placeholder = placeholder
+    }
+
+    func makeCoordinator() -> EmojiTextFieldWrapper.Coordinator {
+        Coordinator(parent: self)
+    }
+
+    class Coordinator: NSObject, UITextFieldDelegate {
+        var parent: EmojiTextFieldWrapper
+
+        init(parent: EmojiTextFieldWrapper) {
+            self.parent = parent
+        }
+
+        func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+            if textField is EmojiTextField {
+                if string.isSingleEmoji == false {
+                    self.parent.text = ""
+                } else {
+                    self.parent.text = string
+                }
+
+                textField.endEditing(true)
+
+                return false
+            }
+
+            return true
+        }
+    }
+}
 
 @objc class EmojiTextField: UITextField {
 

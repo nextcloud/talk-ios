@@ -392,13 +392,15 @@
 		2CCCD21D2835088F00F076CE /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 2CCCD21C2835088F00F076CE /* OpenSSL */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
 		2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */; };
-		2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */; };
-		2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */; };
 		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
 		2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */; };
 		2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */; };
 		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
+		807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */; };
+		80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */; };
+		80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */; };
+		80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
 		DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */; };
@@ -409,7 +411,6 @@
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
 		DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */; };
 		DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558122790D65700A48A1B /* AccountTableViewCell.swift */; };
-		DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */; };
 		DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */; };
 		DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */; };
 /* End PBXBuildFile section */
@@ -882,8 +883,6 @@
 		2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenConversationsTableViewController.swift; sourceTree = "<group>"; };
 		2CEA990828B8B5780029216A /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header.h"; sourceTree = "<group>"; };
-		2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageViewController.swift; sourceTree = "<group>"; };
-		2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserStatusMessageViewController.xib; sourceTree = "<group>"; };
 		2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+Extensions.swift"; sourceTree = "<group>"; };
 		2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTranslationViewController.swift; sourceTree = "<group>"; };
 		2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageTranslationViewController.xib; sourceTree = "<group>"; };
@@ -893,6 +892,9 @@
 		4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		584BF273DF09DE4D5EE0DA0F /* Pods-ShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		684807120F4439797973DF73 /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusOptionsSwiftUI.swift; sourceTree = "<group>"; };
+		80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusSwiftUIView.swift; sourceTree = "<group>"; };
+		80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageSwiftUIView.swift; sourceTree = "<group>"; };
 		95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -905,7 +907,6 @@
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsTableViewCell.swift; sourceTree = "<group>"; };
 		DA7558122790D65700A48A1B /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
-		DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -932,6 +933,7 @@
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
+				80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
@@ -1344,7 +1346,8 @@
 				DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */,
 				2C78E9E125120DE500E3D4CA /* NCUserStatus.h */,
 				2C78E9E225120DE500E3D4CA /* NCUserStatus.m */,
-				DA7558C5279AE67F00A48A1B /* UserStatusTableViewController.swift */,
+				807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */,
+				80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */,
 				DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */,
 				DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */,
 				DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */,
@@ -1356,8 +1359,7 @@
 				2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */,
 				2C444701265D641300DF1DBC /* NCUserDefaults.h */,
 				2C444702265D641300DF1DBC /* NCUserDefaults.m */,
-				2CEDA88726F10BB20044552B /* UserStatusMessageViewController.swift */,
-				2CEDA88826F10BB20044552B /* UserStatusMessageViewController.xib */,
+				80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -1723,6 +1725,7 @@
 				1F0ECBFC2A73F21A00921E90 /* Realm */,
 				1FAB2E7C2AC99326001214EB /* TOCropViewController */,
 				1FAB2E872ACD44D0001214EB /* WebRTC */,
+				80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1866,6 +1869,7 @@
 				1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */,
 				1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */,
+				80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -1905,7 +1909,6 @@
 				1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */,
 				1F66B72129FA7089003FB168 /* TypingIndicatorView.xib in Resources */,
 				2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */,
-				2CEDA88A26F10BB20044552B /* UserStatusMessageViewController.xib in Resources */,
 				2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */,
 				2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */,
 				2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */,
@@ -2145,7 +2148,6 @@
 				1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */,
 				1F35F8FB2AEEDBC600044BDA /* ChatViewControllerExtension.swift in Sources */,
-				DA7558C6279AE67F00A48A1B /* UserStatusTableViewController.swift in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
@@ -2245,6 +2247,7 @@
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
 				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */,
+				807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */,
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
@@ -2255,7 +2258,6 @@
 				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
-				2CEDA88926F10BB20044552B /* UserStatusMessageViewController.swift in Sources */,
 				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
@@ -2281,6 +2283,7 @@
 				2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */,
 				2CC32E8D27F4540E00BB8C39 /* ReactionsView.swift in Sources */,
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
+				80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
 				2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */,
@@ -2305,6 +2308,7 @@
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
 				1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */,
+				80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */,
 				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
@@ -3276,6 +3280,14 @@
 				version = 1.1.1700;
 			};
 		};
+		80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -3393,6 +3405,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */;
 			productName = OpenSSL;
+		};
+		80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

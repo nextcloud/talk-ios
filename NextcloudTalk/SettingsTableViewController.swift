@@ -22,6 +22,7 @@
 import UIKit
 import NextcloudKit
 import SafariServices
+import SwiftUI
 
 enum SettingsSection: Int {
     case kSettingsSectionUser = 0
@@ -316,13 +317,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         let userProfileVC = UserProfileTableViewController(withAccount: activeAccount)
         self.navigationController?.pushViewController(userProfileVC, animated: true)
     }
-
-    // MARK: User Status
+    
+    // MARK: User Status (SwiftUI)
 
     func presentUserStatusOptions() {
         if let activeUserStatus = activeUserStatus {
-            let viewController = UserStatusTableViewController(userStatus: activeUserStatus)
-            self.navigationController?.pushViewController(viewController, animated: true)
+            let userStatusView = UserStatusSwiftUIView(userStatus: activeUserStatus)
+            let hostingController = UIHostingController(rootView: userStatusView)
+            self.present(hostingController, animated: true)
         }
     }
 
