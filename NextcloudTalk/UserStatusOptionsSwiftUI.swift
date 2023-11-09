@@ -59,7 +59,7 @@ struct UserStatusOptionsSwiftUI: View {
                     }
                 }
             }
-            .navigationBarTitle(Text(NSLocalizedString("Online Status", comment: "")), displayMode: .inline)
+            .navigationBarTitle(Text(NSLocalizedString("Online status", comment: "")), displayMode: .inline)
             .navigationBarHidden(false)
         .onAppear {
             getActiveUserStatus()

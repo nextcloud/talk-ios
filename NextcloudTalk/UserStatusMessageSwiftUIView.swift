@@ -248,7 +248,7 @@ struct UserStatusMessageSwiftUIView: View {
                 dismiss()
                 changed.toggle()
             } else {
-                triggerErrorAlert(title: NSLocalizedString("Could not clear status message", comment: ""), message: NSLocalizedString("Could not clear status message", comment: ""))
+                triggerErrorAlert(title: NSLocalizedString("Could not clear status message", comment: ""), message: NSLocalizedString("An error occurred while clearing status message", comment: ""))
             }
         }
     }
