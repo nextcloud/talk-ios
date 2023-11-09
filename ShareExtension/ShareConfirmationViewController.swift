@@ -351,6 +351,7 @@ import AVFoundation
 
         if !captionAllowed {
             self.navigationItem.rightBarButtonItem = self.sendButton
+            self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
             self.setTextInputbarHidden(true, animated: false)
         } else {
             let silentSendAction = UIAction(title: NSLocalizedString("Send without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
