@@ -65,7 +65,7 @@ import Foundation
 
     func handleTap() {
         if let url = url {
-            NCUtils.openLink(inBrowser: url)
+            NCUtils.openLinkInBrowser(link: url)
         }
     }
 
@@ -98,7 +98,7 @@ import Foundation
             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
 
             if let date = dateFormatter.date(from: dueDateString) {
-                referenceDueDate.text = NCUtils.readableDateTime(from: date)
+                referenceDueDate.text = NCUtils.readableDateTime(fromDate: date)
             }
 
             // Date format was fixed in https://github.com/nextcloud/deck/pull/4115
@@ -106,7 +106,7 @@ import Foundation
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
 
             if let date = dateFormatter.date(from: dueDateString) {
-                referenceDueDate.text = NCUtils.readableDateTime(from: date)
+                referenceDueDate.text = NCUtils.readableDateTime(fromDate: date)
             }
 
         } else {

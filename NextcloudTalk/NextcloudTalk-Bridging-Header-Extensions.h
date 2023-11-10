@@ -35,7 +35,6 @@
 #import "ReplyMessageView.h"
 #import "NCSettingsController.h"
 #import "ChatMessageTableViewCell.h"
-#import "NCUtils.h"
 #import "AutoCompletionTableViewCell.h"
 #import "NCKeyChainController.h"
 #import "CCCertificate.h"

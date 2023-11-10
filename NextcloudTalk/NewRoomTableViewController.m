@@ -29,7 +29,6 @@
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "RoomCreationTableViewController.h"
 #import "RoomCreation2TableViewController.h"

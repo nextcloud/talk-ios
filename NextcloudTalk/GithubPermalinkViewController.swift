@@ -132,7 +132,7 @@ import SwiftyAttributes
 
     func githubButtonPressed() {
         if let url = self.url {
-            NCUtils.openLink(inBrowser: url)
+            NCUtils.openLinkInBrowser(link: url)
         }
     }
 

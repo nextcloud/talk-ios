@@ -25,7 +25,6 @@
 #import "CallViewController.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
-#import "NCUtils.h"
 
 #import "NextcloudTalk-Swift.h"
 

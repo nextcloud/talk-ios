@@ -120,7 +120,7 @@ import UIKit
     }
 
     func setSelectedColor(color: UIColor) {
-        self.selectedColor = NCUtils.hexString(from: color)
+        self.selectedColor = NCUtils.hexString(fromColor: color)
         self.emojiBackgroundView.backgroundColor = color
     }
 

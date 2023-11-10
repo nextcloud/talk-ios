@@ -132,6 +132,9 @@
 		1FDCC3F029ECB4CE00DEB39B /* AvatarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */; };
 		1FDDB0D92AF440DD00FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0D82AF440DD00FBAFB7 /* BoundsChangedFlowLayout.swift */; };
 		1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0D82AF440DD00FBAFB7 /* BoundsChangedFlowLayout.swift */; };
+		1FDDB0E52AFD046600FBAFB7 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
+		1FDDB0E72AFE87B900FBAFB7 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
+		1FDDB0EB2AFE8FC000FBAFB7 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
 		1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDE7C9928DE14A200CB718E /* ReferenceView.swift */; };
 		1FDE7C9C28DE14B000CB718E /* ReferenceView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */; };
 		1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */; };
@@ -246,7 +249,6 @@
 		2C5BFBFB2891598A00E75118 /* PollResultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */; };
 		2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */; };
 		2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */; };
-		2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C62AFB624C1A449007E460A /* Share.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C62AFB524C1A449007E460A /* Share.storyboard */; };
@@ -263,7 +265,6 @@
 		2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
 		2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
-		2C62B02624C1BDCF007E460A /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
 		2C69323D2923ECAA00017AD2 /* WSMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C69323C2923ECAA00017AD2 /* WSMessage.m */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
@@ -361,7 +362,6 @@
 		2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
 		2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
-		2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E957B227097E0009CA9BE /* NCUtils.m */; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
 		2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */; };
 		2CC007B920D8139D0096D91F /* RoomCreationTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */; };
@@ -520,6 +520,8 @@
 		1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header-Extensions.h"; sourceTree = "<group>"; };
 		1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvatarButton.swift; sourceTree = "<group>"; };
 		1FDDB0D82AF440DD00FBAFB7 /* BoundsChangedFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundsChangedFlowLayout.swift; sourceTree = "<group>"; };
+		1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUtils.swift; sourceTree = "<group>"; };
+		1FDDB0E82AFE8F5C00FBAFB7 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		1FDE7C9928DE14A200CB718E /* ReferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceView.swift; sourceTree = "<group>"; };
 		1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReferenceView.xib; sourceTree = "<group>"; };
 		1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceTalkView.xib; sourceTree = "<group>"; };
@@ -652,8 +654,6 @@
 		2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultTableViewCell.swift; sourceTree = "<group>"; };
 		2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollResultTableViewCell.xib; sourceTree = "<group>"; };
 		2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollResultsDetailsViewController.swift; sourceTree = "<group>"; };
-		2C5E957B227097E0009CA9BE /* NCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCUtils.m; sourceTree = "<group>"; };
-		2C5E957C227097E0009CA9BE /* NCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCUtils.h; sourceTree = "<group>"; };
 		2C604A2A25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2C604A2B25E4556E00F23615 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C604A2C25E455AC00F23615 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1334,8 +1334,7 @@
 				2C2A788D2359CC8800EEB797 /* NCAppBranding.m */,
 				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
 				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
-				2C5E957C227097E0009CA9BE /* NCUtils.h */,
-				2C5E957B227097E0009CA9BE /* NCUtils.m */,
+				1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */,
 				DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */,
 				1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */,
 				1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */,
@@ -1500,6 +1499,7 @@
 		2C90E5621EDDE0FB0093D85A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1FDDB0E82AFE8F5C00FBAFB7 /* MobileCoreServices.framework */,
 				2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */,
 				1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */,
 				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
@@ -2169,7 +2169,6 @@
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
 				2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */,
-				2C5E957D227097E0009CA9BE /* NCUtils.m in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
@@ -2268,6 +2267,7 @@
 				1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
+				1FDDB0E52AFD046600FBAFB7 /* NCUtils.swift in Sources */,
 				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
@@ -2333,7 +2333,6 @@
 				2C4446F7265D593300DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
 				1F35F90B2AEEE76C00044BDA /* ReplyMessageView.m in Sources */,
 				2C444700265D5EB200DF1DBC /* NCPushProxySessionManager.m in Sources */,
-				2C62B02624C1BDCF007E460A /* NCUtils.m in Sources */,
 				1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				1F35F8F12AEEC25B00044BDA /* TypingIndicatorView.swift in Sources */,
 				2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */,
@@ -2353,6 +2352,7 @@
 				1F35F90A2AEEE76A00044BDA /* QuotedMessageView.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
 				2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */,
+				1FDDB0E72AFE87B900FBAFB7 /* NCUtils.swift in Sources */,
 				1FDCC3ED29EC7E6700DEB39B /* AvatarImageView.swift in Sources */,
 				1F35F8E32AEEBBE000044BDA /* NCChatTitleView.m in Sources */,
 				1FDCC3EE29EC7E8500DEB39B /* AvatarManager.swift in Sources */,
@@ -2405,10 +2405,10 @@
 				2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */,
 				2C4446D42658147900DF1DBC /* TalkAccount.m in Sources */,
 				1FDCC3E329EC787400DEB39B /* AvatarManager.swift in Sources */,
-				2CC001DD24A37AD400A20167 /* NCUtils.m in Sources */,
 				2C4446FF265D5EB100DF1DBC /* NCPushProxySessionManager.m in Sources */,
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
 				1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
+				1FDDB0EB2AFE8FC000FBAFB7 /* NCUtils.swift in Sources */,
 				2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */,

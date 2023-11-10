@@ -478,7 +478,7 @@ class DiagnosticsTableViewController: UITableViewController {
             if account.lastPushSubscription > 0 {
                 let lastSubsctiptionString = NSLocalizedString("Last subscription", comment: "Last subscription to the push notification server")
                 let lastTime = NSDate(timeIntervalSince1970: TimeInterval(account.lastPushSubscription))
-                cell.detailTextLabel?.text = lastSubsctiptionString + ": " + NCUtils.readableDateTime(from: lastTime as Date)
+                cell.detailTextLabel?.text = lastSubsctiptionString + ": " + NCUtils.readableDateTime(fromDate: lastTime as Date)
             } else {
                 cell.detailTextLabel?.text = NSLocalizedString("Never subscribed", comment: "Never subscribed to the push notification server")
             }

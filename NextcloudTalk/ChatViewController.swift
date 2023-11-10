@@ -355,7 +355,7 @@ import UIKit
             // Lobby timer
             if self.room.lobbyTimer > 0 {
                 let date = Date(timeIntervalSince1970: TimeInterval(self.room.lobbyTimer))
-                let meetingStart = NCUtils.readableDateTime(from: date)
+                let meetingStart = NCUtils.readableDateTime(fromDate: date)
                 let meetingStartPlaceholder = NSLocalizedString("This meeting is scheduled for", comment: "The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00)")
                 placeholderText += "\n\n\(meetingStartPlaceholder)\n\(meetingStart)"
             }
@@ -844,7 +844,7 @@ import UIKit
 
                     self.tableView?.reloadData()
 
-                    if NCUtils.isValidIndexPath(lastHistoryMessageIP, for: tableView) {
+                    if NCUtils.isValid(indexPath: lastHistoryMessageIP, forTableView: tableView) {
                         self.tableView?.scrollToRow(at: lastHistoryMessageIP, at: .top, animated: false)
                     }
                 }
@@ -1309,39 +1309,39 @@ import UIKit
         }
 
         // Today
-        let laterTodayTime = NCUtils.today(withHour: 18, withMinute: 0, withSecond: 0)
-        let laterToday = UIAction(title: NSLocalizedString("Later today", comment: "Remind me later today about that message"), subtitle: NCUtils.getTimeFrom(laterTodayTime)) { _ in
+        let laterTodayTime = NCUtils.today(withHour: 18, withMinute: 0, withSecond: 0)!
+        let laterToday = UIAction(title: NSLocalizedString("Later today", comment: "Remind me later today about that message"), subtitle: NCUtils.getTime(fromDate: laterTodayTime)) { _ in
             let timestamp = String(Int(laterTodayTime.timeIntervalSince1970))
             NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
         }
 
         // Tomorrow
-        var tomorrowTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)
+        var tomorrowTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
         tomorrowTime = Calendar.current.date(byAdding: .day, value: 1, to: tomorrowTime)!
         let tomorrow = UIAction(title: NSLocalizedString("Tomorrow", comment: "Remind me tomorrow about that message")) { _ in
             let timestamp = String(Int(tomorrowTime.timeIntervalSince1970))
             NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
         }
-        tomorrow.subtitle = "\(formatter.string(from: tomorrowTime)), \(NCUtils.getTimeFrom(tomorrowTime))"
+        tomorrow.subtitle = "\(formatter.string(from: tomorrowTime)), \(NCUtils.getTime(fromDate: tomorrowTime))"
 
         // This weekend
-        var weekendTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)
-        weekendTime = NCUtils.setWeekday(saturday, with: weekendTime)
+        var weekendTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+        weekendTime = NCUtils.setWeekday(saturday, withDate: weekendTime)
         let thisWeekend = UIAction(title: NSLocalizedString("This weekend", comment: "Remind me this weekend about that message")) { _ in
             let timestamp = String(Int(weekendTime.timeIntervalSince1970))
             NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
         }
-        thisWeekend.subtitle = "\(formatter.string(from: weekendTime)), \(NCUtils.getTimeFrom(weekendTime))"
+        thisWeekend.subtitle = "\(formatter.string(from: weekendTime)), \(NCUtils.getTime(fromDate: weekendTime))"
 
         // Next week
-        var nextWeekTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)
+        var nextWeekTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
         nextWeekTime = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: nextWeekTime)!
-        nextWeekTime = NCUtils.setWeekday(monday, with: nextWeekTime)
+        nextWeekTime = NCUtils.setWeekday(monday, withDate: nextWeekTime)
         let nextWeek = UIAction(title: NSLocalizedString("Next week", comment: "Remind me next week about that message")) { _ in
             let timestamp = String(Int(nextWeekTime.timeIntervalSince1970))
             NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
         }
-        nextWeek.subtitle = "\(formatter.string(from: nextWeekTime)), \(NCUtils.getTimeFrom(nextWeekTime))"
+        nextWeek.subtitle = "\(formatter.string(from: nextWeekTime)), \(NCUtils.getTime(fromDate: nextWeekTime))"
 
         // Custom reminder
         let customReminderAction = UIAction(title: NSLocalizedString("Pick date & time", comment: ""), image: .init(systemName: "calendar.badge.clock")) { [weak self] _ in
@@ -1544,7 +1544,7 @@ import UIKit
                                 }
                             }
                         }
-                        clearAction.subtitle = NCUtils.readableDateTime(from: timestampDate)
+                        clearAction.subtitle = NCUtils.readableDateTime(fromDate: timestampDate)
                         clearAction.attributes = .destructive
 
                         menuOptions.append(UIMenu(options: .displayInline, children: [clearAction]))

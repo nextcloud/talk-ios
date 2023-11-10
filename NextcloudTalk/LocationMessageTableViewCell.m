@@ -28,7 +28,6 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCUtils.h"
 
 #import "NextcloudTalk-Swift.h"
 

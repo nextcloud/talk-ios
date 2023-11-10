@@ -32,7 +32,6 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCUtils.h"
 
 @interface LoginViewController () <UITextFieldDelegate, CCCertificateDelegate, AuthenticationViewControllerDelegate, QRCodeLoginControllerDelegate, DetailedOptionsSelectorTableViewControllerDelegate>
 {

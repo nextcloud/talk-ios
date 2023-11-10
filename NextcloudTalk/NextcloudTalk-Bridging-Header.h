@@ -47,7 +47,6 @@
 #import "NCUserDefaults.h"
 #import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
-#import "NCUtils.h"
 #import "NotificationCenterNotifications.h"
 #import "MapViewController.h"
 #import "PlaceholderView.h"

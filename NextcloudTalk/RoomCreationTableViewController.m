@@ -25,7 +25,6 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "RoomCreation2TableViewController.h"

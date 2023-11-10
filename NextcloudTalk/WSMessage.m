@@ -21,7 +21,7 @@
  */
 
 #import "WSMessage.h"
-#import "NCUtils.h"
+#import "NextcloudTalk-Swift.h"
 
 static NSTimeInterval kSendMessageTimeoutInterval = 15;
 

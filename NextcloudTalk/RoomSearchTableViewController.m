@@ -29,7 +29,6 @@
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "NCSettingsController.h"
-#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "RoomTableViewCell.h"
 

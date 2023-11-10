@@ -86,7 +86,7 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
         }
 
         self.navigationItem.searchController = searchController
-        self.navigationItem.searchController?.searchBar.searchTextField.backgroundColor = NCUtils.searchbarBGColor(for: NCAppBranding.themeColor())
+        self.navigationItem.searchController?.searchBar.searchTextField.backgroundColor = NCUtils.searchbarBGColor(forColor: NCAppBranding.themeColor())
         // Fix uisearchcontroller animation
         self.extendedLayoutIncludesOpaqueBars = true
     }
