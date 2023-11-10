@@ -733,7 +733,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
             } else {
                 cell.textLabel?.text = NSLocalizedString("Fetching status …", comment: "")
             }
-            cell.accessoryType = .disclosureIndicator
             return cell
         case SettingsSection.kSettingsSectionAccountSettings.rawValue:
             cell = userSettingsCell(for: indexPath)
