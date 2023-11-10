@@ -85,6 +85,7 @@ struct UserStatusSwiftUIView: View {
             navController.navigationBar.compactAppearance = appearance
             navController.navigationBar.scrollEdgeAppearance = appearance
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .tint(Color(NCAppBranding.themeTextColor()))
         .onAppear {
             getUserStatus()
