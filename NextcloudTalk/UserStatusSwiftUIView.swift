@@ -23,6 +23,10 @@ import UIKit
 import SwiftUI
 import SwiftUIIntrospect
 
+protocol UserStatusViewDelegate{
+    func userStatusViewDidDisappear()
+}
+
 struct UserStatusSwiftUIView: View {
 
     @Environment(\.dismiss) var dismiss
@@ -32,6 +36,8 @@ struct UserStatusSwiftUIView: View {
     init(userStatus: NCUserStatus) {
         _userStatus = State(initialValue: userStatus)
     }
+
+    var delegate: UserStatusViewDelegate?
 
     var body: some View {
         NavigationView {
@@ -89,6 +95,10 @@ struct UserStatusSwiftUIView: View {
                 changed = false
             }
         }
+        .onDisappear {
+            delegate?.userStatusViewDidDisappear()
+        }
+
     }
 
     func getUserStatus() {

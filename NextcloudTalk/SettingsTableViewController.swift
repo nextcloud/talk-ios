@@ -58,7 +58,7 @@ enum AboutSection: Int {
     case kAboutSectionNumber
 }
 
-class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
+class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate {
     let kPhoneTextFieldTag = 99
     let kUserSettingsCellIdentifier = "UserSettingsCellIdentifier"
     let kUserSettingsTableCellNibName = "UserSettingsTableViewCell"
@@ -317,15 +317,20 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
         let userProfileVC = UserProfileTableViewController(withAccount: activeAccount)
         self.navigationController?.pushViewController(userProfileVC, animated: true)
     }
-    
+
     // MARK: User Status (SwiftUI)
 
     func presentUserStatusOptions() {
         if let activeUserStatus = activeUserStatus {
-            let userStatusView = UserStatusSwiftUIView(userStatus: activeUserStatus)
+            var userStatusView = UserStatusSwiftUIView(userStatus: activeUserStatus)
+            userStatusView.delegate = self
             let hostingController = UIHostingController(rootView: userStatusView)
             self.present(hostingController, animated: true)
         }
+    }
+
+    func userStatusViewDidDisappear() {
+        self.getActiveUserStatus()
     }
 
     // MARK: User phone number
