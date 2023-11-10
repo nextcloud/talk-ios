@@ -155,6 +155,8 @@ struct UserStatusMessageSwiftUIView: View {
                         }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(uiColor: .systemGroupedBackground))
         .navigationBarTitle(Text(NSLocalizedString("Status message", comment: "")), displayMode: .inline)
         .navigationBarHidden(false)
         .onAppear {
