@@ -27,29 +27,8 @@
 
 @implementation NCUserDefaults
 
-NSString * const kNCUserDefaultBrowser          = @"ncUserDefaultBrowser";
 NSString * const kNCPreferredCameraFlashMode    = @"ncPreferredCameraFlashMode";
 NSString * const kNCBackgroundBlurEnabled       = @"ncBackgroundBlurEnabled";
-
-+ (void)setDefaultBrowser:(NSString *)defaultBrowser
-{
-    [[NSUserDefaults standardUserDefaults] setObject:defaultBrowser forKey:kNCUserDefaultBrowser];
-}
-
-+ (NSString *)defaultBrowser
-{
-    NSString *browser = [[NSUserDefaults standardUserDefaults] objectForKey:kNCUserDefaultBrowser];
-    if (!browser) {
-        browser = @"Safari";
-        // Legacy
-        NSString *oldDefaultBrowser = [[NCKeyChainController sharedInstance].keychain stringForKey:kNCUserDefaultBrowser];
-        if (oldDefaultBrowser) {
-            browser = oldDefaultBrowser;
-        }
-        [[NSUserDefaults standardUserDefaults] setObject:browser forKey:kNCUserDefaultBrowser];
-    }
-    return browser;
-}
 
 + (void)setPreferredCameraFlashMode:(NSInteger)flashMode
 {

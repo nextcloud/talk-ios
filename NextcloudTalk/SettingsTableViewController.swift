@@ -43,7 +43,6 @@ enum AccountSettingsOptions: Int {
 
 enum ConfigurationSectionOption: Int {
     case kConfigurationSectionOptionVideo = 0
-    case kConfigurationSectionOptionBrowser
 }
 
 enum AdvancedSectionOption: Int {
@@ -217,11 +216,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         // Video quality
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue)
-
-        // Open links in
-        if NCSettingsController.sharedInstance().supportedBrowsers.count > 1 {
-            options.append(ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue)
-        }
 
         return options
     }
@@ -454,29 +448,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         optionsActionSheet.popoverPresentationController?.sourceView = self.tableView
         optionsActionSheet.popoverPresentationController?.sourceRect = self.tableView.rectForRow(at: videoConfIndexPath)
 
-        self.present(optionsActionSheet, animated: true, completion: nil)
-    }
-
-    func presentBrowserSelector() {
-        guard let supportedBrowsers = NCSettingsController.sharedInstance().supportedBrowsers else {return}
-        let browserConfIndexPath = self.getIndexPathForConfigurationOption(option: ConfigurationSectionOption.kConfigurationSectionOptionBrowser)
-        let supportedBrowsersUnwrapped: [String] = supportedBrowsers.compactMap({$0 as? String})
-        let defaultBrowser = NCUserDefaults.defaultBrowser()
-        let optionsActionSheet = UIAlertController(title: NSLocalizedString("Open links in", comment: ""), message: nil, preferredStyle: .actionSheet)
-        supportedBrowsersUnwrapped.forEach { browser in
-            let action = UIAlertAction(title: browser, style: .default) { _ in
-                NCUserDefaults.setDefaultBrowser(browser)
-                self.tableView.reloadData()
-            }
-            if browser == defaultBrowser {
-                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_: .alwaysOriginal), forKey: "image")
-            }
-            optionsActionSheet.addAction(action)
-        }
-        optionsActionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
-        // Presentation on iPads
-        optionsActionSheet.popoverPresentationController?.sourceView = self.tableView
-        optionsActionSheet.popoverPresentationController?.sourceRect = self.tableView.rectForRow(at: browserConfIndexPath)
         self.present(optionsActionSheet, animated: true, completion: nil)
     }
 
@@ -779,8 +750,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         switch option {
         case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
             self.presentVideoResoultionsSelector()
-        case ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue:
-            self.presentBrowserSelector()
         default:
             break
         }
@@ -927,7 +896,6 @@ extension SettingsTableViewController {
 
     func sectionConfigurationCell(for indexPath: IndexPath) -> UITableViewCell {
         let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
-        let browserConfigurationCellIdentifier = "BrowserConfigurationCellIdentifier"
         let options = getConfigurationSectionOptions()
         let option = options[indexPath.row]
         var cell = UITableViewCell()
@@ -943,16 +911,6 @@ extension SettingsTableViewController {
             resolutionLabel.textColor = .secondaryLabel
             resolutionLabel.sizeToFit()
             cell.accessoryView = resolutionLabel
-        case ConfigurationSectionOption.kConfigurationSectionOptionBrowser.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: browserConfigurationCellIdentifier)
-            cell.textLabel?.text = NSLocalizedString("Open links in", comment: "")
-            cell.imageView?.image = UIImage(systemName: "network")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = .secondaryLabel
-            let browserLabel = UILabel()
-            browserLabel.text = NCUserDefaults.defaultBrowser()
-            browserLabel.textColor = .secondaryLabel
-            browserLabel.sizeToFit()
-            cell.accessoryView = browserLabel
         default:
             break
         }

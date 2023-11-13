@@ -32,7 +32,6 @@
 #import <openssl/err.h>
 
 #import "JDStatusBarNotification.h"
-#import "OpenInFirefoxControllerObjC.h"
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -109,7 +108,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         [self configureDatabase];
         [self createAccountsFile];
         [self checkStoredDataInKechain];
-        [self configureAppSettings];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRevokedResponseReceived:) name:NCTokenRevokedResponseReceivedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(upgradeRequiredResponseReceived:) name:NCUpgradeRequiredResponseReceivedNotification object:nil];
@@ -462,29 +460,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     if (inactiveAccounts.count > 0) {
         TalkAccount *inactiveAccount = [inactiveAccounts objectAtIndex:0];
         [self setActiveAccountWithAccountId:inactiveAccount.accountId];
-    }
-}
-
-#pragma mark - App settings
-
-- (void)configureAppSettings
-{
-    [self configureDefaultBrowser];
-}
-
-#pragma mark - Default browser
-
-- (void)configureDefaultBrowser
-{
-    // Check supported browsers
-    NSMutableArray *supportedBrowsers = [[NSMutableArray alloc] initWithObjects:@"Safari", nil];
-    if ([[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
-        [supportedBrowsers addObject:@"Firefox"];
-    }
-    _supportedBrowsers = supportedBrowsers;
-    // Check if default browser is valid
-    if (![supportedBrowsers containsObject:[NCUserDefaults defaultBrowser]]) {
-        [NCUserDefaults setDefaultBrowser:@"Safari"];
     }
 }
 

@@ -253,8 +253,6 @@
 		2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */; };
 		2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446F2265D51A600DF1DBC /* NCPushNotificationsUtils.m */; };
 		2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
-		2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
-		2C4446F7265D593300DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
 		2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
 		2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
@@ -284,7 +282,6 @@
 		2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D701F309DA500FF4A0D /* RTCSessionDescription+JSON.m */; };
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
 		2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
-		2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */; };
 		2C57CD8428C2255000B22E03 /* PollCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C57CD8328C2255000B22E03 /* PollCreationViewController.swift */; };
 		2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */; };
 		2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */; };
@@ -713,8 +710,6 @@
 		2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDUtilities.m; sourceTree = "<group>"; };
 		2C4DE9F021F732B40096940D /* NCAudioController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAudioController.h; sourceTree = "<group>"; };
 		2C4DE9F121F732B40096940D /* NCAudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAudioController.m; sourceTree = "<group>"; };
-		2C4E758D214B942D003910D5 /* OpenInFirefoxControllerObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenInFirefoxControllerObjC.h; sourceTree = "<group>"; };
-		2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenInFirefoxControllerObjC.m; sourceTree = "<group>"; };
 		2C57CD8228C204C600B22E03 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C57CD8328C2255000B22E03 /* PollCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollCreationViewController.swift; sourceTree = "<group>"; };
 		2C57CD8528CB3FAF00B22E03 /* eu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = eu; path = eu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -1244,7 +1239,6 @@
 			children = (
 				2CC1C37F29C0945600C8436B /* DRCellSlideGestureRecognizer */,
 				2CB302F92264775E0053078A /* SlackTextViewController */,
-				2C4E758C214B942D003910D5 /* Firefox */,
 				2C4D7D601F2F7C2C00FF4A0D /* AppRTC */,
 			);
 			name = ThirdParty;
@@ -1330,16 +1324,6 @@
 			);
 			name = AppRTC;
 			path = ThirdParty/AppRTC;
-			sourceTree = "<group>";
-		};
-		2C4E758C214B942D003910D5 /* Firefox */ = {
-			isa = PBXGroup;
-			children = (
-				2C4E758D214B942D003910D5 /* OpenInFirefoxControllerObjC.h */,
-				2C4E758E214B942D003910D5 /* OpenInFirefoxControllerObjC.m */,
-			);
-			name = Firefox;
-			path = ThirdParty/Firefox;
 			sourceTree = "<group>";
 		};
 		2C5521661F7D47A50077E587 /* Rooms */ = {
@@ -2438,7 +2422,6 @@
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
 				2CC007B820D8139D0096D91F /* RoomCreationTableViewController.m in Sources */,
 				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
-				2C4E758F214B942D003910D5 /* OpenInFirefoxControllerObjC.m in Sources */,
 				2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
@@ -2566,7 +2549,6 @@
 				1F35F8EB2AEEBC1100044BDA /* UIResponder+SLKAdditions.m in Sources */,
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
 				2C1ABD8625769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
-				2C4446F7265D593300DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
 				1F35F90B2AEEE76C00044BDA /* ReplyMessageView.m in Sources */,
 				2C444700265D5EB200DF1DBC /* NCPushProxySessionManager.m in Sources */,
 				1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */,
@@ -2645,7 +2627,6 @@
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
 				1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				1FDDB0EB2AFE8FC000FBAFB7 /* NCUtils.swift in Sources */,
-				2C4446F6265D593200DF1DBC /* OpenInFirefoxControllerObjC.m in Sources */,
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
