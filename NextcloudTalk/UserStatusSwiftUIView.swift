@@ -23,6 +23,10 @@ import UIKit
 import SwiftUI
 import SwiftUIIntrospect
 
+protocol UserStatusViewDelegate: AnyObject {
+    func userStatusViewDidDisappear()
+}
+
 struct UserStatusSwiftUIView: View {
 
     @Environment(\.dismiss) var dismiss
@@ -32,6 +36,8 @@ struct UserStatusSwiftUIView: View {
     init(userStatus: NCUserStatus) {
         _userStatus = State(initialValue: userStatus)
     }
+
+    weak var delegate: UserStatusViewDelegate?
 
     var body: some View {
         NavigationView {
@@ -75,10 +81,12 @@ struct UserStatusSwiftUIView: View {
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = NCAppBranding.themeColor()
             appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+            navController.navigationBar.tintColor = NCAppBranding.themeTextColor()
             navController.navigationBar.standardAppearance = appearance
             navController.navigationBar.compactAppearance = appearance
             navController.navigationBar.scrollEdgeAppearance = appearance
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .tint(Color(NCAppBranding.themeTextColor()))
         .onAppear {
             getUserStatus()
@@ -89,6 +97,10 @@ struct UserStatusSwiftUIView: View {
                 changed = false
             }
         }
+        .onDisappear {
+            delegate?.userStatusViewDidDisappear()
+        }
+
     }
 
     func getUserStatus() {

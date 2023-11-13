@@ -137,8 +137,9 @@ struct UserStatusMessageSwiftUIView: View {
                                                 action: setActiveUserStatus,
                                                 style: .primary, height: 40,
                                                 disabled: Binding.constant(selectedMessage.isEmpty))
+                                .padding(.bottom, 16)
                             }
-                        }else {
+                        } else {
                             HStack(spacing: 10) {
                                 Spacer()
                                 NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
@@ -146,15 +147,19 @@ struct UserStatusMessageSwiftUIView: View {
                                                 action: clearActiveUserStatus,
                                                 style: .tertiary, height: 40,
                                                 disabled: Binding.constant(selectedMessage.isEmpty))
+                                .padding(.bottom, 16)
                                 NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
                                                 action: setActiveUserStatus,
                                                 style: .primary, height: 40,
                                                 disabled: Binding.constant(selectedMessage.isEmpty))
+                                .padding(.bottom, 16)
                                 Spacer()
                             }
                         }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(uiColor: .systemGroupedBackground))
         .navigationBarTitle(Text(NSLocalizedString("Status message", comment: "")), displayMode: .inline)
         .navigationBarHidden(false)
         .onAppear {
