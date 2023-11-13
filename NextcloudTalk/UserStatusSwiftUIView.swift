@@ -23,7 +23,7 @@ import UIKit
 import SwiftUI
 import SwiftUIIntrospect
 
-protocol UserStatusViewDelegate{
+protocol UserStatusViewDelegate: AnyObject {
     func userStatusViewDidDisappear()
 }
 
@@ -37,7 +37,7 @@ struct UserStatusSwiftUIView: View {
         _userStatus = State(initialValue: userStatus)
     }
 
-    var delegate: UserStatusViewDelegate?
+    weak var delegate: UserStatusViewDelegate?
 
     var body: some View {
         NavigationView {
