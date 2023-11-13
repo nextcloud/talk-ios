@@ -81,6 +81,7 @@ struct UserStatusSwiftUIView: View {
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = NCAppBranding.themeColor()
             appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+            navController.navigationBar.tintColor = NCAppBranding.themeTextColor()
             navController.navigationBar.standardAppearance = appearance
             navController.navigationBar.compactAppearance = appearance
             navController.navigationBar.scrollEdgeAppearance = appearance
