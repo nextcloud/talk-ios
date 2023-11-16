@@ -1639,11 +1639,11 @@
 /* No comment provided by engineer. */
 "Stop recording" = "Stop recording";
 
-/* Strikethrough text */
-"Strikethrough" = "Strikethrough";
-
 /* No comment provided by engineer. */
 "Stop screensharing" = "Stop screensharing";
+
+/* Strikethrough text */
+"Strikethrough" = "Strikethrough";
 
 /* No comment provided by engineer. */
 "STUN servers" = "STUN servers";
