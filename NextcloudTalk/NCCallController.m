@@ -605,25 +605,34 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 - (void)stopScreenshare {
     [[WebRTCCommon shared] assertQueue];
 
-    [self->_screenPublisherPeerConnection close];
-    self->_screenPublisherPeerConnection = nil;
-
     [_screensharingController stopCapture];
 
     if (_externalSignalingController) {
+        // Close screen publisher peer connection
+        [self->_screenPublisherPeerConnection close];
+        self->_screenPublisherPeerConnection = nil;
+
+        NSString *peerKey = [self getPeerKeyWithSessionId:[self signalingSessionId] ofType:kRoomTypeScreen forOwnScreenshare:YES];
+        [_connectionsDict removeObjectForKey:peerKey];
+
+        // Send unshare screen signaling message to all the other peers
         [_externalSignalingController sendRoomMessageOfType:@"unshareScreen" andRoomType:kRoomTypeScreen];
     } else {
         for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
+            // Close all own screen peer connections
             if (peer.isOwnScreensharePeer) {
-                [self cleanPeerConnectionForSessionId:peer.peerId ofType:kRoomTypeScreen forOwnScreenshare:YES];
-            } else {
-                NSString *from = [self signalingSessionId];
-
-                NCSignalingMessage *message = [[NCUnshareScreenMessage alloc] initWithFrom:from
-                                                                                    sendTo:peer.peerId
-                                                                               withPayload:@{}
-                                                                               forRoomType:kRoomTypeScreen];
-
+                peer.delegate = nil;
+                [peer close];
+                NSString *peerKey = [self getPeerKeyWithSessionId:peer.peerId ofType:peer.roomType forOwnScreenshare:YES];
+                [_connectionsDict removeObjectForKey:peerKey];
+            }
+            // Send unshare screen signaling message to all the other peers
+            else {
+                NCSignalingMessage *message = [[NCUnshareScreenMessage alloc] initWithFrom:[self signalingSessionId]
+                                                                                        to:peer.peerId
+                                                                                       sid:peer.sid
+                                                                                  roomType:peer.roomType
+                                                                                   payload:@{}];
                 [_signalingController sendSignalingMessage:message];
             }
         }
