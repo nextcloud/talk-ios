@@ -896,12 +896,24 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
     NSString *peerKey = [self getPeerKeyWithSessionId:sessionId ofType:roomType forOwnScreenshare:ownScreenshare];
     NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:roomType forOwnScreenshare:ownScreenshare];
-    
+
+    // When using internal signaling, if you and another participant are sharing the screen and you receive a candidate message
+    // we can not know whether the message is for the sending or the received screen share only from the "from" field and the type.
+    // We need to use the "sid"
+    BOOL screensharingPeer = [roomType isEqualToString:kRoomTypeScreen];
+    if (screensharingPeer) {
+        // We check if the signaling message was send to our own screen peer.
+        // If the "sid" doesn't match, we have grabbed the correct peer connection above (if it existed)
+        NCPeerConnection *ownScreenPeerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:roomType forOwnScreenshare:YES];
+        if (ownScreenPeerConnectionWrapper && [ownScreenPeerConnectionWrapper.sid isEqualToString:sid]) {
+            peerConnectionWrapper = ownScreenPeerConnectionWrapper;
+        }
+    }
+
     if (!peerConnectionWrapper) {
         // Create peer connection.
         NSLog(@"Creating a peer for %@", sessionId);
         NSArray *iceServers = [_signalingController getIceServers];
-        BOOL screensharingPeer = [roomType isEqualToString:kRoomTypeScreen];
         peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId sid:sid andICEServers:iceServers forAudioOnlyCall:screensharingPeer ? NO : _isAudioOnly];
         peerConnectionWrapper.roomType = roomType;
         peerConnectionWrapper.delegate = self;
@@ -1276,13 +1288,13 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
     [[WebRTCCommon shared] assertQueue];
 
-    // If we receive an answer to a "screen" type, it can only be our own publishing peer
-    BOOL isAnswerToOwnScreenshare = signalingMessage.messageType == kNCSignalingMessageTypeAnswer && [signalingMessage.roomType isEqualToString:kRoomTypeScreen];
-
     switch (signalingMessage.messageType) {
         case kNCSignalingMessageTypeOffer:
         case kNCSignalingMessageTypeAnswer:
         {
+            // If we receive an answer to a "screen" type, it can only be our own publishing peer
+            BOOL isAnswerToOwnScreenshare = signalingMessage.messageType == kNCSignalingMessageTypeAnswer && [signalingMessage.roomType isEqualToString:kRoomTypeScreen];
+
             // If there is already a peer connection but a new offer is received with a different sid the existing
             // peer connection is stale, so it needs to be removed and a new one created instead.
             NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
@@ -1300,16 +1312,16 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         }
         case kNCSignalingMessageTypeCandidate:
         {
-            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
+            NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType];
             NCICECandidateMessage *candidateMessage = (NCICECandidateMessage *)signalingMessage;
             [peerConnectionWrapper addICECandidate:candidateMessage.candidate];
             break;
         }
         case kNCSignalingMessageTypeUnshareScreen:
         {
-            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
             if (peerConnectionWrapper) {
-                NSString *peerKey = [self getPeerKeyWithSessionId:peerConnectionWrapper.peerId ofType:kRoomTypeScreen forOwnScreenshare:isAnswerToOwnScreenshare];
+                NSString *peerKey = [self getPeerKeyWithSessionId:peerConnectionWrapper.peerId ofType:kRoomTypeScreen forOwnScreenshare:NO];
                 NCPeerConnection *screenPeerConnection = [self->_connectionsDict objectForKey:peerKey];
                 if (screenPeerConnection) {
                     [screenPeerConnection close];
