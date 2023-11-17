@@ -37,6 +37,7 @@ import UIKit
         markdownParser.squashNewlines = false
         markdownParser.overwriteExistingStyle = false
         markdownParser.trimLeadingWhitespaces = false
+        markdownParser.automaticLinkDetectionEnabled = false
 
         markdownParser.image.enabled = false
 

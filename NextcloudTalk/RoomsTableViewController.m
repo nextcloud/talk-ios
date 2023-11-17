@@ -1343,7 +1343,13 @@ typedef enum RoomsFilter {
     // Set last activity
     if (room.lastMessage) {
         cell.titleOnly = NO;
-        cell.subtitleLabel.text = room.lastMessageString;
+
+        // Only use the first 80 characters of the message, so we don't need to calculate the label size for the whole message
+        NSString *lastRoomMessage = room.lastMessageString;
+        NSRange stringRange = {0, MIN([lastRoomMessage length], 80)};
+
+        stringRange = [lastRoomMessage rangeOfComposedCharacterSequencesForRange:stringRange];
+        cell.subtitleLabel.text = [lastRoomMessage substringWithRange:stringRange];
     } else {
         cell.titleOnly = YES;
     }
