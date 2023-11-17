@@ -493,9 +493,10 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
             NCRaiseHandMessage *message = [[NCRaiseHandMessage alloc] initWithFrom:[self signalingSessionId]
-                                                                            sendTo:peer.peerId
-                                                                       withPayload:payload
-                                                                       forRoomType:peer.roomType];
+                                                                                to:peer.peerId
+                                                                               sid:peer.sid
+                                                                          roomType:peer.roomType
+                                                                           payload:payload];
 
             if ([self->_externalSignalingController isEnabled]) {
                 [self->_externalSignalingController sendCallMessage:message];
@@ -534,9 +535,10 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
             NCReactionMessage *message = [[NCReactionMessage alloc] initWithFrom:[self signalingSessionId]
-                                                                          sendTo:peer.peerId
-                                                                     withPayload:payload
-                                                                     forRoomType:peer.roomType];
+                                                                              to:peer.peerId
+                                                                             sid:peer.sid
+                                                                        roomType:peer.roomType
+                                                                         payload:payload];
 
             if ([self->_externalSignalingController isEnabled]) {
                 [self->_externalSignalingController sendCallMessage:message];
@@ -953,34 +955,19 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         if ([type isEqualToString:@"audioOn"]) {
             payload = @{@"name": @"audio"};
-            message = [[NCUnmuteMessage alloc] initWithFrom:from
-                                                     sendTo:peer.peerId
-                                                withPayload:payload
-                                                forRoomType:peer.roomType];
+            message = [[NCUnmuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"audioOff"]) {
             payload = @{@"name": @"audio"};
-            message = [[NCMuteMessage alloc] initWithFrom:from
-                                                   sendTo:peer.peerId
-                                              withPayload:payload
-                                              forRoomType:peer.roomType];
+            message = [[NCMuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"videoOn"]) {
             payload = @{@"name": @"video"};
-            message = [[NCUnmuteMessage alloc] initWithFrom:from
-                                                     sendTo:peer.peerId
-                                                withPayload:payload
-                                                forRoomType:peer.roomType];
+            message = [[NCUnmuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"videoOff"]) {
             payload = @{@"name": @"video"};
-            message = [[NCMuteMessage alloc] initWithFrom:from
-                                                   sendTo:peer.peerId
-                                              withPayload:payload
-                                              forRoomType:peer.roomType];
+            message = [[NCMuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"nickChanged"]) {
             payload = @{@"name": _account.userDisplayName};
-            message = [[NCNickChangedMessage alloc] initWithFrom:from
-                                                          sendTo:peer.peerId
-                                                     withPayload:payload
-                                                     forRoomType:peer.roomType];
+            message = [[NCNickChangedMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         }
 
         if (message) {

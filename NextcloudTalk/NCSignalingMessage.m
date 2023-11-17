@@ -277,6 +277,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: @{
                      kNCSignalingMessageTypeKey: self.type,
                      kNCSignalingMessageTypeCandidateKey: [self.candidate JSONDictionary]
@@ -386,6 +387,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessageBroadcasterKey: self.broadcaster ? self.broadcaster : @"",
              kNCSignalingMessagePayloadKey: @{
                      kNCSignalingMessageTypeKey: self.type,
@@ -451,11 +453,11 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCUnshareScreenMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeUnshareScreenKey
                        payload:payload
                       roomType:roomType
@@ -511,6 +513,7 @@ NSString *const kRoomTypeScreen = @"screen";
         kNCSignalingMessageToKey: self.to,
         kNCSignalingMessageRoomTypeKey: self.roomType,
         kNCSignalingMessageTypeKey: self.type,
+        kNCSignalingMessageSidKey: self.sid,
         kNCSignalingMessagePayloadKey: self.payload,
     };
 }
@@ -551,11 +554,11 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCMuteMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeMuteKey
                        payload:payload
                       roomType:roomType
@@ -626,6 +629,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }
@@ -638,11 +642,11 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCUnmuteMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeUnmuteKey
                        payload:payload
                       roomType:roomType
@@ -713,6 +717,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }
@@ -725,11 +730,11 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCNickChangedMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeNickChangedKey
                        payload:payload
                       roomType:roomType
@@ -800,6 +805,7 @@ NSString *const kRoomTypeScreen = @"screen";
         kNCSignalingMessageToKey: self.to,
         kNCSignalingMessageRoomTypeKey: self.roomType,
         kNCSignalingMessageTypeKey: self.type,
+        kNCSignalingMessageSidKey: self.sid,
         kNCSignalingMessagePayloadKey: self.payload,
     };
 }
@@ -812,11 +818,11 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCRaiseHandMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeRaiseHandKey
                        payload:payload
                       roomType:roomType
@@ -887,6 +893,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }
@@ -928,11 +935,11 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCReactionMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeReactionKey
                        payload:payload
                       roomType:roomType
@@ -1003,6 +1010,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }

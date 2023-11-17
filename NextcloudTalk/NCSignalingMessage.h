@@ -99,8 +99,12 @@ typedef enum {
 
 @interface NCUnshareScreenMessage : NCSignalingMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType;
 - (instancetype)initWithValues:(NSDictionary *)values;
+- (instancetype)initWithFrom:(NSString *)from
+                          to:(NSString *)to
+                         sid:(NSString *)sid
+                    roomType:(NSString *)roomType
+                     payload:(NSDictionary *)payload;
 
 @end
 
@@ -112,45 +116,45 @@ typedef enum {
 
 @interface NCMuteMessage : NCSignalingMessage
 
-- (instancetype)initWithFrom:(NSString *)from
-                      sendTo:(NSString *)to
-                 withPayload:(NSDictionary *)payload
-                 forRoomType:(NSString *)roomType;
-
 - (instancetype)initWithValues:(NSDictionary *)values;
+- (instancetype)initWithFrom:(NSString *)from
+                          to:(NSString *)to
+                         sid:(NSString *)sid
+                    roomType:(NSString *)roomType
+                     payload:(NSDictionary *)payload;
 
 @end
 
 @interface NCUnmuteMessage : NCSignalingMessage
 
-- (instancetype)initWithFrom:(NSString *)from
-                      sendTo:(NSString *)to
-                 withPayload:(NSDictionary *)payload
-                 forRoomType:(NSString *)roomType;
-
 - (instancetype)initWithValues:(NSDictionary *)values;
+- (instancetype)initWithFrom:(NSString *)from
+                          to:(NSString *)to
+                         sid:(NSString *)sid
+                    roomType:(NSString *)roomType
+                     payload:(NSDictionary *)payload;
 
 @end
 
 @interface NCNickChangedMessage : NCSignalingMessage
 
-- (instancetype)initWithFrom:(NSString *)from
-                      sendTo:(NSString *)to
-                 withPayload:(NSDictionary *)payload
-                 forRoomType:(NSString *)roomType;
-
 - (instancetype)initWithValues:(NSDictionary *)values;
+- (instancetype)initWithFrom:(NSString *)from
+                          to:(NSString *)to
+                         sid:(NSString *)sid
+                    roomType:(NSString *)roomType
+                     payload:(NSDictionary *)payload;
 
 @end
 
 @interface NCRaiseHandMessage : NCSignalingMessage
 
-- (instancetype)initWithFrom:(NSString *)from
-                      sendTo:(NSString *)to
-                 withPayload:(NSDictionary *)payload
-                 forRoomType:(NSString *)roomType;
-
 - (instancetype)initWithValues:(NSDictionary *)values;
+- (instancetype)initWithFrom:(NSString *)from
+                          to:(NSString *)to
+                         sid:(NSString *)sid
+                    roomType:(NSString *)roomType
+                     payload:(NSDictionary *)payload;
 
 @end
 
@@ -166,12 +170,12 @@ typedef enum {
 
 @property(nonatomic, readonly) NSString *reaction;
 
-- (instancetype)initWithFrom:(NSString *)from
-                      sendTo:(NSString *)to
-                 withPayload:(NSDictionary *)payload
-                 forRoomType:(NSString *)roomType;
-
 - (instancetype)initWithValues:(NSDictionary *)values;
+- (instancetype)initWithFrom:(NSString *)from
+                          to:(NSString *)to
+                         sid:(NSString *)sid
+                    roomType:(NSString *)roomType
+                     payload:(NSDictionary *)payload;
 
 @end
 
