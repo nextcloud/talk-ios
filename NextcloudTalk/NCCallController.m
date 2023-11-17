@@ -583,10 +583,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     if (_externalSignalingController && [_externalSignalingController hasMCU]) {
         [self createScreenPublisherPeerConnection];
     } else {
-        for (NSMutableDictionary *user in _usersInRoom) {
-            NSString *userSession = [user objectForKey:@"sessionId"];
-            if (![userSession isEqualToString:[self signalingSessionId]]) {
-                [self sendScreensharingOfferToSessionId:userSession];
+        for (NSString *session in _sessionsInCall) {
+            if (![session isEqualToString:[self signalingSessionId]]) {
+                [self sendScreensharingOfferToSessionId:session];
             }
         }
     }
