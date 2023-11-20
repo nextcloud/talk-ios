@@ -621,10 +621,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
             // Close all own screen peer connections
             if (peer.isOwnScreensharePeer) {
-                peer.delegate = nil;
-                [peer close];
-                NSString *peerKey = [self getPeerKeyWithSessionId:peer.peerId ofType:peer.roomType forOwnScreenshare:YES];
-                [_connectionsDict removeObjectForKey:peerKey];
+                [self cleanPeerConnectionForSessionId:peer.peerId ofType:kRoomTypeScreen forOwnScreenshare:YES];
             }
             // Send unshare screen signaling message to all the other peers
             else {
