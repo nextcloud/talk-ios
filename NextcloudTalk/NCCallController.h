@@ -57,6 +57,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController;
 - (void)callControllerDidChangeRecording:(NCCallController *)callController;
 - (void)callControllerDidDrawFirstLocalFrame:(NCCallController *)callController;
+- (void)callControllerDidChangeScreenrecording:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token withAudioEnabled:(BOOL)audioEnabled andVideoEnabled:(BOOL)videoEnabled;
 
 @end
@@ -71,6 +72,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 @property (nonatomic, assign) BOOL disableVideoAtStart;
 @property (nonatomic, assign) BOOL silentCall;
 @property (nonatomic, assign) BOOL recordingConsent;
+@property (nonatomic, assign) BOOL screensharingActive;
 
 
 - (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;
@@ -85,6 +87,8 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)sendReaction:(NSString *)reaction;
 - (void)startRecording;
 - (void)stopRecording;
+- (void)startScreenshare;
+- (void)stopScreenshare;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)signalingSessionId;
 - (BOOL)isBackgroundBlurEnabled;

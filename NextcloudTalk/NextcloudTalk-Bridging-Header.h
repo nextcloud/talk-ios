@@ -103,4 +103,7 @@
 #import "MBProgressHUD.h"
 #import "CCCertificate.h"
 
+#import "ScreenCapturer.h"
+#import "ScreenCaptureController.h"
+
 #endif /* NextcloudTalk_Bridging_Header_h */

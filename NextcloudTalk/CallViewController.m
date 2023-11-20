@@ -23,6 +23,7 @@
 #import "CallViewController.h"
 
 #import <AVKit/AVKit.h>
+#import <ReplayKit/ReplayKit.h>
 
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import <WebRTC/RTCMediaStream.h>
@@ -43,6 +44,7 @@
 #import "NCSignalingMessage.h"
 #import "NCUtils.h"
 #import "RoomInfoTableViewController.h"
+#import "NCScreensharingController.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -886,6 +888,26 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 }
 
+- (void)showScreensharingPicker
+{
+    RPSystemBroadcastPickerView *broadcastPicker = [[RPSystemBroadcastPickerView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
+    broadcastPicker.preferredExtension = [NSString stringWithFormat:@"%@.BroadcastUploadExtension", NSBundle.mainBundle.bundleIdentifier];
+    broadcastPicker.showsMicrophoneButton = NO;
+
+    UIButton *btn = nil;
+
+    for (UIView *subview in broadcastPicker.subviews) {
+        if ([subview isKindOfClass:[UIButton class]]) {
+            btn = (UIButton *)subview;
+        }
+    }
+    if (btn != nil) {
+        [btn sendActionsForControlEvents:UIControlEventTouchUpInside];
+    } else {
+        NSLog(@"RPSystemBroadcastPickerView button not found");
+    }
+}
+
 - (void)adjustMoreButtonMenu
 {
     // When we target iOS 15, we might want to use an uncached UIDeferredMenuElement
@@ -1050,6 +1072,21 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [items addObject:toggleBackgroundBlur];
     }
+
+    // Screensharing
+    UIImage *screensharingImage = [UIImage systemImageNamed:@"rectangle.inset.filled.on.rectangle"];
+    NSString *screensharingActionTitle = NSLocalizedString(@"Enable screensharing", nil);
+
+    if ([self->_callController screensharingActive]) {
+        screensharingImage = [UIImage systemImageNamed:@"rectangle.on.rectangle.slash"];
+        screensharingActionTitle = NSLocalizedString(@"Stop screensharing", nil);
+    }
+
+    UIAction *screenshareAction = [UIAction actionWithTitle:screensharingActionTitle image:screensharingImage identifier:nil handler:^(UIAction *action) {
+        [weakSelf showScreensharingPicker];
+    }];
+
+    [items addObject:screenshareAction];
 
     self.moreMenuButton.menu = [UIMenu menuWithTitle:@"" children:items];
 }
@@ -1934,7 +1971,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
 {
     [self setVideoDisableButtonActive:videoTrack.isEnabled];
-    
+
     // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
     if (!videoTrack.isEnabled) {
         _userDisabledVideo = YES;
@@ -2099,6 +2136,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:notificationText dismissAfterDelay:7.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
     });
+}
+
+- (void)callControllerDidChangeScreenrecording:(NCCallController *)callController
+{
+    [self adjustTopBar];
 }
 
 - (void)callController:(NCCallController *)callController isSwitchingToCall:(NSString *)token withAudioEnabled:(BOOL)audioEnabled andVideoEnabled:(BOOL)videoEnabled

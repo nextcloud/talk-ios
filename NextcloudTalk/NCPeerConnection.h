@@ -66,6 +66,7 @@
 @property (nonatomic, assign) BOOL isAudioOnly;
 @property (nonatomic, assign) BOOL isMCUPublisherPeer;
 @property (nonatomic, assign) BOOL isDummyPeer;
+@property (nonatomic, assign) BOOL isOwnScreensharePeer;
 @property (nonatomic, strong) RTCPeerConnection *peerConnection;
 @property (nonatomic, strong) RTCDataChannel *localDataChannel;
 @property (nonatomic, strong) RTCDataChannel *remoteDataChannel;

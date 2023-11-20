@@ -23,6 +23,7 @@ import UIKit
 import NextcloudKit
 import SafariServices
 import SwiftUI
+import ReplayKit
 
 enum SettingsSection: Int {
     case kSettingsSectionUser = 0

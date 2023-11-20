@@ -449,6 +449,43 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     [self sendMessage:messageDict withCompletionBlock:nil];
 }
 
+- (void)sendSendOfferMessageWithSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType
+{
+    NSDictionary *messageDict = @{
+        @"type": @"message",
+        @"message": @{
+            @"recipient": @{
+                @"type": @"session",
+                @"sessionid": sessionId
+            },
+            @"data": @{
+                @"type": @"sendoffer",
+                @"roomType": roomType
+            }
+        }
+    };
+
+    [self sendMessage:messageDict withCompletionBlock:nil];
+}
+
+- (void)sendRoomMessageOfType:(NSString *)messageType andRoomType:(NSString *)roomType
+{
+    NSDictionary *messageDict = @{
+        @"type": @"message",
+        @"message": @{
+            @"recipient": @{
+                @"type": @"room"
+            },
+            @"data": @{
+                @"type": messageType,
+                @"roomType": roomType
+            }
+        }
+    };
+
+    [self sendMessage:messageDict withCompletionBlock:nil];
+}
+
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType
 {
     NSDictionary *messageDict = @{

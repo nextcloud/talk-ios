@@ -66,6 +66,8 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block;
 - (void)leaveRoom:(NSString *)roomId;
 - (void)sendCallMessage:(NCSignalingMessage *)message;
+- (void)sendSendOfferMessageWithSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
+- (void)sendRoomMessageOfType:(NSString *)messageType andRoomType:(NSString *)roomType;
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 - (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
 - (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId;

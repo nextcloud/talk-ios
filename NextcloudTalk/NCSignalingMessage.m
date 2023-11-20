@@ -50,6 +50,7 @@ static NSString * const kNCSignalingMessageRoomTypeKey = @"roomType";
 static NSString * const kNCSignalingMessageNickKey = @"nick";
 static NSString * const kNCSignalingMessageStatusKey = @"status";
 static NSString * const kNCSignalingMessageNameKey = @"name";
+static NSString * const kNCSignalingMessageBroadcasterKey = @"broadcaster";
 
 static NSString * const kNCSignalingMessageTypeOfferKey = @"offer";
 static NSString * const kNCSignalingMessageTypeAnswerKey = @"answer";
@@ -80,6 +81,7 @@ NSString *const kRoomTypeScreen = @"screen";
 @synthesize payload = _payload;
 @synthesize roomType = _roomType;
 @synthesize sid = _sid;
+@synthesize broadcaster = _broadcaster;
 
 - (instancetype)initWithFrom:(NSString *)from
                           to:(NSString *)to
@@ -87,6 +89,7 @@ NSString *const kRoomTypeScreen = @"screen";
                         type:(NSString *)type
                      payload:(NSDictionary *)payload
                     roomType:(NSString *)roomType
+                 broadcaster:(NSString *)broadcaster
 {
     if (self = [super init]) {
         _from = from;
@@ -95,6 +98,7 @@ NSString *const kRoomTypeScreen = @"screen";
         _type = type;
         _payload = payload;
         _roomType = roomType;
+        _broadcaster = broadcaster;
     }
     return self;
 }
@@ -225,7 +229,8 @@ NSString *const kRoomTypeScreen = @"screen";
                               from:from
                                 to:[dataDict objectForKey:kNCSignalingMessageToKey]
                                sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
-                          roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                          roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                       broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {
@@ -272,6 +277,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: @{
                      kNCSignalingMessageTypeKey: self.type,
                      kNCSignalingMessageTypeCandidateKey: [self.candidate JSONDictionary]
@@ -288,6 +294,7 @@ NSString *const kRoomTypeScreen = @"screen";
                                to:(NSString *)to
                               sid:(NSString *)sid
                          roomType:(NSString *)roomType
+                      broadcaster:(NSString *)broadcaster
 {
     NSDictionary *payload = [[NSDictionary alloc] init];
     self = [super initWithFrom:from
@@ -295,7 +302,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:sid
                           type:kNCSignalingMessageTypeCandidateKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:broadcaster];
     
     if (!self) {
         return nil;
@@ -329,6 +337,7 @@ NSString *const kRoomTypeScreen = @"screen";
                                          to:[dataDict objectForKey:kNCSignalingMessageToKey]
                                         sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                                    roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                                broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]
                                        nick:nick];
 }
 
@@ -350,7 +359,9 @@ NSString *const kRoomTypeScreen = @"screen";
 {
     NSError *error;
     NSString *jsonString = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[self functionDict]
+    NSMutableDictionary *functionData = [[NSMutableDictionary alloc] initWithDictionary:[self functionDict]];
+
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:functionData
                                                        options:0
                                                          error:&error];
     
@@ -376,6 +387,8 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
+             kNCSignalingMessageBroadcasterKey: self.broadcaster ? self.broadcaster : @"",
              kNCSignalingMessagePayloadKey: @{
                      kNCSignalingMessageTypeKey: self.type,
                      kNCSignalingMessageSdpKey: self.sessionDescription.sdp,
@@ -396,6 +409,7 @@ NSString *const kRoomTypeScreen = @"screen";
                                         to:(NSString *)to
                                        sid:(NSString *)sid
                                   roomType:(NSString *)roomType
+                               broadcaster:(NSString *)broadcaster
                                       nick:(NSString *)nick
 {
     RTCSdpType sdpType = sessionDescription.type;
@@ -422,7 +436,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:sid
                           type:type
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:broadcaster];
     
     if (!self) {
         return nil;
@@ -437,6 +452,17 @@ NSString *const kRoomTypeScreen = @"screen";
 @end
 
 @implementation NCUnshareScreenMessage
+
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
+
+    return [super initWithFrom:from
+                            to:to
+                           sid:sid
+                          type:kNCSignalingMessageTypeUnshareScreenKey
+                       payload:payload
+                      roomType:roomType
+                   broadcaster:nil];
+}
 
 - (instancetype)initWithValues:(NSDictionary *)values {
     NSDictionary *payload = [[NSDictionary alloc] init];
@@ -453,7 +479,43 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeUnshareScreenKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
+}
+
+- (NSString *)functionJSONSerialization
+{
+    NSError *error;
+    NSString *jsonString = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[self functionDict]
+                                                       options:0
+                                                         error:&error];
+
+    if (! jsonData) {
+        NSLog(@"Error serializing JSON: %@", error);
+    } else {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+
+    return jsonString;
+}
+
+- (NSDictionary *)messageDict {
+    return @{
+        kNCSignalingMessageEventKey: kNCSignalingMessageKey,
+        kNCSignalingMessageFunctionKey: [self functionJSONSerialization],
+        kNCSignalingMessageSessionIdKey: self.from
+    };
+}
+
+- (NSDictionary *)functionDict {
+    return @{
+        kNCSignalingMessageToKey: self.to,
+        kNCSignalingMessageRoomTypeKey: self.roomType,
+        kNCSignalingMessageTypeKey: self.type,
+        kNCSignalingMessageSidKey: self.sid,
+        kNCSignalingMessagePayloadKey: self.payload,
+    };
 }
 
 - (NCSignalingMessageType)messageType {
@@ -480,7 +542,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeControlKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NCSignalingMessageType)messageType {
@@ -491,14 +554,15 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCMuteMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeMuteKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:nil];
 }
 
 - (instancetype)initWithValues:(NSDictionary *)values {
@@ -517,7 +581,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeMuteKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {
@@ -564,6 +629,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }
@@ -576,14 +642,15 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCUnmuteMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeUnmuteKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:nil];
 }
 
 - (instancetype)initWithValues:(NSDictionary *)values {
@@ -602,7 +669,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeUnmuteKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {
@@ -649,6 +717,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }
@@ -661,14 +730,15 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCNickChangedMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeNickChangedKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:nil];
 }
 
 - (instancetype)initWithValues:(NSDictionary *)values {
@@ -687,7 +757,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeNickChangedKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {
@@ -734,6 +805,7 @@ NSString *const kRoomTypeScreen = @"screen";
         kNCSignalingMessageToKey: self.to,
         kNCSignalingMessageRoomTypeKey: self.roomType,
         kNCSignalingMessageTypeKey: self.type,
+        kNCSignalingMessageSidKey: self.sid,
         kNCSignalingMessagePayloadKey: self.payload,
     };
 }
@@ -746,14 +818,15 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCRaiseHandMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeRaiseHandKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:nil];
 }
 
 - (instancetype)initWithValues:(NSDictionary *)values {
@@ -772,7 +845,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeRaiseHandKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {
@@ -819,6 +893,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }
@@ -843,7 +918,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:nil
                           type:kNCSignalingMessageTypeRecordingKey
                        payload:recordingDict
-                      roomType:nil];
+                      roomType:nil
+                   broadcaster:nil];
     if (self) {
         _status = [[recordingDict objectForKey:kNCSignalingMessageStatusKey] integerValue];
     }
@@ -859,14 +935,15 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCReactionMessage
 
-- (instancetype)initWithFrom:(NSString *)from sendTo:(NSString *)to withPayload:(NSDictionary *)payload forRoomType:(NSString *)roomType {
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
 
     return [super initWithFrom:from
                             to:to
-                           sid:[NCSignalingMessage getMessageSid]
+                           sid:sid
                           type:kNCSignalingMessageTypeReactionKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:nil];
 }
 
 - (instancetype)initWithValues:(NSDictionary *)values {
@@ -885,7 +962,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeReactionKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {
@@ -932,6 +1010,7 @@ NSString *const kRoomTypeScreen = @"screen";
              kNCSignalingMessageToKey: self.to,
              kNCSignalingMessageRoomTypeKey: self.roomType,
              kNCSignalingMessageTypeKey: self.type,
+             kNCSignalingMessageSidKey: self.sid,
              kNCSignalingMessagePayloadKey: self.payload,
              };
 }
@@ -952,7 +1031,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[NCSignalingMessage getMessageSid]
                           type:kNCSignalingMessageTypeStartedTypingKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:nil];
 }
 
 - (instancetype)initWithValues:(NSDictionary *)values {
@@ -971,7 +1051,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeStartedTypingKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {
@@ -1037,7 +1118,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[NCSignalingMessage getMessageSid]
                           type:kNCSignalingMessageTypeStoppedTypingKey
                        payload:payload
-                      roomType:roomType];
+                      roomType:roomType
+                   broadcaster:nil];
 }
 
 - (instancetype)initWithValues:(NSDictionary *)values {
@@ -1056,7 +1138,8 @@ NSString *const kRoomTypeScreen = @"screen";
                            sid:[dataDict objectForKey:kNCSignalingMessageSidKey]
                           type:kNCSignalingMessageTypeStoppedTypingKey
                        payload:payload
-                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]];
+                      roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
+                   broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
 }
 
 - (NSData *)JSONData {

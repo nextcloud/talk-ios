@@ -45,13 +45,16 @@
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
 #import "NCExternalSignalingController.h"
+#import "NCScreensharingController.h"
 
 #import "NextcloudTalk-Swift.h"
 
-static NSString * const kNCMediaStreamId = @"NCMS";
-static NSString * const kNCAudioTrackId = @"NCa0";
-static NSString * const kNCVideoTrackId = @"NCv0";
-static NSString * const kNCVideoTrackKind = @"video";
+static NSString * const kNCMediaStreamId    = @"NCMS";
+static NSString * const kNCAudioTrackId     = @"NCa0";
+static NSString * const kNCVideoTrackId     = @"NCv0";
+static NSString * const kNCVideoTrackKind   = @"video";
+static NSString * const kNCScreenTrackId    = @"NCs0";
+static NSString * const kNCScreenTrackKind  = @"screen";
 
 @interface NCCallController () <NCPeerConnectionDelegate, NCSignalingControllerObserver, NCExternalSignalingControllerDelegate, NCCameraControllerDelegate>
 
@@ -72,10 +75,12 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NSArray *sessionsInCall;
 @property (nonatomic, strong) NSArray *peersInCall;
 @property (nonatomic, strong) NCPeerConnection *publisherPeerConnection;
+@property (nonatomic, strong) NCPeerConnection *screenPublisherPeerConnection;
 @property (nonatomic, strong) NSMutableDictionary *connectionsDict;
 @property (nonatomic, strong) NSMutableDictionary *pendingOffersDict;
 @property (nonatomic, strong) RTCAudioTrack *localAudioTrack;
 @property (nonatomic, strong) RTCVideoTrack *localVideoTrack;
+@property (nonatomic, strong) RTCVideoTrack *localScreenTrack;
 @property (nonatomic, strong) ARDCaptureController *localVideoCaptureController;
 @property (nonatomic, strong) NCSignalingController *signalingController;
 @property (nonatomic, strong) NCExternalSignalingController *externalSignalingController;
@@ -83,6 +88,7 @@ static NSString * const kNCVideoTrackKind = @"video";
 @property (nonatomic, strong) NSURLSessionTask *joinCallTask;
 @property (nonatomic, strong) NSURLSessionTask *getPeersForCallTask;
 @property (nonatomic, strong) NCCameraController *cameraController;
+@property (nonatomic, strong) NCScreensharingController *screensharingController;
 
 @end
 
@@ -126,6 +132,21 @@ static NSString * const kNCVideoTrackKind = @"video";
         }];
         
         [self initRecorder];
+
+        // Screensharing is done in an extension, therefore we need to listen to systemwide notifications
+        [[DarwinNotificationCenter shared] addObserverWithNotificationName:DarwinNotificationCenter.broadcastStartedNotification completionBlock:^{
+            [[WebRTCCommon shared] dispatch:^{
+                [self startScreenshare];
+            }];
+        }];
+
+        [[DarwinNotificationCenter shared] addObserverWithNotificationName:DarwinNotificationCenter.broadcastStoppedNotification completionBlock:^{
+            [[WebRTCCommon shared] dispatch:^{
+                [self stopScreenshare];
+            }];
+        }];
+
+        _screensharingController = [[NCScreensharingController alloc] init];
     }
     
     return self;
@@ -321,11 +342,15 @@ static NSString * const kNCVideoTrackKind = @"video";
     [self stopSendingCurrentState];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStartedNotification];
+    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStoppedNotification];
+
     _externalSignalingController.delegate = nil;
 
     [self->_cameraController stopAVCaptureSession];
     
     [[WebRTCCommon shared] dispatch:^{
+        [self stopScreenshare];
         [self cleanCurrentPeerConnections];
         self->_localAudioTrack = nil;
         self->_localVideoTrack = nil;
@@ -372,6 +397,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStartedNotification];
+    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStoppedNotification];
     NSLog(@"NCCallController dealloc");
 }
 
@@ -466,9 +493,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 
         for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
             NCRaiseHandMessage *message = [[NCRaiseHandMessage alloc] initWithFrom:[self signalingSessionId]
-                                                                            sendTo:peer.peerId
-                                                                       withPayload:payload
-                                                                       forRoomType:peer.roomType];
+                                                                                to:peer.peerId
+                                                                               sid:peer.sid
+                                                                          roomType:peer.roomType
+                                                                           payload:payload];
 
             if ([self->_externalSignalingController isEnabled]) {
                 [self->_externalSignalingController sendCallMessage:message];
@@ -507,9 +535,10 @@ static NSString * const kNCVideoTrackKind = @"video";
 
         for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
             NCReactionMessage *message = [[NCReactionMessage alloc] initWithFrom:[self signalingSessionId]
-                                                                          sendTo:peer.peerId
-                                                                     withPayload:payload
-                                                                     forRoomType:peer.roomType];
+                                                                              to:peer.peerId
+                                                                             sid:peer.sid
+                                                                        roomType:peer.roomType
+                                                                         payload:payload];
 
             if ([self->_externalSignalingController isEnabled]) {
                 [self->_externalSignalingController sendCallMessage:message];
@@ -538,6 +567,78 @@ static NSString * const kNCVideoTrackKind = @"video";
     }];
 }
 
+- (void)startScreenshare
+{
+    [[WebRTCCommon shared] assertQueue];
+
+    if (_screensharingActive) {
+        return;
+    }
+
+    RTCPeerConnectionFactory *peerConnectionFactory = [WebRTCCommon shared].peerConnectionFactory;
+    RTCVideoSource *videoSource = [peerConnectionFactory videoSource];
+    RTCVideoCapturer *videoCapturer = [[RTCVideoCapturer alloc] initWithDelegate:videoSource];
+
+    [_screensharingController startCaptureWithVideoSource:videoSource withVideoCapturer:videoCapturer];
+    _localScreenTrack = [peerConnectionFactory videoTrackWithSource:videoSource trackId:kNCScreenTrackId];
+
+    if (_externalSignalingController && [_externalSignalingController hasMCU]) {
+        [self createScreenPublisherPeerConnection];
+    } else {
+        for (NSString *session in _sessionsInCall) {
+            if (![session isEqualToString:[self signalingSessionId]]) {
+                [self sendScreensharingOfferToSessionId:session];
+            }
+        }
+    }
+
+    _screensharingActive = YES;
+    [self.delegate callControllerDidChangeScreenrecording:self];
+}
+
+- (void)sendScreensharingOfferToSessionId:(NSString *)sessionId
+{
+    NCPeerConnection *peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:sessionId withSid:nil ofType:kRoomTypeScreen forOwnScreenshare:YES];
+    [peerConnectionWrapper sendPublisherOffer];
+}
+
+- (void)stopScreenshare {
+    [[WebRTCCommon shared] assertQueue];
+
+    [_screensharingController stopCapture];
+
+    if (_externalSignalingController) {
+        // Close screen publisher peer connection
+        [self->_screenPublisherPeerConnection close];
+        self->_screenPublisherPeerConnection = nil;
+
+        NSString *peerKey = [self getPeerKeyWithSessionId:[self signalingSessionId] ofType:kRoomTypeScreen forOwnScreenshare:YES];
+        [_connectionsDict removeObjectForKey:peerKey];
+
+        // Send unshare screen signaling message to all the other peers
+        [_externalSignalingController sendRoomMessageOfType:@"unshareScreen" andRoomType:kRoomTypeScreen];
+    } else {
+        for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
+            // Close all own screen peer connections
+            if (peer.isOwnScreensharePeer) {
+                [self cleanPeerConnectionForSessionId:peer.peerId ofType:kRoomTypeScreen forOwnScreenshare:YES];
+            }
+            // Send unshare screen signaling message to all the other peers
+            else {
+                NCSignalingMessage *message = [[NCUnshareScreenMessage alloc] initWithFrom:[self signalingSessionId]
+                                                                                        to:peer.peerId
+                                                                                       sid:peer.sid
+                                                                                  roomType:peer.roomType
+                                                                                   payload:@{}];
+                [_signalingController sendSignalingMessage:message];
+            }
+        }
+    }
+
+    _screensharingActive = NO;
+    [self.delegate callControllerDidChangeScreenrecording:self];
+}
+
 #pragma mark - Call controller
 
 - (void)cleanCurrentPeerConnections
@@ -562,20 +663,21 @@ static NSString * const kNCVideoTrackKind = @"video";
     _usersInRoom = [[NSArray alloc] init];
     _sessionsInCall = [[NSArray alloc] init];
     _publisherPeerConnection = nil;
+    _screenPublisherPeerConnection = nil;
 }
 
-- (void)cleanPeerConnectionForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
+- (void)cleanPeerConnectionForSessionId:(NSString *)sessionId ofType:(NSString *)roomType forOwnScreenshare:(BOOL)ownScreenshare
 {
     [[WebRTCCommon shared] assertQueue];
 
-    NSString *peerKey = [sessionId stringByAppendingString:roomType];
+    NSString *peerKey = [self getPeerKeyWithSessionId:sessionId ofType:roomType forOwnScreenshare:ownScreenshare];
     NCPeerConnection *removedPeerConnection = [_connectionsDict objectForKey:peerKey];
 
     if (removedPeerConnection) {
         if ([roomType isEqualToString:kRoomTypeVideo]) {
             NSLog(@"Removing peer from call: %@", sessionId);
             [self.delegate callController:self peerLeft:removedPeerConnection];
-        } else if ([roomType isEqualToString:kRoomTypeScreen]) {
+        } else if ([roomType isEqualToString:kRoomTypeScreen] && !ownScreenshare) {
             NSLog(@"Removing screensharing from peer: %@", sessionId);
             [self.delegate callController:self didReceiveUnshareScreenFromPeer:removedPeerConnection];
         }
@@ -591,8 +693,8 @@ static NSString * const kNCVideoTrackKind = @"video";
 {
     [[WebRTCCommon shared] assertQueue];
 
-    [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeVideo];
-    [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeScreen];
+    [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeVideo forOwnScreenshare:NO];
+    [self cleanPeerConnectionForSessionId:sessionId ofType:kRoomTypeScreen forOwnScreenshare:NO];
     
     // Invalidate possible request timers
     NSString *peerVideoKey = [sessionId stringByAppendingString:kRoomTypeVideo];
@@ -752,31 +854,67 @@ static NSString * const kNCVideoTrackKind = @"video";
 
 #pragma mark - Peer Connection Wrapper
 
+- (NSString *)getPeerKeyWithSessionId:(NSString *)sessionId ofType:(NSString *)roomType forOwnScreenshare:(BOOL)ownScreenshare
+{
+    NSString *peerKey = [sessionId stringByAppendingString:roomType];
+
+    if (ownScreenshare) {
+        // If this is our own screensharing peer, we add "own" to the key, to distinguish our peer
+        // to a receiving peer in case we are using internal signaling
+        peerKey = [peerKey stringByAppendingString:@"own"];
+    }
+
+    return peerKey;
+}
+
 - (NCPeerConnection *)getPeerConnectionWrapperForSessionId:(NSString *)sessionId ofType:(NSString *)roomType
+{
+    return [self getPeerConnectionWrapperForSessionId:sessionId ofType:roomType forOwnScreenshare:NO];
+}
+
+- (NCPeerConnection *)getPeerConnectionWrapperForSessionId:(NSString *)sessionId ofType:(NSString *)roomType forOwnScreenshare:(BOOL)ownScreenshare
 {
     [[WebRTCCommon shared] assertQueue];
 
-    NSString *peerKey = [sessionId stringByAppendingString:roomType];
+    NSString *peerKey = [self getPeerKeyWithSessionId:sessionId ofType:roomType forOwnScreenshare:ownScreenshare];
     NCPeerConnection *peerConnectionWrapper = [_connectionsDict objectForKey:peerKey];
-    
+
     return peerConnectionWrapper;
 }
 
 - (NCPeerConnection *)getOrCreatePeerConnectionWrapperForSessionId:(NSString *)sessionId withSid:(NSString *)sid ofType:(NSString *)roomType
 {
+    return [self getOrCreatePeerConnectionWrapperForSessionId:sessionId withSid:sid ofType:roomType forOwnScreenshare:NO];
+}
+
+- (NCPeerConnection *)getOrCreatePeerConnectionWrapperForSessionId:(NSString *)sessionId withSid:(NSString *)sid ofType:(NSString *)roomType forOwnScreenshare:(BOOL)ownScreenshare
+{
     [[WebRTCCommon shared] assertQueue];
 
-    NSString *peerKey = [sessionId stringByAppendingString:roomType];
-    NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:roomType];
-    
+    NSString *peerKey = [self getPeerKeyWithSessionId:sessionId ofType:roomType forOwnScreenshare:ownScreenshare];
+    NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:roomType forOwnScreenshare:ownScreenshare];
+
+    // When using internal signaling, if you and another participant are sharing the screen and you receive a candidate message
+    // we can not know whether the message is for the sending or the received screen share only from the "from" field and the type.
+    // We need to use the "sid"
+    BOOL screensharingPeer = [roomType isEqualToString:kRoomTypeScreen];
+    if (screensharingPeer) {
+        // We check if the signaling message was send to our own screen peer.
+        // If the "sid" doesn't match, we have grabbed the correct peer connection above (if it existed)
+        NCPeerConnection *ownScreenPeerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:sessionId ofType:roomType forOwnScreenshare:YES];
+        if (ownScreenPeerConnectionWrapper && [ownScreenPeerConnectionWrapper.sid isEqualToString:sid]) {
+            peerConnectionWrapper = ownScreenPeerConnectionWrapper;
+        }
+    }
+
     if (!peerConnectionWrapper) {
         // Create peer connection.
         NSLog(@"Creating a peer for %@", sessionId);
         NSArray *iceServers = [_signalingController getIceServers];
-        BOOL screensharingPeer = [roomType isEqualToString:kRoomTypeScreen];
         peerConnectionWrapper = [[NCPeerConnection alloc] initWithSessionId:sessionId sid:sid andICEServers:iceServers forAudioOnlyCall:screensharingPeer ? NO : _isAudioOnly];
         peerConnectionWrapper.roomType = roomType;
         peerConnectionWrapper.delegate = self;
+        peerConnectionWrapper.isOwnScreensharePeer = ownScreenshare;
         
         // Try to get displayName early
         NSString *displayName = [self getDisplayNameFromSessionId:sessionId];
@@ -785,19 +923,22 @@ static NSString * const kNCVideoTrackKind = @"video";
         }
         
         // Do not add local stream when using a MCU or to screensharing peers
-        if (![_externalSignalingController hasMCU] && !screensharingPeer) {
-            if (_localAudioTrack) {
-                [peerConnectionWrapper.peerConnection addTrack:_localAudioTrack streamIds:@[kNCMediaStreamId]];
-            }
-            if (_localVideoTrack) {
-                [peerConnectionWrapper.peerConnection addTrack:_localVideoTrack streamIds:@[kNCMediaStreamId]];
+        if (![_externalSignalingController hasMCU]) {
+            if (!screensharingPeer) {
+                if (_localAudioTrack) {
+                    [peerConnectionWrapper.peerConnection addTrack:_localAudioTrack streamIds:@[kNCMediaStreamId]];
+                }
+                if (_localVideoTrack) {
+                    [peerConnectionWrapper.peerConnection addTrack:_localVideoTrack streamIds:@[kNCMediaStreamId]];
+                }
+            } else if (_localScreenTrack) {
+                [peerConnectionWrapper.peerConnection addTrack:_localScreenTrack streamIds:@[kNCMediaStreamId]];
             }
         }
         
         // Add peer connection to the connections dictionary
         [_connectionsDict setObject:peerConnectionWrapper forKey:peerKey];
-        
-        
+
         // Notify about the new peer
         if (!screensharingPeer) {
             [self.delegate callController:self peerJoined:peerConnectionWrapper];
@@ -832,34 +973,19 @@ static NSString * const kNCVideoTrackKind = @"video";
 
         if ([type isEqualToString:@"audioOn"]) {
             payload = @{@"name": @"audio"};
-            message = [[NCUnmuteMessage alloc] initWithFrom:from
-                                                     sendTo:peer.peerId
-                                                withPayload:payload
-                                                forRoomType:peer.roomType];
+            message = [[NCUnmuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"audioOff"]) {
             payload = @{@"name": @"audio"};
-            message = [[NCMuteMessage alloc] initWithFrom:from
-                                                   sendTo:peer.peerId
-                                              withPayload:payload
-                                              forRoomType:peer.roomType];
+            message = [[NCMuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"videoOn"]) {
             payload = @{@"name": @"video"};
-            message = [[NCUnmuteMessage alloc] initWithFrom:from
-                                                     sendTo:peer.peerId
-                                                withPayload:payload
-                                                forRoomType:peer.roomType];
+            message = [[NCUnmuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"videoOff"]) {
             payload = @{@"name": @"video"};
-            message = [[NCMuteMessage alloc] initWithFrom:from
-                                                   sendTo:peer.peerId
-                                              withPayload:payload
-                                              forRoomType:peer.roomType];
+            message = [[NCMuteMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         } else if ([type isEqualToString:@"nickChanged"]) {
             payload = @{@"name": _account.userDisplayName};
-            message = [[NCNickChangedMessage alloc] initWithFrom:from
-                                                          sendTo:peer.peerId
-                                                     withPayload:payload
-                                                     forRoomType:peer.roomType];
+            message = [[NCNickChangedMessage alloc] initWithFrom:from to:peer.peerId sid:peer.sid roomType:peer.roomType payload:payload];
         }
 
         if (message) {
@@ -898,6 +1024,33 @@ static NSString * const kNCVideoTrackKind = @"video";
     }
 
     [self->_publisherPeerConnection sendPublisherOffer];
+}
+
+- (void)createScreenPublisherPeerConnection
+{
+    [[WebRTCCommon shared] assertQueue];
+
+    if (self->_screenPublisherPeerConnection || !self->_localScreenTrack) {
+        NSLog(@"Not creating publisher peer connection. Already created or no local media.");
+        return;
+    }
+
+    NSLog(@"Creating publisher peer connection with sessionId: %@", [self signalingSessionId]);
+
+    NSArray *iceServers = [self->_signalingController getIceServers];
+    self->_screenPublisherPeerConnection = [[NCPeerConnection alloc] initForPublisherWithSessionId:[self signalingSessionId] andICEServers:iceServers forAudioOnlyCall:YES];
+    self->_screenPublisherPeerConnection.roomType = kRoomTypeScreen;
+    self->_screenPublisherPeerConnection.isOwnScreensharePeer = YES;
+    self->_screenPublisherPeerConnection.delegate = self;
+
+    NSString *peerKey = [self getPeerKeyWithSessionId:[self signalingSessionId] ofType:kRoomTypeScreen forOwnScreenshare:YES];
+    [self->_connectionsDict setObject:self->_screenPublisherPeerConnection forKey:peerKey];
+
+    if (self->_localScreenTrack) {
+        [self->_screenPublisherPeerConnection.peerConnection addTrack:self->_localScreenTrack streamIds:@[kNCMediaStreamId]];
+    }
+
+    [self->_screenPublisherPeerConnection sendPublisherOffer];
 }
 
 - (void)requestOfferWithRepetitionForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType
@@ -1136,15 +1289,18 @@ static NSString * const kNCVideoTrackKind = @"video";
         case kNCSignalingMessageTypeOffer:
         case kNCSignalingMessageTypeAnswer:
         {
+            // If we receive an answer to a "screen" type, it can only be our own publishing peer
+            BOOL isAnswerToOwnScreenshare = signalingMessage.messageType == kNCSignalingMessageTypeAnswer && [signalingMessage.roomType isEqualToString:kRoomTypeScreen];
+
             // If there is already a peer connection but a new offer is received with a different sid the existing
             // peer connection is stale, so it needs to be removed and a new one created instead.
-            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+            NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
             if (signalingMessage.messageType == kNCSignalingMessageTypeOffer && peerConnectionWrapper &&
                 signalingMessage.sid.length > 0 && ![signalingMessage.sid isEqualToString:peerConnectionWrapper.sid]) {
-                [self cleanPeerConnectionForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
+                [self cleanPeerConnectionForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
             }
 
-            peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType];
+            peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
             NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
             RTCSessionDescription *sessionDescription = sdpMessage.sessionDescription;
             [peerConnectionWrapper setPeerName:sdpMessage.nick];
@@ -1162,7 +1318,7 @@ static NSString * const kNCVideoTrackKind = @"video";
         {
             NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType];
             if (peerConnectionWrapper) {
-                NSString *peerKey = [peerConnectionWrapper.peerId stringByAppendingString:kRoomTypeScreen];
+                NSString *peerKey = [self getPeerKeyWithSessionId:peerConnectionWrapper.peerId ofType:kRoomTypeScreen forOwnScreenshare:NO];
                 NCPeerConnection *screenPeerConnection = [self->_connectionsDict objectForKey:peerKey];
                 if (screenPeerConnection) {
                     [screenPeerConnection close];
@@ -1317,6 +1473,11 @@ static NSString * const kNCVideoTrackKind = @"video";
                 } else {
                     NSLog(@"Waiting for offer...");
                 }
+
+                if (self.screensharingActive) {
+                    // If screensharing is active and we are using internal signaling, we need to send a offer to the newly joined user
+                    [self sendScreensharingOfferToSessionId:peerConnectionWrapper.peerId];
+                }
             }
         }
     }
@@ -1449,6 +1610,11 @@ static NSString * const kNCVideoTrackKind = @"video";
 - (void)peerConnection:(NCPeerConnection *)peerConnection didChangeIceConnectionState:(RTCIceConnectionState)newState
 {
     if (newState == RTCIceConnectionStateFailed) {
+        if ([peerConnection.roomType isEqualToString:kRoomTypeScreen]) {
+            [self stopScreenshare];
+            return;
+        }
+
         // If publisher peer failed then reconnect
         if (peerConnection.isMCUPublisherPeer) {
             [self forceReconnect];
@@ -1457,7 +1623,7 @@ static NSString * const kNCVideoTrackKind = @"video";
             NSString *sessionId = [peerConnection.peerId copy];
             NSString *roomType = [peerConnection.roomType copy];
             // Close failed peer connection
-            [self cleanPeerConnectionForSessionId:sessionId ofType:roomType];
+            [self cleanPeerConnectionForSessionId:sessionId ofType:roomType forOwnScreenshare:NO];
             // Request new offer
             [self requestOfferWithRepetitionForSessionId:sessionId andRoomType:roomType];
         }
@@ -1465,6 +1631,22 @@ static NSString * const kNCVideoTrackKind = @"video";
 
     if (newState == RTCIceConnectionStateConnected) {
         [self startSendingCurrentState];
+
+        if (self.externalSignalingController && self.screensharingActive) {
+            if (peerConnection.isMCUPublisherPeer) {
+                // This is our screensharing publisher peer which connected just now, so ask everyone to request our peer now
+                for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
+                    if ([peer.peerId isEqualToString:_screenPublisherPeerConnection.peerId]) {
+                        continue;
+                    }
+
+                    [_externalSignalingController sendSendOfferMessageWithSessionId:peer.peerId andRoomType:kRoomTypeScreen];
+                }
+            } else {
+                // Another new peer joined, tell the peer that we are screensharing and it needs to request the screen peer
+                [self.externalSignalingController sendSendOfferMessageWithSessionId:peerConnection.peerId andRoomType:kRoomTypeScreen];
+            }
+        }
     }
 
     if (!peerConnection.isMCUPublisherPeer) {
@@ -1478,7 +1660,8 @@ static NSString * const kNCVideoTrackKind = @"video";
                                                                                  from:[self signalingSessionId]
                                                                                    to:peerConnection.peerId
                                                                                   sid:peerConnection.sid
-                                                                             roomType:peerConnection.roomType];
+                                                                             roomType:peerConnection.roomType
+                                                                          broadcaster:peerConnection.isOwnScreensharePeer ? [self signalingSessionId] : nil];
     
     if ([_externalSignalingController isEnabled]) {
         [_externalSignalingController sendCallMessage:message];
@@ -1495,6 +1678,7 @@ static NSString * const kNCVideoTrackKind = @"video";
                                             to:peerConnection.peerId
                                             sid:peerConnection.sid
                                             roomType:peerConnection.roomType
+                                            broadcaster:peerConnection.isOwnScreensharePeer ? [self signalingSessionId] : nil
                                             nick:_userDisplayName];
     
     if ([_externalSignalingController isEnabled]) {
