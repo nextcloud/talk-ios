@@ -11,3 +11,4 @@ ld
 listable
 lu
 decrypted
+Strikethrough
