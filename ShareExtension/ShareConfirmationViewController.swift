@@ -568,6 +568,9 @@ import AVFoundation
         // TODO: This has no effect on ShareExtension
         let bgTask = BGTaskHelper.startBackgroundTask(withName: "uploadAndShareFiles")
 
+        // Hide keyboard before upload to correctly display the HUD
+        self.textView.resignFirstResponder()
+
         self.hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         self.hud?.mode = .annularDeterminate
         self.hud?.label.text = String(format: NSLocalizedString("Uploading %ld elements", comment: ""), self.shareItemController.shareItems.count)
