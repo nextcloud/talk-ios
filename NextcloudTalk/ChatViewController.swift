@@ -338,8 +338,8 @@ import UIKit
 
         if self.presentedInCall {
             // Create a close button and remove the call buttons
-            let barButtonItem = UIBarButtonItem(title: NSLocalizedString("Close", comment: ""), style: .plain, target: nil, action: nil)
-            barButtonItem.primaryAction = UIAction(handler: { _ in
+            let barButtonItem = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+            barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { _ in
                 NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
             })
             self.navigationItem.rightBarButtonItems = [barButtonItem]
