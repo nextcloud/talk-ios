@@ -24,7 +24,6 @@
 
 #import "NCRoomsManager.h"
 #import "NCUserDefaults.h"
-#import "OpenInFirefoxControllerObjC.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -80,9 +79,6 @@
     if ([NCUtils isInstanceRoomLinkWithLink:URL.absoluteString]) {
         NSString *token = URL.lastPathComponent;
         [[NCRoomsManager sharedInstance] startChatWithRoomToken:token];
-        return NO;
-    } else if ([[NCUserDefaults defaultBrowser] isEqualToString:@"Firefox"] && [[OpenInFirefoxControllerObjC sharedInstance] isFirefoxInstalled]) {
-        [[OpenInFirefoxControllerObjC sharedInstance] openInFirefox:URL];
         return NO;
     }
     return YES;

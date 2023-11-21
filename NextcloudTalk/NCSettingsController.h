@@ -59,7 +59,6 @@ typedef enum NCPreferredFileSorting {
 
 @interface NCSettingsController : NSObject
 
-@property (nonatomic, strong) NSMutableArray *supportedBrowsers;
 @property (nonatomic, copy) ARDSettingsModel *videoSettingsModel;
 @property (nonatomic, strong) UIAlertController *updateAlertController;
 @property (nonatomic, strong) NSString *updateAlertControllerAccountId;
