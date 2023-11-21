@@ -31,7 +31,6 @@
 #import "NCAppBranding.h"
 #import "NCChatMessage.h"
 #import "NCDatabaseManager.h"
-#import "NCUtils.h"
 #import "QuotedMessageView.h"
 
 @interface ChatMessageTableViewCell ()

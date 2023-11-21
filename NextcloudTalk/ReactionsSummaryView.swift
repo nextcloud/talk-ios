@@ -122,7 +122,7 @@ import UIKit
             cell.avatarImageView.setUserAvatar(for: actorId, with: self.traitCollection.userInterfaceStyle)
         } else {
             let color = UIColor(red: 0.73, green: 0.73, blue: 0.73, alpha: 1.0) /*#b9b9b9*/
-            let image = NCUtils.getImageWith("?", withBackgroundColor: color, withBounds: cell.avatarImageView.bounds, isCircular: true)
+            let image = NCUtils.getImage(withString: "?", withBackgroundColor: color, withBounds: cell.avatarImageView.bounds, isCircular: true)
             cell.avatarImageView.image = image
             cell.avatarImageView.contentMode = .scaleToFill
         }

@@ -27,7 +27,8 @@
 #import "GeoLocationRichObject.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCUtils.h"
+
+#import "NextcloudTalk-Swift.h"
 
 typedef enum ShareLocationSection {
     kShareLocationSectionCurrent = 0,

@@ -25,7 +25,8 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "NCAppBranding.h"
-#import "NCUtils.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @implementation NCKeyChainController
 

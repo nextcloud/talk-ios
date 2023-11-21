@@ -43,7 +43,6 @@
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "NCUtils.h"
 #import "RoomDescriptionTableViewCell.h"
 #import "RoomNameTableViewCell.h"
 #import "NCUserStatus.h"
@@ -1033,7 +1032,7 @@ typedef enum FileAction {
             
             NSLog(@"File path: %@ fileLink: %@", filePath, fileLink);
 
-            [NCUtils openFileInNextcloudAppOrBrowser:filePath withFileLink:fileLink];
+            [NCUtils openFileInNextcloudAppOrBrowserWithPath:filePath withFileLink:fileLink];
         } else {
             NSLog(@"An error occurred while getting file with fileId %@: %@", self->_room.objectId, errorDescription);
             

@@ -31,8 +31,9 @@
 #import "NCDatabaseManager.h"
 #import "NCAppBranding.h"
 #import "NCSettingsController.h"
-#import "NCUtils.h"
 #import "PlaceholderView.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @interface DirectoryTableViewController ()
 {
@@ -327,10 +328,10 @@
     
     // Name and modification date
     cell.fileNameLabel.text = item.fileName;
-    cell.fileInfoLabel.text = [NCUtils relativeTimeFromDate:item.date];
-    
+    cell.fileInfoLabel.text = [NCUtils relativeTimeFromDateWithDate:item.date];
+
     // Icon or preview
-    NSString *imageName = [NCUtils previewImageForFileMIMEType:item.contentType];
+    NSString *imageName = [NCUtils previewImageForMimeType:item.contentType];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
     if (item.directory) {
         cell.fileImageView.image = [UIImage imageNamed:@"folder"];

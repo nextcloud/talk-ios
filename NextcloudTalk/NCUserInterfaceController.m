@@ -33,7 +33,6 @@
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
-#import "NCUtils.h"
 #import "NotificationCenterNotifications.h"
 
 #import "NextcloudTalk-Swift.h"

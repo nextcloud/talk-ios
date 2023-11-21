@@ -33,7 +33,6 @@
 #import "NCExternalSignalingController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "NCUtils.h"
 #import "NewRoomTableViewController.h"
 #import "NotificationCenterNotifications.h"
 #import "RoomCreation2TableViewController.h"

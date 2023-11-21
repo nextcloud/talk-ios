@@ -30,7 +30,6 @@
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
 #import "NCRoom.h"
-#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ShareTableViewCell.h"
 #import "NCKeyChainController.h"

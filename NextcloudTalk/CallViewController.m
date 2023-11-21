@@ -42,7 +42,6 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingMessage.h"
-#import "NCUtils.h"
 #import "RoomInfoTableViewController.h"
 #import "NCScreensharingController.h"
 

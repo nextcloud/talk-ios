@@ -252,7 +252,7 @@ import QuickLook
     func imageForMessage(message: NCChatMessage) -> UIImage {
         var image = UIImage(named: "file")
         if message.file() != nil {
-            let imageName = NCUtils.previewImage(forFileMIMEType: message.file().mimetype)
+            let imageName = NCUtils.previewImage(forMimeType: message.file().mimetype)
             image = UIImage(named: imageName)
         }
         if message.geoLocation() != nil {
@@ -360,7 +360,7 @@ import QuickLook
     // MARK: - Other files
 
     func openLink(link: String) {
-        NCUtils.openLink(inBrowser: link)
+        NCUtils.openLinkInBrowser(link: link)
     }
 
     // MARK: - Table view data source
@@ -384,7 +384,7 @@ import QuickLook
         let message = currentItems[indexPath.row]
 
         cell.fileNameLabel?.text = message.parsedMessage().string
-        var infoLabelText = NCUtils.relativeTime(from: Date(timeIntervalSince1970: Double(message.timestamp)))
+        var infoLabelText = NCUtils.relativeTimeFromDate(date: Date(timeIntervalSince1970: Double(message.timestamp)))
         if !message.actorDisplayName.isEmpty {
             infoLabelText += " ⸱ " + message.actorDisplayName
         }

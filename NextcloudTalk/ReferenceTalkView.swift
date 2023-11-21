@@ -67,7 +67,7 @@ import SwiftyAttributes
         if let roomToken = self.roomToken {
             NCRoomsManager.sharedInstance().startChat(withRoomToken: roomToken)
         } else if let url = url {
-            NCUtils.openLink(inBrowser: url)
+            NCUtils.openLinkInBrowser(link: url)
         }
     }
 

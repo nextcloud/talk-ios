@@ -24,7 +24,6 @@
 
 #import "NCRoomsManager.h"
 #import "NCUserDefaults.h"
-#import "NCUtils.h"
 #import "OpenInFirefoxControllerObjC.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -78,7 +77,7 @@
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(nonnull NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
 {
-    if ([NCUtils isInstanceRoomLink:URL.absoluteString]) {
+    if ([NCUtils isInstanceRoomLinkWithLink:URL.absoluteString]) {
         NSString *token = URL.lastPathComponent;
         [[NCRoomsManager sharedInstance] startChatWithRoomToken:token];
         return NO;

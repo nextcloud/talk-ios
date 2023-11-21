@@ -29,7 +29,6 @@
 #import "NCAppBranding.h"
 #import "NCChatFileController.h"
 #import "NCDatabaseManager.h"
-#import "NCUtils.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -267,7 +266,7 @@
 
 - (void)requestPreviewForMessage:(NCChatMessage *)message withAccount:(TalkAccount *)account
 {
-    NSString *imageName = [[NCUtils previewImageForFileMIMEType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
+    NSString *imageName = [[NCUtils previewImageForMimeType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
     UIImage *filePreviewImage = [UIImage imageNamed:imageName];
 
     if (!message.file.previewAvailable) {
@@ -277,8 +276,8 @@
         return;
     }
 
-    BOOL isVideoFile = [NCUtils isVideoFileType:message.file.mimetype];
-    BOOL isMediaFile = isVideoFile || [NCUtils isImageFileType:message.file.mimetype];
+    BOOL isVideoFile = [NCUtils isVideoWithFileType:message.file.mimetype];
+    BOOL isMediaFile = isVideoFile || [NCUtils isImageWithFileType:message.file.mimetype];
 
     NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
     __weak typeof(self) weakSelf = self;

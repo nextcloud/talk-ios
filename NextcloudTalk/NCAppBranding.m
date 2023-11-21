@@ -23,7 +23,8 @@
 #import "NCAppBranding.h"
 
 #import "NCDatabaseManager.h"
-#import "NCUtils.h"
+
+#import "NextcloudTalk-Swift.h"
 
 typedef enum NCTextColorStyle {
     NCTextColorStyleLight = 0,

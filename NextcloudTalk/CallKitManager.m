@@ -32,7 +32,6 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "NCUtils.h"
 
 #import "NextcloudTalk-Swift.h"
 

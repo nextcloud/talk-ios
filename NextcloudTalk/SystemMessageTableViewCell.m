@@ -23,7 +23,8 @@
 #import "SystemMessageTableViewCell.h"
 
 #import "NCAppBranding.h"
-#import "NCUtils.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @interface SystemMessageTableViewCell () <UITextFieldDelegate>
 @property (nonatomic, assign) BOOL didCreateSubviews;

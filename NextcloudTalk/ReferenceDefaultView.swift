@@ -65,7 +65,7 @@ import Foundation
 
     func handleTap() {
         if let url = url {
-            NCUtils.openLink(inBrowser: url)
+            NCUtils.openLinkInBrowser(link: url)
         }
     }
 

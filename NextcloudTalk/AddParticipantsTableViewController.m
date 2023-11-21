@@ -27,7 +27,6 @@
 #import "NCContact.h"
 #import "NCDatabaseManager.h"
 #import "NCUserInterfaceController.h"
-#import "NCUtils.h"
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 
