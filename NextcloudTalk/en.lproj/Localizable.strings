@@ -95,6 +95,9 @@
 "Add to favorites" = "Add to favorites";
 
 /* No comment provided by engineer. */
+"Add to personal notes" = "Add to personal notes";
+
+/* No comment provided by engineer. */
 "Added note to self" = "Added note to self";
 
 /* No comment provided by engineer. */
@@ -1170,9 +1173,6 @@
 
 /* No comment provided by engineer. */
 "Not supported" = "Not supported";
-
-/* No comment provided by engineer. */
-"Note to self" = "Note to self";
 
 /* No comment provided by engineer. */
 "Notifications" = "Notifications";
