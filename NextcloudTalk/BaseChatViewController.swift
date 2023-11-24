@@ -934,7 +934,7 @@ import QuickLook
                 if message.isObjectShare() {
                     NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare(), inRoom: room.token, for: activeAccount) { error in
                         if error == nil {
-                            self.view.makeToast(NSLocalizedString("Added note to self", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                            self.view.makeToast(NSLocalizedString("Added to personal notes", comment: ""), duration: 1.5, position: CSToastPositionCenter)
                         } else {
                             self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
                         }
@@ -942,7 +942,7 @@ import QuickLook
                 } else {
                     NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: activeAccount) { error in
                         if error == nil {
-                            self.view.makeToast(NSLocalizedString("Added note to self", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                            self.view.makeToast(NSLocalizedString("Added to personal notes", comment: ""), duration: 1.5, position: CSToastPositionCenter)
                         } else {
                             self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
                         }
