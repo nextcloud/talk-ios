@@ -3,7 +3,7 @@ name: Build main target
 on:
   pull_request:
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/uitests.yml'
       - NextcloudTalk.xcodeproj/**
       - NextcloudTalk/**
       - NextcloudTalkUITests/**
