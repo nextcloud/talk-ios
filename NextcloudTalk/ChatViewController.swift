@@ -1513,7 +1513,7 @@ import UIKit
         // Note to self
         if message.file() == nil, message.poll() == nil, !message.isDeletedMessage(), room.type != kNCRoomTypeNoteToSelf,
            NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityNoteToSelf) {
-            actions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
+            actions.append(UIAction(title: NSLocalizedString("Add to personal notes", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
                 self.didPressNoteToSelf(for: message)
             })
         }
