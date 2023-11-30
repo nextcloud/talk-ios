@@ -22,12 +22,18 @@
 import Foundation
 import UIKit
 
+enum RoomAvatarInfoSection: Int {
+    case kRoomNameSection = 0
+    case kRoomDescriptionSection
+}
+
 @objcMembers class RoomAvatarInfoTableViewController: UITableViewController,
                                                         UINavigationControllerDelegate,
                                                         UIImagePickerControllerDelegate,
                                                         UITextFieldDelegate,
                                                         AvatarEditViewDelegate,
                                                         EmojiAvatarPickerViewControllerDelegate,
+                                                        RoomDescriptionTableViewCellDelegate,
                                                         TOCropViewControllerDelegate {
 
     var room: NCRoom
@@ -72,6 +78,7 @@ import UIKit
         self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
+        self.tableView.register(UINib(nibName: kRoomDescriptionTableCellNibName, bundle: nil), forCellReuseIdentifier: kRoomDescriptionCellIdentifier)
         self.tableView.tableHeaderView = self.headerView
 
         self.modifyingView.color = NCAppBranding.themeTextColor()
@@ -92,6 +99,24 @@ import UIKit
         self.headerView.frame = CGRect(origin: .zero, size: size)
     }
 
+    func getAvatarInfoSections() -> [Int] {
+        var sections = [Int]()
+
+        // Room name section
+        sections.append(RoomAvatarInfoSection.kRoomNameSection.rawValue)
+
+        // Room description section
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: self.room.accountId) {
+            sections.append(RoomAvatarInfoSection.kRoomDescriptionSection.rawValue)
+        }
+
+        return sections
+    }
+
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return self.getAvatarInfoSections().count
+    }
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
@@ -100,14 +125,31 @@ import UIKit
         let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
         TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
 
-        textInputCell.textField.delegate = self
-        textInputCell.textField.text = self.room.displayName
+        if indexPath.section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
+            textInputCell.textField.delegate = self
+            textInputCell.textField.text = self.room.displayName
+            return textInputCell
+        } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
+            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: kRoomDescriptionCellIdentifier) as? RoomDescriptionTableViewCell ??
+            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: kRoomDescriptionCellIdentifier)
+            descriptionCell.textView?.text = self.room.roomDescription
+            descriptionCell.editable = true
+            descriptionCell.delegate = self
+            descriptionCell.selectionStyle = .none
+            return descriptionCell
+        }
 
         return textInputCell
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return NSLocalizedString("Name", comment: "")
+        if section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
+            return NSLocalizedString("Name", comment: "")
+        } else if section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
+            return NSLocalizedString("Description", comment: "")
+        }
+
+        return nil
     }
 
     func updateRoomAndRemoveModifyingView() {
@@ -206,6 +248,28 @@ import UIKit
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    // MARK: - RoomDescriptionTableViewCellDelegate
+
+    func roomDescriptionCellTextViewDidChange(_ cell: RoomDescriptionTableViewCell) {
+        DispatchQueue.main.async {
+            self.tableView?.beginUpdates()
+            self.tableView?.endUpdates()
+        }
+    }
+
+    func roomDescriptionCellDidConfirmChanges(_ cell: RoomDescriptionTableViewCell) {
+        self.showModifyingView()
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().setRoomDescription(cell.textView?.text, forRoom: room.token, for: activeAccount) { error in
+            if error != nil {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while setting description", comment: ""), withMessage: nil)
+            }
+
+            self.updateRoomAndRemoveModifyingView()
+        }
     }
 
     // MARK: - TOCROPViewControllerDelegate

@@ -27,8 +27,19 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const kRoomDescriptionCellIdentifier;
 extern NSString *const kRoomDescriptionTableCellNibName;
 
+@class RoomDescriptionTableViewCell;
+
+@protocol RoomDescriptionTableViewCellDelegate <NSObject>
+
+- (void)roomDescriptionCellTextViewDidChange:(RoomDescriptionTableViewCell *)cell;
+- (void)roomDescriptionCellDidConfirmChanges:(RoomDescriptionTableViewCell *)cell;
+
+@end
+
 @interface RoomDescriptionTableViewCell : UITableViewCell
 
+@property (nonatomic, weak) id<RoomDescriptionTableViewCellDelegate> delegate;
+@property (nonatomic, assign) BOOL editable;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 
 @end

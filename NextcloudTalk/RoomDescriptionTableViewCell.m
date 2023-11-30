@@ -25,15 +25,24 @@
 NSString *const kRoomDescriptionCellIdentifier     = @"RoomDescriptionCellIdentifier";
 NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewCell";
 
+@interface RoomDescriptionTableViewCell () <UITextViewDelegate>
+
+@property (nonatomic, strong) NSString *originalText;
+
+@end
+
 @implementation RoomDescriptionTableViewCell
 
 - (void)awakeFromNib
 {
     [super awakeFromNib];
+
     self.textView.dataDetectorTypes = UIDataDetectorTypeAll;
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
     self.textView.scrollEnabled = NO;
+    self.textView.delegate = self;
+    self.editable = NO;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -42,5 +51,66 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
 
     // Configure the view for the selected state
 }
+
+- (void)setEditable:(BOOL)editable
+{
+    _editable = editable;
+
+    self.textView.editable = editable;
+
+    if (editable) {
+        [self createKeyboardToolbar];
+    } else {
+        self.textView.inputAccessoryView = nil;
+    }
+}
+
+- (void)createKeyboardToolbar
+{
+    UIToolbar* keyboardToolbar = [[UIToolbar alloc] init];
+    UIBarButtonItem *cancelBarButton = [[UIBarButtonItem alloc]
+                                        initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                        target:self action:@selector(cancelButtonPressed)];
+    UIBarButtonItem *flexBarButton = [[UIBarButtonItem alloc]
+                                      initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                      target:nil action:nil];
+    UIBarButtonItem *doneBarButton = [[UIBarButtonItem alloc]
+                                      initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                      target:self action:@selector(doneButtonPressed)];
+
+    keyboardToolbar.items = @[cancelBarButton, flexBarButton, doneBarButton];
+    [keyboardToolbar sizeToFit];
+    self.textView.inputAccessoryView = keyboardToolbar;
+}
+
+- (void)cancelButtonPressed
+{
+    [self.textView resignFirstResponder];
+
+    self.textView.text = self.originalText;
+    [self.delegate roomDescriptionCellTextViewDidChange:self];
+}
+
+- (void)doneButtonPressed
+{
+    [self.textView resignFirstResponder];
+
+    if (![self.originalText isEqualToString:self.textView.text]) {
+        [self.delegate roomDescriptionCellDidConfirmChanges:self];
+    }
+}
+
+#pragma mark - UITextView delegate
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    [self.delegate roomDescriptionCellTextViewDidChange:self];
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    self.originalText = self.textView.text;
+}
+
 
 @end

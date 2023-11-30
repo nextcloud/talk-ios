@@ -117,7 +117,8 @@ typedef enum ModificationError {
     kModificationErrorClearHistory,
     kModificationErrorListable,
     kModificationErrorReadOnly,
-    kModificationErrorMessageExpiration
+    kModificationErrorMessageExpiration,
+    kModificationErrorRoomDescription,
 } ModificationError;
 
 typedef enum FileAction {
@@ -125,7 +126,7 @@ typedef enum FileAction {
     kFileActionOpenInFilesApp
 } FileAction;
 
-@interface RoomInfoTableViewController () <UITextFieldDelegate, AddParticipantsTableViewControllerDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource>
+@interface RoomInfoTableViewController () <UITextFieldDelegate, AddParticipantsTableViewControllerDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, RoomDescriptionTableViewCellDelegate>
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) ChatViewController *chatViewController;
@@ -597,7 +598,11 @@ typedef enum FileAction {
         case kModificationErrorMessageExpiration:
             errorDescription = NSLocalizedString(@"Could not set message expiration time", nil);
             break;
-            
+
+        case kModificationErrorRoomDescription:
+            errorDescription = NSLocalizedString(@"Could not set conversation description", nil);
+            break;
+
         default:
             break;
     }
@@ -1506,6 +1511,30 @@ typedef enum FileAction {
     return hasAllowedLength;
 }
 
+#pragma mark - RoomDescriptionTableViewCell delegate
+
+- (void)roomDescriptionCellTextViewDidChange:(RoomDescriptionTableViewCell *)cell
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView beginUpdates];
+        [self.tableView endUpdates];
+    });
+}
+
+- (void)roomDescriptionCellDidConfirmChanges:(RoomDescriptionTableViewCell *)cell
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setRoomDescription:cell.textView.text forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
+        } else {
+            NSLog(@"Error setting room description: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorRoomDescription];
+        }
+    }];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -1723,6 +1752,8 @@ typedef enum FileAction {
             }
             
             cell.textView.text = _room.roomDescription;
+            cell.editable = _room.canModerate || _room.type == kNCRoomTypeNoteToSelf;
+            cell.delegate = self;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
         }
