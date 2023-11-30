@@ -43,6 +43,7 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
     self.textView.scrollEnabled = NO;
     self.textView.delegate = self;
     self.editable = NO;
+    self.characterLimit = -1;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -110,6 +111,22 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
     self.originalText = self.textView.text;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    // Prevent crashing undo bug
+    // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
+    if (range.length + range.location > textView.text.length) {
+        return NO;
+    }
+    // Check character limit
+    NSUInteger newLength = [textView.text length] + [text length] - range.length;
+    BOOL limitExceeded = _characterLimit > 0 && newLength > _characterLimit;
+    if (limitExceeded) {
+        [self.delegate roomDescriptionCellDidExceedLimit:self];
+    }
+    return !limitExceeded;
 }
 
 

@@ -1535,6 +1535,11 @@ typedef enum FileAction {
     }];
 }
 
+- (void)roomDescriptionCellDidExceedLimit:(RoomDescriptionTableViewCell *)cell
+{
+    [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Description cannot be longer than 500 characters", nil) dismissAfterDelay:3.0f includedStyle:JDStatusBarNotificationIncludedStyleWarning];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -1754,6 +1759,7 @@ typedef enum FileAction {
             cell.textView.text = _room.roomDescription;
             cell.editable = _room.canModerate || _room.type == kNCRoomTypeNoteToSelf;
             cell.delegate = self;
+            cell.characterLimit = 500;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
         }

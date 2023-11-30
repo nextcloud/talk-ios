@@ -135,6 +135,7 @@ enum RoomAvatarInfoSection: Int {
             descriptionCell.textView?.text = self.room.roomDescription
             descriptionCell.editable = true
             descriptionCell.delegate = self
+            descriptionCell.characterLimit = 500
             descriptionCell.selectionStyle = .none
             return descriptionCell
         }
@@ -270,6 +271,13 @@ enum RoomAvatarInfoSection: Int {
 
             self.updateRoomAndRemoveModifyingView()
         }
+    }
+
+    func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
+        NotificationPresenter.shared().present(
+            text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
+            dismissAfterDelay: 3.0,
+            includedStyle: .warning)
     }
 
     // MARK: - TOCROPViewControllerDelegate

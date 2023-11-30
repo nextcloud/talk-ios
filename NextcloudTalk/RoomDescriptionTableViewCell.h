@@ -33,6 +33,7 @@ extern NSString *const kRoomDescriptionTableCellNibName;
 
 - (void)roomDescriptionCellTextViewDidChange:(RoomDescriptionTableViewCell *)cell;
 - (void)roomDescriptionCellDidConfirmChanges:(RoomDescriptionTableViewCell *)cell;
+- (void)roomDescriptionCellDidExceedLimit:(RoomDescriptionTableViewCell *)cell;
 
 @end
 
@@ -40,6 +41,7 @@ extern NSString *const kRoomDescriptionTableCellNibName;
 
 @property (nonatomic, weak) id<RoomDescriptionTableViewCellDelegate> delegate;
 @property (nonatomic, assign) BOOL editable;
+@property (nonatomic, assign) NSInteger characterLimit;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 
 @end
