@@ -128,6 +128,7 @@ enum RoomAvatarInfoSection: Int {
         if indexPath.section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.room.displayName
+            textInputCell.selectionStyle = .none
             return textInputCell
         } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
             let descriptionCell = tableView.dequeueReusableCell(withIdentifier: kRoomDescriptionCellIdentifier) as? RoomDescriptionTableViewCell ??
