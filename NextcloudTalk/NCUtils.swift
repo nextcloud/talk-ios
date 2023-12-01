@@ -196,15 +196,15 @@ import UniformTypeIdentifiers
             return NSLocalizedString("less than a minute ago", comment: "")
         } else if ti < 3600 {
             // This hour
-            let diff = round(ti / 60)
+            let diff = Int(round(ti / 60))
             return String(format: NSLocalizedString("%d minutes ago", comment: ""), diff)
         } else if ti < 86400 {
             // This day
-            let diff = round(ti / 60 / 60)
+            let diff = Int(round(ti / 60 / 60))
             return String(format: NSLocalizedString("%d hours ago", comment: ""), diff)
         } else if ti < 86400 * 30 {
             // This month
-            let diff = round(ti / 60 / 60 / 24)
+            let diff = Int(round(ti / 60 / 60 / 24))
             return String(format: NSLocalizedString("%d days ago", comment: ""), diff)
         }
 
