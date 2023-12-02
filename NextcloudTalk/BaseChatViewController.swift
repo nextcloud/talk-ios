@@ -216,31 +216,10 @@ import QuickLook
 
         self.appendMessages(messages: messages)
 
-        guard let tableView = self.tableView
-        else { return }
-
-        tableView.performBatchUpdates({
-            tableView.reloadData()
+        self.tableView?.performBatchUpdates({
+            self.tableView?.reloadData()
         }, completion: { _ in
-            guard highlightMessageId > 0,
-                  let (indexPath, message) = self.indexPathAndMessage(forMessageId: highlightMessageId)
-            else { return }
-
-            self.highlightMessage(at: indexPath, with: .none)
-
-            let messageHeight = self.getCellHeight(for: message)
-            let rect = tableView.rectForRow(at: indexPath)
-
-            // ContentOffset when the cell is at the top of the tableView
-            let contentOffsetTop = rect.origin.y - tableView.safeAreaInsets.top
-
-            // ContentOffset when the cell is at the middle of the tableView
-            let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + messageHeight / 2
-
-            // Fallback to the top offset in case the top of the cell would be scrolled outside of the view
-            let newContentOffset = min(contentOffsetTop, contentOffsetMiddle)
-
-            tableView.contentOffset.y = newContentOffset
+            self.highlightMessageWithContentOffset(messageId: highlightMessageId)
         })
     }
 
@@ -3027,6 +3006,34 @@ import QuickLook
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.tableView?.deselectRow(at: indexPath, animated: true)
         }
+    }
+
+    internal func highlightMessageWithContentOffset(messageId: Int) {
+        guard messageId > 0,
+              let tableView = self.tableView,
+              let (indexPath, message) = self.indexPathAndMessage(forMessageId: messageId)
+        else { return }
+
+        self.highlightMessage(at: indexPath, with: .none)
+
+        let messageHeight = self.getCellHeight(for: message)
+        let rect = tableView.rectForRow(at: indexPath)
+
+        // ContentOffset when the cell is at the top of the tableView
+        let contentOffsetTop = rect.origin.y - tableView.safeAreaInsets.top
+
+        // ContentOffset when the cell is at the middle of the tableView
+        let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + messageHeight / 2
+
+        // Fallback to the top offset in case the top of the cell would be scrolled outside of the view
+        let newContentOffset = min(contentOffsetTop, contentOffsetMiddle)
+
+        tableView.contentOffset.y = newContentOffset
+    }
+
+    public func reloadDataAndHighlightMessage(messageId: Int) {
+        self.tableView?.reloadData()
+        self.highlightMessageWithContentOffset(messageId: messageId)
     }
 
     func showNewMessagesView(until message: NCChatMessage) {
