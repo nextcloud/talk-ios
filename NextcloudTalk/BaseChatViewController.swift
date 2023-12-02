@@ -202,7 +202,9 @@ import QuickLook
         NCUserInterfaceController.sharedInstance().numberOfAllocatedChatViewControllers += 1
     }
 
-    public convenience init?(for room: NCRoom, withMessage messages: [NCChatMessage]) {
+    // Not using an optional here, because it is not available from ObjC
+    // Pass "0" as highlightMessageId to not highlight a message
+    public convenience init?(for room: NCRoom, withMessage messages: [NCChatMessage], withHighlightId highlightMessageId: Int) {
         self.init(for: room)
 
         // When we pass in a fixed number of messages, we hide the inputbar by default
@@ -213,18 +215,33 @@ import QuickLook
         self.tableView?.slk_scrollToBottom(animated: false)
 
         self.appendMessages(messages: messages)
-        self.tableView?.reloadData()
-    }
 
-    // Not using an optional here, because it is not available from ObjC
-    public convenience init?(for room: NCRoom, withMessage messages: [NCChatMessage], withHighlightId highlightMessageId: Int) {
-        self.init(for: room, withMessage: messages)
+        guard let tableView = self.tableView
+        else { return }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if let (indexPath, _) = self.indexPathAndMessage(forMessageId: highlightMessageId) {
-                self.highlightMessage(at: indexPath, with: .middle)
-            }
-        }
+        tableView.performBatchUpdates({
+            tableView.reloadData()
+        }, completion: { _ in
+            guard highlightMessageId > 0,
+                  let (indexPath, message) = self.indexPathAndMessage(forMessageId: highlightMessageId)
+            else { return }
+
+            self.highlightMessage(at: indexPath, with: .none)
+
+            let messageHeight = self.getCellHeight(for: message)
+            let rect = tableView.rectForRow(at: indexPath)
+
+            // ContentOffset when the cell is at the top of the tableView
+            let contentOffsetTop = rect.origin.y - tableView.safeAreaInsets.top
+
+            // ContentOffset when the cell is at the middle of the tableView
+            let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + messageHeight / 2
+
+            // Fallback to the top offset in case the top of the cell would be scrolled outside of the view
+            let newContentOffset = min(contentOffsetTop, contentOffsetMiddle)
+
+            tableView.contentOffset.y = newContentOffset
+        })
     }
 
     required init?(coder decoder: NSCoder) {
@@ -2550,13 +2567,19 @@ import QuickLook
         }
 
         if let message = self.message(for: indexPath) {
-            var width = tableView.frame.width - kChatCellAvatarHeight
-            width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right
-
-            return self.getCellHeight(for: message, with: width)
+            return self.getCellHeight(for: message)
         }
 
         return kChatMessageCellMinimumHeight
+    }
+
+    func getCellHeight(for message: NCChatMessage) -> CGFloat {
+        guard let tableView = self.tableView else { return kChatMessageCellMinimumHeight }
+
+        var width = tableView.frame.width - kChatCellAvatarHeight
+        width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right
+
+        return self.getCellHeight(for: message, with: width)
     }
 
     // swiftlint:disable:next cyclomatic_complexity
