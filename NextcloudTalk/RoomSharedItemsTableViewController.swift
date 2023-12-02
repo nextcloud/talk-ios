@@ -383,7 +383,12 @@ import QuickLook
 
         let message = currentItems[indexPath.row]
 
-        cell.fileNameLabel?.text = message.parsedMessage().string
+        if let file = message.file() {
+            cell.fileNameLabel?.text = file.name
+        } else {
+            cell.fileNameLabel?.text = message.parsedMessage().string
+        }
+
         var infoLabelText = NCUtils.relativeTimeFromDate(date: Date(timeIntervalSince1970: Double(message.timestamp)))
         if !message.actorDisplayName.isEmpty {
             infoLabelText += " ⸱ " + message.actorDisplayName
