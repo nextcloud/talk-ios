@@ -414,6 +414,40 @@ import QuickLook
         return cell
     }
 
+    weak var previewChatViewController: BaseChatViewController?
+
+    override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: {
+
+            // Init the BaseChatViewController without message to directly show a preview
+            if let chatViewController = BaseChatViewController(for: self.room, withMessage: [], withHighlightId: 0) {
+                self.previewChatViewController = chatViewController
+
+                // Fetch the context of the message and update the BaseChatViewController
+                let message = self.currentItems[indexPath.row]
+                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 50) { messages in
+                    guard let messages else { return }
+
+                    chatViewController.appendMessages(messages: messages)
+                    chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
+                }
+
+                let navController = NCNavigationController(rootViewController: chatViewController)
+                return navController
+            }
+
+            return nil
+        }, actionProvider: nil)
+    }
+
+    override func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        animator.addAnimations {
+            if let previewChatViewController = self.previewChatViewController {
+                self.navigationController?.pushViewController(previewChatViewController, animated: false)
+            }
+        }
+    }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as? DirectoryTableViewCell ?? DirectoryTableViewCell()
         let message = currentItems[indexPath.row]
