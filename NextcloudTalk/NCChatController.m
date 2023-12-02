@@ -814,4 +814,39 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     return YES;
 }
 
+- (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block
+{
+    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId withLimit:limit forAccount:self.account withCompletionBlock:^(NSArray *messages, NSError *error, NSInteger statusCode) {
+        if (error) {
+            if (block) {
+                block(nil);
+            }
+
+            return;
+        }
+
+        NSMutableArray *chatMessages = [[NSMutableArray alloc] initWithCapacity:messages.count];
+
+        for (NSDictionary *messageDict in messages) {
+            NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self.account.accountId];
+            [chatMessages addObject:message];
+
+            if (!message.file) {
+                continue;
+            }
+
+            // Try to get the stored preview height from our database, when the message is already stored
+            NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", message.internalId].firstObject;
+
+            if (managedMessage && managedMessage.file && managedMessage.file.previewImageHeight > 0) {
+                message.file.previewImageHeight = managedMessage.file.previewImageHeight;
+            }
+        }
+
+        if (block) {
+            block(chatMessages);
+        }
+    }];
+}
+
 @end
