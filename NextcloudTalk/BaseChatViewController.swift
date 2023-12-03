@@ -3011,19 +3011,18 @@ import QuickLook
     internal func highlightMessageWithContentOffset(messageId: Int) {
         guard messageId > 0,
               let tableView = self.tableView,
-              let (indexPath, message) = self.indexPathAndMessage(forMessageId: messageId)
+              let (indexPath, _) = self.indexPathAndMessage(forMessageId: messageId)
         else { return }
 
         self.highlightMessage(at: indexPath, with: .none)
 
-        let messageHeight = self.getCellHeight(for: message)
         let rect = tableView.rectForRow(at: indexPath)
 
         // ContentOffset when the cell is at the top of the tableView
         let contentOffsetTop = rect.origin.y - tableView.safeAreaInsets.top
 
         // ContentOffset when the cell is at the middle of the tableView
-        let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + messageHeight / 2
+        let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + rect.height / 2
 
         // Fallback to the top offset in case the top of the cell would be scrolled outside of the view
         let newContentOffset = min(contentOffsetTop, contentOffsetMiddle)
