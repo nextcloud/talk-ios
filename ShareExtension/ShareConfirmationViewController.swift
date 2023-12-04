@@ -542,6 +542,7 @@ import AVFoundation
                 self.delegate?.shareConfirmationViewControllerDidFailed(self)
                 NSLog("Failed to send shared item")
             } else {
+                NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
             }
             self.stopAnimatingSharingIndicator()
@@ -570,6 +571,8 @@ import AVFoundation
 
         // Hide keyboard before upload to correctly display the HUD
         self.textView.resignFirstResponder()
+
+        NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
 
         self.hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         self.hud?.mode = .annularDeterminate
