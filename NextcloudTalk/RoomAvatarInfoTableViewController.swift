@@ -41,6 +41,8 @@ enum RoomAvatarInfoSection: Int {
     var headerView: AvatarEditView
     var rightBarButton = UIBarButtonItem()
     var modifyingView = UIActivityIndicatorView()
+    var descriptionHeaderView = HeaderWithButton()
+    var currentDescription = ""
 
     init(room: NCRoom) {
         self.room = room
@@ -52,6 +54,12 @@ enum RoomAvatarInfoSection: Int {
 
         self.headerView.scopeButton.isHidden = true
         self.headerView.nameLabel.isHidden = true
+
+        self.descriptionHeaderView.label.text = NSLocalizedString("Description", comment: "").uppercased()
+        self.descriptionHeaderView.button.setTitle(NSLocalizedString("Set", comment: "Set conversation description"), for: .normal)
+        self.descriptionHeaderView.button.addTarget(self, action: #selector(setButtonPressed), for: .touchUpInside)
+        self.descriptionHeaderView.button.isHidden = true
+        self.currentDescription = self.room.roomDescription
 
         self.updateHeaderView()
     }
@@ -117,6 +125,18 @@ enum RoomAvatarInfoSection: Int {
         return self.getAvatarInfoSections().count
     }
 
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
+            return descriptionHeaderView
+        }
+
+        return nil
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
+    }
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
@@ -157,11 +177,26 @@ enum RoomAvatarInfoSection: Int {
     func updateRoomAndRemoveModifyingView() {
         NCRoomsManager.sharedInstance().updateRoom(self.room.token) { _, _ in
             self.room = NCRoomsManager.sharedInstance().room(withToken: self.room.token, forAccountId: self.room.accountId)
+            self.currentDescription = self.room.roomDescription
 
             self.updateHeaderView()
             self.tableView.reloadData()
 
             self.removeModifyingView()
+        }
+    }
+
+    func setButtonPressed() {
+        self.showModifyingView()
+        self.descriptionHeaderView.button.isHidden = true
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().setRoomDescription(currentDescription, forRoom: room.token, for: activeAccount) { error in
+            if error != nil {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while setting description", comment: ""), withMessage: nil)
+            }
+
+            self.updateRoomAndRemoveModifyingView()
         }
     }
 
@@ -258,6 +293,9 @@ enum RoomAvatarInfoSection: Int {
         DispatchQueue.main.async {
             self.tableView?.beginUpdates()
             self.tableView?.endUpdates()
+
+            self.currentDescription = cell.textView?.text ?? ""
+            self.descriptionHeaderView.button.isHidden = self.currentDescription == self.room.roomDescription
         }
     }
 
