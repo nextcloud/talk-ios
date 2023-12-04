@@ -56,7 +56,7 @@ enum RoomAvatarInfoSection: Int {
         self.headerView.nameLabel.isHidden = true
 
         self.descriptionHeaderView.label.text = NSLocalizedString("Description", comment: "").uppercased()
-        self.descriptionHeaderView.button.setTitle(NSLocalizedString("Set", comment: "Set conversation description"), for: .normal)
+        self.descriptionHeaderView.button.setTitle(NSLocalizedString("Save", comment: "Save conversation description"), for: .normal)
         self.descriptionHeaderView.button.addTarget(self, action: #selector(setButtonPressed), for: .touchUpInside)
         self.descriptionHeaderView.button.isHidden = true
         self.currentDescription = self.room.roomDescription
