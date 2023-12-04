@@ -22,12 +22,18 @@
 import Foundation
 import UIKit
 
+enum RoomAvatarInfoSection: Int {
+    case kRoomNameSection = 0
+    case kRoomDescriptionSection
+}
+
 @objcMembers class RoomAvatarInfoTableViewController: UITableViewController,
                                                         UINavigationControllerDelegate,
                                                         UIImagePickerControllerDelegate,
                                                         UITextFieldDelegate,
                                                         AvatarEditViewDelegate,
                                                         EmojiAvatarPickerViewControllerDelegate,
+                                                        RoomDescriptionTableViewCellDelegate,
                                                         TOCropViewControllerDelegate {
 
     var room: NCRoom
@@ -35,6 +41,8 @@ import UIKit
     var headerView: AvatarEditView
     var rightBarButton = UIBarButtonItem()
     var modifyingView = UIActivityIndicatorView()
+    var descriptionHeaderView = HeaderWithButton()
+    var currentDescription = ""
 
     init(room: NCRoom) {
         self.room = room
@@ -46,6 +54,12 @@ import UIKit
 
         self.headerView.scopeButton.isHidden = true
         self.headerView.nameLabel.isHidden = true
+
+        self.descriptionHeaderView.label.text = NSLocalizedString("Description", comment: "").uppercased()
+        self.descriptionHeaderView.button.setTitle(NSLocalizedString("Save", comment: "Save conversation description"), for: .normal)
+        self.descriptionHeaderView.button.addTarget(self, action: #selector(setButtonPressed), for: .touchUpInside)
+        self.descriptionHeaderView.button.isHidden = true
+        self.currentDescription = self.room.roomDescription
 
         self.updateHeaderView()
     }
@@ -72,6 +86,7 @@ import UIKit
         self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
+        self.tableView.register(UINib(nibName: kRoomDescriptionTableCellNibName, bundle: nil), forCellReuseIdentifier: kRoomDescriptionCellIdentifier)
         self.tableView.tableHeaderView = self.headerView
 
         self.modifyingView.color = NCAppBranding.themeTextColor()
@@ -92,6 +107,36 @@ import UIKit
         self.headerView.frame = CGRect(origin: .zero, size: size)
     }
 
+    func getAvatarInfoSections() -> [Int] {
+        var sections = [Int]()
+
+        // Room name section
+        sections.append(RoomAvatarInfoSection.kRoomNameSection.rawValue)
+
+        // Room description section
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: self.room.accountId) {
+            sections.append(RoomAvatarInfoSection.kRoomDescriptionSection.rawValue)
+        }
+
+        return sections
+    }
+
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return self.getAvatarInfoSections().count
+    }
+
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
+            return descriptionHeaderView
+        }
+
+        return nil
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
+    }
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
@@ -100,24 +145,58 @@ import UIKit
         let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
         TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
 
-        textInputCell.textField.delegate = self
-        textInputCell.textField.text = self.room.displayName
+        if indexPath.section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
+            textInputCell.textField.delegate = self
+            textInputCell.textField.text = self.room.displayName
+            textInputCell.selectionStyle = .none
+            return textInputCell
+        } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
+            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: kRoomDescriptionCellIdentifier) as? RoomDescriptionTableViewCell ??
+            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: kRoomDescriptionCellIdentifier)
+            descriptionCell.textView?.text = self.room.roomDescription
+            descriptionCell.textView?.isEditable = true
+            descriptionCell.delegate = self
+            descriptionCell.characterLimit = 500
+            descriptionCell.selectionStyle = .none
+            return descriptionCell
+        }
 
         return textInputCell
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return NSLocalizedString("Name", comment: "")
+        if section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
+            return NSLocalizedString("Name", comment: "")
+        } else if section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
+            return NSLocalizedString("Description", comment: "")
+        }
+
+        return nil
     }
 
     func updateRoomAndRemoveModifyingView() {
         NCRoomsManager.sharedInstance().updateRoom(self.room.token) { _, _ in
             self.room = NCRoomsManager.sharedInstance().room(withToken: self.room.token, forAccountId: self.room.accountId)
+            self.currentDescription = self.room.roomDescription
 
             self.updateHeaderView()
             self.tableView.reloadData()
 
             self.removeModifyingView()
+        }
+    }
+
+    func setButtonPressed() {
+        self.showModifyingView()
+        self.descriptionHeaderView.button.isHidden = true
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().setRoomDescription(currentDescription, forRoom: room.token, for: activeAccount) { error in
+            if error != nil {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while setting description", comment: ""), withMessage: nil)
+            }
+
+            self.updateRoomAndRemoveModifyingView()
         }
     }
 
@@ -206,6 +285,38 @@ import UIKit
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    // MARK: - RoomDescriptionTableViewCellDelegate
+
+    func roomDescriptionCellTextViewDidChange(_ cell: RoomDescriptionTableViewCell) {
+        DispatchQueue.main.async {
+            self.tableView?.beginUpdates()
+            self.tableView?.endUpdates()
+
+            self.currentDescription = cell.textView?.text ?? ""
+            self.descriptionHeaderView.button.isHidden = self.currentDescription == self.room.roomDescription
+        }
+    }
+
+    func roomDescriptionCellDidConfirmChanges(_ cell: RoomDescriptionTableViewCell) {
+        self.showModifyingView()
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().setRoomDescription(cell.textView?.text, forRoom: room.token, for: activeAccount) { error in
+            if error != nil {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while setting description", comment: ""), withMessage: nil)
+            }
+
+            self.updateRoomAndRemoveModifyingView()
+        }
+    }
+
+    func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
+        NotificationPresenter.shared().present(
+            text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
+            dismissAfterDelay: 3.0,
+            includedStyle: .warning)
     }
 
     // MARK: - TOCROPViewControllerDelegate

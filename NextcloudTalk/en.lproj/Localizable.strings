@@ -254,6 +254,9 @@
 "An error occurred while setting \(formattedPhoneNumber) as phone number" = "An error occurred while setting \(formattedPhoneNumber) as phone number";
 
 /* No comment provided by engineer. */
+"An error occurred while setting description" = "An error occurred while setting description";
+
+/* No comment provided by engineer. */
 "An error occurred while setting phone number" = "An error occurred while setting phone number";
 
 /* No comment provided by engineer. */
@@ -548,6 +551,9 @@
 "Could not send the message" = "Could not send the message";
 
 /* No comment provided by engineer. */
+"Could not set conversation description" = "Could not set conversation description";
+
+/* No comment provided by engineer. */
 "Could not set conversation name" = "Could not set conversation name";
 
 /* No comment provided by engineer. */
@@ -615,6 +621,12 @@
 
 /* '{Microphone, Camera, ...} access is denied' */
 "Denied" = "Denied";
+
+/* No comment provided by engineer. */
+"Description" = "Description";
+
+/* No comment provided by engineer. */
+"Description cannot be longer than 500 characters" = "Description cannot be longer than 500 characters";
 
 /* No comment provided by engineer. */
 "detected" = "detected";
@@ -1414,7 +1426,7 @@
 /* No comment provided by engineer. */
 "Retry" = "Retry";
 
-/* No comment provided by engineer. */
+/* Save conversation description */
 "Save" = "Save";
 
 /* No comment provided by engineer. */

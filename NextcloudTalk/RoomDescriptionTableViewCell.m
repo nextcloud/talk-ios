@@ -25,15 +25,25 @@
 NSString *const kRoomDescriptionCellIdentifier     = @"RoomDescriptionCellIdentifier";
 NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewCell";
 
+@interface RoomDescriptionTableViewCell () <UITextViewDelegate>
+
+@property (nonatomic, strong) NSString *originalText;
+
+@end
+
 @implementation RoomDescriptionTableViewCell
 
 - (void)awakeFromNib
 {
     [super awakeFromNib];
+
     self.textView.dataDetectorTypes = UIDataDetectorTypeAll;
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
     self.textView.scrollEnabled = NO;
+    self.textView.editable = NO;
+    self.textView.delegate = self;
+    self.characterLimit = -1;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -42,5 +52,34 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
 
     // Configure the view for the selected state
 }
+
+#pragma mark - UITextView delegate
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    [self.delegate roomDescriptionCellTextViewDidChange:self];
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    self.originalText = self.textView.text;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    // Prevent crashing undo bug
+    // https://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
+    if (range.length + range.location > textView.text.length) {
+        return NO;
+    }
+    // Check character limit
+    NSUInteger newLength = [textView.text length] + [text length] - range.length;
+    BOOL limitExceeded = _characterLimit > 0 && newLength > _characterLimit;
+    if (limitExceeded) {
+        [self.delegate roomDescriptionCellDidExceedLimit:self];
+    }
+    return !limitExceeded;
+}
+
 
 @end

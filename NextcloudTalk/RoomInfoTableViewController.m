@@ -117,7 +117,8 @@ typedef enum ModificationError {
     kModificationErrorClearHistory,
     kModificationErrorListable,
     kModificationErrorReadOnly,
-    kModificationErrorMessageExpiration
+    kModificationErrorMessageExpiration,
+    kModificationErrorRoomDescription,
 } ModificationError;
 
 typedef enum FileAction {
@@ -597,7 +598,11 @@ typedef enum FileAction {
         case kModificationErrorMessageExpiration:
             errorDescription = NSLocalizedString(@"Could not set message expiration time", nil);
             break;
-            
+
+        case kModificationErrorRoomDescription:
+            errorDescription = NSLocalizedString(@"Could not set conversation description", nil);
+            break;
+
         default:
             break;
     }
@@ -1723,7 +1728,7 @@ typedef enum FileAction {
             }
             
             cell.textView.text = _room.roomDescription;
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.selectionStyle = UITableViewCellSelectionStyleDefault;
             return cell;
         }
             break;
@@ -2265,6 +2270,7 @@ typedef enum FileAction {
     RoomInfoSection section = [[sections objectAtIndex:indexPath.section] intValue];
     switch (section) {
         case kRoomInfoSectionName:
+        case kRoomInfoSectionDescription:
         {
             if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
                 [self presentNameInfoViewController];
