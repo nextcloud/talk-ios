@@ -1728,7 +1728,6 @@ typedef enum FileAction {
             }
             
             cell.textView.text = _room.roomDescription;
-            cell.editable = false;
             cell.selectionStyle = UITableViewCellSelectionStyleDefault;
             return cell;
         }

@@ -154,7 +154,7 @@ enum RoomAvatarInfoSection: Int {
             let descriptionCell = tableView.dequeueReusableCell(withIdentifier: kRoomDescriptionCellIdentifier) as? RoomDescriptionTableViewCell ??
             RoomDescriptionTableViewCell(style: .default, reuseIdentifier: kRoomDescriptionCellIdentifier)
             descriptionCell.textView?.text = self.room.roomDescription
-            descriptionCell.editable = true
+            descriptionCell.textView?.isEditable = true
             descriptionCell.delegate = self
             descriptionCell.characterLimit = 500
             descriptionCell.selectionStyle = .none

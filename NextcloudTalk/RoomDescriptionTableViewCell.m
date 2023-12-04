@@ -41,8 +41,8 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
     self.textView.scrollEnabled = NO;
+    self.textView.editable = NO;
     self.textView.delegate = self;
-    self.editable = NO;
     self.characterLimit = -1;
 }
 
@@ -51,54 +51,6 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
     [super setSelected:selected animated:animated];
 
     // Configure the view for the selected state
-}
-
-- (void)setEditable:(BOOL)editable
-{
-    _editable = editable;
-
-    self.textView.editable = editable;
-
-    if (editable) {
-        [self createKeyboardToolbar];
-    } else {
-        self.textView.inputAccessoryView = nil;
-    }
-}
-
-- (void)createKeyboardToolbar
-{
-    UIToolbar* keyboardToolbar = [[UIToolbar alloc] init];
-    UIBarButtonItem *cancelBarButton = [[UIBarButtonItem alloc]
-                                        initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                        target:self action:@selector(cancelButtonPressed)];
-    UIBarButtonItem *flexBarButton = [[UIBarButtonItem alloc]
-                                      initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                                      target:nil action:nil];
-    UIBarButtonItem *doneBarButton = [[UIBarButtonItem alloc]
-                                      initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                      target:self action:@selector(doneButtonPressed)];
-
-    keyboardToolbar.items = @[cancelBarButton, flexBarButton, doneBarButton];
-    [keyboardToolbar sizeToFit];
-    self.textView.inputAccessoryView = keyboardToolbar;
-}
-
-- (void)cancelButtonPressed
-{
-    [self.textView resignFirstResponder];
-
-    self.textView.text = self.originalText;
-    [self.delegate roomDescriptionCellTextViewDidChange:self];
-}
-
-- (void)doneButtonPressed
-{
-    [self.textView resignFirstResponder];
-
-    if (![self.originalText isEqualToString:self.textView.text]) {
-        [self.delegate roomDescriptionCellDidConfirmChanges:self];
-    }
 }
 
 #pragma mark - UITextView delegate

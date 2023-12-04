@@ -40,7 +40,6 @@ extern NSString *const kRoomDescriptionTableCellNibName;
 @interface RoomDescriptionTableViewCell : UITableViewCell
 
 @property (nonatomic, weak) id<RoomDescriptionTableViewCellDelegate> delegate;
-@property (nonatomic, assign) BOOL editable;
 @property (nonatomic, assign) NSInteger characterLimit;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 
