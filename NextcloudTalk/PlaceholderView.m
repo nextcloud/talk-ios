@@ -51,9 +51,9 @@
 {
     self = [self init];
     
-    if (self && style == UITableViewStyleGrouped) {
-        self.contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        self.placeholderView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    if (self && (style == UITableViewStyleGrouped || style == UITableViewStyleInsetGrouped )) {
+        self.contentView.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        self.placeholderView.backgroundColor = [UIColor systemGroupedBackgroundColor];
     }
     
     return self;
