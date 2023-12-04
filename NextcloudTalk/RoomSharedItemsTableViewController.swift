@@ -73,30 +73,6 @@ import QuickLook
         self.getItemsOverview()
     }
 
-    func presentItemTypeSelector() {
-        let itemTypesActionSheet = UIAlertController(title: NSLocalizedString("Shared items", comment: ""), message: nil, preferredStyle: .actionSheet)
-
-        for itemType in availableItemTypes() {
-            let itemTypeName = nameForItemType(itemType: itemType)
-            let action = UIAlertAction(title: itemTypeName, style: .default) { _ in
-                self.setupViewForItemType(itemType: itemType)
-            }
-
-            if itemType == currentItemType {
-                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(_: .alwaysOriginal), forKey: "image")
-            }
-            itemTypesActionSheet.addAction(action)
-        }
-
-        itemTypesActionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
-
-        // Presentation on iPads
-        itemTypesActionSheet.popoverPresentationController?.sourceView = self.navigationItem.titleView
-        itemTypesActionSheet.popoverPresentationController?.sourceRect = self.navigationItem.titleView?.frame ?? CGRect()
-
-        self.present(itemTypesActionSheet, animated: true, completion: nil)
-    }
-
     func availableItemTypes() -> [String] {
         var availableItemTypes: [String] = []
         for itemType in sharedItemsOverview.keys {
@@ -183,8 +159,25 @@ import QuickLook
         itemTypeSelectorButton.setTitle(buttonTitle, for: .normal)
         itemTypeSelectorButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         itemTypeSelectorButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
-        itemTypeSelectorButton.addTarget(self, action: #selector(presentItemTypeSelector), for: .touchUpInside)
         self.navigationItem.titleView = itemTypeSelectorButton
+
+        var menuActions: [UIAction] = []
+
+        for itemType in availableItemTypes() {
+            let itemTypeName = nameForItemType(itemType: itemType)
+            let action = UIAction(title: itemTypeName, image: nil) { [unowned self] _ in
+                self.setupViewForItemType(itemType: itemType)
+            }
+
+            if itemType == currentItemType {
+                action.state = .on
+            }
+
+            menuActions.append(action)
+        }
+
+        itemTypeSelectorButton.showsMenuAsPrimaryAction = true
+        itemTypeSelectorButton.menu = UIMenu(children: menuActions)
     }
 
     func showFetchingItemsPlaceholderView() {
@@ -383,7 +376,12 @@ import QuickLook
 
         let message = currentItems[indexPath.row]
 
-        cell.fileNameLabel?.text = message.parsedMessage().string
+        if let file = message.file() {
+            cell.fileNameLabel?.text = file.name
+        } else {
+            cell.fileNameLabel?.text = message.parsedMessage().string
+        }
+
         var infoLabelText = NCUtils.relativeTimeFromDate(date: Date(timeIntervalSince1970: Double(message.timestamp)))
         if !message.actorDisplayName.isEmpty {
             infoLabelText += " ⸱ " + message.actorDisplayName
@@ -407,6 +405,40 @@ import QuickLook
                               placeholderImage: image, success: nil, failure: nil)
         }
         return cell
+    }
+
+    weak var previewChatViewController: BaseChatViewController?
+
+    override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: {
+
+            // Init the BaseChatViewController without message to directly show a preview
+            if let chatViewController = BaseChatViewController(for: self.room, withMessage: [], withHighlightId: 0) {
+                self.previewChatViewController = chatViewController
+
+                // Fetch the context of the message and update the BaseChatViewController
+                let message = self.currentItems[indexPath.row]
+                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 50) { messages in
+                    guard let messages else { return }
+
+                    chatViewController.appendMessages(messages: messages)
+                    chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
+                }
+
+                let navController = NCNavigationController(rootViewController: chatViewController)
+                return navController
+            }
+
+            return nil
+        }, actionProvider: nil)
+    }
+
+    override func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        animator.addAnimations {
+            if let previewChatViewController = self.previewChatViewController {
+                self.navigationController?.pushViewController(previewChatViewController, animated: false)
+            }
+        }
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -26,6 +26,7 @@
 #import "NCChatMessage.h"
 
 typedef void (^UpdateHistoryInBackgroundCompletionBlock)(NSError *error);
+typedef void (^GetMessagesContextCompletionBlock)(NSArray<NCChatMessage *> * _Nullable messages);
 
 @class NCRoom;
 
@@ -65,5 +66,6 @@ extern NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotificati
 - (void)removeExpiredMessages;
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId;
 - (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm;
+- (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block;
 
 @end
