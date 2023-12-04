@@ -126,7 +126,7 @@ typedef enum FileAction {
     kFileActionOpenInFilesApp
 } FileAction;
 
-@interface RoomInfoTableViewController () <UITextFieldDelegate, AddParticipantsTableViewControllerDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource, RoomDescriptionTableViewCellDelegate>
+@interface RoomInfoTableViewController () <UITextFieldDelegate, AddParticipantsTableViewControllerDelegate, NCChatFileControllerDelegate, QLPreviewControllerDelegate, QLPreviewControllerDataSource>
 
 @property (nonatomic, strong) NCRoom *room;
 @property (nonatomic, strong) ChatViewController *chatViewController;
@@ -1511,35 +1511,6 @@ typedef enum FileAction {
     return hasAllowedLength;
 }
 
-#pragma mark - RoomDescriptionTableViewCell delegate
-
-- (void)roomDescriptionCellTextViewDidChange:(RoomDescriptionTableViewCell *)cell
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.tableView beginUpdates];
-        [self.tableView endUpdates];
-    });
-}
-
-- (void)roomDescriptionCellDidConfirmChanges:(RoomDescriptionTableViewCell *)cell
-{
-    [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] setRoomDescription:cell.textView.text forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-        if (!error) {
-            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
-        } else {
-            NSLog(@"Error setting room description: %@", error.description);
-            [self.tableView reloadData];
-            [self showRoomModificationError:kModificationErrorRoomDescription];
-        }
-    }];
-}
-
-- (void)roomDescriptionCellDidExceedLimit:(RoomDescriptionTableViewCell *)cell
-{
-    [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Description cannot be longer than 500 characters", nil) dismissAfterDelay:3.0f includedStyle:JDStatusBarNotificationIncludedStyleWarning];
-}
-
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -1757,10 +1728,8 @@ typedef enum FileAction {
             }
             
             cell.textView.text = _room.roomDescription;
-            cell.editable = _room.canModerate || _room.type == kNCRoomTypeNoteToSelf;
-            cell.delegate = self;
-            cell.characterLimit = 500;
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.editable = false;
+            cell.selectionStyle = UITableViewCellSelectionStyleDefault;
             return cell;
         }
             break;
@@ -2302,6 +2271,7 @@ typedef enum FileAction {
     RoomInfoSection section = [[sections objectAtIndex:indexPath.section] intValue];
     switch (section) {
         case kRoomInfoSectionName:
+        case kRoomInfoSectionDescription:
         {
             if (_room.canModerate || _room.type == kNCRoomTypeNoteToSelf) {
                 [self presentNameInfoViewController];
