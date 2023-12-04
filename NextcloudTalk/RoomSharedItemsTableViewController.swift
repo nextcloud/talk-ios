@@ -36,7 +36,7 @@ import QuickLook
     var currentItems: [NCChatMessage] = []
     var currentItemType: String = "all"
     var currentLastItemId: Int = -1
-    var sharedItemsBackgroundView: PlaceholderView = PlaceholderView()
+    var sharedItemsBackgroundView: PlaceholderView = PlaceholderView(for: .insetGrouped)
     var previewControllerFilePath: String = ""
     var isPreviewControllerShown: Bool = false
 
