@@ -416,7 +416,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
                 NSInteger notificationId = [[notificationRequest.content.userInfo objectForKey:@"notificationId"] integerValue];
 
                 if (![notificationAccountId isEqualToString:account.accountId]) {
-                    return;
+                    continue;
                 }
 
                 [notificationIdsOnDevice addObject:@(notificationId)];
@@ -440,7 +440,10 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
                     [notificationIdsOnDevice removeObject:notificationId];
                 }
 
-                [self removeNotificationWithNotificationIds:notificationIdsOnDevice forAccountId:account.accountId];
+                // In case there are still notifications on the device (that are not on the server anymore) remove them
+                if ([notificationIdsOnDevice count] > 0) {
+                    [self removeNotificationWithNotificationIds:notificationIdsOnDevice forAccountId:account.accountId];
+                }
 
                 dispatch_group_leave(notificationsGroup);
             }];
