@@ -524,6 +524,12 @@
 "Could not get available languages" = "Could not get available languages";
 
 /* No comment provided by engineer. */
+"Could not get message conversation" = "Could not get message conversation";
+
+/* No comment provided by engineer. */
+"Could not get message's conversation" = "Could not get message's conversation";
+
+/* No comment provided by engineer. */
 "Could not join %@ call" = "Could not join %@ call";
 
 /* No comment provided by engineer. */
