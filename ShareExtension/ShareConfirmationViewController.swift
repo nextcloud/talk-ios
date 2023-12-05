@@ -291,6 +291,11 @@ import AVFoundation
             self.itemToolbar.isHidden = true
             self.shareTextView.isHidden = false
             self.shareTextView.text = sharedText
+
+            // When an item of type "public.url" or "public.plain-text" is shared,
+            // we switch to text-sharing after viewWillAppear, so we need to add the sendButton here as well
+            self.navigationItem.rightBarButtonItem = self.sendButton
+            self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
         }
     }
 
