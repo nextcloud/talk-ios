@@ -1228,7 +1228,7 @@ typedef enum RoomsFilter {
 
 - (void)presentContextChatInRoom:(NCRoom *)room forMessageId:(NSInteger)messageId
 {
-    BaseChatViewController *contextChatViewController = [[BaseChatViewController alloc] initFor:room withMessage:@[] withHighlightId:0];
+    ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initFor:room withMessage:@[] withHighlightId:0];
     contextChatViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeContextChat)];
 
     NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
