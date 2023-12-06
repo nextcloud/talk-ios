@@ -40,6 +40,9 @@ import QuickLook
     var previewControllerFilePath: String = ""
     var isPreviewControllerShown: Bool = false
 
+    weak var previewChatViewController: ContextChatViewController?
+    weak var previewNavigationChatViewController: NCNavigationController?
+
     init(room: NCRoom) {
         self.room = room
         super.init(nibName: "RoomSharedItemsTableViewController", bundle: nil)
@@ -407,13 +410,11 @@ import QuickLook
         return cell
     }
 
-    weak var previewChatViewController: BaseChatViewController?
-
     override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: {
 
             // Init the BaseChatViewController without message to directly show a preview
-            if let chatViewController = BaseChatViewController(for: self.room, withMessage: [], withHighlightId: 0) {
+            if let chatViewController = ContextChatViewController(for: self.room, withMessage: [], withHighlightId: 0) {
                 self.previewChatViewController = chatViewController
 
                 // Fetch the context of the message and update the BaseChatViewController
@@ -426,19 +427,37 @@ import QuickLook
                 }
 
                 let navController = NCNavigationController(rootViewController: chatViewController)
+                self.previewNavigationChatViewController = navController
+
                 return navController
             }
 
             return nil
-        }, actionProvider: nil)
+        }, actionProvider: { _ in
+            UIMenu(children: [UIAction(title: NSLocalizedString("Open", comment: "")) { _ in
+                DispatchQueue.main.async {
+                    self.presentPreviewChatViewController()
+                }
+            }])
+        })
     }
 
     override func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
         animator.addAnimations {
-            if let previewChatViewController = self.previewChatViewController {
-                self.navigationController?.pushViewController(previewChatViewController, animated: false)
-            }
+            self.presentPreviewChatViewController()
         }
+    }
+
+    func presentPreviewChatViewController() {
+        guard let previewNavigationChatViewController = self.previewNavigationChatViewController,
+              let previewChatViewController = self.previewChatViewController
+        else { return }
+
+        self.present(previewNavigationChatViewController, animated: false)
+
+        previewChatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { [weak previewChatViewController] _ in
+            previewChatViewController?.dismiss(animated: true)
+        })
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
