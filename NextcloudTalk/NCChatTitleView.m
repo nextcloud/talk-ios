@@ -86,9 +86,9 @@
     [self setTitle:@"" withSubtitle:nil];
 
     // Use a LongPressGestureRecognizer here to get a "TouchDown" event
-    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlGestureRecognizer:)];
-    longPressGestureRecognizer.minimumPressDuration = 0.0;
-    [self.contentView addGestureRecognizer:longPressGestureRecognizer];
+    self.longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlGestureRecognizer:)];
+    self.longPressGestureRecognizer.minimumPressDuration = 0.0;
+    [self.contentView addGestureRecognizer:self.longPressGestureRecognizer];
 }
 
 - (void)layoutSubviews

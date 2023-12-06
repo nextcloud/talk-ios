@@ -41,6 +41,7 @@
 @property (assign, nonatomic) BOOL showSubtitle;
 @property (strong, nonatomic) UIColor *titleTextColor;
 @property (strong, nonatomic) UIColor *userStatusBackgroundColor;
+@property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizer;
 
 - (void)updateForRoom:(NCRoom *)room;
 

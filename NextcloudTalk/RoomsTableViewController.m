@@ -27,6 +27,8 @@
 
 #import "NextcloudTalk-Swift.h"
 
+#import "JDStatusBarNotification.h"
+
 #import "CCCertificate.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
@@ -71,6 +73,7 @@ typedef enum RoomsFilter {
     NSIndexPath *_nextRoomWithMentionIndexPath;
     NSIndexPath *_lastRoomWithMentionIndexPath;
     UIButton *_unreadMentionsBottomButton;
+    NCNavigationController *_contextChatNavigationController;
 }
 
 @end
@@ -1202,16 +1205,50 @@ typedef enum RoomsFilter {
 - (void)presentSelectedMessageInChat:(NKSearchEntry *)message
 {
     NSString *roomToken = [message.attributes objectForKey:@"conversation"];
-    NSString *messageId = [message.attributes objectForKey:@"messageId"];
-    if (roomToken && messageId) {
-        // Present message in chat view
-        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:roomToken forKey:@"token"];
-        [userInfo setObject:messageId forKey:@"messageId"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCPresentChatHighlightingMessageNotification
-                                                            object:self
-                                                          userInfo:userInfo];
+    NSString *messageIdString = [message.attributes objectForKey:@"messageId"];
+    if (roomToken && messageIdString) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        NSInteger messageId = [messageIdString intValue];
+        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:roomToken forAccountId:activeAccount.accountId];
+        if (room) {
+            [self presentContextChatInRoom:room forMessageId:messageId];
+        } else {
+            [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+                if (!error) {
+                    NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
+                    [self presentContextChatInRoom:room forMessageId:messageId];
+                } else {
+                    NSString *errorMessage = NSLocalizedString(@"Unable to get conversation of the message", nil);
+                    [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:errorMessage dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+                }
+            }];
+        }
     }
+}
+
+- (void)presentContextChatInRoom:(NCRoom *)room forMessageId:(NSInteger)messageId
+{
+    ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initFor:room withMessage:@[] withHighlightId:0];
+    contextChatViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeContextChat)];
+
+    NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
+    [chatController getMessageContextForMessageId:messageId withLimit:50 withCompletionBlock:^(NSArray<NCChatMessage *> * _Nullable messages) {
+        if (messages.count > 0) {
+            [contextChatViewController appendMessagesWithMessages:messages];
+            [contextChatViewController reloadDataAndHighlightMessageWithMessageId:messageId];
+        } else {
+            NSString *errorMessage = NSLocalizedString(@"Unable to get context of the message", nil);
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:errorMessage dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
+        }
+    }];
+
+    _contextChatNavigationController = [[NCNavigationController alloc] initWithRootViewController:contextChatViewController];
+    [self presentViewController:_contextChatNavigationController animated:YES completion:nil];
+}
+
+- (void)closeContextChat
+{
+    [_contextChatNavigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)createRoomForSelectedUser:(NCUser *)user

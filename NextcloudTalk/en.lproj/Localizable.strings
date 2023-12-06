@@ -1697,6 +1697,12 @@
 "Typing indicators are only available when using a high performance backend (HPB)" = "Typing indicators are only available when using a high performance backend (HPB)";
 
 /* No comment provided by engineer. */
+"Unable to get context of the message" = "Unable to get context of the message";
+
+/* No comment provided by engineer. */
+"Unable to get conversation of the message" = "Unable to get conversation of the message";
+
+/* No comment provided by engineer. */
 "Unable to load file" = "Unable to load file";
 
 /* No comment provided by engineer. */
