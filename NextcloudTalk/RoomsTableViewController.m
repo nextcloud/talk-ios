@@ -1218,7 +1218,7 @@ typedef enum RoomsFilter {
                     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                     [self presentContextChatInRoom:room forMessageId:messageId];
                 } else {
-                    NSString *errorMessage = NSLocalizedString(@"Could not get message's conversation", nil);
+                    NSString *errorMessage = NSLocalizedString(@"Unable to get conversation of the message", nil);
                     [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:errorMessage dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
                 }
             }];
@@ -1237,7 +1237,7 @@ typedef enum RoomsFilter {
             [contextChatViewController appendMessagesWithMessages:messages];
             [contextChatViewController reloadDataAndHighlightMessageWithMessageId:messageId];
         } else {
-            NSString *errorMessage = NSLocalizedString(@"Could not get message conversation", nil);
+            NSString *errorMessage = NSLocalizedString(@"Unable to get context of the message", nil);
             [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:errorMessage dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
         }
     }];

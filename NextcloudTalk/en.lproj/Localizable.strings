@@ -524,12 +524,6 @@
 "Could not get available languages" = "Could not get available languages";
 
 /* No comment provided by engineer. */
-"Could not get message conversation" = "Could not get message conversation";
-
-/* No comment provided by engineer. */
-"Could not get message's conversation" = "Could not get message's conversation";
-
-/* No comment provided by engineer. */
 "Could not join %@ call" = "Could not join %@ call";
 
 /* No comment provided by engineer. */
@@ -1701,6 +1695,12 @@
 
 /* No comment provided by engineer. */
 "Typing indicators are only available when using a high performance backend (HPB)" = "Typing indicators are only available when using a high performance backend (HPB)";
+
+/* No comment provided by engineer. */
+"Unable to get context of the message" = "Unable to get context of the message";
+
+/* No comment provided by engineer. */
+"Unable to get conversation of the message" = "Unable to get conversation of the message";
 
 /* No comment provided by engineer. */
 "Unable to load file" = "Unable to load file";
