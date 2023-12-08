@@ -288,48 +288,82 @@
                                        weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
                                        weakSelf.previewImageView.layer.borderWidth = 1.0f;
 
-                                       CGFloat width = image.size.width * image.scale;
-                                       CGFloat height = image.size.height * image.scale;
+                                       CGSize imageSize = CGSizeMake(image.size.width * image.scale, image.size.height * image.scale);
+                                       CGSize previewSize = [FileMessageTableViewCell getPreviewSizeFromImageSize:imageSize isMediaFile:isMediaFile];
 
-                                       CGFloat previewMaxHeight = isMediaFile ? kFileMessageCellMediaFilePreviewHeight : kFileMessageCellFileMaxPreviewHeight;
-                                       CGFloat previewMaxWidth = isMediaFile ? kFileMessageCellMediaFileMaxPreviewWidth : kFileMessageCellFileMaxPreviewWidth;
+                                       weakSelf.vPreviewSize[3].constant = previewSize.height;
+                                       weakSelf.hPreviewSize[3].constant = previewSize.width;
+                                       weakSelf.vGroupedPreviewSize[1].constant = previewSize.height;
+                                       weakSelf.hGroupedPreviewSize[1].constant = previewSize.width;
 
-                                       if (height < kFileMessageCellMinimumHeight) {
-                                           CGFloat ratio = kFileMessageCellMinimumHeight / height;
-                                           width = width * ratio;
-                                           if (width > previewMaxWidth) {
-                                               width = previewMaxWidth;
-                                           }
-                                           height = kFileMessageCellMinimumHeight;
-                                       } else {
-                                           if (height > previewMaxHeight) {
-                                               CGFloat ratio = previewMaxHeight / height;
-                                               width = width * ratio;
-                                               height = previewMaxHeight;
-                                           }
-                                           if (width > previewMaxWidth) {
-                                               CGFloat ratio = previewMaxWidth / width;
-                                               width = previewMaxWidth;
-                                               height = height * ratio;
-                                           }
-                                       }
-                                       weakSelf.vPreviewSize[3].constant = height;
-                                       weakSelf.hPreviewSize[3].constant = width;
-                                       weakSelf.vGroupedPreviewSize[1].constant = height;
-                                       weakSelf.hGroupedPreviewSize[1].constant = width;
                                        if (isVideoFile) {
                                            // only show the play icon if there is an image preview (not on top of the default video placeholder)
                                            weakSelf.playIconImageView.hidden = NO;
                                            // if the video preview is very narrow, make the play icon fit inside
-                                           weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize), MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize));
-                                           weakSelf.playIconImageView.center = CGPointMake(width / 2.0, height / 2.0);
+                                           weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(previewSize.height, previewSize.width), kFileMessageCellVideoPlayIconSize), MIN(MIN(previewSize.height, previewSize.width), kFileMessageCellVideoPlayIconSize));
+                                           weakSelf.playIconImageView.center = CGPointMake(previewSize.width / 2.0, previewSize.height / 2.0);
                                        }
+        
                                        [weakSelf.previewImageView setImage:image];
 
                                        if (weakSelf.delegate) {
-                                           [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:ceil(height) forMessage:message];
+                                           [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:ceil(previewSize.height) forMessage:message];
                                        }
     } failure:nil];
+}
+
++ (CGSize)getPreviewSizeFromImageSize:(CGSize)imageSize isMediaFile:(BOOL)isMediaFile {
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+
+    CGFloat previewMaxHeight = isMediaFile ? kFileMessageCellMediaFilePreviewHeight : kFileMessageCellFileMaxPreviewHeight;
+    CGFloat previewMaxWidth = isMediaFile ? kFileMessageCellMediaFileMaxPreviewWidth : kFileMessageCellFileMaxPreviewWidth;
+
+    if (height < kFileMessageCellMinimumHeight) {
+        CGFloat ratio = kFileMessageCellMinimumHeight / height;
+        width = width * ratio;
+        if (width > previewMaxWidth) {
+            width = previewMaxWidth;
+        }
+        height = kFileMessageCellMinimumHeight;
+    } else {
+        if (height > previewMaxHeight) {
+            CGFloat ratio = previewMaxHeight / height;
+            width = width * ratio;
+            height = previewMaxHeight;
+        }
+        if (width > previewMaxWidth) {
+            CGFloat ratio = previewMaxWidth / width;
+            width = previewMaxWidth;
+            height = height * ratio;
+        }
+    }
+
+    return CGSizeMake(width, height);
+}
+
++ (CGFloat)getEstimatedPreviewImageHeightForMessage:(NCChatMessage *)message
+{
+    if (!message || !message.file) {
+        return 0;
+    }
+
+    NCMessageFileParameter *fileParameter = message.file;
+
+    // We don't have any information about the image to display
+    if (fileParameter.width == 0 && fileParameter.height == 0) {
+        return 0;
+    }
+
+    // We can only estimate the height for images and videos
+    if (![NCUtils isVideoWithFileType:fileParameter.mimetype] && ![NCUtils isImageWithFileType:fileParameter.mimetype]) {
+        return 0;
+    }
+
+    CGSize imageSize = CGSizeMake(fileParameter.width, fileParameter.height);
+    CGSize previewSize = [self getPreviewSizeFromImageSize:imageSize isMediaFile:YES];
+
+    return ceil(previewSize.height);
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state
