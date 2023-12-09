@@ -58,7 +58,8 @@ typedef enum RoomsFilter {
 
 @interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
-    RLMNotificationToken *_rlmNotificationToken;
+    RLMNotificationToken *_rlmRoomNotificationToken;
+    RLMNotificationToken *_rlmAccountNotificationToken;
     NSMutableArray *_rooms;
     NSMutableArray *_allRooms;
     UIRefreshControl *_refreshControl;
@@ -85,10 +86,14 @@ typedef enum RoomsFilter {
     [super viewDidLoad];
     
     __weak typeof(self) weakSelf = self;
-    _rlmNotificationToken = [[NCRoom allObjects] addNotificationBlock:^(RLMResults * _Nullable results, RLMCollectionChange * _Nullable change, NSError * _Nullable error) {
+    _rlmRoomNotificationToken = [[NCRoom allObjects] addNotificationBlock:^(RLMResults * _Nullable results, RLMCollectionChange * _Nullable change, NSError * _Nullable error) {
        [weakSelf refreshRoomList];
     }];
-    
+
+    _rlmAccountNotificationToken = [[TalkAccount allObjects] addNotificationBlock:^(RLMResults * _Nullable results, RLMCollectionChange * _Nullable change, NSError * _Nullable error) {
+        [weakSelf refreshRoomList];
+    }];
+
     [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
@@ -230,7 +235,8 @@ typedef enum RoomsFilter {
 
 - (void)dealloc
 {
-    [_rlmNotificationToken invalidate];
+    [_rlmRoomNotificationToken invalidate];
+    [_rlmAccountNotificationToken invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
