@@ -39,6 +39,7 @@
 @interface FileMessageTableViewCell ()
 {
     MDCActivityIndicator *_activityIndicator;
+    MDCActivityIndicator *_previewActivityIndicator;
 }
 
 @end
@@ -75,21 +76,28 @@
     _previewImageView.userInteractionEnabled = NO;
     _previewImageView.layer.cornerRadius = kFileMessageCellFilePreviewCornerRadius;
     _previewImageView.layer.masksToBounds = YES;
-    [_previewImageView setImage:[UIImage imageNamed:@"file-chat-preview"]];
     [_previewImageView addSubview:_playIconImageView];
     [_previewImageView bringSubviewToFront:_playIconImageView];
     
     UITapGestureRecognizer *previewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
     [_previewImageView addGestureRecognizer:previewTap];
     _previewImageView.userInteractionEnabled = YES;
-    
+
+    _previewActivityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellMinimumHeight, kFileMessageCellMinimumHeight)];
+    _previewActivityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+    _previewActivityIndicator.radius = kFileMessageCellMinimumHeight / 2;
+    _previewActivityIndicator.cycleColors = @[UIColor.lightGrayColor];
+    _previewActivityIndicator.indicatorMode = MDCActivityIndicatorModeIndeterminate;
+
     if ([self.reuseIdentifier isEqualToString:FileMessageCellIdentifier]) {
         [self.contentView addSubview:self.avatarButton];
         [self.contentView addSubview:self.titleLabel];
         [self.contentView addSubview:self.dateLabel];
     }
-    [self.contentView addSubview:_previewImageView];
+
     [self.contentView addSubview:self.bodyTextView];
+    [self.contentView addSubview:_previewImageView];
+    [_previewImageView addSubview:_previewActivityIndicator];
 
     _statusStackView = [[UIStackView alloc] init];
     _statusStackView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -151,6 +159,9 @@
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusStackView(statusStackHeight)]-padding-[previewImageView(>=0)]-(>=0)-|" options:NSLayoutFormatAlignAllTop metrics:metrics views:views]];
+
+    [NSLayoutConstraint activateConstraints:@[[_previewActivityIndicator.centerYAnchor constraintEqualToAnchor:_previewImageView.centerYAnchor]]];
+    [NSLayoutConstraint activateConstraints:@[[_previewActivityIndicator.centerXAnchor constraintEqualToAnchor:_previewImageView.centerXAnchor]]];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeDownloadProgress:) name:NCChatFileControllerDidChangeDownloadProgressNotification object:nil];
@@ -266,12 +277,13 @@
 
 - (void)requestPreviewForMessage:(NCChatMessage *)message withAccount:(TalkAccount *)account
 {
-    NSString *imageName = [[NCUtils previewImageForMimeType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
-    UIImage *filePreviewImage = [UIImage imageNamed:imageName];
-
     if (!message.file.previewAvailable) {
         // Don't request a preview if we know that there's none
-        [self.previewImageView setImage:filePreviewImage];
+        NSString *imageName = [[NCUtils previewImageForMimeType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
+        [self.previewImageView setImage:[UIImage imageNamed:imageName]];
+
+        [_previewActivityIndicator setHidden:YES];
+        [_previewActivityIndicator stopAnimating];
 
         return;
     }
@@ -282,8 +294,31 @@
     NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
     __weak typeof(self) weakSelf = self;
 
+    // In case we can determine the height before requesting the preview, adjust the imageView constraints accordingly
+    if (message.file.previewImageHeight > 0) {
+        self.vPreviewSize[3].constant = message.file.previewImageHeight;
+        self.vGroupedPreviewSize[1].constant = message.file.previewImageHeight;
+    } else {
+        CGFloat estimatedPreviewHeight = [FileMessageTableViewCell getEstimatedPreviewImageHeightForMessage:message];
+
+        if (estimatedPreviewHeight > 0) {
+            self.vPreviewSize[3].constant = estimatedPreviewHeight;
+            self.vGroupedPreviewSize[1].constant = estimatedPreviewHeight;
+        }
+    }
+
+    [_previewActivityIndicator setHidden:NO];
+    [_previewActivityIndicator startAnimating];
+
     [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:requestedHeight usingAccount:account]
-                                     placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                     placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+
+                                       __strong typeof(self) strongSelf = weakSelf;
+
+                                       if (strongSelf) {
+                                           [strongSelf->_previewActivityIndicator setHidden:YES];
+                                           [strongSelf->_previewActivityIndicator stopAnimating];
+                                       }
 
                                        weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
                                        weakSelf.previewImageView.layer.borderWidth = 1.0f;
