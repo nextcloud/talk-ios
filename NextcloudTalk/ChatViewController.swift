@@ -1064,10 +1064,10 @@ import UIKit
         }
 
         guard let message = notification.userInfo?["updateMessage"] as? NCChatMessage,
-              let deleteMessage = message.parent()
+              let updateMessage = message.parent()
         else { return }
 
-        self.updateMessage(withMessageId: deleteMessage.messageId, updatedMessage: deleteMessage)
+        self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
     }
 
     func didReceiveHistoryCleared(notification: Notification) {
