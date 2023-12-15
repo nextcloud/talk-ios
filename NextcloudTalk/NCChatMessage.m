@@ -567,6 +567,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
 - (NCChatMessage *)parent
 {
+    if ([self isDeletedMessage]) {
+        // Ignore parents of deleted messages
+        return nil;
+    }
+
     if (self.parentId) {
         NCChatMessage *unmanagedChatMessage = nil;
         NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.parentId].firstObject;
