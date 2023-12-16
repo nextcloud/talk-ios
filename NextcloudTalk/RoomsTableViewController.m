@@ -178,6 +178,7 @@ typedef enum RoomsFilter {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCSelectedContactForChatNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activeAccountDidChange:) name:NCSettingsControllerDidChangeActiveAccountNotification object:nil];
 }
 
 - (void)setupNavigationBar
@@ -348,6 +349,17 @@ typedef enum RoomsFilter {
         [self refreshRooms];
         NSString *roomToken = [notification.userInfo objectForKey:@"token"];
         [self setSelectedRoomToken:roomToken];
+    });
+}
+
+- (void)activeAccountDidChange:(NSNotification *)notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self refreshRoomList];
+
+        // Setup the navigation bar here, otherwise it would only be updated
+        // when the capabilities were updated, which fails when the server is not reachable.
+        [self setupNavigationBar];
     });
 }
 

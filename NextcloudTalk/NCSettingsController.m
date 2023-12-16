@@ -47,6 +47,7 @@
 
 #import "NextcloudTalk-Swift.h"
 
+NSString * const NCSettingsControllerDidChangeActiveAccountNotification = @"NCSettingsControllerDidChangeActiveAccountNotification";
 
 @interface NCPushNotificationKeyPair : NSObject
 
@@ -161,6 +162,12 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
     [[NCNotificationController sharedInstance] removeAllNotificationsForAccountId:accountId];
     [[NCConnectionController sharedInstance] checkAppState];
+
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:accountId forKey:@"accountId"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCSettingsControllerDidChangeActiveAccountNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)createAccountsFile

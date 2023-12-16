@@ -44,6 +44,8 @@ extern NSString * const kUserProfileScopeLocal;
 extern NSString * const kUserProfileScopeFederated;
 extern NSString * const kUserProfileScopePublished;
 
+extern NSString * const NCSettingsControllerDidChangeActiveAccountNotification;
+
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
