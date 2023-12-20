@@ -930,22 +930,22 @@ import QuickLook
                 if message.isObjectShare() {
                     NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare(), inRoom: room.token, for: activeAccount) { error in
                         if error == nil {
-                            self.view.makeToast(NSLocalizedString("Added note to self", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                            NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
-                            self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                            NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding note", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                         }
                     }
                 } else {
                     NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: activeAccount) { error in
                         if error == nil {
-                            self.view.makeToast(NSLocalizedString("Added note to self", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                            NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
-                            self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                            NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding note", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                         }
                     }
                 }
             } else {
-                self.view.makeToast(NSLocalizedString("An error occurred while adding note", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding note", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
             }
         }
     }
@@ -962,7 +962,7 @@ import QuickLook
     func didPressCopy(for message: NCChatMessage) {
         let pasteboard = UIPasteboard.general
         pasteboard.string = message.parsedMessage().string
-        self.view.makeToast(NSLocalizedString("Message copied", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+        NotificationPresenter.shared().present(text: NSLocalizedString("Message copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
     func didPressTranslate(for message: NCChatMessage) {
@@ -1001,7 +1001,7 @@ import QuickLook
                 if statusCode == 202 {
                     self.view.makeToast(NSLocalizedString("Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services", comment: ""), duration: 5, position: CSToastPositionCenter)
                 } else if statusCode == 200 {
-                    self.view.makeToast(NSLocalizedString("Message deleted successfully", comment: ""), duration: 3, position: CSToastPositionCenter)
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Message deleted successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
 
                 if let deleteMessage = NCChatMessage(dictionary: parent, andAccountId: activeAccount.accountId) {
@@ -1010,11 +1010,11 @@ import QuickLook
             } else if error != nil {
                 switch statusCode {
                 case 400:
-                    self.view.makeToast(NSLocalizedString("Message could not be deleted because it is too old", comment: ""), duration: 5, position: CSToastPositionCenter)
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Message could not be deleted because it is too old", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 case 405:
-                    self.view.makeToast(NSLocalizedString("Only normal chat messages can be deleted", comment: ""), duration: 5, position: CSToastPositionCenter)
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Only normal chat messages can be deleted", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 default:
-                    self.view.makeToast(NSLocalizedString("An error occurred while deleting the message", comment: ""), duration: 5, position: CSToastPositionCenter)
+                    NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while deleting the message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 }
 
                 self.updateMessage(withMessageId: message.messageId, updatedMessage: message)
@@ -1187,7 +1187,7 @@ import QuickLook
     public func shareConfirmationViewControllerDidFailed(_ viewController: ShareConfirmationViewController) {
         self.dismiss(animated: true) {
             if viewController.forwardingMessage {
-                self.view.makeToast(NSLocalizedString("Failed to forward message", comment: ""), duration: 1.5, position: CSToastPositionCenter)
+                NotificationPresenter.shared().present(text: NSLocalizedString("Failed to forward message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
             }
         }
     }
@@ -2263,7 +2263,7 @@ import QuickLook
 
         NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
-                self.view.makeToast(NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), duration: 5, position: CSToastPositionCenter)
+                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
             }
         }
@@ -2275,7 +2275,7 @@ import QuickLook
 
         NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
-                self.view.makeToast(NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), duration: 5, position: CSToastPositionCenter)
+                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
             }
         }
