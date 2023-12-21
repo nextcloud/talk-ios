@@ -92,23 +92,42 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     [self addItemWithURLAndName:fileURL withName:fileURL.lastPathComponent];
 }
 
-- (void)addItemWithURLAndName:(NSURL *)fileURL withName:(NSString *)fileName
+- (BOOL)prepareFileForUploadingAtURL:(NSURL *)fileURL toLocalURL:(NSURL *)fileLocalURL withCoordinatorOption:(NSFileCoordinatorReadingOptions)options
 {
-    NSURL *fileLocalURL = [self getFileLocalURL:fileName];
-    
     NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
     __block NSError *error;
-    
+
     // Make a local copy to prevent bug where file is removed after some time from inbox
     // See: https://stackoverflow.com/a/48007752/2512312
-    [coordinator coordinateReadingItemAtURL:fileURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
+    [coordinator coordinateReadingItemAtURL:fileURL options:options error:&error byAccessor:^(NSURL *newURL) {
         if ([NSFileManager.defaultManager fileExistsAtPath:fileLocalURL.path]) {
             [NSFileManager.defaultManager removeItemAtPath:fileLocalURL.path error:nil];
         }
-        
+
         [NSFileManager.defaultManager moveItemAtPath:newURL.path toPath:fileLocalURL.path error:nil];
     }];
-    
+
+    BOOL success = (error == nil);
+    return success;
+}
+
+- (void)addItemWithURLAndName:(NSURL *)fileURL withName:(NSString *)fileName
+{
+    NSURL *fileLocalURL = [self getFileLocalURL:fileName];
+
+    // First try to prepare the file with NSFileCoordinatorReadingForUploading
+    BOOL preparedSuccessfully = [self prepareFileForUploadingAtURL:fileURL toLocalURL:fileLocalURL withCoordinatorOption:NSFileCoordinatorReadingForUploading];
+
+    if (!preparedSuccessfully) {
+        // We failed to prepare the file with NSFileCoordinatorReadingForUploading, use NSFileCoordinatorReadingWithoutChanges as a fallback
+        preparedSuccessfully = [self prepareFileForUploadingAtURL:fileURL toLocalURL:fileLocalURL withCoordinatorOption:NSFileCoordinatorReadingWithoutChanges];
+
+        if (!preparedSuccessfully) {
+            NSLog(@"Failed to prepare file for sharing");
+            return;
+        }
+    }
+
     NSLog(@"Adding shareItem: %@ %@", fileName, fileLocalURL);
     
     // Try to determine if the item is an image file
