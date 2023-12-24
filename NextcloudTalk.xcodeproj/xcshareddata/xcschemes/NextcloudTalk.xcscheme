@@ -32,9 +32,19 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1F6795D82A3A02FE00EAF142"
+               BlueprintIdentifier = "1FD8AD892A3A162100787C16"
                BuildableName = "NextcloudTalkUITests.xctest"
                BlueprintName = "NextcloudTalkUITests"
+               ReferencedContainer = "container:NextcloudTalk.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1F6D8C2F2B2E3756004376B8"
+               BuildableName = "NextcloudTalkTests.xctest"
+               BlueprintName = "NextcloudTalkTests"
                ReferencedContainer = "container:NextcloudTalk.xcodeproj">
             </BuildableReference>
          </TestableReference>

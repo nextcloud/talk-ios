@@ -106,4 +106,7 @@
 #import "ScreenCapturer.h"
 #import "ScreenCaptureController.h"
 
+#import "NCAPISessionManager.h"
+#import "AFNetworking.h"
+
 #endif /* NextcloudTalk_Bridging_Header_h */
