@@ -40,6 +40,10 @@
 @interface NCPeerConnection () <RTCPeerConnectionDelegate, RTCDataChannelDelegate>
 
 @property (nonatomic, strong) NSMutableArray *queuedRemoteCandidates;
+@property (nonatomic, strong) RTCPeerConnection *peerConnection;
+@property (nonatomic, strong) RTCDataChannel *localDataChannel;
+@property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
+@property (nonatomic, strong) RTCMediaStream *remoteStream;
 
 @end
 
@@ -251,6 +255,32 @@
     self.localDataChannel = nil;
     self.remoteDataChannel = nil;
     self.peerConnection = nil;
+}
+
+#pragma mark - Public RTC getters
+
+- (RTCPeerConnection *)getPeerConnection {
+    [[WebRTCCommon shared] assertQueue];
+    return self.peerConnection;
+}
+
+- (RTCDataChannel *)getLocalDataChannel {
+    [[WebRTCCommon shared] assertQueue];
+    return self.localDataChannel;
+}
+
+- (RTCDataChannel *)getRemoteDataChannel {
+    [[WebRTCCommon shared] assertQueue];
+    return self.remoteDataChannel;
+}
+
+- (RTCMediaStream *)getRemoteStream {
+    [[WebRTCCommon shared] assertQueue];
+    return self.remoteStream;
+}
+
+- (BOOL)hasRemoteStream {
+    return (self.remoteStream != nil);
 }
 
 #pragma mark - RTCPeerConnectionDelegate
