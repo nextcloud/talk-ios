@@ -41,9 +41,12 @@ import UIKit
 
         markdownParser.image.enabled = false
 
-        // Don't update the font when we have a listing/quote, just the paragraph style
+        // Don't update the font when we have a listing/quote (to not override any mentions), just the paragraph style
         markdownParser.list.font = nil
         markdownParser.list.color = nil
+
+        // To correctly position list elements, we need to tell CDMarkdownKit the font to use for sizing
+        markdownParser.list.indicatorFont = .systemFont(ofSize: 16)
 
         markdownParser.quote.font = nil
         markdownParser.quote.color = nil
