@@ -80,6 +80,8 @@
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
 		1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */; };
+		1F5CDAEA2B3C436C0040ECC0 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAE92B3C436C0040ECC0 /* SDWebImage */; };
+		1F5CDAEC2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
@@ -1020,6 +1022,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F5CDAEA2B3C436C0040ECC0 /* SDWebImage in Frameworks */,
+				1F5CDAEC2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin in Frameworks */,
 				7684F1574066434C5A073F93 /* libPods-NextcloudTalkTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1888,6 +1892,10 @@
 				1F6D8C352B2E3756004376B8 /* PBXTargetDependency */,
 			);
 			name = NextcloudTalkTests;
+			packageProductDependencies = (
+				1F5CDAE92B3C436C0040ECC0 /* SDWebImage */,
+				1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */,
+			);
 			productName = NextcloudTalkTests;
 			productReference = 1F6D8C302B2E3756004376B8 /* NextcloudTalkTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -3947,6 +3955,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
 			productName = Dynamic;
+		};
+		1F5CDAE92B3C436C0040ECC0 /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			productName = SDWebImageSVGKitPlugin;
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
