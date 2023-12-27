@@ -74,6 +74,7 @@ static NSString *GroupedFileMessageCellIdentifier   = @"GroupedFileMessageCellId
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hGroupedPreviewSize;
 
 + (CGFloat)defaultFontSize;
++ (CGFloat)getEstimatedPreviewImageHeightForMessage:(NCChatMessage *)message;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

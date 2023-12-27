@@ -39,6 +39,7 @@
 @interface FileMessageTableViewCell ()
 {
     MDCActivityIndicator *_activityIndicator;
+    MDCActivityIndicator *_previewActivityIndicator;
 }
 
 @end
@@ -75,21 +76,28 @@
     _previewImageView.userInteractionEnabled = NO;
     _previewImageView.layer.cornerRadius = kFileMessageCellFilePreviewCornerRadius;
     _previewImageView.layer.masksToBounds = YES;
-    [_previewImageView setImage:[UIImage imageNamed:@"file-chat-preview"]];
     [_previewImageView addSubview:_playIconImageView];
     [_previewImageView bringSubviewToFront:_playIconImageView];
     
     UITapGestureRecognizer *previewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
     [_previewImageView addGestureRecognizer:previewTap];
     _previewImageView.userInteractionEnabled = YES;
-    
+
+    _previewActivityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectMake(0, 0, kFileMessageCellMinimumHeight, kFileMessageCellMinimumHeight)];
+    _previewActivityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+    _previewActivityIndicator.radius = kFileMessageCellMinimumHeight / 2;
+    _previewActivityIndicator.cycleColors = @[UIColor.lightGrayColor];
+    _previewActivityIndicator.indicatorMode = MDCActivityIndicatorModeIndeterminate;
+
     if ([self.reuseIdentifier isEqualToString:FileMessageCellIdentifier]) {
         [self.contentView addSubview:self.avatarButton];
         [self.contentView addSubview:self.titleLabel];
         [self.contentView addSubview:self.dateLabel];
     }
-    [self.contentView addSubview:_previewImageView];
+
     [self.contentView addSubview:self.bodyTextView];
+    [self.contentView addSubview:_previewImageView];
+    [_previewImageView addSubview:_previewActivityIndicator];
 
     _statusStackView = [[UIStackView alloc] init];
     _statusStackView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -151,6 +159,9 @@
     }
     
     [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[statusStackView(statusStackHeight)]-padding-[previewImageView(>=0)]-(>=0)-|" options:NSLayoutFormatAlignAllTop metrics:metrics views:views]];
+
+    [NSLayoutConstraint activateConstraints:@[[_previewActivityIndicator.centerYAnchor constraintEqualToAnchor:_previewImageView.centerYAnchor]]];
+    [NSLayoutConstraint activateConstraints:@[[_previewActivityIndicator.centerXAnchor constraintEqualToAnchor:_previewImageView.centerXAnchor]]];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeIsDownloading:) name:NCChatFileControllerDidChangeIsDownloadingNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeDownloadProgress:) name:NCChatFileControllerDidChangeDownloadProgressNotification object:nil];
@@ -266,12 +277,13 @@
 
 - (void)requestPreviewForMessage:(NCChatMessage *)message withAccount:(TalkAccount *)account
 {
-    NSString *imageName = [[NCUtils previewImageForMimeType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
-    UIImage *filePreviewImage = [UIImage imageNamed:imageName];
-
     if (!message.file.previewAvailable) {
         // Don't request a preview if we know that there's none
-        [self.previewImageView setImage:filePreviewImage];
+        NSString *imageName = [[NCUtils previewImageForMimeType:message.file.mimetype] stringByAppendingString:@"-chat-preview"];
+        [self.previewImageView setImage:[UIImage imageNamed:imageName]];
+
+        [_previewActivityIndicator setHidden:YES];
+        [_previewActivityIndicator stopAnimating];
 
         return;
     }
@@ -282,54 +294,111 @@
     NSInteger requestedHeight = 3 * kFileMessageCellFileMaxPreviewHeight;
     __weak typeof(self) weakSelf = self;
 
+    // In case we can determine the height before requesting the preview, adjust the imageView constraints accordingly
+    if (message.file.previewImageHeight > 0) {
+        self.vPreviewSize[3].constant = message.file.previewImageHeight;
+        self.vGroupedPreviewSize[1].constant = message.file.previewImageHeight;
+    } else {
+        CGFloat estimatedPreviewHeight = [FileMessageTableViewCell getEstimatedPreviewImageHeightForMessage:message];
+
+        if (estimatedPreviewHeight > 0) {
+            self.vPreviewSize[3].constant = estimatedPreviewHeight;
+            self.vGroupedPreviewSize[1].constant = estimatedPreviewHeight;
+        }
+    }
+
+    [_previewActivityIndicator setHidden:NO];
+    [_previewActivityIndicator startAnimating];
+
     [self.previewImageView setImageWithURLRequest:[[NCAPIController sharedInstance] createPreviewRequestForFile:message.file.parameterId withMaxHeight:requestedHeight usingAccount:account]
-                                     placeholderImage:filePreviewImage success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                     placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+
+                                       __strong typeof(self) strongSelf = weakSelf;
+
+                                       if (strongSelf) {
+                                           [strongSelf->_previewActivityIndicator setHidden:YES];
+                                           [strongSelf->_previewActivityIndicator stopAnimating];
+                                       }
 
                                        weakSelf.previewImageView.layer.borderColor = [[UIColor secondarySystemFillColor] CGColor];
                                        weakSelf.previewImageView.layer.borderWidth = 1.0f;
 
-                                       CGFloat width = image.size.width * image.scale;
-                                       CGFloat height = image.size.height * image.scale;
+                                       CGSize imageSize = CGSizeMake(image.size.width * image.scale, image.size.height * image.scale);
+                                       CGSize previewSize = [FileMessageTableViewCell getPreviewSizeFromImageSize:imageSize isMediaFile:isMediaFile];
 
-                                       CGFloat previewMaxHeight = isMediaFile ? kFileMessageCellMediaFilePreviewHeight : kFileMessageCellFileMaxPreviewHeight;
-                                       CGFloat previewMaxWidth = isMediaFile ? kFileMessageCellMediaFileMaxPreviewWidth : kFileMessageCellFileMaxPreviewWidth;
+                                       weakSelf.vPreviewSize[3].constant = previewSize.height;
+                                       weakSelf.hPreviewSize[3].constant = previewSize.width;
+                                       weakSelf.vGroupedPreviewSize[1].constant = previewSize.height;
+                                       weakSelf.hGroupedPreviewSize[1].constant = previewSize.width;
 
-                                       if (height < kFileMessageCellMinimumHeight) {
-                                           CGFloat ratio = kFileMessageCellMinimumHeight / height;
-                                           width = width * ratio;
-                                           if (width > previewMaxWidth) {
-                                               width = previewMaxWidth;
-                                           }
-                                           height = kFileMessageCellMinimumHeight;
-                                       } else {
-                                           if (height > previewMaxHeight) {
-                                               CGFloat ratio = previewMaxHeight / height;
-                                               width = width * ratio;
-                                               height = previewMaxHeight;
-                                           }
-                                           if (width > previewMaxWidth) {
-                                               CGFloat ratio = previewMaxWidth / width;
-                                               width = previewMaxWidth;
-                                               height = height * ratio;
-                                           }
-                                       }
-                                       weakSelf.vPreviewSize[3].constant = height;
-                                       weakSelf.hPreviewSize[3].constant = width;
-                                       weakSelf.vGroupedPreviewSize[1].constant = height;
-                                       weakSelf.hGroupedPreviewSize[1].constant = width;
                                        if (isVideoFile) {
                                            // only show the play icon if there is an image preview (not on top of the default video placeholder)
                                            weakSelf.playIconImageView.hidden = NO;
                                            // if the video preview is very narrow, make the play icon fit inside
-                                           weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize), MIN(MIN(height, width), kFileMessageCellVideoPlayIconSize));
-                                           weakSelf.playIconImageView.center = CGPointMake(width / 2.0, height / 2.0);
+                                           weakSelf.playIconImageView.frame = CGRectMake(0, 0, MIN(MIN(previewSize.height, previewSize.width), kFileMessageCellVideoPlayIconSize), MIN(MIN(previewSize.height, previewSize.width), kFileMessageCellVideoPlayIconSize));
+                                           weakSelf.playIconImageView.center = CGPointMake(previewSize.width / 2.0, previewSize.height / 2.0);
                                        }
+        
                                        [weakSelf.previewImageView setImage:image];
 
                                        if (weakSelf.delegate) {
-                                           [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:ceil(height) forMessage:message];
+                                           [weakSelf.delegate cellHasDownloadedImagePreviewWithHeight:ceil(previewSize.height) forMessage:message];
                                        }
     } failure:nil];
+}
+
++ (CGSize)getPreviewSizeFromImageSize:(CGSize)imageSize isMediaFile:(BOOL)isMediaFile {
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+
+    CGFloat previewMaxHeight = isMediaFile ? kFileMessageCellMediaFilePreviewHeight : kFileMessageCellFileMaxPreviewHeight;
+    CGFloat previewMaxWidth = isMediaFile ? kFileMessageCellMediaFileMaxPreviewWidth : kFileMessageCellFileMaxPreviewWidth;
+
+    if (height < kFileMessageCellMinimumHeight) {
+        CGFloat ratio = kFileMessageCellMinimumHeight / height;
+        width = width * ratio;
+        if (width > previewMaxWidth) {
+            width = previewMaxWidth;
+        }
+        height = kFileMessageCellMinimumHeight;
+    } else {
+        if (height > previewMaxHeight) {
+            CGFloat ratio = previewMaxHeight / height;
+            width = width * ratio;
+            height = previewMaxHeight;
+        }
+        if (width > previewMaxWidth) {
+            CGFloat ratio = previewMaxWidth / width;
+            width = previewMaxWidth;
+            height = height * ratio;
+        }
+    }
+
+    return CGSizeMake(width, height);
+}
+
++ (CGFloat)getEstimatedPreviewImageHeightForMessage:(NCChatMessage *)message
+{
+    if (!message || !message.file) {
+        return 0;
+    }
+
+    NCMessageFileParameter *fileParameter = message.file;
+
+    // We don't have any information about the image to display
+    if (fileParameter.width == 0 && fileParameter.height == 0) {
+        return 0;
+    }
+
+    // We can only estimate the height for images and videos
+    if (![NCUtils isVideoWithFileType:fileParameter.mimetype] && ![NCUtils isImageWithFileType:fileParameter.mimetype]) {
+        return 0;
+    }
+
+    CGSize imageSize = CGSizeMake(fileParameter.width, fileParameter.height);
+    CGSize previewSize = [self getPreviewSizeFromImageSize:imageSize isMediaFile:YES];
+
+    return ceil(previewSize.height);
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state
