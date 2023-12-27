@@ -67,16 +67,12 @@
 @property (nonatomic, assign) BOOL isMCUPublisherPeer;
 @property (nonatomic, assign) BOOL isDummyPeer;
 @property (nonatomic, assign) BOOL isOwnScreensharePeer;
-@property (nonatomic, strong) RTCPeerConnection *peerConnection;
-@property (nonatomic, strong) RTCDataChannel *localDataChannel;
-@property (nonatomic, strong) RTCDataChannel *remoteDataChannel;
 @property (nonatomic, assign) BOOL isRemoteAudioDisabled;
 @property (nonatomic, assign) BOOL isRemoteVideoDisabled;
 @property (nonatomic, assign) BOOL isPeerSpeaking;
 @property (nonatomic, assign) BOOL isHandRaised;
 @property (nonatomic, assign) BOOL showRemoteVideoInOriginalSize;
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
-@property (nonatomic, strong) RTCMediaStream *remoteStream;
 
 - (instancetype)initWithSessionId:(NSString *)sessionId sid:(NSString *)sid andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
 - (instancetype)initForPublisherWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
@@ -88,5 +84,10 @@
 - (void)setStatusForDataChannelMessageType:(NSString *)type withPayload:(id)payload;
 - (void)drainRemoteCandidates;
 - (void)close;
+- (RTCPeerConnection *)getPeerConnection;
+- (RTCDataChannel *)getLocalDataChannel;
+- (RTCDataChannel *)getRemoteDataChannel;
+- (RTCMediaStream *)getRemoteStream;
+- (BOOL)hasRemoteStream;
 
 @end

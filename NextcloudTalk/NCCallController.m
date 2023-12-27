@@ -924,15 +924,17 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         
         // Do not add local stream when using a MCU or to screensharing peers
         if (![_externalSignalingController hasMCU]) {
+            RTCPeerConnection *peerConnection = [peerConnectionWrapper getPeerConnection];
+
             if (!screensharingPeer) {
                 if (_localAudioTrack) {
-                    [peerConnectionWrapper.peerConnection addTrack:_localAudioTrack streamIds:@[kNCMediaStreamId]];
+                    [peerConnection addTrack:_localAudioTrack streamIds:@[kNCMediaStreamId]];
                 }
                 if (_localVideoTrack) {
-                    [peerConnectionWrapper.peerConnection addTrack:_localVideoTrack streamIds:@[kNCMediaStreamId]];
+                    [peerConnection addTrack:_localVideoTrack streamIds:@[kNCMediaStreamId]];
                 }
             } else if (_localScreenTrack) {
-                [peerConnectionWrapper.peerConnection addTrack:_localScreenTrack streamIds:@[kNCMediaStreamId]];
+                [peerConnection addTrack:_localScreenTrack streamIds:@[kNCMediaStreamId]];
             }
         }
         
@@ -1015,12 +1017,14 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     NSString *peerKey = [[self signalingSessionId] stringByAppendingString:kRoomTypeVideo];
     [self->_connectionsDict setObject:self->_publisherPeerConnection forKey:peerKey];
 
+    RTCPeerConnection *peerConnection = [self->_publisherPeerConnection getPeerConnection];
+
     if (self->_localAudioTrack) {
-        [self->_publisherPeerConnection.peerConnection addTrack:self->_localAudioTrack streamIds:@[kNCMediaStreamId]];
+        [peerConnection addTrack:self->_localAudioTrack streamIds:@[kNCMediaStreamId]];
     }
 
     if (self->_localVideoTrack) {
-        [self->_publisherPeerConnection.peerConnection addTrack:self->_localVideoTrack streamIds:@[kNCMediaStreamId]];
+        [peerConnection addTrack:self->_localVideoTrack streamIds:@[kNCMediaStreamId]];
     }
 
     [self->_publisherPeerConnection sendPublisherOffer];
@@ -1047,7 +1051,8 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     [self->_connectionsDict setObject:self->_screenPublisherPeerConnection forKey:peerKey];
 
     if (self->_localScreenTrack) {
-        [self->_screenPublisherPeerConnection.peerConnection addTrack:self->_localScreenTrack streamIds:@[kNCMediaStreamId]];
+        RTCPeerConnection *peerConnection = [self->_screenPublisherPeerConnection getPeerConnection];
+        [peerConnection addTrack:self->_localScreenTrack streamIds:@[kNCMediaStreamId]];
     }
 
     [self->_screenPublisherPeerConnection sendPublisherOffer];
