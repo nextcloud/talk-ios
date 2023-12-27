@@ -82,6 +82,15 @@
 		1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */; };
 		1F5CDAEA2B3C436C0040ECC0 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAE92B3C436C0040ECC0 /* SDWebImage */; };
 		1F5CDAEC2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */; };
+		1F5CDAEE2B3C48670040ECC0 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAED2B3C48670040ECC0 /* Realm */; };
+		1F5CDAF02B3C486D0040ECC0 /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAEF2B3C486D0040ECC0 /* SwiftyAttributes */; };
+		1F5CDAF22B3C48720040ECC0 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF12B3C48720040ECC0 /* CDMarkdownKit */; };
+		1F5CDAF42B3C48790040ECC0 /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF32B3C48790040ECC0 /* NextcloudKit */; };
+		1F5CDAF62B3C487E0040ECC0 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF52B3C487E0040ECC0 /* OpenSSL */; };
+		1F5CDAF82B3C48870040ECC0 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF72B3C48870040ECC0 /* QRCodeReader */; };
+		1F5CDAFA2B3C488E0040ECC0 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF92B3C488E0040ECC0 /* SwiftUIIntrospect */; };
+		1F5CDAFC2B3C48940040ECC0 /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAFB2B3C48940040ECC0 /* TOCropViewController */; };
+		1F5CDAFE2B3C489B0040ECC0 /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAFD2B3C489B0040ECC0 /* WebRTC */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
@@ -1023,8 +1032,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F5CDAEA2B3C436C0040ECC0 /* SDWebImage in Frameworks */,
+				1F5CDAFE2B3C489B0040ECC0 /* WebRTC in Frameworks */,
+				1F5CDAF82B3C48870040ECC0 /* QRCodeReader in Frameworks */,
+				1F5CDAF22B3C48720040ECC0 /* CDMarkdownKit in Frameworks */,
+				1F5CDAFA2B3C488E0040ECC0 /* SwiftUIIntrospect in Frameworks */,
 				1F5CDAEC2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin in Frameworks */,
+				1F5CDAF62B3C487E0040ECC0 /* OpenSSL in Frameworks */,
+				1F5CDAF02B3C486D0040ECC0 /* SwiftyAttributes in Frameworks */,
+				1F5CDAEE2B3C48670040ECC0 /* Realm in Frameworks */,
 				7684F1574066434C5A073F93 /* libPods-NextcloudTalkTests.a in Frameworks */,
+				1F5CDAFC2B3C48940040ECC0 /* TOCropViewController in Frameworks */,
+				1F5CDAF42B3C48790040ECC0 /* NextcloudKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1895,6 +1913,15 @@
 			packageProductDependencies = (
 				1F5CDAE92B3C436C0040ECC0 /* SDWebImage */,
 				1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */,
+				1F5CDAED2B3C48670040ECC0 /* Realm */,
+				1F5CDAEF2B3C486D0040ECC0 /* SwiftyAttributes */,
+				1F5CDAF12B3C48720040ECC0 /* CDMarkdownKit */,
+				1F5CDAF32B3C48790040ECC0 /* NextcloudKit */,
+				1F5CDAF52B3C487E0040ECC0 /* OpenSSL */,
+				1F5CDAF72B3C48870040ECC0 /* QRCodeReader */,
+				1F5CDAF92B3C488E0040ECC0 /* SwiftUIIntrospect */,
+				1F5CDAFB2B3C48940040ECC0 /* TOCropViewController */,
+				1F5CDAFD2B3C489B0040ECC0 /* WebRTC */,
 			);
 			productName = NextcloudTalkTests;
 			productReference = 1F6D8C302B2E3756004376B8 /* NextcloudTalkTests.xctest */;
@@ -3965,6 +3992,51 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
 			productName = SDWebImageSVGKitPlugin;
+		};
+		1F5CDAED2B3C48670040ECC0 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = Realm;
+		};
+		1F5CDAEF2B3C486D0040ECC0 /* SwiftyAttributes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
+			productName = SwiftyAttributes;
+		};
+		1F5CDAF12B3C48720040ECC0 /* CDMarkdownKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			productName = CDMarkdownKit;
+		};
+		1F5CDAF32B3C48790040ECC0 /* NextcloudKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
+		};
+		1F5CDAF52B3C487E0040ECC0 /* OpenSSL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */;
+			productName = OpenSSL;
+		};
+		1F5CDAF72B3C48870040ECC0 /* QRCodeReader */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
+			productName = QRCodeReader;
+		};
+		1F5CDAF92B3C488E0040ECC0 /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
+		};
+		1F5CDAFB2B3C48940040ECC0 /* TOCropViewController */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */;
+			productName = TOCropViewController;
+		};
+		1F5CDAFD2B3C489B0040ECC0 /* WebRTC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */;
+			productName = WebRTC;
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
