@@ -2,36 +2,44 @@ source 'https://cdn.cocoapods.org/'
 platform :ios, '15.0'
 
 def common_dependencies
-pod 'AFNetworking', '3.2.0'
-pod 'UICKeyChainStore'
+  pod 'AFNetworking', '3.2.0'
+  pod 'UICKeyChainStore'
 end
 
 def common_dependencies_ext
-common_dependencies
-pod 'MBProgressHUD', '~> 1.2.0'
+  common_dependencies
+  pod 'MBProgressHUD', '~> 1.2.0'
+end
+
+def main_dependencies
+  common_dependencies_ext
+  pod 'DateTools'
+  pod 'JDStatusBarNotification', '~> 2.0.0'
+  pod 'MaterialComponents/ActivityIndicator'
+  pod 'Toast', '~> 4.0.0'
+  pod 'libPhoneNumber-iOS'
+  pod 'MZTimerLabel'
+  pod 'MobileVLCKit', '~> 3.5.0'
 end
 
 target "NextcloudTalk" do
-common_dependencies_ext
-pod 'DateTools'
-pod 'JDStatusBarNotification', '~> 2.0.0'
-pod 'MaterialComponents/ActivityIndicator'
-pod 'Toast', '~> 4.0.0'
-pod 'libPhoneNumber-iOS'
-pod 'MZTimerLabel'
-pod 'MobileVLCKit', '~> 3.5.0'
+  main_dependencies
+end
+
+target "NextcloudTalkTests" do
+  main_dependencies
 end
 
 target "NotificationServiceExtension" do
-common_dependencies
+  common_dependencies
 end
 
 target "ShareExtension" do
-common_dependencies_ext
+  common_dependencies_ext
 end
 
 target "BroadcastUploadExtension" do
-common_dependencies
+  common_dependencies
 end
 
 pre_install do |installer|
