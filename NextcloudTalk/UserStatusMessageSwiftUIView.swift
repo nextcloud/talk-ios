@@ -224,8 +224,8 @@ struct UserStatusMessageSwiftUIView: View {
     }
 
     func setActiveUserStatus() {
-        if !customStatusSelected {
-            NextcloudKit.shared.setCustomMessagePredefined(messageId: selectedPredifinedStatus!.id!, clearAt: selectedClearAt) { _, error in
+        if !customStatusSelected, let selectedPredifinedStatus {
+            NextcloudKit.shared.setCustomMessagePredefined(messageId: selectedPredifinedStatus.id!, clearAt: selectedClearAt) { _, error in
                 if error.errorCode == 0 {
                     dismiss()
                     changed.toggle()
