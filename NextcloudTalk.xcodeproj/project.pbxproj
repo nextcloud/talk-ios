@@ -79,6 +79,7 @@
 		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
+		1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
@@ -552,6 +553,7 @@
 		1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
 		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
 		1F5A24322ADA77DA009939FE /* InputbarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputbarViewController.swift; sourceTree = "<group>"; };
+		1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UnitColorGeneratorTest.swift; path = NextcloudTalkTests/Unit/UnitColorGeneratorTest.swift; sourceTree = SOURCE_ROOT; };
 		1F5CDF622584E78900B0026E /* NCChatFileStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatFileStatus.h; sourceTree = "<group>"; };
 		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
@@ -1175,6 +1177,7 @@
 		1F6D8C3B2B2F237F004376B8 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -2464,6 +2467,7 @@
 				1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */,
 				1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */,
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
+				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
 				1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */,
 			);

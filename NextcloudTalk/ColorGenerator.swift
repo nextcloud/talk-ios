@@ -32,6 +32,9 @@ import CryptoKit
     private let steps = 6
     private let finalPalette: [UIColor]
 
+    // See: https://stackoverflow.com/a/22334560
+    private static let multiplier = CGFloat(255.999999)
+
     private override init() {
         finalPalette = ColorGenerator.genColors(steps)
 
@@ -81,9 +84,9 @@ import CryptoKit
     }
 
     public static func genColors(_ steps: Int) -> [UIColor] {
-        let red = UIColor(red: 182 / 255, green: 70 / 255, blue: 157 / 255, alpha: 1)
-        let yellow = UIColor(red: 221 / 255, green: 203 / 255, blue: 85 / 255, alpha: 1)
-        let blue = UIColor(red: 0, green: 130 / 255, blue: 201 / 255, alpha: 1)
+        let red = UIColor(red: 182 / multiplier, green: 70 / multiplier, blue: 157 / multiplier, alpha: 1)
+        let yellow = UIColor(red: 221 / multiplier, green: 203 / multiplier, blue: 85 / multiplier, alpha: 1)
+        let blue = UIColor(red: 0, green: 130 / multiplier, blue: 201 / multiplier, alpha: 1)
 
         var palette1 = mixPalette(steps, red, yellow)
         let palette2 = mixPalette(steps, yellow, blue)

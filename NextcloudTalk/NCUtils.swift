@@ -377,13 +377,25 @@ import UniformTypeIdentifiers
     }
 
     public static func hexString(fromColor color: UIColor) -> String {
-        let components = color.cgColor.components
-        let r: CGFloat = components?[0] ?? 0.0
-        let g: CGFloat = components?[1] ?? 0.0
-        let b: CGFloat = components?[2] ?? 0.0
+        // See: https://stackoverflow.com/a/39358741
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
 
-        // Returns hex color string format (e.g."#00FF00")
-        return String(format: "#%02lX%02lX%02lX", lroundf(Float(r * 255)), lroundf(Float(g * 255)), lroundf(Float(b * 255)))
+        let multiplier = CGFloat(255.999999)
+
+        guard color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return ""
+        }
+
+        // We don't expect an alpha component right now
+        return String(
+            format: "#%02lX%02lX%02lX",
+            Int(red * multiplier),
+            Int(green * multiplier),
+            Int(blue * multiplier)
+        )
     }
 
     public static func isValid(indexPath: IndexPath, forTableView tableView: UITableView) -> Bool {
