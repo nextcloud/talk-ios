@@ -366,7 +366,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
                     }
                     print("Error setting phone number ", error ?? "")
                 } else {
-                    self.view.makeToast(NSLocalizedString("Phone number set successfully", comment: ""), duration: 3, position: CSToastPositionCenter)
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Phone number set successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
                 self.refreshUserProfile()
             }

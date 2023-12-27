@@ -27,6 +27,7 @@
 #import <QuickLook/QuickLook.h>
 
 #import "UIView+Toast.h"
+#import "JDStatusBarNotification.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -862,9 +863,7 @@ typedef enum FileAction {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
             NSString *toastText = participant ? NSLocalizedString(@"Invitation resent", nil) : NSLocalizedString(@"Invitations resent", nil);
-            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-            CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
-            [self.view makeToast:toastText duration:1.5 position:@(toastPosition)];
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:toastText dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
         } else {
             NSLog(@"Error resending email invitations: %@", error.description);
             [self.tableView reloadData];
@@ -879,9 +878,7 @@ typedef enum FileAction {
     [[NCAPIController sharedInstance] sendCallNotificationToParticipant:participant inRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
-            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-            CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
-            [self.view makeToast:NSLocalizedString(@"Call notification sent", nil) duration:1.5 position:@(toastPosition)];
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Call notification sent", nil) dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
         } else {
             NSLog(@"Error sending call notification: %@", error.description);
             [self.tableView reloadData];
@@ -1075,10 +1072,7 @@ typedef enum FileAction {
     [[NCAPIController sharedInstance] clearChatHistoryInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *messageDict, NSError *error, NSInteger statusCode) {
         if (!error) {
             NSLog(@"Chat history cleared.");
-            NSIndexPath *indexPath = [self getIndexPathForDestructiveAction:kDestructiveActionClearHistory];
-            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-            CGPoint toastPosition = CGPointMake(cell.center.x, cell.center.y);
-            [self.view makeToast:NSLocalizedString(@"All messages were deleted", nil) duration:1.5 position:@(toastPosition)];
+            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"All messages were deleted", nil) dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
         } else {
             NSLog(@"Error clearing chat history: %@", error.description);
             [self showRoomModificationError:kModificationErrorClearHistory];
