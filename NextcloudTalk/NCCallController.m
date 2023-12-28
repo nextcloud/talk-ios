@@ -476,6 +476,11 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     [self.cameraController enableBackgroundBlurWithEnable:enable];
 }
 
+- (BOOL)isCameraAccessAvailable {
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    return (authStatus == AVAuthorizationStatusAuthorized);
+}
+
 - (void)stopCapturing
 {
     [self.cameraController stopAVCaptureSession];
@@ -844,7 +849,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
             [self.delegate callController:self didCreateLocalAudioTrack:nil];
         }
 
-        if (!self->_isAudioOnly && ((self->_userPermissions & NCPermissionCanPublishVideo) != 0 || !self->_serverSupportsConversationPermissions)) {
+        BOOL hasPublishVideoPermission = ((self->_userPermissions & NCPermissionCanPublishVideo) != 0 || !self->_serverSupportsConversationPermissions);
+
+        if (!self->_isAudioOnly && hasPublishVideoPermission && [self isCameraAccessAvailable]) {
             [self createLocalVideoTrack];
         } else {
             [self.delegate callController:self didCreateLocalVideoTrack:nil];

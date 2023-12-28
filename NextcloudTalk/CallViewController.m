@@ -1958,7 +1958,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions
 {
     [self setAudioMuteButtonEnabled:(permissions & NCPermissionCanPublishAudio)];
-    [self setVideoDisableButtonEnabled:(permissions & NCPermissionCanPublishVideo)];
+    [self setVideoDisableButtonEnabled:((permissions & NCPermissionCanPublishVideo) && [callController isCameraAccessAvailable])];
 }
 
 - (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack
@@ -1968,6 +1968,15 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack
 {
+    if (!videoTrack && !self->_isAudioOnly) {
+        // No video track was created, probably because there are no publishing rights or camera access was denied
+        [self setVideoDisableButtonEnabled:NO];
+        [self setVideoDisableButtonActive:NO];
+        _userDisabledVideo = YES;
+
+        return;
+    }
+
     [self setVideoDisableButtonActive:videoTrack.isEnabled];
 
     // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.

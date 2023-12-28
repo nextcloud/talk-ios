@@ -94,6 +94,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (BOOL)isBackgroundBlurEnabled;
 - (void)enableBackgroundBlur:(BOOL)enable;
 - (void)stopCapturing;
+- (BOOL)isCameraAccessAvailable;
 
 - (void)willSwitchToCall:(NSString *)token;
 
