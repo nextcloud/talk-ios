@@ -80,6 +80,7 @@ extern NSString * const kCapabilityRemindMeLater;
 extern NSString * const kCapabilityMarkdownMessages;
 extern NSString * const kCapabilityNoteToSelf;
 extern NSString * const kCapabilityMediaCaption;
+extern NSString * const kCapabilityEditMessages;
 
 extern NSString * const kNotificationsCapabilityExists;
 

@@ -84,6 +84,7 @@ NSString * const kCapabilityRemindMeLater           = @"remind-me-later";
 NSString * const kCapabilityMarkdownMessages        = @"markdown-messages";
 NSString * const kCapabilityNoteToSelf              = @"note-to-self";
 NSString * const kCapabilityMediaCaption            = @"media-caption";
+NSString * const kCapabilityEditMessages            = @"edit-messages";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 
