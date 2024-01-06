@@ -37,6 +37,7 @@ struct UserStatusMessageSwiftUIView: View {
     @State private var selectedMessage: String = ""
     @State private var selectedClearAt: Double = 0
     @State private var selectedClearAtString: String = ""
+    @State private var changedSmth: Bool = false
 
     @State private var isLoading: Bool = true
     @FocusState private var textFieldIsFocused: Bool
@@ -66,6 +67,7 @@ struct UserStatusMessageSwiftUIView: View {
                                 .frame(maxWidth: 23)
                                 .opacity(selectedIcon.isEmpty ? 0.5 : 1.0)
                                 .onChange(of: selectedIcon) { newString in
+                                    changedSmth = true
                                     customStatusSelected = !changedStatusFromPredefined
                                     changedStatusFromPredefined = false
                                     if newString.count > 1 {
@@ -77,6 +79,7 @@ struct UserStatusMessageSwiftUIView: View {
                             Divider()
                             TextField(NSLocalizedString("What is your status?", comment: ""), text: $selectedMessage)
                                 .onChange(of: selectedMessage) { _ in
+                                    changedSmth = true
                                     customStatusSelected = !changedStatusFromPredefined
                                     changedStatusFromPredefined = false
                                 }
@@ -132,11 +135,11 @@ struct UserStatusMessageSwiftUIView: View {
                                                                          comment: ""),
                                                 action: clearActiveUserStatus,
                                                 style: .tertiary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                                                disabled: Binding.constant(selectedMessage.isEmpty  && selectedIcon.isEmpty))
                                 NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
                                                 action: setActiveUserStatus,
                                                 style: .primary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                                                disabled: Binding.constant(selectedMessage.isEmpty  || changedSmth == false))
                                 .padding(.bottom, 16)
                             }
                         } else {
@@ -146,12 +149,12 @@ struct UserStatusMessageSwiftUIView: View {
                                                                          comment: ""),
                                                 action: clearActiveUserStatus,
                                                 style: .tertiary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                                                disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
                                 .padding(.bottom, 16)
                                 NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
                                                 action: setActiveUserStatus,
                                                 style: .primary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty))
+                                                disabled: Binding.constant(selectedMessage.isEmpty || changedSmth == false))
                                 .padding(.bottom, 16)
                                 Spacer()
                             }
