@@ -1489,6 +1489,16 @@ import UIKit
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let hasChatPermissions = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatPermission) || (self.room.permissions & NCPermission.chat.rawValue) != 0
 
+        // Show edit information
+        if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
+            let timestampDate = Date(timeIntervalSince1970: TimeInterval(message.lastEditTimestamp))
+
+            let editInfo = UIAction(title: NSLocalizedString("Edited by", comment: "") + " " + lastEditActorDisplayName, attributes: [.disabled], handler: {_ in })
+            editInfo.subtitle = NCUtils.readableTimeOrDate(fromDate: timestampDate)
+
+            actions.append(UIMenu(options: [.displayInline], children: [editInfo]))
+        }
+
         // Reply option
         if self.isMessageReplyable(message: message), hasChatPermissions {
             actions.append(UIAction(title: NSLocalizedString("Reply", comment: ""), image: .init(systemName: "arrowshape.turn.up.left")) { _ in

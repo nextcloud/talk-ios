@@ -279,7 +279,24 @@
 
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
-    self.titleLabel.text = message.actorDisplayName;
+    if (message.lastEditActorDisplayName || message.lastEditTimestamp > 0) {
+        NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
+        attachment.image = [[UIImage systemImageNamed:@"pencil"] imageWithTintColor:[UIColor secondaryLabelColor]];
+        [attachment setBounds:CGRectMake(0, -2, 16, 16)];
+
+        NSAttributedString *attachmentString = [NSAttributedString attributedStringWithAttachment:attachment];
+        NSMutableAttributedString *attachmentMutableString = [[NSMutableAttributedString alloc] initWithAttributedString:attachmentString];
+
+        NSMutableAttributedString *actorDisplayNameString = [[NSMutableAttributedString alloc] initWithString:message.actorDisplayName];
+        NSMutableAttributedString *spaceString = [[NSMutableAttributedString alloc] initWithString:@" "];
+        [actorDisplayNameString appendAttributedString:spaceString];
+        [actorDisplayNameString appendAttributedString:attachmentMutableString];
+
+        self.titleLabel.attributedText = actorDisplayNameString;
+    } else {
+        self.titleLabel.text = message.actorDisplayName;
+    }
+
     self.bodyTextView.attributedText = message.parsedMarkdownForChat;
     self.messageId = message.messageId;
     self.message = message;
