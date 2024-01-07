@@ -285,7 +285,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
     
-    BOOL severCanDeleteMessage =
+    BOOL serverCanDeleteMessage =
     // Delete normal messages
     ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId] && [self.messageType isEqualToString:kMessageTypeComment] && !self.file && ![self isObjectShare]) ||
     // Delete files or shared objects
@@ -296,12 +296,29 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         && room.type != kNCRoomTypeFormerOneToOne
         && (room.participantType == kNCParticipantTypeOwner
             || room.participantType == kNCParticipantTypeModerator));
-    
-    if (severCanDeleteMessage && userCanDeleteMessage && !self.isDeleting && self.timestamp >= sixHoursAgoTimestamp) {
-        return YES;
-    }
-    
-    return NO;
+
+    // With "edit-messages" capability, the time limit on deletion was removed
+    BOOL serverAllowsMessageEditing = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityEditMessages forAccountId:account.accountId];;
+    BOOL deletionAllowedByTime = (self.timestamp >= sixHoursAgoTimestamp || serverAllowsMessageEditing);
+
+    return serverCanDeleteMessage && userCanDeleteMessage && deletionAllowedByTime && !self.isDeleting;
+}
+
+- (BOOL)isEditableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room
+{
+    NSInteger twentyFourHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (24 * 3600);
+
+    // TODO: Test with file captions, once implemented on the backend
+    BOOL serverCanEditMessage = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityEditMessages forAccountId:account.accountId];
+    serverCanEditMessage = serverCanEditMessage && [self.messageType isEqualToString:kMessageTypeComment] && !self.file && ![self isObjectShare];
+
+    BOOL userCanEditMessage = [self isMessageFromUser:account.userId]
+    || (room.type != kNCRoomTypeOneToOne
+        && room.type != kNCRoomTypeFormerOneToOne
+        && (room.participantType == kNCParticipantTypeOwner
+            || room.participantType == kNCParticipantTypeModerator));
+
+    return serverCanEditMessage && userCanEditMessage && !self.isDeleting && self.timestamp >= twentyFourHoursAgoTimestamp;
 }
 
 - (BOOL)isObjectShare
