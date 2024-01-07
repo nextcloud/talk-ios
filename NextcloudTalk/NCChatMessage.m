@@ -81,7 +81,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     message.messageType = [messageDict objectForKey:@"messageType"];
     message.expirationTimestamp = [[messageDict objectForKey:@"expirationTimestamp"] integerValue];
     message.isMarkdownMessage = [[messageDict objectForKey:@"markdown"] boolValue];
-    
+    message.lastEditActorId = [messageDict objectForKey:@"lastEditActorId"];
+    message.lastEditActorType = [messageDict objectForKey:@"lastEditActorType"];
+    message.lastEditActorDisplayName = [messageDict objectForKey:@"lastEditActorDisplayName"];
+    message.lastEditTimestamp = [[messageDict objectForKey:@"lastEditTimestamp"] integerValue];
+
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
         message.actorDisplayName = @"";
@@ -171,7 +175,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString;
     managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp;
     managedChatMessage.isMarkdownMessage = chatMessage.isMarkdownMessage;
-    
+    managedChatMessage.lastEditActorId = chatMessage.lastEditActorId;
+    managedChatMessage.lastEditActorType = chatMessage.lastEditActorType;
+    managedChatMessage.lastEditActorDisplayName = chatMessage.lastEditActorDisplayName;
+    managedChatMessage.lastEditTimestamp = chatMessage.lastEditTimestamp;
+
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
     }
@@ -218,7 +226,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     messageCopy.isOfflineMessage = _isOfflineMessage;
     messageCopy.isSilent = _isSilent;
     messageCopy.isMarkdownMessage = _isMarkdownMessage;
-    
+    messageCopy.lastEditActorId = _lastEditActorId;
+    messageCopy.lastEditActorType = _lastEditActorType;
+    messageCopy.lastEditActorDisplayName = _lastEditActorDisplayName;
+    messageCopy.lastEditTimestamp = _lastEditTimestamp;
+
     return messageCopy;
 }
 
