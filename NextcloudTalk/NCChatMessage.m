@@ -257,7 +257,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             [self.systemMessage isEqualToString:@"reaction"] ||
             [self.systemMessage isEqualToString:@"reaction_revoked"] ||
             [self.systemMessage isEqualToString:@"reaction_deleted"] ||
-            [self.systemMessage isEqualToString:@"poll_voted"];
+            [self.systemMessage isEqualToString:@"poll_voted"] ||
+            [self.systemMessage isEqualToString:@"message_edited"];
 }
 
 - (BOOL)isDeletedMessage
