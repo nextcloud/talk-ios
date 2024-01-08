@@ -51,7 +51,6 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     // Vision
     private let requestHandler = VNSequenceRequestHandler()
-    private var facePoseRequest: VNDetectFaceRectanglesRequest!
     private var segmentationRequest: VNGeneratePersonSegmentationRequest!
 
     // Metal
@@ -101,10 +100,6 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     }
 
     func initVisionRequests() {
-        // Create a request to detect face rectangles.
-        facePoseRequest = VNDetectFaceRectanglesRequest()
-        facePoseRequest.revision = VNDetectFaceRectanglesRequestRevision3
-
         // Create a request to segment a person from an image.
         segmentationRequest = VNGeneratePersonSegmentationRequest()
         segmentationRequest.qualityLevel = .balanced
@@ -286,7 +281,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
         if self.backgroundBlurEnabled {
             // Perform the requests on the pixel buffer that contains the video frame.
-            try? requestHandler.perform([facePoseRequest, segmentationRequest],
+            try? requestHandler.perform([segmentationRequest],
                                         on: pixelBuffer,
                                         orientation: .right)
 
@@ -333,7 +328,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         self.processVideoFrame(pixelBuffer, sampleBuffer)
     }
 
-    // MARK: MTKViewDelegate
+    // MARK: - MTKViewDelegate
 
     func draw(in view: MTKView) {
         guard let commandBuffer = metalCommandQueue.makeCommandBuffer(),
@@ -383,7 +378,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         // Delegate method not implemented.
     }
 
-    // MARK: Notifications
+    // MARK: - Notifications
 
     func deviceOrientationDidChangeNotification() {
         self.deviceOrientation = UIDevice.current.orientation
