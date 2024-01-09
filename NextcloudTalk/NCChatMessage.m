@@ -475,7 +475,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 
     UIColor *defaultColor = [NCAppBranding chatForegroundColor];
-    UIColor *highlightedColor = [NCAppBranding elementColor];
 
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
     [attributedMessage addAttribute:NSForegroundColorAttributeName value:defaultColor range:NSMakeRange(0, parsedMessage.length)];
@@ -486,11 +485,24 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0, parsedMessage.length)];
     }
 
+    UIColor *highlightedColor = nil;
+
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions
         if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] ||
             [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"]) {
-            [attributedMessage addAttribute:NSForegroundColorAttributeName value:(param.shouldBeHighlighted) ? highlightedColor : defaultColor range:param.range];
+
+            if (param.shouldBeHighlighted) {
+                if (!highlightedColor) {
+                    // Only get the elementColor if we really need it to reduce realm queries
+                    highlightedColor = [NCAppBranding elementColor];
+                }
+
+                [attributedMessage addAttribute:NSForegroundColorAttributeName value:highlightedColor range:param.range];
+            } else {
+                [attributedMessage addAttribute:NSForegroundColorAttributeName value:defaultColor range:param.range];
+            }
+
             [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
         }
         //Create a link if parameter contains a link
