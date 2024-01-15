@@ -288,23 +288,45 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
         }
     };
 
+    __block BOOL expired = NO;
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"decreaseUnreadBadgeNumberForAccountId" expirationHandler:^(BGTaskHelper *task) {
+        expired = YES;
+        [task stopBackgroundTask];
+    }];
+
+    dispatch_group_t notificationsGroup = dispatch_group_create();
+
+    dispatch_group_enter(notificationsGroup);
     // Check in pending notifications
     [_notificationCenter getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
         for (UNNotificationRequest *notificationRequest in requests) {
+            if (expired) {
+                return;
+            }
             removeNotification(notificationRequest, YES);
         }
 
         [self updateAppIconBadgeNumber];
+        dispatch_group_leave(notificationsGroup);
     }];
 
+    dispatch_group_enter(notificationsGroup);
     // Check in delivered notifications
     [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
         for (UNNotification *notification in notifications) {
+            if (expired) {
+                return;
+            }
             removeNotification(notification.request, NO);
         }
 
         [self updateAppIconBadgeNumber];
+        dispatch_group_leave(notificationsGroup);
     }];
+
+    dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
+        [bgTask stopBackgroundTask];
+    });
 }
 
 - (void)checkForNewNotificationsWithCompletionBlock:(CheckForNewNotificationsCompletionBlock)block
