@@ -253,6 +253,10 @@ typedef enum RoomSearchSection {
         cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
     }
 
+    // Clear possible content not removed by cell reuse
+    cell.dateLabel.text = @"";
+    [cell setUnreadMessages:0 mentioned:NO groupMentioned:NO];
+
     cell.titleLabel.text = user.name;
     cell.titleOnly = YES;
     [cell.roomImage setUserAvatarFor:user.userId with:self.traitCollection.userInterfaceStyle];
