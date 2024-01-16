@@ -27,9 +27,9 @@ jobs:
   build-and-test:
     name: Build and Test
     runs-on: macos-latest
-    if: github.event.pull_request.draft == false
 
     strategy:
+      fail-fast: false
       matrix:
         # Test with stable23 as well to find regressions in older versions
         configs: [
