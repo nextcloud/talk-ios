@@ -1493,7 +1493,7 @@ import UIKit
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
             let timestampDate = Date(timeIntervalSince1970: TimeInterval(message.lastEditTimestamp))
 
-            let editInfo = UIAction(title: NSLocalizedString("Edited by", comment: "") + " " + lastEditActorDisplayName, attributes: [.disabled], handler: {_ in })
+            let editInfo = UIAction(title: NSLocalizedString("Edited by", comment: "A message was edited by ...") + " " + lastEditActorDisplayName, attributes: [.disabled], handler: {_ in })
             editInfo.subtitle = NCUtils.readableTimeOrDate(fromDate: timestampDate)
 
             actions.append(UIMenu(options: [.displayInline], children: [editInfo]))

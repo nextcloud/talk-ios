@@ -778,6 +778,15 @@
 /* No comment provided by engineer. */
 "Duplicate session" = "Duplicate session";
 
+/* A message was edited */
+"edited" = "edited";
+
+/* A message was edited by ... */
+"Edited by" = "Edited by";
+
+/* A message was edited by ... */
+"edited by" = "edited by";
+
 /* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
 
