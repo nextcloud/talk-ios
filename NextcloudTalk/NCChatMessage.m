@@ -297,9 +297,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         && (room.participantType == kNCParticipantTypeOwner
             || room.participantType == kNCParticipantTypeModerator));
 
-    // With "edit-messages" capability, the time limit on deletion was removed
-    BOOL serverAllowsMessageEditing = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityEditMessages forAccountId:account.accountId];;
-    BOOL deletionAllowedByTime = (self.timestamp >= sixHoursAgoTimestamp || serverAllowsMessageEditing);
+    BOOL noTimeLimitForMessageDeletion = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessagesUnlimited forAccountId:account.accountId];
+    BOOL deletionAllowedByTime = (self.timestamp >= sixHoursAgoTimestamp || noTimeLimitForMessageDeletion);
 
     return serverCanDeleteMessage && userCanDeleteMessage && deletionAllowedByTime && !self.isDeleting;
 }
