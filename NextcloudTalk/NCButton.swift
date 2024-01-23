@@ -45,7 +45,7 @@ struct NCButtonSwiftUI: View {
                     .padding(.vertical, 4)
                     .padding(.horizontal, 40)
                     .frame(height: height)
-                    .background(backgroundColorForStyle(style: style))
+                    .background(backgroundColorForStyle(style: style).opacity(disabled ? 0.5 : 1))
                     .cornerRadius(height / 2)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
