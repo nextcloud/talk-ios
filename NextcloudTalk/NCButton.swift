@@ -184,7 +184,7 @@ struct NCButtonSwiftUI: View {
     }
 
     func setButtonEnabled(enabled: Bool) {
-        if let style = self.style {
+        if let style = self.style, backgroundColorForStyle(style: style) != .clear {
             self.backgroundColor = enabled ? backgroundColorForStyle(style: style) : backgroundColorForStyle(style: style).withAlphaComponent(0.5)
         }
         if let borderColor = self.layer.borderColor {
