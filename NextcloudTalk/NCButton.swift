@@ -41,7 +41,7 @@ struct NCButtonSwiftUI: View {
         Button(action: action, label: {
                 Text(title)
                     .bold()
-                    .foregroundColor(titleColorForStyle(style: style).opacity(disabled ? 0.75 : 1))
+                    .foregroundColor(titleColorForStyle(style: style).opacity(disabled ? 0.5 : 1))
                     .padding(.vertical, 4)
                     .padding(.horizontal, 40)
                     .frame(height: height)
