@@ -49,7 +49,7 @@ struct NCButtonSwiftUI: View {
                     .cornerRadius(height / 2)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(borderColorForStyle(style: style), lineWidth: borderWidthForStyle(style: style))
+                            .stroke(borderColorForStyle(style: style).opacity(disabled ? 0.5 : 1), lineWidth: borderWidthForStyle(style: style))
                     )
         })
         .disabled(disabled)
@@ -186,6 +186,9 @@ struct NCButtonSwiftUI: View {
     func setButtonEnabled(enabled: Bool) {
         if let style = self.style {
             self.backgroundColor = enabled ? backgroundColorForStyle(style: style) : backgroundColorForStyle(style: style).withAlphaComponent(0.5)
+        }
+        if let borderColor = self.layer.borderColor {
+            self.layer.borderColor = UIColor(cgColor: borderColor).withAlphaComponent(enabled ? 1 : 0.5).cgColor
         }
         self.isEnabled = enabled
     }
