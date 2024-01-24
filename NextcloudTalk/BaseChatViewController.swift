@@ -1029,13 +1029,16 @@ import QuickLook
                    let value = value as? [String: String] {
 
                     guard let parameter = NCMessageParameter(dictionary: value),
-                          let paramaterDisplayName = parameter.name
+                          let paramaterDisplayName = parameter.name,
+                          let parameterId = parameter.parameterId
                     else { continue }
 
                     // For mentions the displayName is in the parameter "name", in our mentionsDict we use
                     // "mentionsDisplayName" for the displayName with the prefix "@", so we need to construct
-                    // that manually here, so mentions are correctly removed while editing
+                    // that manually here, so mentions are correctly removed while editing.
+                    // The same needs to happen for "mentionId" -> userId with a prefixed "@"
                     parameter.mentionDisplayName = "@\(paramaterDisplayName)"
+                    parameter.mentionId = "@\(parameterId)"
                     self.mentionsDict[key] = parameter
                 }
             }
