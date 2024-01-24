@@ -98,6 +98,9 @@
 "Added note to self" = "Added note to self";
 
 /* No comment provided by engineer. */
+"Adding a mention will only notify users that did not read the message yet" = "Adding a mention will only notify users that did not read the message yet";
+
+/* No comment provided by engineer. */
 "Address" = "Address";
 
 /* No comment provided by engineer. */
@@ -778,6 +781,9 @@
 /* No comment provided by engineer. */
 "Duplicate session" = "Duplicate session";
 
+/* Edit a message */
+"Edit" = "Edit";
+
 /* A message was edited */
 "edited" = "edited";
 
@@ -816,6 +822,9 @@
 
 /* No comment provided by engineer. */
 "Error occurred when creating a reminder" = "Error occurred when creating a reminder";
+
+/* No comment provided by engineer. */
+"Error occurred while editing a message" = "Error occurred while editing a message";
 
 /* External signaling used */
 "External" = "External";
