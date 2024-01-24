@@ -155,9 +155,7 @@ import UIKit
         // We can't use UIColor with systemBlueColor directly, because it will switch to indigo. So make sure we actually get a blue tint here
         self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
 
-        if let pendingMessage = self.room.pendingMessage {
-            self.setChatMessage(pendingMessage)
-        }
+        self.restorePendingMessage()
 
         self.rightButton.setTitle("", for: .normal)
         self.rightButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
@@ -364,6 +362,12 @@ import UIKit
     public func setChatMessage(_ chatMessage: String) {
         DispatchQueue.main.async {
             self.textView.text = chatMessage
+        }
+    }
+
+    public func restorePendingMessage() {
+        if let pendingMessage = self.room.pendingMessage {
+            self.setChatMessage(pendingMessage)
         }
     }
 
