@@ -1272,6 +1272,29 @@ import UIKit
         }
     }
 
+    // MARK: - Editing support
+
+    public override func didCommitTextEditing(_ sender: Any) {
+        if let editingMessage {
+            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: self.textView.text, for: activeAccount) { messageDict, error, _ in
+                if error != nil {
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred while editing a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+                    return
+                }
+
+                guard let messageDict,
+                      let parent = messageDict["parent"] as? [AnyHashable: Any],
+                      let updatedMessage = NCChatMessage(dictionary: parent)
+                else { return }
+
+                self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage)
+            }
+        }
+
+        super.didCommitTextEditing(sender)
+    }
+
     // MARK: - ChatMessageTableViewCellDelegate delegate
 
     override public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage!) {
@@ -1505,7 +1528,7 @@ import UIKit
         }
 
         // Reply option
-        if self.isMessageReplyable(message: message), hasChatPermissions {
+        if self.isMessageReplyable(message: message), hasChatPermissions, !self.textInputbar.isEditing {
             actions.append(UIAction(title: NSLocalizedString("Reply", comment: ""), image: .init(systemName: "arrowshape.turn.up.left")) { _ in
                 self.didPressReply(for: message)
             })
@@ -1609,11 +1632,24 @@ import UIKit
             })
         }
 
+        var destructiveMenuActions: [UIMenuElement] = []
+
+        // Edit option
+        if message.isEditable(for: activeAccount, in: self.room) && hasChatPermissions {
+            destructiveMenuActions.append(UIAction(title: NSLocalizedString("Edit", comment: "Edit a message"), image: .init(systemName: "pencil")) { _ in
+                self.didPressEdit(for: message)
+            })
+        }
+
         // Delete option
         if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: activeAccount, in: self.room) && hasChatPermissions) {
-            actions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
+            destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
                 self.didPressDelete(for: message)
             })
+        }
+
+        if !destructiveMenuActions.isEmpty {
+            actions.append(UIMenu(options: [.displayInline], children: destructiveMenuActions))
         }
 
         let menu = UIMenu(children: actions)
