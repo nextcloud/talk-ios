@@ -205,7 +205,7 @@ import UIKit
     }
 
     public override func heightForAutoCompletionView() -> CGFloat {
-        return kAutoCompletionCellHeight * CGFloat(self.autocompletionUsers.count)
+        return kAutoCompletionCellHeight * CGFloat(self.autocompletionUsers.count) + (self.autoCompletionView.tableHeaderView?.frame.height ?? 0)
     }
 
     func showSuggestions(for string: String) {
