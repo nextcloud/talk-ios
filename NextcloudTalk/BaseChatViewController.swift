@@ -2877,6 +2877,11 @@ import QuickLook
     }
 
     public func savePendingMessage() {
+        if self.textInputbar.isEditing {
+            // We don't want to save a message that we are editing
+            return
+        }
+
         self.room.pendingMessage = self.textView.text
         NCRoomsManager.sharedInstance().updatePendingMessage(self.room.pendingMessage, for: self.room)
     }
