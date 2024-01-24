@@ -106,6 +106,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (BOOL)isCommandMessage;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room;
+- (BOOL)isEditableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room;
 - (BOOL)isObjectShare;
 - (NSDictionary *)richObjectFromObjectShare;
 - (NCMessageFileParameter *)file;

@@ -307,9 +307,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     NSInteger twentyFourHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (24 * 3600);
 
-    // TODO: Test with file captions, once implemented on the backend
     BOOL serverCanEditMessage = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityEditMessages forAccountId:account.accountId];
-    serverCanEditMessage = serverCanEditMessage && [self.messageType isEqualToString:kMessageTypeComment] && !self.file && ![self isObjectShare];
+    serverCanEditMessage = serverCanEditMessage && [self.messageType isEqualToString:kMessageTypeComment] && ![self isObjectShare];
 
     BOOL userCanEditMessage = [self isMessageFromUser:account.userId]
     || (room.type != kNCRoomTypeOneToOne
