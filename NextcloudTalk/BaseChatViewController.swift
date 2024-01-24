@@ -1106,6 +1106,7 @@ import QuickLook
         super.didCancelTextEditing(sender)
         self.autoCompletionView.tableHeaderView = nil
         self.replyMessageView?.dismiss()
+        self.mentionsDict.removeAll()
         self.editingMessage = nil
         self.restorePendingMessage()
     }
@@ -1114,6 +1115,7 @@ import QuickLook
         super.didCommitTextEditing(sender)
         self.autoCompletionView.tableHeaderView = nil
         self.replyMessageView?.dismiss()
+        self.mentionsDict.removeAll()
         self.editingMessage = nil
         self.restorePendingMessage()
     }
