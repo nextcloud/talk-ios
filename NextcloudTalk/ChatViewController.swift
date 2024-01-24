@@ -494,6 +494,11 @@ import UIKit
     public override func canPressRightButton() -> Bool {
         let canPress = super.canPressRightButton()
 
+        if self.textInputbar.isEditing {
+            // When we're editing, we can use the default implementation, as we don't want to save an empty message
+            return canPress
+        }
+
         // If in offline mode, we don't want to show the voice button
         if !offlineMode, !canPress && !presentedInCall && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityVoiceMessage) {
             self.showVoiceMessageRecordButton()
