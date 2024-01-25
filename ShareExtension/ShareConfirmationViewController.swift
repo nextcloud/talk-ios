@@ -529,8 +529,8 @@ import AVFoundation
 
     func sendSharedText() {
         NCAPIController.sharedInstance().sendChatMessage(self.shareTextView.text, toRoom: self.room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
-            if error != nil {
-                NSLog("Failed to send shared item")
+            if let error {
+                NCUtils.log(String(format: "Failed to share text. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFailed(self)
             } else {
                 NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
@@ -543,9 +543,9 @@ import AVFoundation
 
     func sendObjectShare() {
         NCAPIController.sharedInstance().shareRichObject(self.objectShareMessage?.richObjectFromObjectShare(), inRoom: self.room.token, for: self.account) { error in
-            if error != nil {
+            if let error {
+                NCUtils.log(String(format: "Failed to share rich object. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFailed(self)
-                NSLog("Failed to send shared item")
             } else {
                 NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
@@ -611,6 +611,7 @@ import AVFoundation
                 if let fileServerURL, let fileServerPath {
                     self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
                 } else {
+                    NCUtils.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
                     self.uploadErrors.append(errorDescription ?? "Unknown error")
                     self.uploadGroup.leave()
                 }
@@ -661,7 +662,7 @@ import AVFoundation
 
                 NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: filePath, toRoom: self.room.token, talkMetaData: talkMetaData) { error in
                     if let error {
-                        NSLog("Failed to send shared file")
+                        NCUtils.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)
                     }
 
@@ -678,6 +679,7 @@ import AVFoundation
                     self.uploadGroup.leave()
                 }
             } else {
+                NCUtils.log(String(format: "Failed to upload file. Error: %@", nkError.errorDescription))
                 self.uploadErrors.append(nkError.errorDescription)
                 self.uploadGroup.leave()
             }

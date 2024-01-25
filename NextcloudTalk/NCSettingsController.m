@@ -752,7 +752,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
                     [bgTask stopBackgroundTask];
                 } else {
-                    [NCUtils log:@"Error while subscribing to Push Notification server."];
+                    [NCUtils log:[NSString stringWithFormat:@"Error while subscribing to Push Notification server. Error: %@", error.description]];
 
                     if (block) {
                         block(NO);
@@ -762,7 +762,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
                 }
             }];
         } else {
-            [NCUtils log:@"Error while subscribing to NC server."];
+            [NCUtils log:[NSString stringWithFormat:@"Error while subscribing to NC server. Error: %@", error.description]];
 
             if (block) {
                 block(NO);
