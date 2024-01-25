@@ -291,7 +291,6 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
     __block BOOL expired = NO;
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"decreaseUnreadBadgeNumberForAccountId" expirationHandler:^(BGTaskHelper *task) {
         expired = YES;
-        [task stopBackgroundTask];
     }];
 
     dispatch_group_t notificationsGroup = dispatch_group_create();
@@ -301,6 +300,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
     [_notificationCenter getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
         for (UNNotificationRequest *notificationRequest in requests) {
             if (expired) {
+                dispatch_group_leave(notificationsGroup);
                 return;
             }
             removeNotification(notificationRequest, YES);
@@ -315,6 +315,7 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
     [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
         for (UNNotification *notification in notifications) {
             if (expired) {
+                dispatch_group_leave(notificationsGroup);
                 return;
             }
             removeNotification(notification.request, NO);
