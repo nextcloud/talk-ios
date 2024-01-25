@@ -7,6 +7,8 @@
 
 #import "TestForRealm.h"
 
+#import "TalkAccount.h"
+
 @implementation TestForRealm
 
 - (RLMRealm *)setupRealm
