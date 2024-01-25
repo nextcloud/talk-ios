@@ -177,7 +177,10 @@ final class UnitChatCellTest: TestBaseRealm {
         }
 
         testMessage.parentId = "internal-1"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 275.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 210.0)
+
+        // This should be 275 if the file cell would be able to display a quoted view
+        // XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 275.0)
     }
 
     func testCellWithVoiceMessageHeight() {
