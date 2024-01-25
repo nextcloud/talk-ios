@@ -8,6 +8,8 @@
 #import "TestForRealm.h"
 
 #import "TalkAccount.h"
+#import "NCRoom.h"
+#import "ServerCapabilities.h"
 
 @implementation TestForRealm
 
@@ -25,6 +27,7 @@
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     configuration.inMemoryIdentifier = [[[NSUUID alloc] init] UUIDString];
     configuration.schemaVersion = 99;
+    configuration.objectClasses = @[TalkAccount.class, NCRoom.class, ServerCapabilities.class];
     //configuration.objectClasses = @[TalkAccount.class, NCRoom.class, ServerCapabilities.class];
     configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
