@@ -20,7 +20,7 @@
  *
  */
 
-#import <Realm/Realm.h>
+#import <Foundation/Foundation.h>
 
 typedef enum NCChatReactionState {
     NCChatReactionStateSet = 0,

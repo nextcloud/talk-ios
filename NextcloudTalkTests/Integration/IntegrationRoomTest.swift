@@ -20,7 +20,8 @@
 //
 
 import XCTest
-import NextcloudTalk
+import Foundation
+@testable import NextcloudTalk
 
 final class IntegrationRoomTest: TestBase {
 

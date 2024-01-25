@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <Realm/Realm.h>
+
 #import "TalkAccount.h"
 #import "ServerCapabilities.h"
 

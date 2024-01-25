@@ -23,7 +23,6 @@
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
 
-
 @interface NCContact : RLMObject
 
 @property (nonatomic, copy) NSString *internalId; // accountId@identifier
