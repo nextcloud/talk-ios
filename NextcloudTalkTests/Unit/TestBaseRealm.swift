@@ -32,7 +32,7 @@ class TestBaseRealm: XCTestCase {
         let config = RLMRealmConfiguration()
         // Use a UUID to create a new/empty database for each test
         config.inMemoryIdentifier = UUID().uuidString
-        config.objectClasses = [TalkAccount.self, NCChatMessage.self, NCRoom.self, ServerCapabilities.self]
+        config.schemaVersion = 999
 
         RLMRealmConfiguration.setDefault(config)
 
