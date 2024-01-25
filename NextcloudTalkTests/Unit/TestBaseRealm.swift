@@ -28,15 +28,8 @@ class TestBaseRealm: XCTestCase {
     var realm: RLMRealm!
 
     override func setUpWithError() throws {
-        // Setup in memory database
-        let config = RLMRealmConfiguration()
-        // Use a UUID to create a new/empty database for each test
-        config.inMemoryIdentifier = UUID().uuidString
-        config.schemaVersion = 999
-
-        RLMRealmConfiguration.setDefault(config)
-
-        realm = RLMRealm.default()
+        let t = TestForRealm()
+        realm = t.setupRealm()
 
         createFakeActiveAccount()
     }
