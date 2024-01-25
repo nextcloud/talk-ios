@@ -182,6 +182,7 @@
 		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FBC3C122B62CF15003909E0 /* TestForRealm.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3C112B62CF15003909E0 /* TestForRealm.m */; };
+		1FBC3C132B62E92C003909E0 /* TalkAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446D22658147900DF1DBC /* TalkAccount.m */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
@@ -2514,6 +2515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */,
+				1FBC3C132B62E92C003909E0 /* TalkAccount.m in Sources */,
 				1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */,
 				1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */,
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
