@@ -24,6 +24,8 @@
 
 @import NextcloudKit;
 
+#import <SDWebImage/SDWebImageManager.h>
+#import <SDWebImageSVGKitDefine.h>
 #import <SDWebImage/SDImageCache.h>
 
 #import "CCCertificate.h"

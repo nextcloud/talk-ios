@@ -22,9 +22,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <SDWebImage/SDWebImageManager.h>
-#import <SDWebImageSVGKitDefine.h>
-
 #import "AFNetworking.h"
 #import "AFImageDownloader.h"
 #import "NCPoll.h"
@@ -33,6 +30,9 @@
 
 @class NKFile;
 @class NCNotificationAction;
+
+@class SDWebImageCombinedOperation;
+@class SDWebImageDownloaderRequestModifier;
 
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
 typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);

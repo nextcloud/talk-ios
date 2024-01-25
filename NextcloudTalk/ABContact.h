@@ -23,7 +23,6 @@
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
 
-
 @interface ABContact : RLMObject
 
 @property (nonatomic, copy) NSString *identifier;
