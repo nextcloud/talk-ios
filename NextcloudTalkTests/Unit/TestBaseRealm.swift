@@ -28,18 +28,14 @@ class TestBaseRealm: XCTestCase {
     var realm: RLMRealm!
 
     override func setUpWithError() throws {
-        /*// Setup in memory database
+        // Setup in memory database
         let config = RLMRealmConfiguration()
+
         // Use a UUID to create a new/empty database for each test
         config.inMemoryIdentifier = UUID().uuidString
-        config.objectClasses = [NextcloudTalk.TalkAccount.self, NextcloudTalk.NCChatMessage.self, NextcloudTalk.NCRoom.self, NextcloudTalk.ServerCapabilities.self]
 
         RLMRealmConfiguration.setDefault(config)
 
-        realm = RLMRealm.default()
-        */
-
-        RLMRealmConfiguration.default().inMemoryIdentifier = self.name
         realm = RLMRealm.default()
 
         createFakeActiveAccount()

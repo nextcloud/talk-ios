@@ -177,7 +177,6 @@
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
-		1FBC3C122B62CF15003909E0 /* TestForRealm.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3C112B62CF15003909E0 /* TestForRealm.m */; };
 		1FBC3C182B62F5C1003909E0 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1FBC3C172B62F5C1003909E0 /* Realm */; };
 		1FBC3C1A2B62F5CE003909E0 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1FBC3C192B62F5CE003909E0 /* Realm */; };
 		1FBC3C1C2B62F5D3003909E0 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1FBC3C1B2B62F5D3003909E0 /* Realm */; };
@@ -620,9 +619,6 @@
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
-		1FBC3C0F2B62CF14003909E0 /* NextcloudTalkTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalkTests-Bridging-Header.h"; sourceTree = "<group>"; };
-		1FBC3C102B62CF15003909E0 /* TestForRealm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestForRealm.h; sourceTree = "<group>"; };
-		1FBC3C112B62CF15003909E0 /* TestForRealm.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestForRealm.m; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRoomTest.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
@@ -1208,9 +1204,6 @@
 				1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */,
 				1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */,
 				1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */,
-				1FBC3C102B62CF15003909E0 /* TestForRealm.h */,
-				1FBC3C112B62CF15003909E0 /* TestForRealm.m */,
-				1FBC3C0F2B62CF14003909E0 /* NextcloudTalkTests-Bridging-Header.h */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -2515,7 +2508,6 @@
 				1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */,
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
-				1FBC3C122B62CF15003909E0 /* TestForRealm.m in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
 				1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */,
 				1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */,
@@ -3047,7 +3039,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalkTests/Unit/NextcloudTalkTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3078,7 +3069,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalkTests/Unit/NextcloudTalkTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NextcloudTalk.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NextcloudTalk";
