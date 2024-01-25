@@ -93,6 +93,12 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
 
 @end
 
+@interface NCDatabaseManager ()
+
+@property (nonatomic, strong) NSCache<NSString *, ServerCapabilities*> *capabilitiesCache;
+
+@end
+
 @implementation NCDatabaseManager
 
 + (NCDatabaseManager *)sharedInstance
@@ -139,6 +145,8 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         [[NSFileManager defaultManager] removeItemAtURL:dbCopyURL error:nil];
         [[NSFileManager defaultManager] copyItemAtURL:databaseURL toURL:dbCopyURL error:nil];
 #endif
+        
+        self.capabilitiesCache = [[NSCache alloc] init];
     }
     
     return self;
@@ -348,10 +356,19 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
 
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId
 {
+    ServerCapabilities *cachedCapabilities = [self.capabilitiesCache objectForKey:accountId];
+
+    if (cachedCapabilities) {
+        return cachedCapabilities;
+    }
+
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
     if (managedServerCapabilities) {
-        return [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+        ServerCapabilities *unmanagedServerCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+        [self.capabilitiesCache setObject:unmanagedServerCapabilities forKey:accountId];
+
+        return unmanagedServerCapabilities;
     }
     return nil;
 }
@@ -462,6 +479,9 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     [realm transactionWithBlock:^{
         [realm addOrUpdateObject:capabilities];
     }];
+
+    ServerCapabilities *unmanagedServerCapabilities = [[ServerCapabilities alloc] initWithValue:capabilities];
+    [self.capabilitiesCache setObject:unmanagedServerCapabilities forKey:accountId];
 }
 
 - (BOOL)serverHasTalkCapability:(NSString *)capability

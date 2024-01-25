@@ -37,6 +37,7 @@ import UIKit
         adjustTheming()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.appStateChanged(notification:)), name: NSNotification.Name.NCAppStateHasChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.serverCapabilitiesUpdated(notification:)), name: NSNotification.Name.NCServerCapabilitiesUpdated, object: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -60,6 +61,10 @@ import UIKit
     }
 
     func appStateChanged(notification: Notification) {
+        adjustTheming()
+    }
+
+    func serverCapabilitiesUpdated(notification: Notification) {
         adjustTheming()
     }
 }
