@@ -2623,7 +2623,8 @@ import QuickLook
             height += 105
         }
 
-        if message.parent() != nil {
+        // File cells currently can't show a quote, so don't increase the size here
+        if message.parent() != nil, message.file() == nil {
             height += 65 // left(5) + quoteView(60)
         }
 
