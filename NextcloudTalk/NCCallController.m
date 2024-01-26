@@ -154,6 +154,17 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)startCall
 {
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+
+    if (!_isAudioOnly && authStatus == AVAuthorizationStatusNotDetermined) {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+            [self createLocalMedia];
+            [self joinCall];
+        }];
+
+        return;
+    }
+
     [self createLocalMedia];
     [self joinCall];
 }
