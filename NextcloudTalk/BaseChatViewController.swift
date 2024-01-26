@@ -747,7 +747,9 @@ import QuickLook
             items.append(shareLocationAction)
         }
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPolls), self.room.type != kNCRoomTypeOneToOne {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPolls), 
+            self.room.type != kNCRoomTypeOneToOne, self.room.type != kNCRoomTypeNoteToSelf {
+
             items.append(pollAction)
         }
 
