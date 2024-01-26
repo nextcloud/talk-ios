@@ -1478,6 +1478,34 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)editChatMessageInRoom:(NSString *)token withMessageId:(NSInteger)messageId withMessage:(NSString *)message forAccount:(TalkAccount *)account withCompletionBlock:(EditChatMessageCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"chat/%@/%ld", encodedToken, (long)messageId];
+    NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
+    NSMutableDictionary *parameters = [NSMutableDictionary new];
+    [parameters setObject:message forKey:@"message"];
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+
+    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *messageDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        if (block) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(messageDict, nil, httpResponse.statusCode);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error, statusCode);
+        }
+    }];
+
+    return task;
+}
+
 - (NSURLSessionDataTask *)clearChatHistoryInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ClearChatHistoryCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];

@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)presentReplyViewWithMessage:(NCChatMessage *)message withUserId:(NSString *)userId;
 - (void)dismiss;
+- (void)hideCloseButton;
 
 @end
 

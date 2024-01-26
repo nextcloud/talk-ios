@@ -89,6 +89,10 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) BOOL collapsedIncludesUserSelf;
 @property (nonatomic, assign) BOOL isCollapsed;
 @property (nonatomic, assign) BOOL isMarkdownMessage;
+@property (nonatomic, strong, nullable) NSString *lastEditActorType;
+@property (nonatomic, strong, nullable) NSString *lastEditActorId;
+@property (nonatomic, strong, nullable) NSString *lastEditActorDisplayName;
+@property (nonatomic, assign) NSInteger lastEditTimestamp;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
@@ -102,6 +106,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (BOOL)isCommandMessage;
 - (BOOL)isMessageFromUser:(NSString *)userId;
 - (BOOL)isDeletableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room;
+- (BOOL)isEditableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room;
 - (BOOL)isObjectShare;
 - (NSDictionary *)richObjectFromObjectShare;
 - (NCMessageFileParameter *)file;

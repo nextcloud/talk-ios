@@ -64,6 +64,7 @@ import QuickLook
     internal var interactingMessage: NCChatMessage?
     internal var lastMessageBeforeInteraction: IndexPath?
     internal var contextMenuActionBlock: (() -> Void)?
+    internal var editingMessage: NCChatMessage?
 
     internal lazy var emojiTextField: EmojiTextField = {
         let emojiTextField = EmojiTextField()
@@ -582,7 +583,7 @@ import QuickLook
 
             let isAtBottom = self.shouldScrollOnNewMessages()
             let keyDate = self.dateSections[indexPath.section]
-            updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots"
+            updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots" && updatedMessage.lastEditTimestamp == 0
             self.messages[keyDate]?[indexPath.row] = updatedMessage
 
             // Check if there are any messages that reference our message as a parent -> these need to be reloaded as well
@@ -847,24 +848,28 @@ import QuickLook
         }
     }
 
+    func showReplyView(for message: NCChatMessage) {
+        let isAtBottom = self.shouldScrollOnNewMessages()
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        if let replyProxyView = self.replyProxyView as? ReplyMessageView {
+            self.replyMessageView = replyProxyView
+
+            replyProxyView.presentReply(with: message, withUserId: activeAccount.userId)
+            self.presentKeyboard(true)
+
+            // Make sure we're really at the bottom after showing the replyMessageView
+            if isAtBottom {
+                self.tableView?.slk_scrollToBottom(animated: false)
+                self.updateToolbar(animated: false)
+            }
+        }
+    }
+
     func didPressReply(for message: NCChatMessage) {
         // Make sure we get a smooth animation after dismissing the context menu
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            let isAtBottom = self.shouldScrollOnNewMessages()
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-            if let replyProxyView = self.replyProxyView as? ReplyMessageView {
-                self.replyMessageView = replyProxyView
-
-                replyProxyView.presentReply(with: message, withUserId: activeAccount.userId)
-                self.presentKeyboard(true)
-
-                // Make sure we're really at the bottom after showing the replyMessageView
-                if isAtBottom {
-                    self.tableView?.slk_scrollToBottom(animated: false)
-                    self.updateToolbar(animated: false)
-                }
-            }
+            self.showReplyView(for: message)
         }
     }
 
@@ -979,6 +984,76 @@ import QuickLook
         downloader.downloadFile(fromMessage: message.file())
     }
 
+    func didPressEdit(for message: NCChatMessage) {
+        self.savePendingMessage()
+
+        let warningString = NSLocalizedString("Adding a mention will only notify users that did not read the message yet", comment: "")
+        let warningView = UIView()
+        let warningLabel = UILabel()
+
+        warningView.addSubview(warningLabel)
+        warningLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            warningLabel.leftAnchor.constraint(equalTo: warningView.safeAreaLayoutGuide.leftAnchor, constant: 8),
+            warningLabel.rightAnchor.constraint(equalTo: warningView.safeAreaLayoutGuide.rightAnchor, constant: -8),
+            warningLabel.topAnchor.constraint(equalTo: warningView.safeAreaLayoutGuide.topAnchor, constant: 4),
+            warningLabel.bottomAnchor.constraint(equalTo: warningView.safeAreaLayoutGuide.bottomAnchor)
+        ])
+
+        let attributedWarningString = warningString.withFont(.systemFont(ofSize: 14)).withTextColor(.secondaryLabel)
+
+        warningLabel.attributedText = attributedWarningString
+        warningLabel.numberOfLines = 0
+
+        // Calculate the height needed to completely show the text
+        let maxWidth = self.autoCompletionView.frame.width - autoCompletionView.safeAreaInsets.left - autoCompletionView.safeAreaInsets.right - 16
+        let contraintRect = CGSize(width: maxWidth, height: .greatestFiniteMagnitude)
+        let size = attributedWarningString.boundingRect(with: contraintRect, options: .usesLineFragmentOrigin, context: nil)
+
+        // Update the frame for the new height and include the top padding
+        warningView.frame = .init(x: 0, y: 0, width: size.width, height: ceil(size.height) + 4)
+        self.autoCompletionView.tableHeaderView = warningView
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            // Show the message to edit in the reply view
+            self.showReplyView(for: message)
+            self.replyMessageView!.hideCloseButton()
+
+            self.mentionsDict = [:]
+
+            // Try to reconstruct the mentionsDict
+            for (key, value) in message.messageParameters() {
+                if let key = key as? String,
+                   key.hasPrefix("mention-"),
+                   let value = value as? [String: String] {
+
+                    guard let parameter = NCMessageParameter(dictionary: value),
+                          let paramaterDisplayName = parameter.name,
+                          let parameterId = parameter.parameterId
+                    else { continue }
+
+                    // For mentions the displayName is in the parameter "name", in our mentionsDict we use
+                    // "mentionsDisplayName" for the displayName with the prefix "@", so we need to construct
+                    // that manually here, so mentions are correctly removed while editing.
+                    // The same needs to happen for "mentionId" -> userId with a prefixed "@"
+                    parameter.mentionDisplayName = "@\(paramaterDisplayName)"
+                    parameter.mentionId = "@\(parameterId)"
+                    self.mentionsDict[key] = parameter
+                }
+            }
+
+            self.editingMessage = message
+
+            // For files without a caption we start with an empty text instead of "{file}"
+            if message.message == "{file}", message.file() != nil {
+                self.editText("")
+            } else {
+                self.editText(message.parsedMessage().string)
+            }
+        }
+    }
+
     func didPressDelete(for message: NCChatMessage) {
         if message.sendingFailed, message.isOfflineMessage {
             self.removePermanentlyTemporaryMessage(temporaryMessage: message)
@@ -1026,6 +1101,26 @@ import QuickLook
         if let file = message.file() {
             NCUtils.openFileInNextcloudAppOrBrowser(path: file.path, withFileLink: file.link)
         }
+    }
+
+    // MARK: - Editing support
+
+    public override func didCancelTextEditing(_ sender: Any) {
+        super.didCancelTextEditing(sender)
+        self.autoCompletionView.tableHeaderView = nil
+        self.replyMessageView?.dismiss()
+        self.mentionsDict.removeAll()
+        self.editingMessage = nil
+        self.restorePendingMessage()
+    }
+
+    public override func didCommitTextEditing(_ sender: Any) {
+        super.didCommitTextEditing(sender)
+        self.autoCompletionView.tableHeaderView = nil
+        self.replyMessageView?.dismiss()
+        self.mentionsDict.removeAll()
+        self.editingMessage = nil
+        self.restorePendingMessage()
     }
 
     // MARK: - UITextField delegate
@@ -1305,7 +1400,7 @@ import QuickLook
         }
     }
 
-    // MARK: UIDocumentPickerViewController Delegate
+    // MARK: - UIDocumentPickerViewController Delegate
 
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
@@ -1913,7 +2008,8 @@ import QuickLook
                         // The newly received message either already exists or its temporary counterpart exists -> update
                         // If the user type a command the newMessage.actorType will be "bots", then we should not group those messages
                         // even if the original message was grouped.
-                        newMessage.isGroupMessage = currentMessage.isGroupMessage && newMessage.actorType != "bots"
+                        // Edited messages should not be grouped to make it clear, that the message was edited
+                        newMessage.isGroupMessage = currentMessage.isGroupMessage && newMessage.actorType != "bots" && newMessage.lastEditTimestamp == 0
                         dictionary[keyDate]?[messageIndex] = newMessage
                         messageUpdated = true
                         break
@@ -1981,6 +2077,7 @@ import QuickLook
         let sameActor = newMessage.actorId == lastMessage.actorId
         let sameType = newMessage.isSystemMessage() == lastMessage.isSystemMessage()
         let timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference
+        let notEdited = newMessage.lastEditTimestamp == 0
 
         // Try to collapse system messages if the new message is not already collapsing some messages
         // Disable swiftlint -> not supported on Realm object
@@ -1989,7 +2086,7 @@ import QuickLook
             self.tryToGroupSystemMessage(newMessage: newMessage, withMessage: lastMessage)
         }
 
-        return sameActor && sameType && timeDiff
+        return sameActor && sameType && timeDiff && notEdited
     }
 
     func tryToGroupSystemMessage(newMessage: NCChatMessage, withMessage lastMessage: NCChatMessage) {
@@ -2877,6 +2974,11 @@ import QuickLook
     }
 
     public func savePendingMessage() {
+        if self.textInputbar.isEditing {
+            // We don't want to save a message that we are editing
+            return
+        }
+
         self.room.pendingMessage = self.textView.text
         NCRoomsManager.sharedInstance().updatePendingMessage(self.room.pendingMessage, for: self.room)
     }
@@ -3218,6 +3320,10 @@ import QuickLook
     }
 
     public func cellWantsToReply(to message: NCChatMessage!) {
+        if self.textInputbar.isEditing {
+            return
+        }
+
         self.didPressReply(for: message)
     }
 

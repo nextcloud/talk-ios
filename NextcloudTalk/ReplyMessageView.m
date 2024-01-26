@@ -33,6 +33,7 @@
 @interface ReplyMessageView ()
 @property (nonatomic, strong) UIView *quoteContainerView;
 @property (nonatomic, strong) UIButton *cancelButton;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hConstraints;
 @end
 
 @implementation ReplyMessageView
@@ -63,7 +64,8 @@
         @"cancelButton": self.cancelButton
     };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-16-[quoteContainerView]-4-[cancelButton(44)]-4-|" options:0 metrics:nil views:views]];
+    self.hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-16-[quoteContainerView]-4-[cancelButton(44)]-4-|" options:0 metrics:nil views:views];
+    [self addConstraints:self.hConstraints];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quoteContainerView]|" options:0 metrics:nil views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cancelButton]|" options:0 metrics:nil views:views]];
@@ -172,8 +174,19 @@
     self.quotedMessageView.messageLabel.text = message.parsedMarkdownForChat.string;
     self.quotedMessageView.highlighted = [message isMessageFromUser:userId];
     [self.quotedMessageView.avatarView setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle];
-    
+    [self.cancelButton setHidden:NO];
+
+    // Reset button size to 44 in case it was hidden before
+    self.hConstraints[2].constant = 44;
+
     self.visible = YES;
+}
+
+- (void)hideCloseButton
+{
+    [self.cancelButton setHidden:YES];
+    // With 2*4 padding (left and right to the button) we add 8 to have 16 as we have on the left side of the quoteView
+    self.hConstraints[2].constant = 8;
 }
 
 

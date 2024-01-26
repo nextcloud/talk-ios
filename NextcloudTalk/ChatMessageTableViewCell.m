@@ -279,13 +279,37 @@
 
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead
 {
-    self.titleLabel.text = message.actorDisplayName;
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    if (message.lastEditActorDisplayName || message.lastEditTimestamp > 0) {
+        NSString *editedString;
+
+        if ([message.lastEditActorId isEqualToString:activeAccount.userId] && [message.lastEditActorType isEqualToString:@"users"]) {
+            editedString = NSLocalizedString(@"edited", "A message was edited");
+            editedString = [NSString stringWithFormat:@" (%@)", editedString];
+        } else {
+            editedString = NSLocalizedString(@"edited by", "A message was edited by ...");
+            editedString = [NSString stringWithFormat:@" (%@ %@)", editedString, message.lastEditActorDisplayName];
+        }
+
+        NSMutableAttributedString *editedAttributedString = [[NSMutableAttributedString alloc] initWithString:editedString];
+        NSRange rangeEditedString = NSMakeRange(0, [editedAttributedString length]);
+        [editedAttributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:14] range:rangeEditedString];
+        [editedAttributedString addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:rangeEditedString];
+
+        NSMutableAttributedString *actorDisplayNameString = [[NSMutableAttributedString alloc] initWithString:message.actorDisplayName];
+        [actorDisplayNameString appendAttributedString:editedAttributedString];
+
+        self.titleLabel.attributedText = actorDisplayNameString;
+    } else {
+        self.titleLabel.text = message.actorDisplayName;
+    }
+
     self.bodyTextView.attributedText = message.parsedMarkdownForChat;
     self.messageId = message.messageId;
     self.message = message;
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;

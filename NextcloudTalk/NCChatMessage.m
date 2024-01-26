@@ -81,7 +81,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     message.messageType = [messageDict objectForKey:@"messageType"];
     message.expirationTimestamp = [[messageDict objectForKey:@"expirationTimestamp"] integerValue];
     message.isMarkdownMessage = [[messageDict objectForKey:@"markdown"] boolValue];
-    
+    message.lastEditActorId = [messageDict objectForKey:@"lastEditActorId"];
+    message.lastEditActorType = [messageDict objectForKey:@"lastEditActorType"];
+    message.lastEditActorDisplayName = [messageDict objectForKey:@"lastEditActorDisplayName"];
+    message.lastEditTimestamp = [[messageDict objectForKey:@"lastEditTimestamp"] integerValue];
+
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
         message.actorDisplayName = @"";
@@ -171,7 +175,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString;
     managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp;
     managedChatMessage.isMarkdownMessage = chatMessage.isMarkdownMessage;
-    
+    managedChatMessage.lastEditActorId = chatMessage.lastEditActorId;
+    managedChatMessage.lastEditActorType = chatMessage.lastEditActorType;
+    managedChatMessage.lastEditActorDisplayName = chatMessage.lastEditActorDisplayName;
+    managedChatMessage.lastEditTimestamp = chatMessage.lastEditTimestamp;
+
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
     }
@@ -218,7 +226,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     messageCopy.isOfflineMessage = _isOfflineMessage;
     messageCopy.isSilent = _isSilent;
     messageCopy.isMarkdownMessage = _isMarkdownMessage;
-    
+    messageCopy.lastEditActorId = _lastEditActorId;
+    messageCopy.lastEditActorType = _lastEditActorType;
+    messageCopy.lastEditActorDisplayName = _lastEditActorDisplayName;
+    messageCopy.lastEditTimestamp = _lastEditTimestamp;
+
     return messageCopy;
 }
 
@@ -245,7 +257,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             [self.systemMessage isEqualToString:@"reaction"] ||
             [self.systemMessage isEqualToString:@"reaction_revoked"] ||
             [self.systemMessage isEqualToString:@"reaction_deleted"] ||
-            [self.systemMessage isEqualToString:@"poll_voted"];
+            [self.systemMessage isEqualToString:@"poll_voted"] ||
+            [self.systemMessage isEqualToString:@"message_edited"];
 }
 
 - (BOOL)isDeletedMessage
@@ -272,7 +285,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
     
-    BOOL severCanDeleteMessage =
+    BOOL serverCanDeleteMessage =
     // Delete normal messages
     ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId] && [self.messageType isEqualToString:kMessageTypeComment] && !self.file && ![self isObjectShare]) ||
     // Delete files or shared objects
@@ -283,12 +296,27 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         && room.type != kNCRoomTypeFormerOneToOne
         && (room.participantType == kNCParticipantTypeOwner
             || room.participantType == kNCParticipantTypeModerator));
-    
-    if (severCanDeleteMessage && userCanDeleteMessage && !self.isDeleting && self.timestamp >= sixHoursAgoTimestamp) {
-        return YES;
-    }
-    
-    return NO;
+
+    BOOL noTimeLimitForMessageDeletion = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessagesUnlimited forAccountId:account.accountId];
+    BOOL deletionAllowedByTime = (self.timestamp >= sixHoursAgoTimestamp || noTimeLimitForMessageDeletion);
+
+    return serverCanDeleteMessage && userCanDeleteMessage && deletionAllowedByTime && !self.isDeleting;
+}
+
+- (BOOL)isEditableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room
+{
+    NSInteger twentyFourHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (24 * 3600);
+
+    BOOL serverCanEditMessage = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityEditMessages forAccountId:account.accountId];
+    serverCanEditMessage = serverCanEditMessage && [self.messageType isEqualToString:kMessageTypeComment] && ![self isObjectShare];
+
+    BOOL userCanEditMessage = [self isMessageFromUser:account.userId]
+    || (room.type != kNCRoomTypeOneToOne
+        && room.type != kNCRoomTypeFormerOneToOne
+        && (room.participantType == kNCParticipantTypeOwner
+            || room.participantType == kNCParticipantTypeModerator));
+
+    return serverCanEditMessage && userCanEditMessage && !self.isDeleting && self.timestamp >= twentyFourHoursAgoTimestamp;
 }
 
 - (BOOL)isObjectShare
