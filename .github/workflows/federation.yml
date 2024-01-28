@@ -1,0 +1,115 @@
+name: Federation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - NextcloudTalk.xcodeproj/**
+      - NextcloudTalk/**
+      - NextcloudTalkUITests/**
+      - NotificationServiceExtension/**
+      - ShareExtension/**
+
+    push:
+      branches:
+        - main
+        - master
+        - stable*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configs: [
+          { talkbranch: 'main', serverbranch: 'master', phpversion: '8.2' }
+        ]
+
+    env:
+      WORKSPACE: NextcloudTalk.xcworkspace
+      DESTINATION: platform=iOS Simulator,name=iPhone 14,OS=16.2
+      SCHEME: NextcloudTalk
+
+    steps:
+    - name: Checkout app
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - uses: actions/cache@v3
+      with:
+        path: Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
+
+    - name: Set up php ${{ matrix.configs.phpversion }}
+      uses: shivammathur/setup-php@a36e1e52ff4a1c9e9c9be31551ee4712a6cb6bd0 # v2.27.1
+      with:
+        php-version: ${{ matrix.configs.phpversion }}
+        # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+        extensions: apcu, bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, pgsql, pdo_pgsql
+        coverage: none
+        ini-file: development
+        # Temporary workaround for missing pcntl_* in PHP 8.3: ini-values: apc.enable_cli=on
+        ini-values: apc.enable_cli=on, disable_functions=
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Checkout server
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      with:
+        submodules: true
+        repository: nextcloud/server
+        path: server
+        ref: ${{ matrix.configs.serverbranch }}
+
+    - name: Checkout Talk
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      with:
+        repository: nextcloud/spreed
+        path: server/apps/spreed
+        ref: ${{ matrix.configs.talkbranch }}
+
+    - name: Set up production dependencies
+      working-directory: server/apps/spreed
+      run: composer i --no-dev
+
+    - name: Copy to federated directory
+      run: cp -Rp server/ server-federated/
+
+    - name: Set up Nextcloud Main
+      run: |
+        mkdir server/data
+        ./server/occ maintenance:install --verbose --database=sqlite --database-name=nextcloud --database-host=127.0.0.1 --database-user=root --database-pass=rootpassword --admin-user admin --admin-pass admin
+        ./server/occ config:system:set hashing_default_password --value=true --type=boolean
+        ./server/occ config:system:set memcache.local --value="\\OC\\Memcache\\APCu"
+        ./server/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
+        ./server/occ app:enable --force spreed
+        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
+
+    - name: Set up Nextcloud Federated
+      run: |
+        mkdir server-federated/data
+        ./server-federated/occ maintenance:install --verbose --database=sqlite --database-name=nextcloud --database-host=127.0.0.1 --database-user=root --database-pass=rootpassword --admin-user admin --admin-pass admin
+        ./server-federated/occ config:system:set hashing_default_password --value=true --type=boolean
+        ./server-federated/occ config:system:set memcache.local --value="\\OC\\Memcache\\APCu"
+        ./server-federated/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
+        ./server-federated/occ app:enable --force spreed
+        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8081 -t server-federated/ &
+
+    - name: Set up Nextcloud Federated
+      run: |
+        curl http://localhost:8080/status.php
+        curl http://localhost:8081/status.php
+
