@@ -58,7 +58,7 @@ jobs:
           ${{ runner.os }}-pods-
 
     - name: Set up php ${{ matrix.configs.phpversion }}
-      uses: shivammathur/setup-php@a36e1e52ff4a1c9e9c9be31551ee4712a6cb6bd0 # v2.27.1
+      uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
       with:
         php-version: ${{ matrix.configs.phpversion }}
         # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
