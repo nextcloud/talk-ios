@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
+
 #import "NCChatReaction.h"
 #import "NCDatabaseManager.h"
 #import "NCDeckCardParameter.h"

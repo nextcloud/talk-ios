@@ -19,9 +19,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import Foundation
-import NextcloudTalk
 import XCTest
+import Foundation
+@testable import NextcloudTalk
 
 extension XCTestCase {
 

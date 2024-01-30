@@ -24,10 +24,10 @@ end
 
 target "NextcloudTalk" do
   main_dependencies
-end
 
-target "NextcloudTalkTests" do
-  main_dependencies
+  target 'NextcloudTalkTests' do
+    inherit! :search_paths
+  end
 end
 
 target "NotificationServiceExtension" do

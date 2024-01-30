@@ -2695,12 +2695,21 @@ import QuickLook
         manager.glyphRange(forBoundingRect: targetBounding, in: container)
         let bodyBounds = manager.usedRect(for: container)
 
-        var height = kChatCellAvatarHeight
-        height += ceil(bodyBounds.height)
-        height += 20.0 // right(10) + 2*left(5)
+        var height = ceil(bodyBounds.height)
 
-        if height < kChatMessageCellMinimumHeight {
-            height = kChatMessageCellMinimumHeight
+        if message.isGroupMessage || message.isSystemMessage() {
+            height += 10 // 2*left(5)
+
+            if height < kGroupedChatMessageCellMinimumHeight {
+                height = kGroupedChatMessageCellMinimumHeight
+            }
+        } else {
+            height += kChatCellAvatarHeight
+            height += 20.0 // right(10) + 2*left(5)
+
+            if height < kChatMessageCellMinimumHeight {
+                height = kChatMessageCellMinimumHeight
+            }
         }
 
         if !message.reactionsArray().isEmpty {
@@ -2711,33 +2720,15 @@ import QuickLook
             height += 105
         }
 
-        if message.parent() != nil {
+        // File cells currently can't show a quote, so don't increase the size here
+        if message.parent() != nil, message.file() == nil {
             height += 65 // left(5) + quoteView(60)
-            return height
-        }
-
-        if message.isGroupMessage || message.isSystemMessage() {
-            height = ceil(bodyBounds.height) + 10 // 2*left(5)
-
-            if height < kGroupedChatMessageCellMinimumHeight {
-                height = kGroupedChatMessageCellMinimumHeight
-            }
-
-            if !message.reactionsArray().isEmpty {
-                height += 40 // reactionsView(40)
-            }
-
-            if message.containsURL() {
-                height += 105
-            }
         }
 
         // Voice message should be before message.file check since it contains a file
         if message.isVoiceMessage() {
             height -= ceil(bodyBounds.height)
             height += kVoiceMessageCellPlayerHeight + 10
-
-            return height
         }
 
         if let file = message.file() {
@@ -2759,13 +2750,10 @@ import QuickLook
                     height -= ceil(bodyBounds.height)
                 }
             }
-
-            return height
         }
 
         if message.geoLocation() != nil {
             height += kLocationMessageCellPreviewHeight + 10 // right(10)
-            return height
         }
 
         if message.poll() != nil {

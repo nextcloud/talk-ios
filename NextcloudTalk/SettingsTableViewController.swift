@@ -24,6 +24,7 @@ import NextcloudKit
 import SafariServices
 import SwiftUI
 import ReplayKit
+import SDWebImage
 
 enum SettingsSection: Int {
     case kSettingsSectionUser = 0
