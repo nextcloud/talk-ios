@@ -11,9 +11,6 @@
 		1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF42A68274400921E90 /* CDMarkdownKit */; };
 		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
 		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
-		1F0ECBFD2A73F21A00921E90 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBFC2A73F21A00921E90 /* Realm */; };
-		1F0ECBFF2A73F22900921E90 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBFE2A73F22900921E90 /* Realm */; };
-		1F0ECC012A73F22F00921E90 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECC002A73F22F00921E90 /* Realm */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
 		1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */; };
@@ -80,17 +77,6 @@
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
 		1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */; };
-		1F5CDAEA2B3C436C0040ECC0 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAE92B3C436C0040ECC0 /* SDWebImage */; };
-		1F5CDAEC2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */; };
-		1F5CDAEE2B3C48670040ECC0 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAED2B3C48670040ECC0 /* Realm */; };
-		1F5CDAF02B3C486D0040ECC0 /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAEF2B3C486D0040ECC0 /* SwiftyAttributes */; };
-		1F5CDAF22B3C48720040ECC0 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF12B3C48720040ECC0 /* CDMarkdownKit */; };
-		1F5CDAF42B3C48790040ECC0 /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF32B3C48790040ECC0 /* NextcloudKit */; };
-		1F5CDAF62B3C487E0040ECC0 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF52B3C487E0040ECC0 /* OpenSSL */; };
-		1F5CDAF82B3C48870040ECC0 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF72B3C48870040ECC0 /* QRCodeReader */; };
-		1F5CDAFA2B3C488E0040ECC0 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAF92B3C488E0040ECC0 /* SwiftUIIntrospect */; };
-		1F5CDAFC2B3C48940040ECC0 /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAFB2B3C48940040ECC0 /* TOCropViewController */; };
-		1F5CDAFE2B3C489B0040ECC0 /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1F5CDAFD2B3C489B0040ECC0 /* WebRTC */; };
 		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
@@ -108,6 +94,21 @@
 		1F6D8C492B2F2FB7004376B8 /* AAAALoginTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C472B2F2F69004376B8 /* AAAALoginTest.swift */; };
 		1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C4A2B2F5B61004376B8 /* TestBase.swift */; };
 		1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C4C2B2F8FE5004376B8 /* IntegrationChatTest.swift */; };
+		1F759C092B63B9A7000534AB /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C082B63B9A7000534AB /* SDWebImage */; };
+		1F759C0B2B63B9A7000534AB /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0A2B63B9A7000534AB /* SDWebImageSVGKitPlugin */; };
+		1F759C0E2B63B9BA000534AB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0D2B63B9BA000534AB /* WebRTC */; };
+		1F759C102B63B9D9000534AB /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0F2B63B9D9000534AB /* OpenSSL */; };
+		1F759C142B63B9D9000534AB /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C132B63B9D9000534AB /* QRCodeReader */; };
+		1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C152B63B9D9000534AB /* NextcloudKit */; };
+		1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C172B63B9D9000534AB /* SwiftyAttributes */; };
+		1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C192B63B9D9000534AB /* CDMarkdownKit */; };
+		1F759C1C2B63B9D9000534AB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C1B2B63B9D9000534AB /* TOCropViewController */; };
+		1F759C1E2B63B9D9000534AB /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C1D2B63B9D9000534AB /* SwiftUIIntrospect */; };
+		1F759C2C2B63CB93000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C2B2B63CB93000534AB /* Realm */; };
+		1F759C2E2B63CB9A000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C2D2B63CB9A000534AB /* Realm */; };
+		1F759C302B63CBA0000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C2F2B63CBA0000534AB /* Realm */; };
+		1F759C322B63CBA5000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C312B63CBA5000534AB /* Realm */; };
+		1F759C342B63CBAA000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C332B63CBAA000534AB /* Realm */; };
 		1F7625E52901B0DB00834869 /* CallsFromOldAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */; };
 		1F7625E72901B0E800834869 /* CallsFromOldAccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */; };
 		1F77A5EB2AB9A3EE007B6037 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
@@ -179,6 +180,8 @@
 		1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
+		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
+		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
@@ -211,7 +214,6 @@
 		1FF2FD832AB99F3B000C9905 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		1FF2FD852AB99F51000C9905 /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
 		1FF2FD862AB99F5B000C9905 /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
-		1FF2FD882AB9A08E000C9905 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1FF2FD872AB9A08E000C9905 /* Realm */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -463,11 +465,11 @@
 		2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */; };
 		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
-		7684F1574066434C5A073F93 /* libPods-NextcloudTalkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE0DC028175FB2FB27A7EB9E /* libPods-NextcloudTalkTests.a */; };
 		807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */; };
 		80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */; };
 		80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */; };
 		80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */; };
+		829186205D367E516AAF0D7E /* libPods-NextcloudTalkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE0DC028175FB2FB27A7EB9E /* libPods-NextcloudTalkTests.a */; };
 		847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
@@ -616,6 +618,8 @@
 		1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLMSupport.swift; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
+		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
+		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRoomTest.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
@@ -996,7 +1000,7 @@
 		2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTranslationViewController.swift; sourceTree = "<group>"; };
 		2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageTranslationViewController.xib; sourceTree = "<group>"; };
 		2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextInputTableViewCell.xib; sourceTree = "<group>"; };
-		2EEE832C09F1555E6F2B1187 /* Pods-NextcloudTalkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.release.xcconfig"; sourceTree = "<group>"; };
+		342600BABD1AD1FCA48B5E59 /* Pods-NextcloudTalkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.debug.xcconfig"; sourceTree = "<group>"; };
 		4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.release.xcconfig"; sourceTree = "<group>"; };
 		4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1006,11 +1010,11 @@
 		80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusSwiftUIView.swift; sourceTree = "<group>"; };
 		80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageSwiftUIView.swift; sourceTree = "<group>"; };
 		82CD0527E04B844CAD762ADE /* Pods-BroadcastUploadExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BroadcastUploadExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BroadcastUploadExtension/Pods-BroadcastUploadExtension.debug.xcconfig"; sourceTree = "<group>"; };
-		86A7F2BE457F181CCBF79C14 /* Pods-NextcloudTalkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BroadcastUploadExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8F95DE6635ABC1E64CA8E4A /* Pods-BroadcastUploadExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BroadcastUploadExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-BroadcastUploadExtension/Pods-BroadcastUploadExtension.release.xcconfig"; sourceTree = "<group>"; };
+		B7874918820589BF8FD69BED /* Pods-NextcloudTalkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.release.xcconfig"; sourceTree = "<group>"; };
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateLabelCustom.swift; sourceTree = "<group>"; };
@@ -1031,18 +1035,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F5CDAEA2B3C436C0040ECC0 /* SDWebImage in Frameworks */,
-				1F5CDAFE2B3C489B0040ECC0 /* WebRTC in Frameworks */,
-				1F5CDAF82B3C48870040ECC0 /* QRCodeReader in Frameworks */,
-				1F5CDAF22B3C48720040ECC0 /* CDMarkdownKit in Frameworks */,
-				1F5CDAFA2B3C488E0040ECC0 /* SwiftUIIntrospect in Frameworks */,
-				1F5CDAEC2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin in Frameworks */,
-				1F5CDAF62B3C487E0040ECC0 /* OpenSSL in Frameworks */,
-				1F5CDAF02B3C486D0040ECC0 /* SwiftyAttributes in Frameworks */,
-				1F5CDAEE2B3C48670040ECC0 /* Realm in Frameworks */,
-				7684F1574066434C5A073F93 /* libPods-NextcloudTalkTests.a in Frameworks */,
-				1F5CDAFC2B3C48940040ECC0 /* TOCropViewController in Frameworks */,
-				1F5CDAF42B3C48790040ECC0 /* NextcloudKit in Frameworks */,
+				1F759C0E2B63B9BA000534AB /* WebRTC in Frameworks */,
+				1F759C092B63B9A7000534AB /* SDWebImage in Frameworks */,
+				1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */,
+				1F759C0B2B63B9A7000534AB /* SDWebImageSVGKitPlugin in Frameworks */,
+				1F759C102B63B9D9000534AB /* OpenSSL in Frameworks */,
+				1F759C142B63B9D9000534AB /* QRCodeReader in Frameworks */,
+				1F759C342B63CBAA000534AB /* Realm in Frameworks */,
+				1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */,
+				1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */,
+				1F759C1C2B63B9D9000534AB /* TOCropViewController in Frameworks */,
+				829186205D367E516AAF0D7E /* libPods-NextcloudTalkTests.a in Frameworks */,
+				1F759C1E2B63B9D9000534AB /* SwiftUIIntrospect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1057,9 +1061,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F759C322B63CBA5000534AB /* Realm in Frameworks */,
 				1F77A6002AB9A50D007B6037 /* NextcloudKit in Frameworks */,
 				1F77A60C2AB9A5BE007B6037 /* CDMarkdownKit in Frameworks */,
-				1FF2FD882AB9A08E000C9905 /* Realm in Frameworks */,
 				1FF2FD5D2AB99CCB000C9905 /* ReplayKit.framework in Frameworks */,
 				1F77A5EF2AB9A41E007B6037 /* SDWebImage in Frameworks */,
 				847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */,
@@ -1077,7 +1081,6 @@
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */,
-				1F0ECBFD2A73F21A00921E90 /* Realm in Frameworks */,
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
@@ -1086,6 +1089,7 @@
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
+				1F759C2C2B63CB93000534AB /* Realm in Frameworks */,
 				1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */,
 				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
 				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
@@ -1098,11 +1102,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F0ECC012A73F22F00921E90 /* Realm in Frameworks */,
 				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
 				1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */,
 				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
+				1F759C302B63CBA0000534AB /* Realm in Frameworks */,
 				1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */,
 				1F8848122A75B68D00063860 /* IntentsUI.framework in Frameworks */,
 				1F35F8FD2AEEDCCB00044BDA /* AudioToolbox.framework in Frameworks */,
@@ -1115,7 +1119,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F0ECBFF2A73F22900921E90 /* Realm in Frameworks */,
+				1F759C2E2B63CB9A000534AB /* Realm in Frameworks */,
 				1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */,
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
@@ -1199,7 +1203,9 @@
 		1F6D8C3B2B2F237F004376B8 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */,
 				1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */,
+				1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -1884,8 +1890,8 @@
 				4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */,
 				82CD0527E04B844CAD762ADE /* Pods-BroadcastUploadExtension.debug.xcconfig */,
 				A8F95DE6635ABC1E64CA8E4A /* Pods-BroadcastUploadExtension.release.xcconfig */,
-				86A7F2BE457F181CCBF79C14 /* Pods-NextcloudTalkTests.debug.xcconfig */,
-				2EEE832C09F1555E6F2B1187 /* Pods-NextcloudTalkTests.release.xcconfig */,
+				342600BABD1AD1FCA48B5E59 /* Pods-NextcloudTalkTests.debug.xcconfig */,
+				B7874918820589BF8FD69BED /* Pods-NextcloudTalkTests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -1897,12 +1903,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1F6D8C362B2E3756004376B8 /* Build configuration list for PBXNativeTarget "NextcloudTalkTests" */;
 			buildPhases = (
-				136C010C4905A923E7DB2A58 /* [CP] Check Pods Manifest.lock */,
+				3A811BF7A761836E61C82B80 /* [CP] Check Pods Manifest.lock */,
 				1F6D8C2C2B2E3756004376B8 /* Sources */,
 				1F6D8C2D2B2E3756004376B8 /* Frameworks */,
 				1F6D8C2E2B2E3756004376B8 /* Resources */,
-				5E5096E23D32642C5DE7B4C8 /* [CP] Embed Pods Frameworks */,
-				7089D1DF404E8B1CB25FF3ED /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1911,17 +1915,17 @@
 			);
 			name = NextcloudTalkTests;
 			packageProductDependencies = (
-				1F5CDAE92B3C436C0040ECC0 /* SDWebImage */,
-				1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */,
-				1F5CDAED2B3C48670040ECC0 /* Realm */,
-				1F5CDAEF2B3C486D0040ECC0 /* SwiftyAttributes */,
-				1F5CDAF12B3C48720040ECC0 /* CDMarkdownKit */,
-				1F5CDAF32B3C48790040ECC0 /* NextcloudKit */,
-				1F5CDAF52B3C487E0040ECC0 /* OpenSSL */,
-				1F5CDAF72B3C48870040ECC0 /* QRCodeReader */,
-				1F5CDAF92B3C488E0040ECC0 /* SwiftUIIntrospect */,
-				1F5CDAFB2B3C48940040ECC0 /* TOCropViewController */,
-				1F5CDAFD2B3C489B0040ECC0 /* WebRTC */,
+				1F759C082B63B9A7000534AB /* SDWebImage */,
+				1F759C0A2B63B9A7000534AB /* SDWebImageSVGKitPlugin */,
+				1F759C0D2B63B9BA000534AB /* WebRTC */,
+				1F759C0F2B63B9D9000534AB /* OpenSSL */,
+				1F759C132B63B9D9000534AB /* QRCodeReader */,
+				1F759C152B63B9D9000534AB /* NextcloudKit */,
+				1F759C172B63B9D9000534AB /* SwiftyAttributes */,
+				1F759C192B63B9D9000534AB /* CDMarkdownKit */,
+				1F759C1B2B63B9D9000534AB /* TOCropViewController */,
+				1F759C1D2B63B9D9000534AB /* SwiftUIIntrospect */,
+				1F759C332B63CBAA000534AB /* Realm */,
 			);
 			productName = NextcloudTalkTests;
 			productReference = 1F6D8C302B2E3756004376B8 /* NextcloudTalkTests.xctest */;
@@ -1960,11 +1964,11 @@
 			);
 			name = BroadcastUploadExtension;
 			packageProductDependencies = (
-				1FF2FD872AB9A08E000C9905 /* Realm */,
 				1F77A5EE2AB9A41E007B6037 /* SDWebImage */,
 				1F77A5F02AB9A423007B6037 /* SDWebImageSVGKitPlugin */,
 				1F77A5FF2AB9A50D007B6037 /* NextcloudKit */,
 				1F77A60B2AB9A5BE007B6037 /* CDMarkdownKit */,
+				1F759C312B63CBA5000534AB /* Realm */,
 			);
 			productName = BroadcastUploadExtension;
 			productReference = 1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */;
@@ -2001,10 +2005,10 @@
 				1F45A1152A01D6EC005FE87D /* SDWebImage */,
 				1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF42A68274400921E90 /* CDMarkdownKit */,
-				1F0ECBFC2A73F21A00921E90 /* Realm */,
 				1FAB2E7C2AC99326001214EB /* TOCropViewController */,
 				1FAB2E872ACD44D0001214EB /* WebRTC */,
 				80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */,
+				1F759C2B2B63CB93000534AB /* Realm */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -2029,9 +2033,9 @@
 				1F45A1192A01D70E005FE87D /* SDWebImage */,
 				1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF82A68277C00921E90 /* CDMarkdownKit */,
-				1F0ECC002A73F22F00921E90 /* Realm */,
 				1FAB2E7E2AC99367001214EB /* TOCropViewController */,
 				1F35F8F42AEEDA9800044BDA /* SwiftyAttributes */,
+				1F759C2F2B63CBA0000534AB /* Realm */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -2056,7 +2060,7 @@
 				1F45A11D2A01D719005FE87D /* SDWebImage */,
 				1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF62A68277000921E90 /* CDMarkdownKit */,
-				1F0ECBFE2A73F22900921E90 /* Realm */,
+				1F759C2D2B63CB9A000534AB /* Realm */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -2074,6 +2078,7 @@
 				TargetAttributes = {
 					1F6D8C2F2B2E3756004376B8 = {
 						CreatedOnToolsVersion = 15.1;
+						LastSwiftMigration = 1520;
 						TestTargetID = 2C05747C1EDD9E8E00D9E7F2;
 					};
 					1FD8AD892A3A162100787C16 = {
@@ -2152,10 +2157,10 @@
 				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */,
 				1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */,
-				1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */,
 				1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */,
 				80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+				1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -2280,28 +2285,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		136C010C4905A923E7DB2A58 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NextcloudTalkTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		25F3EB565BD21EF2FF15F197 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2354,42 +2337,26 @@
 			shellPath = /bin/sh;
 			shellScript = "# See: https://stackoverflow.com/a/41416964\n\necho \"Target architectures: $ARCHS\"\n\nAPP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\nfind \"$APP_PATH\" -name '*.framework' -type d | while read -r FRAMEWORK\ndo\nFRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\nFRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\necho \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\necho $(lipo -info \"$FRAMEWORK_EXECUTABLE_PATH\")\n\nFRAMEWORK_TMP_PATH=\"$FRAMEWORK_EXECUTABLE_PATH-tmp\"\n\n# remove simulator's archs if location is not simulator's directory\ncase \"${TARGET_BUILD_DIR}\" in\n*\"iphonesimulator\")\n    echo \"No need to remove archs\"\n    ;;\n*)\n    if $(lipo \"$FRAMEWORK_EXECUTABLE_PATH\" -verify_arch \"i386\") ; then\n    lipo -output \"$FRAMEWORK_TMP_PATH\" -remove \"i386\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n    echo \"i386 architecture removed\"\n    rm \"$FRAMEWORK_EXECUTABLE_PATH\"\n    mv \"$FRAMEWORK_TMP_PATH\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n    fi\n    if $(lipo \"$FRAMEWORK_EXECUTABLE_PATH\" -verify_arch \"x86_64\") ; then\n    lipo -output \"$FRAMEWORK_TMP_PATH\" -remove \"x86_64\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n    echo \"x86_64 architecture removed\"\n    rm \"$FRAMEWORK_EXECUTABLE_PATH\"\n    mv \"$FRAMEWORK_TMP_PATH\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n    fi\n    ;;\nesac\n\necho \"Completed for executable $FRAMEWORK_EXECUTABLE_PATH\"\necho $(lipo -info \"$FRAMEWORK_EXECUTABLE_PATH\")\n\ndone\n";
 		};
-		5E5096E23D32642C5DE7B4C8 /* [CP] Embed Pods Frameworks */ = {
+		3A811BF7A761836E61C82B80 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/MobileVLCKit/MobileVLCKit.framework/MobileVLCKit",
+			inputFileListPaths = (
 			);
-			name = "[CP] Embed Pods Frameworks";
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileVLCKit.framework",
+				"$(DERIVED_FILE_DIR)/Pods-NextcloudTalkTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7089D1DF404E8B1CB25FF3ED /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests-resources.sh",
-				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
-				"${PODS_ROOT}/MaterialComponents/components/ActivityIndicator/src/MaterialActivityIndicator.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DateTools.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialActivityIndicator.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests-resources.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		902A7A3EC0BDCC947AEF3EBF /* [CP] Check Pods Manifest.lock */ = {
@@ -2501,9 +2468,11 @@
 			files = (
 				1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */,
 				1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */,
+				1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */,
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
+				1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */,
 				1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3010,11 +2979,12 @@
 /* Begin XCBuildConfiguration section */
 		1F6D8C372B2E3756004376B8 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 86A7F2BE457F181CCBF79C14 /* Pods-NextcloudTalkTests.debug.xcconfig */;
+			baseConfigurationReference = 342600BABD1AD1FCA48B5E59 /* Pods-NextcloudTalkTests.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
@@ -3023,6 +2993,17 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/AFNetworking\"",
+					"\"${PODS_ROOT}/Headers/Public/DateTools\"",
+					"\"${PODS_ROOT}/Headers/Public/GoogleToolboxForMac\"",
+					"\"${PODS_ROOT}/Headers/Public/GoogleWebRTC\"",
+					"\"${PODS_ROOT}/Headers/Public/Protobuf\"",
+					"\"${PODS_ROOT}/Headers/Public/nanopb\"",
+					"\"$(PROJECT_DIR)/ThirdParty\"/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
@@ -3032,6 +3013,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalk/NextcloudTalk-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3041,11 +3024,12 @@
 		};
 		1F6D8C382B2E3756004376B8 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2EEE832C09F1555E6F2B1187 /* Pods-NextcloudTalkTests.release.xcconfig */;
+			baseConfigurationReference = B7874918820589BF8FD69BED /* Pods-NextcloudTalkTests.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
@@ -3054,6 +3038,17 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/AFNetworking\"",
+					"\"${PODS_ROOT}/Headers/Public/DateTools\"",
+					"\"${PODS_ROOT}/Headers/Public/GoogleToolboxForMac\"",
+					"\"${PODS_ROOT}/Headers/Public/GoogleWebRTC\"",
+					"\"${PODS_ROOT}/Headers/Public/Protobuf\"",
+					"\"${PODS_ROOT}/Headers/Public/nanopb\"",
+					"\"$(PROJECT_DIR)/ThirdParty\"/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
@@ -3061,6 +3056,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalk/NextcloudTalk-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "NextcloudTalk-Swift.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NextcloudTalk.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NextcloudTalk";
@@ -3247,6 +3244,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -3306,6 +3304,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -3386,7 +3385,6 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
-				ENABLE_TESTABILITY = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3822,14 +3820,6 @@
 				revision = 818927d8bcbcc70e2395232f9b733cfc40e8f0bd;
 			};
 		};
-		1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/realm-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = 10.45.3;
-			};
-		};
 		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
@@ -3868,6 +3858,14 @@
 			requirement = {
 				kind = revision;
 				revision = 1ae513a1617309455a115c3fc2d558f744b43788;
+			};
+		};
+		1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nextcloud-deps/realm-swift-binary";
+			requirement = {
+				kind = revision;
+				revision = cab57855cff4612dc8c290191b41f5036befb2ec;
 			};
 		};
 		1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */ = {
@@ -3928,21 +3926,6 @@
 			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
 			productName = CDMarkdownKit;
 		};
-		1F0ECBFC2A73F21A00921E90 /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
-		};
-		1F0ECBFE2A73F22900921E90 /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
-		};
-		1F0ECC002A73F22F00921E90 /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
-		};
 		1F35F8F42AEEDA9800044BDA /* SwiftyAttributes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
@@ -3983,61 +3966,6 @@
 			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
 			productName = Dynamic;
 		};
-		1F5CDAE92B3C436C0040ECC0 /* SDWebImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImage;
-		};
-		1F5CDAEB2B3C436C0040ECC0 /* SDWebImageSVGKitPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
-			productName = SDWebImageSVGKitPlugin;
-		};
-		1F5CDAED2B3C48670040ECC0 /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
-		};
-		1F5CDAEF2B3C486D0040ECC0 /* SwiftyAttributes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
-			productName = SwiftyAttributes;
-		};
-		1F5CDAF12B3C48720040ECC0 /* CDMarkdownKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
-			productName = CDMarkdownKit;
-		};
-		1F5CDAF32B3C48790040ECC0 /* NextcloudKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
-			productName = NextcloudKit;
-		};
-		1F5CDAF52B3C487E0040ECC0 /* OpenSSL */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */;
-			productName = OpenSSL;
-		};
-		1F5CDAF72B3C48870040ECC0 /* QRCodeReader */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
-			productName = QRCodeReader;
-		};
-		1F5CDAF92B3C488E0040ECC0 /* SwiftUIIntrospect */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
-			productName = SwiftUIIntrospect;
-		};
-		1F5CDAFB2B3C48940040ECC0 /* TOCropViewController */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */;
-			productName = TOCropViewController;
-		};
-		1F5CDAFD2B3C489B0040ECC0 /* WebRTC */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */;
-			productName = WebRTC;
-		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
@@ -4047,6 +3975,81 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
 			productName = SwiftyAttributes;
+		};
+		1F759C082B63B9A7000534AB /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		1F759C0A2B63B9A7000534AB /* SDWebImageSVGKitPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */;
+			productName = SDWebImageSVGKitPlugin;
+		};
+		1F759C0D2B63B9BA000534AB /* WebRTC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */;
+			productName = WebRTC;
+		};
+		1F759C0F2B63B9D9000534AB /* OpenSSL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */;
+			productName = OpenSSL;
+		};
+		1F759C132B63B9D9000534AB /* QRCodeReader */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
+			productName = QRCodeReader;
+		};
+		1F759C152B63B9D9000534AB /* NextcloudKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
+		};
+		1F759C172B63B9D9000534AB /* SwiftyAttributes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
+			productName = SwiftyAttributes;
+		};
+		1F759C192B63B9D9000534AB /* CDMarkdownKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */;
+			productName = CDMarkdownKit;
+		};
+		1F759C1B2B63B9D9000534AB /* TOCropViewController */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */;
+			productName = TOCropViewController;
+		};
+		1F759C1D2B63B9D9000534AB /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
+		};
+		1F759C2B2B63CB93000534AB /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F759C2D2B63CB9A000534AB /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F759C2F2B63CBA0000534AB /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F759C312B63CBA5000534AB /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F759C332B63CBAA000534AB /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
 		};
 		1F77A5EE2AB9A41E007B6037 /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -4097,11 +4100,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */;
 			productName = WebRTC;
-		};
-		1FF2FD872AB9A08E000C9905 /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F0ECBFB2A73F21A00921E90 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
 		};
 		2CCCD21C2835088F00F076CE /* OpenSSL */ = {
 			isa = XCSwiftPackageProductDependency;

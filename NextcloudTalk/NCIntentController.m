@@ -30,6 +30,8 @@
 #import <Intents/INPersonHandle.h>
 #import <IntentsUI/INImage+IntentsUI.h>
 
+#import <SDWebImage/SDWebImageManager.h>
+
 #import "NCIntentController.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
