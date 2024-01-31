@@ -96,6 +96,9 @@ jobs:
         ./server/occ config:system:set memcache.local --value="\\OC\\Memcache\\APCu"
         ./server/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
         ./server/occ app:enable --force spreed
+        ./server/occ config:app:set spreed federation_enabled --value yes
+        ./server/occ config:system:set sharing.federation.allowSelfSignedCertificates --value true --type bool
+        ./server/occ config:system:set allow_local_remote_servers --value true --type bool
         PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
 
     - name: Set up Nextcloud Federated
@@ -106,6 +109,8 @@ jobs:
         ./server-federated/occ config:system:set memcache.local --value="\\OC\\Memcache\\APCu"
         ./server-federated/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
         ./server-federated/occ app:enable --force spreed
+        ./server-federated/occ config:system:set sharing.federation.allowSelfSignedCertificates --value true --type bool
+        ./server-federated/occ config:system:set allow_local_remote_servers --value true --type bool
         PHP_CLI_SERVER_WORKERS=3 php -S localhost:8081 -t server-federated/ &
 
     - name: Set up Nextcloud Federated

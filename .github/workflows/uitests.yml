@@ -45,6 +45,9 @@ jobs:
       SCHEME: NextcloudTalk
 
     steps:
+    - name: Fail
+      run: exit 1
+    
     - name: Checkout app
       uses: actions/checkout@v3
       with:
