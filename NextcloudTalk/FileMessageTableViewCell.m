@@ -215,7 +215,7 @@
     if (message.lastEditActorDisplayName || message.lastEditTimestamp > 0) {
         NSString *editedString;
 
-        if ([message.lastEditActorId isEqualToString:activeAccount.userId] && [message.lastEditActorType isEqualToString:@"users"]) {
+        if ([message.lastEditActorId isEqualToString:message.actorId] && [message.lastEditActorType isEqualToString:@"users"]) {
             editedString = NSLocalizedString(@"edited", "A message was edited");
             editedString = [NSString stringWithFormat:@" (%@)", editedString];
         } else {
