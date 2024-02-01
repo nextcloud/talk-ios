@@ -77,6 +77,24 @@ final class UnitChatCellTest: TestBaseRealm {
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 70.0)
     }
 
+    func testGroupedCellWithQuoteHeight() throws {
+        // Add an existing message to the database
+        let existingMessage = NCChatMessage()
+        existingMessage.messageId = 1
+        existingMessage.internalId = "internal-1"
+        existingMessage.message = "existing"
+
+        try? realm.transaction {
+            realm.add(existingMessage)
+        }
+
+        // Chat message with a quote
+        testMessage.message = "test"
+        testMessage.parentId = "internal-1"
+        testMessage.isGroupMessage = true
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 135.0)
+    }
+
     func testCellWithUrlHeight() throws {
         // Chat message with URL preview
         testMessage.message = "test - https://nextcloud.com"
