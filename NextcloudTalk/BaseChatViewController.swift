@@ -2697,7 +2697,7 @@ import QuickLook
 
         var height = ceil(bodyBounds.height)
 
-        if message.isGroupMessage || message.isSystemMessage() {
+        if (message.isGroupMessage && message.parent() == nil) || message.isSystemMessage() {
             height += 10 // 2*left(5)
 
             if height < kGroupedChatMessageCellMinimumHeight {
