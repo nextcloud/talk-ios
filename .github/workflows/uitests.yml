@@ -119,3 +119,17 @@ jobs:
       with:
         name: testResults-${{ matrix.configs.talkbranch }}.xcresult
         path: "testResult.xcresult"
+
+  summary:
+    permissions:
+      contents: none
+    runs-on: macos-14
+    needs: [build-and-test]
+
+    if: always()
+
+    name: build-and-test-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.build-and-test.result != 'success' }}; then exit 1; fi
