@@ -26,7 +26,8 @@ typedef enum NCNotificationType {
     kNCNotificationTypeRoom = 0,
     kNCNotificationTypeChat,
     kNCNotificationTypeCall,
-    kNCNotificationTypeRecording
+    kNCNotificationTypeRecording,
+    kNCNotificationTypeFederation
 } NCNotificationType;
 
 @interface NCNotification : NSObject
