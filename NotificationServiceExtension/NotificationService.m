@@ -248,6 +248,10 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                             self.bestAttemptContent.categoryIdentifier = @"CATEGORY_RECORDING";
                             self.bestAttemptContent.title = serverNotification.subject;
                             self.bestAttemptContent.body = serverNotification.message;
+                        } else if (serverNotification.notificationType == kNCNotificationTypeFederation) {
+                            self.bestAttemptContent.categoryIdentifier = @"CATEGORY_FEDERATION";
+                            self.bestAttemptContent.title = serverNotification.subject;
+                            self.bestAttemptContent.body = serverNotification.message;
                         }
 
                         [self createConversationNotificationWithPushNotificationAndShow:pushNotification];
