@@ -108,5 +108,6 @@
 
 #import "NCAPISessionManager.h"
 #import "AFNetworking.h"
+#import "NCNotification.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

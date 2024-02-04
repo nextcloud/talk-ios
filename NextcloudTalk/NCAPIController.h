@@ -162,6 +162,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)pollsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)breakoutRoomsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)federationAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
@@ -325,5 +326,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)deleteReminderForMessage:(NCChatMessage *)message withCompletionBlock:(DeleteReminderForMessage)block;
 - (NSURLSessionDataTask *)getReminderForMessage:(NCChatMessage *)message withCompletionBlock:(GetReminderForMessage)block;
 
+// Internal method exposed for swift extension
+- (NSString * _Nonnull)getRequestURLForEndpoint:(NSString *_Nonnull)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *_Nonnull)account;
 
 @end
