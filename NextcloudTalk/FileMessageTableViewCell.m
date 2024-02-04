@@ -215,6 +215,12 @@
     self.messageId = message.messageId;
     self.message = message;
 
+    if ([message.message isEqualToString:@"{file}"]) {
+        self.bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
+    } else {
+        self.bodyTextView.dataDetectorTypes = UIDataDetectorTypeAll;
+    }
+
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
