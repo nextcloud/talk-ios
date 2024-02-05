@@ -2716,7 +2716,8 @@ import QuickLook
             height += 40 // reactionsView(40)
         }
 
-        if message.containsURL() {
+        // File cells currently can't show the reference view
+        if message.containsURL(), message.file() ==  nil {
             height += 105
         }
 
