@@ -26,7 +26,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macos-latest
+    runs-on: macos-14
 
     strategy:
       fail-fast: false
@@ -41,7 +41,7 @@ jobs:
 
     env:
       WORKSPACE: NextcloudTalk.xcworkspace
-      DESTINATION: platform=iOS Simulator,name=iPhone 14,OS=16.2
+      DESTINATION: platform=iOS Simulator,name=iPhone 15,OS=17.2
       SCHEME: NextcloudTalk
 
     steps:
@@ -119,3 +119,17 @@ jobs:
       with:
         name: testResults-${{ matrix.configs.talkbranch }}.xcresult
         path: "testResult.xcresult"
+
+  summary:
+    permissions:
+      contents: none
+    runs-on: macos-14
+    needs: [build-and-test]
+
+    if: always()
+
+    name: build-and-test-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.build-and-test.result != 'success' }}; then exit 1; fi
