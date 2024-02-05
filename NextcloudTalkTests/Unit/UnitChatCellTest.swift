@@ -27,6 +27,30 @@ final class UnitChatCellTest: TestBaseRealm {
     var baseController: BaseChatViewController!
     var testMessage: NCChatMessage!
 
+    let fileMessageParameters = """
+{
+    "actor": {
+        "type": "user",
+        "id": "admin",
+        "name": "admin"
+    },
+    "file": {
+        "type": "file",
+        "id": "9",
+        "name": "photo-1517603250781-c4eac1449a80.jpeg",
+        "size": 444676,
+        "path": "Media/photo-1517603250781-c4eac1449a80.jpeg",
+        "link": "https://nextcloud-mm.local/index.php/f/9",
+        "etag": "60fb4ececc370787b1cdc5623ff4a189",
+        "permissions": 27,
+        "mimetype": "image/jpeg",
+        "preview-available": "yes",
+        "width": 1491,
+        "height": 837
+    }
+}
+"""
+
     override func setUpWithError() throws {
         try super.setUpWithError()
 
@@ -154,35 +178,31 @@ final class UnitChatCellTest: TestBaseRealm {
     }
 
     func testCellWithFileHeight() {
-        testMessage.messageParametersJSONString = """
-{
-    "actor": {
-        "type": "user",
-        "id": "admin",
-        "name": "admin"
-    },
-    "file": {
-        "type": "file",
-        "id": "9",
-        "name": "photo-1517603250781-c4eac1449a80.jpeg",
-        "size": 444676,
-        "path": "Media/photo-1517603250781-c4eac1449a80.jpeg",
-        "link": "https://nextcloud-mm.local/index.php/f/9",
-        "etag": "60fb4ececc370787b1cdc5623ff4a189",
-        "permissions": 27,
-        "mimetype": "image/jpeg",
-        "preview-available": "yes",
-        "width": 1491,
-        "height": 837
-    }
-}
-"""
-
+        // Test without file caption
+        testMessage.messageParametersJSONString = fileMessageParameters
         testMessage.message = "{file}"
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 190.0)
+    }
 
+    func testCellWithFileCaptionHeight() {
+        testMessage.messageParametersJSONString = fileMessageParameters
         testMessage.message = "File caption..."
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 210.0)
+    }
+
+    func testCellWithFileCaptionUrlHeight() {
+        updateCapabilities { cap in
+            cap.referenceApiSupported = true
+        }
+
+        testMessage.messageParametersJSONString = fileMessageParameters
+        testMessage.message = "File caption... https://nextcloud.com"
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 210.0)
+    }
+
+    func testCellWithFileAndQuoteHeight() {
+        testMessage.messageParametersJSONString = fileMessageParameters
+        testMessage.message = "File caption..."
 
         // Add an existing message to the database
         let existingMessage = NCChatMessage()
