@@ -96,6 +96,24 @@ NSString * const kNCPNPrivateKey                = @"ncPNPrivateKey";
     return [self createSHA512:token];
 }
 
+- (void)logCombinedPushToken
+{
+    NSString *normalPushToken = [_keychain stringForKey:kNCNormalPushTokenKey];
+    NSString *pushKitToken = [_keychain stringForKey:kNCPushKitTokenKey];
+
+    if (normalPushToken && [normalPushToken length] >= 10) {
+        [NCUtils log:[NSString stringWithFormat:@"Push notification, normal push token: %@... length %ld", [normalPushToken substringToIndex:10], [normalPushToken length]]];
+    } else {
+        [NCUtils log:@"Push notification, normal push token length < 10"];
+    }
+
+    if (pushKitToken && [pushKitToken length] >= 10) {
+        [NCUtils log:[NSString stringWithFormat:@"Push notification, pushKit token: %@... length %ld", [pushKitToken substringToIndex:10], [pushKitToken length]]];
+    } else {
+        [NCUtils log:@"Push notification, pushKit token length < 10"];
+    }
+}
+
 - (NSString *)combinedPushToken
 {
     NSString *normalPushToken = [_keychain stringForKey:kNCNormalPushTokenKey];
