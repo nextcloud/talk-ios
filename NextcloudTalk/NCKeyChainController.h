@@ -40,6 +40,7 @@ extern NSString * const kNCPushKitTokenKey;
 - (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccountId:(NSString *)accountId;
 - (NSData *)pushNotificationPrivateKeyForAccountId:(NSString *)accountId;
 - (NSString *)pushTokenSHA512;
+- (void)logCombinedPushToken;
 - (NSString *)combinedPushToken;
 - (void)removeAllItems;
 
