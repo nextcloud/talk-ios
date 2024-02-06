@@ -753,6 +753,10 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
                     [bgTask stopBackgroundTask];
                 } else {
                     [NCUtils log:[NSString stringWithFormat:@"Error while subscribing to Push Notification server. Error: %@", error.description]];
+                    [NCUtils log:[NSString stringWithFormat:@"Push notification, public key: %@", publicKey]];
+                    [NCUtils log:[NSString stringWithFormat:@"Push notification, device signature: %@", signature]];
+                    [NCUtils log:[NSString stringWithFormat:@"Push notification, device identifier: %@", deviceIdentifier]];
+                    [[NCKeyChainController sharedInstance] logCombinedPushToken];
 
                     if (block) {
                         block(NO);
