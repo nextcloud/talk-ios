@@ -2460,9 +2460,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
                 [[[peer getRemoteStream].videoTracks firstObject] removeRenderer:videoRenderer];
             }];
 
-            // Screen renderers
-            [self removeScreensharingOfPeer:peer];
-
             NSIndexPath *indexPath = [self indexPathForPeerIdentifier:peer.peerIdentifier];
 
             // Make sure we remove every index path only once
