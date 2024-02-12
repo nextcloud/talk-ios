@@ -1105,11 +1105,11 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)requestNewOffer:(NSTimer *)timer
 {
-    [[WebRTCCommon shared] dispatch:^{
-        NSString *sessionId = [timer.userInfo objectForKey:@"sessionId"];
-        NSString *roomType = [timer.userInfo objectForKey:@"roomType"];
-        NSInteger timeout = [[timer.userInfo objectForKey:@"timeout"] integerValue];
+    NSString *sessionId = [timer.userInfo objectForKey:@"sessionId"];
+    NSString *roomType = [timer.userInfo objectForKey:@"roomType"];
+    NSInteger timeout = [[timer.userInfo objectForKey:@"timeout"] integerValue];
 
+    [[WebRTCCommon shared] dispatch:^{
         if ([[NSDate date] timeIntervalSince1970] < timeout) {
             NSLog(@"Re-requesting an offer to session: %@", sessionId);
             [self->_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
