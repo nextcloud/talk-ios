@@ -663,7 +663,11 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
     for (NCPeerConnection *peerConnectionWrapper in [_connectionsDict allValues]) {
         if (!peerConnectionWrapper.isMCUPublisherPeer) {
-            [self.delegate callController:self peerLeft:peerConnectionWrapper];
+            if ([peerConnectionWrapper.roomType isEqualToString:kRoomTypeVideo]) {
+                [self.delegate callController:self peerLeft:peerConnectionWrapper];
+            } else if ([peerConnectionWrapper.roomType isEqualToString:kRoomTypeScreen]) {
+                [self.delegate callController:self didReceiveUnshareScreenFromPeer:peerConnectionWrapper];
+            }
         }
 
         peerConnectionWrapper.delegate = nil;
