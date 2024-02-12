@@ -469,7 +469,6 @@
 		80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */; };
 		80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */; };
 		80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */; };
-		829186205D367E516AAF0D7E /* libPods-NextcloudTalkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE0DC028175FB2FB27A7EB9E /* libPods-NextcloudTalkTests.a */; };
 		847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
@@ -701,7 +700,6 @@
 		2C3780C1210F49DC003F9AE8 /* HeaderWithButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeaderWithButton.h; sourceTree = "<group>"; };
 		2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeaderWithButton.m; sourceTree = "<group>"; };
 		2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderWithButton.xib; sourceTree = "<group>"; };
-		2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = WebRTC.xcframework; path = ThirdParty/WebRTC.xcframework; sourceTree = "<group>"; };
 		2C40281322832EED0000DDFC /* NCDatabaseManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDatabaseManager.h; sourceTree = "<group>"; };
 		2C40281422832EED0000DDFC /* NCDatabaseManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDatabaseManager.m; sourceTree = "<group>"; };
 		2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileMessageTableViewCell.h; sourceTree = "<group>"; };
@@ -1027,7 +1025,6 @@
 		DA7558122790D65700A48A1B /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
 		DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputTableViewCell.swift; sourceTree = "<group>"; };
-		FE0DC028175FB2FB27A7EB9E /* libPods-NextcloudTalkTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalkTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1045,7 +1042,6 @@
 				1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */,
 				1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */,
 				1F759C1C2B63B9D9000534AB /* TOCropViewController in Frameworks */,
-				829186205D367E516AAF0D7E /* libPods-NextcloudTalkTests.a in Frameworks */,
 				1F759C1E2B63B9D9000534AB /* SwiftUIIntrospect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1717,7 +1713,6 @@
 			isa = PBXGroup;
 			children = (
 				1FDDB0E82AFE8F5C00FBAFB7 /* MobileCoreServices.framework */,
-				2C38D4AB27BBAFCC00BAE015 /* WebRTC.xcframework */,
 				1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */,
 				2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */,
 				2CA1CC961F016117002FE6A2 /* Security.framework */,
@@ -1730,7 +1725,6 @@
 				4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */,
 				1FF2FD5C2AB99CCB000C9905 /* ReplayKit.framework */,
 				9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */,
-				FE0DC028175FB2FB27A7EB9E /* libPods-NextcloudTalkTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
