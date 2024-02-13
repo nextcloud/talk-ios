@@ -107,6 +107,9 @@ extension XCTestCase {
         passwordTextField.tap()
         passwordTextField.typeText(TestConstants.password + "\n")
 
+        let accountAccess = webViewsQuery.staticTexts["Account access"]
+        XCTAssert(accountAccess.waitForExistence(timeout: TestConstants.timeoutLong))
+
         let grantAccessButton = webViewsQuery.buttons["Grant access"]
         XCTAssert(grantAccessButton.waitForExistence(timeout: TestConstants.timeoutLong))
         waitForEnabled(object: grantAccessButton)
