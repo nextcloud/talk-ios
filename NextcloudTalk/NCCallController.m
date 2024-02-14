@@ -319,7 +319,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)forceReconnect
 {
-    NSLog(@"forceReconnect");
+    [NCUtils log:@"Force reconnect"];
 
     [[WebRTCCommon shared] dispatch:^{
         self->_userInCall = 0;
@@ -1548,6 +1548,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
             NSInteger userPermissions = [userPermissionValue integerValue];
             NSInteger changedPermissions = userPermissions ^ _userPermissions;
             if ((changedPermissions & NCPermissionCanPublishAudio) || (changedPermissions & NCPermissionCanPublishVideo)) {
+                [NCUtils log:@"User permissions changed"];
                 _userPermissions = userPermissions;
                 [self.delegate callController:self userPermissionsChanged:_userPermissions];
                 [self forceReconnect];
@@ -1644,6 +1645,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         // If publisher peer failed then reconnect
         if (peerConnection.isMCUPublisherPeer) {
+            [NCUtils log:@"Publisher peer connection failed"];
             [self forceReconnect];
         // If another peer failed using MCU then request a new offer
         } else if ([_externalSignalingController hasMCU]) {
