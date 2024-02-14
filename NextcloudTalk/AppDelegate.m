@@ -52,6 +52,7 @@
 @property (nonatomic, strong) BGTaskHelper *keepAliveBGTask;
 @property (nonatomic, strong) UILabel *debugLabel;
 @property (nonatomic, strong) NSTimer *debugLabelTimer;
+@property (nonatomic, strong) NSTimer *fileDescriptorTimer;
 
 @end
 
@@ -106,6 +107,13 @@
             [weakSelf.debugLabel setText:[NSString stringWithFormat:@"ChatVC: %ld / CallVC: %ld", numChatVC, numCallVC]];
         }];
     }
+
+    // Comment out the following code to log the number of open socket file descriptors
+    /*
+     self.fileDescriptorTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [[WebRTCCommon shared] printNumberOfOpenSocketDescriptors];
+    }];
+     */
 
     // When we include VLCKit we need to manually call this because otherwise, device rotation might not work
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -167,6 +175,8 @@
 
     // Invalidate a potentially existing label timer
     [self.debugLabelTimer invalidate];
+
+    [self.fileDescriptorTimer invalidate];
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
