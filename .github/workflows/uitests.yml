@@ -123,7 +123,7 @@ jobs:
   summary:
     permissions:
       contents: none
-    runs-on: macos-14
+    runs-on: ubuntu-latest-low
     needs: [build-and-test]
 
     if: always()
