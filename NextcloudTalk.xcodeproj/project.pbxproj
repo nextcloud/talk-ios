@@ -645,6 +645,7 @@
 		1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationTableViewController.swift; sourceTree = "<group>"; };
 		1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationCell.swift; sourceTree = "<group>"; };
 		1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FederationInvitationCell.xib; sourceTree = "<group>"; };
+		1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPIControllerExtensions.swift; sourceTree = "<group>"; };
@@ -1355,6 +1356,7 @@
 				2C6085C11FB1063700B36A6E /* NextcloudTalk.entitlements */,
 				2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
+				1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
 				2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */,
 				2C7F47AC20289B9600081CC7 /* Localizable.strings */,
