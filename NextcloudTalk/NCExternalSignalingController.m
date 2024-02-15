@@ -812,7 +812,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
                     return;
                 }
 
-                NSLog(@"WebSocket receiveMessageWithCompletionHandler error %@", error.description);
+                [NCUtils log:[NSString stringWithFormat:@"WebSocket receiveMessageWithCompletionHandler error %@", error.description]];
                 [weakSelf reconnect];
             });
         }
