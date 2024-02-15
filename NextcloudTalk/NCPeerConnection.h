@@ -85,8 +85,6 @@
 - (void)drainRemoteCandidates;
 - (void)close;
 - (RTCPeerConnection *)getPeerConnection;
-- (RTCDataChannel *)getLocalDataChannel;
-- (RTCDataChannel *)getRemoteDataChannel;
 - (RTCMediaStream *)getRemoteStream;
 - (BOOL)hasRemoteStream;
 
