@@ -178,6 +178,18 @@ import UniformTypeIdentifiers
         return dateFormatter.string(from: date)
     }
 
+    public static func readableTimeAndDate(fromDate date: Date) -> String {
+        if Calendar.current.isDateInToday(date) {
+            return self.getTime(fromDate: date)
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+
+        return dateFormatter.string(from: date)
+    }
+
     public static func getTime(fromDate date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .none

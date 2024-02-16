@@ -116,6 +116,12 @@ import UIKit
         self.textInputbar.editorLeftButton.tintColor = .systemBlue
         self.textInputbar.editorRightButton.tintColor = .systemBlue
 
+        self.textInputbar.editorLeftButton.setImage(.init(systemName: "xmark"), for: .normal)
+        self.textInputbar.editorRightButton.setImage(.init(systemName: "checkmark"), for: .normal)
+        
+        self.textInputbar.editorLeftButton.setTitle("", for: .normal)
+        self.textInputbar.editorRightButton.setTitle("", for: .normal)
+
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
         self.navigationController?.navigationBar.isTranslucent = false
