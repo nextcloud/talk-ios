@@ -880,7 +880,7 @@
 /* 'From' which language user wants to translate text */
 "From" = "From";
 
-/* from alice at nextcloud.local */
+/* from Alice at nextcloud.local */
 "from %@ at %@" = "from %1$@ at %2$@";
 
 /* No comment provided by engineer. */

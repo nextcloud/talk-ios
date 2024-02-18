@@ -55,7 +55,7 @@ class FederationInvitationCell: UITableViewCell {
         self.federationInvitation = invitation
 
         self.conversationNameLabel.text = invitation.remoteConversationName ?? ""
-        self.detailsLabel.text = String(format: NSLocalizedString("from %@ at %@", comment: "from alice at nextcloud.local"),
+        self.detailsLabel.text = String(format: NSLocalizedString("from %@ at %@", comment: "from Alice at nextcloud.local"),
                                         invitation.inviterDisplayName ?? NSLocalizedString("Unknown", comment: ""),
                                         invitation.remoteServer ?? NSLocalizedString("Unknown", comment: ""))
 
