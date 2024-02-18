@@ -23,13 +23,22 @@ import Foundation
 
 @objcMembers public class FederationInvitation: NSObject {
 
+    public enum FederationInvitationState: Int {
+        case pending = 0
+        case accepted = 1
+    }
+
+    public var accountId: String = ""
     public var invitationId: Int = 0
+    public var invitationState: FederationInvitationState = .pending
+    public var inviterDisplayName: String?
     public var remoteServer: String?
     public var remoteConversationName: String?
 
-    init(notification: NCNotification) {
+    init(notification: NCNotification, for accountId: String) {
         super.init()
 
+        self.accountId = accountId
         self.invitationId = Int(notification.objectId) ?? 0
 
         guard let richParameters = notification.subjectRichParameters as? [String: AnyObject]
@@ -48,11 +57,20 @@ import Foundation
         }
     }
 
-    init(dictionary: [String: Any]) {
+    init(dictionary: [String: Any], for accountId: String) {
         super.init()
 
+        self.accountId = accountId
         self.invitationId = dictionary["id"] as? Int ?? 0
+        self.inviterDisplayName = dictionary["inviterDisplayName"] as? String
         self.remoteServer = dictionary["remoteServerUrl"] as? String
         self.remoteConversationName = dictionary["roomName"] as? String
+
+        if let stateRaw = dictionary["state"] as? Int,
+           let state = FederationInvitationState(rawValue: stateRaw) {
+
+            self.invitationState = state
+        }
+
     }
 }
