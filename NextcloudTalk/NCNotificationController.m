@@ -151,7 +151,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
         case kNCLocalNotificationTypeFailedToAcceptInvitation:
         {
-            NSString *failedToAcceptInvitationString = NSLocalizedString(@"Failed to accept invitiation", nil);
+            NSString *failedToAcceptInvitationString = NSLocalizedString(@"Failed to accept invitation", nil);
             content.body = [NSString stringWithFormat:@"%@", failedToAcceptInvitationString];
             content.userInfo = userInfo;
         }
@@ -601,7 +601,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }
 
     if ([response.actionIdentifier isEqualToString:NCNotificationActionFederationInvitationAccept]) {
-        FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification];
+        FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification for:account.accountId];
 
         [[NCAPIController sharedInstance] acceptFederationInvitationFor:account.accountId with:invitation.invitationId completionBlock:^(BOOL success) {
             if (!success) {
@@ -612,13 +612,16 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                 [self showLocalNotification:kNCLocalNotificationTypeFailedToAcceptInvitation withUserInfo:userInfo];
             }
 
+            [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
+
             [bgTask stopBackgroundTask];
         }];
 
     } else if ([response.actionIdentifier isEqualToString:NCNotificationActionFederationInvitationReject]) {
-        FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification];
+        FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification for:account.accountId];
 
         [[NCAPIController sharedInstance] rejectFederationInvitationFor:account.accountId with:invitation.invitationId completionBlock:^(BOOL success) {
+            [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
             [bgTask stopBackgroundTask];
         }];
     } else {
@@ -632,6 +635,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             UIAlertAction* tempButton = [UIAlertAction actionWithTitle:notificationAction.actionLabel
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^(UIAlertAction * _Nonnull action) {
+                [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
                 [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
             }];
 
