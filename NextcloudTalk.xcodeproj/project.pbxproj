@@ -178,6 +178,9 @@
 		1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
+		1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */; };
+		1FADECD82B82269E007AD94B /* FederationInvitationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */; };
+		1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
@@ -192,6 +195,7 @@
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
+		1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
@@ -623,12 +627,16 @@
 		1FAB2E842ACB482B001214EB /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControlExtensions.swift; sourceTree = "<group>"; };
 		1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLMSupport.swift; sourceTree = "<group>"; };
+		1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationTableViewController.swift; sourceTree = "<group>"; };
+		1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationCell.swift; sourceTree = "<group>"; };
+		1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FederationInvitationCell.xib; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPIControllerExtensions.swift; sourceTree = "<group>"; };
 		1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FederationInvitation.swift; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
+		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRoomTest.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
@@ -1262,6 +1270,9 @@
 		1FB78E242B6AE58100B0D69D /* Federation */ = {
 			isa = PBXGroup;
 			children = (
+				1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */,
+				1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */,
+				1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */,
 				1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */,
 			);
 			name = Federation;
@@ -1463,6 +1474,7 @@
 				2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */,
 				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
+				1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */,
 				2CC007B520D8139D0096D91F /* RoomCreationTableViewController.h */,
 				2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */,
 				2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */,
@@ -2251,6 +2263,7 @@
 				2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */,
+				1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */,
 				1FEC459C2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib in Resources */,
 				1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */,
 				2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */,
@@ -2648,6 +2661,7 @@
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
+				1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
@@ -2719,6 +2733,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
+				1FADECD82B82269E007AD94B /* FederationInvitationCell.swift in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
 				2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */,
 				2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */,
@@ -2730,6 +2745,7 @@
 				1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */,
 				1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
+				1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */,
 				DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */,
