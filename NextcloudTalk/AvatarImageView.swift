@@ -67,6 +67,12 @@ import SDWebImage
         }
     }
 
+    public func setMailAvatar(with style: UIUserInterfaceStyle) {
+        if let image = AvatarManager.shared.getMailAvatar(with: style) {
+            self.image = image
+        }
+    }
+
     // MARK: - User avatars
 
     public func setUserAvatar(for userId: String, with style: UIUserInterfaceStyle) {
