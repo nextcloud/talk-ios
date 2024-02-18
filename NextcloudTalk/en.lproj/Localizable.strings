@@ -59,6 +59,9 @@
 "About" = "About";
 
 /* No comment provided by engineer. */
+"Accept" = "Accept";
+
+/* No comment provided by engineer. */
 "Account" = "Account";
 
 /* No comment provided by engineer. */
@@ -830,6 +833,9 @@
 "External" = "External";
 
 /* No comment provided by engineer. */
+"Failed to accept invitation" = "Failed to accept invitation";
+
+/* No comment provided by engineer. */
 "Failed to clear reminder" = "Failed to clear reminder";
 
 /* No comment provided by engineer. */
@@ -837,6 +843,9 @@
 
 /* No comment provided by engineer. */
 "Failed to forward message" = "Failed to forward message";
+
+/* No comment provided by engineer. */
+"Failed to reject invitation" = "Failed to reject invitation";
 
 /* No comment provided by engineer. */
 "Failed to send message" = "Failed to send message";
@@ -870,6 +879,9 @@
 
 /* 'From' which language user wants to translate text */
 "From" = "From";
+
+/* from alice at nextcloud.local */
+"from %@ at %@" = "from %1$@ at %2$@";
 
 /* No comment provided by engineer. */
 "Full name" = "Full name";
@@ -1280,6 +1292,9 @@
 "Password field for public conversation" = "Password field for public conversation";
 
 /* No comment provided by engineer. */
+"Pending invitations" = "Pending invitations";
+
+/* No comment provided by engineer. */
 "Phone number" = "Phone number";
 
 /* No comment provided by engineer. */
@@ -1392,6 +1407,9 @@
 
 /* No comment provided by engineer. */
 "Reference API supported?" = "Reference API supported?";
+
+/* No comment provided by engineer. */
+"Reject" = "Reject";
 
 /* No comment provided by engineer. */
 "Reminder was successfully cleared" = "Reminder was successfully cleared";
@@ -1857,6 +1875,9 @@
 
 /* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
 "You demoted {user0} and {user1} from moderators" = "You demoted {user0} and {user1} from moderators";
+
+/* No comment provided by engineer. */
+"You have %ld pending invitations" = "You have %ld pending invitations";
 
 /* No comment provided by engineer. */
 "You have been muted by a moderator" = "You have been muted by a moderator";
