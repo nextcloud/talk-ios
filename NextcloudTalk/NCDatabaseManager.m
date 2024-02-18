@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 57;
+uint64_t const kTalkDatabaseSchemaVersion           = 58;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -91,6 +91,8 @@ NSString * const kNotificationsCapabilityExists     = @"exists";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
+NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDatabaseManagerPendingFederationInvitationsDidChange";
+
 @implementation NCTranslation
 
 @end
@@ -123,7 +125,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
             [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
         }
         [[NSFileManager defaultManager] setAttributes:@{NSFileProtectionKey:NSFileProtectionNone} ofItemAtPath:path error:nil];
-        
+
         // Set Realm configuration
         RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
         NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
@@ -132,14 +134,14 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
             // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
         };
-        
+
         // Tell Realm to use this new configuration object for the default Realm
         [RLMRealmConfiguration setDefaultConfiguration:configuration];
 
         // Now that we've told Realm how to handle the schema change, opening the file
         // will automatically perform the migration
         [RLMRealm defaultRealm];
-        
+
 #ifdef DEBUG
         // Copy Talk DB to Documents directory
         NSString *dbCopyPath = [NSString stringWithFormat:@"%@/%@", NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0], kTalkDatabaseFileName];
@@ -147,10 +149,10 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         [[NSFileManager defaultManager] removeItemAtURL:dbCopyURL error:nil];
         [[NSFileManager defaultManager] copyItemAtURL:databaseURL toURL:dbCopyURL error:nil];
 #endif
-        
+
         self.capabilitiesCache = [[NSCache alloc] init];
     }
-    
+
     return self;
 }
 
@@ -235,7 +237,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     account.accountId = accountId;
     account.server = server;
     account.user = user;
-    
+
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [realm addObject:account];
@@ -386,7 +388,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     NSDictionary *provisioningAPICaps = [serverCaps objectForKey:@"provisioning_api"];
     NSDictionary *guestsCaps = [serverCaps objectForKey:@"guests"];
     NSDictionary *notificationsCaps = [serverCaps objectForKey:@"notifications"];
-    
+
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
     capabilities.name = [themingCaps objectForKey:@"name"];
@@ -451,7 +453,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     } else {
         capabilities.canCreate = YES;
     }
-    
+
     id translations = [[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"translations"];
     if ([translations isKindOfClass:[NSArray class]]) {
         NSError *error;
@@ -523,7 +525,7 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
     [realm transactionWithBlock:^{
         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
         ServerCapabilities *managedServerCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
-        
+
         if (managedServerCapabilities && managedServerCapabilities.externalSignalingServerVersion != version) {
             managedServerCapabilities.externalSignalingServerVersion = version;
         }
@@ -582,6 +584,61 @@ NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages;
         [availableTranslations addObject:translation];
     }
     return availableTranslations;
+}
+
+- (void)increasePendingFederationInvitationForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.pendingFederationInvitations += 1;
+    [realm commitWriteTransaction];
+}
+
+- (void)decreasePendingFederationInvitationForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.pendingFederationInvitations = (account.pendingFederationInvitations > 0) ? account.pendingFederationInvitations - 1 : 0;
+    [realm commitWriteTransaction];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerPendingFederationInvitationsDidChange
+                                                        object:self
+                                                      userInfo:nil];
+}
+
+- (void)setPendingFederationInvitationForAccountId:(NSString *)accountId with:(NSInteger)numberOfPendingInvitations
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.pendingFederationInvitations = numberOfPendingInvitations;
+    [realm commitWriteTransaction];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerPendingFederationInvitationsDidChange
+                                                        object:self
+                                                      userInfo:nil];
+}
+
+- (void)updateLastFederationInvitationUpdateForAccountId:(NSString *)accountId withTimestamp:(NSInteger)timestamp
+{
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateLastFederationInvitationUpdateForAccountId" expirationHandler:nil];
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.lastPendingFederationInvitationFetch = timestamp;
+    [realm commitWriteTransaction];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerPendingFederationInvitationsDidChange
+                                                        object:self
+                                                      userInfo:nil];
+
+    [bgTask stopBackgroundTask];
 }
 
 @end
