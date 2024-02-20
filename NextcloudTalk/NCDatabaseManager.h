@@ -87,6 +87,8 @@ extern NSString * const kNotificationsCapabilityExists;
 
 extern NSString * const kMinimumRequiredTalkCapability;
 
+extern NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange;
+
 @interface NCTranslation : NSObject
 @property (nonatomic, copy) NSString *from;
 @property (nonatomic, copy) NSString *fromLabel;
@@ -129,6 +131,12 @@ extern NSString * const kMinimumRequiredTalkCapability;
 - (BOOL)hasTranslationProvidersForAccountId:(NSString *)accountId;
 - (NSArray<NCTranslation *> *)availableTranslationsForAccountId:(NSString *)accountId;
 - (NSArray *)translationsFromTranslationsArray:(NSArray *)translations;
+
+// Federation invitations
+- (void)increasePendingFederationInvitationForAccountId:(NSString *)accountId;
+- (void)decreasePendingFederationInvitationForAccountId:(NSString *)accountId;
+- (void)setPendingFederationInvitationForAccountId:(NSString *)accountId with:(NSInteger)numberOfPendingInvitations;
+- (void)updateLastFederationInvitationUpdateForAccountId:(NSString *)accountId withTimestamp:(NSInteger)timestamp;
 
 @end
 

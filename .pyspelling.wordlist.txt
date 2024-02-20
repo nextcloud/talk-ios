@@ -12,3 +12,4 @@ listable
 lu
 decrypted
 screensharing
+nextcloud

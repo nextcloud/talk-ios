@@ -42,6 +42,8 @@ NSString * const NCLocalNotificationJoinChatNotification            = @"NCLocalN
 NSString * const NCNotificationActionShareRecording                 = @"SHARE_RECORDING";
 NSString * const NCNotificationActionDismissRecordingNotification   = @"DISMISS_RECORDING_NOTIFICATION";
 NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CHAT";
+NSString * const NCNotificationActionFederationInvitationAccept     = @"ACCEPT_FEDERATION_INVITATION";
+NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_FEDERATION_INVITATION";
 
 @interface NCNotificationController () <UNUserNotificationCenterDelegate>
 
@@ -143,6 +145,14 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
         {
             NSString *failedToShareRecordingString = NSLocalizedString(@"Failed to share recording", nil);
             content.body = [NSString stringWithFormat:@"%@", failedToShareRecordingString];
+            content.userInfo = userInfo;
+        }
+            break;
+
+        case kNCLocalNotificationTypeFailedToAcceptInvitation:
+        {
+            NSString *failedToAcceptInvitationString = NSLocalizedString(@"Failed to accept invitation", nil);
+            content.body = [NSString stringWithFormat:@"%@", failedToAcceptInvitationString];
             content.userInfo = userInfo;
         }
             break;
@@ -515,6 +525,8 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
             [self handlePushNotificationResponseWithUserText:pushNotification];
         } else if (pushNotification.type == NCPushNotificationTypeRecording) {
             [self handlePushNotificationResponseForRecording:response];
+        } else if (pushNotification.type == NCPUshNotificationTypeFederation) {
+            [self handlePushNotificationResponseForFederation:response];
         } else if (pushNotification.type == NCPushNotificationTypeReminder) {
             [self handlePushNotificationResponseForReminder:response];
         } else {
@@ -566,6 +578,74 @@ NSString * const NCNotificationActionReplyToChat                    = @"REPLY_CH
             sendTask = UIBackgroundTaskInvalid;
         }];
     });
+}
+
+- (void)handlePushNotificationResponseForFederation:(UNNotificationResponse *)response
+{
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForFederation" expirationHandler:^(BGTaskHelper *task) {
+        [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForFederation"];
+    }];
+
+    UNNotificationRequest *notificationRequest = response.notification.request;
+    NSDictionary *userInfo = notificationRequest.content.userInfo;
+
+    NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
+    NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
+
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
+    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
+
+    if (!account || !serverNotification) {
+        [bgTask stopBackgroundTask];
+        return;
+    }
+
+    if ([response.actionIdentifier isEqualToString:NCNotificationActionFederationInvitationAccept]) {
+        FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification for:account.accountId];
+
+        [[NCAPIController sharedInstance] acceptFederationInvitationFor:account.accountId with:invitation.invitationId completionBlock:^(BOOL success) {
+            if (!success) {
+                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:serverNotification.roomToken forKey:@"roomToken"];
+                [userInfo setValue:@(kNCLocalNotificationTypeFailedToAcceptInvitation) forKey:@"localNotificationType"];
+                [userInfo setObject:notificationAccountId forKey:@"accountId"];
+
+                [self showLocalNotification:kNCLocalNotificationTypeFailedToAcceptInvitation withUserInfo:userInfo];
+            }
+
+            [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
+
+            [bgTask stopBackgroundTask];
+        }];
+
+    } else if ([response.actionIdentifier isEqualToString:NCNotificationActionFederationInvitationReject]) {
+        FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification for:account.accountId];
+
+        [[NCAPIController sharedInstance] rejectFederationInvitationFor:account.accountId with:invitation.invitationId completionBlock:^(BOOL success) {
+            [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
+            [bgTask stopBackgroundTask];
+        }];
+    } else {
+        [bgTask stopBackgroundTask];
+
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:serverNotification.subject
+                                                                       message:serverNotification.message
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+
+        for (NCNotificationAction *notificationAction in [serverNotification notificationActions]) {
+            UIAlertAction* tempButton = [UIAlertAction actionWithTitle:notificationAction.actionLabel
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^(UIAlertAction * _Nonnull action) {
+                [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
+                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+            }];
+
+            [alert addAction:tempButton];
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+        });
+    }
 }
 
 - (void)handlePushNotificationResponseForRecording:(UNNotificationResponse *)response

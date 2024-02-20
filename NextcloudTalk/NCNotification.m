@@ -68,6 +68,8 @@
         type = kNCNotificationTypeRecording;
     } else if ([_objectType isEqualToString:@"call"]) {
         type = kNCNotificationTypeCall;
+    } else if ([_objectType isEqualToString:@"remote_talk_share"]) {
+        type = kNCNotificationTypeFederation;
     }
     return type;
 }

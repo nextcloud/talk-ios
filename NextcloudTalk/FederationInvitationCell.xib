@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="dark"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="106" id="KGk-i7-Jjw" customClass="FederationInvitationCell" customModule="NextcloudTalk" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="422" height="106"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="422" height="106"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mNx-yG-fAe" userLabel="Label View">
+                        <rect key="frame" x="12" y="12" width="398" height="36"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XBj-oY-kPW" userLabel="ConversationName Label">
+                                <rect key="frame" x="0.0" y="0.0" width="398" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="YoD-zL-1qj"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ghb-EI-AhT" userLabel="Details Label">
+                                <rect key="frame" x="0.0" y="22" width="398" height="14"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="14" id="oP4-Gm-srE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="ghb-EI-AhT" secondAttribute="trailing" id="1SQ-c8-RyU"/>
+                            <constraint firstItem="XBj-oY-kPW" firstAttribute="leading" secondItem="mNx-yG-fAe" secondAttribute="leading" id="2Xu-Rj-GrX"/>
+                            <constraint firstItem="ghb-EI-AhT" firstAttribute="leading" secondItem="mNx-yG-fAe" secondAttribute="leading" id="DWw-7B-Hae"/>
+                            <constraint firstAttribute="bottom" secondItem="ghb-EI-AhT" secondAttribute="bottom" id="H24-hD-zTW"/>
+                            <constraint firstAttribute="trailing" secondItem="XBj-oY-kPW" secondAttribute="trailing" id="d4Q-Ra-0d6"/>
+                            <constraint firstItem="XBj-oY-kPW" firstAttribute="top" secondItem="mNx-yG-fAe" secondAttribute="top" id="e9M-Gj-Xs8"/>
+                            <constraint firstAttribute="height" constant="36" id="qo9-SF-MyP"/>
+                        </constraints>
+                    </view>
+                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="OmP-GW-Hgh">
+                        <rect key="frame" x="259" y="60" width="151" height="38"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1qK-z7-Bwv" userLabel="Reject Button" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="68" height="38"/>
+                                <inset key="contentEdgeInsets" minX="12" minY="8" maxX="12" maxY="8"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="Reject"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z0q-UE-cMb" userLabel="Accept Button" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
+                                <rect key="frame" x="78" y="0.0" width="73" height="38"/>
+                                <inset key="contentEdgeInsets" minX="12" minY="8" maxX="12" maxY="8"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="Accept"/>
+                            </button>
+                        </subviews>
+                    </stackView>
+                </subviews>
+                <viewLayoutGuide key="safeArea" id="ML2-GP-tWC"/>
+                <constraints>
+                    <constraint firstItem="OmP-GW-Hgh" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ML2-GP-tWC" secondAttribute="leading" constant="12" id="1ul-2K-2y0"/>
+                    <constraint firstItem="mNx-yG-fAe" firstAttribute="top" secondItem="ML2-GP-tWC" secondAttribute="top" constant="12" id="RZZ-by-PX9"/>
+                    <constraint firstItem="OmP-GW-Hgh" firstAttribute="top" secondItem="mNx-yG-fAe" secondAttribute="bottom" constant="12" id="WlF-Ng-EWa"/>
+                    <constraint firstItem="mNx-yG-fAe" firstAttribute="leading" secondItem="ML2-GP-tWC" secondAttribute="leading" constant="12" id="eP9-Qz-l2e"/>
+                    <constraint firstItem="ML2-GP-tWC" firstAttribute="trailing" secondItem="OmP-GW-Hgh" secondAttribute="trailing" constant="12" id="omg-Cr-POK"/>
+                    <constraint firstItem="ML2-GP-tWC" firstAttribute="trailing" secondItem="mNx-yG-fAe" secondAttribute="trailing" constant="12" id="wTA-9x-zNY"/>
+                    <constraint firstItem="ML2-GP-tWC" firstAttribute="bottom" secondItem="OmP-GW-Hgh" secondAttribute="bottom" constant="8" id="y6Q-Ax-M0E"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
+            <connections>
+                <outlet property="acceptButton" destination="z0q-UE-cMb" id="2v4-mc-smj"/>
+                <outlet property="conversationNameLabel" destination="XBj-oY-kPW" id="Exh-zU-eYM"/>
+                <outlet property="detailsLabel" destination="ghb-EI-AhT" id="ean-qp-TVZ"/>
+                <outlet property="rejectButton" destination="1qK-z7-Bwv" id="Qhz-8Y-xV0"/>
+            </connections>
+            <point key="canvasLocation" x="121.73913043478262" y="55.580357142857139"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

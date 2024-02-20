@@ -178,12 +178,24 @@
 		1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
+		1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */; };
+		1FADECD82B82269E007AD94B /* FederationInvitationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */; };
+		1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */; };
 		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
+		1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
+		1FB78E202B6ADBB600B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
+		1FB78E212B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
+		1FB78E222B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
+		1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
+		1FB78E272B6AE8C900B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
+		1FB78E282B6AE8C900B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
+		1FB78E292B6AE8CA00B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
 		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
+		1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
@@ -615,10 +627,16 @@
 		1FAB2E842ACB482B001214EB /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControlExtensions.swift; sourceTree = "<group>"; };
 		1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLMSupport.swift; sourceTree = "<group>"; };
+		1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationTableViewController.swift; sourceTree = "<group>"; };
+		1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationCell.swift; sourceTree = "<group>"; };
+		1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FederationInvitationCell.xib; sourceTree = "<group>"; };
 		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
+		1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPIControllerExtensions.swift; sourceTree = "<group>"; };
+		1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FederationInvitation.swift; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
+		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRoomTest.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
@@ -1249,6 +1267,17 @@
 			name = Siri;
 			sourceTree = "<group>";
 		};
+		1FB78E242B6AE58100B0D69D /* Federation */ = {
+			isa = PBXGroup;
+			children = (
+				1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */,
+				1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */,
+				1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */,
+				1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */,
+			);
+			name = Federation;
+			sourceTree = "<group>";
+		};
 		1FF2FD5E2AB99CCB000C9905 /* BroadcastUploadExtension */ = {
 			isa = PBXGroup;
 			children = (
@@ -1294,19 +1323,20 @@
 		2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */ = {
 			isa = PBXGroup;
 			children = (
-				1F77A60E2AB9B14D007B6037 /* Screensharing */,
 				2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */,
 				2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */,
 				2C5521691F7D48480077E587 /* Calls */,
 				2CF0679E208A2A430070A79B /* Chat */,
 				2C5521671F7D47BA0077E587 /* Contacts */,
 				2C40281622832EF90000DDFC /* Database */,
+				1FB78E242B6AE58100B0D69D /* Federation */,
 				2C8A2BCA221F096200DE6D2C /* File sharing */,
 				2C5521681F7D481C0077E587 /* Login */,
 				2CB6ACA72638489300D3D641 /* Maps */,
 				2C55216B1F7D48970077E587 /* Network */,
 				2C9B0B99217F6E3400A4752C /* Notifications */,
 				2C5521661F7D47A50077E587 /* Rooms */,
+				1F77A60E2AB9B14D007B6037 /* Screensharing */,
 				2CBF82B31FCC7DC100636459 /* Security */,
 				2C55216A1F7D48850077E587 /* Settings */,
 				1F90EFB925FE398B00F3FA55 /* Siri */,
@@ -1444,6 +1474,7 @@
 				2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */,
 				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
+				1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */,
 				2CC007B520D8139D0096D91F /* RoomCreationTableViewController.h */,
 				2CC007B620D8139D0096D91F /* RoomCreationTableViewController.m */,
 				2CC007B720D8139D0096D91F /* RoomCreationTableViewController.xib */,
@@ -1581,6 +1612,7 @@
 			children = (
 				2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */,
 				2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */,
+				1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */,
 				2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */,
 				2CA1CC901F014354002FE6A2 /* NCConnectionController.m */,
 				2CBF82B41FD0939600636459 /* NCAPISessionManager.h */,
@@ -2231,6 +2263,7 @@
 				2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */,
+				1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */,
 				1FEC459C2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib in Resources */,
 				1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */,
 				2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */,
@@ -2503,6 +2536,7 @@
 				1F77A5FB2AB9A4E6007B6037 /* NCMessageParameter.m in Sources */,
 				1F77A6042AB9A574007B6037 /* NCImageSessionManager.m in Sources */,
 				1F77A5F62AB9A4BF007B6037 /* NCChatReaction.m in Sources */,
+				1FB78E272B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
 				1F77A5FE2AB9A4F9007B6037 /* TalkAccount.m in Sources */,
 				1F77A6052AB9A57B007B6037 /* NCAPISessionManager.m in Sources */,
 				1F77A5ED2AB9A408007B6037 /* NCChatMessage.m in Sources */,
@@ -2517,6 +2551,7 @@
 				1F77A5F52AB9A4B9007B6037 /* NCAPIController.m in Sources */,
 				1F77A5F92AB9A4D9007B6037 /* NCMessageFileParameter.m in Sources */,
 				1FF2FD852AB99F51000C9905 /* NCUserStatus.m in Sources */,
+				1FB78E202B6ADBB600B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				1FF2FD7F2AB99E4D000C9905 /* Atomic.swift in Sources */,
 				1F77A5F72AB9A4C5007B6037 /* NCContact.m in Sources */,
 				1FF2FD822AB99E4D000C9905 /* SocketConnection.swift in Sources */,
@@ -2604,6 +2639,7 @@
 				1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */,
 				2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */,
+				1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
 				1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */,
@@ -2625,6 +2661,7 @@
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
+				1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
@@ -2696,6 +2733,7 @@
 				2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */,
 				80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */,
 				2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */,
+				1FADECD82B82269E007AD94B /* FederationInvitationCell.swift in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
 				2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */,
 				2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */,
@@ -2707,6 +2745,7 @@
 				1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */,
 				1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
+				1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */,
 				DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */,
@@ -2718,6 +2757,7 @@
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
+				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,
 				1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */,
 				80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */,
 				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
@@ -2774,6 +2814,7 @@
 				2C6955132B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
 				1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */,
+				1FB78E212B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */,
 				2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */,
 				2C4446FE265D5DFA00DF1DBC /* ABContact.m in Sources */,
@@ -2799,6 +2840,7 @@
 				2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */,
 				1F35F8F32AEEC29A00044BDA /* AvatarButton.swift in Sources */,
 				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				1FB78E282B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
 				2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */,
 				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
 				2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */,
@@ -2818,6 +2860,7 @@
 				2C4446FF265D5EB100DF1DBC /* NCPushProxySessionManager.m in Sources */,
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
 				1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
+				1FB78E222B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
@@ -2845,6 +2888,7 @@
 				2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */,
 				2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */,
 				2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */,
+				1FB78E292B6AE8CA00B0D69D /* FederationInvitation.swift in Sources */,
 				2C444704265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				2CC001B724A37A9A00A20167 /* NCUser.m in Sources */,
 				2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */,

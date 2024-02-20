@@ -46,6 +46,11 @@ import SDWebImage
         return UIImage(named: "group-avatar", in: nil, compatibleWith: traitCollection)
     }
 
+    public func getMailAvatar(with style: UIUserInterfaceStyle) -> UIImage? {
+        let traitCollection = UITraitCollection(userInterfaceStyle: style)
+        return UIImage(named: "mail-avatar", in: nil, compatibleWith: traitCollection)
+    }
+
     private func getFallbackAvatar(for room: NCRoom,
                                    with style: UIUserInterfaceStyle,
                                    completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {

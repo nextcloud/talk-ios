@@ -30,6 +30,8 @@ extern NSString * const NCLocalNotificationJoinChatNotification;
 extern NSString * const NCNotificationActionShareRecording;
 extern NSString * const NCNotificationActionDismissRecordingNotification;
 extern NSString * const NCNotificationActionReplyToChat;
+extern NSString * const NCNotificationActionFederationInvitationAccept;
+extern NSString * const NCNotificationActionFederationInvitationReject;
 
 typedef void (^CheckForNewNotificationsCompletionBlock)(NSError *error);
 typedef void (^CheckNotificationExistanceCompletionBlock)(NSError *error);
@@ -41,6 +43,7 @@ typedef enum {
     kNCLocalNotificationTypeCallFromOldAccount,
     kNCLocalNotificationTypeChatNotification,
     kNCLocalNotificationTypeFailedToShareRecording,
+    kNCLocalNotificationTypeFailedToAcceptInvitation,
     kNCLocalNotificationTypeRecordingConsentRequired
 } NCLocalNotificationType;
 

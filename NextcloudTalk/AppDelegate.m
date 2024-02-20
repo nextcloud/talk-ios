@@ -287,7 +287,21 @@
                                                                              intentIdentifiers:@[]
                                                                                        options:UNNotificationCategoryOptionNone];
 
-    NSSet *categories = [NSSet setWithObjects:chatCategory, recordingCategory, nil];
+    // Federation invitation
+    UNNotificationAction *federationAccept = [UNNotificationAction actionWithIdentifier:NCNotificationActionFederationInvitationAccept
+                                                                                  title:NSLocalizedString(@"Accept", nil)
+                                                                                options:UNNotificationActionOptionAuthenticationRequired];
+
+    UNNotificationAction *federationReject = [UNNotificationAction actionWithIdentifier:NCNotificationActionFederationInvitationReject
+                                                                                  title:NSLocalizedString(@"Reject", nil)
+                                                                                options:UNNotificationActionOptionAuthenticationRequired | UNNotificationActionOptionDestructive];
+
+    UNNotificationCategory *federationCategory = [UNNotificationCategory categoryWithIdentifier:@"CATEGORY_FEDERATION"
+                                                                                       actions:@[federationAccept, federationReject]
+                                                                             intentIdentifiers:@[]
+                                                                                       options:UNNotificationCategoryOptionNone];
+
+    NSSet *categories = [NSSet setWithObjects:chatCategory, recordingCategory, federationCategory, nil];
     [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categories];
 }
 

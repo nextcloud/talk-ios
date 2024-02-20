@@ -56,6 +56,11 @@ typedef enum RoomsFilter {
     kRoomsFilterMentioned
 } RoomsFilter;
 
+typedef enum RoomsSections {
+    kRoomsSectionPendingFederationInvitation = 0,
+    kRoomsSectionRoomList
+} RoomsSections;
+
 @interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
 {
     RLMNotificationToken *_rlmNotificationToken;
@@ -179,6 +184,7 @@ typedef enum RoomsFilter {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCSelectedContactForChatNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activeAccountDidChange:) name:NCSettingsControllerDidChangeActiveAccountNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingInvitationsDidUpdate:) name:NCDatabaseManagerPendingFederationInvitationsDidChange object:nil];
 }
 
 - (void)setupNavigationBar
@@ -305,6 +311,12 @@ typedef enum RoomsFilter {
     [_refreshControl endRefreshing];
 }
 
+- (void)pendingInvitationsDidUpdate:(NSNotification *)notification
+{
+    // Update the rooms: In case we accepted an invitation, we want to show the new room directly
+    [self refreshRooms];
+}
+
 - (void)notificationWillBePresented:(NSNotification *)notification
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:NO withCompletionBlock:nil];
@@ -389,6 +401,7 @@ typedef enum RoomsFilter {
 - (void)refreshRooms
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
+    [[NCRoomsManager sharedInstance] checkUpdateNeededForPendingFederationInvitations];
 
     if ([NCConnectionController sharedInstance].connectionState == kConnectionStateConnected) {
         [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:nil];
@@ -422,6 +435,11 @@ typedef enum RoomsFilter {
 - (void)refreshControlTarget
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
+
+    // When we manually forced a room update, we update the invitation list as well
+    // TODO: Only check if federation is enabled
+    [[NCRoomsManager sharedInstance] updatePendingFederationInvitations];
+
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
 }
@@ -1286,11 +1304,21 @@ typedef enum RoomsFilter {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    if (section == kRoomsSectionPendingFederationInvitation) {
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+
+        if (account.pendingFederationInvitations > 0) {
+            return 1;
+        }
+
+        return 0;
+    }
+
     return _rooms.count;
 }
 
@@ -1301,6 +1329,11 @@ typedef enum RoomsFilter {
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
+        // No swipe action for pending invitations
+        return nil;
+    }
+
     UIContextualAction *moreAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                             handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                 [self presentMoreActionsForRoomAtIndexPath:indexPath];
@@ -1334,6 +1367,11 @@ typedef enum RoomsFilter {
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
+    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
+        // No swipe action for pending invitations
+        return nil;
+    }
+
     NCRoom *room = [self roomForIndexPath:indexPath];
     
     // Do not show swipe actions for open conversations or messages
@@ -1379,11 +1417,26 @@ typedef enum RoomsFilter {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
     if (!cell) {
         cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
     }
+
+    if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
+        // Pending federation invitations
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+
+        NSString *pendingInvitationsString = [NSString localizedStringWithFormat:NSLocalizedString(@"You have %ld pending invitations", nil), (long)account.pendingFederationInvitations];
+        cell.titleLabel.text = NSLocalizedString(@"Pending invitations", @"");
+        cell.subtitleLabel.text = pendingInvitationsString;
+        cell.dateLabel.text = @"";
+
+        [cell.roomImage setMailAvatarWith:self.traitCollection.userInterfaceStyle];
+
+        return cell;
+    }
+
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     
     // Set room name
     cell.titleLabel.text = room.displayName;
@@ -1443,6 +1496,14 @@ typedef enum RoomsFilter {
 {
     [self setSelectedRoomToken:nil];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
+        FederationInvitationTableViewController *federationInvitationVC = [[FederationInvitationTableViewController alloc] init];
+        NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:federationInvitationVC];
+        [self presentViewController:navigationController animated:YES completion:nil];
+        
+        return;
+    }
 
     if (tableView == _resultTableViewController.tableView) {
         // Messages

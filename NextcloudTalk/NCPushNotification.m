@@ -38,6 +38,7 @@ NSString * const kNCPNTypeDeleteKey             = @"delete";
 NSString * const kNCPNTypeDeleteAllKey          = @"delete-all";
 NSString * const kNCPNTypeDeleteMultipleKey     = @"delete-multiple";
 NSString * const kNCPNTypeRecording             = @"recording";
+NSString * const kNCPNTypeFederation            = @"remote_talk_share";
 NSString * const kNCPNTypeReminder              = @"reminder";
 NSString * const kNCPNAppIdAdminNotificationKey = @"admin_notification_talk";
 
@@ -76,6 +77,8 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
         pushNotification.type = NCPushNotificationTypeChat;
     } else if ([type isEqualToString:kNCPNTypeRecording]) {
         pushNotification.type = NCPushNotificationTypeRecording;
+    } else if ([type isEqualToString:kNCPNTypeFederation]) {
+        pushNotification.type = NCPUshNotificationTypeFederation;
     } else if ([type isEqualToString:kNCPNTypeReminder]) {
         pushNotification.type = NCPushNotificationTypeReminder;
     }
