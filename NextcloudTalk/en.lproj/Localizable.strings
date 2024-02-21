@@ -647,6 +647,9 @@
 "Disable blur" = "Disable blur";
 
 /* No comment provided by engineer. */
+"Disable speaker" = "Disable speaker";
+
+/* No comment provided by engineer. */
 "Disconnected" = "Disconnected";
 
 /* No comment provided by engineer. */
@@ -813,6 +816,9 @@
 
 /* No comment provided by engineer. */
 "Enable screensharing" = "Enable screensharing";
+
+/* No comment provided by engineer. */
+"Enable speaker" = "Enable speaker";
 
 /* No comment provided by engineer. */
 "End call" = "End call";
