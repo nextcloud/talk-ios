@@ -918,11 +918,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NCAudioController *audioController = [NCAudioController sharedInstance];
     if ([self.speakerButton isHidden] && [audioController isAudioRouteChangeable]) {
         // TODO: Adjust for AirPlay?
-        UIImage *speakerImage = [UIImage systemImageNamed:@"speaker.wave.3.fill"];
-        NSString *speakerActionTitle = NSLocalizedString(@"Speaker", nil);
+        UIImage *speakerImage = [UIImage systemImageNamed:@"speaker.slash.fill"];
+        NSString *speakerActionTitle = NSLocalizedString(@"Disable speaker", nil);
 
         if (![NCAudioController sharedInstance].isSpeakerActive) {
-            speakerImage = [UIImage systemImageNamed:@"speaker.slash.fill"];
+            speakerImage = [UIImage systemImageNamed:@"speaker.wave.3.fill"];
+            speakerActionTitle = NSLocalizedString(@"Enable speaker", nil);
         }
 
         UIAction *speakerAction = [UIAction actionWithTitle:speakerActionTitle image:speakerImage identifier:nil handler:^(UIAction *action) {
