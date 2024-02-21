@@ -1279,7 +1279,7 @@ typedef enum FileAction {
         if (participant.isGroup) {
             title = NSLocalizedString(@"Remove group and members", nil);
         } else if (participant.isCircle) {
-            title = NSLocalizedString(@"Remove circle and members", nil);
+            title = NSLocalizedString(@"Remove team and members", nil);
         }
         UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:title
                                                                     style:UIAlertActionStyleDestructive

@@ -1424,9 +1424,6 @@
 "Remove account" = "Remove account";
 
 /* No comment provided by engineer. */
-"Remove circle and members" = "Remove circle and members";
-
-/* No comment provided by engineer. */
 "Remove from favorites" = "Remove from favorites";
 
 /* No comment provided by engineer. */
@@ -1440,6 +1437,9 @@
 
 /* No comment provided by engineer. */
 "Remove password" = "Remove password";
+
+/* No comment provided by engineer. */
+"Remove team and members" = "Remove team and members";
 
 /* No comment provided by engineer. */
 "Reply" = "Reply";
