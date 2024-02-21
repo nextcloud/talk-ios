@@ -127,5 +127,11 @@
 			<string>%ld powiadomień</string>
 		</dict>
 	</dict>
+
+    <key>You have %ld pending invitations</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@pendinginvitations@</string>
+    </dict>
 </dict>
 </plist>
