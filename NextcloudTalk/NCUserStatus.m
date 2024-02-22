@@ -100,6 +100,33 @@ NSString * const kUserStatusOffline     = @"offline";
     return userStatusImageName;
 }
 
++ (UIImage *)getOnlineSFIcon
+{
+    return [[UIImage systemImageNamed:@"circle.fill"] imageWithTintColor:[UIColor systemGreenColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+}
+
++ (UIImage *)getAwaySFIcon
+{
+    return [[UIImage systemImageNamed:@"moon.fill"] imageWithTintColor:[UIColor systemYellowColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+}
+
++ (UIImage *)getDoNotDisturbSFIcon
+{
+    UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPaletteColors:@[[UIColor whiteColor], [UIColor systemRedColor]]];
+
+    if (@available(iOS 16.1, *)) {
+        return [[UIImage systemImageNamed:@"wrongwaysign.fill"] imageByApplyingSymbolConfiguration:conf];
+    }
+
+    return [[UIImage systemImageNamed:@"minus.circle.fill"] imageByApplyingSymbolConfiguration:conf];
+}
+
++ (UIImage *)getInvisibleSFIcon
+{
+    UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightBlack];
+    return [[UIImage systemImageNamed:@"circle"] imageByApplyingSymbolConfiguration:conf];
+}
+
 - (NSString *)readableUserStatus
 {
     return [NCUserStatus readableUserStatusFromUserStatus:_status];
@@ -120,9 +147,35 @@ NSString * const kUserStatusOffline     = @"offline";
     return userStatusIcon ? [NSString stringWithFormat:@"%@  %@", userStatusIcon, _message] : userStatusMessage;
 }
 
+- (NSString *)readableUserStatusOrMessage
+{
+    NSString *userStatusMessage = [self readableUserStatusMessage];
+
+    if ([userStatusMessage length] > 0) {
+        return userStatusMessage;
+    }
+
+    return [self readableUserStatus];
+}
+
 - (NSString *)userStatusImageNameOfSize:(NSInteger)size
 {
     return [NCUserStatus userStatusImageNameForStatus:_status ofSize:size];
+}
+
+- (nullable UIImage *)getSFUserStatusIcon
+{
+    if ([_status isEqualToString:kUserStatusOnline]) {
+        return [NCUserStatus getOnlineSFIcon];
+    } else if ([_status isEqualToString:kUserStatusAway]) {
+        return [NCUserStatus getAwaySFIcon];
+    } else if ([_status isEqualToString:kUserStatusDND]) {
+        return [NCUserStatus getDoNotDisturbSFIcon];
+    } else if ([_status isEqualToString:kUserStatusInvisible]) {
+        return [NCUserStatus getInvisibleSFIcon];
+    }
+
+    return nil;
 }
 
 @end

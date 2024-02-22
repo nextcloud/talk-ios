@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,9 +45,15 @@ extern NSString * const kUserStatusOffline;
 + (instancetype)userStatusWithDictionary:(NSDictionary *)userStatusDict;
 + (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus;
 + (NSString *)userStatusImageNameForStatus:(NSString *)userStatus ofSize:(NSInteger)size;
++ (UIImage *)getOnlineSFIcon;
++ (UIImage *)getAwaySFIcon;
++ (UIImage *)getDoNotDisturbSFIcon;
++ (UIImage *)getInvisibleSFIcon;
 - (NSString *)readableUserStatus;
 - (NSString *)readableUserStatusMessage;
+- (NSString *)readableUserStatusOrMessage;
 - (NSString *)userStatusImageNameOfSize:(NSInteger)size;
+- (nullable UIImage *)getSFUserStatusIcon;
 
 @end
 

@@ -65,9 +65,6 @@ extension UserProfileTableViewController {
         } else if !(self.rowsInSummarySection().isEmpty) {
             sections.append(ProfileSection.kProfileSectionSummary.rawValue)
         }
-        if multiAccountEnabled.boolValue {
-            sections.append(ProfileSection.kProfileSectionAddAccount.rawValue)
-        }
         sections.append(ProfileSection.kProfileSectionRemoveAccount.rawValue)
         return sections
     }

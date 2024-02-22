@@ -38,7 +38,7 @@ struct UserStatusOptionsSwiftUI: View {
                         setActiveUserStatus(userStatus: option.identifier)
                     }) {
                         HStack(spacing: 15) {
-                            Image(uiImage: option.image)
+                            AnyView(NCUserStatus.getUserStatusIcon(userStatus: option.identifier))
                             VStack(alignment: .leading) {
                                 Text(option.title)
                                     .font(.system(size: 18))
@@ -88,23 +88,19 @@ struct UserStatusOptionsSwiftUI: View {
     func presentUserStatusOptions() {
         let onlineOption = DetailedOption()
         onlineOption.identifier = kUserStatusOnline
-        onlineOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusOnline, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
         onlineOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusOnline)
 
         let awayOption = DetailedOption()
         awayOption.identifier = kUserStatusAway
-        awayOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusAway, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
         awayOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusAway)
 
         let dndOption = DetailedOption()
         dndOption.identifier = kUserStatusDND
-        dndOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusDND, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
         dndOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusDND)
         dndOption.subtitle = NSLocalizedString("Mute all notifications", comment: "")
 
         let invisibleOption = DetailedOption()
         invisibleOption.identifier = kUserStatusInvisible
-        invisibleOption.image = UIImage(named: NCUserStatus.userStatusImageName(forStatus: kUserStatusInvisible, ofSize: 24))?.withRenderingMode(.alwaysOriginal)
         invisibleOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusInvisible)
         invisibleOption.subtitle = NSLocalizedString("Appear offline", comment: "")
 
