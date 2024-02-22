@@ -2105,7 +2105,7 @@ import QuickLook
                 }
             }
         } else if newMessage.actorId == lastMessage.actorId {
-            if ["call_joined", "call_left"].contains(newMessage.systemMessage) {
+            if lastMessage.systemMessage == "call_left", newMessage.systemMessage == "call_joined" {
                 self.collapseSystemMessage(newMessage, withMessage: lastMessage, withAction: "call_reconnected")
             }
         }
