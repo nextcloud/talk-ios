@@ -60,7 +60,7 @@ extension XCTestCase {
         app.launchArguments += ["-TestEnvironment"]
         app.launch()
 
-        let accountSwitcherButton = app.buttons["Nextcloud Talk"]
+        let accountSwitcherButton = app.buttons["LoadedProfileButton"]
         let serverAddressHttpsTextField = app.textFields["Server address https://…"]
 
         // Wait shortly until the app is fully started
@@ -114,6 +114,9 @@ extension XCTestCase {
         XCTAssert(grantAccessButton.waitForExistence(timeout: TestConstants.timeoutLong))
         waitForEnabled(object: grantAccessButton)
         waitForHittable(object: grantAccessButton)
+
+        // TODO: Find a better way to reliable detect if the grant access button is tappable
+        sleep(5)
 
         grantAccessButton.tap()
 

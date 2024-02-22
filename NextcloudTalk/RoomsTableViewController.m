@@ -956,7 +956,6 @@ typedef enum RoomsSections {
     _profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _profileButton.frame = CGRectMake(0, 0, 30, 30);
     _profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
-    _profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
 
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle];
@@ -967,6 +966,9 @@ typedef enum RoomsSections {
         profileImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         [_profileButton setImage:profileImage forState:UIControlStateNormal];
+
+        // Used to distinguish between a "completely loaded" button (with a profile image) and the default gear one
+        _profileButton.accessibilityIdentifier = @"LoadedProfileButton";
     } else {
         [_profileButton setImage:[UIImage systemImageNamed:@"gear"] forState:UIControlStateNormal];
         _profileButton.contentMode = UIViewContentModeCenter;
