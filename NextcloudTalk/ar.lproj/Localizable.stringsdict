@@ -156,6 +156,25 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@pendinginvitations@</string>
+        <key>pendinginvitations</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>لديك %ld دعوة معلقة</string>
+            <key>one</key>
+            <string>لديك %ld دعوة معلقة</string>
+            <key>two</key>
+            <string>لديك %ld دعوة معلقة</string>
+            <key>few</key>
+            <string>لديك %ld دعوات معلقة</string>
+            <key>many</key>
+            <string>لديك %ld دعوة معلقة</string>
+            <key>other</key>
+            <string>لديك %ld دعوة معلقة</string>
+        </dict>
     </dict>
 </dict>
 </plist>
