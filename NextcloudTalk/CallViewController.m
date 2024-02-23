@@ -917,7 +917,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     // Add speaker button to menu if it was hidden from topbar
     NCAudioController *audioController = [NCAudioController sharedInstance];
     if ([self.speakerButton isHidden] && [audioController isAudioRouteChangeable]) {
-        // TODO: Adjust for AirPlay?
         UIImage *speakerImage = [UIImage systemImageNamed:@"speaker.slash.fill"];
         NSString *speakerActionTitle = NSLocalizedString(@"Disable speaker", nil);
 
@@ -926,10 +925,27 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             speakerActionTitle = NSLocalizedString(@"Enable speaker", nil);
         }
 
-        UIAction *speakerAction = [UIAction actionWithTitle:speakerActionTitle image:speakerImage identifier:nil handler:^(UIAction *action) {
-            [weakSelf speakerButtonPressed:nil];
-        }];
+        BOOL shouldShowAirPlayButton = audioController.numberOfAvailableInputs > 1;
+        if (shouldShowAirPlayButton) {
+            speakerImage = [UIImage systemImageNamed:@"airplayaudio"];
+            speakerActionTitle = NSLocalizedString(@"Audio options", nil);
+        }
 
+        void (^speakerBlock)(UIAction *action) = ^void(UIAction *action) {
+            [weakSelf speakerButtonPressed:nil];
+        };
+
+        void (^airplayBlock)(UIAction *action) = ^void(UIAction *action) {
+            __strong typeof(self) strongSelf = weakSelf;
+
+            for (id subview in strongSelf->_airplayView.subviews) {
+                if ([subview isKindOfClass:[UIButton class]]) {
+                    [subview sendActionsForControlEvents:UIControlEventTouchUpInside];
+                }
+            }
+        };
+
+        UIAction *speakerAction = [UIAction actionWithTitle:speakerActionTitle image:speakerImage identifier:nil handler:shouldShowAirPlayButton ? airplayBlock : speakerBlock];
         [items addObject:speakerAction];
     }
 
