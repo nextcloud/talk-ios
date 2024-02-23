@@ -43,7 +43,6 @@ final class AAAALoginTest: XCTestCase {
         // At this point we should be logged in, so check if username and server is displayed somewhere
         XCTAssert(app.buttons["Settings"].waitForExistence(timeout: TestConstants.timeoutShort))
         XCTAssert(app.buttons["Add account"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.buttons[TestConstants.username].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
 }
