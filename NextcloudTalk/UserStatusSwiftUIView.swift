@@ -48,8 +48,7 @@ struct UserStatusSwiftUIView: View {
                             UserStatusOptionsSwiftUI(changed: $changed, userStatus: $userStatus)
                         }, label: {
                             HStack(spacing: 10) {
-                                Image(userStatus.userStatusImageName(ofSize: 24))
-                                    .renderingMode(.original)
+                                AnyView(NCUserStatus.getUserStatusIcon(userStatus: userStatus.status))
                                 Text(userStatus.readableUserStatus())
                             }
                         })
@@ -110,5 +109,15 @@ struct UserStatusSwiftUIView: View {
                 userStatus = NCUserStatus(dictionary: userStatusDict!)
             }
         }
+    }
+}
+
+@objc class UserStatusSwiftUIViewFactory: NSObject {
+
+    @objc static func create(userStatus: NCUserStatus) -> UIViewController {
+        let userStatusView = UserStatusSwiftUIView(userStatus: userStatus)
+        let hostingController = UIHostingController(rootView: userStatusView)
+
+        return hostingController
     }
 }

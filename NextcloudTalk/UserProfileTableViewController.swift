@@ -29,7 +29,6 @@ enum ProfileSection: Int {
     case kProfileSectionWebsite
     case kProfileSectionTwitter
     case kProfileSectionSummary
-    case kProfileSectionAddAccount
     case kProfileSectionRemoveAccount
 }
 
@@ -41,6 +40,7 @@ enum SummaryRow: Int {
     case kSummaryRowTwitter
 }
 
+@objcMembers
 class UserProfileTableViewController: UITableViewController, DetailedOptionsSelectorTableViewControllerDelegate, TOCropViewControllerDelegate {
 
     let kNameTextFieldTag       = 99
@@ -91,6 +91,14 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         tableView.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
         self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
         NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
+
+        if navigationController?.viewControllers.first == self {
+            let barButtonItem = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+            barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
+                self.dismiss(animated: true)
+            })
+            self.navigationItem.leftBarButtonItems = [barButtonItem]
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -138,7 +146,7 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
             ProfileSection.kProfileSectionAddress.rawValue,
             ProfileSection.kProfileSectionWebsite.rawValue,
             ProfileSection.kProfileSectionTwitter.rawValue,
-            ProfileSection.kProfileSectionAddAccount.rawValue:
+            ProfileSection.kProfileSectionRemoveAccount.rawValue:
             return 40
         case ProfileSection.kProfileSectionSummary.rawValue:
             return 20
@@ -191,9 +199,6 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
                                      keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))
         case ProfileSection.kProfileSectionSummary.rawValue:
             return summaryCellForRow(row: indexPath.row)
-        case ProfileSection.kProfileSectionAddAccount.rawValue:
-            return actionCellWith(identifier: "AddAccountCellIdentifier", text: NSLocalizedString("Add account", comment: ""),
-                                  textColor: .systemBlue, image: UIImage(systemName: "plus")?.applyingSymbolConfiguration(iconConfiguration), tintColor: .systemBlue)
         case ProfileSection.kProfileSectionRemoveAccount.rawValue:
             let actionTitle = multiAccountEnabled.boolValue ? NSLocalizedString("Remove account", comment: "") : NSLocalizedString("Log out", comment: "")
             let actionImage = multiAccountEnabled.boolValue ?
@@ -209,9 +214,7 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let sections = getProfileSections()
         let section = sections[indexPath.section]
-        if section == ProfileSection.kProfileSectionAddAccount.rawValue {
-            self.addNewAccount()
-        } else if section == ProfileSection.kProfileSectionRemoveAccount.rawValue {
+        if section == ProfileSection.kProfileSectionRemoveAccount.rawValue {
             self.showLogoutConfirmationDialog()
         } else if section == ProfileSection.kProfileSectionPhoneNumber.rawValue {
             self.presentSetPhoneNumberDialog()

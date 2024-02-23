@@ -74,6 +74,7 @@ typedef enum RoomsSections {
     NCUnifiedSearchController *_unifiedSearchController;
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_settingsButton;
+    UIButton *_profileButton;
     NSTimer *_refreshRoomsTimer;
     NSIndexPath *_nextRoomWithMentionIndexPath;
     NSIndexPath *_lastRoomWithMentionIndexPath;
@@ -273,6 +274,11 @@ typedef enum RoomsSections {
     [self stopRefreshRoomsTimer];
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    [self setProfileButton];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -285,7 +291,6 @@ typedef enum RoomsSections {
 {
     AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
     [self adaptInterfaceForAppState:appState];
-    [self updateAccountPickerMenu];
 }
 
 - (void)connectionStateHasChanged:(NSNotification *)notification
@@ -321,7 +326,6 @@ typedef enum RoomsSections {
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:NO withCompletionBlock:nil];
     [self setUnreadMessageForInactiveAccountsIndicator];
-    [self updateAccountPickerMenu];
 }
 
 - (void)serverCapabilitiesUpdated:(NSNotification *)notification
@@ -332,7 +336,6 @@ typedef enum RoomsSections {
 - (void)userProfileImageUpdated:(NSNotification *)notification
 {
     [self setProfileButton];
-    [self updateAccountPickerMenu];
 }
 
 - (void)appWillEnterForeground:(NSNotification *)notification
@@ -345,7 +348,6 @@ typedef enum RoomsSections {
             // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
             [self setProfileButton];
             [self setUnreadMessageForInactiveAccountsIndicator];
-            [self updateAccountPickerMenu];
         });
     }
 }
@@ -409,9 +411,7 @@ typedef enum RoomsSections {
 
     dispatch_async(dispatch_get_main_queue(), ^{
         // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
-        [self setProfileButton];
         [self setUnreadMessageForInactiveAccountsIndicator];
-        [self updateAccountPickerMenu];
     });
 }
 
@@ -449,74 +449,131 @@ typedef enum RoomsSections {
 - (void)setNavigationLogoButton
 {
     UIImage *logoImage = [UIImage imageNamed:[NCAppBranding navigationLogoImageName]];
-    if (multiAccountEnabled) {
-        UIButton *logoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-        [logoButton setImage:logoImage forState:UIControlStateNormal];
-        [logoButton setShowsMenuAsPrimaryAction:YES];
-        self.navigationItem.titleView = logoButton;
-        [self updateAccountPickerMenu];
-    } else {
-        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
-    }
+    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
     self.navigationItem.titleView.accessibilityLabel = talkAppName;
     self.navigationItem.titleView.accessibilityHint = NSLocalizedString(@"Double tap to change accounts or add a new one", nil);
 }
 
-- (void)updateAccountPickerMenu
+- (UIMenu *)getActiveAccountMenuOptions
 {
-    if (![self.navigationItem.titleView isKindOfClass:[UIButton class]]) {
-        return;
-    }
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
 
-    UIButton *logoButton = (UIButton *)self.navigationItem.titleView;
-
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-
-    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        NSString *accountName = account.userDisplayName;
-        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle];
-
-        if (accountImage) {
-            accountImage = [NCUtils roundedImageFromImage:accountImage];
-
-            // Draw a red circle to the image in case we have unread notifications for that account
-            if (account.unreadNotification) {
-                UIGraphicsBeginImageContextWithOptions(CGSizeMake(82, 82), NO, 3);
-                CGContextRef context = UIGraphicsGetCurrentContext();
-                [accountImage drawInRect:CGRectMake(0, 4, 78, 78)];
-                CGContextSaveGState(context);
-
-                CGContextSetFillColorWithColor(context, [UIColor systemRedColor].CGColor);
-                CGContextFillEllipseInRect(context, CGRectMake(52, 0, 30, 30));
-
-                accountImage = UIGraphicsGetImageFromCurrentImageContext();
-
-                UIGraphicsEndImageContext();
-            }
+    UIDeferredMenuElement *userStatusDeferred = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
+        if (!activeAccount || !serverCapabilities.userStatus) {
+            completion(@[]);
+            return;
         }
 
-        UIAction *switchAccountAction = [UIAction actionWithTitle:accountName image:accountImage identifier:nil handler:^(UIAction *action) {
-            [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
+        [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount withCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
+            NCUserStatus *userStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
+            UIImage *userStatusImage = [userStatus getSFUserStatusIcon];
+            UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus];
+
+            UIAction *onlineOption = [UIAction actionWithTitle:[userStatus readableUserStatusOrMessage] image:userStatusImage identifier:nil handler:^(UIAction *action) {
+                [self presentViewController:vc animated:YES completion:nil];
+            }];
+
+            completion(@[onlineOption]);
         }];
-
-        if (account.unreadBadgeNumber > 0) {
-            switchAccountAction.subtitle = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld notifications", nil), (long)account.unreadBadgeNumber];
-        }
-
-        if (account.active) {
-            switchAccountAction.state = UIMenuElementStateOn;
-        }
-
-        [items addObject:switchAccountAction];
-    }
-
-    UIAction *addAccount = [UIAction actionWithTitle:NSLocalizedString(@"Add account", nil) image:[UIImage systemImageNamed:@"plus"] identifier:nil handler:^(UIAction *action) {
-        [[NCUserInterfaceController sharedInstance] presentLoginViewController];
     }];
 
-    [items addObject:addAccount];
+    return [UIMenu menuWithTitle:@""
+                           image:nil
+                      identifier:nil
+                         options:UIMenuOptionsDisplayInline
+                        children:@[userStatusDeferred]];
+}
 
-    logoButton.menu = [UIMenu menuWithTitle:@"" children:items];
+- (UIDeferredMenuElement *)getInactiveAccountMenuOptions
+{
+    // We use a deferred action here to always have an up-to-date list of inactive accounts and their notifications
+    UIDeferredMenuElement *inactiveAccountMenuDeferred = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
+        NSMutableArray *inactiveAccounts = [[NSMutableArray alloc] init];
+
+        for (TalkAccount *account in [[NCDatabaseManager sharedInstance] inactiveAccounts]) {
+            NSString *accountName = account.userDisplayName;
+            UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:account withStyle:self.traitCollection.userInterfaceStyle];
+
+            if (accountImage) {
+                accountImage = [NCUtils roundedImageFromImage:accountImage];
+
+                // Draw a red circle to the image in case we have unread notifications for that account
+                if (account.unreadNotification) {
+                    UIGraphicsBeginImageContextWithOptions(CGSizeMake(82, 82), NO, 3);
+                    CGContextRef context = UIGraphicsGetCurrentContext();
+                    [accountImage drawInRect:CGRectMake(0, 4, 78, 78)];
+                    CGContextSaveGState(context);
+
+                    CGContextSetFillColorWithColor(context, [UIColor systemRedColor].CGColor);
+                    CGContextFillEllipseInRect(context, CGRectMake(52, 0, 30, 30));
+
+                    accountImage = UIGraphicsGetImageFromCurrentImageContext();
+
+                    UIGraphicsEndImageContext();
+                }
+            }
+
+            UIAction *switchAccountAction = [UIAction actionWithTitle:accountName image:accountImage identifier:nil handler:^(UIAction *action) {
+                [[NCSettingsController sharedInstance] setActiveAccountWithAccountId:account.accountId];
+            }];
+
+            if (account.unreadBadgeNumber > 0) {
+                switchAccountAction.subtitle = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld notifications", nil), (long)account.unreadBadgeNumber];
+            }
+
+            [inactiveAccounts addObject:switchAccountAction];
+        }
+
+        UIMenu *inactiveAccountsMenu = [UIMenu menuWithTitle:@""
+                                                       image:nil
+                                                  identifier:nil
+                                                     options:UIMenuOptionsDisplayInline
+                                                    children:inactiveAccounts];
+
+        completion(@[inactiveAccountsMenu]);
+    }];
+
+    return inactiveAccountMenuDeferred;
+}
+
+- (void)updateAccountPickerMenu
+{
+    NSMutableArray *accountPickerMenu = [[NSMutableArray alloc] init];
+
+    // When no elements are returned by the deferred menu, the entries / inline-menu will be hidden
+    [accountPickerMenu addObject:[self getActiveAccountMenuOptions]];
+    [accountPickerMenu addObject:[self getInactiveAccountMenuOptions]];
+
+
+    NSMutableArray *optionItems = [[NSMutableArray alloc] init];
+
+    if (multiAccountEnabled) {
+        UIAction *addAccountOption = [UIAction actionWithTitle:NSLocalizedString(@"Add account", nil) image:[[UIImage systemImageNamed:@"person.crop.circle.badge.plus"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
+            [[NCUserInterfaceController sharedInstance] presentLoginViewController];
+        }];
+
+        [optionItems addObject:addAccountOption];
+    }
+
+    UIAction *openSettingsOption = [UIAction actionWithTitle:NSLocalizedString(@"Settings", nil) image:[[UIImage systemImageNamed:@"gear"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
+        [[NCDatabaseManager sharedInstance] removeUnreadNotificationForInactiveAccounts];
+        [self setUnreadMessageForInactiveAccountsIndicator];
+        [[NCUserInterfaceController sharedInstance] presentSettingsViewController];
+    }];
+
+    [optionItems addObject:openSettingsOption];
+
+    UIMenu *optionMenu = [UIMenu menuWithTitle:@""
+                                          image:nil
+                                     identifier:nil
+                                        options:UIMenuOptionsDisplayInline
+                                       children:optionItems];
+
+    [accountPickerMenu addObject:optionMenu];
+
+    _profileButton.menu = [UIMenu menuWithTitle:@"" children:accountPickerMenu];
+    _profileButton.showsMenuAsPrimaryAction = YES;
 }
 
 #pragma mark - Search controller
@@ -875,27 +932,29 @@ typedef enum RoomsSections {
 
 - (void)setProfileButton
 {
-    UIButton *profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [profileButton addTarget:self action:@selector(showUserProfile) forControlEvents:UIControlEventTouchUpInside];
-    profileButton.frame = CGRectMake(0, 0, 30, 30);
-    profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
-    profileButton.accessibilityHint = NSLocalizedString(@"Double tap to go to user profile and application settings", nil);
-    
+    _profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _profileButton.frame = CGRectMake(0, 0, 30, 30);
+    _profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
+
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle];
     if (profileImage) {
-        UIGraphicsBeginImageContextWithOptions(profileButton.bounds.size, NO, 3.0);
-        [[UIBezierPath bezierPathWithRoundedRect:profileButton.bounds cornerRadius:profileButton.bounds.size.height] addClip];
-        [profileImage drawInRect:profileButton.bounds];
+        UIGraphicsBeginImageContextWithOptions(_profileButton.bounds.size, NO, 3.0);
+        [[UIBezierPath bezierPathWithRoundedRect:_profileButton.bounds cornerRadius:_profileButton.bounds.size.height] addClip];
+        [profileImage drawInRect:_profileButton.bounds];
         profileImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
-        [profileButton setImage:profileImage forState:UIControlStateNormal];
+        [_profileButton setImage:profileImage forState:UIControlStateNormal];
+
+        // Used to distinguish between a "completely loaded" button (with a profile image) and the default gear one
+        _profileButton.accessibilityIdentifier = @"LoadedProfileButton";
     } else {
-        [profileButton setImage:[UIImage systemImageNamed:@"gear"] forState:UIControlStateNormal];
-        profileButton.contentMode = UIViewContentModeCenter;
+        [_profileButton setImage:[UIImage systemImageNamed:@"gear"] forState:UIControlStateNormal];
+        _profileButton.contentMode = UIViewContentModeCenter;
     }
     
-    _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:profileButton];
+    _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:_profileButton];
+    [self updateAccountPickerMenu];
     [self setUnreadMessageForInactiveAccountsIndicator];
     
     [self.navigationItem setLeftBarButtonItem:_settingsButton];
@@ -907,15 +966,6 @@ typedef enum RoomsSections {
     if (numberOfInactiveAccountsWithUnreadNotifications > 0) {
         _settingsButton.badgeValue = [NSString stringWithFormat:@"%ld", numberOfInactiveAccountsWithUnreadNotifications];
     }
-}
-
-- (void)showUserProfile
-{
-    [[NCDatabaseManager sharedInstance] removeUnreadNotificationForInactiveAccounts];
-    [self setUnreadMessageForInactiveAccountsIndicator];
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    NCNavigationController *settingsNC = [storyboard instantiateViewControllerWithIdentifier:@"settingsNC"];
-    [self presentViewController:settingsNC animated:YES completion:nil];
 }
 
 #pragma mark - CCCertificateDelegate
