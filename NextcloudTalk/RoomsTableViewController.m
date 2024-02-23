@@ -457,31 +457,10 @@ typedef enum RoomsSections {
 - (UIMenu *)getActiveAccountMenuOptions
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-
-    UIDeferredMenuElement *activeAccountDeferred = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
-        if (!activeAccount) {
-            completion(@[]);
-            return;
-        }
-
-        NSString *accountName = activeAccount.userDisplayName;
-        UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle];
-
-        if (accountImage) {
-            accountImage = [NCUtils roundedImageFromImage:accountImage];
-        }
-
-        UIAction *switchAccountAction = [UIAction actionWithTitle:accountName image:accountImage identifier:nil handler:^(UIAction *action) {
-            UserProfileTableViewController *userProfileVC = [[UserProfileTableViewController alloc] initWithAccount:activeAccount];
-            NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:userProfileVC];
-            [self presentViewController:navigationController animated:YES completion:nil];
-        }];
-
-        completion(@[switchAccountAction]);
-    }];
+    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
 
     UIDeferredMenuElement *userStatusDeferred = [UIDeferredMenuElement elementWithUncachedProvider:^(void (^ _Nonnull completion)(NSArray<UIMenuElement *> * _Nonnull)) {
-        if (!activeAccount) {
+        if (!activeAccount || !serverCapabilities.userStatus) {
             completion(@[]);
             return;
         }
@@ -503,7 +482,7 @@ typedef enum RoomsSections {
                            image:nil
                       identifier:nil
                          options:UIMenuOptionsDisplayInline
-                        children:@[activeAccountDeferred, userStatusDeferred]];
+                        children:@[userStatusDeferred]];
 }
 
 - (UIDeferredMenuElement *)getInactiveAccountMenuOptions
@@ -546,7 +525,7 @@ typedef enum RoomsSections {
             [inactiveAccounts addObject:switchAccountAction];
         }
 
-        UIMenu *inactiveAccountsMenu = [UIMenu menuWithTitle:@"Other accounts"
+        UIMenu *inactiveAccountsMenu = [UIMenu menuWithTitle:@""
                                                        image:nil
                                                   identifier:nil
                                                      options:UIMenuOptionsDisplayInline
