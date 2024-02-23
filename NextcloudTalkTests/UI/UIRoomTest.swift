@@ -33,27 +33,27 @@ final class UIRoomTest: XCTestCase {
         let newConversationName = "Test conversation"
 
         app.navigationBars["Nextcloud Talk"].buttons["Create a new conversation"].tap()
-        XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.tables.cells.staticTexts["Show list of open conversations"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExist(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExist(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Show list of open conversations"].waitForExist(timeout: TestConstants.timeoutShort))
         app.tables.cells.staticTexts["Create a new group conversation"].tap()
         app.navigationBars["RoomCreationTableView"].buttons["Next"].tap()
         app.typeText(newConversationName)
-        XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExist(timeout: TestConstants.timeoutShort))
         app.navigationBars["New group conversation"].buttons["Create"].tap()
 
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
 
         // Wait for navigationBar
-        XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(chatNavBar.waitForExist(timeout: TestConstants.timeoutLong))
 
         // Wait for titleView
         let chatTitleView = chatNavBar.textViews[newConversationName]
-        XCTAssert(chatTitleView.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(chatTitleView.waitForExist(timeout: TestConstants.timeoutShort))
 
         // Wait until we joined the room and the call buttons get active
         let voiceCallButton = chatNavBar.buttons["Voice call"]
-        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(voiceCallButton.waitForExist(timeout: TestConstants.timeoutShort))
         waitForEnabled(object: voiceCallButton)
         waitForHittable(object: voiceCallButton)
 
@@ -61,14 +61,14 @@ final class UIRoomTest: XCTestCase {
         chatTitleView.tap()
 
         // Check if if the name of the conversation is shown
-        XCTAssert(app.textFields[newConversationName].waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(app.textFields[newConversationName].waitForExist(timeout: TestConstants.timeoutLong))
 
         // Go back to conversation list
         app.navigationBars["Conversation settings"].buttons["Back"].tap()
         chatNavBar.buttons["Back"].tap()
 
         // Check if the conversation appears in the conversation list
-        XCTAssert(app.tables.cells.staticTexts[newConversationName].waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(app.tables.cells.staticTexts[newConversationName].waitForExist(timeout: TestConstants.timeoutLong))
     }
 
     func testChatViewControllerDeallocation() {
@@ -77,46 +77,46 @@ final class UIRoomTest: XCTestCase {
 
         // Create a new test conversion
         app.navigationBars["Nextcloud Talk"].buttons["Create a new conversation"].tap()
-        XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.tables.cells.staticTexts["Show list of open conversations"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExist(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExist(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.tables.cells.staticTexts["Show list of open conversations"].waitForExist(timeout: TestConstants.timeoutShort))
         app.tables.cells.staticTexts["Create a new group conversation"].tap()
         app.navigationBars["RoomCreationTableView"].buttons["Next"].tap()
         app.typeText(newConversationName)
-        XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExist(timeout: TestConstants.timeoutShort))
         app.navigationBars["New group conversation"].buttons["Create"].tap()
 
         // Check if we have one chat view controller allocated
-        XCTAssert(app.staticTexts["ChatVC: 1 / CallVC: 0"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.staticTexts["ChatVC: 1 / CallVC: 0"].waitForExist(timeout: TestConstants.timeoutShort))
 
         // Send a test message
         let testMessage = "TestMessage"
         let toolbar = app.toolbars["Toolbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
-        XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(textView.waitForExist(timeout: TestConstants.timeoutShort))
         textView.tap()
         app.typeText(testMessage)
         let sendMessageButton = toolbar.buttons["Send message"]
         sendMessageButton.tap()
 
         // Wait for temporary message to be replaced
-        XCTAssert(app.images["MessageSent"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.images["MessageSent"].waitForExist(timeout: TestConstants.timeoutShort))
 
         // Open context menu
         let tables = app.tables
-        XCTAssert(tables.staticTexts[TestConstants.username].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(tables.staticTexts[TestConstants.username].waitForExist(timeout: TestConstants.timeoutShort))
         let message = tables.staticTexts[TestConstants.username]
         message.press(forDuration: 2.0)
 
         // Add a reaction to close the context menu
-        let reactionExists = app.staticTexts["👍"].waitForExistence(timeout: TestConstants.timeoutShort)
+        let reactionExists = app.staticTexts["👍"].waitForExist(timeout: TestConstants.timeoutShort)
 
         if reactionExists {
             app.staticTexts["👍"].tap()
         } else {
             // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
             // we simply tap the "Reply" button from the context menu
-            XCTAssert(app.buttons["Reply"].waitForExistence(timeout: TestConstants.timeoutShort))
+            XCTAssert(app.buttons["Reply"].waitForExist(timeout: TestConstants.timeoutShort))
             app.buttons["Reply"].tap()
         }
 
@@ -125,6 +125,6 @@ final class UIRoomTest: XCTestCase {
         chatNavBar.buttons["Back"].tap()
 
         // Check if all chat view controllers are deallocated
-        XCTAssert(app.staticTexts["ChatVC: 0 / CallVC: 0"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.staticTexts["ChatVC: 0 / CallVC: 0"].waitForExist(timeout: TestConstants.timeoutShort))
     }
 }

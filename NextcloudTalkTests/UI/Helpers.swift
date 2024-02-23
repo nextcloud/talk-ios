@@ -76,30 +76,30 @@ extension XCTestCase {
         serverAddressHttpsTextField.typeText(TestConstants.server)
 
         let loginButton = app.buttons["Log in"]
-        XCTAssert(loginButton.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(loginButton.waitForExist(timeout: TestConstants.timeoutLong))
         loginButton.tap()
 
         let webViewsQuery = app.webViews.webViews.webViews
         let main = webViewsQuery.otherElements["main"]
 
         // Wait for the webview to be available
-        XCTAssert(main.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(main.waitForExist(timeout: TestConstants.timeoutLong))
 
         // Wait for the login button to be available and to get enabled/hittable
         let loginButtonWeb = webViewsQuery.buttons["Log in"]
-        XCTAssert(loginButtonWeb.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(loginButtonWeb.waitForExist(timeout: TestConstants.timeoutLong))
         waitForEnabled(object: loginButtonWeb)
         waitForHittable(object: loginButtonWeb)
 
         loginButtonWeb.tap()
 
-        XCTAssert(main.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(main.waitForExist(timeout: TestConstants.timeoutLong))
 
         let usernameTextField = main.descendants(matching: .textField).firstMatch
         let passwordTextField = main.descendants(matching: .secureTextField).firstMatch
 
-        XCTAssert(usernameTextField.waitForExistence(timeout: TestConstants.timeoutLong))
-        XCTAssert(passwordTextField.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(usernameTextField.waitForExist(timeout: TestConstants.timeoutLong))
+        XCTAssert(passwordTextField.waitForExist(timeout: TestConstants.timeoutLong))
 
         usernameTextField.tap()
         usernameTextField.typeText(TestConstants.username + "\n")
@@ -108,10 +108,10 @@ extension XCTestCase {
         passwordTextField.typeText(TestConstants.password + "\n")
 
         let accountAccess = webViewsQuery.staticTexts["Account access"]
-        XCTAssert(accountAccess.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(accountAccess.waitForExist(timeout: TestConstants.timeoutLong))
 
         let grantAccessButton = webViewsQuery.buttons["Grant access"]
-        XCTAssert(grantAccessButton.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(grantAccessButton.waitForExist(timeout: TestConstants.timeoutLong))
         waitForEnabled(object: grantAccessButton)
         waitForHittable(object: grantAccessButton)
 
@@ -121,7 +121,7 @@ extension XCTestCase {
         grantAccessButton.tap()
 
         // When the account switcher gets enabled, we have atleast 1 account in the app and are online
-        XCTAssert(accountSwitcherButton.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(accountSwitcherButton.waitForExist(timeout: TestConstants.timeoutLong))
         waitForEnabled(object: accountSwitcherButton)
 
         return app
