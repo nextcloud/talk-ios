@@ -936,7 +936,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         };
 
         void (^airplayBlock)(UIAction *action) = ^void(UIAction *action) {
-            for (id subview in self->_airplayView.subviews) {
+            __strong typeof(self) strongSelf = weakSelf;
+
+            for (id subview in strongSelf->_airplayView.subviews) {
                 if ([subview isKindOfClass:[UIButton class]]) {
                     [subview sendActionsForControlEvents:UIControlEventTouchUpInside];
                 }
