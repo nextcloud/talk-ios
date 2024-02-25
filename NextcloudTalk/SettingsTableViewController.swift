@@ -706,8 +706,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
                     cell.detailTextLabel?.numberOfLines = 0
                     cell.detailTextLabel?.textColor = .secondaryLabel
                 }
-                let statusImage = activeUserStatus!.userStatusImageName(ofSize: 24)
-                cell.imageView?.image = UIImage(named: statusImage)
+                let statusImage = activeUserStatus!.getSFUserStatusIcon()
+                cell.imageView?.image = statusImage
             } else {
                 cell.textLabel?.text = NSLocalizedString("Fetching status …", comment: "")
             }
