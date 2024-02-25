@@ -82,24 +82,6 @@ NSString * const kUserStatusOffline     = @"offline";
     return readableUserStatus;
 }
 
-+ (NSString *)userStatusImageNameForStatus:(NSString *)userStatus ofSize:(NSInteger)size
-{
-    NSString *userStatusImageName = nil;
-    NSString *sizeString = size ? [NSString stringWithFormat:@"-%ld", (long)size] : @"";
-    
-    if ([userStatus isEqualToString:kUserStatusOnline]) {
-        userStatusImageName = [NSString stringWithFormat:@"user-status-online%@", sizeString];
-    } else if ([userStatus isEqualToString:kUserStatusAway]) {
-        userStatusImageName = [NSString stringWithFormat:@"user-status-away%@", sizeString];
-    } else if ([userStatus isEqualToString:kUserStatusDND]) {
-        userStatusImageName = [NSString stringWithFormat:@"user-status-dnd%@", sizeString];
-    } else if ([userStatus isEqualToString:kUserStatusInvisible]) {
-        userStatusImageName = [NSString stringWithFormat:@"user-status-invisible%@", sizeString];
-    }
-    
-    return userStatusImageName;
-}
-
 + (UIImage *)getOnlineSFIcon
 {
     return [[UIImage systemImageNamed:@"circle.fill"] imageWithTintColor:[UIColor systemGreenColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
@@ -124,7 +106,6 @@ NSString * const kUserStatusOffline     = @"offline";
 + (UIImage *)getInvisibleSFIcon
 {
     UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightBlack];
-    return [[UIImage systemImageNamed:@"circle"] imageByApplyingSymbolConfiguration:conf];
     return [[[UIImage systemImageNamed:@"circle"] imageByApplyingSymbolConfiguration:conf] imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
@@ -159,12 +140,7 @@ NSString * const kUserStatusOffline     = @"offline";
     return [self readableUserStatus];
 }
 
-- (NSString *)userStatusImageNameOfSize:(NSInteger)size
-{
-    return [NCUserStatus userStatusImageNameForStatus:_status ofSize:size];
-}
-
-- (nullable UIImage *)getSFUserStatusIcon
+- (UIImage *)getSFUserStatusIcon
 {
     if ([_status isEqualToString:kUserStatusOnline]) {
         return [NCUserStatus getOnlineSFIcon];
@@ -176,7 +152,7 @@ NSString * const kUserStatusOffline     = @"offline";
         return [NCUserStatus getInvisibleSFIcon];
     }
 
-    return nil;
+    return [UIImage systemImageNamed:@"person.fill.questionmark"];
 }
 
 @end
