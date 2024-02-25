@@ -125,6 +125,7 @@ NSString * const kUserStatusOffline     = @"offline";
 {
     UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightBlack];
     return [[UIImage systemImageNamed:@"circle"] imageByApplyingSymbolConfiguration:conf];
+    return [[[UIImage systemImageNamed:@"circle"] imageByApplyingSymbolConfiguration:conf] imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 - (NSString *)readableUserStatus
