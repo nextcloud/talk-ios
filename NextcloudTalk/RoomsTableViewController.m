@@ -466,6 +466,11 @@ typedef enum RoomsSections {
         }
 
         [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount withCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
+            if (error) {
+                completion(@[]);
+                return;
+            }
+
             NCUserStatus *userStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
             UIImage *userStatusImage = [userStatus getSFUserStatusIcon];
             UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus];
