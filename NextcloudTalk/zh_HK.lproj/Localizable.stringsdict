@@ -96,6 +96,15 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@pendinginvitations@</string>
+        <key>pendinginvitations</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>您有 %ld 個待定的邀請</string>
+        </dict>
     </dict>
 </dict>
 </plist>
