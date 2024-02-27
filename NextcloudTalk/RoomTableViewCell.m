@@ -157,6 +157,17 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     [_userStatusLabel setHidden:NO];
 }
 
+- (void)setUserStatusIconWithImage:(UIImage *)image
+{
+    [_userStatusImageView setImage:image];
+    _userStatusImageView.contentMode = UIViewContentModeCenter;
+    _userStatusImageView.layer.cornerRadius = 10;
+    _userStatusImageView.clipsToBounds = YES;
+
+    // When a background color is set directly to the cell it seems that there is no background configuration.
+    _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
+}
+
 - (void)setUserStatus:(NSString *)userStatus
 {
     UIImage *statusImage = nil;
