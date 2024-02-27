@@ -155,12 +155,16 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, copy) NSString *avatarVersion;
 @property (nonatomic, assign) BOOL isCustomAvatar;
 @property (nonatomic, assign) BOOL recordingConsent;
+@property (nonatomic, copy) NSString *remoteServer;
+@property (nonatomic, copy) NSString *remoteToken;
+@property (nonatomic, copy) NSString *remoteAccessToken;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
 + (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
 
 - (BOOL)isPublic;
+- (BOOL)isFederated;
 - (BOOL)isBreakoutRoom;
 - (BOOL)isUserOwnerOrModerator;
 - (BOOL)canModerate;
