@@ -1,0 +1,597 @@
+//
+// Copyright (c) 2024 Ivan Sein <ivan@nextcloud.com>
+//
+// Author Ivan Sein <ivan@nextcloud.com>
+//
+// GNU GPL version 3 or any later version
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+
+import UIKit
+
+enum RoomCreationSection: Int {
+    case kRoomNameSection = 0
+    case kRoomDescriptionSection
+    case kRoomParticipantsSection
+    case kRoomVisibilitySection
+}
+
+enum RoomVisibilityOption: Int {
+    case kAllowGuestsOption = 0
+    case kPasswordProtectionOption
+    case kOpenConversationOption
+    case kOpenConversationGuestsOption
+}
+
+@objcMembers class RoomCreationTableViewController: UITableViewController,
+                                                    UINavigationControllerDelegate,
+                                                    UIImagePickerControllerDelegate,
+                                                    UITextFieldDelegate,
+                                                    AvatarEditViewDelegate,
+                                                    AddParticipantsTableViewControllerDelegate,
+                                                    EmojiAvatarPickerViewControllerDelegate,
+                                                    RoomDescriptionTableViewCellDelegate,
+                                                    TOCropViewControllerDelegate {
+
+    var account: TalkAccount
+    var headerView = AvatarEditView()
+    var createButton = UIBarButtonItem()
+    var modifyingView = UIActivityIndicatorView()
+    var imagePicker: UIImagePickerController?
+    var participantsSectionHeaderView = HeaderWithButton()
+
+    var roomName = ""
+    var roomDescription = ""
+    var roomParticipants: [NCUser] = []
+    var isPublic = false
+    var roomPassword = ""
+    var isOpenConversation = false
+    var isOpenForGuests = false
+
+    var selectedAvatarImage: UIImage?
+    var selectedEmoji: String?
+    var selectedEmojiBackgroundColor: String?
+    var selectedEmojiImage: UIImage?
+
+    init(account: TalkAccount) {
+        self.account = account
+        self.headerView = AvatarEditView()
+        super.init(style: .insetGrouped)
+
+        self.headerView.delegate = self
+        self.headerView.scopeButton.isHidden = true
+        self.headerView.nameLabel.isHidden = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
+        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
+        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationItem.title = NSLocalizedString("New conversation", comment: "")
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
+        appearance.backgroundColor = NCAppBranding.themeColor()
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
+
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
+        self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+
+        self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
+        self.tableView.register(UINib(nibName: kRoomDescriptionTableCellNibName, bundle: nil), forCellReuseIdentifier: kRoomDescriptionCellIdentifier)
+        self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
+        self.tableView.tableHeaderView = self.headerView
+        self.tableView.keyboardDismissMode = .onDrag
+
+        self.participantsSectionHeaderView.button.setTitle(NSLocalizedString("Edit", comment: "Edit room participants"), for: .normal)
+        self.participantsSectionHeaderView.button.addTarget(self, action: #selector(editParticipantsButtonPressed), for: .touchUpInside)
+
+        self.createButton = UIBarButtonItem(title: NSLocalizedString("Create", comment: ""), style: .done, target: self, action: #selector(createRoom))
+        self.createButton.accessibilityHint = NSLocalizedString("Double tap to end editing profile", comment: "")
+        self.createButton.isEnabled = false
+        self.navigationItem.rightBarButtonItem = self.createButton
+
+        self.modifyingView.color = NCAppBranding.themeTextColor()
+
+        self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: self.account.accountId)
+        // Need to have an explicit size here for the header view
+        let size = self.headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        self.headerView.frame = CGRect(origin: .zero, size: size)
+        self.updateHeaderView()
+    }
+
+    func cancelButtonPressed() {
+        self.dismiss(animated: true, completion: nil)
+    }
+
+    func updateHeaderView() {
+        if self.selectedAvatarImage != nil {
+            self.headerView.avatarImageView.image = self.selectedAvatarImage
+        } else if self.selectedEmojiImage != nil {
+            self.headerView.avatarImageView.image = self.selectedEmojiImage
+        } else {
+            self.headerView.avatarImageView.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
+        }
+
+        self.headerView.trashButton.isHidden = self.selectedAvatarImage == nil && self.selectedEmojiImage == nil
+    }
+
+    func getRoomCreationSections() -> [Int] {
+        var sections = [Int]()
+
+        // Room name section
+        sections.append(RoomCreationSection.kRoomNameSection.rawValue)
+
+        // Room description section
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: self.account.accountId) {
+            sections.append(RoomCreationSection.kRoomDescriptionSection.rawValue)
+        }
+
+        // Room participants section
+        sections.append(RoomCreationSection.kRoomParticipantsSection.rawValue)
+
+        // Room visibility section
+        sections.append(RoomCreationSection.kRoomVisibilitySection.rawValue)
+
+        return sections
+    }
+
+    func getRoomVisibilityOptions() -> [Int] {
+        var options = [Int]()
+
+        // Allow guest option
+        options.append(RoomVisibilityOption.kAllowGuestsOption.rawValue)
+
+        // Password protection option
+        if self.isPublic {
+            options.append(RoomVisibilityOption.kPasswordProtectionOption.rawValue)
+        }
+
+        // Open conversation option
+        options.append(RoomVisibilityOption.kOpenConversationOption.rawValue)
+
+        // Open conversation for guests option
+        if self.isOpenConversation {
+            options.append(RoomVisibilityOption.kOpenConversationGuestsOption.rawValue)
+        }
+
+        return options
+    }
+
+    func showModifyingView() {
+        modifyingView.startAnimating()
+        self.headerView.changeButtonState(to: false)
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: modifyingView)
+        self.tableView.isUserInteractionEnabled = false
+    }
+
+    func removeModifyingView() {
+        modifyingView.stopAnimating()
+        self.headerView.changeButtonState(to: true)
+        self.navigationItem.rightBarButtonItem = createButton
+        self.tableView.isUserInteractionEnabled = true
+    }
+
+    func removeSelectedAvatar() {
+        self.selectedAvatarImage = nil
+        self.selectedEmoji = nil
+        self.selectedEmojiBackgroundColor = nil
+        self.selectedEmojiImage = nil
+    }
+
+    func allowGuestValueChanged(_ sender: Any?) {
+        if let optionSwitch = sender as? UISwitch {
+            self.isPublic = optionSwitch.isOn
+            self.updateVisibilitySection()
+        }
+    }
+
+    func openConversationValueChanged(_ sender: Any?) {
+        if let optionSwitch = sender as? UISwitch {
+            self.isOpenConversation = optionSwitch.isOn
+            self.updateVisibilitySection()
+        }
+    }
+
+    func openForGuestsValueChanged(_ sender: Any?) {
+        if let optionSwitch = sender as? UISwitch {
+            self.isOpenForGuests = optionSwitch.isOn
+            self.updateVisibilitySection()
+        }
+    }
+
+    func updateVisibilitySection() {
+        let sections = self.getRoomCreationSections()
+        if let index = sections.firstIndex(of: RoomCreationSection.kRoomVisibilitySection.rawValue) {
+            self.tableView.reloadSections([index], with: .automatic)
+        }
+    }
+
+    // MARK: - Room creation
+
+    func createRoom() {
+        self.showModifyingView()
+
+        let roomType = self.isPublic ? kNCRoomTypePublic : kNCRoomTypeGroup
+
+        NCAPIController.sharedInstance().createRoom(for: self.account, with: nil, of: roomType, andName: self.roomName) { token, error in
+            if error == nil, let token = token {
+                self.dismiss(animated: true)
+                NotificationCenter.default.post(name: NSNotification.Name.NCRoomCreated, object: self, userInfo: ["token": token])
+            }
+
+            self.removeModifyingView()
+        }
+    }
+
+    // MARK: - Room participants
+
+    func editParticipantsButtonPressed() {
+        if let editParticipantsVC = AddParticipantsTableViewController(participants: self.roomParticipants) {
+            editParticipantsVC.delegate = self
+            self.present(NCNavigationController(rootViewController: editParticipantsVC), animated: true)
+        }
+    }
+
+    // MARK: - TableView
+
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return self.getRoomCreationSections().count
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
+    }
+
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let sections = getRoomCreationSections()
+        let roomCreationSection = sections[section]
+        if roomCreationSection == RoomCreationSection.kRoomParticipantsSection.rawValue {
+            self.participantsSectionHeaderView.label.text = NSLocalizedString("Participants", comment: "").uppercased()
+            self.participantsSectionHeaderView.button.isHidden = self.roomParticipants.isEmpty
+            return participantsSectionHeaderView
+        }
+
+        return nil
+    }
+
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let sections = getRoomCreationSections()
+        let roomCreationSection = sections[section]
+        if roomCreationSection == RoomCreationSection.kRoomParticipantsSection.rawValue {
+            return self.roomParticipants.isEmpty ? 1 : self.roomParticipants.count
+        } else if roomCreationSection == RoomCreationSection.kRoomVisibilitySection.rawValue {
+            return self.getRoomVisibilityOptions().count
+        }
+
+        return 1
+    }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        let sections = getRoomCreationSections()
+        let roomCreationSection = sections[indexPath.section]
+
+        if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
+            let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
+            TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
+            textInputCell.textField.delegate = self
+            textInputCell.textField.text = self.roomName
+            textInputCell.textField.becomeFirstResponder()
+            textInputCell.selectionStyle = .none
+            return textInputCell
+        } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
+            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: kRoomDescriptionCellIdentifier) as? RoomDescriptionTableViewCell ??
+            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: kRoomDescriptionCellIdentifier)
+            descriptionCell.textView?.text = self.roomDescription
+            descriptionCell.textView?.isEditable = true
+            descriptionCell.delegate = self
+            descriptionCell.characterLimit = 500
+            descriptionCell.selectionStyle = .none
+            return descriptionCell
+        } else if roomCreationSection == RoomCreationSection.kRoomParticipantsSection.rawValue {
+            if self.roomParticipants.isEmpty {
+                let addParticipantCell = tableView.dequeueReusableCell(withIdentifier: "AddParticipantCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "AllowGuestsCellIdentifier")
+                addParticipantCell.textLabel?.text = NSLocalizedString("Add participants", comment: "")
+                addParticipantCell.imageView?.image = UIImage(systemName: "person.badge.plus")
+                addParticipantCell.imageView?.tintColor = .secondaryLabel
+                addParticipantCell.imageView?.contentMode = .scaleAspectFit
+                return addParticipantCell
+            } else {
+                let participant = self.roomParticipants[indexPath.row]
+                let participantCell = tableView.dequeueReusableCell(withIdentifier: kContactCellIdentifier) as? ContactsTableViewCell ??
+                ContactsTableViewCell(style: .default, reuseIdentifier: kContactCellIdentifier)
+
+                participantCell.labelTitle.text = participant.name
+
+                let participantType = participant.source as String
+                if participantType == kParticipantTypeUser {
+                    participantCell.contactImage.setUserAvatar(for: participant.userId, with: self.traitCollection.userInterfaceStyle, using: self.account)
+                } else if participantType == kParticipantTypeEmail {
+                    participantCell.contactImage.setMailAvatar(with: self.traitCollection.userInterfaceStyle)
+                } else {
+                    participantCell.contactImage.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
+                }
+
+                return participantCell
+            }
+        } else if roomCreationSection == RoomCreationSection.kRoomVisibilitySection.rawValue {
+            let options = getRoomVisibilityOptions()
+            let option = options[indexPath.row]
+            var roomVisibilityOptionCell = UITableViewCell()
+            switch option {
+            case RoomVisibilityOption.kAllowGuestsOption.rawValue:
+                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "AllowGuestsCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "AllowGuestsCellIdentifier")
+                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Allow guests", comment: "")
+                let optionSwicth = UISwitch()
+                optionSwicth.isOn = self.isPublic
+                optionSwicth.addTarget(self, action: #selector(allowGuestValueChanged(_:)), for: .valueChanged)
+                roomVisibilityOptionCell.accessoryView = optionSwicth
+                roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "link")
+            case RoomVisibilityOption.kPasswordProtectionOption.rawValue:
+                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "SetPasswordCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "SetPasswordCellIdentifier")
+                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Set Password", comment: "")
+                roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "lock.open")
+            case RoomVisibilityOption.kOpenConversationOption.rawValue:
+                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "OpenConversationCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "OpenConversationCellIdentifier")
+                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Open conversation to registered users", comment: "")
+                let optionSwicth = UISwitch()
+                optionSwicth.isOn = self.isOpenConversation
+                optionSwicth.addTarget(self, action: #selector(openConversationValueChanged(_:)), for: .valueChanged)
+                roomVisibilityOptionCell.accessoryView = optionSwicth
+                roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "list.bullet")
+            case RoomVisibilityOption.kOpenConversationGuestsOption.rawValue:
+                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "OpenConversationGuestsCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "OpenConversationGuestsCellIdentifier")
+                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Also open to guest app users", comment: "")
+                let optionSwicth = UISwitch()
+                optionSwicth.isOn = self.isOpenForGuests
+                optionSwicth.addTarget(self, action: #selector(openForGuestsValueChanged(_:)), for: .valueChanged)
+                roomVisibilityOptionCell.accessoryView = optionSwicth
+                roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "list.bullet")
+                roomVisibilityOptionCell.imageView?.isHidden = true
+            default:
+                break
+            }
+
+            roomVisibilityOptionCell.selectionStyle = .none
+            roomVisibilityOptionCell.imageView?.tintColor = .secondaryLabel
+            roomVisibilityOptionCell.imageView?.contentMode = .scaleAspectFit
+            roomVisibilityOptionCell.textLabel?.numberOfLines = 0
+
+            return roomVisibilityOptionCell
+        }
+
+        return UITableViewCell()
+    }
+
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let sections = getRoomCreationSections()
+        let roomCreationSection = sections[section]
+
+        if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
+            return NSLocalizedString("Name", comment: "")
+        } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
+            return NSLocalizedString("Description", comment: "")
+        } else if roomCreationSection == RoomCreationSection.kRoomVisibilitySection.rawValue {
+            return NSLocalizedString("Visibility", comment: "")
+        }
+
+        return nil
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let sections = getRoomCreationSections()
+        let roomCreationSection = sections[indexPath.section]
+
+        if roomCreationSection == RoomCreationSection.kRoomParticipantsSection.rawValue {
+            if self.roomParticipants.isEmpty {
+                self.editParticipantsButtonPressed()
+            }
+        }
+
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+
+    // MARK: - AddParticipantsTableViewController Delegate
+
+    func addParticipantsTableViewController(_ viewController: AddParticipantsTableViewController!, wantsToAdd participants: [NCUser]!) {
+        self.roomParticipants = participants
+        let sections = self.getRoomCreationSections()
+        if let index = sections.firstIndex(of: RoomCreationSection.kRoomParticipantsSection.rawValue) {
+            self.tableView.reloadSections([index], with: .automatic)
+        }
+    }
+    // MARK: - Present camera/photo library
+
+    func checkAndPresentCamera() {
+        // https://stackoverflow.com/a/20464727/2512312
+        let mediaType: String = AVMediaType.video.rawValue
+        let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType(mediaType))
+        if authStatus == AVAuthorizationStatus.authorized {
+            self.presentCamera()
+            return
+        } else if authStatus == AVAuthorizationStatus.notDetermined {
+            AVCaptureDevice.requestAccess(for: AVMediaType(mediaType)) { granted in
+                if granted {
+                    self.presentCamera()
+                }
+            }
+            return
+        }
+
+        let alertTitle = NSLocalizedString("Could not access camera", comment: "")
+        let alertMessage = NSLocalizedString("Camera access is not allowed. Check your settings.", comment: "")
+        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: alertTitle, withMessage: alertMessage)
+    }
+
+    func presentCamera() {
+        DispatchQueue.main.async {
+            self.imagePicker = UIImagePickerController()
+            self.imagePicker?.sourceType = UIImagePickerController.SourceType.camera
+            if self.imagePicker != nil {
+                self.imagePicker!.delegate = self
+                self.present(self.imagePicker!, animated: true)
+            }
+        }
+    }
+
+    func presentPhotoLibrary() {
+        DispatchQueue.main.async {
+            self.imagePicker = UIImagePickerController()
+            self.imagePicker?.sourceType = .photoLibrary
+            if self.imagePicker != nil {
+                self.imagePicker!.delegate = self
+                self.present(self.imagePicker!, animated: true)
+            }
+        }
+    }
+
+    func presentEmojiAvatarPicker() {
+        DispatchQueue.main.async {
+            let emojiAvatarPickerVC = EmojiAvatarPickerViewController()
+            emojiAvatarPickerVC.delegate = self
+            let emojiAvatarPickerNC = UINavigationController(rootViewController: emojiAvatarPickerVC)
+            self.present(emojiAvatarPickerNC, animated: true, completion: nil)
+        }
+    }
+
+    // MARK: - UIImagePickerController Delegate
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        let mediaType = info[UIImagePickerController.InfoKey.mediaType] as? String
+        if mediaType == "public.image" {
+            let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
+            self.dismiss(animated: true) {
+                if let image = image {
+                    let cropViewController = TOCropViewController(croppingStyle: TOCropViewCroppingStyle.circular, image: image)
+                    cropViewController.delegate = self
+                    self.present(cropViewController, animated: true)
+                }
+            }
+        }
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        self.dismiss(animated: true, completion: nil)
+    }
+
+    // MARK: - RoomDescriptionTableViewCellDelegate
+
+    func roomDescriptionCellTextViewDidChange(_ cell: RoomDescriptionTableViewCell) {
+        DispatchQueue.main.async {
+            self.tableView?.beginUpdates()
+            self.tableView?.endUpdates()
+            self.roomDescription = cell.textView?.text ?? ""
+        }
+    }
+
+    func roomDescriptionCellDidEndEditing(_ cell: RoomDescriptionTableViewCell) {
+        self.roomDescription = cell.textView?.text ?? ""
+    }
+
+    func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
+        NotificationPresenter.shared().present(
+            text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
+            dismissAfterDelay: 3.0,
+            includedStyle: .warning)
+    }
+
+    // MARK: - TOCROPViewControllerDelegate
+
+    func cropViewController(_ cropViewController: TOCropViewController, didCropTo image: UIImage, with cropRect: CGRect, angle: Int) {
+        // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
+        cropViewController.transitioningDelegate = nil
+        cropViewController.dismiss(animated: true) {
+            self.removeSelectedAvatar()
+            self.selectedAvatarImage = image
+            self.updateHeaderView()
+        }
+    }
+
+    func cropViewController(_ cropViewController: TOCropViewController, didFinishCancelled cancelled: Bool) {
+        // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
+        cropViewController.transitioningDelegate = nil
+        cropViewController.dismiss(animated: true)
+    }
+
+    // MARK: - AvaterEditViewDelegate
+
+    func avatarEditViewPresentCamera(_ controller: AvatarEditView?) {
+        self.checkAndPresentCamera()
+    }
+
+    func avatarEditViewPresentPhotoLibrary(_ controller: AvatarEditView?) {
+        self.presentPhotoLibrary()
+    }
+
+    func avatarEditViewPresentEmojiAvatarPicker(_ controller: AvatarEditView?) {
+        self.presentEmojiAvatarPicker()
+    }
+
+    func avatarEditViewRemoveAvatar(_ controller: AvatarEditView?) {
+        self.removeSelectedAvatar()
+        self.updateHeaderView()
+    }
+
+    // MARK: - EmojiAvatarPickerViewControllerDelegate
+
+    func didSelectEmoji(emoji: NSString, color: NSString, image: UIImage) {
+        self.removeSelectedAvatar()
+        self.selectedEmoji = emoji as String
+        self.selectedEmojiBackgroundColor = color as String
+        self.selectedEmojiImage = image
+        self.updateHeaderView()
+    }
+
+    // MARK: - UITextField delegate
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        textField.becomeFirstResponder()
+        self.roomName = ""
+        self.createButton.isEnabled = !self.roomName.isEmpty
+        return true
+    }
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if let roomName = (textField.text as NSString?)?.replacingCharacters(in: range, with: string).trimmingCharacters(in: CharacterSet.whitespaces) {
+            self.roomName = roomName
+            self.createButton.isEnabled = !self.roomName.isEmpty
+        }
+
+        return true
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        let roomName = textField.text!.trimmingCharacters(in: CharacterSet.whitespaces)
+        self.roomName = roomName
+        self.createButton.isEnabled = !roomName.isEmpty
+    }
+}

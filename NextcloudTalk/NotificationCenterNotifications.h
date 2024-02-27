@@ -34,5 +34,7 @@ extern NSString * const NCURLWantsToOpenConversationNotification;
 extern NSString * const NCServerMaintenanceModeNotification;
 extern NSString * const NCTalkConfigurationHashChangedNotification;
 extern NSString * const NCPresentChatHighlightingMessageNotification;
+extern NSString * const NCRoomCreatedNotification;
+extern NSString * const NCSelectedUserForChatNotification;
 
 NS_ASSUME_NONNULL_END

@@ -81,5 +81,10 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
     return !limitExceeded;
 }
 
+- (void)textViewDidEndEditing:(UITextView *)textView
+{
+    [self.delegate roomDescriptionCellDidEndEditing:self];
+}
+
 
 @end

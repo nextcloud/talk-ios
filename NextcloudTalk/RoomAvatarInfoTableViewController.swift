@@ -28,13 +28,13 @@ enum RoomAvatarInfoSection: Int {
 }
 
 @objcMembers class RoomAvatarInfoTableViewController: UITableViewController,
-                                                        UINavigationControllerDelegate,
-                                                        UIImagePickerControllerDelegate,
-                                                        UITextFieldDelegate,
-                                                        AvatarEditViewDelegate,
-                                                        EmojiAvatarPickerViewControllerDelegate,
-                                                        RoomDescriptionTableViewCellDelegate,
-                                                        TOCropViewControllerDelegate {
+                                                      UINavigationControllerDelegate,
+                                                      UIImagePickerControllerDelegate,
+                                                      UITextFieldDelegate,
+                                                      AvatarEditViewDelegate,
+                                                      EmojiAvatarPickerViewControllerDelegate,
+                                                      RoomDescriptionTableViewCellDelegate,
+                                                      TOCropViewControllerDelegate {
 
     var room: NCRoom
     var imagePicker: UIImagePickerController?
@@ -375,7 +375,7 @@ enum RoomAvatarInfoSection: Int {
 
     // MARK: - EmojiAvatarPickerViewControllerDelegate
 
-    func didSelectEmoji(emoji: NSString, color: NSString) {
+    func didSelectEmoji(emoji: NSString, color: NSString, image: UIImage) {
         self.showModifyingView()
 
         NCAPIController.sharedInstance().setEmojiAvatarFor(room, withEmoji: emoji as String, andColor: color as String) { error in

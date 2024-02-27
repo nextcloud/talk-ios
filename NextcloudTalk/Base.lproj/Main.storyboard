@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
     <device id="ipad12_9rounded" orientation="landscape" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -31,17 +31,7 @@
                             <outlet property="delegate" destination="d5a-it-gRL" id="bDT-EF-LeB"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="Xw3-a9-moF">
-                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="add" id="0h6-8z-cdO">
-                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <connections>
-                                <action selector="addButtonPressed:" destination="d5a-it-gRL" id="luT-Ui-CeU"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="addButton" destination="0h6-8z-cdO" id="MYi-pi-ZFM"/>
-                    </connections>
+                    <navigationItem key="navigationItem" id="Xw3-a9-moF"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Dw9-Dz-er8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

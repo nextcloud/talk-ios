@@ -22,13 +22,13 @@
 import UIKit
 
 @objc protocol EmojiAvatarPickerViewControllerDelegate {
-    func didSelectEmoji(emoji: NSString, color: NSString)
+    func didSelectEmoji(emoji: NSString, color: NSString, image:UIImage)
 }
 
 @objcMembers class EmojiAvatarPickerViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var emojiTextField: EmojiTextField!
-    @IBOutlet weak var emojiBackgroundView: UIView!
+    @IBOutlet weak var emojiContainerView: UIView!
 
     @IBOutlet weak var colorsStackView: UIStackView!
     @IBOutlet weak var removeColorButton: UIButton!
@@ -61,9 +61,9 @@ import UIKit
         self.emojiTextField.text = self.defaultEmoji
         self.selectedEmoji = self.defaultEmoji
 
-        self.emojiBackgroundView.layer.cornerRadius = self.emojiBackgroundView.frame.height / 2
-        self.emojiBackgroundView.clipsToBounds = true
-        self.emojiBackgroundView.backgroundColor = NCAppBranding.avatarPlaceholderColor()
+        self.emojiContainerView.layer.cornerRadius = self.emojiContainerView.frame.height / 2
+        self.emojiContainerView.clipsToBounds = true
+        self.emojiContainerView.backgroundColor = NCAppBranding.avatarPlaceholderColor()
 
         self.removeColorButton.layer.cornerRadius = self.removeColorButton.frame.height / 2
         self.removeColorButton.backgroundColor = NCAppBranding.avatarPlaceholderColor()
@@ -88,7 +88,7 @@ import UIKit
     }
 
     func doneButtonPressed() {
-        self.delegate?.didSelectEmoji(emoji: selectedEmoji as NSString, color: selectedColor as NSString)
+        self.delegate?.didSelectEmoji(emoji: selectedEmoji as NSString, color: selectedColor as NSString, image: emojiContainerView.asImage())
         self.dismiss(animated: true, completion: nil)
     }
 
@@ -121,12 +121,12 @@ import UIKit
 
     func setSelectedColor(color: UIColor) {
         self.selectedColor = NCUtils.hexString(fromColor: color)
-        self.emojiBackgroundView.backgroundColor = color
+        self.emojiContainerView.backgroundColor = color
     }
 
     @IBAction func removeColorButtonPressed(_ sender: Any) {
         self.selectedColor = ""
-        self.emojiBackgroundView.backgroundColor = NCAppBranding.avatarPlaceholderColor()
+        self.emojiContainerView.backgroundColor = NCAppBranding.avatarPlaceholderColor()
 
         self.colorWell.selectedColor = nil
     }

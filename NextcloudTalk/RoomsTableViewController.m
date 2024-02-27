@@ -39,10 +39,8 @@
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "NewRoomTableViewController.h"
 #import "NotificationCenterNotifications.h"
 #import "PlaceholderView.h"
-#import "RoomCreation2TableViewController.h"
 #import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
 #import "RoomTableViewCell.h"
@@ -73,6 +71,7 @@ typedef enum RoomsSections {
     RoomSearchTableViewController *_resultTableViewController;
     NCUnifiedSearchController *_unifiedSearchController;
     PlaceholderView *_roomsBackgroundView;
+    UIBarButtonItem *_newConversationButton;
     UIBarButtonItem *_settingsButton;
     UIButton *_profileButton;
     NSTimer *_refreshRoomsTimer;
@@ -99,9 +98,6 @@ typedef enum RoomsSections {
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
     self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
-
-    self.addButton.accessibilityLabel = NSLocalizedString(@"Create a new conversation", nil);
-    self.addButton.accessibilityHint = NSLocalizedString(@"Double tap to create group, public or one to one conversations.", nil);
 
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
@@ -182,7 +178,6 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userProfileImageUpdated:) name:NCUserProfileImageUpdatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCSelectedContactForChatNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activeAccountDidChange:) name:NCSettingsControllerDidChangeActiveAccountNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingInvitationsDidUpdate:) name:NCDatabaseManagerPendingFederationInvitationsDidChange object:nil];
@@ -191,9 +186,9 @@ typedef enum RoomsSections {
 - (void)setupNavigationBar
 {
     [self setNavigationLogoButton];
+    [self createNewConversationButton];
     [self createRefreshControl];
-    
-    self.addButton.tintColor = [NCAppBranding themeTextColor];
+
     self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
@@ -234,6 +229,30 @@ typedef enum RoomsSections {
     });
     
     [self setNeedsStatusBarAppearanceUpdate];
+}
+
+- (void)createNewConversationButton
+{
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+
+    UIAction *newConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Create a new conversation", nil) image:[[UIImage systemImageNamed:@"bubble"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        RoomCreationTableViewController *newRoowVC = [[RoomCreationTableViewController alloc] initWithAccount:activeAccount];
+        NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:newRoowVC];
+        [self presentViewController:navigationController animated:YES completion:nil];
+    }];
+    
+    UIAction *joinOpenConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Join open conversations", nil) image:[[UIImage systemImageNamed:@"list.bullet"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
+        OpenConversationsTableViewController *openConversationsVC = [[OpenConversationsTableViewController alloc] init];
+        NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:openConversationsVC];
+        [self presentViewController:navigationController animated:YES completion:nil];
+    }];
+    
+    [items addObject:newConversationAction];
+    [items addObject:joinOpenConversationAction];
+    
+    _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] menu:[UIMenu menuWithTitle:@"" children:items]];
+    [self.navigationItem setRightBarButtonItem:_newConversationButton];
 }
 
 - (void)dealloc
@@ -375,15 +394,6 @@ typedef enum RoomsSections {
         // when the capabilities were updated, which fails when the server is not reachable.
         [self setupNavigationBar];
     });
-}
-
-#pragma mark - Interface Builder Actions
-
-- (IBAction)addButtonPressed:(id)sender
-{
-    NewRoomTableViewController *newRoowVC = [[NewRoomTableViewController alloc] init];
-    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:newRoowVC];
-    [self presentViewController:navigationController animated:YES completion:nil];
 }
 
 #pragma mark - Refresh Timer
@@ -843,7 +853,7 @@ typedef enum RoomsSections {
 
 - (void)setOfflineAppearance
 {
-    self.addButton.enabled = NO;
+    _newConversationButton.enabled = NO;
     if (!customNavigationLogo) {
         self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
     }
@@ -851,7 +861,7 @@ typedef enum RoomsSections {
 
 - (void)setOnlineAppearance
 {
-    self.addButton.enabled = YES;
+    _newConversationButton.enabled = YES;
     [self setNavigationLogoButton];
 }
 
@@ -1346,7 +1356,7 @@ typedef enum RoomsSections {
      withCompletionBlock:^(NSString *token, NSError *error) {
         if (!error) {
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedContactForChatNotification
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedUserForChatNotification
                                                                     object:self
                                                                   userInfo:@{@"token":token}];
             }];

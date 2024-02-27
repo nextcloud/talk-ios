@@ -32,4 +32,6 @@ NSString * const NCURLWantsToOpenConversationNotification = @"NCURLWantsToOpenCo
 NSString * const NCServerMaintenanceModeNotification = @"NCServerMaintenanceModeNotification";
 NSString * const NCTalkConfigurationHashChangedNotification = @"NCTalkConfigurationHashChangedNotification";
 NSString * const NCPresentChatHighlightingMessageNotification = @"NCPresentChatHighlightingMessageNotification";
+NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
+NSString * const NCSelectedUserForChatNotification = @"NCSelectedUserForChatNotification";
 
