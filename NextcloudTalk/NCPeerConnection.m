@@ -379,13 +379,13 @@
 - (void)peerConnection:(RTCPeerConnection *)peerConnection didOpenDataChannel:(RTCDataChannel *)dataChannel
 {
     [[WebRTCCommon shared] dispatch:^{
-        if ([dataChannel.label isEqualToString:@"status"] || [dataChannel.label isEqualToString:@"JanusDataChannel"]) {
-            self->_remoteDataChannel = dataChannel;
-            self->_remoteDataChannel.delegate = self;
-            NSLog(@"Remote data channel '%@' was opened.", dataChannel.label);
-        } else {
-            NSLog(@"Data channel '%@' was opened.", dataChannel.label);
+        if (self->_remoteDataChannel) {
+            NSLog(@"Remote data channel with label '%@' exists, but received open event for data channel with label '%@'", self->_remoteDataChannel.label, dataChannel.label);
         }
+
+        self->_remoteDataChannel = dataChannel;
+        self->_remoteDataChannel.delegate = self;
+        NSLog(@"Remote data channel '%@' was opened.", dataChannel.label);
     }];
 }
 
