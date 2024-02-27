@@ -212,6 +212,11 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     return self.type == kNCRoomTypePublic;
 }
 
+- (BOOL)isFederated
+{
+    return self.remoteToken.length > 0 && self.remoteServer.length > 0 && self.remoteAccessToken > 0;
+}
+
 - (BOOL)isBreakoutRoom
 {
     return [self.objectType isEqualToString:NCRoomObjectTypeRoom];

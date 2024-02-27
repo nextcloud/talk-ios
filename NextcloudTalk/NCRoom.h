@@ -164,6 +164,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 + (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
 
 - (BOOL)isPublic;
+- (BOOL)isFederated;
 - (BOOL)isBreakoutRoom;
 - (BOOL)isUserOwnerOrModerator;
 - (BOOL)canModerate;
