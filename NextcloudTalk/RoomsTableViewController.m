@@ -1531,8 +1531,20 @@ typedef enum RoomsSections {
         } else {
             [cell setUserStatus:room.status];
         }
+    } else if (room.isPublic) {
+        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:13];
+        UIImage *publicRoomImage = [UIImage systemImageNamed:@"link"];
+        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
+        [cell setUserStatusIconWithImage:publicRoomImage];
+    } else if (room.isFederated) {
+        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:13];
+        UIImage *publicRoomImage = [UIImage systemImageNamed:@"globe"];
+        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
+        [cell setUserStatusIconWithImage:publicRoomImage];
     }
-    
+
     // Set favorite or call image
     if (room.hasCall) {
         [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
