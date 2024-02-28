@@ -25,23 +25,23 @@ import SwiftUI
 extension NCUserStatus {
 
     static func getOnlineIcon() -> some View {
-        return Image(systemName: "circle.fill").symbolRenderingMode(.monochrome).foregroundStyle(.green)
+        return Image(systemName: "circle.fill").font(.system(size: 16)).symbolRenderingMode(.monochrome).foregroundStyle(.green)
     }
 
     static func getAwayIcon() -> some View {
-        return Image(systemName: "moon.fill").symbolRenderingMode(.monochrome).foregroundStyle(.yellow)
+        return Image(systemName: "moon.fill").font(.system(size: 16)).symbolRenderingMode(.monochrome).foregroundStyle(.yellow)
     }
 
     static func getDoNotDisturbIcon() -> some View {
         if #available(iOS 16.1, *) {
-            return Image(systemName: "wrongwaysign.fill").symbolRenderingMode(.palette).foregroundStyle(.white, .red)
+            return Image(systemName: "wrongwaysign.fill").font(.system(size: 16)).symbolRenderingMode(.palette).foregroundStyle(.white, .red)
         }
 
-        return Image(systemName: "minus.circle.fill").symbolRenderingMode(.palette).foregroundStyle(.white, .red)
+        return Image(systemName: "minus.circle.fill").font(.system(size: 16)).symbolRenderingMode(.palette).foregroundStyle(.white, .red)
     }
 
     static func getInvisibleIcon() -> some View {
-        return Image(systemName: "circle").font(.system(size: 16, weight: .black))
+        return Image(systemName: "circle").font(.system(size: 16, weight: .black)).foregroundColor(.primary)
     }
 
     static func getUserStatusIcon(userStatus: String) -> any View {

@@ -39,13 +39,12 @@ struct UserStatusOptionsSwiftUI: View {
                     }) {
                         HStack(spacing: 15) {
                             AnyView(NCUserStatus.getUserStatusIcon(userStatus: option.identifier))
+                                .frame(width: 20)
                             VStack(alignment: .leading) {
                                 Text(option.title)
-                                    .font(.system(size: 18))
                                     .foregroundColor(.primary)
                                 if option.subtitle != nil && !option.subtitle.isEmpty {
                                     Text(option.subtitle)
-                                        .font(.system(size: 16))
                                         .foregroundColor(.secondary)
                                 }
                             }

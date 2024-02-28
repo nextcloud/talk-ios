@@ -44,7 +44,6 @@ extern NSString * const kUserStatusOffline;
 
 + (instancetype)userStatusWithDictionary:(NSDictionary *)userStatusDict;
 + (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus;
-+ (NSString *)userStatusImageNameForStatus:(NSString *)userStatus ofSize:(NSInteger)size;
 + (UIImage *)getOnlineSFIcon;
 + (UIImage *)getAwaySFIcon;
 + (UIImage *)getDoNotDisturbSFIcon;
@@ -52,7 +51,6 @@ extern NSString * const kUserStatusOffline;
 - (NSString *)readableUserStatus;
 - (NSString *)readableUserStatusMessage;
 - (NSString *)readableUserStatusOrMessage;
-- (NSString *)userStatusImageNameOfSize:(NSInteger)size;
 - (nullable UIImage *)getSFUserStatusIcon;
 
 @end
