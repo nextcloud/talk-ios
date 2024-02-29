@@ -345,7 +345,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     dispatch_group_t notificationsGroup = dispatch_group_create();
 
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+        ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
 
         if (!serverCapabilities || [serverCapabilities.notificationsCapabilities count] == 0) {
             continue;

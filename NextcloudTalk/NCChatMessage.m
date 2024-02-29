@@ -795,7 +795,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     if (serverCapabilities) {
         return serverCapabilities.referenceApiSupported;
     }
