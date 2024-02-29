@@ -262,6 +262,7 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
     [realm deleteObjects:[NCContact objectsWithPredicate:query]];
+    [realm deleteObjects:[FederatedCapabilities objectsWithPredicate:query]];
     if (isLastAccount) {
         [realm deleteObjects:[ABContact allObjects]];
     }
