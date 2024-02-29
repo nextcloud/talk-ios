@@ -625,16 +625,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     return YES;
 }
 
-- (BOOL)callsEnabledCapability
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities  = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities) {
-        return serverCapabilities.callEnabled;
-    }
-    return YES;
-}
-
 - (BOOL)isGuestsAppEnabled
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
