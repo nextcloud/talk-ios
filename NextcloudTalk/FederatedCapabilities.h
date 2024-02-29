@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2024 Marcel Müller <marcel.mueller@nextcloud.com>
  *
- * @author Ivan Sein <ivan@nextcloud.com>
+ * @author Marcel Müller <marcel.mueller@nextcloud.com>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -20,17 +20,20 @@
  *
  */
 
-#import "ServerCapabilities.h"
+#import <Foundation/Foundation.h>
+#import "TalkCapabilities.h"
 
-@implementation ServerCapabilities
+NS_ASSUME_NONNULL_BEGIN
 
-+ (NSString *)primaryKey
-{
-    return @"accountId";
-}
+@interface FederatedCapabilities : TalkCapabilities
 
-+ (BOOL)shouldIncludeInDefaultSchema {
-    return YES;
-}
+@property NSString *internalId; // {accountId}@{remoteServer}@{roomToken}
+@property NSString *accountId;
+@property NSString *remoteServer;
+@property NSString *roomToken;
+
+@property NSString *lastReceivedConfigurationHash;
 
 @end
+
+NS_ASSUME_NONNULL_END

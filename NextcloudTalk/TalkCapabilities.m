@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2020 Ivan Sein <ivan@nextcloud.com>
+ * @copyright Copyright (c) 2024 Marcel Müller <marcel.mueller@nextcloud.com>
  *
- * @author Ivan Sein <ivan@nextcloud.com>
+ * @author Marcel Müller <marcel.mueller@nextcloud.com>
  *
  * @license GNU GPL version 3 or any later version
  *
@@ -20,17 +20,13 @@
  *
  */
 
-#import "ServerCapabilities.h"
 
-@implementation ServerCapabilities
+#import "TalkCapabilities.h"
 
-+ (NSString *)primaryKey
-{
-    return @"accountId";
-}
+@implementation TalkCapabilities
 
 + (BOOL)shouldIncludeInDefaultSchema {
-    return YES;
+    return NO;
 }
 
 @end
