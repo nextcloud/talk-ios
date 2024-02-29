@@ -351,6 +351,136 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
     [bgTask stopBackgroundTask];
 }
 
+#pragma mark - Federated capabilities
+
+- (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND remoteServer = %@ AND roomToken = %@", accountId, remoteServer, roomToken];
+    FederatedCapabilities *managedFederatedCapabilities = [FederatedCapabilities objectsWithPredicate:query].firstObject;
+
+    if (managedFederatedCapabilities) {
+        FederatedCapabilities *unmanagedFederatedCapabilities = [[FederatedCapabilities alloc] initWithValue:managedFederatedCapabilities];
+        return unmanagedFederatedCapabilities;
+    }
+
+    return nil;
+}
+
+- (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilities forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken
+{
+    FederatedCapabilities *capabilities = [[FederatedCapabilities alloc] init];
+    capabilities.internalId = [NSString stringWithFormat:@"%@@%@@%@", accountId, remoteServer, roomToken];
+    capabilities.accountId = accountId;
+    capabilities.remoteServer = remoteServer;
+    capabilities.roomToken = roomToken;
+
+    capabilities.talkCapabilities = [federatedCapabilities objectForKey:@"features"];
+    capabilities.hasTranslationProviders = [[[[federatedCapabilities objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"has-translation-providers"] boolValue];
+    capabilities.attachmentsAllowed = [[[[federatedCapabilities objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
+    capabilities.attachmentsFolder = [[[federatedCapabilities objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
+    capabilities.talkVersion = [federatedCapabilities objectForKey:@"version"];
+
+    NSDictionary *talkConfig = [federatedCapabilities objectForKey:@"config"];
+    NSDictionary *callConfig = [talkConfig objectForKey:@"call"];
+    NSArray *callConfigKeys = [callConfig allKeys];
+
+    if ([callConfigKeys containsObject:@"enabled"]) {
+        capabilities.callEnabled = [[callConfig objectForKey:@"enabled"] boolValue];
+    } else {
+        capabilities.callEnabled = YES;
+    }
+
+    if ([callConfigKeys containsObject:@"recording"]) {
+        capabilities.recordingEnabled = [[callConfig objectForKey:@"recording"] boolValue];
+    } else {
+        capabilities.recordingEnabled = NO;
+    }
+
+    if ([callConfigKeys containsObject:@"supported-reactions"]) {
+        capabilities.callReactions = [callConfig objectForKey:@"supported-reactions"];
+    } else {
+        capabilities.callReactions = (RLMArray<RLMString> *)@[];
+    }
+
+    NSDictionary *conversationConfig = [talkConfig objectForKey:@"conversation"];
+    NSArray *conversationConfigKeys = [conversationConfig allKeys];
+
+    if ([conversationConfigKeys containsObject:@"can-create"]) {
+        capabilities.canCreate = [[conversationConfig objectForKey:@"can-create"] boolValue];
+    } else {
+        capabilities.canCreate = YES;
+    }
+
+    NSDictionary *chatConfig = [talkConfig objectForKey:@"chat"];
+    NSArray *chatConfigKeys = [chatConfig allKeys];
+
+    capabilities.readStatusPrivacy = [[chatConfig objectForKey:@"read-privacy"] boolValue];
+    capabilities.chatMaxLength = [[chatConfig objectForKey:@"max-length"] integerValue];
+
+    if ([chatConfigKeys containsObject:@"typing-privacy"]) {
+        capabilities.typingPrivacy = [[chatConfig objectForKey:@"typing-privacy"] boolValue];
+    } else {
+        capabilities.typingPrivacy = YES;
+    }
+
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm transactionWithBlock:^{
+        [realm addOrUpdateObject:capabilities];
+    }];
+}
+
+#pragma mark - Room capabilities
+
+- (BOOL)roomHasTalkCapability:(NSString *)capability forRoom:(NCRoom *)room
+{
+    if (room.isFederated) {
+        FederatedCapabilities *federatedCapabilities = [self federatedCapabilitiesForAccountId:room.accountId remoteServer:room.remoteServer roomToken:room.token];
+
+        if (federatedCapabilities) {
+            NSArray *talkFeatures = [federatedCapabilities.talkCapabilities valueForKey:@"self"];
+            if ([talkFeatures containsObject:capability]) {
+                return YES;
+            }
+        }
+
+        return NO;
+    }
+
+    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:room.accountId];
+    if (serverCapabilities) {
+        NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
+        if ([talkFeatures containsObject:capability]) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
+- (TalkCapabilities * __nullable)roomTalkCapabilitiesForRoom:(NCRoom *)room
+{
+    if (room.isFederated) {
+        FederatedCapabilities *federatedCapabilities = [self federatedCapabilitiesForAccountId:room.accountId remoteServer:room.remoteServer roomToken:room.token];
+
+        if (federatedCapabilities) {
+            TalkCapabilities *unmanagedTalkCapabilities = [[TalkCapabilities alloc] initWithValue:federatedCapabilities];
+
+            return unmanagedTalkCapabilities;
+        }
+
+        return nil;
+    }
+
+    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:room.accountId];
+
+    if (serverCapabilities) {
+        TalkCapabilities *unmanagedTalkCapabilities = [[TalkCapabilities alloc] initWithValue:serverCapabilities];
+        return unmanagedTalkCapabilities;
+    }
+
+    return nil;
+}
+
 #pragma mark - Server capabilities
 
 - (ServerCapabilities *)serverCapabilities {

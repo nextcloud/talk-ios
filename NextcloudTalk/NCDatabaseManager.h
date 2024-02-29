@@ -24,6 +24,9 @@
 
 #import "TalkAccount.h"
 #import "ServerCapabilities.h"
+#import "FederatedCapabilities.h"
+
+@class NCRoom;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -119,6 +122,14 @@ extern NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange;
 - (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(NSString *)hash;
 - (void)updateLastModifiedSinceForAccountId:(NSString *)accountId with:(nonnull NSString *)modifiedSince;
 
+// FederatedCapabilities
+- (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken;
+
+// RoomCapabilities
+- (BOOL)roomHasTalkCapability:(NSString *)capability forRoom:(NCRoom *)room;
+- (TalkCapabilities * __nullable)roomTalkCapabilitiesForRoom:(NCRoom *)room;
+
+// ServerCapabilities
 - (ServerCapabilities *)serverCapabilities;
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;

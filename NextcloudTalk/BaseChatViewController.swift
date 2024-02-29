@@ -492,7 +492,7 @@ import QuickLook
         temporaryMessage.parentId = parentMessage?.internalId
         temporaryMessage.messageParametersJSONString = messageParameters
         temporaryMessage.isSilent = silently
-        temporaryMessage.isMarkdownMessage = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMarkdownMessages)
+        temporaryMessage.isMarkdownMessage = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityMarkdownMessages, for: self.room)
 
         let realm = RLMRealm.default()
 
@@ -744,11 +744,11 @@ import QuickLook
         items.append(filesAction)
         items.append(contactShareAction)
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityLocationSharing) {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityLocationSharing, for: self.room) {
             items.append(shareLocationAction)
         }
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPolls), 
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room), 
             self.room.type != kNCRoomTypeOneToOne, self.room.type != kNCRoomTypeNoteToSelf {
 
             items.append(pollAction)
@@ -1154,7 +1154,8 @@ import QuickLook
     // MARK: - TypingIndicator support
 
     func sendStartedTypingMessage(to sessionId: String) {
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)
+        else { return }
 
         if serverCapabilities.typingPrivacy {
             return
@@ -1168,9 +1169,8 @@ import QuickLook
     }
 
     func sendStartedTypingMessageToAll() {
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
-
-        guard !serverCapabilities.typingPrivacy,
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room),
+              !serverCapabilities.typingPrivacy,
               let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId),
               let participantMap = signalingController.getParticipantMap()
         else { return }
@@ -1186,10 +1186,9 @@ import QuickLook
     }
 
     func sendStoppedTypingMessageToAll() {
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
-
-        guard !serverCapabilities.typingPrivacy,
-                let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId),
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room),
+              !serverCapabilities.typingPrivacy,
+              let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId),
               let participantMap = signalingController.getParticipantMap()
         else { return }
 
