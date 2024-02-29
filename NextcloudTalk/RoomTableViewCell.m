@@ -165,7 +165,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     _userStatusImageView.clipsToBounds = YES;
 
     // When a background color is set directly to the cell it seems that there is no background configuration.
-    _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
+    UIColor *backgroundColor = [[self backgroundConfiguration] backgroundColor];
+    _userStatusImageView.backgroundColor = backgroundColor ? backgroundColor : self.backgroundColor;
 }
 
 - (void)setUserStatus:(NSString *)userStatus
@@ -186,7 +187,8 @@ CGFloat const kRoomTableCellHeight = 74.0f;
         _userStatusImageView.clipsToBounds = YES;
 
         // When a background color is set directly to the cell it seems that there is no background configuration.
-        _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
+        UIColor *backgroundColor = [[self backgroundConfiguration] backgroundColor];
+        _userStatusImageView.backgroundColor = backgroundColor ? backgroundColor : self.backgroundColor;
     }
 }
 

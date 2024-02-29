@@ -1524,27 +1524,6 @@ typedef enum RoomsSections {
 
     [cell.roomImage setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
 
-    //Show User Status
-    if (room.type == kNCRoomTypeOneToOne && [room.status length] != 0) {
-        if (![room.status isEqualToString:@"dnd"] && [room.statusIcon length] != 0) {
-            [cell setUserStatusIcon:room.statusIcon];
-        } else {
-            [cell setUserStatus:room.status];
-        }
-    } else if (room.isPublic) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:13];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"link"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    } else if (room.isFederated) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:13];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"globe"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    }
-
     // Set favorite or call image
     if (room.hasCall) {
         [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
@@ -1555,8 +1534,35 @@ typedef enum RoomsSections {
     }
 
     cell.roomToken = room.token;
-        
+
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)rcell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
+    NCRoom *room = [_rooms objectAtIndex:indexPath.row];
+
+    //Show User Status
+    if (room.type == kNCRoomTypeOneToOne && [room.status length] != 0) {
+        if (![room.status isEqualToString:@"dnd"] && [room.statusIcon length] != 0) {
+            [cell setUserStatusIcon:room.statusIcon];
+        } else {
+            [cell setUserStatus:room.status];
+        }
+    } else if (room.isPublic) {
+        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:12];
+        UIImage *publicRoomImage = [UIImage systemImageNamed:@"link"];
+        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
+        [cell setUserStatusIconWithImage:publicRoomImage];
+    } else if (room.isFederated) {
+        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:14];
+        UIImage *publicRoomImage = [UIImage systemImageNamed:@"globe"];
+        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
+        [cell setUserStatusIconWithImage:publicRoomImage];
+    }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
