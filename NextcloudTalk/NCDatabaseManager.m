@@ -351,36 +351,17 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
     [bgTask stopBackgroundTask];
 }
 
-#pragma mark - Federated capabilities
+#pragma mark - Talk capabilities
 
-- (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken
+- (void)setTalkCapabilities:(NSDictionary *)capabilitiesDict onTalkCapabilitiesObject:(TalkCapabilities *)capabilities
 {
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND remoteServer = %@ AND roomToken = %@", accountId, remoteServer, roomToken];
-    FederatedCapabilities *managedFederatedCapabilities = [FederatedCapabilities objectsWithPredicate:query].firstObject;
+    capabilities.talkCapabilities = [capabilitiesDict objectForKey:@"features"];
+    capabilities.hasTranslationProviders = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"has-translation-providers"] boolValue];
+    capabilities.attachmentsAllowed = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
+    capabilities.attachmentsFolder = [[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
+    capabilities.talkVersion = [capabilitiesDict objectForKey:@"version"];
 
-    if (managedFederatedCapabilities) {
-        FederatedCapabilities *unmanagedFederatedCapabilities = [[FederatedCapabilities alloc] initWithValue:managedFederatedCapabilities];
-        return unmanagedFederatedCapabilities;
-    }
-
-    return nil;
-}
-
-- (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilities forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken
-{
-    FederatedCapabilities *capabilities = [[FederatedCapabilities alloc] init];
-    capabilities.internalId = [NSString stringWithFormat:@"%@@%@@%@", accountId, remoteServer, roomToken];
-    capabilities.accountId = accountId;
-    capabilities.remoteServer = remoteServer;
-    capabilities.roomToken = roomToken;
-
-    capabilities.talkCapabilities = [federatedCapabilities objectForKey:@"features"];
-    capabilities.hasTranslationProviders = [[[[federatedCapabilities objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"has-translation-providers"] boolValue];
-    capabilities.attachmentsAllowed = [[[[federatedCapabilities objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
-    capabilities.attachmentsFolder = [[[federatedCapabilities objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
-    capabilities.talkVersion = [federatedCapabilities objectForKey:@"version"];
-
-    NSDictionary *talkConfig = [federatedCapabilities objectForKey:@"config"];
+    NSDictionary *talkConfig = [capabilitiesDict objectForKey:@"config"];
     NSDictionary *callConfig = [talkConfig objectForKey:@"call"];
     NSArray *callConfigKeys = [callConfig allKeys];
 
@@ -423,9 +404,48 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
         capabilities.typingPrivacy = YES;
     }
 
+    id translations = [[[capabilitiesDict objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"translations"];
+    if ([translations isKindOfClass:[NSArray class]]) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:translations
+                                                           options:0
+                                                             error:&error];
+        if (jsonData) {
+            capabilities.translations = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error generating translations JSON string: %@", error);
+        }
+    }
+}
+
+#pragma mark - Federated capabilities
+
+- (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND remoteServer = %@ AND roomToken = %@", accountId, remoteServer, roomToken];
+    FederatedCapabilities *managedFederatedCapabilities = [FederatedCapabilities objectsWithPredicate:query].firstObject;
+
+    if (managedFederatedCapabilities) {
+        FederatedCapabilities *unmanagedFederatedCapabilities = [[FederatedCapabilities alloc] initWithValue:managedFederatedCapabilities];
+        return unmanagedFederatedCapabilities;
+    }
+
+    return nil;
+}
+
+- (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilitiesDict forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken
+{
+    FederatedCapabilities *federatedCapabilities = [[FederatedCapabilities alloc] init];
+    federatedCapabilities.internalId = [NSString stringWithFormat:@"%@@%@@%@", accountId, remoteServer, roomToken];
+    federatedCapabilities.accountId = accountId;
+    federatedCapabilities.remoteServer = remoteServer;
+    federatedCapabilities.roomToken = roomToken;
+
+    [self setTalkCapabilities:federatedCapabilitiesDict onTalkCapabilitiesObject:federatedCapabilities];
+
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        [realm addOrUpdateObject:capabilities];
+        [realm addOrUpdateObject:federatedCapabilities];
     }];
 }
 
@@ -446,7 +466,7 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
         return NO;
     }
 
-    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:room.accountId];
+    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:room.accountId];
     if (serverCapabilities) {
         NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
         if ([talkFeatures containsObject:capability]) {
@@ -540,74 +560,15 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
     capabilities.edition = [version objectForKey:@"edition"];
     capabilities.userStatus = [[userStatusCaps objectForKey:@"enabled"] boolValue];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
-    capabilities.talkCapabilities = [talkCaps objectForKey:@"features"];
-    capabilities.hasTranslationProviders = [[[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"has-translation-providers"] boolValue];
-    capabilities.attachmentsAllowed = [[[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
-    capabilities.attachmentsFolder = [[[talkCaps objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
     capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
     capabilities.accountPropertyScopesFederatedEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederatedEnabled"] boolValue];
     capabilities.accountPropertyScopesPublishedEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesPublishedEnabled"] boolValue];
-    capabilities.talkVersion = [talkCaps objectForKey:@"version"];
     capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     capabilities.referenceApiSupported = [[coreCaps objectForKey:@"reference-api"] boolValue];
     capabilities.notificationsCapabilities = [notificationsCaps objectForKey:@"ocs-endpoints"];
 
-    NSDictionary *talkConfig = [talkCaps objectForKey:@"config"];
-    NSDictionary *callConfig = [talkConfig objectForKey:@"call"];
-    NSArray *callConfigKeys = [callConfig allKeys];
-
-    if ([callConfigKeys containsObject:@"enabled"]) {
-        capabilities.callEnabled = [[callConfig objectForKey:@"enabled"] boolValue];
-    } else {
-        capabilities.callEnabled = YES;
-    }
-
-    if ([callConfigKeys containsObject:@"recording"]) {
-        capabilities.recordingEnabled = [[callConfig objectForKey:@"recording"] boolValue];
-    } else {
-        capabilities.recordingEnabled = NO;
-    }
-
-    if ([callConfigKeys containsObject:@"supported-reactions"]) {
-        capabilities.callReactions = [callConfig objectForKey:@"supported-reactions"];
-    } else {
-        capabilities.callReactions = (RLMArray<RLMString> *)@[];
-    }
-
-    NSDictionary *conversationConfig = [talkConfig objectForKey:@"conversation"];
-    NSArray *conversationConfigKeys = [conversationConfig allKeys];
-
-    if ([conversationConfigKeys containsObject:@"can-create"]) {
-        capabilities.canCreate = [[conversationConfig objectForKey:@"can-create"] boolValue];
-    } else {
-        capabilities.canCreate = YES;
-    }
-
-    id translations = [[[talkCaps objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"translations"];
-    if ([translations isKindOfClass:[NSArray class]]) {
-        NSError *error;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:translations
-                                                           options:0
-                                                             error:&error];
-        if (jsonData) {
-            capabilities.translations = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        } else {
-            NSLog(@"Error generating translations JSON string: %@", error);
-        }
-    }
-
-    NSDictionary *chatConfig = [talkConfig objectForKey:@"chat"];
-    NSArray *chatConfigKeys = [chatConfig allKeys];
-
-    capabilities.readStatusPrivacy = [[chatConfig objectForKey:@"read-privacy"] boolValue];
-    capabilities.chatMaxLength = [[chatConfig objectForKey:@"max-length"] integerValue];
-
-    if ([chatConfigKeys containsObject:@"typing-privacy"]) {
-        capabilities.typingPrivacy = [[chatConfig objectForKey:@"typing-privacy"] boolValue];
-    } else {
-        capabilities.typingPrivacy = YES;
-    }
+    [self setTalkCapabilities:talkCaps onTalkCapabilitiesObject:capabilities];
 
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
@@ -626,7 +587,7 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
 
 - (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId
 {
-    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:accountId];
     if (serverCapabilities) {
         NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
         if ([talkFeatures containsObject:capability]) {
@@ -638,7 +599,7 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
 
 - (BOOL)serverHasNotificationsCapability:(NSString *)capability forAccountId:(NSString *)accountId
 {
-    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:accountId];
     if (serverCapabilities) {
         NSArray *notificationsFeatures = [serverCapabilities.notificationsCapabilities valueForKey:@"self"];
         if ([notificationsFeatures containsObject:capability]) {
@@ -669,14 +630,14 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
 
 - (BOOL)hasTranslationProvidersForAccountId:(NSString *)accountId
 {
-    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:accountId];
 
     return serverCapabilities.hasTranslationProviders;
 }
 
 - (NSArray *)availableTranslationsForAccountId:(NSString *)accountId
 {
-    ServerCapabilities *serverCapabilities  = [self serverCapabilitiesForAccountId:accountId];
+    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:accountId];
     if (serverCapabilities) {
         NSArray *translations = [self translationsArrayFromTranslationsJSONString:serverCapabilities.translations];
         return [self translationsFromTranslationsArray:translations];
