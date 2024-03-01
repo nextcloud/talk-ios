@@ -364,21 +364,18 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
 - (NSString *)lastMessageString
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NCChatMessage *lastMessage = self.lastMessage;
 
-    NCChatMessage *lastMessage = nil;
-
-    if ([self isFederated]) {
+    if ([self isFederated] && !lastMessage) {
         NSDictionary *lastMessageProxiedDict = [self lastMessageProxiedDictionary];
         lastMessage = [NCChatMessage messageWithDictionary:lastMessageProxiedDict];
-    } else {
-        lastMessage = self.lastMessage;
     }
 
     if (!lastMessage) {
         return nil;
     }
 
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     BOOL ownMessage = [lastMessage.actorId isEqualToString:activeAccount.userId];
     NSString *actorName = [[lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
     // For own messages
