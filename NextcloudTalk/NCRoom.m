@@ -133,7 +133,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     }
 
     // Last message proxied (only for Federated rooms)
-    if (room.remoteToken.length > 0 && room.remoteServer.length > 0 && room.remoteAccessToken > 0) {
+    if ([room isFederated]) {
         id lastMessageProxied = [roomDict objectForKey:@"lastMessage"];
         if ([lastMessageProxied isKindOfClass:[NSDictionary class]]) {
             NSError *error;
