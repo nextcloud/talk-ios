@@ -179,7 +179,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 - (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
 - (NSString *)messageExpirationString;
 - (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration;
-- (NSString *)lastMessageString;
+- (NSString * _Nullable)lastMessageString;
 - (NCChatMessage *)lastMessage;
 
 @end
