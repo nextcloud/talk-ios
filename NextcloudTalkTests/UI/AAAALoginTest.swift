@@ -35,14 +35,14 @@ final class AAAALoginTest: XCTestCase {
 
         // Check if the profile button is available
         let profileButton = app.buttons["LoadedProfileButton"]
-        XCTAssert(profileButton.waitForExistence(timeout: TestConstants.timeoutLong))
+        XCTAssert(profileButton.waitForExist(timeout: TestConstants.timeoutLong))
 
         // Open profile menu
         profileButton.tap()
 
         // At this point we should be logged in, so check if username and server is displayed somewhere
-        XCTAssert(app.buttons["Settings"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.buttons["Add account"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.buttons["Settings"].waitForExist(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.buttons["Add account"].waitForExist(timeout: TestConstants.timeoutShort))
     }
 
 }

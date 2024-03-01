@@ -197,6 +197,7 @@
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */; };
 		1FD6F83E2B87B712004048AB /* NCUserStatusExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */; };
+		1FD6F8412B88DEF0004048AB /* XCUIElement+Waiting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83F2B88DEC8004048AB /* XCUIElement+Waiting.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
@@ -639,6 +640,7 @@
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
+		1FD6F83F2B88DEC8004048AB /* XCUIElement+Waiting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCUIElement+Waiting.swift"; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRoomTest.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
@@ -1240,6 +1242,7 @@
 				1F6D8C3C2B2F23C4004376B8 /* Helpers.swift */,
 				1F6D8C472B2F2F69004376B8 /* AAAALoginTest.swift */,
 				1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */,
+				1FD6F83F2B88DEC8004048AB /* XCUIElement+Waiting.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2513,6 +2516,7 @@
 			files = (
 				1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */,
 				1F6D8C3D2B2F23C4004376B8 /* Helpers.swift in Sources */,
+				1FD6F8412B88DEF0004048AB /* XCUIElement+Waiting.swift in Sources */,
 				1F6D8C442B2F2791004376B8 /* TestConstants.swift in Sources */,
 				1F6D8C492B2F2FB7004376B8 /* AAAALoginTest.swift in Sources */,
 			);

@@ -214,6 +214,14 @@
             return UIInterfaceOrientationMaskLandscapeRight;
         }
     }
+
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+
+    if ([arguments containsObject:@"-TestEnvironment"]) {
+        // Increase animation speed when we are doing UI tests
+        window.layer.speed = 100;
+    }
+
     return UIInterfaceOrientationMaskAllButUpsideDown;
 }
 
