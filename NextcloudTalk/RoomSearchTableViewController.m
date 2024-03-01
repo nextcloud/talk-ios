@@ -333,7 +333,7 @@ typedef enum RoomSearchSection {
     cell.titleLabel.text = room.displayName;
     
     // Set last activity
-    if (room.lastMessage) {
+    if (room.lastMessage || room.lastMessageProxiedJSONString) {
         cell.titleOnly = NO;
         cell.subtitleLabel.text = room.lastMessageString;
     } else {

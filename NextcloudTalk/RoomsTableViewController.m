@@ -1497,15 +1497,9 @@ typedef enum RoomsSections {
     cell.titleLabel.text = room.displayName;
     
     // Set last activity
-    if (room.lastMessage) {
+    if (room.lastMessage || room.lastMessageProxiedJSONString) {
         cell.titleOnly = NO;
-
-        // Only use the first 80 characters of the message, so we don't need to calculate the label size for the whole message
-        NSString *lastRoomMessage = room.lastMessageString;
-        NSRange stringRange = {0, MIN([lastRoomMessage length], 80)};
-
-        stringRange = [lastRoomMessage rangeOfComposedCharacterSequencesForRange:stringRange];
-        cell.subtitleLabel.text = [lastRoomMessage substringWithRange:stringRange];
+        cell.subtitleLabel.text = room.lastMessageString;
     } else {
         cell.titleOnly = YES;
     }

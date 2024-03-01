@@ -122,6 +122,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
 @property (nonatomic, copy) NSString *lastMessageId;
+@property (nonatomic, copy) NSString *lastMessageProxiedJSONString;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
 @property (nonatomic, assign) BOOL notificationCalls;
