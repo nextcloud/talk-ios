@@ -131,7 +131,23 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     if ([participantFlags isKindOfClass:[NSNumber class]]) {
         room.participantFlags = [participantFlags integerValue];
     }
-    
+
+    // Last message proxied (only for Federated rooms)
+    if ([room isFederated]) {
+        id lastMessageProxied = [roomDict objectForKey:@"lastMessage"];
+        if ([lastMessageProxied isKindOfClass:[NSDictionary class]]) {
+            NSError *error;
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:lastMessageProxied
+                                                               options:0
+                                                                 error:&error];
+            if (jsonData) {
+                room.lastMessageProxiedJSONString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            } else {
+                NSLog(@"Error generating reactions JSON string: %@", error);
+            }
+        }
+    }
+
     return room;
 }
 
@@ -166,6 +182,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.participants = room.participants;
     managedRoom.lastActivity = room.lastActivity;
     managedRoom.lastMessageId = room.lastMessageId;
+    managedRoom.lastMessageProxiedJSONString = room.lastMessageProxiedJSONString;
     managedRoom.isFavorite = room.isFavorite;
     managedRoom.notificationLevel = room.notificationLevel;
     managedRoom.notificationCalls = room.notificationCalls;
@@ -347,9 +364,20 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
 - (NSString *)lastMessageString
 {
+    NCChatMessage *lastMessage = self.lastMessage;
+
+    if ([self isFederated] && !lastMessage) {
+        NSDictionary *lastMessageProxiedDict = [self lastMessageProxiedDictionary];
+        lastMessage = [NCChatMessage messageWithDictionary:lastMessageProxiedDict];
+    }
+
+    if (!lastMessage) {
+        return nil;
+    }
+
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    BOOL ownMessage = [self.lastMessage.actorId isEqualToString:activeAccount.userId];
-    NSString *actorName = [[self.lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
+    BOOL ownMessage = [lastMessage.actorId isEqualToString:activeAccount.userId];
+    NSString *actorName = [[lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
     // For own messages
     if (ownMessage) {
         actorName = NSLocalizedString(@"You", nil);
@@ -359,17 +387,22 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
         actorName = NSLocalizedString(@"Guest", nil);
     }
     // No actor name cases
-    if (self.lastMessage.isSystemMessage || (self.type == kNCRoomTypeOneToOne && !ownMessage) || self.type == kNCRoomTypeChangelog) {
+    if (lastMessage.isSystemMessage || (self.type == kNCRoomTypeOneToOne && !ownMessage) || self.type == kNCRoomTypeChangelog) {
         actorName = @"";
     }
-    // Use only the first name
+    // Add separator
     if (![actorName isEqualToString:@""]) {
-        actorName = [NSString stringWithFormat:@"%@: ", [[actorName componentsSeparatedByString:@" "] objectAtIndex:0]];
+        actorName = [NSString stringWithFormat:@"%@: ", actorName];
     }
-    // Add the last message
-    NSString *lastMessage = [NSString stringWithFormat:@"%@%@", actorName, self.lastMessage.parsedMarkdown.string];
-    
-    return lastMessage;
+
+    // Create last message
+    NSString *lastMessageString = [NSString stringWithFormat:@"%@%@", actorName, lastMessage.parsedMarkdown.string];
+
+    // Limit last message string to 80 characters
+    NSRange stringRange = {0, MIN([lastMessageString length], 80)};
+    stringRange = [lastMessageString rangeOfComposedCharacterSequencesForRange:stringRange];
+
+    return [lastMessageString substringWithRange:stringRange];
 }
 
 - (NCChatMessage *)lastMessage
@@ -384,6 +417,24 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     }
     
     return nil;
+}
+
+- (NSDictionary *)lastMessageProxiedDictionary
+{
+    NSDictionary *lastMessageProxiedDictionary = @{};
+    NSData *data = [self.lastMessageProxiedJSONString dataUsingEncoding:NSUTF8StringEncoding];
+    if (data) {
+        NSError* error;
+        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:0
+                                                                   error:&error];
+        if (jsonData) {
+            lastMessageProxiedDictionary = jsonData;
+        } else {
+            NSLog(@"Error retrieving reactions JSON data: %@", error);
+        }
+    }
+    return lastMessageProxiedDictionary;
 }
 
 

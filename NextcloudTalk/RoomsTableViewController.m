@@ -1189,7 +1189,8 @@ typedef enum RoomsSections {
     [favoriteAction setValue:[UIImage systemImageNamed:favImageName] forKey:@"image"];
     [optionsActionSheet addAction:favoriteAction];
     // Mark room as read/unread
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+    // TODO: Allow to mark federated rooms as read/unread when markRoomAsRead does not require a messageId
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker] && !room.isFederated) {
         if (room.unreadMessages > 0) {
             // Mark room as read
             UIAlertAction *markReadkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Mark as read", nil)
@@ -1447,7 +1448,8 @@ typedef enum RoomsSections {
     favoriteAction.backgroundColor = [UIColor colorWithRed:0.97 green:0.80 blue:0.27 alpha:1.0]; // Favorite yellow
 
     // Mark room as read/unread
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+    // TODO: Allow to mark federated rooms as read/unread when markRoomAsRead does not require a messageId
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker] && !room.isFederated) {
 
         UIContextualAction *markReadAction = [UIContextualAction
                                               contextualActionWithStyle:UIContextualActionStyleNormal title:nil
@@ -1497,15 +1499,9 @@ typedef enum RoomsSections {
     cell.titleLabel.text = room.displayName;
     
     // Set last activity
-    if (room.lastMessage) {
+    if (room.lastMessageId || room.lastMessageProxiedJSONString) {
         cell.titleOnly = NO;
-
-        // Only use the first 80 characters of the message, so we don't need to calculate the label size for the whole message
-        NSString *lastRoomMessage = room.lastMessageString;
-        NSRange stringRange = {0, MIN([lastRoomMessage length], 80)};
-
-        stringRange = [lastRoomMessage rangeOfComposedCharacterSequencesForRange:stringRange];
-        cell.subtitleLabel.text = [lastRoomMessage substringWithRange:stringRange];
+        cell.subtitleLabel.text = room.lastMessageString;
     } else {
         cell.titleOnly = YES;
     }

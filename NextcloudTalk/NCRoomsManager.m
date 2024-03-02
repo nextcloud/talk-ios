@@ -597,10 +597,14 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     BOOL roomContainsNewMessages = NO;
     
     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-    NSDictionary *messageDict = [roomDict objectForKey:@"lastMessage"];
-    NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:messageDict andAccountId:activeAccount.accountId];
     room.lastUpdate = timestamp;
-    room.lastMessageId = lastMessage.internalId;
+
+    NCChatMessage *lastMessage = nil;
+    NSDictionary *messageDict = [roomDict objectForKey:@"lastMessage"];
+    if (!room.isFederated) {
+        lastMessage = [NCChatMessage messageWithDictionary:messageDict andAccountId:activeAccount.accountId];
+        room.lastMessageId = lastMessage.internalId;
+    }
     
     NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
     if (managedRoom) {
@@ -612,13 +616,15 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     } else if (room) {
         [realm addObject:room];
     }
-    
-    NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
-    if (managedLastMessage) {
-        [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage isRoomLastMessage:YES];
-    } else if (lastMessage) {
-        NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
-        [chatController storeMessages:@[messageDict] withRealm:realm];
+
+    if (lastMessage) {
+        NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
+        if (managedLastMessage) {
+            [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage isRoomLastMessage:YES];
+        } else {
+            NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
+            [chatController storeMessages:@[messageDict] withRealm:realm];
+        }
     }
     
     return roomContainsNewMessages;
