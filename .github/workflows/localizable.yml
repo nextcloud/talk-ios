@@ -47,7 +47,7 @@ jobs:
         python3 -m pyspelling
 
     - name: Verify Changed files
-      uses: tj-actions/verify-changed-files@v18
+      uses: tj-actions/verify-changed-files@v19
       id: verify-changed-files
       if: always()
       with:
