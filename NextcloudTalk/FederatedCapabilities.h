@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *remoteServer;
 @property NSString *roomToken;
 
-@property NSString *lastReceivedConfigurationHash;
-
 @end
 
 NS_ASSUME_NONNULL_END

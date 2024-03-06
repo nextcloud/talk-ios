@@ -94,7 +94,7 @@ import Foundation
         }
     }
 
-    public func getRoomCapabilities(for accountId: String, token: String, completionBlock: @escaping (_ roomCapabilities: [String: AnyObject]?) -> Void) {
+    public func getRoomCapabilities(for accountId: String, token: String, completionBlock: @escaping (_ roomCapabilities: [String: AnyObject]?, _ proxyHash: String?) -> Void) {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return }
         let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
         let apiVersion = self.conversationAPIVersion(for: account)
@@ -102,19 +102,28 @@ import Foundation
 
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {
-            completionBlock(nil)
+            completionBlock(nil, nil)
             return
         }
 
-        apiSessionManager.get(urlString, parameters: nil, progress: nil) { _, result in
+        apiSessionManager.get(urlString, parameters: nil, progress: nil) { task, result in
             if let ocs = self.getOcsResponse(data: result),
-               let data = ocs["data"] as? [String: AnyObject] {
-                completionBlock(data)
+               let data = ocs["data"] as? [String: AnyObject],
+               let response = task.response,
+               let headers = self.getResponseHeaders(response) {
+
+                // Need to use lowercase name in swift
+                if let headerProxyHash = headers["x-nextcloud-talk-proxy-hash"] as? String {
+                    completionBlock(data, headerProxyHash)
+                } else {
+                    completionBlock(data, nil)
+                }
+
             } else {
-                completionBlock(nil)
+                completionBlock(nil, nil)
             }
         } failure: { _, _ in
-            completionBlock(nil)
+            completionBlock(nil, nil)
         }
     }
 }

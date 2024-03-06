@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 59;
+uint64_t const kTalkDatabaseSchemaVersion           = 60;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -92,6 +92,7 @@ NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
 NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDatabaseManagerPendingFederationInvitationsDidChange";
+NSString * const NCDatabaseManagerTalkProxyHashChangedNotification = @"NCDatabaseManagerTalkProxyHashChangedNotification";
 
 @implementation NCTranslation
 
@@ -434,7 +435,7 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
     return nil;
 }
 
-- (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilitiesDict forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken
+- (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilitiesDict forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken withProxyHash:(NSString *)proxyHash
 {
     FederatedCapabilities *federatedCapabilities = [[FederatedCapabilities alloc] init];
     federatedCapabilities.internalId = [NSString stringWithFormat:@"%@@%@@%@", accountId, remoteServer, roomToken];
@@ -447,6 +448,21 @@ NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDa
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         [realm addOrUpdateObject:federatedCapabilities];
+
+        // Update the hash
+        NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", roomToken, accountId];
+        NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
+        if (managedRoom) {
+            managedRoom.lastReceivedProxyHash = proxyHash;
+        }
+
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:accountId forKey:@"accountId"];
+        [userInfo setObject:roomToken forKey:@"roomToken"];
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerTalkProxyHashChangedNotification
+                                                            object:self
+                                                          userInfo:userInfo];
     }];
 }
 

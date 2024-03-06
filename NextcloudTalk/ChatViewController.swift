@@ -682,8 +682,6 @@ import UIKit
             return
         }
 
-        //if self.room.isFederated()
-
         if self.startReceivingMessagesAfterJoin, self.hasReceiveInitialHistory {
             self.startReceivingMessagesAfterJoin = false
             self.chatController.startReceivingNewChatMessages()

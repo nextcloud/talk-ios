@@ -158,6 +158,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, copy) NSString *remoteServer;
 @property (nonatomic, copy) NSString *remoteToken;
 @property (nonatomic, copy) NSString *remoteAccessToken;
+@property (nonatomic, copy) NSString *lastReceivedProxyHash;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;

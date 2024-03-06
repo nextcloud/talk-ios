@@ -91,6 +91,7 @@ extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kMinimumRequiredTalkCapability;
 
 extern NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange;
+extern NSString * const NCDatabaseManagerTalkProxyHashChangedNotification;
 
 @interface NCTranslation : NSObject
 @property (nonatomic, copy) NSString *from;
@@ -124,6 +125,7 @@ extern NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange;
 
 // FederatedCapabilities
 - (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken;
+- (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilitiesDict forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken withProxyHash:(NSString *)proxyHash;
 
 // RoomCapabilities
 - (BOOL)roomHasTalkCapability:(NSString *)capability forRoom:(NCRoom *)room;
