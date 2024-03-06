@@ -171,7 +171,9 @@ import UIKit
         super.viewDidLoad()
 
         if NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)?.callEnabled ?? false &&
-            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf {
+            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf,
+            !room.isFederated() {
+
             self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
         }
 
