@@ -142,6 +142,7 @@ import UIKit
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveUpdateMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveUpdateMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveHistoryCleared(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveHistoryCleared, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMessagesInBackground(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveMessagesInBackground, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeRoomCapabilities(notification:)), name: NSNotification.Name.NCDatabaseManagerRoomCapabilitiesChanged, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantJoin(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveJoinOfParticipant, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantLeave(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveLeaveOfParticipant, object: nil)
@@ -1098,6 +1099,19 @@ import UIKit
 
         print("didReceiveMessagesInBackground")
         self.checkForNewStoredMessages()
+    }
+
+    // MARK: - Database controller notifications
+
+    func didChangeRoomCapabilities(notification: Notification) {
+        guard let token = notification.userInfo?["roomToken"] as? String else { return }
+
+        if token != self.room.token {
+            return
+        }
+
+        self.tableView?.reloadData()
+        self.checkRoomControlsAvailability()
     }
 
     // MARK: - External signaling controller notifications

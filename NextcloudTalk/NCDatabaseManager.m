@@ -92,7 +92,7 @@ NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
 NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDatabaseManagerPendingFederationInvitationsDidChange";
-NSString * const NCDatabaseManagerTalkProxyHashChangedNotification = @"NCDatabaseManagerTalkProxyHashChangedNotification";
+NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCDatabaseManagerRoomCapabilitiesChangedNotification";
 
 @implementation NCTranslation
 
@@ -460,7 +460,7 @@ NSString * const NCDatabaseManagerTalkProxyHashChangedNotification = @"NCDatabas
         [userInfo setObject:accountId forKey:@"accountId"];
         [userInfo setObject:roomToken forKey:@"roomToken"];
 
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerTalkProxyHashChangedNotification
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerRoomCapabilitiesChangedNotification
                                                             object:self
                                                           userInfo:userInfo];
     }];

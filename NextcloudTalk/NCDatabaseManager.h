@@ -91,7 +91,7 @@ extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kMinimumRequiredTalkCapability;
 
 extern NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange;
-extern NSString * const NCDatabaseManagerTalkProxyHashChangedNotification;
+extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 
 @interface NCTranslation : NSObject
 @property (nonatomic, copy) NSString *from;
