@@ -12,6 +12,14 @@
 		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
 		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
+		1F1B50442B9095D100B0F2F4 /* FederatedCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */; };
+		1F1B50472B90CDF800B0F2F4 /* TalkCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */; };
+		1F1B50482B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */; };
+		1F1B50492B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */; };
+		1F1B504A2B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */; };
+		1F1B504B2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */; };
+		1F1B504C2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */; };
+		1F1B504D2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */; };
 		1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */; };
 		1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */; };
@@ -554,6 +562,10 @@
 /* Begin PBXFileReference section */
 		1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftMarkdownObjCBridge.swift; sourceTree = "<group>"; };
 		1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCZoomableView.swift; sourceTree = "<group>"; };
+		1F1B50422B9095C900B0F2F4 /* FederatedCapabilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FederatedCapabilities.h; sourceTree = "<group>"; };
+		1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FederatedCapabilities.m; sourceTree = "<group>"; };
+		1F1B50452B90CDE600B0F2F4 /* TalkCapabilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TalkCapabilities.h; sourceTree = "<group>"; };
+		1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TalkCapabilities.m; sourceTree = "<group>"; };
 		1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VLCKitVideoViewController.xib; sourceTree = "<group>"; };
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
@@ -1430,8 +1442,12 @@
 				2C40281422832EED0000DDFC /* NCDatabaseManager.m */,
 				2C4446D12658147900DF1DBC /* TalkAccount.h */,
 				2C4446D22658147900DF1DBC /* TalkAccount.m */,
+				1F1B50452B90CDE600B0F2F4 /* TalkCapabilities.h */,
+				1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */,
 				2C4446D6265814D100DF1DBC /* ServerCapabilities.h */,
 				2C4446D7265814D100DF1DBC /* ServerCapabilities.m */,
+				1F1B50422B9095C900B0F2F4 /* FederatedCapabilities.h */,
+				1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */,
 				2C4446DB2658158000DF1DBC /* NCChatBlock.h */,
 				2C4446DC2658158000DF1DBC /* NCChatBlock.m */,
 				1FD9182828C55A73009092AB /* BGTaskHelper.swift */,
@@ -2522,6 +2538,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F1B504B2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				1F77A5F22AB9A436007B6037 /* EmojiUtils.swift in Sources */,
 				1F77A5FA2AB9A4DF007B6037 /* NCMessageLocationParameter.m in Sources */,
 				1F77A6022AB9A532007B6037 /* CCCertificate.m in Sources */,
@@ -2549,6 +2566,7 @@
 				1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */,
 				1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */,
 				1F77A60A2AB9A5AE007B6037 /* NCUser.m in Sources */,
+				1F1B504A2B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2C6955122B0CE1A10070F6E1 /* NCUtils.swift in Sources */,
 				1FF2FD802AB99E4D000C9905 /* SampleUploader.swift in Sources */,
 				1F77A5F52AB9A4B9007B6037 /* NCAPIController.m in Sources */,
@@ -2599,6 +2617,7 @@
 				2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */,
 				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
+				1F1B50442B9095D100B0F2F4 /* FederatedCapabilities.m in Sources */,
 				2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
@@ -2658,6 +2677,7 @@
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
+				1F1B50472B90CDF800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
@@ -2810,6 +2830,7 @@
 				1F35F8E32AEEBBE000044BDA /* NCChatTitleView.m in Sources */,
 				1FDCC3EE29EC7E8500DEB39B /* AvatarManager.swift in Sources */,
 				2C62B00D24C1BDC1007E460A /* NCPushNotification.m in Sources */,
+				1F1B50492B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */,
 				2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				1F35F8ED2AEEBC1600044BDA /* UIView+SLKAdditions.m in Sources */,
@@ -2844,6 +2865,7 @@
 				2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */,
 				1F35F8F32AEEC29A00044BDA /* AvatarButton.swift in Sources */,
 				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				1F1B504C2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				1FB78E282B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
 				2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */,
 				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
@@ -2869,6 +2891,7 @@
 				1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
+				1F1B504D2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */,
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
@@ -2888,6 +2911,7 @@
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4446ED265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
+				1F1B50482B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */,
 				2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */,
 				2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */,

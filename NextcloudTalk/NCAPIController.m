@@ -635,11 +635,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *dataDictionary = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSString *sessionId = [dataDictionary objectForKey:@"sessionId"];
+
+        NSHTTPURLResponse *response = ((NSHTTPURLResponse *)[task response]);
+        NSDictionary *headers = [self getResponseHeaders:response];
+
+        [self checkProxyResponseHeaders:headers forAccount:account forRoom:token];
+
         // Room object is returned only since Talk 11
         NCRoom *room = nil;
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms forAccountId:account.accountId]) {
             room = [NCRoom roomWithDictionary:dataDictionary andAccountId:account.accountId];
         }
+
         if (block) {
             block(sessionId, room, nil, 0);
         }
@@ -3445,6 +3452,28 @@ NSInteger const kReceivedChatMessagesLimit = 100;
             [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:account.accountId withHash:configurationHash];
         }
     }
+}
+
+- (void)checkProxyResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account forRoom:(NSString *)token
+{
+    NSString *proxyHash = [headers objectForKey:@"X-Nextcloud-Talk-Proxy-Hash"];
+
+    if (!proxyHash) {
+        return;
+    }
+
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, account.accountId];
+    NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
+
+    if (!managedRoom || [proxyHash isEqualToString:managedRoom.lastReceivedProxyHash]) {
+        return;
+    }
+
+    [self getRoomCapabilitiesFor:account.accountId token:token completionBlock:^(NSDictionary<NSString *,id> * _Nullable capabilities, NSString * _Nullable proxyHash) {
+        if (capabilities && proxyHash) {
+            [[NCDatabaseManager sharedInstance] setFederatedCapabilities:capabilities forAccountId:account.accountId remoteServer:managedRoom.remoteServer roomToken:token withProxyHash:proxyHash];
+        }
+    }];
 }
 
 #pragma mark - NKCommon Delegate

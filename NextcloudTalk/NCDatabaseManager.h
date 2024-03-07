@@ -24,6 +24,9 @@
 
 #import "TalkAccount.h"
 #import "ServerCapabilities.h"
+#import "FederatedCapabilities.h"
+
+@class NCRoom;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -88,6 +91,7 @@ extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kMinimumRequiredTalkCapability;
 
 extern NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange;
+extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 
 @interface NCTranslation : NSObject
 @property (nonatomic, copy) NSString *from;
@@ -119,6 +123,15 @@ extern NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange;
 - (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(NSString *)hash;
 - (void)updateLastModifiedSinceForAccountId:(NSString *)accountId with:(nonnull NSString *)modifiedSince;
 
+// FederatedCapabilities
+- (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken;
+- (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilitiesDict forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken withProxyHash:(NSString *)proxyHash;
+
+// RoomCapabilities
+- (BOOL)roomHasTalkCapability:(NSString *)capability forRoom:(NCRoom *)room;
+- (TalkCapabilities * __nullable)roomTalkCapabilitiesForRoom:(NCRoom *)room;
+
+// ServerCapabilities
 - (ServerCapabilities *)serverCapabilities;
 - (ServerCapabilities *)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;

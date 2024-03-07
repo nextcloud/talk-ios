@@ -69,7 +69,7 @@ import UIKit
             startCall(withVideo: video, silently: false, button: button)
         }
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySilentCall) {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilitySilentCall, for: self.room) {
             let silentCall = UIAction(title: NSLocalizedString("Call without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
                 button.showIndicator()
                 startCall(withVideo: video, silently: true, button: button)
@@ -142,6 +142,7 @@ import UIKit
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveUpdateMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveUpdateMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveHistoryCleared(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveHistoryCleared, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMessagesInBackground(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveMessagesInBackground, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeRoomCapabilities(notification:)), name: NSNotification.Name.NCDatabaseManagerRoomCapabilitiesChanged, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantJoin(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveJoinOfParticipant, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantLeave(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveLeaveOfParticipant, object: nil)
@@ -169,9 +170,18 @@ import UIKit
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        if NCSettingsController.sharedInstance().callsEnabledCapability() &&
-            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf {
+        if NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)?.callEnabled ?? false &&
+            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf,
+            !room.isFederated() {
+
             self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
+        }
+
+        // No sharing options in federation v1
+        if room.isFederated() {
+            // When hiding the button it is still respected in the layout constraints
+            // So we need to remove the image to remove the button for now
+            self.leftButton.setImage(nil, for: .normal)
         }
 
         // Disable room info, input bar and call buttons until joining room
@@ -321,7 +331,7 @@ import UIKit
             // Disable call buttons
             self.videoCallButton.isEnabled = false
             self.voiceCallButton.isEnabled = false
-        } else if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatPermission), (room.permissions & NCPermission.chat.rawValue) == 0 {
+        } else if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room), (room.permissions & NCPermission.chat.rawValue) == 0 {
             // Hide text input
             self.setTextInputbarHidden(true, animated: isVisible)
         } else if self.isTextInputbarHidden {
@@ -361,7 +371,7 @@ import UIKit
             }
 
             // Room description
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription), !self.room.roomDescription.isEmpty {
+            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRoomDescription, for: room), !self.room.roomDescription.isEmpty {
                 placeholderText += "\n\n" + self.room.roomDescription
             }
 
@@ -483,7 +493,7 @@ import UIKit
         // Create temporary message
         let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: parentMessage, messageParameters: messageParameters, silently: silently)
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReferenceId) {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
             self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
         }
 
@@ -500,7 +510,10 @@ import UIKit
         }
 
         // If in offline mode, we don't want to show the voice button
-        if !offlineMode, !canPress && !presentedInCall && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityVoiceMessage) {
+        if !offlineMode, !canPress, !presentedInCall,
+           NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityVoiceMessage, for: room),
+           !room.isFederated() {
+
             self.showVoiceMessageRecordButton()
             return true
         }
@@ -1100,6 +1113,19 @@ import UIKit
         self.checkForNewStoredMessages()
     }
 
+    // MARK: - Database controller notifications
+
+    func didChangeRoomCapabilities(notification: Notification) {
+        guard let token = notification.userInfo?["roomToken"] as? String else { return }
+
+        if token != self.room.token {
+            return
+        }
+
+        self.tableView?.reloadData()
+        self.checkRoomControlsAvailability()
+    }
+
     // MARK: - External signaling controller notifications
 
     func didUpdateParticipants(notification: Notification) {
@@ -1109,8 +1135,8 @@ import UIKit
             return
         }
 
-        let serverSupportsConversationPermissions = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationPermissions) ||
-                                                    NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag)
+        let serverSupportsConversationPermissions = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityConversationPermissions, for: room) ||
+                                                    NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityDirectMentionFlag, for: room)
 
         guard serverSupportsConversationPermissions else { return }
 
@@ -1142,9 +1168,10 @@ import UIKit
         let displayName = notification.userInfo?["displayName"] as? String ?? NSLocalizedString("Guest", comment: "")
 
         // Don't show a typing indicator for ourselves or if typing indicator setting is disabled
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)
+        else { return }
 
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let userId = notification.userInfo?["userId"] as? String
 
         if userId == activeAccount.userId || serverCapabilities.typingPrivacy {
@@ -1219,8 +1246,8 @@ import UIKit
 
     func shouldPresentLobbyView() -> Bool {
         let serverSupportsConversationPermissions =
-        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationPermissions) ||
-        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag)
+        NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityConversationPermissions, for: room) ||
+        NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityDirectMentionFlag, for: room)
 
         if serverSupportsConversationPermissions, (self.room.permissions & NCPermission.canIgnoreLobby.rawValue) != 0 {
             return false
@@ -1313,7 +1340,7 @@ import UIKit
     }
 
     func isMessageReactable(message: NCChatMessage) -> Bool {
-        var isReactable = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityReactions)
+        var isReactable = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityReactions, for: room)
         isReactable = isReactable && !self.offlineMode
         isReactable = isReactable && self.room.readOnlyState != NCRoomReadOnlyStateReadOnly
         isReactable = isReactable && !message.isDeletedMessage() && !message.isCommandMessage() && !message.sendingFailed && !message.isTemporary
@@ -1419,7 +1446,7 @@ import UIKit
     }
 
     override func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
-        let hasChatPermissions = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatPermission) || (self.room.permissions & NCPermission.chat.rawValue) != 0
+        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || (self.room.permissions & NCPermission.chat.rawValue) != 0
 
         guard hasChatPermissions && self.isMessageReactable(message: message) else { return nil }
 
@@ -1520,7 +1547,7 @@ import UIKit
 
         var actions: [UIMenuElement] = []
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let hasChatPermissions = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatPermission) || (self.room.permissions & NCPermission.chat.rawValue) != 0
+        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || (self.room.permissions & NCPermission.chat.rawValue) != 0
 
         // Show edit information
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
@@ -1555,14 +1582,14 @@ import UIKit
 
         // Note to self
         if message.file() == nil, message.poll() == nil, !message.isDeletedMessage(), room.type != kNCRoomTypeNoteToSelf,
-           NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityNoteToSelf) {
+           NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNoteToSelf, for: room) {
             actions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
                 self.didPressNoteToSelf(for: message)
             })
         }
 
         // Remind me later
-        if !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRemindMeLater) {
+        if !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
             let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
                 NCAPIController.sharedInstance().getReminderFor(message) { [weak self] response, error in
                     guard let self else { return }

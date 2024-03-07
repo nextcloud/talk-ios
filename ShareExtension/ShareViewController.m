@@ -120,7 +120,7 @@
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     configuration.fileURL = databaseURL;
     configuration.schemaVersion= kTalkDatabaseSchemaVersion;
-    configuration.objectClasses = @[TalkAccount.class, ServerCapabilities.class, NCRoom.class];
+    configuration.objectClasses = @[TalkAccount.class, NCRoom.class, ServerCapabilities.class, FederatedCapabilities.class];
     configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
     };
@@ -140,6 +140,15 @@
 
         if (managedRoom) {
             NCRoom *room = [[NCRoom alloc] initWithValue:managedRoom];
+
+            if ([room isFederated]) {
+                [self showFederatedAlert];
+
+                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+                [self.extensionContext cancelRequestWithError:error];
+                return;
+            }
+
             NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", room.accountId];
             TalkAccount *managedAccount = [TalkAccount objectsInRealm:_realm withPredicate:query].firstObject;
 
@@ -567,10 +576,17 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
     if (tableView == _resultTableViewController.tableView) {
         room = [_filteredRooms objectAtIndex:indexPath.row];
+    }
+
+    if ([room isFederated]) {
+        [self showFederatedAlert];
+        return;
     }
 
     BOOL hasChatPermission = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] || (room.permissions & NCPermissionChat) != 0;
@@ -596,13 +612,27 @@
     [self.navigationController pushViewController:shareConfirmationVC animated:YES];
 }
 
-
-
 - (void)showChatPermissionAlert
 {
     UIAlertController * alert = [UIAlertController
                                  alertControllerWithTitle:NSLocalizedString(@"Cannot share to conversation", nil)
                                  message:NSLocalizedString(@"Either you don't have chat permission or the conversation is read-only.", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"OK", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+
+    [alert addAction:okButton];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)showFederatedAlert
+{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:NSLocalizedString(@"Cannot share to conversation", nil)
+                                 message:NSLocalizedString(@"Sharing to a federated conversation is not supported.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
 
     UIAlertAction* okButton = [UIAlertAction

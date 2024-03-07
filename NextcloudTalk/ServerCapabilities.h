@@ -21,11 +21,11 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <Realm/Realm.h>
+#import "TalkCapabilities.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ServerCapabilities : RLMObject
+@interface ServerCapabilities : TalkCapabilities
 
 @property NSString *accountId;
 @property NSString *name;
@@ -47,26 +47,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *edition;
 @property BOOL userStatus;
 @property BOOL extendedSupport;
-@property RLMArray<RLMString> *talkCapabilities;
-@property NSInteger chatMaxLength;
-@property NSString *translations;
-@property BOOL hasTranslationProviders;
-@property BOOL canCreate;
-@property BOOL attachmentsAllowed;
-@property NSString *attachmentsFolder;
-@property BOOL readStatusPrivacy;
-@property BOOL typingPrivacy;
 @property BOOL accountPropertyScopesVersion2;
 @property BOOL accountPropertyScopesFederationEnabled;
 @property BOOL accountPropertyScopesFederatedEnabled;
 @property BOOL accountPropertyScopesPublishedEnabled;
-@property BOOL callEnabled;
-@property RLMArray<RLMString> *callReactions;
-@property NSString *talkVersion;
 @property NSString *externalSignalingServerVersion;
 @property BOOL guestsAppEnabled;
 @property BOOL referenceApiSupported;
-@property BOOL recordingEnabled;
 @property RLMArray<RLMString> *notificationsCapabilities;
 
 @end

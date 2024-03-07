@@ -473,7 +473,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     [self removeExpiredMessages];
     
     NSInteger lastReadMessageId = 0;
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadMarker]) {
+    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityChatReadMarker forRoom:self.room]) {
         lastReadMessageId = _room.lastReadMessage;
     }
     
