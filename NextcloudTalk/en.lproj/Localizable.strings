@@ -1574,6 +1574,9 @@
 "Shared location" = "Shared location";
 
 /* No comment provided by engineer. */
+"Sharing to a federated conversation is not supported." = "Sharing to a federated conversation is not supported.";
+
+/* No comment provided by engineer. */
 "Show list of open conversations" = "Show list of open conversations";
 
 /* No comment provided by engineer. */
