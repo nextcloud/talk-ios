@@ -503,7 +503,10 @@ import UIKit
         }
 
         // If in offline mode, we don't want to show the voice button
-        if !offlineMode, !canPress && !presentedInCall && NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityVoiceMessage, for: room) {
+        if !offlineMode, !canPress, !presentedInCall,
+           NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityVoiceMessage, for: room),
+           !room.isFederated() {
+
             self.showVoiceMessageRecordButton()
             return true
         }
