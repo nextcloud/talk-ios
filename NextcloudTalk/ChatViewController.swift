@@ -177,6 +177,13 @@ import UIKit
             self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
         }
 
+        // No sharing options in federation v1
+        if room.isFederated() {
+            // When hiding the button it is still respected in the layout constraints
+            // So we need to remove the image to remove the button for now
+            self.leftButton.setImage(nil, for: .normal)
+        }
+
         // Disable room info, input bar and call buttons until joining room
         self.disableRoomControls()
     }
