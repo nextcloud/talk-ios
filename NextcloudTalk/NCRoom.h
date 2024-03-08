@@ -158,7 +158,6 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, assign) BOOL recordingConsent;
 @property (nonatomic, copy) NSString *remoteServer;
 @property (nonatomic, copy) NSString *remoteToken;
-@property (nonatomic, copy) NSString *remoteAccessToken;
 @property (nonatomic, copy) NSString *lastReceivedProxyHash;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;

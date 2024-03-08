@@ -82,7 +82,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     room.recordingConsent = [[roomDict objectForKey:@"recordingConsent"] integerValue];
     room.remoteServer = [roomDict objectForKey:@"remoteServer"];
     room.remoteToken = [roomDict objectForKey:@"remoteToken"];
-    room.remoteAccessToken = [roomDict objectForKey:@"remoteAccessToken"];
 
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -217,7 +216,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.recordingConsent = room.recordingConsent;
     managedRoom.remoteToken = room.remoteToken;
     managedRoom.remoteServer = room.remoteServer;
-    managedRoom.remoteAccessToken = room.remoteAccessToken;
 }
 
 + (NSString *)primaryKey {
@@ -231,7 +229,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
 - (BOOL)isFederated
 {
-    return self.remoteToken.length > 0 && self.remoteServer.length > 0 && self.remoteAccessToken > 0;
+    return self.remoteToken.length > 0 && self.remoteServer.length > 0;
 }
 
 - (BOOL)isBreakoutRoom
