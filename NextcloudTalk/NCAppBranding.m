@@ -46,7 +46,7 @@ BOOL const multiAccountEnabled = YES;
 BOOL const useAppsGroup = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
-NSString * const appAlternateVersion = @"19.0.0 Alpha 1";
+NSString * const appAlternateVersion = @"19.0.0 Beta 1";
 
 + (NSString *)getAppVersionString
 {
