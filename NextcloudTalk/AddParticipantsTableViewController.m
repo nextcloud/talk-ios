@@ -406,7 +406,7 @@
     }
     
     cell.labelTitle.text = participant.name;
-    [cell.contactImage setActorAvatarForId:participant.userId withType:participant.source withDisplayName:participant.name withStyle:self.traitCollection.userInterfaceStyle];
+    [cell.contactImage setActorAvatarForId:participant.userId withType:participant.source withDisplayName:participant.name withRoomToken:_room.token];
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];

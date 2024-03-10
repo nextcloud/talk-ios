@@ -211,7 +211,7 @@ typedef enum RoomSearchSection {
         [cell.roomImage setImageWithURL:thumbnailURL placeholderImage:nil];
         cell.roomImage.contentMode = UIViewContentModeScaleToFill;
     } else {
-        [cell.roomImage setActorAvatarForId:actorId withType:actorType withDisplayName:@"" withStyle:self.traitCollection.userInterfaceStyle];
+        [cell.roomImage setActorAvatarForId:actorId withType:actorType withDisplayName:@"" withRoomToken:nil];
     }
     
     // Clear possible content not removed by cell reuse
@@ -252,7 +252,7 @@ typedef enum RoomSearchSection {
 
     cell.titleLabel.text = user.name;
     cell.titleOnly = YES;
-    [cell.roomImage setActorAvatarForId:user.userId withType:user.source withDisplayName:user.name withStyle:self.traitCollection.userInterfaceStyle];
+    [cell.roomImage setActorAvatarForId:user.userId withType:user.source withDisplayName:user.name withRoomToken:nil];
 
     return cell;
 }

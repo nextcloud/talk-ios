@@ -41,14 +41,19 @@ import UIKit
     var resultsDetails: [Int: [PollResultDetail]] = [:]
     var sortedOptions: [Int] = []
 
+    public var room: NCRoom
+
     required init?(coder aDecoder: NSCoder) {
         self.poll = NCPoll()
+        self.room = NCRoom()
+        
         super.init(coder: aDecoder)
         self.setupPollResultsDetailsView()
     }
 
-    init(poll: NCPoll) {
+    init(poll: NCPoll, room: NCRoom) {
         self.poll = poll
+        self.room = room
 
         super.init(style: .insetGrouped)
         self.setupPollResultsDetailsView()
@@ -130,7 +135,7 @@ import UIKit
         cell.titleLabel.text = detail.actorDisplayName
 
         // Actor avatar
-        cell.avatarImageView.setActorAvatar(forId: detail.actorId, withType: detail.actorType, withDisplayName: detail.actorDisplayName, withStyle: self.traitCollection.userInterfaceStyle)
+        cell.avatarImageView.setActorAvatar(forId: detail.actorId, withType: detail.actorType, withDisplayName: detail.actorDisplayName, withRoomToken: self.room.token)
 
         return cell
     }

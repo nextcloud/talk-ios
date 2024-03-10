@@ -307,11 +307,11 @@ import UIKit
             return
         }
 
-        guard let poll = poll else {return}
+        guard let poll, let room else {return}
 
         if showPollResults {
             if poll.details.isEmpty {return}
-            let pollResultsDetailsVC = PollResultsDetailsViewController(poll: poll)
+            let pollResultsDetailsVC = PollResultsDetailsViewController(poll: poll, room: room)
             self.navigationController?.pushViewController(pollResultsDetailsVC, animated: true)
         }
 

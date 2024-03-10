@@ -2435,6 +2435,7 @@ import QuickLook
         AudioServicesPlaySystemSound(1519)
 
         let reactionsVC = ReactionsSummaryView(style: .insetGrouped)
+        reactionsVC.room = self.room
         self.presentWithNavigation(reactionsVC, animated: true)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()

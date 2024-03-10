@@ -167,7 +167,7 @@
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [self.avatarButton setActorAvatarForId:message.actorId withType:message.actorType withDisplayName:message.actorDisplayName withStyle:self.traitCollection.userInterfaceStyle];
+    [self.avatarButton setActorAvatarForMessage:message];
 
     _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
    

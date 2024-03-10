@@ -303,7 +303,7 @@ import UIKit
             if suggestionId == "all" {
                 cell.avatarButton.setAvatar(for: self.room, with: self.traitCollection.userInterfaceStyle)
             } else {
-                cell.avatarButton.setActorAvatar(forId: suggestionId, withType: suggestionSource, withDisplayName: suggestionName, withStyle: self.traitCollection.userInterfaceStyle)
+                cell.avatarButton.setActorAvatar(forId: suggestionId, withType: suggestionSource, withDisplayName: suggestionName, withRoomToken: self.room.token)
             }
         }
 

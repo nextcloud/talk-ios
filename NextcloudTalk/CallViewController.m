@@ -1635,7 +1635,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     if (!_chatNavigationController) {
         // Create new chat controller
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:_room.token forAccountId:activeAccount.accountId];
+        NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:_room.token forAccountId:activeAccount.accountId];
         _chatViewController = [[ChatViewController alloc] initFor:room];
         _chatViewController.presentedInCall = YES;
         _chatNavigationController = [[UINavigationController alloc] initWithRootViewController:_chatViewController];

@@ -476,7 +476,7 @@ enum RoomVisibilityOption: Int {
                 participantCell.labelTitle.text = participant.name
 
                 let participantType = participant.source as String
-                participantCell.contactImage.setActorAvatar(forId: participant.userId, withType: participantType, withDisplayName: participant.name, withStyle: self.traitCollection.userInterfaceStyle)
+                participantCell.contactImage.setActorAvatar(forId: participant.userId, withType: participantType, withDisplayName: participant.name, withRoomToken: nil)
 
                 return participantCell
             }

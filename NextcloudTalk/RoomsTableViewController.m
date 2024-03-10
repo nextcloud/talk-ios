@@ -1306,7 +1306,7 @@ typedef enum RoomsSections {
     if (roomToken && messageIdString) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         NSInteger messageId = [messageIdString intValue];
-        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:roomToken forAccountId:activeAccount.accountId];
+        NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:roomToken forAccountId:activeAccount.accountId];
         if (room) {
             [self presentContextChatInRoom:room forMessageId:messageId];
         } else {

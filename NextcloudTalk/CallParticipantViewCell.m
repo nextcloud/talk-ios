@@ -142,7 +142,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:userId]];
     }
 
-    [self.peerAvatarImageView setActorAvatarForId:userId withType:@"users" withDisplayName:@"" withStyle:self.traitCollection.userInterfaceStyle];
+    [self.peerAvatarImageView setActorAvatarForId:userId withType:@"users" withDisplayName:@"" withRoomToken:nil];
 }
 
 - (void)setDisplayName:(NSString *)displayName

@@ -2145,7 +2145,7 @@ typedef enum FileAction {
             cell.labelTitle.text = [self detailedNameForParticipant:participant];
             
             // Avatar
-            [cell.contactImage setActorAvatarForId:participant.actorId withType:participant.actorType withDisplayName:participant.displayName withStyle:self.traitCollection.userInterfaceStyle];
+            [cell.contactImage setActorAvatarForId:participant.actorId withType:participant.actorType withDisplayName:participant.displayName withRoomToken:self.room.token];
 
             // Online status
             if (participant.isOffline) {

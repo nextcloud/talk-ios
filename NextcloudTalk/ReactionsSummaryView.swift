@@ -27,6 +27,8 @@ import UIKit
     var sortedReactions: [String] = []
     var reactionsBackgroundView: PlaceholderView = PlaceholderView(for: .grouped)
 
+    public var room: NCRoom?
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         self.setupReactionsSummaryView()
@@ -112,7 +114,7 @@ import UIKit
         let actor = self.reactions[reaction]?[indexPath.row]
 
         // Actor name
-        var actorDisplayName = actor?["actorDisplayName"] as? String ?? ""
+        let actorDisplayName = actor?["actorDisplayName"] as? String ?? ""
 
         cell.titleLabel.text = actorDisplayName.isEmpty ? NSLocalizedString("Guest", comment: "") : actorDisplayName
 
@@ -120,7 +122,7 @@ import UIKit
         let actorId = actor?["actorId"] as? String ?? ""
         let actorType = actor?["actorType"] as? String ?? ""
 
-        cell.avatarImageView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withStyle: self.traitCollection.userInterfaceStyle)
+        cell.avatarImageView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: self.room?.token)
 
         return cell
     }

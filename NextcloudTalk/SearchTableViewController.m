@@ -119,7 +119,7 @@
     
     cell.labelTitle.text = contact.name;
     
-    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withStyle:self.traitCollection.userInterfaceStyle];
+    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:nil];
     
     return cell;
 }
