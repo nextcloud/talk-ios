@@ -49,7 +49,8 @@ import QuickLook
                                                   FileMessageTableViewCellDelegate,
                                                   LocationMessageTableViewCellDelegate,
                                                   ObjectShareMessageTableViewCellDelegate,
-                                                  ChatMessageTableViewCellDelegate {
+                                                  ChatMessageTableViewCellDelegate,
+                                                  UITableViewDataSourcePrefetching {
 
     // MARK: - Internal var
     internal var messages: [Date: [NCChatMessage]] = [:]
@@ -195,6 +196,7 @@ import QuickLook
         self.hidesBottomBarWhenPushed = true
         self.tableView?.estimatedRowHeight = 0
         self.tableView?.estimatedSectionHeaderHeight = 0
+        self.tableView?.prefetchDataSource = self
 
         FilePreviewImageView.setSharedImageDownloader(NCAPIController.sharedInstance().imageDownloader)
         NotificationCenter.default.addObserver(self, selector: #selector(willShowKeyboard(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
@@ -2511,6 +2513,20 @@ import QuickLook
         }
 
         return headerView
+    }
+
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        guard tableView == self.tableView else { return }
+
+        for indexPath in indexPaths {
+            guard let message = self.message(for: indexPath) else { continue }
+
+            DispatchQueue.global(qos: .userInitiated).async {
+                if message.containsURL() {
+                    message.getReferenceData()
+                }
+            }
+        }
     }
 
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
