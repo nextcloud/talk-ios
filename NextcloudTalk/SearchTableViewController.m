@@ -119,13 +119,7 @@
     
     cell.labelTitle.text = contact.name;
     
-    if ([contact.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setUserAvatarFor:contact.userId with:self.traitCollection.userInterfaceStyle];
-    } else if ([contact.source isEqualToString:kParticipantTypeEmail]) {
-        [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
-    } else {
-        [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
-    }
+    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withStyle:self.traitCollection.userInterfaceStyle];
     
     return cell;
 }

@@ -207,18 +207,11 @@ typedef enum RoomSearchSection {
     NSURL *thumbnailURL = [[NSURL alloc] initWithString:messageEntry.thumbnailURL];
     NSString *actorId = [messageEntry.attributes objectForKey:@"actorId"];
     NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
-    if ([actorType isEqualToString:@"users"] && actorId) {
-        [cell.roomImage setUserAvatarFor:actorId with:self.traitCollection.userInterfaceStyle];
-    } else if ([actorType isEqualToString:@"guests"]) {
-        UIImage *image = [NCUtils getImageWithString:@"?" withBackgroundColor:[UIColor clearColor] withBounds:cell.roomImage.bounds isCircular:YES];
-        [cell.roomImage setImage:image];
-        cell.roomImage.contentMode = UIViewContentModeScaleAspectFit;
-    } else if (thumbnailURL) {
+    if (thumbnailURL && thumbnailURL.absoluteString.length > 0) {
         [cell.roomImage setImageWithURL:thumbnailURL placeholderImage:nil];
         cell.roomImage.contentMode = UIViewContentModeScaleToFill;
     } else {
-        [cell.roomImage setImage:[UIImage imageNamed:@"navigationLogo"]];
-        cell.roomImage.contentMode = UIViewContentModeCenter;
+        [cell.roomImage setActorAvatarForId:actorId withType:actorType withDisplayName:@"" withStyle:self.traitCollection.userInterfaceStyle];
     }
     
     // Clear possible content not removed by cell reuse
@@ -259,7 +252,7 @@ typedef enum RoomSearchSection {
 
     cell.titleLabel.text = user.name;
     cell.titleOnly = YES;
-    [cell.roomImage setUserAvatarFor:user.userId with:self.traitCollection.userInterfaceStyle];
+    [cell.roomImage setActorAvatarForId:user.userId withType:user.source withDisplayName:user.name withStyle:self.traitCollection.userInterfaceStyle];
 
     return cell;
 }

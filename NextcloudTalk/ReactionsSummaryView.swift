@@ -112,20 +112,15 @@ import UIKit
         let actor = self.reactions[reaction]?[indexPath.row]
 
         // Actor name
-        let actorDisplayName = actor?["actorDisplayName"] as? String
-        cell.titleLabel.text = actorDisplayName
+        var actorDisplayName = actor?["actorDisplayName"] as? String ?? ""
+
+        cell.titleLabel.text = actorDisplayName.isEmpty ? NSLocalizedString("Guest", comment: "") : actorDisplayName
 
         // Actor avatar
-        let actorId = actor?["actorId"] as? String
-        let actorType = actor?["actorType"] as? String
-        if let actorId = actorId, actorType == "users" {
-            cell.avatarImageView.setUserAvatar(for: actorId, with: self.traitCollection.userInterfaceStyle)
-        } else {
-            let color = UIColor(red: 0.73, green: 0.73, blue: 0.73, alpha: 1.0) /*#b9b9b9*/
-            let image = NCUtils.getImage(withString: "?", withBackgroundColor: color, withBounds: cell.avatarImageView.bounds, isCircular: true)
-            cell.avatarImageView.image = image
-            cell.avatarImageView.contentMode = .scaleToFill
-        }
+        let actorId = actor?["actorId"] as? String ?? ""
+        let actorType = actor?["actorType"] as? String ?? ""
+
+        cell.avatarImageView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withStyle: self.traitCollection.userInterfaceStyle)
 
         return cell
     }

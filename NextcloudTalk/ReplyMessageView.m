@@ -173,7 +173,7 @@
     self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
     self.quotedMessageView.messageLabel.text = message.parsedMarkdownForChat.string;
     self.quotedMessageView.highlighted = [message isMessageFromUser:userId];
-    [self.quotedMessageView.avatarView setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle];
+    [self.quotedMessageView.avatarView setActorAvatarForId:message.actorId withType:message.actorType withDisplayName:message.actorDisplayName withStyle:self.traitCollection.userInterfaceStyle];
     [self.cancelButton setHidden:NO];
 
     // Reset button size to 44 in case it was hidden before

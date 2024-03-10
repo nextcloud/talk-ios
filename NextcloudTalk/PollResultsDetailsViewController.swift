@@ -130,14 +130,7 @@ import UIKit
         cell.titleLabel.text = detail.actorDisplayName
 
         // Actor avatar
-        if detail.actorType == "users" {
-            cell.avatarImageView.setUserAvatar(for: detail.actorId, with: self.traitCollection.userInterfaceStyle)
-        } else {
-            let color = UIColor(red: 0.73, green: 0.73, blue: 0.73, alpha: 1.0) /*#b9b9b9*/
-            let image = NCUtils.getImage(withString: "?", withBackgroundColor: color, withBounds: cell.avatarImageView.bounds, isCircular: true)
-            cell.avatarImageView.image = image
-            cell.avatarImageView.contentMode = .scaleToFill
-        }
+        cell.avatarImageView.setActorAvatar(forId: detail.actorId, withType: detail.actorType, withDisplayName: detail.actorDisplayName, withStyle: self.traitCollection.userInterfaceStyle)
 
         return cell
     }

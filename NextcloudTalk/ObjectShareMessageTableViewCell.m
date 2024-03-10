@@ -174,7 +174,7 @@
     
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
 
-    [self.avatarButton setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle using:activeAccount];
+    [self.avatarButton setActorAvatarForId:message.actorId withType:message.actorType withDisplayName:message.actorDisplayName withStyle:self.traitCollection.userInterfaceStyle];
     _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
 
     if (message.sendingFailed) {

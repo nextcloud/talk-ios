@@ -75,14 +75,14 @@ import SDWebImage
 
     // MARK: - User avatars
 
-    public func setUserAvatar(for userId: String, with style: UIUserInterfaceStyle) {
-        self.setUserAvatar(for: userId, with: style, using: nil)
+    public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withStyle style: UIUserInterfaceStyle) {
+        self.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withStyle: style, using: nil)
     }
 
-    public func setUserAvatar(for userId: String, with style: UIUserInterfaceStyle, using account: TalkAccount?) {
+    public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withStyle style: UIUserInterfaceStyle, using account: TalkAccount?) {
         self.cancelCurrentRequest()
 
-        self.currentRequest = AvatarManager.shared.getUserAvatar(for: userId, with: style, using: account) { image in
+        self.currentRequest = AvatarManager.shared.getActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withStyle: style, usingAccount: account) { image in
             guard let image = image else {
                 return
             }

@@ -302,14 +302,8 @@ import UIKit
 
             if suggestionId == "all" {
                 cell.avatarButton.setAvatar(for: self.room, with: self.traitCollection.userInterfaceStyle)
-            } else if suggestionSource == "guests" {
-                let name = suggestionName == "Guest" ? "?" : suggestionName
-                let image = NCUtils.getImage(withString: name, withBackgroundColor: NCAppBranding.placeholderColor(), withBounds: cell.avatarButton.bounds, isCircular: true)
-                cell.avatarButton.setImage(image, for: .normal)
-            } else if suggestionSource == "groups" {
-                cell.avatarButton.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
             } else {
-                cell.avatarButton.setUserAvatar(for: suggestionId, with: self.traitCollection.userInterfaceStyle)
+                cell.avatarButton.setActorAvatar(forId: suggestionId, withType: suggestionSource, withDisplayName: suggestionName, withStyle: self.traitCollection.userInterfaceStyle)
             }
         }
 

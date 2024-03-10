@@ -406,14 +406,7 @@
     }
     
     cell.labelTitle.text = participant.name;
-    
-    if ([participant.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setUserAvatarFor:participant.userId with:self.traitCollection.userInterfaceStyle];
-    } else if ([participant.source isEqualToString:kParticipantTypeEmail]) {
-        [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
-    } else {
-        [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
-    }
+    [cell.contactImage setActorAvatarForId:participant.userId withType:participant.source withDisplayName:participant.name withStyle:self.traitCollection.userInterfaceStyle];
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];

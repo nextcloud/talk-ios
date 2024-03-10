@@ -313,19 +313,12 @@
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
-    
+
+    [self.avatarButton setActorAvatarForId:message.actorId withType:message.actorType withDisplayName:message.actorDisplayName withStyle:self.traitCollection.userInterfaceStyle];
+    self.avatarButton.menu = [super getDeferredUserMenuForMessage:message];
+
     if ([message.actorType isEqualToString:@"guests"]) {
         self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
-        [self setGuestAvatar:message.actorDisplayName];
-    } else if ([message.actorType isEqualToString:@"bots"]) {
-        if ([message.actorId isEqualToString:@"changelog"]) {
-            [self setChangelogAvatar];
-        } else {
-            [self setBotAvatar];
-        }
-    } else {
-        [self.avatarButton setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle using:activeAccount];
-        _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
     }
     
     // This check is just a workaround to fix the issue with the deleted parents returned by the API.
@@ -334,7 +327,7 @@
         self.quotedMessageView.actorLabel.text = ([parent.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : parent.actorDisplayName;
         self.quotedMessageView.messageLabel.text = parent.parsedMarkdownForChat.string;
         self.quotedMessageView.highlighted = [parent isMessageFromUser:activeAccount.userId];
-        [self.quotedMessageView.avatarView setUserAvatarFor:parent.actorId with:self.traitCollection.userInterfaceStyle];
+        [self.quotedMessageView.avatarView setActorAvatarForId:parent.actorId withType:parent.actorType withDisplayName:parent.actorDisplayName withStyle:self.traitCollection.userInterfaceStyle];
     }
     
     if (message.isDeleting) {
