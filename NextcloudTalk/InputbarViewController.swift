@@ -313,6 +313,7 @@ import UIKit
             }
         }
 
+        cell.accessibilityIdentifier = AutoCompletionCellIdentifier
         return cell
     }
 
@@ -397,7 +398,7 @@ import UIKit
                     }
 
                     // Delete mention
-                    let range = NSRange(location: cursorOffset - lastPossibleMention.count, length: lastPossibleMention.count)
+                    let range = NSRange(location: cursorOffset - lastPossibleMention.utf16.count, length: lastPossibleMention.utf16.count)
                     textView.text = (text as NSString).replacingCharacters(in: range, with: "")
 
                     // Only delete it from mentionsDict if there are no more mentions for that user/room
