@@ -120,10 +120,9 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 - (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm {
     // Add or update messages
     for (NSDictionary *messageDict in messages) {
+        // messageWithDictionary takes care of setting a potential available parentId
         NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:_account.accountId];
-        NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
-        message.parentId = parent.internalId;
-        
+
         if (message.referenceId && ![message.referenceId isEqualToString:@""]) {
             NCChatMessage *managedTemporaryMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", message.referenceId].firstObject;
             if (managedTemporaryMessage) {
@@ -138,8 +137,10 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             [realm addObject:message];
         }
         
+        NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
         NCChatMessage *managedParentMessage = [NCChatMessage objectsWhere:@"internalId = %@", parent.internalId].firstObject;
         if (managedParentMessage) {
+            // updateChatMessage takes care of not setting a parentId to nil if there was one before
             [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent isRoomLastMessage:NO];
         } else if (parent) {
             [realm addObject:parent];

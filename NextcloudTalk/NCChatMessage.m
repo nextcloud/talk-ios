@@ -145,6 +145,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     if (message) {
         message.accountId = accountId;
         message.internalId = [NSString stringWithFormat:@"%@@%@@%ld", accountId, message.token, (long)message.messageId];
+
+        NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:accountId];
+        message.parentId = parent.internalId;
     }
     
     return message;
