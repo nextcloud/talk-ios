@@ -112,7 +112,7 @@ enum RoomVisibilityOption: Int {
         self.tableView.tableHeaderView = self.headerView
         self.tableView.keyboardDismissMode = .onDrag
 
-        self.participantsSectionHeaderView.button.setTitle(NSLocalizedString("Edit", comment: "Edit room participants"), for: .normal)
+        self.participantsSectionHeaderView.button.setTitle(NSLocalizedString("Edit", comment: "Edit a message or room participants"), for: .normal)
         self.participantsSectionHeaderView.button.addTarget(self, action: #selector(editParticipantsButtonPressed), for: .touchUpInside)
 
         self.createButton = UIBarButtonItem(title: NSLocalizedString("Create", comment: ""), style: .done, target: self, action: #selector(createRoom))
@@ -351,7 +351,7 @@ enum RoomVisibilityOption: Int {
     }
 
     func presentRoomCreationFailedErrorDialog() {
-        let alert = UIAlertController(title: NSLocalizedString("Room creation failed", comment: ""),
+        let alert = UIAlertController(title: NSLocalizedString("Conversation creation failed", comment: ""),
                                       message: self.roomCreationErrors.joined(separator: "\n"),
                                       preferredStyle: .alert)
 
