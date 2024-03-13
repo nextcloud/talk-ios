@@ -2472,7 +2472,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)setAvatarForRoom:(NCRoom *)room withImage:(UIImage *)image withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-    NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    return [self setAvatarForRoomWithToken:room.token image:image account:account withCompletionBlock:block];
+}
+
+- (NSURLSessionDataTask *)setAvatarForRoomWithToken:(NSString *)token image:(UIImage *)image account:(TalkAccount *)account withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar", encodedToken];
     NSInteger avatarAPIVersion = 1;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
@@ -2509,7 +2514,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)setEmojiAvatarForRoom:(NCRoom *)room withEmoji:(NSString *)emoji andColor:(NSString *)color withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-    NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    return [self setEmojiAvatarForRoomWithToken:room.token withEmoji:emoji andColor:color account:account withCompletionBlock:block];
+}
+
+- (NSURLSessionDataTask *)setEmojiAvatarForRoomWithToken:(NSString *)token withEmoji:(NSString *)emoji andColor:(NSString *)color account:(TalkAccount *)account withCompletionBlock:(SetAvatarForConversationWithImageCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"room/%@/avatar/emoji", encodedToken];
     NSInteger avatarAPIVersion = 1;
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];

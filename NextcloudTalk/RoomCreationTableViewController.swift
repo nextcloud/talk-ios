@@ -65,6 +65,9 @@ enum RoomVisibilityOption: Int {
     var selectedEmojiBackgroundColor: String?
     var selectedEmojiImage: UIImage?
 
+    var roomCreationGroup = DispatchGroup()
+    var roomCreationErrors: [String] = []
+
     init(account: TalkAccount) {
         self.account = account
         self.headerView = AvatarEditView()
@@ -233,17 +236,111 @@ enum RoomVisibilityOption: Int {
 
     func createRoom() {
         self.showModifyingView()
+        self.roomCreationErrors = []
 
+        // Create conversation
         let roomType = self.isPublic ? kNCRoomTypePublic : kNCRoomTypeGroup
-
         NCAPIController.sharedInstance().createRoom(for: self.account, with: nil, of: roomType, andName: self.roomName) { token, error in
-            if error == nil, let token = token {
+            if let error {
+                NCUtils.log(String(format: "Failed to create room. Error: %@", error.localizedDescription))
+                self.roomCreationErrors.append(error.localizedDescription)
+
+                self.removeModifyingView()
+                self.presentRoomCreationFailedErrorDialog()
+            } else if let token = token {
+                self.setAdditionalRoomSettings(token: token)
+            }
+        }
+    }
+
+    func setAdditionalRoomSettings(token: String) {
+
+        self.roomCreationGroup = DispatchGroup()
+        self.roomCreationErrors = []
+
+        // Room avatar
+        if self.selectedAvatarImage != nil {
+            self.roomCreationGroup.enter()
+            NCAPIController.sharedInstance().setAvatarForRoomWithToken(token, image: self.selectedAvatarImage, account: self.account) { error in
+                if let error {
+                    NCUtils.log(String(format: "Failed to set room avatar. Error: %@", error.localizedDescription))
+                    self.roomCreationErrors.append(error.localizedDescription)
+                }
+
+                self.roomCreationGroup.leave()
+            }
+        } else if self.selectedEmojiImage != nil {
+            self.roomCreationGroup.enter()
+            NCAPIController.sharedInstance().setEmojiAvatarForRoomWithToken(token, withEmoji: self.selectedEmoji, andColor: self.selectedEmojiBackgroundColor, account: self.account) { error in
+                if let error {
+                    NCUtils.log(String(format: "Failed to set room emoji avatar. Error: %@", error.localizedDescription))
+                    self.roomCreationErrors.append(error.localizedDescription)
+                }
+
+                self.roomCreationGroup.leave()
+            }
+        }
+
+        // Room description
+        if !self.roomDescription.isEmpty {
+            self.roomCreationGroup.enter()
+            NCAPIController.sharedInstance().setRoomDescription(self.roomDescription, forRoom: token, for: account) { error in
+                if let error {
+                    NCUtils.log(String(format: "Failed to set room description. Error: %@", error.localizedDescription))
+                    self.roomCreationErrors.append(error.localizedDescription)
+                }
+
+                self.roomCreationGroup.leave()
+            }
+        }
+
+        // Room participants
+        for participant in roomParticipants {
+            self.roomCreationGroup.enter()
+            NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source as String?, toRoom: token, for: account) { error in
+                if let error {
+                    NCUtils.log(String(format: "Failed to add participant. Error: %@", error.localizedDescription))
+                    self.roomCreationErrors.append(error.localizedDescription)
+                }
+
+                self.roomCreationGroup.leave()
+            }
+        }
+
+        // Room settings
+        if self.isOpenConversation {
+            self.roomCreationGroup.enter()
+            let listableScope = self.isOpenForGuests ? NCRoomListableScopeEveryone : NCRoomListableScopeRegularUsersOnly
+            NCAPIController.sharedInstance().setListableScope(listableScope, forRoom: token, for: self.account) { error in
+                if let error {
+                    NCUtils.log(String(format: "Failed to set listable scope. Error: %@", error.localizedDescription))
+                    self.roomCreationErrors.append(error.localizedDescription)
+                }
+
+                self.roomCreationGroup.leave()
+            }
+        }
+
+        self.roomCreationGroup.notify(queue: .main) {
+            self.removeModifyingView()
+
+            if self.roomCreationErrors.isEmpty {
                 self.dismiss(animated: true)
                 NotificationCenter.default.post(name: NSNotification.Name.NCRoomCreated, object: self, userInfo: ["token": token])
+            } else {
+                self.presentRoomCreationFailedErrorDialog()
             }
-
-            self.removeModifyingView()
         }
+    }
+
+    func presentRoomCreationFailedErrorDialog() {
+        let alert = UIAlertController(title: NSLocalizedString("Room creation failed", comment: ""),
+                                      message: self.roomCreationErrors.joined(separator: "\n"),
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+
+        self.present(alert, animated: true)
     }
 
     // MARK: - Room participants
@@ -423,6 +520,7 @@ enum RoomVisibilityOption: Int {
             self.tableView.reloadSections([index], with: .automatic)
         }
     }
+
     // MARK: - Present camera/photo library
 
     func checkAndPresentCamera() {
