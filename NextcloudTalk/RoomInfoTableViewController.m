@@ -1694,7 +1694,7 @@ typedef enum FileAction {
                 cell.roomNameTextField.text = _room.displayName;
             }
 
-            [cell.roomImage setAvatarFor:_room with:self.traitCollection.userInterfaceStyle];
+            [cell.roomImage setAvatarFor:_room];
 
             if (_room.hasCall) {
                 [cell.favoriteImage setTintColor:[UIColor systemRedColor]];

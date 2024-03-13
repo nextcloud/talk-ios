@@ -170,9 +170,9 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
 
         cell.labelTitle.text = openConversation.displayName
         // Set group avatar as default avatar
-        cell.contactImage.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
+        cell.contactImage.setGroupAvatar()
         // Try to get room avatar even though at the moment (Talk 17) it is not exposed
-        cell.contactImage.setAvatar(for: openConversation, with: self.traitCollection.userInterfaceStyle)
+        cell.contactImage.setAvatar(for: openConversation)
 
         return cell
     }

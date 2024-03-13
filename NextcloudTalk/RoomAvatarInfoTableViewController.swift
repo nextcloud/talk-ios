@@ -97,7 +97,7 @@ enum RoomAvatarInfoSection: Int {
     }
 
     func updateHeaderView() {
-        self.headerView.avatarImageView.setAvatar(for: self.room, with: self.traitCollection.userInterfaceStyle)
+        self.headerView.avatarImageView.setAvatar(for: self.room)
 
         self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: self.room.accountId)
         self.headerView.trashButton.isHidden = !self.room.isCustomAvatar

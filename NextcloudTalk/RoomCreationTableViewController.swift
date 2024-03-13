@@ -139,7 +139,7 @@ enum RoomVisibilityOption: Int {
         } else if self.selectedEmojiImage != nil {
             self.headerView.avatarImageView.image = self.selectedEmojiImage
         } else {
-            self.headerView.avatarImageView.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
+            self.headerView.avatarImageView.setGroupAvatar()
         }
 
         self.headerView.trashButton.isHidden = self.selectedAvatarImage == nil && self.selectedEmojiImage == nil

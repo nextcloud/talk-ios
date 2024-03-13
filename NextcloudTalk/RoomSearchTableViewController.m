@@ -345,7 +345,7 @@ typedef enum RoomSearchSection {
         [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
-    [cell.roomImage setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
+    [cell.roomImage setAvatarFor:room];
 
     // Set favorite or call image
     if (room.hasCall) {

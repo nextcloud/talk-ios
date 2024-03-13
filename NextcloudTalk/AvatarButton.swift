@@ -51,10 +51,10 @@ import SDWebImage
 
     // MARK: - Conversation avatars
 
-    public func setAvatar(for room: NCRoom, with style: UIUserInterfaceStyle) {
+    public func setAvatar(for room: NCRoom) {
         self.cancelCurrentRequest()
 
-        self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: style) { image in
+        self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: self.traitCollection.userInterfaceStyle) { image in
             guard let image = image else {
                 return
             }
@@ -63,8 +63,8 @@ import SDWebImage
         }
     }
 
-    public func setGroupAvatar(with style: UIUserInterfaceStyle) {
-        if let image = AvatarManager.shared.getGroupAvatar(with: style) {
+    public func setGroupAvatar() {
+        if let image = AvatarManager.shared.getGroupAvatar(with: self.traitCollection.userInterfaceStyle) {
             self.setImage(image, for: .normal)
         }
     }
