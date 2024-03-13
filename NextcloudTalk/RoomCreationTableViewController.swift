@@ -65,6 +65,10 @@ enum RoomVisibilityOption: Int {
     var selectedEmojiBackgroundColor: String?
     var selectedEmojiImage: UIImage?
 
+    let kRoomNameTextFieldTag = 99
+    let kPasswordTextFieldTag = 98
+    var setPasswordAction = UIAlertAction()
+
     var roomCreationGroup = DispatchGroup()
     var roomCreationErrors: [String] = []
 
@@ -307,7 +311,20 @@ enum RoomVisibilityOption: Int {
             }
         }
 
-        // Room settings
+        // Room password
+        if !self.roomPassword.isEmpty {
+            self.roomCreationGroup.enter()
+            NCAPIController.sharedInstance().setPassword(self.roomPassword, toRoom: token, for: self.account) { error, _ in
+                if let error {
+                    NCUtils.log(String(format: "Failed to set room password. Error: %@", error.localizedDescription))
+                    self.roomCreationErrors.append(error.localizedDescription)
+                }
+
+                self.roomCreationGroup.leave()
+            }
+        }
+
+        // Room listable scope
         if self.isOpenConversation {
             self.roomCreationGroup.enter()
             let listableScope = self.isOpenForGuests ? NCRoomListableScopeEveryone : NCRoomListableScopeRegularUsersOnly
@@ -352,6 +369,40 @@ enum RoomVisibilityOption: Int {
         }
     }
 
+    // MARK: - Room password
+
+    func presentRoomPasswordOptions() {
+        let alertTitle = self.roomPassword.isEmpty ? NSLocalizedString("Set password", comment: "") : NSLocalizedString("Set new password", comment: "")
+        let passwordDialog = UIAlertController(title: alertTitle, message: nil, preferredStyle: .alert)
+
+        passwordDialog.addTextField { [weak self] textField in
+            guard let self else { return }
+            textField.tag = self.kPasswordTextFieldTag
+            textField.placeholder = NSLocalizedString("Password", comment: "")
+            textField.isSecureTextEntry = true
+            textField.delegate = self
+        }
+
+        let actionTitle = self.roomPassword.isEmpty ? NSLocalizedString("OK", comment: "") : NSLocalizedString("Change password", comment: "")
+        self.setPasswordAction = UIAlertAction(title: actionTitle, style: .default) { _ in
+            self.roomPassword = passwordDialog.textFields?[0].text?.trimmingCharacters(in: .whitespaces) ?? ""
+            self.updateVisibilitySection()
+        }
+        self.setPasswordAction.isEnabled = false
+        passwordDialog.addAction(self.setPasswordAction)
+
+        if !self.roomPassword.isEmpty {
+            passwordDialog.addAction(UIAlertAction(title: NSLocalizedString("Remove password", comment: ""), style: .destructive, handler: { _ in
+                self.roomPassword = ""
+                self.updateVisibilitySection()
+            }))
+        }
+
+        passwordDialog.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
+
+        self.present(passwordDialog, animated: true)
+    }
+
     // MARK: - TableView
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -394,6 +445,7 @@ enum RoomVisibilityOption: Int {
         if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
             let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
             TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
+            textInputCell.textField.tag = kRoomNameTextFieldTag
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.roomName
             textInputCell.textField.becomeFirstResponder()
@@ -449,8 +501,8 @@ enum RoomVisibilityOption: Int {
                 roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "link")
             case RoomVisibilityOption.kPasswordProtectionOption.rawValue:
                 roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "SetPasswordCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "SetPasswordCellIdentifier")
-                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Set Password", comment: "")
-                roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "lock.open")
+                roomVisibilityOptionCell.textLabel?.text = self.roomPassword.isEmpty ? NSLocalizedString("Set password", comment: "") : NSLocalizedString("Change password", comment: "")
+                roomVisibilityOptionCell.imageView?.image = self.roomPassword.isEmpty ? UIImage(systemName: "lock.open") : UIImage(systemName: "lock")
             case RoomVisibilityOption.kOpenConversationOption.rawValue:
                 roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "OpenConversationCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "OpenConversationCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Open conversation to registered users", comment: "")
@@ -506,6 +558,14 @@ enum RoomVisibilityOption: Int {
             if self.roomParticipants.isEmpty {
                 self.editParticipantsButtonPressed()
             }
+        } else if roomCreationSection == RoomCreationSection.kRoomVisibilitySection.rawValue {
+            let options = getRoomVisibilityOptions()
+            let option = options[indexPath.row]
+
+            if option == RoomVisibilityOption.kPasswordProtectionOption.rawValue {
+                self.presentRoomPasswordOptions()
+            }
+
         }
 
         tableView.deselectRow(at: indexPath, animated: true)
@@ -671,25 +731,38 @@ enum RoomVisibilityOption: Int {
     }
 
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        textField.becomeFirstResponder()
-        self.roomName = ""
-        self.createButton.isEnabled = !self.roomName.isEmpty
+        if textField.tag == kRoomNameTextFieldTag {
+            textField.resignFirstResponder()
+            textField.becomeFirstResponder()
+            self.roomName = ""
+            self.createButton.isEnabled = false
+        }
+
         return true
     }
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if let roomName = (textField.text as NSString?)?.replacingCharacters(in: range, with: string).trimmingCharacters(in: CharacterSet.whitespaces) {
-            self.roomName = roomName
-            self.createButton.isEnabled = !self.roomName.isEmpty
+        let currentText = textField.text ?? ""
+        guard let stringRange = Range(range, in: currentText) else { return false }
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string).trimmingCharacters(in: .whitespaces)
+
+        if textField.tag == kRoomNameTextFieldTag {
+            self.roomName = updatedText
+            self.createButton.isEnabled = !updatedText.isEmpty
+        } else if textField.tag == kPasswordTextFieldTag {
+            let hasAllowedLength = updatedText.count <= 200
+            self.setPasswordAction.isEnabled = hasAllowedLength && !updatedText.isEmpty
+            return hasAllowedLength
         }
 
         return true
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        let roomName = textField.text!.trimmingCharacters(in: CharacterSet.whitespaces)
-        self.roomName = roomName
-        self.createButton.isEnabled = !roomName.isEmpty
+        if textField.tag == kRoomNameTextFieldTag, let text = textField.text {
+            let roomName = text.trimmingCharacters(in: CharacterSet.whitespaces)
+            self.roomName = roomName
+            self.createButton.isEnabled = !roomName.isEmpty
+        }
     }
 }
