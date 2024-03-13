@@ -607,10 +607,10 @@ enum RoomVisibilityOption: Int {
     func presentCamera() {
         DispatchQueue.main.async {
             self.imagePicker = UIImagePickerController()
-            self.imagePicker?.sourceType = UIImagePickerController.SourceType.camera
-            if self.imagePicker != nil {
-                self.imagePicker!.delegate = self
-                self.present(self.imagePicker!, animated: true)
+            if let imagePicker = self.imagePicker {
+                imagePicker.sourceType = .camera
+                imagePicker.delegate = self
+                self.present(imagePicker, animated: true)
             }
         }
     }
@@ -618,10 +618,10 @@ enum RoomVisibilityOption: Int {
     func presentPhotoLibrary() {
         DispatchQueue.main.async {
             self.imagePicker = UIImagePickerController()
-            self.imagePicker?.sourceType = .photoLibrary
-            if self.imagePicker != nil {
-                self.imagePicker!.delegate = self
-                self.present(self.imagePicker!, animated: true)
+            if let imagePicker = self.imagePicker {
+                imagePicker.sourceType = .photoLibrary
+                imagePicker.delegate = self
+                self.present(imagePicker, animated: true)
             }
         }
     }
