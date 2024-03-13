@@ -313,6 +313,7 @@ import UIKit
             }
         }
 
+        cell.accessibilityIdentifier = AutoCompletionCellIdentifier
         return cell
     }
 
@@ -324,26 +325,32 @@ import UIKit
         let suggestion = self.autocompletionUsers[indexPath.row]
         let mention = NCMessageParameter()
 
-        if let id = suggestion["id"] as? String,
+        if var id = suggestion["id"] as? String,
            let label = suggestion["label"] as? String,
            let source = suggestion["source"] as? String {
+
+            if let serverMentionId = suggestion["mentionId"] as? String {
+                // In case the server returns a "mentionId" we should use that instead of the id
+                // Please note that this "mentionId" is not the same as the "mentionId" from the NCMessageParameter object!
+                id = serverMentionId
+            }
 
             mention.parameterId = id
             mention.name = label
             mention.mentionDisplayName = "@\(label)"
             mention.mentionId = "@\(id)"
 
-            // Guest mentions are wrapped with double quotes @"guest/<sha1(webrtc session id)>"
-            // Group mentions are wrapped with double quotes @"group/groupId"
-            // User-ids with a space should be wrapped in double quoutes
-            if source == "guests" || source == "groups" || id.rangeOfCharacter(from: .whitespaces) != nil {
+            // Guest mentions: @"guest/<sha1(webrtc session id)>"
+            // Group mentions: @"group/groupId"
+            // IDs that contain a "/" or a space should be wrapped in double quotes
+            if id.contains("/") || id.rangeOfCharacter(from: .whitespaces) != nil {
                 mention.mentionId = "@\"\(id)\""
             }
 
             // Set parameter type
             if source == "calls" {
                 mention.type = "call"
-            } else if source == "users" {
+            } else if source == "users" || source == "federated_users" {
                 mention.type = "user"
             } else if source == "guests" {
                 mention.type = "guest"
@@ -391,7 +398,7 @@ import UIKit
                     }
 
                     // Delete mention
-                    let range = NSRange(location: cursorOffset - lastPossibleMention.count, length: lastPossibleMention.count)
+                    let range = NSRange(location: cursorOffset - lastPossibleMention.utf16.count, length: lastPossibleMention.utf16.count)
                     textView.text = (text as NSString).replacingCharacters(in: range, with: "")
 
                     // Only delete it from mentionsDict if there are no more mentions for that user/room

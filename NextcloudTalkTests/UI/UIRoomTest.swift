@@ -28,10 +28,7 @@ final class UIRoomTest: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testCreateConversation() {
-        let app = launchAndLogin()
-        let newConversationName = "Test conversation"
-
+    func createConversation(for app: XCUIApplication, with newConversationName: String) {
         app.navigationBars["Nextcloud Talk"].buttons["Create a new conversation"].tap()
         XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
         XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
@@ -41,6 +38,13 @@ final class UIRoomTest: XCTestCase {
         app.typeText(newConversationName)
         XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExistence(timeout: TestConstants.timeoutShort))
         app.navigationBars["New group conversation"].buttons["Create"].tap()
+    }
+
+    func testCreateConversation() {
+        let app = launchAndLogin()
+        let newConversationName = "Test conversation"
+
+        self.createConversation(for: app, with: newConversationName)
 
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
 
@@ -76,15 +80,7 @@ final class UIRoomTest: XCTestCase {
         let newConversationName = "DeAllocTest"
 
         // Create a new test conversion
-        app.navigationBars["Nextcloud Talk"].buttons["Create a new conversation"].tap()
-        XCTAssert(app.tables.cells.staticTexts["Create a new group conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.tables.cells.staticTexts["Create a new public conversation"].waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.tables.cells.staticTexts["Show list of open conversations"].waitForExistence(timeout: TestConstants.timeoutShort))
-        app.tables.cells.staticTexts["Create a new group conversation"].tap()
-        app.navigationBars["RoomCreationTableView"].buttons["Next"].tap()
-        app.typeText(newConversationName)
-        XCTAssert(app.navigationBars["New group conversation"].buttons["Create"].waitForExistence(timeout: TestConstants.timeoutShort))
-        app.navigationBars["New group conversation"].buttons["Create"].tap()
+        self.createConversation(for: app, with: newConversationName)
 
         // Check if we have one chat view controller allocated
         XCTAssert(app.staticTexts["ChatVC: 1 / CallVC: 0"].waitForExistence(timeout: TestConstants.timeoutShort))
@@ -126,5 +122,36 @@ final class UIRoomTest: XCTestCase {
 
         // Check if all chat view controllers are deallocated
         XCTAssert(app.staticTexts["ChatVC: 0 / CallVC: 0"].waitForExistence(timeout: TestConstants.timeoutShort))
+    }
+
+    func testChatViewControllerMentions() {
+        let app = launchAndLogin()
+        let newConversationName = "MentionTest 🇨🇨"
+
+        // Create a new test conversion
+        self.createConversation(for: app, with: newConversationName)
+
+        // Select a mention
+        let toolbar = app.toolbars["Toolbar"]
+        let textView = toolbar.textViews["Write message, @ to mention someone …"]
+        XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
+        textView.tap()
+        textView.typeText("@")
+        textView.typeText("M")
+        textView.typeText("e")
+
+        let autoCompleteCell = app.tables.cells["AutoCompletionCellIdentifier"].staticTexts[newConversationName]
+        XCTAssert(autoCompleteCell.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        autoCompleteCell.tap()
+
+        // Check if the mention was correctly inserted in the textView
+        XCTAssertEqual(textView.value as? String ?? "", "@\(newConversationName) ")
+
+        // Remove the mention again
+        textView.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 2))
+
+        // Check if the input field is now empty
+        XCTAssertEqual(textView.value as? String ?? "", "")
     }
 }
