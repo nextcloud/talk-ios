@@ -31,6 +31,8 @@ import Foundation
         return ocs
     }
 
+    // MARK: - Federation
+
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
         let apiVersion = self.federationAPIVersion(for: account)
@@ -94,6 +96,8 @@ import Foundation
         }
     }
 
+    // MARK: - Room capabilities
+
     public func getRoomCapabilities(for accountId: String, token: String, completionBlock: @escaping (_ roomCapabilities: [String: AnyObject]?, _ proxyHash: String?) -> Void) {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return }
         let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
@@ -124,6 +128,43 @@ import Foundation
             }
         } failure: { _, _ in
             completionBlock(nil, nil)
+        }
+    }
+
+    // MARK: - Mentions
+
+    public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ invitations: [MentionSuggestion]?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/mentions", withAPIVersion: apiVersion, for: account)
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+
+        let parameters: [String: Any] = [
+            "limit": 20,
+            "search": searchString,
+            "includeStatus": serverCapabilities.userStatus
+        ]
+
+        apiSessionManager.get(urlString, parameters: parameters, progress: nil) { _, result in
+            if let ocs = self.getOcsResponse(data: result),
+               let data = ocs["data"] as? [[String: AnyObject]] {
+
+                let mentions = data.map { MentionSuggestion(dictionary: $0)}
+                completionBlock(mentions)
+            } else {
+                completionBlock(nil)
+            }
+
+            NCDatabaseManager.sharedInstance().updateLastFederationInvitationUpdate(forAccountId: accountId, withTimestamp: Int(Date().timeIntervalSince1970))
+        } failure: { _, _ in
+            completionBlock(nil)
         }
     }
 }

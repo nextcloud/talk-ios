@@ -31,7 +31,7 @@ import UIKit
 
     // MARK: - Internal var
     internal var titleView: NCChatTitleView?
-    internal var autocompletionUsers: [[String: Any]] = []
+    internal var autocompletionUsers: [MentionSuggestion] = []
     internal var mentionsDict: [String: NCMessageParameter] = [:]
     internal var contentView: UIView?
 
@@ -218,20 +218,18 @@ import UIKit
         self.autocompletionUsers = []
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getMentionSuggestions(inRoom: self.room.token, for: string, for: activeAccount) { nsMentionsArray, error in
-            guard error == nil else { return }
+        NCAPIController.sharedInstance().getMentionSuggestions(for: activeAccount.accountId, in: self.room.token, with: string) { mentions in
+            guard let mentions else { return }
 
-            if let mentionsArray = nsMentionsArray as? [[String: Any]] {
-                self.autocompletionUsers = mentionsArray
-                let showAutocomplete = !self.autocompletionUsers.isEmpty
+            self.autocompletionUsers = mentions
+            let showAutocomplete = !self.autocompletionUsers.isEmpty
 
-                // Check if "@" is still there
-                self.textView.look(forPrefixes: self.registeredPrefixes) { prefix, word, _ in
-                    if prefix?.count ?? 0 > 0 && word?.count ?? 0 > 0 {
-                        self.showAutoCompletionView(showAutocomplete)
-                    } else {
-                        self.cancelAutoCompletion()
-                    }
+            // Check if "@" is still there
+            self.textView.look(forPrefixes: self.registeredPrefixes) { prefix, word, _ in
+                if prefix?.count ?? 0 > 0 && word?.count ?? 0 > 0 {
+                    self.showAutoCompletionView(showAutocomplete)
+                } else {
+                    self.cancelAutoCompletion()
                 }
             }
         }
@@ -290,21 +288,16 @@ import UIKit
 
         let suggestion = self.autocompletionUsers[indexPath.row]
 
-        if let suggestionId = suggestion["id"] as? String,
-           let suggestionName = suggestion["label"] as? String,
-           let suggestionSource = suggestion["source"] as? String {
+        cell.titleLabel.text = suggestion.label
 
-            cell.titleLabel.text = suggestionName
+        if let suggestionUserStatus = suggestion.userStatus {
+            cell.setUserStatus(suggestionUserStatus)
+        }
 
-            if let suggestionUserStatus = suggestion["status"] as? String {
-                cell.setUserStatus(suggestionUserStatus)
-            }
-
-            if suggestionId == "all" {
-                cell.avatarButton.setAvatar(for: self.room, with: self.traitCollection.userInterfaceStyle)
-            } else {
-                cell.avatarButton.setActorAvatar(forId: suggestionId, withType: suggestionSource, withDisplayName: suggestionName, withRoomToken: self.room.token)
-            }
+        if suggestion.id == "all" {
+            cell.avatarButton.setAvatar(for: self.room)
+        } else {
+            cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token)
         }
 
         cell.accessibilityIdentifier = AutoCompletionCellIdentifier
@@ -317,47 +310,12 @@ import UIKit
         else { return }
 
         let suggestion = self.autocompletionUsers[indexPath.row]
-        let mention = NCMessageParameter()
 
-        if var id = suggestion["id"] as? String,
-           let label = suggestion["label"] as? String,
-           let source = suggestion["source"] as? String {
+        let mentionKey = "mention-\(self.mentionsDict.count)"
+        self.mentionsDict[mentionKey] = suggestion.asMessageParameter()
 
-            if let serverMentionId = suggestion["mentionId"] as? String {
-                // In case the server returns a "mentionId" we should use that instead of the id
-                // Please note that this "mentionId" is not the same as the "mentionId" from the NCMessageParameter object!
-                id = serverMentionId
-            }
-
-            mention.parameterId = id
-            mention.name = label
-            mention.mentionDisplayName = "@\(label)"
-            mention.mentionId = "@\(id)"
-
-            // Guest mentions: @"guest/<sha1(webrtc session id)>"
-            // Group mentions: @"group/groupId"
-            // IDs that contain a "/" or a space should be wrapped in double quotes
-            if id.contains("/") || id.rangeOfCharacter(from: .whitespaces) != nil {
-                mention.mentionId = "@\"\(id)\""
-            }
-
-            // Set parameter type
-            if source == "calls" {
-                mention.type = "call"
-            } else if source == "users" || source == "federated_users" {
-                mention.type = "user"
-            } else if source == "guests" {
-                mention.type = "guest"
-            } else if source == "groups" {
-                mention.type = "user-group"
-            }
-
-            let mentionKey = "mention-\(self.mentionsDict.count)"
-            self.mentionsDict[mentionKey] = mention
-
-            let mentionWithWhitespace = label + " "
-            self.acceptAutoCompletion(with: mentionWithWhitespace, keepPrefix: true)
-        }
+        let mentionWithWhitespace = suggestion.label + " "
+        self.acceptAutoCompletion(with: mentionWithWhitespace, keepPrefix: true)
     }
 
     public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
