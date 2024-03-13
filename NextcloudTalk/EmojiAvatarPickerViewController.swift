@@ -22,7 +22,7 @@
 import UIKit
 
 @objc protocol EmojiAvatarPickerViewControllerDelegate {
-    func didSelectEmoji(emoji: NSString, color: NSString, image:UIImage)
+    func didSelectEmoji(emoji: NSString, color: NSString, image: UIImage)
 }
 
 @objcMembers class EmojiAvatarPickerViewController: UIViewController, UITextFieldDelegate {
