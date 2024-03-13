@@ -89,6 +89,8 @@
     self.tableView.sectionIndexBackgroundColor = [UIColor clearColor];
     
     _resultTableViewController = [[ResultMultiSelectionTableViewController alloc] init];
+    _resultTableViewController.selectedParticipants = _selectedParticipants;
+
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
