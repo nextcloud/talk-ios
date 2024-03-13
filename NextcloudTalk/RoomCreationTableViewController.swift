@@ -544,7 +544,7 @@ enum RoomVisibilityOption: Int {
         } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
             return NSLocalizedString("Description", comment: "")
         } else if roomCreationSection == RoomCreationSection.kRoomVisibilitySection.rawValue {
-            return NSLocalizedString("Visibility", comment: "")
+            return NSLocalizedString("Visibility", comment: "Conversation visibility settings")
         }
 
         return nil
