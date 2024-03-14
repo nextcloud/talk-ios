@@ -56,12 +56,27 @@
         return nil;
     }
     
-    _room = room;
-    _participantsInRoom = [room.participants valueForKey:@"self"];
+    if (room) {
+        _room = room;
+        _participantsInRoom = [room.participants valueForKey:@"self"];
+    }
+
     _participants = [[NSMutableDictionary alloc] init];
     _indexes = [[NSArray alloc] init];
     _selectedParticipants = [[NSMutableArray alloc] init];
     
+    return self;
+}
+
+- (instancetype)initWithParticipants:(NSArray<NCUser *> *)participants
+{
+    self = [self initForRoom:nil];
+    if (!self) {
+        return nil;
+    }
+
+    _selectedParticipants = [[NSMutableArray alloc] initWithArray:participants];
+
     return self;
 }
 
@@ -74,6 +89,8 @@
     self.tableView.sectionIndexBackgroundColor = [UIColor clearColor];
     
     _resultTableViewController = [[ResultMultiSelectionTableViewController alloc] init];
+    _resultTableViewController.selectedParticipants = _selectedParticipants;
+
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
@@ -129,7 +146,8 @@
     _searchController.searchBar.delegate = self;
     _searchController.hidesNavigationBarDuringPresentation = NO;
 
-    
+    [self updateCounter];
+
     self.definesPresentationContext = YES;
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
@@ -181,7 +199,9 @@
 
 - (void)close
 {
-    [self.delegate addParticipantsTableViewControllerDidFinish:self];
+    if ([self.delegate respondsToSelector:@selector(addParticipantsTableViewControllerDidFinish:)]) {
+        [self.delegate addParticipantsTableViewControllerDidFinish:self];
+    }
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -189,9 +209,13 @@
 {
     self.tableView.allowsSelection = NO;
     _resultTableViewController.tableView.allowsSelection = NO;
-    
-    for (NCUser *participant in _selectedParticipants) {
-        [self addParticipantToRoom:participant];
+
+    if (_room) {
+        for (NCUser *participant in _selectedParticipants) {
+            [self addParticipantToRoom:participant];
+        }
+    } else if ([self.delegate respondsToSelector:@selector(addParticipantsTableViewController:wantsToAdd:)]) {
+        [self.delegate addParticipantsTableViewController:self wantsToAdd:_selectedParticipants];
     }
     
     [self close];
@@ -220,13 +244,21 @@
 
 - (void)updateCounter
 {
-    if (_selectedParticipants.count > 0) {
-        UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Add (%lu)", nil), (unsigned long)_selectedParticipants.count]
-                                                                      style:UIBarButtonItemStylePlain target:self action:@selector(addButtonPressed)];
-        self.navigationController.navigationBar.topItem.rightBarButtonItem = addButton;
-    } else {
-        self.navigationController.navigationBar.topItem.rightBarButtonItem = nil;
+    UIBarButtonItem *addButton = nil;
+    if (!_room) {
+        addButton = [[UIBarButtonItem alloc]
+                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                     target:self
+                     action:@selector(addButtonPressed)];
+    } else if (_selectedParticipants.count > 0) {
+        addButton = [[UIBarButtonItem alloc]
+                     initWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Add (%lu)", nil), (unsigned long)_selectedParticipants.count]
+                     style:UIBarButtonItemStylePlain
+                     target:self
+                     action:@selector(addButtonPressed)];
     }
+
+    self.navigationController.navigationBar.topItem.rightBarButtonItem = addButton;
 }
 
 #pragma mark - Participants actions

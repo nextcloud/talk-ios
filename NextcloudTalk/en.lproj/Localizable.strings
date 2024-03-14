@@ -1,7 +1,4 @@
 /* No comment provided by engineer. */
-"%@ added to this new group conversation" = "%@ added to this new group conversation";
-
-/* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
 
 /* {app name} is not installed */
@@ -90,9 +87,6 @@
 
 /* No comment provided by engineer. */
 "Add participants" = "Add participants";
-
-/* No comment provided by engineer. */
-"Add participants to new group conversation" = "Add participants to new group conversation";
 
 /* No comment provided by engineer. */
 "Add to favorites" = "Add to favorites";
@@ -236,9 +230,6 @@
 "An error occurred while clearing status message" = "An error occurred while clearing status message";
 
 /* No comment provided by engineer. */
-"An error occurred while creating the conversation" = "An error occurred while creating the conversation";
-
-/* No comment provided by engineer. */
 "An error occurred while creating the poll" = "An error occurred while creating the poll";
 
 /* No comment provided by engineer. */
@@ -293,9 +284,6 @@
 "Answers" = "Answers";
 
 /* No comment provided by engineer. */
-"Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password." = "Anyone who knows the link to this conversation will be able to access it. You can protect it by setting a password.";
-
-/* No comment provided by engineer. */
 "App" = "App";
 
 /* No comment provided by engineer. */
@@ -321,9 +309,6 @@
 
 /* No comment provided by engineer. */
 "Away" = "Away";
-
-/* No comment provided by engineer. */
-"Back" = "Back";
 
 /* No comment provided by engineer. */
 "bot" = "bot";
@@ -389,9 +374,6 @@
 "Cancel" = "Cancel";
 
 /* No comment provided by engineer. */
-"Cancel conversation creation" = "Cancel conversation creation";
-
-/* No comment provided by engineer. */
 "Cancelled call from another account" = "Cancelled call from another account";
 
 /* No comment provided by engineer. */
@@ -449,7 +431,7 @@
 "Contacts" = "Contacts";
 
 /* No comment provided by engineer. */
-"Continue to next step of conversation creation" = "Continue to next step of conversation creation";
+"Conversation creation failed" = "Conversation creation failed";
 
 /* No comment provided by engineer. */
 "Conversation details" = "Conversation details";
@@ -524,9 +506,6 @@
 "Could not clear status message" = "Could not clear status message";
 
 /* No comment provided by engineer. */
-"Could not create conversation" = "Could not create conversation";
-
-/* No comment provided by engineer. */
 "Could not delete conversation" = "Could not delete conversation";
 
 /* No comment provided by engineer. */
@@ -581,16 +560,10 @@
 "Create" = "Create";
 
 /* No comment provided by engineer. */
-"Create a conversation with %@" = "Create a conversation with %@";
-
-/* No comment provided by engineer. */
 "Create a new conversation" = "Create a new conversation";
 
 /* No comment provided by engineer. */
-"Create a new group conversation" = "Create a new group conversation";
-
-/* No comment provided by engineer. */
-"Create a new public conversation" = "Create a new public conversation";
+"Create or join a conversation" = "Create or join a conversation";
 
 /* No comment provided by engineer. */
 "Create poll" = "Create poll";
@@ -707,15 +680,6 @@
 "Double tap to change accounts or add a new one" = "Double tap to change accounts or add a new one";
 
 /* No comment provided by engineer. */
-"Double tap to create a conversation with %@" = "Double tap to create a conversation with %@";
-
-/* No comment provided by engineer. */
-"Double tap to create group, public or one to one conversations." = "Double tap to create group, public or one to one conversations.";
-
-/* No comment provided by engineer. */
-"Double tap to create the conversation" = "Double tap to create the conversation";
-
-/* No comment provided by engineer. */
 "Double tap to dismiss authentication dialog" = "Double tap to dismiss authentication dialog";
 
 /* No comment provided by engineer. */
@@ -761,9 +725,6 @@
 "Double tap to share with selected conversations" = "Double tap to share with selected conversations";
 
 /* No comment provided by engineer. */
-"Double tap to show list of open conversations" = "Double tap to show list of open conversations";
-
-/* No comment provided by engineer. */
 "Double tap to show more actions" = "Double tap to show more actions";
 
 /* No comment provided by engineer. */
@@ -776,12 +737,6 @@
 "Double tap to start a voice call" = "Double tap to start a voice call";
 
 /* No comment provided by engineer. */
-"Double tap to start creating a new group conversation" = "Double tap to start creating a new group conversation";
-
-/* No comment provided by engineer. */
-"Double tap to start creating a new public conversation" = "Double tap to start creating a new public conversation";
-
-/* No comment provided by engineer. */
 "Double tap to stop recording" = "Double tap to stop recording";
 
 /* No comment provided by engineer. */
@@ -790,7 +745,7 @@
 /* No comment provided by engineer. */
 "Duplicate session" = "Duplicate session";
 
-/* Edit a message */
+/* Edit a message or room participants */
 "Edit" = "Edit";
 
 /* A message was edited */
@@ -905,9 +860,6 @@
 "Give consent and join call" = "Give consent and join call";
 
 /* No comment provided by engineer. */
-"Group conversation" = "Group conversation";
-
-/* No comment provided by engineer. */
 "guest" = "guest";
 
 /* No comment provided by engineer. */
@@ -983,6 +935,9 @@
 "Join call with video" = "Join call with video";
 
 /* No comment provided by engineer. */
+"Join open conversations" = "Join open conversations";
+
+/* No comment provided by engineer. */
 "Join the conversation %@ at" = "Join the conversation %@ at";
 
 /* No comment provided by engineer. */
@@ -1011,9 +966,6 @@
 
 /* No comment provided by engineer. */
 "Linked file" = "Linked file";
-
-/* No comment provided by engineer. */
-"List open conversations" = "List open conversations";
 
 /* No comment provided by engineer. */
 "Load more results" = "Load more results";
@@ -1139,9 +1091,6 @@
 "More actions" = "More actions";
 
 /* No comment provided by engineer. */
-"More options" = "More options";
-
-/* No comment provided by engineer. */
 "Multiple answers" = "Multiple answers";
 
 /* No comment provided by engineer. */
@@ -1169,16 +1118,7 @@
 "New conversation" = "New conversation";
 
 /* No comment provided by engineer. */
-"New group conversation" = "New group conversation";
-
-/* No comment provided by engineer. */
 "New poll" = "New poll";
-
-/* No comment provided by engineer. */
-"New public conversation" = "New public conversation";
-
-/* No comment provided by engineer. */
-"Next" = "Next";
 
 /* Remind me next week about that message */
 "Next week" = "Next week";
@@ -1203,9 +1143,6 @@
 
 /* No comment provided by engineer. */
 "No participants found" = "No participants found";
-
-/* No comment provided by engineer. */
-"No password" = "No password";
 
 /* No comment provided by engineer. */
 "No response from server" = "No response from server";
@@ -1295,10 +1232,10 @@
 "Owner" = "Owner";
 
 /* No comment provided by engineer. */
-"Password" = "Password";
+"Participants" = "Participants";
 
 /* No comment provided by engineer. */
-"Password field for public conversation" = "Password field for public conversation";
+"Password" = "Password";
 
 /* No comment provided by engineer. */
 "Pending invitations" = "Pending invitations";
@@ -1337,9 +1274,6 @@
 "Please update." = "Please update.";
 
 /* No comment provided by engineer. */
-"Please, set a name for this conversation." = "Please, set a name for this conversation.";
-
-/* No comment provided by engineer. */
 "Poll" = "Poll";
 
 /* No comment provided by engineer. */
@@ -1368,9 +1302,6 @@
 
 /* No comment provided by engineer. */
 "Promote to moderator" = "Promote to moderator";
-
-/* No comment provided by engineer. */
-"Public conversation" = "Public conversation";
 
 /* No comment provided by engineer. */
 "Published" = "Published";
@@ -1526,6 +1457,9 @@
 "Set" = "Set";
 
 /* No comment provided by engineer. */
+"Set new password" = "Set new password";
+
+/* No comment provided by engineer. */
 "Set new password:" = "Set new password:";
 
 /* No comment provided by engineer. */
@@ -1575,9 +1509,6 @@
 
 /* No comment provided by engineer. */
 "Sharing to a federated conversation is not supported." = "Sharing to a federated conversation is not supported.";
-
-/* No comment provided by engineer. */
-"Show list of open conversations" = "Show list of open conversations";
 
 /* No comment provided by engineer. */
 "Show more…" = "Show more…";
@@ -1647,9 +1578,6 @@
 
 /* No comment provided by engineer. */
 "Switching to another conversation …" = "Switching to another conversation …";
-
-/* No comment provided by engineer. */
-"Sync contacts" = "Sync contacts";
 
 /* No comment provided by engineer. */
 "Synchronize to trusted servers and the global and public address book" = "Synchronize to trusted servers and the global and public address book";
@@ -1821,6 +1749,9 @@
 
 /* No comment provided by engineer. */
 "Video quality" = "Video quality";
+
+/* Conversation visibility settings */
+"Visibility" = "Visibility";
 
 /* No comment provided by engineer. */
 "Voice call" = "Voice call";

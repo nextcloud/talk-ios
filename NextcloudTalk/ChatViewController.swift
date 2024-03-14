@@ -1668,7 +1668,7 @@ import UIKit
 
         // Edit option
         if message.isEditable(for: activeAccount, in: self.room) && hasChatPermissions {
-            destructiveMenuActions.append(UIAction(title: NSLocalizedString("Edit", comment: "Edit a message"), image: .init(systemName: "pencil")) { _ in
+            destructiveMenuActions.append(UIAction(title: NSLocalizedString("Edit", comment: "Edit a message or room participants"), image: .init(systemName: "pencil")) { _ in
                 self.didPressEdit(for: message)
             })
         }

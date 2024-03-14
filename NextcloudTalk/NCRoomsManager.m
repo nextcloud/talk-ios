@@ -33,9 +33,7 @@
 #import "NCExternalSignalingController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "NewRoomTableViewController.h"
 #import "NotificationCenterNotifications.h"
-#import "RoomCreation2TableViewController.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -88,7 +86,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChat:) name:NCPushNotificationJoinChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinAudioCallAccepted:) name:NCPushNotificationJoinAudioCallAcceptedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinVideoCallAccepted:) name:NCPushNotificationJoinVideoCallAcceptedNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userSelectedContactForChat:) name:NCSelectedContactForChatNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectedUserForChat:) name:NCSelectedUserForChatNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(acceptCallForRoom:) name:CallKitManagerDidAnswerCallNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startCallForRoom:) name:CallKitManagerDidStartCallNotification object:nil];
@@ -1097,7 +1095,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     [self startChatWithRoomToken:token];
 }
 
-- (void)userSelectedContactForChat:(NSNotification *)notification
+- (void)selectedUserForChat:(NSNotification *)notification
 {
     NSString *roomToken = [notification.userInfo objectForKey:@"token"];
     [self startChatWithRoomToken:roomToken];
