@@ -241,15 +241,18 @@ typedef enum RoomsSections {
         NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:newRoowVC];
         [self presentViewController:navigationController animated:YES completion:nil];
     }];
-    
-    UIAction *joinOpenConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Join open conversations", nil) image:[[UIImage systemImageNamed:@"list.bullet"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
-        OpenConversationsTableViewController *openConversationsVC = [[OpenConversationsTableViewController alloc] init];
-        NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:openConversationsVC];
-        [self presentViewController:navigationController animated:YES completion:nil];
-    }];
-    
+
     [items addObject:newConversationAction];
-    [items addObject:joinOpenConversationAction];
+
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
+        UIAction *joinOpenConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Join open conversations", nil) image:[[UIImage systemImageNamed:@"list.bullet"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
+            OpenConversationsTableViewController *openConversationsVC = [[OpenConversationsTableViewController alloc] init];
+            NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:openConversationsVC];
+            [self presentViewController:navigationController animated:YES completion:nil];
+        }];
+
+        [items addObject:joinOpenConversationAction];
+    }
     
     _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] menu:[UIMenu menuWithTitle:@"" children:items]];
     _newConversationButton.accessibilityLabel = NSLocalizedString(@"Create or join a conversation", nil);
