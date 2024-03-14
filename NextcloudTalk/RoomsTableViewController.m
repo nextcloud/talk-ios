@@ -252,6 +252,7 @@ typedef enum RoomsSections {
     [items addObject:joinOpenConversationAction];
     
     _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] menu:[UIMenu menuWithTitle:@"" children:items]];
+    _newConversationButton.accessibilityLabel = NSLocalizedString(@"Create or join a conversation", nil);
     [self.navigationItem setRightBarButtonItem:_newConversationButton];
 }
 
