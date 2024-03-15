@@ -95,16 +95,16 @@ import Foundation
     }
 
     public func getRoomCapabilities(for accountId: String, token: String, completionBlock: @escaping (_ roomCapabilities: [String: AnyObject]?, _ proxyHash: String?) -> Void) {
-        guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return }
-        let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/capabilities", withAPIVersion: apiVersion, for: account)
-
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil, nil)
             return
         }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/capabilities", withAPIVersion: apiVersion, for: account)
 
         apiSessionManager.get(urlString, parameters: nil, progress: nil) { task, result in
             if let ocs = self.getOcsResponse(data: result),
