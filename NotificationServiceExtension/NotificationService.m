@@ -282,7 +282,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
         return;
     }
 
-    NCRoom *room = [self roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
+    NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
 
     if (room) {
         [[NCIntentController sharedInstance] getInteractionForRoom:room withTitle:self.bestAttemptContent.title withCompletionBlock:^(INSendMessageIntent *sendMessageIntent) {
@@ -336,19 +336,6 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
     }
 
     return nil;
-}
-
-- (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
-{
-    NCRoom *unmanagedRoom = nil;
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
-    NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
-
-    if (managedRoom) {
-        unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
-    }
-
-    return unmanagedRoom;
 }
 
 - (void)serviceExtensionTimeWillExpire {

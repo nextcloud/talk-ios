@@ -141,15 +141,8 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     } else {
         [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:userId]];
     }
-    
-    if (userId && userId.length > 0) {
-        [self.peerAvatarImageView setUserAvatarFor:userId with:self.traitCollection.userInterfaceStyle];
-    } else {
-        UIColor *guestAvatarColor = [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1.0]; /*#b9b9b9*/
 
-        UIImage *image = [NCUtils getImageWithString:@"?" withBackgroundColor:guestAvatarColor withBounds:self.peerAvatarImageView.bounds isCircular:YES];
-        [self.peerAvatarImageView setImage:image];
-    }
+    [self.peerAvatarImageView setActorAvatarForId:userId withType:@"users" withDisplayName:@"" withRoomToken:nil];
 }
 
 - (void)setDisplayName:(NSString *)displayName

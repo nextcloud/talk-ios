@@ -313,19 +313,12 @@
     ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
     BOOL shouldShowDeliveryStatus = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:activeAccount.accountId];
     BOOL shouldShowReadStatus = !serverCapabilities.readStatusPrivacy;
-    
+
+    [self.avatarButton setActorAvatarForMessage:message];
+    self.avatarButton.menu = [super getDeferredUserMenuForMessage:message];
+
     if ([message.actorType isEqualToString:@"guests"]) {
         self.titleLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
-        [self setGuestAvatar:message.actorDisplayName];
-    } else if ([message.actorType isEqualToString:@"bots"]) {
-        if ([message.actorId isEqualToString:@"changelog"]) {
-            [self setChangelogAvatar];
-        } else {
-            [self setBotAvatar];
-        }
-    } else {
-        [self.avatarButton setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle using:activeAccount];
-        _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
     }
     
     // This check is just a workaround to fix the issue with the deleted parents returned by the API.
@@ -334,7 +327,7 @@
         self.quotedMessageView.actorLabel.text = ([parent.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : parent.actorDisplayName;
         self.quotedMessageView.messageLabel.text = parent.parsedMarkdownForChat.string;
         self.quotedMessageView.highlighted = [parent isMessageFromUser:activeAccount.userId];
-        [self.quotedMessageView.avatarView setUserAvatarFor:parent.actorId with:self.traitCollection.userInterfaceStyle];
+        [self.quotedMessageView.avatarView setActorAvatarForMessage:parent];
     }
     
     if (message.isDeleting) {
@@ -400,27 +393,6 @@
             [strongSelf.delegate cellWantsToReplyToMessage:strongSelf.message];
         }];
     }
-}
-
-- (void)setGuestAvatar:(NSString *)displayName
-{
-    UIColor *guestAvatarColor = [NCAppBranding placeholderColor];
-    NSString *name = ([displayName isEqualToString:@""]) ? @"?" : displayName;
-
-    UIImage *image = [NCUtils getImageWithString:name withBackgroundColor:guestAvatarColor withBounds:_avatarButton.bounds isCircular:YES];
-    [_avatarButton setImage:image forState:UIControlStateNormal];
-}
-
-- (void)setBotAvatar
-{
-    UIColor *guestAvatarColor = [UIColor colorWithRed:0.21 green:0.21 blue:0.21 alpha:1.0]; /*#363636*/
-    UIImage *image = [NCUtils getImageWithString:@">" withBackgroundColor:guestAvatarColor withBounds:_avatarButton.bounds isCircular:YES];
-    [_avatarButton setImage:image forState:UIControlStateNormal];
-}
-
-- (void)setChangelogAvatar
-{
-    [_avatarButton setImage:[UIImage imageNamed:@"changelog-avatar"] forState:UIControlStateNormal];
 }
 
 - (void)setDeliveryState:(ChatMessageDeliveryState)state

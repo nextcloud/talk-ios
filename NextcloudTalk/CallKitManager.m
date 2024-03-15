@@ -278,7 +278,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 - (void)getCallInfoForCall:(CallKitCall *)call
 {
-    NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:call.token forAccountId:call.accountId];
+    NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:call.token forAccountId:call.accountId];
     if (room) {
         [self updateCall:call withDisplayName:room.displayName];
     }

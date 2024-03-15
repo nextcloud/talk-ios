@@ -568,7 +568,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                 // We replied to the message, so we can assume, we read it as well
                 [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:pushNotification.accountId];
                 [self updateAppIconBadgeNumber];
-                NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
+                NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:pushNotification.roomToken forAccountId:pushNotification.accountId];
                 if (room) {
                     [[NCIntentController sharedInstance] donateSendMessageIntentForRoom:room];
                 }

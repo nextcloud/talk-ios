@@ -379,17 +379,6 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     return unmanagedRooms;
 }
 
-- (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
-{
-    NCRoom *unmanagedRoom = nil;
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
-    NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
-    if (managedRoom) {
-        unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
-    }
-    return unmanagedRoom;
-}
-
 - (void)resendOfflineMessagesWithCompletionBlock:(SendOfflineMessagesCompletionBlock)block
 {
     // Try to send offline messages for all rooms
@@ -434,7 +423,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
             return;
         }
 
-        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:offlineMessage.token forAccountId:offlineMessage.accountId];
+        NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:offlineMessage.token forAccountId:offlineMessage.accountId];
         NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
 
         [chatController sendChatMessage:offlineMessage];
@@ -573,7 +562,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                 [self updateRoomWithDict:roomDict withAccount:activeAccount withTimestamp:[[NSDate date] timeIntervalSince1970] withRealm:realm];
                 NSLog(@"Room updated");
             }];
-            NCRoom *updatedRoom = [self roomWithToken:token forAccountId:activeAccount.accountId];
+            NCRoom *updatedRoom = [[NCDatabaseManager sharedInstance] roomWithToken:token forAccountId:activeAccount.accountId];
             [userInfo setObject:updatedRoom forKey:@"room"];
         } else {
             [userInfo setObject:error forKey:@"error"];
@@ -728,7 +717,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)startChatWithRoomToken:(NSString *)token
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NCRoom *room = [self roomWithToken:token forAccountId:activeAccount.accountId];
+    NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:token forAccountId:activeAccount.accountId];
     if (room) {
         [self startChatInRoom:room];
     } else {

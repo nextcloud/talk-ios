@@ -120,14 +120,8 @@
     
     cell.labelTitle.text = contact.name;
     
-    if ([contact.source isEqualToString:kParticipantTypeUser]) {
-        [cell.contactImage setUserAvatarFor:contact.userId with:self.traitCollection.userInterfaceStyle];
-    } else if ([contact.source isEqualToString:kParticipantTypeEmail]) {
-        [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
-    } else {
-        [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
-    }
-    
+    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:nil];
+
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];
     for (NCUser *user in _selectedParticipants) {

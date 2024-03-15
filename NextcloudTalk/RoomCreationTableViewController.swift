@@ -139,7 +139,7 @@ enum RoomVisibilityOption: Int {
         } else if self.selectedEmojiImage != nil {
             self.headerView.avatarImageView.image = self.selectedEmojiImage
         } else {
-            self.headerView.avatarImageView.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
+            self.headerView.avatarImageView.setGroupAvatar()
         }
 
         self.headerView.trashButton.isHidden = self.selectedAvatarImage == nil && self.selectedEmojiImage == nil
@@ -476,13 +476,7 @@ enum RoomVisibilityOption: Int {
                 participantCell.labelTitle.text = participant.name
 
                 let participantType = participant.source as String
-                if participantType == kParticipantTypeUser {
-                    participantCell.contactImage.setUserAvatar(for: participant.userId, with: self.traitCollection.userInterfaceStyle, using: self.account)
-                } else if participantType == kParticipantTypeEmail {
-                    participantCell.contactImage.setMailAvatar(with: self.traitCollection.userInterfaceStyle)
-                } else {
-                    participantCell.contactImage.setGroupAvatar(with: self.traitCollection.userInterfaceStyle)
-                }
+                participantCell.contactImage.setActorAvatar(forId: participant.userId, withType: participantType, withDisplayName: participant.name, withRoomToken: nil)
 
                 return participantCell
             }

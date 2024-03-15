@@ -1438,36 +1438,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)getMentionSuggestionsInRoom:(NSString *)token forString:(NSString *)string forAccount:(TalkAccount *)account withCompletionBlock:(GetMentionSuggestionsCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"chat/%@/mentions", encodedToken];
-    NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    NSDictionary *parameters = @{@"limit" : @"20",
-                                 @"search" : string ? string : @"",
-                                 @"includeStatus" : @(serverCapabilities.userStatus)
-    };
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *mentions = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        NSMutableArray *suggestions = [[NSMutableArray alloc] initWithArray:mentions];;
-        if (block) {
-            block(suggestions, nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(nil, error);
-        }
-    }];
-    
-    return task;
-}
-
 - (NSURLSessionDataTask *)deleteChatMessageInRoom:(NSString *)token withMessageId:(NSInteger)messageId forAccount:(TalkAccount *)account withCompletionBlock:(DeleteChatMessageCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
@@ -2394,6 +2364,49 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
     return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        if (error) {
+            // When the request was cancelled before completing, we expect no completion handler to be called
+            if (block && error.code != SDWebImageErrorCancelled) {
+                block(nil, error);
+            }
+
+            return;
+        }
+
+        if (image && block) {
+            block(image, nil);
+        }
+    }];
+}
+
+- (SDWebImageCombinedOperation *)getFederatedUserAvatarForUser:(NSString *)userId inRoom:(NCRoom *)room withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetFederatedUserAvatarImageForUserCompletionBlock)block
+{
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
+    NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"proxy/%@/user-avatar/512", encodedToken];
+
+    if (style == UIUserInterfaceStyleDark) {
+        endpoint = [NSString stringWithFormat:@"%@/dark", endpoint];
+    }
+
+    NSString *encodedUserId = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    endpoint = [NSString stringWithFormat:@"%@?cloudId=%@", endpoint, encodedUserId];
+
+    NSInteger avatarAPIVersion = 1;
+    NSString *urlString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    // See getAvatarForRoom for explanation
+    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached | SDWebImageQueryDiskDataSync;
+    SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
+
+    // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
+    SDWebImageContext *context = @{
+        SDWebImageContextDownloadRequestModifier : requestModifier,
+        SDWebImageContextImageThumbnailPixelSize : @(CGSizeMake(120, 120))
+    };
+
+    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         if (error) {
             // When the request was cancelled before completing, we expect no completion handler to be called
             if (block && error.code != SDWebImageErrorCancelled) {

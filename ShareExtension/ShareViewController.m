@@ -567,7 +567,7 @@
     
     cell.titleLabel.text = room.displayName;
 
-    [cell.avatarImageView setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
+    [cell.avatarImageView setAvatarFor:room];
     
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         

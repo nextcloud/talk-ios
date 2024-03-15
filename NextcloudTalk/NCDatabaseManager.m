@@ -353,6 +353,19 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     [bgTask stopBackgroundTask];
 }
 
+#pragma mark - Rooms
+
+- (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
+{
+    NCRoom *unmanagedRoom = nil;
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
+    NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
+    if (managedRoom) {
+        unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
+    }
+    return unmanagedRoom;
+}
+
 #pragma mark - Talk capabilities
 
 - (void)setTalkCapabilities:(NSDictionary *)capabilitiesDict onTalkCapabilitiesObject:(TalkCapabilities *)capabilities

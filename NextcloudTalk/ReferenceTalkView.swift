@@ -90,10 +90,10 @@ import SwiftyAttributes
             self.roomToken = roomToken
 
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            let room = NCRoomsManager.sharedInstance().room(withToken: roomToken, forAccountId: activeAccount.accountId)
+            let room = NCDatabaseManager.sharedInstance().room(withToken: roomToken, forAccountId: activeAccount.accountId)
 
             if let room = room {
-                self.referenceTypeIcon.setAvatar(for: room, with: self.traitCollection.userInterfaceStyle)
+                self.referenceTypeIcon.setAvatar(for: room)
                 self.referenceTypeIcon.layer.cornerRadius = self.referenceTypeIcon.frame.height / 2
             } else {
                 self.referenceTypeIcon.layer.cornerRadius = 0

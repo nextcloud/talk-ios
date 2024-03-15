@@ -1334,7 +1334,7 @@ typedef enum RoomsSections {
     if (roomToken && messageIdString) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         NSInteger messageId = [messageIdString intValue];
-        NCRoom *room = [[NCRoomsManager sharedInstance] roomWithToken:roomToken forAccountId:activeAccount.accountId];
+        NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:roomToken forAccountId:activeAccount.accountId];
         if (room) {
             [self presentContextChatInRoom:room forMessageId:messageId];
         } else {
@@ -1527,7 +1527,7 @@ typedef enum RoomsSections {
         cell.subtitleLabel.text = pendingInvitationsString;
         cell.dateLabel.text = @"";
 
-        [cell.roomImage setMailAvatarWith:self.traitCollection.userInterfaceStyle];
+        [cell.roomImage setMailAvatar];
 
         return cell;
     }
@@ -1557,7 +1557,7 @@ typedef enum RoomsSections {
         [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
-    [cell.roomImage setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
+    [cell.roomImage setAvatarFor:room];
 
     // Set favorite or call image
     if (room.hasCall) {

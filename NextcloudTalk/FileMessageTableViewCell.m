@@ -249,8 +249,7 @@
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:message.timestamp];
     self.dateLabel.text = [NCUtils getTimeFromDate:date];
     
-    [self.avatarButton setUserAvatarFor:message.actorId with:self.traitCollection.userInterfaceStyle using:activeAccount];
-
+    [self.avatarButton setActorAvatarForMessage:message];
     _avatarButton.menu = [super getDeferredUserMenuForMessage:message];
 
     [self requestPreviewForMessage:message withAccount:activeAccount];

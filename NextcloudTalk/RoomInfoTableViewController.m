@@ -1694,7 +1694,7 @@ typedef enum FileAction {
                 cell.roomNameTextField.text = _room.displayName;
             }
 
-            [cell.roomImage setAvatarFor:_room with:self.traitCollection.userInterfaceStyle];
+            [cell.roomImage setAvatarFor:_room];
 
             if (_room.hasCall) {
                 [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
@@ -2145,20 +2145,8 @@ typedef enum FileAction {
             cell.labelTitle.text = [self detailedNameForParticipant:participant];
             
             // Avatar
-            if ([participant.actorType isEqualToString:NCAttendeeTypeEmail]) {
-                [cell.contactImage setImage:[UIImage imageNamed:@"mail-avatar"]];
-            } else if (participant.isGroup || participant.isCircle) {
-                [cell.contactImage setImage:[UIImage imageNamed:@"group-avatar"]];
-            } else if (participant.isGuest) {
-                UIColor *guestAvatarColor = [UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1.0]; /*#d5d5d5*/
-                NSString *avatarName = ([participant.displayName isEqualToString:@""]) ? @"?" : participant.displayName;
+            [cell.contactImage setActorAvatarForId:participant.actorId withType:participant.actorType withDisplayName:participant.displayName withRoomToken:self.room.token];
 
-                UIImage *image = [NCUtils getImageWithString:avatarName withBackgroundColor:guestAvatarColor withBounds:cell.contactImage.bounds isCircular:YES];
-                [cell.contactImage setImage:image];
-            } else {
-                [cell.contactImage setUserAvatarFor:participant.participantId with:self.traitCollection.userInterfaceStyle];
-            }
-            
             // Online status
             if (participant.isOffline) {
                 cell.contactImage.alpha = 0.5;

@@ -56,9 +56,6 @@ static NSString *ReplyMessageCellIdentifier     = @"ReplyMessageCellIdentifier";
 
 + (CGFloat)defaultFontSize;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
-- (void)setGuestAvatar:(NSString *)displayName;
-- (void)setBotAvatar;
-- (void)setChangelogAvatar;
 - (void)setUserStatus:(NSString *)userStatus;
 
 @end

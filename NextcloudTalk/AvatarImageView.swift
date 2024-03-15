@@ -48,10 +48,10 @@ import SDWebImage
 
     // MARK: - Conversation avatars
 
-    public func setAvatar(for room: NCRoom, with style: UIUserInterfaceStyle) {
+    public func setAvatar(for room: NCRoom) {
         self.cancelCurrentRequest()
 
-        self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: style) { image in
+        self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: self.traitCollection.userInterfaceStyle) { image in
             guard let image = image else {
                 return
             }
@@ -61,28 +61,32 @@ import SDWebImage
         }
     }
 
-    public func setGroupAvatar(with style: UIUserInterfaceStyle) {
-        if let image = AvatarManager.shared.getGroupAvatar(with: style) {
+    public func setGroupAvatar() {
+        if let image = AvatarManager.shared.getGroupAvatar(with: self.traitCollection.userInterfaceStyle) {
             self.image = image
         }
     }
 
-    public func setMailAvatar(with style: UIUserInterfaceStyle) {
-        if let image = AvatarManager.shared.getMailAvatar(with: style) {
+    public func setMailAvatar() {
+        if let image = AvatarManager.shared.getMailAvatar(with: self.traitCollection.userInterfaceStyle) {
             self.image = image
         }
     }
 
     // MARK: - User avatars
 
-    public func setUserAvatar(for userId: String, with style: UIUserInterfaceStyle) {
-        self.setUserAvatar(for: userId, with: style, using: nil)
+    public func setActorAvatar(forMessage message: NCChatMessage) {
+        self.setActorAvatar(forId: message.actorId, withType: message.actorType, withDisplayName: message.actorDisplayName, withRoomToken: message.token)
     }
 
-    public func setUserAvatar(for userId: String, with style: UIUserInterfaceStyle, using account: TalkAccount?) {
+    public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?) {
+        self.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, using: nil)
+    }
+
+    public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, using account: TalkAccount?) {
         self.cancelCurrentRequest()
 
-        self.currentRequest = AvatarManager.shared.getUserAvatar(for: userId, with: style, using: account) { image in
+        self.currentRequest = AvatarManager.shared.getActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, withStyle: self.traitCollection.userInterfaceStyle, usingAccount: account) { image in
             guard let image = image else {
                 return
             }

@@ -101,7 +101,7 @@
 - (void)updateForRoom:(NCRoom *)room
 {
     // Set room image
-    [self.avatarimage setAvatarFor:room with:self.traitCollection.userInterfaceStyle];
+    [self.avatarimage setAvatarFor:room];
 
     NSString *subtitle = nil;
     

@@ -26,6 +26,8 @@ import SDWebImage
 
     public static let shared = AvatarManager()
 
+    private let avatarDefaultSize = CGRect(x: 0, y: 0, width: 32, height: 32)
+
     // MARK: - Conversation avatars
 
     public func getAvatar(for room: NCRoom, with style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
@@ -65,7 +67,7 @@ import SDWebImage
             switch room.type {
             case kNCRoomTypeOneToOne:
                 let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId)
-                return self.getUserAvatar(for: room.name, with: style, using: account, completionBlock: completionBlock)
+                return self.getUserAvatar(forId: room.name, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             case kNCRoomTypeFormerOneToOne:
                 completionBlock(UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection))
             case kNCRoomTypePublic:
@@ -82,16 +84,86 @@ import SDWebImage
         return nil
     }
 
-    // MARK: - User avatars
+    // MARK: - Actor avatars
 
-    public func getUserAvatar(for user: String, with style: UIUserInterfaceStyle, using account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+    // swiftlint:disable:next function_parameter_count
+    public func getActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+        if let actorId {
+            if actorType == "bots" {
+                return getBotsAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
+            } else if actorType == "guests" {
+                return getGuestsAvatar(forId: actorId, withDisplayName: actorDisplayName ?? "", withStyle: style, usingAccount: account, completionBlock: completionBlock)
+            } else if actorType == "users" {
+                return getUserAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
+            } else if actorType == "federated_users" {
+                return getFederatedUserAvatar(forId: actorId, withRoomToken: roomToken ?? "", withStyle: style, usingAccount: account, completionBlock: completionBlock)
+            }
+        }
+
+        var image: UIImage?
+
+        if actorType == NCAttendeeTypeEmail {
+            image = self.getMailAvatar(with: style)
+        } else if actorType == NCAttendeeTypeGroup || actorType == NCAttendeeTypeCircle {
+            image = self.getGroupAvatar(with: style)
+        } else {
+            image = NCUtils.getImage(withString: "?", withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
+        }
+
+        completionBlock(image)
+        return nil
+    }
+
+    private func getBotsAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+        if actorId == "changelog" {
+            let traitCollection = UITraitCollection(userInterfaceStyle: style)
+            completionBlock(UIImage(named: "changelog-avatar", in: nil, compatibleWith: traitCollection))
+        } else {
+            let image = NCUtils.getImage(withString: ">", withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
+            completionBlock(image)
+        }
+
+        return nil
+    }
+
+    private func getGuestsAvatar(forId actorId: String, withDisplayName actorDisplayName: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+        let name = actorDisplayName.isEmpty ? "?" : actorDisplayName
+        let image = NCUtils.getImage(withString: name, withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
+
+        completionBlock(image)
+
+        return nil
+    }
+
+    private func getUserAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         let account = account ?? NCDatabaseManager.sharedInstance().activeAccount()
 
-        return NCAPIController.sharedInstance().getUserAvatar(forUser: user, using: account, with: style) { image, _ in
+        return NCAPIController.sharedInstance().getUserAvatar(forUser: actorId, using: account, with: style) { image, _ in
             if image != nil {
                 completionBlock(image)
             } else {
-                NSLog("Unable to get avatar for user %@", user)
+                NSLog("Unable to get avatar for user %@", actorId)
+
+                let traitCollection = UITraitCollection(userInterfaceStyle: style)
+                completionBlock(UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection))
+            }
+        }
+    }
+
+    private func getFederatedUserAvatar(forId actorId: String, withRoomToken roomToken: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+        let account = account ?? NCDatabaseManager.sharedInstance().activeAccount()
+
+        guard let room = NCDatabaseManager.sharedInstance().room(withToken: roomToken, forAccountId: account.accountId)
+        else {
+            completionBlock(nil)
+            return nil
+        }
+
+        return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, in: room, with: style) { image, _ in
+            if image != nil {
+                completionBlock(image)
+            } else {
+                NSLog("Unable to get federated avatar for user %@", actorId)
 
                 let traitCollection = UITraitCollection(userInterfaceStyle: style)
                 completionBlock(UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection))

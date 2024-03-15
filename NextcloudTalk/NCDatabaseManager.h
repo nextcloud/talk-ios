@@ -123,6 +123,9 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(NSString *)hash;
 - (void)updateLastModifiedSinceForAccountId:(NSString *)accountId with:(nonnull NSString *)modifiedSince;
 
+// Rooms
+- (NCRoom * _Nullable)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId;
+
 // FederatedCapabilities
 - (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken;
 - (void)setFederatedCapabilities:(NSDictionary *)federatedCapabilitiesDict forAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken withProxyHash:(NSString *)proxyHash;
