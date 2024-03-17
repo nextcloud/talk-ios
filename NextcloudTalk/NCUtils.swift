@@ -469,7 +469,9 @@ import UniformTypeIdentifiers
 
     public static func log(_ message: String) {
         do {
-            self.removeOldLogfiles()
+            DispatchQueue.global(qos: .background).async {
+                self.removeOldLogfiles()
+            }
 
             guard let logPath = self.getLogfilePath()
             else { return }
