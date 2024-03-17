@@ -76,7 +76,7 @@
     _objectTitle.editable = NO;
     _objectTitle.scrollEnabled = NO;
     _objectTitle.userInteractionEnabled = NO;
-    _objectTitle.font = [UIFont systemFontOfSize:[ObjectShareMessageTableViewCell defaultFontSize]];
+    _objectTitle.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     [_objectContainerView addSubview:_objectTitle];
     
     UITapGestureRecognizer *previewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(objectTapped:)];
@@ -142,11 +142,9 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    
-    CGFloat pointSize = [ObjectShareMessageTableViewCell defaultFontSize];
-    
-    self.titleLabel.font = [UIFont systemFontOfSize:pointSize];
-    
+
+    self.titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+
     self.titleLabel.text = @"";
     self.dateLabel.text = @"";
     
@@ -273,7 +271,7 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 1;
-        _titleLabel.font = [UIFont systemFontOfSize:[ObjectShareMessageTableViewCell defaultFontSize]];
+        _titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
         _titleLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _titleLabel;
@@ -288,7 +286,7 @@
         _dateLabel.backgroundColor = [UIColor clearColor];
         _dateLabel.userInteractionEnabled = NO;
         _dateLabel.numberOfLines = 1;
-        _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        _dateLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
         _dateLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _dateLabel;
@@ -304,16 +302,6 @@
         _reactionsView.reactionsDelegate = self;
     }
     return _reactionsView;
-}
-
-+ (CGFloat)defaultFontSize
-{
-    CGFloat pointSize = 16.0;
-    
-    //    NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
-    //    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
-    
-    return pointSize;
 }
 
 @end

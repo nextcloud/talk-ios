@@ -45,7 +45,6 @@ static NSString *InvisibleSystemMessageCellIdentifier   = @"InvisibleSystemMessa
 @property (nonatomic, strong) MessageBodyTextView *bodyTextView;
 @property (nonatomic, strong) UIButton *collapseButton;
 
-+ (CGFloat)defaultFontSize;
 - (void)setupForMessage:(NCChatMessage *)message;
 
 @end

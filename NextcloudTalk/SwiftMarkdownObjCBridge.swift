@@ -26,13 +26,13 @@ import UIKit
 @objcMembers class SwiftMarkdownObjCBridge: NSObject {
 
     static let markdownParser: CDMarkdownParser = {
-        let markdownParser = CDMarkdownParser(font: .systemFont(ofSize: 16), fontColor: NCAppBranding.chatForegroundColor())
+        let markdownParser = CDMarkdownParser(font: .preferredFont(forTextStyle: .body), fontColor: NCAppBranding.chatForegroundColor())
 
         markdownParser.code.backgroundColor = .secondarySystemBackground
-        markdownParser.code.font =  CDFont.monospacedSystemFont(ofSize: 16, weight: .regular)
+        markdownParser.code.font = .monospacedPreferredFont(forTextStyle: .body)
 
         markdownParser.syntax.backgroundColor = .secondarySystemBackground
-        markdownParser.syntax.font =  CDFont.monospacedSystemFont(ofSize: 16, weight: .regular)
+        markdownParser.syntax.font = .monospacedPreferredFont(forTextStyle: .body)
 
         markdownParser.squashNewlines = false
         markdownParser.overwriteExistingStyle = false
@@ -46,7 +46,7 @@ import UIKit
         markdownParser.list.color = nil
 
         // To correctly position list elements, we need to tell CDMarkdownKit the font to use for sizing
-        markdownParser.list.indicatorFont = .systemFont(ofSize: 16)
+        markdownParser.list.indicatorFont = .preferredFont(forTextStyle: .body)
 
         markdownParser.quote.font = nil
         markdownParser.quote.color = nil

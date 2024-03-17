@@ -96,7 +96,7 @@
         _actorLabel.numberOfLines = 1;
         _actorLabel.contentMode = UIViewContentModeLeft;
         
-        _actorLabel.font = [UIFont systemFontOfSize:16.0];
+        _actorLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
         _actorLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _actorLabel;
@@ -112,7 +112,7 @@
         _messageLabel.numberOfLines = 0;
         _messageLabel.contentMode = UIViewContentModeLeft;
         
-        _messageLabel.font = [UIFont systemFontOfSize:16.0];
+        _messageLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
         _messageLabel.textColor = [NCAppBranding chatForegroundColor];
     }
     return _messageLabel;

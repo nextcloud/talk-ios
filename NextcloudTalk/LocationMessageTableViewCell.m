@@ -131,12 +131,10 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    
-    CGFloat pointSize = [LocationMessageTableViewCell defaultFontSize];
-    
-    self.titleLabel.font = [UIFont systemFontOfSize:pointSize];
-    self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
-    
+
+    self.titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    self.bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+
     self.titleLabel.text = @"";
     self.bodyTextView.text = @"";
     self.dateLabel.text = @"";
@@ -292,7 +290,7 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 1;
-        _titleLabel.font = [UIFont systemFontOfSize:[LocationMessageTableViewCell defaultFontSize]];
+        _titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
         _titleLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _titleLabel;
@@ -307,7 +305,7 @@
         _dateLabel.backgroundColor = [UIColor clearColor];
         _dateLabel.userInteractionEnabled = NO;
         _dateLabel.numberOfLines = 1;
-        _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        _dateLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
         _dateLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _dateLabel;
@@ -329,20 +327,10 @@
 {
     if (!_bodyTextView) {
         _bodyTextView = [MessageBodyTextView new];
-        _bodyTextView.font = [UIFont systemFontOfSize:[LocationMessageTableViewCell defaultFontSize]];
+        _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
     }
     return _bodyTextView;
-}
-
-+ (CGFloat)defaultFontSize
-{
-    CGFloat pointSize = 16.0;
-    
-    //    NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
-    //    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
-    
-    return pointSize;
 }
 
 @end

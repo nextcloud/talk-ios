@@ -213,7 +213,7 @@ import AVFoundation
 
     private lazy var shareTextView: UITextView = {
         let textView = UITextView()
-        textView.font = .systemFont(ofSize: 16)
+        textView.font = .preferredFont(forTextStyle: .body)
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isHidden = true
         return textView

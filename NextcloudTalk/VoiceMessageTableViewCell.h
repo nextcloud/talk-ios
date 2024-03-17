@@ -62,7 +62,6 @@ static NSString *GroupedVoiceMessageCellIdentifier   = @"GroupedVoiceMessageCell
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraints;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
-+ (CGFloat)defaultFontSize;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 - (void)setPlayerProgress:(CGFloat)progress isPlaying:(BOOL)playing maximumValue:(CGFloat)maxValue;
 - (void)resetPlayer;

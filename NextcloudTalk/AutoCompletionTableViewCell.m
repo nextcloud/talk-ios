@@ -21,6 +21,7 @@
  */
 
 #import "AutoCompletionTableViewCell.h"
+#import "ChatTableViewCell.h"
 
 #import "SLKUIConstants.h"
 
@@ -85,10 +86,8 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    
-    CGFloat pointSize = [AutoCompletionTableViewCell defaultFontSize];
 
-    self.titleLabel.font = [UIFont systemFontOfSize:pointSize];
+    self.titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     self.titleLabel.text = @"";
 
     [self.avatarButton cancelCurrentRequest];
@@ -108,7 +107,7 @@
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.userInteractionEnabled = NO;
         _titleLabel.numberOfLines = 1;
-        _titleLabel.font = [UIFont systemFontOfSize:[AutoCompletionTableViewCell defaultFontSize]];
+        _titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
         _titleLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _titleLabel;
@@ -136,16 +135,5 @@
         _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
     }
 }
-
-+ (CGFloat)defaultFontSize
-{
-    CGFloat pointSize = 16.0;
-    
-//    NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
-//    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
-    
-    return pointSize;
-}
-
 
 @end

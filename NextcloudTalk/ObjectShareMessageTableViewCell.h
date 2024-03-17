@@ -57,7 +57,6 @@ static NSString *GroupedObjectShareMessageCellIdentifier    = @"GroupedObjectSha
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraints;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
-+ (CGFloat)defaultFontSize;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

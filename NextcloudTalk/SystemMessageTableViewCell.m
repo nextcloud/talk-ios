@@ -80,8 +80,7 @@
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.backgroundColor = [NCAppBranding backgroundColor];
-    CGFloat pointSize = [SystemMessageTableViewCell defaultFontSize];
-    self.bodyTextView.font = [UIFont systemFontOfSize:pointSize];
+
     self.bodyTextView.text = @"";
     self.dateLabel.text = @"";
 }
@@ -92,7 +91,6 @@
 {
     if (!_bodyTextView) {
         _bodyTextView = [MessageBodyTextView new];
-        _bodyTextView.font = [UIFont systemFontOfSize:[SystemMessageTableViewCell defaultFontSize]];
     }
     return _bodyTextView;
 }
@@ -106,7 +104,7 @@
         _dateLabel.backgroundColor = [UIColor clearColor];
         _dateLabel.userInteractionEnabled = NO;
         _dateLabel.numberOfLines = 1;
-        _dateLabel.font = [UIFont systemFontOfSize:12.0];
+        _dateLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
         _dateLabel.textColor = [UIColor secondaryLabelColor];
     }
     return _dateLabel;
@@ -127,16 +125,6 @@
 - (void)collapseButtonPressed
 {
     [self.delegate cellWantsToCollapseMessagesWithMessage:self.message];
-}
-
-+ (CGFloat)defaultFontSize
-{
-    CGFloat pointSize = 16.0;
-    
-    //    NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
-    //    pointSize += SLKPointSizeDifferenceForCategory(contentSizeCategory);
-    
-    return pointSize;
 }
 
 - (void)setupForMessage:(NCChatMessage *)message

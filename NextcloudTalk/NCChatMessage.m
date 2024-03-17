@@ -513,7 +513,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     if (self.isEmojiMessage) {
         [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:36.0f] range:NSMakeRange(0, parsedMessage.length)];
     } else {
-        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:16.0f] range:NSMakeRange(0, parsedMessage.length)];
+        [attributedMessage addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleBody] range:NSMakeRange(0, parsedMessage.length)];
     }
 
     UIColor *highlightedColor = nil;
@@ -534,13 +534,13 @@ NSString * const kSharedItemTypeRecording   = @"recording";
                 [attributedMessage addAttribute:NSForegroundColorAttributeName value:defaultColor range:param.range];
             }
 
-            [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
+            [attributedMessage addAttribute:NSFontAttributeName value:[UIFont preferredFontFor:UIFontTextStyleBody weight:UIFontWeightBold] range:param.range];
         }
         //Create a link if parameter contains a link
         else if (param.link) {
             // Do not create links for files. File preview images will redirect to files client or browser.
             if ([param.type isEqualToString:@"file"]) {
-                [attributedMessage addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:16.0f] range:param.range];
+                [attributedMessage addAttribute:NSFontAttributeName value:[UIFont preferredFontFor:UIFontTextStyleBody weight:UIFontWeightBold] range:param.range];
             } else {
                 [attributedMessage addAttribute:NSLinkAttributeName value:param.link range:param.range];
             }
@@ -589,7 +589,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     NSMutableAttributedString *message = [self parsedMessage];
 
-    //TODO: Further adjust for dark-mode ?
     [message addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:NSMakeRange(0,message.length)];
     
     return message;

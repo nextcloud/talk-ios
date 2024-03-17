@@ -2691,7 +2691,7 @@ import QuickLook
         width -= message.isSystemMessage() ? 80.0 : 30.0 // *right(10) + dateLabel(40) : 3*right(10)
 
         if message.poll() != nil {
-            messageString = messageString.withFont(.systemFont(ofSize: ObjectShareMessageTableViewCell.defaultFontSize()))
+            messageString = messageString.withFont(.preferredFont(forTextStyle: .body))
             width -= kObjectShareMessageCellObjectTypeImageSize + 25 // 2*right(10) + left(5)
         }
 
