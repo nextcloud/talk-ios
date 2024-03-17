@@ -82,7 +82,7 @@ final class UnitChatCellTest: TestBaseRealm {
 
         // Multiline chat message
         testMessage.message = "test\nasd\nasd"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 108.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 110.0)
 
         // Normal chat message with reaction
         testMessage.message = "test"
@@ -197,7 +197,7 @@ final class UnitChatCellTest: TestBaseRealm {
 
         testMessage.messageParametersJSONString = fileMessageParameters
         testMessage.message = "File caption... https://nextcloud.com"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 210.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 315.0)
     }
 
     func testCellWithFileAndQuoteHeight() {
@@ -215,10 +215,7 @@ final class UnitChatCellTest: TestBaseRealm {
         }
 
         testMessage.parentId = "internal-1"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 210.0)
-
-        // This should be 275 if the file cell would be able to display a quoted view
-        // XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 275.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 275.0)
     }
 
     func testCellWithVoiceMessageHeight() {

@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NCMessageFileParameter : NCMessageParameter
 
-@property (nonatomic, strong) NSString *path;
+@property (nonatomic, strong) NSString * _Nullable path;
 @property (nonatomic, strong) NSString *mimetype;
 @property (nonatomic, assign) NSInteger size;
 @property (nonatomic, assign) BOOL previewAvailable;

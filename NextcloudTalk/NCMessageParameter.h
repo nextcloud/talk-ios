@@ -27,7 +27,7 @@
 
 @property (nonatomic, strong) NSString *parameterId;
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *link;
+@property (nonatomic, strong) NSString * _Nullable link;
 @property (nonatomic, strong) NSString *type;
 @property (nonatomic, assign) NSRange range;
 @property (nonatomic, strong) NSString *contactName;
@@ -38,7 +38,7 @@
 
 - (instancetype)initWithDictionary:(NSDictionary *)parameterDict;
 - (BOOL)shouldBeHighlighted;
-- (UIImage *)contactPhotoImage;
+- (UIImage * _Nullable)contactPhotoImage;
 
 // parametersDict as [NSString:NCMessageParameter]
 + (NSString *)messageParametersJSONStringFromDictionary:(NSDictionary *)parametersDict;

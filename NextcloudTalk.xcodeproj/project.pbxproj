@@ -17,6 +17,10 @@
 		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
 		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
+		1F1B50342B8E069800B0F2F4 /* BaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */; };
+		1F1B50382B8E070100B0F2F4 /* BaseChatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */; };
+		1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */; };
+		1F1B503E2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B503D2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift */; };
 		1F1B50442B9095D100B0F2F4 /* FederatedCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */; };
 		1F1B50472B90CDF800B0F2F4 /* TalkCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */; };
 		1F1B50482B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */; };
@@ -84,6 +88,7 @@
 		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F53819129195FA4003DA6B7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
+		1F5683CF2BA7980C0023E151 /* FilePreviewImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */; };
 		1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */; };
 		1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */; };
 		1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
@@ -221,6 +226,10 @@
 		1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0D82AF440DD00FBAFB7 /* BoundsChangedFlowLayout.swift */; };
 		1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDE7C9928DE14A200CB718E /* ReferenceView.swift */; };
 		1FDE7C9C28DE14B000CB718E /* ReferenceView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */; };
+		1FDFC94D2BA50B9100670DF4 /* UIFontExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */; };
+		1FDFC94E2BA50B9100670DF4 /* UIFontExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */; };
+		1FDFC94F2BA50B9100670DF4 /* UIFontExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */; };
+		1FDFC9502BA50B9100670DF4 /* UIFontExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */; };
 		1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */; };
 		1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */; };
 		1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE94733293CE55600D6584C /* NCCameraController.swift */; };
@@ -278,7 +287,6 @@
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
 		2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */; };
 		2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
-		2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */; };
 		2C4230F72B207AB00013E1FA /* ContextChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4230F62B207AB00013E1FA /* ContextChatViewController.swift */; };
 		2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C42ADB320B58E6300296DEA /* NCChatController.m */; };
 		2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
@@ -397,9 +405,7 @@
 		2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */; };
 		2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
-		2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */; };
 		2CA1554B208F2E5700CE8EF0 /* NCMessageTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */; };
-		2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */; };
 		2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC901F014354002FE6A2 /* NCConnectionController.m */; };
 		2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */; };
 		2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CC961F016117002FE6A2 /* Security.framework */; };
@@ -486,6 +492,7 @@
 		2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */; };
 		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
+		4890175925A0D7FC2EC76CC0 /* libPods-NextcloudTalkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7005E22D6C2896927FC3AEEC /* libPods-NextcloudTalkTests.a */; };
 		807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */; };
 		80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */; };
 		80832B782A823D0700195A97 /* UserStatusMessageSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */; };
@@ -564,6 +571,10 @@
 		1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MentionSuggestion.swift; sourceTree = "<group>"; };
 		1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitMentionSuggestionTest.swift; sourceTree = "<group>"; };
 		1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCZoomableView.swift; sourceTree = "<group>"; };
+		1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseChatTableViewCell.swift; sourceTree = "<group>"; };
+		1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BaseChatTableViewCell.xib; sourceTree = "<group>"; };
+		1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+File.swift"; sourceTree = "<group>"; };
+		1F1B503D2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+Message.swift"; sourceTree = "<group>"; };
 		1F1B50422B9095C900B0F2F4 /* FederatedCapabilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FederatedCapabilities.h; sourceTree = "<group>"; };
 		1F1B50432B9095D100B0F2F4 /* FederatedCapabilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FederatedCapabilities.m; sourceTree = "<group>"; };
 		1F1B50452B90CDE600B0F2F4 /* TalkCapabilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TalkCapabilities.h; sourceTree = "<group>"; };
@@ -589,6 +600,7 @@
 		1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDefaultView.swift; sourceTree = "<group>"; };
 		1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDefaultView.xib; sourceTree = "<group>"; };
 		1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiUtils.swift; sourceTree = "<group>"; };
+		1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreviewImageView.swift; sourceTree = "<group>"; };
 		1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
 		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
 		1F5A24322ADA77DA009939FE /* InputbarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputbarViewController.swift; sourceTree = "<group>"; };
@@ -664,6 +676,7 @@
 		1FDDB0E82AFE8F5C00FBAFB7 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		1FDE7C9928DE14A200CB718E /* ReferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceView.swift; sourceTree = "<group>"; };
 		1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReferenceView.xib; sourceTree = "<group>"; };
+		1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFontExtension.swift; sourceTree = "<group>"; };
 		1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceTalkView.xib; sourceTree = "<group>"; };
 		1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceTalkView.swift; sourceTree = "<group>"; };
 		1FE94733293CE55600D6584C /* NCCameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCameraController.swift; sourceTree = "<group>"; };
@@ -737,8 +750,6 @@
 		2C3780C4210F4A26003F9AE8 /* HeaderWithButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderWithButton.xib; sourceTree = "<group>"; };
 		2C40281322832EED0000DDFC /* NCDatabaseManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDatabaseManager.h; sourceTree = "<group>"; };
 		2C40281422832EED0000DDFC /* NCDatabaseManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDatabaseManager.m; sourceTree = "<group>"; };
-		2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileMessageTableViewCell.h; sourceTree = "<group>"; };
-		2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C4230F62B207AB00013E1FA /* ContextChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextChatViewController.swift; sourceTree = "<group>"; };
 		2C42ADB220B58E6300296DEA /* NCChatController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatController.h; sourceTree = "<group>"; };
 		2C42ADB320B58E6300296DEA /* NCChatController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatController.m; sourceTree = "<group>"; };
@@ -896,12 +907,8 @@
 		2C9E6CCD1F6F34F000399B7A /* ARDSDPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDSDPUtils.m; sourceTree = "<group>"; };
 		2CA1553F208E350300CE8EF0 /* NCChatMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatMessage.h; sourceTree = "<group>"; };
 		2CA15540208E350300CE8EF0 /* NCChatMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatMessage.m; sourceTree = "<group>"; };
-		2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatMessageTableViewCell.h; sourceTree = "<group>"; };
-		2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatMessageTableViewCell.m; sourceTree = "<group>"; };
 		2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCMessageTextView.h; sourceTree = "<group>"; };
 		2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCMessageTextView.m; sourceTree = "<group>"; };
-		2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GroupedChatMessageTableViewCell.h; sourceTree = "<group>"; };
-		2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GroupedChatMessageTableViewCell.m; sourceTree = "<group>"; };
 		2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCConnectionController.h; sourceTree = "<group>"; };
 		2CA1CC901F014354002FE6A2 /* NCConnectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCConnectionController.m; sourceTree = "<group>"; };
 		2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSettingsController.h; sourceTree = "<group>"; };
@@ -1030,6 +1037,7 @@
 		4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		584BF273DF09DE4D5EE0DA0F /* Pods-ShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		684807120F4439797973DF73 /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7005E22D6C2896927FC3AEEC /* libPods-NextcloudTalkTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalkTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusOptionsSwiftUI.swift; sourceTree = "<group>"; };
 		80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusSwiftUIView.swift; sourceTree = "<group>"; };
 		80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusMessageSwiftUIView.swift; sourceTree = "<group>"; };
@@ -1069,6 +1077,7 @@
 				1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */,
 				1F759C1C2B63B9D9000534AB /* TOCropViewController in Frameworks */,
 				1F759C1E2B63B9D9000534AB /* SwiftUIIntrospect in Frameworks */,
+				4890175925A0D7FC2EC76CC0 /* libPods-NextcloudTalkTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1426,6 +1435,7 @@
 				2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */,
 				2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */,
 				1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */,
+				1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -1662,18 +1672,16 @@
 			isa = PBXGroup;
 			children = (
 				1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */,
+				1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */,
+				1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */,
+				1F1B503D2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift */,
+				1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */,
 				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
 				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
 				1F35F9022AEEDEE800044BDA /* AutoCompletionTableViewCell.h */,
 				1F35F9032AEEDF0E00044BDA /* AutoCompletionTableViewCell.m */,
-				2CA15546208EA1EA00CE8EF0 /* ChatMessageTableViewCell.h */,
-				2CA15547208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m */,
-				2C415F992136BDD6005F7F37 /* FileMessageTableViewCell.h */,
-				2C415F9A2136BDD6005F7F37 /* FileMessageTableViewCell.m */,
 				2CB6ACD02640814100D3D641 /* LocationMessageTableViewCell.h */,
 				2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */,
-				2CA155542099E07700CE8EF0 /* GroupedChatMessageTableViewCell.h */,
-				2CA155552099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m */,
 				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
 				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
 				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
@@ -1683,6 +1691,7 @@
 				2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */,
 				2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */,
 				1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */,
+				1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */,
 			);
 			name = "Chat cells";
 			sourceTree = "<group>";
@@ -1763,6 +1772,7 @@
 				4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */,
 				1FF2FD5C2AB99CCB000C9905 /* ReplayKit.framework */,
 				9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */,
+				7005E22D6C2896927FC3AEEC /* libPods-NextcloudTalkTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2270,6 +2280,7 @@
 				1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */,
 				1FEC459C2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib in Resources */,
 				1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */,
+				1F1B50382B8E070100B0F2F4 /* BaseChatTableViewCell.xib in Resources */,
 				2C5BFBF828902E3700E75118 /* PollFooterView.xib in Resources */,
 				1FDE7C9C28DE14B000CB718E /* ReferenceView.xib in Resources */,
 				2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */,
@@ -2534,6 +2545,7 @@
 				1F77A6242ABA0003007B6037 /* SampleHandler.swift in Sources */,
 				1F77A5F32AB9A43B007B6037 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1F77A6092AB9A593007B6037 /* NCWebImageDownloaderOperation.m in Sources */,
+				1FDFC9502BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1F77A6072AB9A587007B6037 /* NCPushProxySessionManager.m in Sources */,
 				1FF2FD832AB99F3B000C9905 /* NCAppBranding.m in Sources */,
 				1F77A5F82AB9A4CD007B6037 /* NCDeckCardParameter.m in Sources */,
@@ -2592,6 +2604,7 @@
 				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
 				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
+				1F1B50342B8E069800B0F2F4 /* BaseChatTableViewCell.swift in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
 				1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
@@ -2601,7 +2614,6 @@
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
 				2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
-				2C415F9B2136BDD6005F7F37 /* FileMessageTableViewCell.m in Sources */,
 				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				1F1B50442B9095D100B0F2F4 /* FederatedCapabilities.m in Sources */,
@@ -2609,6 +2621,7 @@
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
 				1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */,
+				1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */,
 				1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */,
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
@@ -2633,6 +2646,7 @@
 				2C2D7A172B8C9C0000642373 /* RoomCreationTableViewController.swift in Sources */,
 				1F8995B52973547700CABA33 /* WebRTCCommon.swift in Sources */,
 				2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */,
+				1F1B503E2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift in Sources */,
 				DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */,
@@ -2689,13 +2703,12 @@
 				2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */,
 				2CC1FF4828183958009F7288 /* NCDeckCardParameter.m in Sources */,
 				2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */,
+				1F5683CF2BA7980C0023E151 /* FilePreviewImageView.swift in Sources */,
 				1F0B0A722BA264540073FF8D /* MentionSuggestion.swift in Sources */,
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				1F77A6162AB9B161007B6037 /* ScreenCaptureController.m in Sources */,
 				2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */,
-				2CA155562099E07700CE8EF0 /* GroupedChatMessageTableViewCell.m in Sources */,
-				2CA15548208EA1EA00CE8EF0 /* ChatMessageTableViewCell.m in Sources */,
 				2C4230F72B207AB00013E1FA /* ContextChatViewController.swift in Sources */,
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
@@ -2767,6 +2780,7 @@
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
 				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,
+				1FDFC94D2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */,
 				80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */,
 				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
@@ -2822,6 +2836,7 @@
 				2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				1F35F8ED2AEEBC1600044BDA /* UIView+SLKAdditions.m in Sources */,
 				2C1ABD8725769E7D00AEDFB6 /* ShareItemController.m in Sources */,
+				1FDFC94F2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1F35F8EA2AEEBC0E00044BDA /* SLKTextViewController.m in Sources */,
 				2C6955132B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
@@ -2876,6 +2891,7 @@
 				1FB78E222B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */,
+				1FDFC94E2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				1F1B504D2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
