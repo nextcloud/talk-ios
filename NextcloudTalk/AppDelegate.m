@@ -89,10 +89,7 @@
 
     [NCUserInterfaceController sharedInstance].mainViewController = (NCSplitViewController *) self.window.rootViewController;
     [NCUserInterfaceController sharedInstance].roomsTableViewController = [NCUserInterfaceController sharedInstance].mainViewController.viewControllers.firstObject.childViewControllers.firstObject;
-
-    if (@available(iOS 14.5, *)) {
-        [NCUserInterfaceController sharedInstance].mainViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
-    }
+    [NCUserInterfaceController sharedInstance].mainViewController.displayModeButtonVisibility = UISplitViewControllerDisplayModeButtonVisibilityNever;
 
     NSArray *arguments = [[NSProcessInfo processInfo] arguments];
 
