@@ -819,6 +819,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
 - (BOOL)containsURL
 {
+    if (!self.message) {
+        return NO;
+    }
+    
     if (_urlDetectionDone) {
         return ([_urlDetected length] != 0);
     }

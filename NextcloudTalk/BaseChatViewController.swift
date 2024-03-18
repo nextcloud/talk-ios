@@ -2523,6 +2523,10 @@ import QuickLook
             guard let message = self.message(for: indexPath) else { continue }
 
             DispatchQueue.global(qos: .userInitiated).async {
+                guard message.messageId != kUnreadMessagesSeparatorIdentifier, 
+                      message.messageId != kChatBlockSeparatorIdentifier
+                else { return }
+
                 if message.containsURL() {
                     message.getReferenceData()
                 }
