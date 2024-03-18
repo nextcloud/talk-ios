@@ -101,7 +101,11 @@ jobs:
 
     - name: Set up dependencies talk-ios
       run: |
-        pod install    
+        pod install
+
+    - name: Install xcbeautify
+      run: |
+        brew install xcbeautify
 
     - name: Build & Test NextcloudTalk iOS
       run: |
@@ -111,7 +115,7 @@ jobs:
         -test-iterations 3 \
         -retry-tests-on-failure \
         -resultBundlePath "testResult.xcresult" \
-        | xcpretty
+        | xcbeautify --quieter
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
