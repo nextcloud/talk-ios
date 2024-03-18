@@ -298,31 +298,40 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
         if deliveryState == ChatMessageDeliveryStateSending || deliveryState == ChatMessageDeliveryStateDeleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
+
             activityIndicator.radius = 7.0
-            activityIndicator.cycleColors = [.lightGray]
+            activityIndicator.cycleColors = [.systemGray2]
             activityIndicator.startAnimating()
+            activityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
             self.statusView.addArrangedSubview(activityIndicator)
+
         } else if deliveryState == ChatMessageDeliveryStateFailed {
             let errorView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
             let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.red).withRenderingMode(.alwaysOriginal)
+
             errorView.image = errorImage
+            errorView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
             self.statusView.addArrangedSubview(errorView)
-        } else if deliveryState == ChatMessageDeliveryStateSent {
+
+        } else if deliveryState == ChatMessageDeliveryStateSent || deliveryState == ChatMessageDeliveryStateRead {
+            var checkImageName = "check"
+
+            if deliveryState == ChatMessageDeliveryStateRead {
+                checkImageName = "check-all"
+            }
+
+            let checkImage = UIImage(named: checkImageName)?.withRenderingMode(.alwaysTemplate)
             let checkView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-            let checkImage = UIImage(named: "check")?.withRenderingMode(.alwaysTemplate)
+
             checkView.image = checkImage
             checkView.contentMode = .scaleAspectFit
             checkView.tintColor = .systemGray2
             checkView.accessibilityIdentifier = "MessageSent"
+            checkView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
             self.statusView.addArrangedSubview(checkView)
-        } else if deliveryState == ChatMessageDeliveryStateRead {
-            let checkAllView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-            let checkAllImage = UIImage(named: "check-all")?.withRenderingMode(.alwaysTemplate)
-            checkAllView.image = checkAllImage
-            checkAllView.contentMode = .scaleAspectFit
-            checkAllView.tintColor = .systemGray2
-            checkAllView.accessibilityIdentifier = "MessageSent"
-            self.statusView.addArrangedSubview(checkAllView)
         }
     }
 

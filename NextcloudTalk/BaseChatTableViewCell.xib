@@ -70,7 +70,7 @@
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X2q-XX-H1j" userLabel="ContentPart">
                                 <rect key="frame" x="0.0" y="100" width="422" height="257"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="TkE-V6-ePd" userLabel="StatusView">
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="TkE-V6-ePd" userLabel="StatusView">
                                         <rect key="frame" x="15" y="5" width="20" height="20"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F90-3N-Ecf" userLabel="PlaceholderForInterfaceBuilder">

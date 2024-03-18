@@ -287,6 +287,7 @@ extension BaseChatTableViewCell {
         }
 
         fileActivityIndicator.startAnimating()
+        fileActivityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
         self.statusView.addArrangedSubview(fileActivityIndicator)
     }
 
