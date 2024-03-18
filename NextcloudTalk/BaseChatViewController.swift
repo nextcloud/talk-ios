@@ -483,6 +483,7 @@ import QuickLook
         temporaryMessage.accountId = activeAccount.accountId
         temporaryMessage.actorDisplayName = activeAccount.userDisplayName
         temporaryMessage.actorId = activeAccount.userId
+        temporaryMessage.actorType = "users"
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
         temporaryMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: message, parameters: messageParameters)
