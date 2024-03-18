@@ -244,4 +244,15 @@ final class UnitChatCellTest: TestBaseRealm {
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 135.0)
     }
 
+    func testUnreadMessageSeparatorUrlCheck() throws {
+        let message = NCChatMessage()
+        message.messageId = kUnreadMessagesSeparatorIdentifier
+
+        updateCapabilities { cap in
+            cap.referenceApiSupported = true
+        }
+
+        XCTAssertFalse(message.containsURL())
+    }
+
 }
