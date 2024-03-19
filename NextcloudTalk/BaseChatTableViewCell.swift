@@ -129,8 +129,6 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
     // swiftlint:disable:next cyclomatic_complexity
     public func setup(for message: NCChatMessage, withLastCommonReadMessage lastCommonRead: Int) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
         self.message = message
         self.messageId = message.messageId
 
@@ -167,9 +165,13 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             self.titleLabel.text = actorDisplayName
         }
 
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-        let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadStatus, forAccountId: activeAccount.accountId)
-        let shouldShowReadStatus = !serverCapabilities.readStatusPrivacy
+        guard let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: message.accountId),
+              let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
+        else { return }
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
+        let shouldShowReadStatus = !roomCapabilities.readStatusPrivacy
 
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
         let parent = message.parent()
