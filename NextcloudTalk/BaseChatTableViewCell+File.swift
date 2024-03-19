@@ -321,16 +321,16 @@ extension BaseChatTableViewCell {
                   let fileParameter = self.message?.file(),
                   receivedStatus.fileId == fileParameter.parameterId,
                   receivedStatus.filePath == fileParameter.path,
-                  let progress = userInfo["progress"] as? Float
+                  let progress = userInfo["progress"] as? CGFloat
             else { return }
 
             if self.fileActivityIndicator != nil {
                 // Switch to determinate-mode and show progress
                 self.fileActivityIndicator?.indicatorMode = .determinate
-                self.fileActivityIndicator?.setProgress(progress, animated: true)
+                self.fileActivityIndicator?.setProgress(Float(progress), animated: true)
             } else {
                 // Make sure we have an activity indicator added to this cell
-                self.addActivityIndicator(with: progress)
+                self.addActivityIndicator(with: Float(progress))
             }
         }
     }
