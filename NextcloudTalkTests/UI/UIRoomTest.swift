@@ -30,9 +30,15 @@ final class UIRoomTest: XCTestCase {
 
     func createConversation(for app: XCUIApplication, with newConversationName: String) {
         app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"].tap()
-        app.buttons["Create a new conversation"].tap()
+
+        let createNewConversationButton = app.buttons["Create a new conversation"]
+        XCTAssert(createNewConversationButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        createNewConversationButton.tap()
+
+        let newConversationNavBar = app.navigationBars["New conversation"]
+        XCTAssert(newConversationNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
         app.typeText(newConversationName)
-        app.navigationBars["New conversation"].buttons["Create"].tap()
+        newConversationNavBar.buttons["Create"].tap()
     }
 
     func testCreateConversation() {
