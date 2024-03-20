@@ -142,7 +142,10 @@ import SwiftyAttributes
                               duration: 0.2,
                               options: .transitionCrossDissolve,
                               animations: {
-                self.typingLabel.attributedText = self.getUsersTypingString() + attributedSpace + localizedSuffix
+
+                let newTypingText = self.getUsersTypingString() + attributedSpace + localizedSuffix
+
+                self.typingLabel.attributedText = newTypingText.withFont(.preferredFont(forTextStyle: .body))
             }, completion: nil)
 
             self.isVisible = true
