@@ -33,8 +33,8 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
 public let chatMessageCellIdentifier = "chatMessageCellIdentifier"
 public let chatGroupedMessageCellIdentifier = "chatGroupedMessageCellIdentifier"
 public let chatReplyMessageCellIdentifier = "chatReplyMessageCellIdentifier"
-public let chatMessageCellMinimumHeight = 50.0
-public let chatGroupedMessageCellMinimumHeight = 30.0
+public let chatMessageCellMinimumHeight = 45.0
+public let chatGroupedMessageCellMinimumHeight = 25.0
 
 // File cell
 public let fileMessageCellIdentifier = "fileMessageCellIdentifier"
