@@ -274,6 +274,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityCirclesSupport]) {
             [shareTypes addObject:@(NCShareTypeCircle)];
         }
+        if ([[NCDatabaseManager sharedInstance] serverCanInviteFederatedUsersforAccountId:account.accountId]) {
+            [shareTypes addObject:@(NCShareTypeRemote)];
+        }
     }
     
     NSString *URLString = [NSString stringWithFormat:@"%@%@/core/autocomplete/get", account.server, kNCOCSAPIVersion];

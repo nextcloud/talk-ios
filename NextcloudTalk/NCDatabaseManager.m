@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 62;
+uint64_t const kTalkDatabaseSchemaVersion           = 63;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -86,6 +86,7 @@ NSString * const kCapabilityNoteToSelf              = @"note-to-self";
 NSString * const kCapabilityMediaCaption            = @"media-caption";
 NSString * const kCapabilityEditMessages            = @"edit-messages";
 NSString * const kCapabilityDeleteMessagesUnlimited = @"delete-messages-unlimited";
+NSString * const kCapabilityFederationV1            = @"federation-v1";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 
@@ -377,6 +378,8 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.talkVersion = [capabilitiesDict objectForKey:@"version"];
 
     NSDictionary *talkConfig = [capabilitiesDict objectForKey:@"config"];
+
+    // Call capabilities
     NSDictionary *callConfig = [talkConfig objectForKey:@"call"];
     NSArray *callConfigKeys = [callConfig allKeys];
 
@@ -398,6 +401,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.callReactions = (RLMArray<RLMString> *)@[];
     }
 
+    // Conversation capabilities
     NSDictionary *conversationConfig = [talkConfig objectForKey:@"conversation"];
     NSArray *conversationConfigKeys = [conversationConfig allKeys];
 
@@ -407,6 +411,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.canCreate = YES;
     }
 
+    // Chat capabilities
     NSDictionary *chatConfig = [talkConfig objectForKey:@"chat"];
     NSArray *chatConfigKeys = [chatConfig allKeys];
 
@@ -419,6 +424,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.typingPrivacy = YES;
     }
 
+    // Translations
     id translations = [[[capabilitiesDict objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"translations"];
     if ([translations isKindOfClass:[NSArray class]]) {
         NSError *error;
@@ -430,6 +436,34 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         } else {
             NSLog(@"Error generating translations JSON string: %@", error);
         }
+    }
+
+    // Federation capabilities
+    NSDictionary *federationConfig = [talkConfig objectForKey:@"federation"];
+    NSArray *federationConfigKeys = [federationConfig allKeys];
+
+    if ([federationConfigKeys containsObject:@"enabled"]) {
+        capabilities.federationEnabled = [[federationConfig objectForKey:@"enabled"] boolValue];
+    } else {
+        capabilities.federationEnabled = NO;
+    }
+
+    if ([federationConfigKeys containsObject:@"incoming-enabled"]) {
+        capabilities.federationIncomingEnabled = [[federationConfig objectForKey:@"incoming-enabled"] boolValue];
+    } else {
+        capabilities.federationIncomingEnabled = NO;
+    }
+
+    if ([federationConfigKeys containsObject:@"outgoing-enabled"]) {
+        capabilities.federationOutgoingEnabled = [[federationConfig objectForKey:@"outgoing-enabled"] boolValue];
+    } else {
+        capabilities.federationOutgoingEnabled = NO;
+    }
+
+    if ([federationConfigKeys containsObject:@"only-trusted-servers"]) {
+        capabilities.federationOnlyTrustedServers = [[federationConfig objectForKey:@"only-trusted-servers"] boolValue];
+    } else {
+        capabilities.federationOnlyTrustedServers = NO;
     }
 }
 
@@ -636,6 +670,16 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
             return YES;
         }
     }
+    return NO;
+}
+
+- (BOOL)serverCanInviteFederatedUsersforAccountId:(NSString *)accountId
+{
+    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:accountId];
+    if (serverCapabilities && [self serverHasTalkCapability:kCapabilityFederationV1 forAccountId:accountId]) {
+        return serverCapabilities.federationEnabled && serverCapabilities.federationOutgoingEnabled;
+    }
+
     return NO;
 }
 

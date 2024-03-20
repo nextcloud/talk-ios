@@ -26,6 +26,7 @@ NSString * const kParticipantTypeUser   = @"users";
 NSString * const kParticipantTypeGroup  = @"groups";
 NSString * const kParticipantTypeEmail  = @"emails";
 NSString * const kParticipantTypeCircle = @"circles";
+NSString * const kParticipantTypeFederated = @"federated_users";
 
 @implementation NCUser
 
@@ -54,6 +55,9 @@ NSString * const kParticipantTypeCircle = @"circles";
     id source = [userDict objectForKey:@"source"];
     if ([source isKindOfClass:[NSString class]]) {
         user.source = source;
+        if ([source isEqualToString:@"remotes"]) {
+            user.source = kParticipantTypeFederated;
+        }
     } else {
         user.source = [source stringValue];
     }

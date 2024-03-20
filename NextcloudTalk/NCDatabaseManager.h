@@ -85,6 +85,7 @@ extern NSString * const kCapabilityNoteToSelf;
 extern NSString * const kCapabilityMediaCaption;
 extern NSString * const kCapabilityEditMessages;
 extern NSString * const kCapabilityDeleteMessagesUnlimited;
+extern NSString * const kCapabilityFederationV1;
 
 extern NSString * const kNotificationsCapabilityExists;
 
@@ -141,6 +142,7 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;
 - (BOOL)serverHasTalkCapability:(NSString *)capability forAccountId:(NSString *)accountId;
 - (BOOL)serverHasNotificationsCapability:(NSString *)capability forAccountId:(NSString *)accountId;
+- (BOOL)serverCanInviteFederatedUsersforAccountId:(NSString *)accountId;
 - (void)setExternalSignalingServerVersion:(NSString *)version forAccountId:(NSString *)accountId;
 
 - (BOOL)hasAvailableTranslationsForAccountId:(NSString *)accountId;

@@ -40,6 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property RLMArray<RLMString> *callReactions;
 @property NSString *talkVersion;
 @property BOOL recordingEnabled;
+@property BOOL federationEnabled;
+@property BOOL federationIncomingEnabled;
+@property BOOL federationOutgoingEnabled;
+@property BOOL federationOnlyTrustedServers;
 
 @end
 

@@ -120,7 +120,7 @@
     
     cell.labelTitle.text = contact.name;
     
-    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:nil];
+    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:_room.token];
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];
