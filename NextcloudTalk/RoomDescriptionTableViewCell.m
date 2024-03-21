@@ -57,7 +57,9 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
 
 - (void)textViewDidChange:(UITextView *)textView
 {
-    [self.delegate roomDescriptionCellTextViewDidChange:self];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(roomDescriptionCellTextViewDidChange:)]) {
+        [self.delegate roomDescriptionCellTextViewDidChange:self];
+    }
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
@@ -75,7 +77,7 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
     // Check character limit
     NSUInteger newLength = [textView.text length] + [text length] - range.length;
     BOOL limitExceeded = _characterLimit > 0 && newLength > _characterLimit;
-    if (limitExceeded) {
+    if (limitExceeded && self.delegate && [self.delegate respondsToSelector:@selector(roomDescriptionCellDidExceedLimit:)]) {
         [self.delegate roomDescriptionCellDidExceedLimit:self];
     }
     return !limitExceeded;
@@ -83,7 +85,9 @@ NSString *const kRoomDescriptionTableCellNibName   = @"RoomDescriptionTableViewC
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    [self.delegate roomDescriptionCellDidEndEditing:self];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(roomDescriptionCellDidEndEditing:)]) {
+        [self.delegate roomDescriptionCellDidEndEditing:self];
+    }
 }
 
 

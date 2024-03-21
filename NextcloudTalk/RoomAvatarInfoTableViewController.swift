@@ -301,19 +301,6 @@ enum RoomAvatarInfoSection: Int {
         }
     }
 
-    func roomDescriptionCellDidConfirmChanges(_ cell: RoomDescriptionTableViewCell) {
-        self.showModifyingView()
-
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setRoomDescription(cell.textView?.text, forRoom: room.token, for: activeAccount) { error in
-            if error != nil {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while setting description", comment: ""), withMessage: nil)
-            }
-
-            self.updateRoomAndRemoveModifyingView()
-        }
-    }
-
     func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
         NotificationPresenter.shared().present(
             text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
