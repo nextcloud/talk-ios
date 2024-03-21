@@ -28,6 +28,7 @@ typedef enum NCShareType {
     NCShareTypeUser = 0,
     NCShareTypeGroup = 1,
     NCShareTypeEmail = 4,
+    NCShareTypeRemote = 6,
     NCShareTypeCircle = 7
 } NCShareType;
 
@@ -35,6 +36,7 @@ extern NSString * const kParticipantTypeUser;
 extern NSString * const kParticipantTypeGroup;
 extern NSString * const kParticipantTypeEmail;
 extern NSString * const kParticipantTypeCircle;
+extern NSString * const kParticipantTypeFederated;
 
 @interface NCUser : NSObject
 

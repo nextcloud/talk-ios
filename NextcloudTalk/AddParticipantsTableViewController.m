@@ -90,6 +90,7 @@
     
     _resultTableViewController = [[ResultMultiSelectionTableViewController alloc] init];
     _resultTableViewController.selectedParticipants = _selectedParticipants;
+    _resultTableViewController.room = _room;
 
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
