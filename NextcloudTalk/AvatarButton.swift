@@ -43,10 +43,17 @@ import SDWebImage
     }
 
     private func commonInit() {
+        self.layer.masksToBounds = true
         self.imageView?.contentMode = .scaleToFill
         self.imageView?.frame = self.frame
         self.contentVerticalAlignment = .fill
         self.contentHorizontalAlignment = .fill
+        self.backgroundColor = .systemGray3
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.layer.cornerRadius = self.frame.width / 2.0
     }
 
     // MARK: - Conversation avatars

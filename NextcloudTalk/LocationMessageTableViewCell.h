@@ -60,7 +60,6 @@ static NSString *GroupedLocationMessageCellIdentifier   = @"GroupedLocationMessa
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vConstraints;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *vGroupedConstraints;
 
-+ (CGFloat)defaultFontSize;
 - (void)setupForMessage:(NCChatMessage *)message withLastCommonReadMessage:(NSInteger)lastCommonRead;
 
 @end

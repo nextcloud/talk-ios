@@ -132,14 +132,14 @@ CGFloat const kRoomTableCellHeight = 74.0f;
     _unreadMessages = number;
     
     if (number > 0) {
-        _titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightBold];
-        _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightBold];
-        _dateLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightSemibold];
+        _titleLabel.font = [UIFont preferredFontFor:UIFontTextStyleHeadline weight:UIFontWeightBold];
+        _subtitleLabel.font = [UIFont preferredFontFor:UIFontTextStyleCallout weight:UIFontWeightBold];
+        _dateLabel.font = [UIFont preferredFontFor:UIFontTextStyleFootnote weight:UIFontWeightSemibold];
         _unreadMessagesView.hidden = NO;
     } else {
-        _titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
-        _subtitleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightRegular];
-        _dateLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
+        _titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
+        _subtitleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleCallout];
+        _dateLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
         _unreadMessagesView.hidden = YES;
     }
     

@@ -33,7 +33,6 @@ static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier
 @property (nonatomic, strong) AvatarButton *avatarButton;
 @property (nonatomic, strong) UIImageView *userStatusImageView;
 
-+ (CGFloat)defaultFontSize;
 - (void)setUserStatus:(NSString *)userStatus;
 
 @end

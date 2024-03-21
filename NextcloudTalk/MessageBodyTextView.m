@@ -49,6 +49,8 @@
     self.textContainer.lineFragmentPadding = 0;
     self.textContainerInset = UIEdgeInsetsZero;
     self.translatesAutoresizingMaskIntoConstraints = NO;
+
+    // Set background color to clear to allow cell selection color to be visible
     self.backgroundColor = [UIColor clearColor];
     self.editable = NO;
     self.scrollEnabled = NO;

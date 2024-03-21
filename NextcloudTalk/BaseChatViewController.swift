@@ -46,10 +46,9 @@ import QuickLook
                                                   AVAudioPlayerDelegate,
                                                   SystemMessageTableViewCellDelegate,
                                                   VoiceMessageTableViewCellDelegate,
-                                                  FileMessageTableViewCellDelegate,
                                                   LocationMessageTableViewCellDelegate,
                                                   ObjectShareMessageTableViewCellDelegate,
-                                                  ChatMessageTableViewCellDelegate,
+                                                  BaseChatTableViewCellDelegate,
                                                   UITableViewDataSourcePrefetching {
 
     // MARK: - Internal var
@@ -252,11 +251,13 @@ import QuickLook
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none
 
-        self.tableView?.register(ChatMessageTableViewCell.self, forCellReuseIdentifier: ChatMessageCellIdentifier)
-        self.tableView?.register(ChatMessageTableViewCell.self, forCellReuseIdentifier: ReplyMessageCellIdentifier)
-        self.tableView?.register(GroupedChatMessageTableViewCell.self, forCellReuseIdentifier: GroupedChatMessageCellIdentifier)
-        self.tableView?.register(FileMessageTableViewCell.self, forCellReuseIdentifier: FileMessageCellIdentifier)
-        self.tableView?.register(FileMessageTableViewCell.self, forCellReuseIdentifier: GroupedFileMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatGroupedMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatReplyMessageCellIdentifier)
+
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupedMessageCellIdentifier)
+
         self.tableView?.register(LocationMessageTableViewCell.self, forCellReuseIdentifier: LocationMessageCellIdentifier)
         self.tableView?.register(LocationMessageTableViewCell.self, forCellReuseIdentifier: GroupedLocationMessageCellIdentifier)
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
@@ -1103,8 +1104,8 @@ import QuickLook
     }
 
     func didPressOpenInNextcloud(for message: NCChatMessage) {
-        if let file = message.file() {
-            NCUtils.openFileInNextcloudAppOrBrowser(path: file.path, withFileLink: file.link)
+        if let file = message.file(), let path = file.path, let link = file.link {
+            NCUtils.openFileInNextcloudAppOrBrowser(path: path, withFileLink: link)
         }
     }
 
@@ -2600,9 +2601,9 @@ import QuickLook
         }
 
         if message.file() != nil {
-            let cellIdentifier = message.isGroupMessage ? GroupedFileMessageCellIdentifier : FileMessageCellIdentifier
+            let cellIdentifier = message.isGroupMessage ? fileGroupedMessageCellIdentifier : fileMessageCellIdentifier
 
-            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? FileMessageTableViewCell {
+            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
                 cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
 
@@ -2632,25 +2633,15 @@ import QuickLook
             }
         }
 
-        if message.parent() != nil {
-            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: ReplyMessageCellIdentifier) as? ChatMessageTableViewCell {
-                cell.delegate = self
-                cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
-
-                return cell
-            }
-        }
+        var cellIdentifier = chatMessageCellIdentifier
 
         if message.isGroupMessage {
-            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: GroupedChatMessageCellIdentifier) as? GroupedChatMessageTableViewCell {
-                cell.delegate = self
-                cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
-
-                return cell
-            }
+            cellIdentifier = chatGroupedMessageCellIdentifier
+        } else if message.parent() != nil {
+            cellIdentifier = chatReplyMessageCellIdentifier
         }
 
-        if let cell = self.tableView?.dequeueReusableCell(withIdentifier: ChatMessageCellIdentifier) as? ChatMessageTableViewCell {
+        if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
             cell.delegate = self
             cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
 
@@ -2669,11 +2660,11 @@ import QuickLook
             return self.getCellHeight(for: message)
         }
 
-        return kChatMessageCellMinimumHeight
+        return chatMessageCellMinimumHeight
     }
 
     func getCellHeight(for message: NCChatMessage) -> CGFloat {
-        guard let tableView = self.tableView else { return kChatMessageCellMinimumHeight }
+        guard let tableView = self.tableView else { return chatMessageCellMinimumHeight }
 
         var width = tableView.frame.width - kChatCellAvatarHeight
         width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right
@@ -2700,7 +2691,7 @@ import QuickLook
         width -= message.isSystemMessage() ? 80.0 : 30.0 // *right(10) + dateLabel(40) : 3*right(10)
 
         if message.poll() != nil {
-            messageString = messageString.withFont(.systemFont(ofSize: ObjectShareMessageTableViewCell.defaultFontSize()))
+            messageString = messageString.withFont(.preferredFont(forTextStyle: .body))
             width -= kObjectShareMessageCellObjectTypeImageSize + 25 // 2*right(10) + left(5)
         }
 
@@ -2721,15 +2712,15 @@ import QuickLook
         if (message.isGroupMessage && message.parent() == nil) || message.isSystemMessage() {
             height += 10 // 2*left(5)
 
-            if height < kGroupedChatMessageCellMinimumHeight {
-                height = kGroupedChatMessageCellMinimumHeight
+            if height < chatGroupedMessageCellMinimumHeight {
+                height = chatGroupedMessageCellMinimumHeight
             }
         } else {
             height += kChatCellAvatarHeight
             height += 20.0 // right(10) + 2*left(5)
 
-            if height < kChatMessageCellMinimumHeight {
-                height = kChatMessageCellMinimumHeight
+            if height < chatMessageCellMinimumHeight {
+                height = chatMessageCellMinimumHeight
             }
         }
 
@@ -2737,13 +2728,11 @@ import QuickLook
             height += 40 // reactionsView(40)
         }
 
-        // File cells currently can't show the reference view
-        if message.containsURL(), message.file() ==  nil {
+        if message.containsURL() {
             height += 105
         }
 
-        // File cells currently can't show a quote, so don't increase the size here
-        if message.parent() != nil, message.file() == nil {
+        if message.parent() != nil {
             height += 65 // left(5) + quoteView(60)
         }
 
@@ -2751,16 +2740,15 @@ import QuickLook
         if message.isVoiceMessage() {
             height -= ceil(bodyBounds.height)
             height += kVoiceMessageCellPlayerHeight + 10
-        }
 
-        if let file = message.file() {
+        } else if let file = message.file() {
             if file.previewImageHeight > 0 {
                 height += CGFloat(file.previewImageHeight)
-            } else if case let estimatedHeight = FileMessageTableViewCell.getEstimatedPreviewImageHeight(for: message), estimatedHeight > 0 {
+            } else if case let estimatedHeight = BaseChatTableViewCell.getEstimatedPreviewSize(for: message), estimatedHeight > 0 {
                 height += estimatedHeight
                 message.setPreviewImageHeight(estimatedHeight)
             } else {
-                height += kFileMessageCellFileMaxPreviewHeight
+                height += fileMessageCellFileMaxPreviewHeight
             }
 
             height += 10 // right(10)
@@ -2809,12 +2797,13 @@ import QuickLook
             return nil
         }
 
-        if let cell = tableView.cellForRow(at: indexPath) as? ChatTableViewCell {
+        if let cell = tableView.cellForRow(at: indexPath) as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let reactionView = cell.contentView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInCell) })
+            let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
+            let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })
 
-            if reactionView != nil {
-                self.showReactionsSummary(of: cell.message)
+            if reactionView != nil, let message = cell.message {
+                self.showReactionsSummary(of: message)
                 return nil
             }
         }
@@ -3171,7 +3160,7 @@ import QuickLook
 
     // MARK: - FileMessageTableViewCellDelegate
 
-    public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter!) {
+    public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter) {
         if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
             print("File already downloading -> skipping new download")
             return
@@ -3182,7 +3171,7 @@ import QuickLook
         downloader.downloadFile(fromMessage: fileParameter)
     }
 
-    public func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage!) {
+    public func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage) {
         if message.file().previewImageHeight == Int(height) {
             return
         }
@@ -3319,7 +3308,7 @@ import QuickLook
 
     // MARK: - ChatMessageTableViewCellDelegate
 
-    public func cellWantsToScroll(to message: NCChatMessage!) {
+    public func cellWantsToScroll(to message: NCChatMessage) {
         DispatchQueue.main.async {
             if let indexPath = self.indexPath(for: message) {
                 self.highlightMessage(at: indexPath, with: .top)
@@ -3327,11 +3316,11 @@ import QuickLook
         }
     }
 
-    public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage!) {
+    public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage) {
         // Do nothing -> override in subclass
     }
 
-    public func cellWantsToReply(to message: NCChatMessage!) {
+    public func cellWantsToReply(to message: NCChatMessage) {
         if self.textInputbar.isEditing {
             return
         }

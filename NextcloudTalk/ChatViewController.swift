@@ -1529,12 +1529,13 @@ import UIKit
             return nil
         }
 
-        if let cell = tableView.cellForRow(at: indexPath) as? ChatTableViewCell {
+        if let cell = tableView.cellForRow(at: indexPath) as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let reactionView = cell.contentView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInCell) })
+            let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
+            let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })
 
-            if reactionView != nil {
-                self.showReactionsSummary(of: cell.message)
+            if reactionView != nil, let message = cell.message {
+                self.showReactionsSummary(of: message)
                 return nil
             }
         }

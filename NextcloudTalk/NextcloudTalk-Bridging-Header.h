@@ -70,9 +70,6 @@
 #import "VoiceMessageRecordingView.h"
 #import "CallKitManager.h"
 
-#import "ChatMessageTableViewCell.h"
-#import "GroupedChatMessageTableViewCell.h"
-#import "FileMessageTableViewCell.h"
 #import "GeoLocationRichObject.h"
 #import "LocationMessageTableViewCell.h"
 #import "MessageSeparatorTableViewCell.h"
