@@ -55,13 +55,14 @@ NSString * const kParticipantTypeFederated = @"federated_users";
     id source = [userDict objectForKey:@"source"];
     if ([source isKindOfClass:[NSString class]]) {
         user.source = source;
-        if ([source isEqualToString:@"remotes"]) {
-            user.source = kParticipantTypeFederated;
-        }
     } else {
         user.source = [source stringValue];
     }
-    
+
+    if ([user.source isEqualToString:@"remotes"]) {
+        user.source = kParticipantTypeFederated;
+    }
+
     return user;
 }
 
