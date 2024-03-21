@@ -75,9 +75,6 @@
     self.navigationItem.compactAppearance = appearance;
     self.navigationItem.scrollEdgeAppearance = appearance;
     
-    NSBundle *bundle = [NSBundle bundleForClass:[AccountTableViewCell class]];
-    [self.tableView registerNib:[UINib nibWithNibName:@"AccountTableViewCell" bundle:bundle] forCellReuseIdentifier:@"AccountTableViewCellIdentifier"];
-    
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
@@ -101,17 +98,15 @@
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DetailOptionIdentifier"];
 
     if (_type == DetailedOptionsSelectorTypeAccounts) {
-        AccountTableViewCell *accountCell = [tableView dequeueReusableCellWithIdentifier:@"AccountTableViewCellIdentifier" forIndexPath:indexPath];
-        accountCell.accountNameLabel.text = option.title;
-        accountCell.accountServerLabel.text = [option.subtitle stringByReplacingOccurrencesOfString:@"https://" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [option.subtitle length])];
-        accountCell.accountImageView.image = option.image;
-        accountCell.accountImageView.backgroundColor = [UIColor systemBackgroundColor];
-        return accountCell;
+        [cell.imageView setImage:[NCUtils renderAspectImageWithImage:option.image of:CGSizeMake(20, 20)]];
+        [cell.detailTextLabel setText:[option.subtitle stringByReplacingOccurrencesOfString:@"https://" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [option.subtitle length])]];
+        [cell.detailTextLabel setTextColor:[UIColor secondaryLabelColor]];
+    } else {
+        [cell.imageView setImage:option.image];
+        cell.detailTextLabel.text = option.subtitle;
     }
 
-    [cell.imageView setImage:option.image];
     cell.textLabel.text = option.title;
-    cell.detailTextLabel.text = option.subtitle;
     cell.detailTextLabel.numberOfLines = 0;
     [cell.detailTextLabel sizeToFit];
     cell.accessoryType = option.selected ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;

@@ -273,7 +273,6 @@
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
-		2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */; };
 		2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C2D7A172B8C9C0000642373 /* RoomCreationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2D7A162B8C9C0000642373 /* RoomCreationTableViewController.swift */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
@@ -507,7 +506,6 @@
 		DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */; };
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
 		DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */; };
-		DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7558122790D65700A48A1B /* AccountTableViewCell.swift */; };
 		DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */; };
 		DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */; };
 /* End PBXBuildFile section */
@@ -730,7 +728,6 @@
 		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2C1EF36925505DCE007C9768 /* NCNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNavigationController.h; sourceTree = "<group>"; };
 		2C1EF36A25505DCE007C9768 /* NCNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNavigationController.m; sourceTree = "<group>"; };
-		2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountTableViewCell.xib; sourceTree = "<group>"; };
 		2C2A788C2359CC8800EEB797 /* NCAppBranding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAppBranding.h; sourceTree = "<group>"; };
 		2C2A788D2359CC8800EEB797 /* NCAppBranding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAppBranding.m; sourceTree = "<group>"; };
 		2C2D7A162B8C9C0000642373 /* RoomCreationTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomCreationTableViewController.swift; sourceTree = "<group>"; };
@@ -1056,7 +1053,6 @@
 		DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+Utils.swift"; sourceTree = "<group>"; };
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsTableViewCell.swift; sourceTree = "<group>"; };
-		DA7558122790D65700A48A1B /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
 		DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1598,8 +1594,6 @@
 				1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */,
 				1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */,
 				1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */,
-				2C2026A32369F47400DFC89B /* AccountTableViewCell.xib */,
-				DA7558122790D65700A48A1B /* AccountTableViewCell.swift */,
 				2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */,
 				DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */,
 				2C78E9E125120DE500E3D4CA /* NCUserStatus.h */,
@@ -2293,7 +2287,6 @@
 				1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */,
-				2C2026A52369F47400DFC89B /* AccountTableViewCell.xib in Resources */,
 				1F3C41A529EDF0B800F58435 /* AvatarEditView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2671,7 +2664,6 @@
 				1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */,
 				1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */,
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
-				DA7558132790D65700A48A1B /* AccountTableViewCell.swift in Sources */,
 				2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,

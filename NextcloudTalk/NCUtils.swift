@@ -24,6 +24,7 @@ import Foundation
 import CommonCrypto
 import MobileCoreServices
 import UniformTypeIdentifiers
+import AVFoundation
 
 @objcMembers public class NCUtils: NSObject {
 
@@ -139,6 +140,8 @@ import UniformTypeIdentifiers
         return link.lowercased().contains(roomPrefix1) || link.lowercased().contains(roomPrefix2)
     }
 
+    // MARK: - Date utils
+
     public static func dateFromDateAtomFormat(dateAtomFormatString: String) -> Date? {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -243,6 +246,8 @@ import UniformTypeIdentifiers
         return Calendar.current.date(byAdding: .day, value: (weekday - currentWeekday), to: date)!
     }
 
+    // MARK: - Crypto utils
+
     public static func sha1(fromString string: String) -> String {
         let data = string.data(using: .utf8)!
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
@@ -252,6 +257,8 @@ import UniformTypeIdentifiers
         let hexBytes = digest.map { String(format: "%02hhx", $0) }
         return hexBytes.joined()
     }
+
+    // MARK: - Image utils
 
     public static func blurImage(fromImage image: UIImage) -> UIImage? {
         let inputRadius = 8.0
@@ -291,6 +298,22 @@ import UniformTypeIdentifiers
 
         UIGraphicsEndImageContext()
         return image
+    }
+
+    public static func renderAspectImage(image: UIImage?, of size: CGSize) -> UIImage? {
+        guard let image else { return nil }
+
+        let newRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        UIGraphicsBeginImageContextWithOptions(newRect.size, false, 0.0)
+
+        let aspectRatio = AVMakeRect(aspectRatio: image.size, insideRect: newRect)
+        let origin = CGPoint(x: newRect.maxX / 2 - aspectRatio.width / 2, y: newRect.maxY / 2 - aspectRatio.height / 2)
+
+        image.draw(in: CGRect(origin: origin, size: aspectRatio.size))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage
     }
 
     public static func getImage(withString string: String, withBackgroundColor color: UIColor, withBounds bounds: CGRect, isCircular circular: Bool) -> UIImage? {
@@ -346,6 +369,8 @@ import UniformTypeIdentifiers
 
         return snapshot
     }
+
+    // MARK: - Color utils
 
     public static func searchbarBGColor(forColor color: UIColor) -> UIColor {
         let luma = self.calculateLuma(fromColor: color)
@@ -410,9 +435,13 @@ import UniformTypeIdentifiers
         )
     }
 
+    // MARK: - UITableView utils
+
     public static func isValid(indexPath: IndexPath, forTableView tableView: UITableView) -> Bool {
         indexPath.section < tableView.numberOfSections && indexPath.row < tableView.numberOfRows(inSection: indexPath.section)
     }
+
+    // MARK: - QueryItems utils
 
     public static func value(forKey key: String, fromQueryItems queryItems: NSArray) -> String? {
         let predicate = NSPredicate(format: "name=%@", key)
@@ -422,6 +451,8 @@ import UniformTypeIdentifiers
 
         return nil
     }
+
+    // MARK: - Logging
 
     private static func getLogfilePath() -> URL? {
         guard let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
@@ -503,6 +534,8 @@ import UniformTypeIdentifiers
             NSLog("Message: %@", message)
         }
     }
+
+    // MARK: - iOS on Mac
 
     public static func isiOSAppOnMac() -> Bool {
         return ProcessInfo.processInfo.isiOSAppOnMac

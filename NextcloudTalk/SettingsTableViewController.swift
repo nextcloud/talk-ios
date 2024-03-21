@@ -64,7 +64,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     let kUserSettingsCellIdentifier = "UserSettingsCellIdentifier"
     let kUserSettingsTableCellNibName = "UserSettingsTableViewCell"
     let kAccountCellIdentifier: String = "AccountCellIdentifier"
-    let kAccountTableViewCellNibName: String = "AccountTableViewCell"
 
     let iconConfiguration = UIImage.SymbolConfiguration(pointSize: 18)
 
@@ -131,7 +130,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.navigationItem.scrollEdgeAppearance = appearance
 
         tableView.register(UINib(nibName: kUserSettingsTableCellNibName, bundle: nil), forCellReuseIdentifier: kUserSettingsCellIdentifier)
-        tableView.register(UINib(nibName: kAccountTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kAccountCellIdentifier)
 
         NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsHaveBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsUpdated, object: nil)
@@ -250,7 +248,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         return IndexPath(row: row ?? 0, section: section)
     }
 
-    // MARK: User Profile
+    // MARK: - User Profile
 
     func refreshUserProfile() {
         NCSettingsController.sharedInstance().getUserProfile(forAccountId: activeAccount.accountId) { _ in
@@ -268,7 +266,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         }
     }
 
-    // MARK: Notifications
+    // MARK: - Notifications
 
     @objc func appStateHasChanged(notification: NSNotification) {
         let appState = notification.userInfo?["appState"]
@@ -296,7 +294,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.tableView.reloadSections(IndexSet(integer: SettingsSection.kSettingsSectionUser.rawValue), with: .none)
     }
 
-    // MARK: User Interface
+    // MARK: - User Interface
 
     func adaptInterfaceForAppState(appState: AppState) {
         switch appState {
@@ -307,14 +305,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         }
     }
 
-    // MARK: Profile actions
+    // MARK: - Profile actions
 
     func userProfilePressed() {
         let userProfileVC = UserProfileTableViewController(withAccount: activeAccount)
         self.navigationController?.pushViewController(userProfileVC, animated: true)
     }
 
-    // MARK: User Status (SwiftUI)
+    // MARK: - User Status (SwiftUI)
 
     func presentUserStatusOptions() {
         if let activeUserStatus = activeUserStatus {
@@ -329,7 +327,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.getActiveUserStatus()
     }
 
-    // MARK: User phone number
+    // MARK: - User phone number
 
     func checkUserPhoneNumber() {
         NCSettingsController.sharedInstance().getUserProfile(forAccountId: activeAccount.accountId) { _ in
@@ -418,7 +416,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         return true
     }
 
-    // MARK: Configuration
+    // MARK: - Configuration
 
     func presentVideoResoultionsSelector() {
         let videoConfIndexPath = self.getIndexPathForConfigurationOption(option: ConfigurationSectionOption.kConfigurationSectionOptionVideo)
@@ -535,7 +533,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.present(errorDialog, animated: true, completion: nil)
     }
 
-    // MARK: Advanced actions
+    // MARK: - Advanced actions
 
     func diagnosticsPressed() {
         let diagnosticsVC = DiagnosticsTableViewController(withAccount: activeAccount)
@@ -597,7 +595,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.navigationController?.pushViewController(vc, animated: true)
     }
 
-    // MARK: Table view data source
+    // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         return getSettingsSections().count
@@ -817,7 +815,18 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.tableView.deselectRow(at: indexPath, animated: true)
     }
 }
+
+private extension UITableViewCell {
+    func setSettingsImage(image: UIImage?, renderingMode: UIImage.RenderingMode = .alwaysTemplate) {
+        // Render all images to a size of 20x20 so all cells have the same width for the imageView
+        self.imageView?.image = NCUtils.renderAspectImage(image: image, of: .init(width: 20, height: 20))?.withRenderingMode(renderingMode)
+        self.imageView?.tintColor = .secondaryLabel
+        self.imageView?.contentMode = .scaleAspectFit
+    }
+}
+
 extension SettingsTableViewController {
+
     // Cell configuration for every section
     func userSettingsCell(for indexPath: IndexPath) -> UITableViewCell {
         let readStatusCellIdentifier = "ReadStatusCellIdentifier"
@@ -830,12 +839,10 @@ extension SettingsTableViewController {
 
         switch option {
         case AccountSettingsOptions.kAccountSettingsReadStatusPrivacy.rawValue:
-            cell = tableView.dequeueReusableCell(withIdentifier: readStatusCellIdentifier) ?? UITableViewCell(style: .default, reuseIdentifier: readStatusCellIdentifier)
+            cell = tableView.dequeueReusableCell(withIdentifier: readStatusCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: readStatusCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Read status", comment: "")
             cell.selectionStyle = .none
-            cell.imageView?.image = UIImage(named: "check-all")?.withRenderingMode(.alwaysTemplate)
-            cell.imageView?.tintColor = .secondaryLabel
-            cell.imageView?.contentMode = .scaleAspectFit
+            cell.setSettingsImage(image: UIImage(named: "check-all"))
             cell.accessoryView = readStatusSwitch
             readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
 
@@ -843,9 +850,8 @@ extension SettingsTableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: typingIndicatorCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: typingIndicatorCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Typing indicator", comment: "")
             cell.selectionStyle = .none
-            cell.imageView?.image = UIImage(systemName: "rectangle.and.pencil.and.ellipsis")
-            cell.imageView?.tintColor = .secondaryLabel
-            cell.imageView?.contentMode = .scaleAspectFit
+            cell.setSettingsImage(image: UIImage(systemName: "rectangle.and.pencil.and.ellipsis")?.applyingSymbolConfiguration(iconConfiguration))
+
             cell.accessoryView = typingIndicatorSwitch
             typingIndicatorSwitch.isOn = !serverCapabilities.typingPrivacy
 
@@ -863,8 +869,8 @@ extension SettingsTableViewController {
             cell.textLabel?.text = NSLocalizedString("Phone number integration", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
             cell.selectionStyle = contactSyncSwitch.isOn ? .default : .none
-            cell.imageView?.image = UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = .secondaryLabel
+            cell.setSettingsImage(image: UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration))
+
             cell.accessoryView = contactSyncSwitch
             contactSyncSwitch.isOn = NCSettingsController.sharedInstance().isContactSyncEnabled()
         default:
@@ -877,21 +883,28 @@ extension SettingsTableViewController {
     }
 
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
-        let account = inactiveAccounts[indexPath.row] as? TalkAccount
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath) as? AccountTableViewCell else { return UITableViewCell() }
-        if let account = account {
-            cell.accountNameLabel.text = account.userDisplayName
-            let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
-            cell.accountServerLabel.text = accountServer
-            cell.accountImageView.image = self.getProfilePicture(for: account)
-            cell.accessoryView = nil
-            if account.unreadBadgeNumber > 0 {
-                let badgeView = RoundedNumberView()
-                badgeView.highlightType = kHighlightTypeImportant
-                badgeView.number = account.unreadBadgeNumber
-                cell.accessoryView = badgeView
-            }
+        guard let account = inactiveAccounts[indexPath.row] as? TalkAccount else { return UITableViewCell() }
+
+        let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
+
+        let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: kAccountCellIdentifier)
+        cell.textLabel?.text = account.userDisplayName
+        cell.detailTextLabel?.text = accountServer
+        cell.detailTextLabel?.textColor = .secondaryLabel
+
+        cell.imageView?.image = nil
+        if let accountImage = self.getProfilePicture(for: account) {
+            cell.setSettingsImage(image: NCUtils.roundedImage(fromImage: accountImage), renderingMode: .alwaysOriginal)
         }
+
+        cell.accessoryView = nil
+        if account.unreadBadgeNumber > 0 {
+            let badgeView = RoundedNumberView()
+            badgeView.highlightType = kHighlightTypeImportant
+            badgeView.number = account.unreadBadgeNumber
+            cell.accessoryView = badgeView
+        }
+
         return cell
     }
 
@@ -904,8 +917,8 @@ extension SettingsTableViewController {
         case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
             cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Video quality", comment: "")
-            cell.imageView?.image = UIImage(systemName: "video")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = .secondaryLabel
+            cell.setSettingsImage(image: UIImage(systemName: "video")?.applyingSymbolConfiguration(iconConfiguration))
+
             let resolution = NCSettingsController.sharedInstance().videoSettingsModel.currentVideoResolutionSettingFromStore()
             let resolutionLabel = UILabel()
             resolutionLabel.text = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(resolution)
@@ -927,8 +940,8 @@ extension SettingsTableViewController {
             let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
             cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = UIImage(systemName: "gear")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = .secondaryLabel
+            cell.setSettingsImage(image: UIImage(systemName: "gear")?.applyingSymbolConfiguration(iconConfiguration))
+
             cell.accessoryType = .disclosureIndicator
 
             return cell
@@ -937,8 +950,7 @@ extension SettingsTableViewController {
             let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Calls from old accounts", comment: "")
             cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = UIImage(systemName: "exclamationmark.triangle.fill")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = UIColor.systemOrange
+            cell.setSettingsImage(image: UIImage(systemName: "exclamationmark.triangle.fill")?.applyingSymbolConfiguration(iconConfiguration))
             cell.accessoryType = .disclosureIndicator
 
             return cell
@@ -951,8 +963,8 @@ extension SettingsTableViewController {
             let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
             cell.textLabel?.text = NSLocalizedString("Cached images", comment: "")
             cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = UIImage(systemName: "photo")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = .secondaryLabel
+            cell.setSettingsImage(image: UIImage(systemName: "photo")?.applyingSymbolConfiguration(iconConfiguration))
+
             let byteCounterLabel = UILabel()
             byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(self.totalImageCacheSize))
             byteCounterLabel.textColor = .secondaryLabel
@@ -971,8 +983,8 @@ extension SettingsTableViewController {
             let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
             cell.textLabel?.text = NSLocalizedString("Cached files", comment: "")
             cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = UIImage(systemName: "doc")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = .secondaryLabel
+            cell.setSettingsImage(image: UIImage(systemName: "doc")?.applyingSymbolConfiguration(iconConfiguration))
+
             let byteCounterLabel = UILabel()
             byteCounterLabel.text = byteFormatter.string(fromByteCount: Int64(self.totalFileCacheSize))
             byteCounterLabel.textColor = .secondaryLabel
@@ -992,15 +1004,13 @@ extension SettingsTableViewController {
             cell =
             UITableViewCell(style: .default, reuseIdentifier: privacyCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Privacy", comment: "")
-            cell.imageView?.image = UIImage(systemName: "lock.shield")?.applyingSymbolConfiguration(iconConfiguration)
-            cell.imageView?.tintColor = .secondaryLabel
+            cell.setSettingsImage(image: UIImage(systemName: "lock.shield")?.applyingSymbolConfiguration(iconConfiguration))
+
         case AboutSection.kAboutSectionSourceCode.rawValue:
             cell =
             UITableViewCell(style: .default, reuseIdentifier: sourceCodeCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Get source code", comment: "")
-            cell.imageView?.image = UIImage(named: "github")?.withRenderingMode(.alwaysTemplate)
-            cell.imageView?.tintColor = .secondaryLabel
-            cell.imageView?.contentMode = .scaleAspectFit
+            cell.setSettingsImage(image: UIImage(named: "github"))
         default:
             break
         }
