@@ -117,6 +117,7 @@
     UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
     searchTextField.tintColor = [NCAppBranding themeTextColor];
     searchTextField.textColor = [NCAppBranding themeTextColor];
+    searchTextField.autocapitalizationType = UITextAutocapitalizationTypeNone;
     dispatch_async(dispatch_get_main_queue(), ^{
         // Search bar placeholder
         searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
