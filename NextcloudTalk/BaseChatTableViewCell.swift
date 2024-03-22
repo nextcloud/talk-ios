@@ -165,11 +165,12 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             self.titleLabel.text = actorDisplayName
         }
 
-        guard let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: message.accountId),
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        guard let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: activeAccount.accountId),
               let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
         else { return }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
         let shouldShowReadStatus = !roomCapabilities.readStatusPrivacy
 
@@ -278,21 +279,6 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
             self.addGestureRecognizer(replyGestureRecognizer)
         }
-    }
-
-    func setGuestAvatar(with displayName: String) {
-        let name = displayName.isEmpty ? "?" : displayName
-        let image = NCUtils.getImage(withString: name, withBackgroundColor: .placeholderText, withBounds: self.avatarButton.bounds, isCircular: true)
-        self.avatarButton.setImage(image, for: .normal)
-    }
-
-    func setBotAvatar() {
-        let image = NCUtils.getImage(withString: ">", withBackgroundColor: .darkGray, withBounds: self.avatarButton.bounds, isCircular: true)
-        self.avatarButton.setImage(image, for: .normal)
-    }
-
-    func setChangelogAvatar() {
-        self.avatarButton.setImage(UIImage(named: "changelog-avatar"), for: .normal)
     }
 
     func setDeliveryState(to deliveryState: ChatMessageDeliveryState) {

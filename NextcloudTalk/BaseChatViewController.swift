@@ -2797,7 +2797,20 @@ import QuickLook
             return nil
         }
 
-        if let cell = tableView.cellForRow(at: indexPath) as? BaseChatTableViewCell {
+        let cell = tableView.cellForRow(at: indexPath)
+
+        // Show reactionSummary for legacy cells
+        if let cell = cell as? ChatTableViewCell {
+            let pointInCell = tableView.convert(point, to: cell)
+            let reactionView = cell.contentView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInCell) })
+
+            if reactionView != nil {
+                self.showReactionsSummary(of: cell.message)
+                return nil
+            }
+        }
+
+        if let cell = cell as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
             let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
             let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })

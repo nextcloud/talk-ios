@@ -32,7 +32,6 @@ extern NSString *const kRoomDescriptionTableCellNibName;
 @protocol RoomDescriptionTableViewCellDelegate <NSObject>
 @optional
 - (void)roomDescriptionCellTextViewDidChange:(RoomDescriptionTableViewCell *)cell;
-- (void)roomDescriptionCellDidConfirmChanges:(RoomDescriptionTableViewCell *)cell;
 - (void)roomDescriptionCellDidExceedLimit:(RoomDescriptionTableViewCell *)cell;
 - (void)roomDescriptionCellDidEndEditing:(RoomDescriptionTableViewCell *)cell;
 @end
