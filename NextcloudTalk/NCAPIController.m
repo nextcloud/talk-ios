@@ -1545,7 +1545,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *endpoint = [NSString stringWithFormat:@"chat/%@/read", encodedToken];
     NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
-    NSDictionary *parameters = @{@"lastReadMessage" : @(lastReadMessage)};
+    NSDictionary *parameters = nil;
+    if (lastReadMessage > 0) {
+        parameters = @{@"lastReadMessage" : @(lastReadMessage)};
+    }
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
