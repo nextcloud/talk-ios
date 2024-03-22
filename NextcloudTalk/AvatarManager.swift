@@ -96,7 +96,7 @@ import SDWebImage
             } else if actorType == "users" {
                 return getUserAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             } else if actorType == "federated_users" {
-                return getFederatedUserAvatar(forId: actorId, withRoomToken: roomToken ?? "", withStyle: style, usingAccount: account, completionBlock: completionBlock)
+                return getFederatedUserAvatar(forId: actorId, withRoomToken: roomToken, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             }
         }
 
@@ -150,16 +150,10 @@ import SDWebImage
         }
     }
 
-    private func getFederatedUserAvatar(forId actorId: String, withRoomToken roomToken: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+    private func getFederatedUserAvatar(forId actorId: String, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         let account = account ?? NCDatabaseManager.sharedInstance().activeAccount()
 
-        guard let room = NCDatabaseManager.sharedInstance().room(withToken: roomToken, forAccountId: account.accountId)
-        else {
-            completionBlock(nil)
-            return nil
-        }
-
-        return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, in: room, with: style) { image, _ in
+        return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, inRoom: roomToken, using: account, with: style) { image, _ in
             if image != nil {
                 completionBlock(image)
             } else {

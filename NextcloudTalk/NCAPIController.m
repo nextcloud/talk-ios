@@ -2382,10 +2382,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (SDWebImageCombinedOperation *)getFederatedUserAvatarForUser:(NSString *)userId inRoom:(NCRoom *)room withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetFederatedUserAvatarImageForUserCompletionBlock)block
+- (SDWebImageCombinedOperation *)getFederatedUserAvatarForUser:(NSString *)userId inRoom:(NSString *)token usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetFederatedUserAvatarImageForUserCompletionBlock)block
 {
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:room.accountId];
-    NSString *encodedToken = [room.token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *encodedToken = @"new";
+    if (token.length > 0) {
+        encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    }
     NSString *endpoint = [NSString stringWithFormat:@"proxy/%@/user-avatar/512", encodedToken];
 
     if (style == UIUserInterfaceStyleDark) {
