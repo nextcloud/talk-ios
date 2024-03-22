@@ -1317,7 +1317,7 @@ import UIKit
 
                 guard let messageDict,
                       let parent = messageDict["parent"] as? [AnyHashable: Any],
-                      let updatedMessage = NCChatMessage(dictionary: parent)
+                      let updatedMessage = NCChatMessage(dictionary: parent, andAccountId: activeAccount.accountId)
                 else { return }
 
                 self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage)
