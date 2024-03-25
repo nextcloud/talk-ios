@@ -102,6 +102,8 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
+
     UIColor *themeColor = [NCAppBranding themeColor];
     [self.view setBackgroundColor:themeColor];
 
