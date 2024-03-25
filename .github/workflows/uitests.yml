@@ -134,6 +134,9 @@ jobs:
         ./server/occ background:cron
         PHP_CLI_SERVER_WORKERS=5 php -S localhost:8080 -t server/ &
 
+    - name: Check status.php
+      run: curl -s http://localhost:8080/status.php
+
     - name: Download test-build
       uses: actions/download-artifact@v4
       with:
