@@ -67,8 +67,8 @@ jobs:
         path: DerivedData/Build/Products
         retention-days: 4
 
-  build-and-test:
-    name: Build and Test
+  test:
+    name: Test
     runs-on: macos-12
     needs: [build]
 
@@ -165,7 +165,7 @@ jobs:
     permissions:
       contents: none
     runs-on: ubuntu-latest-low
-    needs: [build-and-test]
+    needs: [test]
 
     if: always()
 
@@ -173,4 +173,4 @@ jobs:
 
     steps:
       - name: Summary status
-        run: if ${{ needs.build-and-test.result != 'success' }}; then exit 1; fi
+        run: if ${{ needs.test.result != 'success' }}; then exit 1; fi
