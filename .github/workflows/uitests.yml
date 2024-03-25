@@ -131,7 +131,8 @@ jobs:
         ./server/occ config:system:set memcache.local --value="\\OC\\Memcache\\APCu"
         ./server/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
         ./server/occ app:enable --force spreed
-        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
+        ./server/occ background:cron
+        PHP_CLI_SERVER_WORKERS=5 php -S localhost:8080 -t server/ &
 
     - name: Download test-build
       uses: actions/download-artifact@v4
