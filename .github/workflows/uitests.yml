@@ -23,26 +23,14 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  WORKSPACE: NextcloudTalk.xcworkspace
+  DESTINATION: platform=iOS Simulator,name=iPhone 15,OS=17.2
+  SCHEME: NextcloudTalk
+
 jobs:
-  build-and-test:
-    name: Build and Test
-    runs-on: macos-14
-
-    strategy:
-      fail-fast: false
-      matrix:
-        # Test with stable23 as well to find regressions in older versions
-        configs: [
-          { talkbranch: 'stable23', serverbranch: 'stable23', phpversion: '8.0' },
-          { talkbranch: 'stable27', serverbranch: 'stable27', phpversion: '8.2' },
-          { talkbranch: 'stable28', serverbranch: 'stable28', phpversion: '8.2' },
-          { talkbranch: 'main', serverbranch: 'master', phpversion: '8.2' }
-        ]
-
-    env:
-      WORKSPACE: NextcloudTalk.xcworkspace
-      DESTINATION: platform=iOS Simulator,name=iPhone 15,OS=17.2
-      SCHEME: NextcloudTalk
+  build:
+    name: Build
 
     steps:
     - name: Checkout app
@@ -56,6 +44,49 @@ jobs:
         key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-pods-
+
+    - name: Set up dependencies talk-ios
+      run: |
+        pod install    
+
+    - name: Build & Test NextcloudTalk iOS
+      run: |
+        set -o pipefail && \
+        xcodebuild build-for-testing \
+        -workspace "${{ env.WORKSPACE }}" \
+        -scheme "${{ env.SCHEME }}" \
+        -destination "${{ env.DESTINATION }}" \
+        -derivedDataPath "DerivedData" \
+        | xcbeautify --quieter
+
+    - name: Upload test build
+      uses: actions/upload-artifact@v4
+      with:
+        name: Products
+        path: DerivedData/Build/Products
+        retention-days: 4
+
+  build-and-test:
+    name: Build and Test
+    runs-on: macos-14
+    needs: [build]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Test with stable23 as well to find regressions in older versions
+        configs: [
+          { talkbranch: 'stable23', serverbranch: 'stable23', phpversion: '8.0' },
+          { talkbranch: 'stable27', serverbranch: 'stable27', phpversion: '8.2' },
+          { talkbranch: 'stable28', serverbranch: 'stable28', phpversion: '8.2' },
+          { talkbranch: 'main', serverbranch: 'master', phpversion: '8.2' }
+        ]
+
+    steps:
+    - name: Checkout app
+      uses: actions/checkout@v4
+      with:
+        submodules: true
 
     - name: Set up php ${{ matrix.configs.phpversion }}
       uses: shivammathur/setup-php@a4e22b60bbb9c1021113f2860347b0759f66fe5d # v2.30.0
@@ -97,17 +128,22 @@ jobs:
         ./server/occ config:system:set memcache.local --value="\\OC\\Memcache\\APCu"
         ./server/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
         ./server/occ app:enable --force spreed
-        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &   
+        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
 
-    - name: Set up dependencies talk-ios
-      run: |
-        pod install    
+    - name: Download test-build
+      uses: actions/download-artifact@v4
+      with:
+        name: Products
 
     - name: Build & Test NextcloudTalk iOS
       run: |
-        set -o pipefail && xcodebuild test -workspace $WORKSPACE \
-        -scheme "$SCHEME" \
-        -destination "$DESTINATION" \
+        set -o pipefail && \
+        xcodebuild test-without-building \
+        -xctestrun $(find . -type f -name "*.xctestrun") \
+        -workspace "${{ env.WORKSPACE }}" \
+        -scheme "${{ env.SCHEME }}" \
+        -destination "${{ env.DESTINATION }}" \
+        -derivedDataPath "DerivedData" \
         -test-iterations 3 \
         -retry-tests-on-failure \
         -resultBundlePath "testResult.xcresult" \
