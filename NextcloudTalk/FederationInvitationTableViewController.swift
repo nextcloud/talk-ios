@@ -79,11 +79,10 @@ class FederationInvitationTableViewController: UITableViewController, Federation
 
             if let invitations {
                 // TODO: For now the invitation endpoint also returns accepted invitations, we only want to have pending
-                let pendingNotifications = invitations.filter { $0.invitationState != .accepted }
                 self.pendingInvitations = invitations.filter { $0.invitationState != .accepted }
-                NCDatabaseManager.sharedInstance().setPendingFederationInvitationForAccountId(activeAccount.accountId, with: pendingInvitations.count)
+                NCDatabaseManager.sharedInstance().setPendingFederationInvitationForAccountId(activeAccount.accountId, with: self.pendingInvitations.count)
 
-                if pendingNotifications.isEmpty {
+                if self.pendingInvitations.isEmpty {
                     self.dismiss(animated: true)
                     return
                 }
