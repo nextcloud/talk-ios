@@ -295,7 +295,8 @@ typedef enum FileAction {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionFile]];
     }
     // Shared items section
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectListMedia]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectListMedia] &&
+        ![self.room isFederated]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSharedItems]];
     }
     // Notifications section
