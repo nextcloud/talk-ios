@@ -49,7 +49,6 @@ typedef enum NCNotificationType {
 - (NCNotificationType)notificationType;
 - (NSString *)chatMessageAuthor;
 - (NSString *)chatMessageTitle;
-- (NSString *)callDisplayName;
 - (NSString *)roomToken;
 - (NSArray *)notificationActions;
 

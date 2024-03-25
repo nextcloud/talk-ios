@@ -116,19 +116,6 @@
     return title;
 }
 
-- (NSString *)callDisplayName
-{
-    NSString *displayName = [[_subjectRichParameters objectForKey:@"call"] objectForKey:@"name"];
-    NSString *callType = [[_subjectRichParameters objectForKey:@"call"] objectForKey:@"call-type"];
-    if ([callType isEqualToString:@"one2one"]) {
-        displayName = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];
-    }
-    if (!displayName || [displayName isEqualToString:@"a conversation"]) {
-        displayName = NSLocalizedString(@"Incoming call", nil);
-    }
-    return displayName;
-}
-
 - (NSArray *)getParametersFromRichText:(NSString *)text
 {
     NSError *error = nil;
