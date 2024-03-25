@@ -50,7 +50,7 @@ jobs:
       run: |
         pod install    
 
-    - name: Build & Test NextcloudTalk iOS
+    - name: Build NextcloudTalk iOS for testing
       run: |
         set -o pipefail && \
         xcodebuild build-for-testing \
@@ -136,13 +136,11 @@ jobs:
       with:
         name: Products
 
-    - name: Build & Test NextcloudTalk iOS
+    - name: Test NextcloudTalk iOS
       run: |
         set -o pipefail && \
         xcodebuild test-without-building \
         -xctestrun $(find . -type f -name "*.xctestrun") \
-        -workspace "${{ env.WORKSPACE }}" \
-        -scheme "${{ env.SCHEME }}" \
         -destination "${{ env.DESTINATION }}" \
         -derivedDataPath "DerivedData" \
         -test-iterations 3 \
