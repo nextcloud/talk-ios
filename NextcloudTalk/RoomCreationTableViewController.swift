@@ -445,6 +445,7 @@ enum RoomVisibilityOption: Int {
         if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
             let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
             TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
+            textInputCell.textField.autocapitalizationType = .sentences
             textInputCell.textField.tag = kRoomNameTextFieldTag
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.roomName

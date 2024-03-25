@@ -211,6 +211,7 @@ import UIKit
         let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
         TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
         textInputCell.textField.delegate = self
+        textInputCell.textField.autocapitalizationType = .sentences
         let actionCell = tableView.dequeueReusableCell(withIdentifier: "PollSettingCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "PollSettingCellIdentifier")
 
         if indexPath.section == PollCreationSection.kPollCreationSectionQuestion.rawValue {

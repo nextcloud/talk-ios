@@ -179,24 +179,24 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         switch section {
         case ProfileSection.kProfileSectionName.rawValue:
             return textInputCellWith(text: account.userDisplayName, tag: kNameTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileDisplayName),
-                                     keyBoardType: nil, placeHolder: nil)
+                                     keyBoardType: nil, autocapitalizationType: .sentences, placeHolder: nil)
         case ProfileSection.kProfileSectionEmail.rawValue:
             return textInputCellWith(text: account.email, tag: kEmailTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileEmail),
-                                     keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Your email address", comment: ""))
+                                     keyBoardType: .emailAddress, autocapitalizationType: nil, placeHolder: NSLocalizedString("Your email address", comment: ""))
         case ProfileSection.kProfileSectionPhoneNumber.rawValue:
             let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
             let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
             return textInputCellWith(text: text, tag: kPhoneTextFieldTag, interactionEnabled: false,
-                                     keyBoardType: .phonePad, placeHolder: NSLocalizedString("Your phone number", comment: ""))
+                                     keyBoardType: .phonePad, autocapitalizationType: nil, placeHolder: NSLocalizedString("Your phone number", comment: ""))
         case ProfileSection.kProfileSectionAddress.rawValue:
             return textInputCellWith(text: account.address, tag: kAddressTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileAddress),
-                                     keyBoardType: nil, placeHolder: NSLocalizedString("Your postal address", comment: ""))
+                                     keyBoardType: nil, autocapitalizationType: .sentences, placeHolder: NSLocalizedString("Your postal address", comment: ""))
         case ProfileSection.kProfileSectionWebsite.rawValue:
             return textInputCellWith(text: account.website, tag: kWebsiteTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileWebsite),
-                                     keyBoardType: .URL, placeHolder: NSLocalizedString("Link https://…", comment: ""))
+                                     keyBoardType: .URL, autocapitalizationType: nil, placeHolder: NSLocalizedString("Link https://…", comment: ""))
         case ProfileSection.kProfileSectionTwitter.rawValue:
             return textInputCellWith(text: account.twitter, tag: kTwitterTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileTwitter),
-                                     keyBoardType: .emailAddress, placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))
+                                     keyBoardType: .emailAddress, autocapitalizationType: nil, placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))
         case ProfileSection.kProfileSectionSummary.rawValue:
             return summaryCellForRow(row: indexPath.row)
         case ProfileSection.kProfileSectionRemoveAccount.rawValue:
@@ -270,7 +270,7 @@ extension UserProfileTableViewController {
 
     // MARK: Setup cells
 
-    func textInputCellWith(text: String?, tag: Int?, interactionEnabled: Bool?, keyBoardType: UIKeyboardType?, placeHolder: String?) -> TextInputTableViewCell {
+    func textInputCellWith(text: String?, tag: Int?, interactionEnabled: Bool?, keyBoardType: UIKeyboardType?, autocapitalizationType: UITextAutocapitalizationType?, placeHolder: String?) -> TextInputTableViewCell {
         let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
         TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
 
@@ -287,6 +287,9 @@ extension UserProfileTableViewController {
         }
         if let keyBoardType = keyBoardType {
             textInputCell.textField.keyboardType = keyBoardType
+        }
+        if let autocapitalizationType = autocapitalizationType {
+            textInputCell.textField.autocapitalizationType = autocapitalizationType
         }
         if let placeHolder = placeHolder {
             textInputCell.textField.placeholder = placeHolder

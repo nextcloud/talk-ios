@@ -41,5 +41,6 @@ class TextInputTableViewCell: UITableViewCell {
         self.textField.placeholder = nil
         self.textField.keyboardType = .default
         self.textField.autocorrectionType = .no
+        self.textField.autocapitalizationType = .none
     }
 }
