@@ -1730,7 +1730,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
         [self checkResponseStatusCode:statusCode forAccount:account];
-        NSDictionary *failureDict = [[[self getFailureResponseObjectFromError:error] objectForKey:@"ocs"] objectForKey:@"data"];
+
         if (block) {
             block(@[], NO, error, statusCode);
         }
@@ -3346,7 +3346,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
-            NSDictionary *responseDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
             block(nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
