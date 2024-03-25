@@ -1525,6 +1525,8 @@ typedef enum RoomsSections {
         cell.titleLabel.text = NSLocalizedString(@"Pending invitations", @"");
         cell.subtitleLabel.text = pendingInvitationsString;
         cell.dateLabel.text = @"";
+        cell.userStatusImageView.image = nil;
+        cell.userStatusImageView.backgroundColor = [UIColor clearColor];
 
         [cell.roomImage setMailAvatar];
 
