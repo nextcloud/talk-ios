@@ -530,6 +530,11 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                         NSPredicate *query2 = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@", activeAccount.accountId, managedRoom.token];
                         [realm deleteObjects:[NCChatMessage objectsWithPredicate:query2]];
                         [realm deleteObjects:[NCChatBlock objectsWithPredicate:query2]];
+
+                        if ([managedRoom isFederated]) {
+                            NSPredicate *federatedCapabilities = [NSPredicate predicateWithFormat:@"accountId = %@ AND remoteServer = %@ AND roomToken = %@", activeAccount.accountId, managedRoom.remoteServer, managedRoom.token];
+                            [realm deleteObjects:[FederatedCapabilities objectsWithPredicate:federatedCapabilities]];
+                        }
                     }
                     [realm deleteObjects:managedRoomsToBeDeleted];
                 }];
