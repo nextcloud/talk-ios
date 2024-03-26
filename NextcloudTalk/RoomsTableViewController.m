@@ -476,7 +476,6 @@ typedef enum RoomsSections {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
     // When we manually forced a room update, we update the invitation list as well
-    // TODO: Only check if federation is enabled
     [[NCRoomsManager sharedInstance] updatePendingFederationInvitations];
 
     // Actuate `Peek` feedback (weak boom)
@@ -1526,6 +1525,8 @@ typedef enum RoomsSections {
         cell.titleLabel.text = NSLocalizedString(@"Pending invitations", @"");
         cell.subtitleLabel.text = pendingInvitationsString;
         cell.dateLabel.text = @"";
+        cell.userStatusImageView.image = nil;
+        cell.userStatusImageView.backgroundColor = [UIColor clearColor];
 
         [cell.roomImage setMailAvatar];
 

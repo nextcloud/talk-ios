@@ -24,6 +24,8 @@ import Foundation
 @objc extension NCRoomsManager {
 
     public func checkUpdateNeededForPendingFederationInvitations() {
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV1) else { return }
+
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let tenMinutesAgo = Int(Date().timeIntervalSince1970 - (10 * 60))
 
@@ -33,6 +35,8 @@ import Foundation
     }
 
     public func updatePendingFederationInvitations() {
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV1) else { return }
+
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         NCAPIController.sharedInstance().getFederationInvitations(for: activeAccount.accountId) { invitations in
