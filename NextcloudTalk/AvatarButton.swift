@@ -67,6 +67,7 @@ import SDWebImage
             }
 
             self.setImage(image, for: .normal)
+            self.backgroundColor = .clear
         }
     }
 
