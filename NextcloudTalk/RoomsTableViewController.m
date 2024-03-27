@@ -95,6 +95,8 @@ typedef enum RoomsSections {
     }];
     
     [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:RoomInvitationViewCell.NibName bundle:nil] forCellReuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
     self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
@@ -1418,6 +1420,10 @@ typedef enum RoomsSections {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
+        return RoomInvitationViewCell.CellHeight;
+    }
+
     return kRoomTableCellHeight;
 }
 
@@ -1512,25 +1518,38 @@ typedef enum RoomsSections {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
-    if (!cell) {
-        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
-    }
-
     if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
+        RoomInvitationViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+        if (!cell) {
+            cell = [[RoomInvitationViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+        }
+
         // Pending federation invitations
         TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
 
         NSString *pendingInvitationsString = [NSString localizedStringWithFormat:NSLocalizedString(@"You have %ld pending invitations", nil), (long)account.pendingFederationInvitations];
-        cell.titleLabel.text = NSLocalizedString(@"Pending invitations", @"");
-        cell.subtitleLabel.text = pendingInvitationsString;
-        cell.dateLabel.text = @"";
-        cell.userStatusImageView.image = nil;
-        cell.userStatusImageView.backgroundColor = [UIColor clearColor];
+        UIFont *resultFont = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
 
-        [cell.roomImage setMailAvatar];
+        NSTextAttachment *pendingInvitationsAttachment = [[NSTextAttachment alloc] init];
+        pendingInvitationsAttachment.image = [UIImage imageNamed:@"pending-federation-invitations"];
+        pendingInvitationsAttachment.bounds = CGRectMake(0, roundf(resultFont.capHeight - 20) / 2, 20, 20);
+
+        NSMutableAttributedString *resultString = [[NSMutableAttributedString alloc] initWithAttributedString:[NSAttributedString attributedStringWithAttachment:pendingInvitationsAttachment]];
+        [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:@"  "]];
+        [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:pendingInvitationsString]];
+
+        NSRange range = NSMakeRange(0, [resultString length]);
+        [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
+
+        cell.detailsLabel.attributedText = resultString;
+        cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;
+    }
+
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    if (!cell) {
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
     }
 
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -1576,6 +1595,10 @@ typedef enum RoomsSections {
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)rcell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
+        return;
+    }
+
     RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
