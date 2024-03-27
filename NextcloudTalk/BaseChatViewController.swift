@@ -2733,7 +2733,7 @@ import QuickLook
         }
 
         if message.parent() != nil {
-            height += 65 // left(5) + quoteView(60)
+            height += 60 // quoteView(60)
         }
 
         // Voice message should be before message.file check since it contains a file
