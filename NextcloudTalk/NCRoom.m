@@ -360,17 +360,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     return levelString;
 }
 
-- (NSString * _Nullable)getFederatedActorId
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-
-    if ([self isFederated]) {
-        return [NSString stringWithFormat:@"%@@%@", activeAccount.userId, self.remoteServer];
-    }
-
-    return nil;
-}
-
 - (NSString *)lastMessageString
 {
     NCChatMessage *lastMessage = self.lastMessage;
@@ -386,11 +375,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     BOOL ownMessage = [lastMessage.actorId isEqualToString:activeAccount.userId];
-
-    if (!ownMessage && [self isFederated]) {
-        ownMessage = [lastMessage.actorId isEqualToString:[self getFederatedActorId]];
-    }
-
     NSString *actorName = [[lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
     // For own messages
     if (ownMessage) {
