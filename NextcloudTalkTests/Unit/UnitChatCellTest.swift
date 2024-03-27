@@ -116,7 +116,7 @@ final class UnitChatCellTest: TestBaseRealm {
         testMessage.message = "test"
         testMessage.parentId = "internal-1"
         testMessage.isGroupMessage = true
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 135.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 130.0)
     }
 
     func testCellWithUrlHeight() throws {
@@ -215,7 +215,7 @@ final class UnitChatCellTest: TestBaseRealm {
         }
 
         testMessage.parentId = "internal-1"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 275.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 270.0)
     }
 
     func testCellWithVoiceMessageHeight() {
@@ -238,7 +238,7 @@ final class UnitChatCellTest: TestBaseRealm {
         // Chat message with a quote
         testMessage.message = "test"
         testMessage.parentId = "internal-1"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 135.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 130.0)
     }
 
     func testUnreadMessageSeparatorUrlCheck() throws {
