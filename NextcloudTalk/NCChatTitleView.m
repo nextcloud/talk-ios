@@ -70,7 +70,7 @@
 
     self.avatarimage.layer.cornerRadius = self.avatarimage.bounds.size.width / 2;
     self.avatarimage.clipsToBounds = YES;
-    self.avatarimage.backgroundColor = [NCAppBranding avatarPlaceholderColor];
+    self.avatarimage.backgroundColor = [UIColor systemGray3Color];
 
     self.titleTextView.textContainer.lineFragmentPadding = 0;
     self.titleTextView.textContainerInset = UIEdgeInsetsZero;
