@@ -94,6 +94,7 @@ import UIKit
         self.textInputbar.autoHideRightButton = false
         self.textInputbar.counterStyle = .limitExceeded
         self.textInputbar.counterPosition = .top
+        self.textInputbar.textView.isDynamicTypeEnabled = false
         self.textInputbar.textView.font = .preferredFont(forTextStyle: .body)
 
         let talkCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
