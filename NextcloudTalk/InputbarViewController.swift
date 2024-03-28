@@ -94,6 +94,7 @@ import UIKit
         self.textInputbar.autoHideRightButton = false
         self.textInputbar.counterStyle = .limitExceeded
         self.textInputbar.counterPosition = .top
+        self.textInputbar.textView.font = .preferredFont(forTextStyle: .body)
 
         let talkCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
 
@@ -118,7 +119,7 @@ import UIKit
 
         self.textInputbar.editorLeftButton.setImage(.init(systemName: "xmark"), for: .normal)
         self.textInputbar.editorRightButton.setImage(.init(systemName: "checkmark"), for: .normal)
-        
+
         self.textInputbar.editorLeftButton.setTitle("", for: .normal)
         self.textInputbar.editorRightButton.setTitle("", for: .normal)
 
