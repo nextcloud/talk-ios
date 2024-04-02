@@ -80,6 +80,7 @@ jobs:
           { talkbranch: 'stable23', serverbranch: 'stable23', phpversion: '8.0' },
           { talkbranch: 'stable27', serverbranch: 'stable27', phpversion: '8.2' },
           { talkbranch: 'stable28', serverbranch: 'stable28', phpversion: '8.2' },
+          { talkbranch: 'stable29', serverbranch: 'stable29', phpversion: '8.2' },
           { talkbranch: 'main', serverbranch: 'master', phpversion: '8.2' }
         ]
 
