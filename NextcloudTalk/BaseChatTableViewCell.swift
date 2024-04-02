@@ -219,11 +219,12 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             self.showReferencePart()
 
             message.getReferenceData { message, referenceDataRaw, url in
-                guard let message = self.message,
-                      message.isSameMessage(message)
+                guard let cellMessage = self.message,
+                      let referenceMessage = message,
+                      cellMessage.isSameMessage(referenceMessage)
                 else { return }
 
-                if referenceDataRaw == nil, let deckCard = message.deckCard() {
+                if referenceDataRaw == nil, let deckCard = cellMessage.deckCard() {
                     // In case we were unable to retrieve reference data (for example if the user has no permissions)
                     // but the message is a shared deck card, we use the shared information to show the deck view
                     self.referenceView?.update(for: deckCard)
