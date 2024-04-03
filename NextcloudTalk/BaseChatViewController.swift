@@ -1061,7 +1061,7 @@ import QuickLook
     }
 
     func didPressDelete(for message: NCChatMessage) {
-        if message.sendingFailed, message.isOfflineMessage {
+        if message.sendingFailed || message.isOfflineMessage {
             self.removePermanentlyTemporaryMessage(temporaryMessage: message)
             return
         }
@@ -2042,7 +2042,7 @@ import QuickLook
                 self.messages.removeValue(forKey: sectionKey)
                 self.sortDateSections()
                 self.tableView?.beginUpdates()
-                self.tableView?.reloadSections([indexPath.section], with: .none)
+                self.tableView?.deleteSections([indexPath.section], with: .none)
                 self.tableView?.endUpdates()
             } else {
                 // Remove message
