@@ -273,7 +273,11 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
             // Currently not triggered, needs to be enabled in API with sending force=false
             errorReason = NSLocalizedString(@"Duplicate session", nil);
             break;
-            
+
+        case 422:
+            errorReason = NSLocalizedString(@"Remote server is unreachable", nil);
+            break;
+
         case 503:
             errorReason = NSLocalizedString(@"Server is currently in maintenance mode", nil);
             break;

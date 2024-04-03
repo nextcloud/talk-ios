@@ -1355,6 +1355,9 @@
 "Reminder was successfully set" = "Reminder was successfully set";
 
 /* No comment provided by engineer. */
+"Remote server is unreachable" = "Remote server is unreachable";
+
+/* No comment provided by engineer. */
 "Remove" = "Remove";
 
 /* No comment provided by engineer. */
