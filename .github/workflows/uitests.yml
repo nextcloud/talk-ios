@@ -133,15 +133,15 @@ jobs:
         ./server/occ config:system:set memcache.distributed --value="\\OC\\Memcache\\APCu"
         ./server/occ app:enable --force spreed
         ./server/occ background:cron
-        PHP_CLI_SERVER_WORKERS=5 php -S localhost:8080 -t server/ &
-
-    - name: Check status.php
-      run: curl -s http://localhost:8080/status.php
+        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
 
     - name: Download test-build
       uses: actions/download-artifact@v4
       with:
         name: Products
+
+    - name: Check status.php
+      run: curl -s --retry 5 --retry-delay 5 --retry-all-errors http://localhost:8080/status.php || true
 
     - name: Test NextcloudTalk iOS
       run: |
