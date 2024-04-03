@@ -135,13 +135,13 @@ jobs:
         ./server/occ background:cron
         PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
 
-    - name: Check status.php
-      run: curl -s --retry 5 --retry-delay 5 --retry-all-errors http://localhost:8080/status.php || true
-
     - name: Download test-build
       uses: actions/download-artifact@v4
       with:
         name: Products
+
+    - name: Check status.php
+      run: curl -s --retry 5 --retry-delay 5 --retry-all-errors http://localhost:8080/status.php || true
 
     - name: Test NextcloudTalk iOS
       run: |
