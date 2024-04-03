@@ -299,6 +299,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.red).withRenderingMode(.alwaysOriginal)
 
             errorView.image = errorImage
+            errorView.contentMode = .scaleAspectFit
             errorView.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(errorView)
