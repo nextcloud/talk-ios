@@ -234,6 +234,10 @@
 		1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */; };
 		1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */; };
 		1FE7DE322BB459B10040EE12 /* RoomInvitationViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */; };
+		1FE7DE332BBC8FA00040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
+		1FE7DE342BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
+		1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
+		1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE94733293CE55600D6584C /* NCCameraController.swift */; };
 		1FEC459C2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */; };
 		1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */; };
@@ -2240,6 +2244,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FE7DE332BBC8FA00040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2289,6 +2294,7 @@
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */,
 				2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */,
+				1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
 				1FE7DE322BB459B10040EE12 /* RoomInvitationViewCell.xib in Resources */,
@@ -2312,6 +2318,7 @@
 				1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */,
 				2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */,
 				2C62AFB624C1A449007E460A /* Share.storyboard in Resources */,
+				1FE7DE342BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				1F35F8F22AEEC25E00044BDA /* TypingIndicatorView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2322,6 +2329,7 @@
 			files = (
 				1F53819129195FA4003DA6B7 /* Images.xcassets in Resources */,
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
+				1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
