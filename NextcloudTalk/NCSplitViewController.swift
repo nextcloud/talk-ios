@@ -99,6 +99,25 @@
         }
     }
 
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate(alongsideTransition: nil) { _ in
+            guard self.isCollapsed else { return }
+
+            if let navController = self.viewController(for: .secondary) as? UINavigationController,
+               let chatViewController = self.getActiveChatViewController() {
+
+                // Make sure the navigationController has the correct reference to the chatViewController.
+                // After a transition (eg. portrait to landscape) the navigationController still references the
+                // the placeholderViewController in the navigationBar. When navigating back the app crashes in iOS 17,
+                // because the navigationBar is referenced twice.
+                navController.setViewControllers([self.placeholderViewController, chatViewController], animated: false)
+                navController.setViewControllers([chatViewController], animated: false)
+            }
+        }
+    }
+
     func internalExecuteAfterTransition(action: @escaping () -> Void) {
         if self.transitionCoordinator == nil {
             // No ongoing animations -> execute action directly
