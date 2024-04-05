@@ -46,7 +46,6 @@ import QuickLook
                                                   AVAudioPlayerDelegate,
                                                   SystemMessageTableViewCellDelegate,
                                                   VoiceMessageTableViewCellDelegate,
-                                                  LocationMessageTableViewCellDelegate,
                                                   ObjectShareMessageTableViewCellDelegate,
                                                   BaseChatTableViewCellDelegate,
                                                   UITableViewDataSourcePrefetching {
@@ -258,8 +257,9 @@ import QuickLook
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupedMessageCellIdentifier)
 
-        self.tableView?.register(LocationMessageTableViewCell.self, forCellReuseIdentifier: LocationMessageCellIdentifier)
-        self.tableView?.register(LocationMessageTableViewCell.self, forCellReuseIdentifier: GroupedLocationMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: locationMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: locationGroupedMessageCellIdentifier)
+
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: InvisibleSystemMessageCellIdentifier)
         self.tableView?.register(VoiceMessageTableViewCell.self, forCellReuseIdentifier: VoiceMessageCellIdentifier)
@@ -2612,9 +2612,9 @@ import QuickLook
         }
 
         if message.geoLocation() != nil {
-            let cellIdentifier = message.isGroupMessage ? GroupedLocationMessageCellIdentifier : LocationMessageCellIdentifier
+            let cellIdentifier = message.isGroupMessage ? locationGroupedMessageCellIdentifier : locationMessageCellIdentifier
 
-            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? LocationMessageTableViewCell {
+            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
                 cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
 
@@ -2763,7 +2763,7 @@ import QuickLook
         }
 
         if message.geoLocation() != nil {
-            height += kLocationMessageCellPreviewHeight + 10 // right(10)
+            height += locationMessageCellPreviewHeight + 10 // right(10)
         }
 
         if message.poll() != nil {
@@ -3258,7 +3258,7 @@ import QuickLook
 
     // MARK: - LocationMessageTableViewCell
 
-    public func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject!) {
+    public func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject) {
         self.presentWithNavigation(MapViewController(geoLocationRichObject: geoLocationRichObject), animated: true)
     }
 

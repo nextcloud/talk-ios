@@ -71,7 +71,6 @@
 #import "CallKitManager.h"
 
 #import "GeoLocationRichObject.h"
-#import "LocationMessageTableViewCell.h"
 #import "MessageSeparatorTableViewCell.h"
 #import "ObjectShareMessageTableViewCell.h"
 #import "NCChatMessage.h"
