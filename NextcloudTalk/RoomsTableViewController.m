@@ -1022,45 +1022,25 @@ typedef enum RoomsSections {
 
 #pragma mark - Room actions
 
-- (void)setNotificationLevelForRoomAtIndexPath:(NSIndexPath *)indexPath
+- (UIAction *)actionForNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
-    UIAlertController *optionsActionSheet =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Notifications", nil)
-                                        message:nil
-                                 preferredStyle:UIAlertControllerStyleActionSheet];
-    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelAlways forRoom:room]];
-    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelMention forRoom:room]];
-    [optionsActionSheet addAction:[self actionForNotificationLevel:kNCRoomNotificationLevelNever forRoom:room]];
-    [optionsActionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    
-    // Presentation on iPads
-    optionsActionSheet.popoverPresentationController.sourceView = self.tableView;
-    optionsActionSheet.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
-    
-    [self presentViewController:optionsActionSheet animated:YES completion:nil];
-}
+    UIAction *notificationAction = [UIAction actionWithTitle:[room stringForNotificationLevel:level] image:nil identifier:nil handler:^(UIAction *action) {
+        if (level == room.notificationLevel) {
+            return;
+        }
+        [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+            if (error) {
+                NSLog(@"Error renaming the room: %@", error.description);
+            }
+            [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+        }];
+    }];
 
-- (UIAlertAction *)actionForNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NCRoom *)room
-{
-    UIAlertAction *action = [UIAlertAction actionWithTitle:[room stringForNotificationLevel:level]
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^void (UIAlertAction *action) {
-                                                       if (level == room.notificationLevel) {
-                                                           return;
-                                                       }
-                                                       [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-                                                           if (error) {
-                                                               NSLog(@"Error renaming the room: %@", error.description);
-                                                           }
-                                                           [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
-                                                       }];
-                                                   }];
     if (room.notificationLevel == level) {
-        [action setValue:[[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        notificationAction.state = UIMenuElementStateOn;
     }
-    return action;
+
+    return notificationAction;
 }
 
 - (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
@@ -1611,12 +1591,20 @@ typedef enum RoomsSections {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels] &&
         room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf) {
 
-        NSString *notificationTitle = [NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString];
-        UIAction *notificationActions = [UIAction actionWithTitle:notificationTitle image:[UIImage systemImageNamed:@"bell"] identifier:nil handler:^(UIAction *action) {
-            [weakSelf setNotificationLevelForRoomAtIndexPath:indexPath];
-        }];
+        NSMutableArray *notificationActions = [[NSMutableArray alloc] init];
 
-        [actions addObject:notificationActions];
+        [notificationActions addObject:[self actionForNotificationLevel:kNCRoomNotificationLevelAlways forRoom:room]];
+        [notificationActions addObject:[self actionForNotificationLevel:kNCRoomNotificationLevelMention forRoom:room]];
+        [notificationActions addObject:[self actionForNotificationLevel:kNCRoomNotificationLevelNever forRoom:room]];
+
+        NSString *notificationTitle = [NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString];
+        UIMenu *notificationMenu = [UIMenu menuWithTitle:notificationTitle
+                                                   image:[UIImage systemImageNamed:@"bell"]
+                                              identifier:nil
+                                                 options:0
+                                                children:notificationActions];
+
+        [actions addObject:notificationMenu];
     }
 
     // Share link
