@@ -1043,10 +1043,8 @@ typedef enum RoomsSections {
     return notificationAction;
 }
 
-- (void)shareLinkFromRoomAtIndexPath:(NSIndexPath *)indexPath
+- (void)shareLinkFromRoom:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
     
@@ -1062,9 +1060,13 @@ typedef enum RoomsSections {
     [controller setValue:emailSubject forKey:@"subject"];
 
     // Presentation on iPads
-    controller.popoverPresentationController.sourceView = self.tableView;
-    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
-    
+    NSIndexPath *indexPath = [self indexPathForRoom:room];
+
+    if (indexPath) {
+        controller.popoverPresentationController.sourceView = self.tableView;
+        controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
+    }
+
     [self presentViewController:controller animated:YES completion:nil];
     
     controller.completionWithItemsHandler = ^(NSString *activityType,
@@ -1077,10 +1079,8 @@ typedef enum RoomsSections {
     };
 }
 
-- (void)markRoomAsReadAtIndexPath:(NSIndexPath *)indexPath
+- (void)markRoomAsRead:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error marking room as read: %@", error.description);
@@ -1089,10 +1089,8 @@ typedef enum RoomsSections {
     }];
 }
 
-- (void)markRoomAsUnreadAtIndexPath:(NSIndexPath *)indexPath
+- (void)markRoomAsUnread:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error marking chat as unread: %@", error.description);
@@ -1101,10 +1099,8 @@ typedef enum RoomsSections {
     }];
 }
 
-- (void)addRoomToFavoritesAtIndexPath:(NSIndexPath *)indexPath
+- (void)addRoomToFavorites:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
@@ -1113,10 +1109,8 @@ typedef enum RoomsSections {
     }];
 }
 
-- (void)removeRoomFromFavoritesAtIndexPath:(NSIndexPath *)indexPath
+- (void)removeRoomFromFavorites:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
@@ -1125,27 +1119,29 @@ typedef enum RoomsSections {
     }];
 }
 
-- (void)presentRoomInfoForRoomAtIndexPath:(NSIndexPath *)indexPath
+- (void)presentRoomInfoForRoom:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:room];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:roomInfoVC];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
-- (void)leaveRoomAtIndexPath:(NSIndexPath *)indexPath
+- (void)leaveRoom:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Leave conversation", nil)
                                         message:NSLocalizedString(@"Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Leave", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
-        [self->_rooms removeObjectAtIndex:indexPath.row];
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+
+        NSIndexPath *indexPath = [self indexPathForRoom:room];
+
+        if (indexPath) {
+            [self->_rooms removeObjectAtIndex:indexPath.row];
+            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        }
+
         [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
             if (errorCode == 400) {
                 [self showLeaveRoomLastModeratorErrorForRoom:room];
@@ -1161,18 +1157,22 @@ typedef enum RoomsSections {
     [self presentViewController:confirmDialog animated:YES completion:nil];
 }
 
-- (void)deleteRoomAtIndexPath:(NSIndexPath *)indexPath
+- (void)deleteRoom:(NCRoom *)room
 {
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Delete conversation", nil)
                                         message:room.deletionMessage
                                  preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
-        [self->_rooms removeObjectAtIndex:indexPath.row];
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+
+        NSIndexPath *indexPath = [self indexPathForRoom:room];
+
+        if (indexPath) {
+            [self->_rooms removeObjectAtIndex:indexPath.row];
+            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        }
+
         [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (error) {
                 NSLog(@"Error deleting room: %@", error.description);
@@ -1203,6 +1203,20 @@ typedef enum RoomsSections {
         return [_rooms objectAtIndex:indexPath.row];
     }
     
+    return nil;
+}
+
+- (NSIndexPath *)indexPathForRoom:(NCRoom *)room
+{
+    NSUInteger idx = [_rooms indexOfObjectPassingTest:^(id obj, NSUInteger idx, BOOL *stop){
+        NCRoom *currentRoom = (NCRoom *)obj;
+        return [currentRoom.internalId isEqualToString:room.internalId];
+    }];
+
+    if (idx != NSNotFound) {
+        return [NSIndexPath indexPathForRow:idx inSection:1];
+    }
+
     return nil;
 }
 
@@ -1327,22 +1341,24 @@ typedef enum RoomsSections {
         return nil;
     }
 
+    NCRoom *room = [self roomForIndexPath:indexPath];
+
+    // Do not show swipe actions for open conversations or messages
+    if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {
+        return nil;
+    }
+
     UIContextualAction *deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
                                                                             handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
-                                                                                [self deleteRoomAtIndexPath:indexPath];
+                                                                                [self deleteRoom:room];
                                                                                 completionHandler(false);
                                                                             }];
     deleteAction.image = [UIImage systemImageNamed:@"trash"];
-    
-    NCRoom *room = [self roomForIndexPath:indexPath];
-    
-    // Do not show swipe actions for open conversations or messages
-    if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {return nil;}
-    
+
     if (room.isLeavable && room.type != kNCRoomTypeNoteToSelf) {
         deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
                                                              handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
-                                                                 [self leaveRoomAtIndexPath:indexPath];
+                                                                 [self leaveRoom:room];
                                                                  completionHandler(false);
                                                              }];
         deleteAction.image = [UIImage systemImageNamed:@"arrow.right.square"];
@@ -1361,15 +1377,17 @@ typedef enum RoomsSections {
     NCRoom *room = [self roomForIndexPath:indexPath];
     
     // Do not show swipe actions for open conversations or messages
-    if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {return nil;}
+    if ((tableView == _resultTableViewController.tableView && room.listable) || !room) {
+        return nil;
+    }
 
     // Add/Remove room to/from favorites
     UIContextualAction *favoriteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                                                                handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                                    if (room.isFavorite) {
-                                                                                       [self removeRoomFromFavoritesAtIndexPath:indexPath];
+                                                                                       [self removeRoomFromFavorites:room];
                                                                                    } else {
-                                                                                       [self addRoomToFavoritesAtIndexPath:indexPath];
+                                                                                       [self addRoomToFavorites:room];
                                                                                    }
                                                                                    completionHandler(true);
                                                                                }];
@@ -1385,9 +1403,9 @@ typedef enum RoomsSections {
                                               contextualActionWithStyle:UIContextualActionStyleNormal title:nil
                                               handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
             if (room.unreadMessages > 0) {
-                [self markRoomAsReadAtIndexPath:indexPath];
+                [self markRoomAsRead:room];
             } else {
-                [self markRoomAsUnreadAtIndexPath:indexPath];
+                [self markRoomAsUnread:room];
             }
             completionHandler(true);
         }];
@@ -1559,9 +1577,9 @@ typedef enum RoomsSections {
     NSString *favActionName = (room.isFavorite) ? NSLocalizedString(@"Remove from favorites", nil) : NSLocalizedString(@"Add to favorites", nil);
     UIAction *favAction = [UIAction actionWithTitle:favActionName image:favImage identifier:nil handler:^(UIAction *action) {
         if (room.isFavorite) {
-            [weakSelf removeRoomFromFavoritesAtIndexPath:indexPath];
+            [weakSelf removeRoomFromFavorites:room];
         } else {
-            [weakSelf addRoomToFavoritesAtIndexPath:indexPath];
+            [weakSelf addRoomToFavorites:room];
         }
     }];
 
@@ -1573,14 +1591,14 @@ typedef enum RoomsSections {
         if (room.unreadMessages > 0) {
             // Mark room as read
             UIAction *markReadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as read", nil) image:[UIImage systemImageNamed:@"eye"] identifier:nil handler:^(UIAction *action) {
-                [weakSelf markRoomAsReadAtIndexPath:indexPath];
+                [weakSelf markRoomAsRead:room];
             }];
 
             [actions addObject:markReadAction];
         } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatUnread]) {
             // Mark room as unread
             UIAction *markUnreadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as unread", nil) image:[UIImage systemImageNamed:@"eye.slash"] identifier:nil handler:^(UIAction *action) {
-                [weakSelf markRoomAsUnreadAtIndexPath:indexPath];
+                [weakSelf markRoomAsUnread:room];
             }];
 
             [actions addObject:markUnreadAction];
@@ -1610,7 +1628,7 @@ typedef enum RoomsSections {
     // Share link
     if (room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf) {
         UIAction *notificationActions = [UIAction actionWithTitle:NSLocalizedString(@"Share link", nil) image:[UIImage systemImageNamed:@"square.and.arrow.up"] identifier:nil handler:^(UIAction *action) {
-            [weakSelf shareLinkFromRoomAtIndexPath:indexPath];
+            [weakSelf shareLinkFromRoom:room];
         }];
 
         [actions addObject:notificationActions];
@@ -1618,7 +1636,7 @@ typedef enum RoomsSections {
 
     // Room info
     UIAction *roomInfoAction = [UIAction actionWithTitle:NSLocalizedString(@"Conversation settings", nil) image:[UIImage systemImageNamed:@"gearshape"] identifier:nil handler:^(UIAction *action) {
-        [weakSelf presentRoomInfoForRoomAtIndexPath:indexPath];
+        [weakSelf presentRoomInfoForRoom:room];
     }];
 
     [actions addObject:roomInfoAction];
