@@ -1595,7 +1595,7 @@ typedef enum RoomsSections {
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)rcell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
+    if (indexPath.section == kRoomsSectionPendingFederationInvitation || tableView != self.tableView) {
         return;
     }
 
