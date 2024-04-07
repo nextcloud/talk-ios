@@ -81,6 +81,8 @@ typedef enum RoomsSections {
     NCNavigationController *_contextChatNavigationController;
 }
 
+@property (nonatomic, copy, nullable) void (^contextMenuActionBlock)(void);
+
 @end
 
 @implementation RoomsTableViewController
@@ -1576,11 +1578,13 @@ typedef enum RoomsSections {
     UIImage *favImage = [[UIImage systemImageNamed:favImageName] imageWithTintColor:UIColor.systemYellowColor renderingMode:UIImageRenderingModeAlwaysOriginal];
     NSString *favActionName = (room.isFavorite) ? NSLocalizedString(@"Remove from favorites", nil) : NSLocalizedString(@"Add to favorites", nil);
     UIAction *favAction = [UIAction actionWithTitle:favActionName image:favImage identifier:nil handler:^(UIAction *action) {
-        if (room.isFavorite) {
-            [weakSelf removeRoomFromFavorites:room];
-        } else {
-            [weakSelf addRoomToFavorites:room];
-        }
+        weakSelf.contextMenuActionBlock = ^{
+            if (room.isFavorite) {
+                [weakSelf removeRoomFromFavorites:room];
+            } else {
+                [weakSelf addRoomToFavorites:room];
+            }
+        };
     }];
 
     [actions addObject:favAction];
@@ -1591,14 +1595,18 @@ typedef enum RoomsSections {
         if (room.unreadMessages > 0) {
             // Mark room as read
             UIAction *markReadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as read", nil) image:[UIImage systemImageNamed:@"eye"] identifier:nil handler:^(UIAction *action) {
-                [weakSelf markRoomAsRead:room];
+                weakSelf.contextMenuActionBlock = ^{
+                    [weakSelf markRoomAsRead:room];
+                };
             }];
 
             [actions addObject:markReadAction];
         } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatUnread]) {
             // Mark room as unread
             UIAction *markUnreadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as unread", nil) image:[UIImage systemImageNamed:@"eye.slash"] identifier:nil handler:^(UIAction *action) {
-                [weakSelf markRoomAsUnread:room];
+                weakSelf.contextMenuActionBlock = ^{
+                    [weakSelf markRoomAsUnread:room];
+                };
             }];
 
             [actions addObject:markUnreadAction];
@@ -1677,6 +1685,21 @@ typedef enum RoomsSections {
     previewParameter.shadowPath = [[UIBezierPath alloc] init];
 
     return [[UITargetedPreview alloc] initWithView:previewView parameters:previewParameter target:previewTarget];
+}
+
+- (void)tableView:(UITableView *)tableView willEndContextMenuInteractionWithConfiguration:(UIContextMenuConfiguration *)configuration animator:(id<UIContextMenuInteractionAnimating>)animator
+{
+    if (![tableView isEqual:self.tableView]) {
+        return;
+    }
+
+    [animator addCompletion:^{
+        // Wait until the context menu is completely hidden before we execute any method
+        if (self->_contextMenuActionBlock) {
+            self->_contextMenuActionBlock();
+            self->_contextMenuActionBlock = nil;
+        }
+    }];
 }
 
 - (void)setSelectedRoomToken:(NSString *)selectedRoomToken
