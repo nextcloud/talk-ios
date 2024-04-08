@@ -105,7 +105,7 @@ import AVFoundation
         }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let nextcloudURLString = "\(nextcloudScheme)//open-file?path=\(path)&user=\(activeAccount.user)&link=\(link)"
+        let nextcloudURLString = "\(nextcloudScheme)//open-file?path=\(path)&user=\(activeAccount.userId)&link=\(link)"
         if let nextcloudEncodedURLString = nextcloudURLString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
            let nextcloudURL = URL(string: nextcloudEncodedURLString) {
 
