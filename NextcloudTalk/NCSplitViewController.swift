@@ -20,7 +20,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-@objcMembers class NCSplitViewController: UISplitViewController, UISplitViewControllerDelegate, UINavigationControllerDelegate {
+@objcMembers class NCSplitViewController: UISplitViewController, UISplitViewControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
     var placeholderViewController = UIViewController()
 
@@ -59,7 +59,17 @@
             // Make sure the chatViewController gets properly deallocated
             setViewController(placeholderViewController, for: .secondary)
             navController.setViewControllers([placeholderViewController], animated: false)
+
+            navigationController.interactivePopGestureRecognizer?.delegate = self
         }
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if self.hasActiveChatViewController() {
+            return true
+        }
+
+        return false
     }
 
     override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
