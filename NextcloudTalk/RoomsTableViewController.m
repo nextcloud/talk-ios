@@ -1649,6 +1649,28 @@ typedef enum RoomsSections {
 
     [actions addObject:roomInfoAction];
 
+    UIAction *deleteAction;
+
+    if (room.isLeavable && room.type != kNCRoomTypeNoteToSelf) {
+        deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Leave conversation", nil) image:[UIImage systemImageNamed:@"arrow.right.square"] identifier:nil handler:^(UIAction *action) {
+            [weakSelf leaveRoom:room];
+        }];
+    } else {
+        deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete conversation", nil) image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(UIAction *action) {
+            [weakSelf deleteRoom:room];
+        }];
+    }
+
+    deleteAction.attributes = UIMenuElementAttributesDestructive;
+
+    UIMenu *deleteMenu = [UIMenu menuWithTitle:@""
+                                         image:nil
+                                    identifier:nil
+                                       options:UIMenuOptionsDisplayInline
+                                      children:@[deleteAction]];
+
+    [actions addObject:deleteMenu];
+
     UIMenu *menu = [UIMenu menuWithTitle:@"" children:actions];
 
     UIContextMenuConfiguration *configuration = [UIContextMenuConfiguration configurationWithIdentifier:indexPath previewProvider:^UIViewController * _Nullable{
