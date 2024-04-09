@@ -20,6 +20,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import MapKit
+
 protocol BaseChatTableViewCellDelegate: AnyObject {
 
     func cellWantsToScroll(to message: NCChatMessage)
@@ -94,6 +96,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
     // Location cell
     internal var locationPreviewImageView: UIImageView?
+    internal var locationMapSnapshooter: MKMapSnapshotter?
     internal var locationPreviewImageViewHeightConstraint: NSLayoutConstraint?
     internal var locationPreviewImageViewWidthConstraint: NSLayoutConstraint?
 

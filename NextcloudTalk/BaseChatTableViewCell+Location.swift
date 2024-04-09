@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2024 Marcel Müller <marcel-mueller@gmx.de>
+// Copyright (c) 2024 Ivan Sein <ivan@nextcloud.com>
 //
 // Author Ivan Sein <ivan@nextcloud.com>
 //
@@ -19,8 +19,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import MapKit
-
 extension BaseChatTableViewCell {
 
     func setupForLocationCell(with message: NCChatMessage) {
@@ -39,52 +37,6 @@ extension BaseChatTableViewCell {
             let previewTap = UITapGestureRecognizer(target: self, action: #selector(locationPreviewTapped))
             locationPreviewImageView.addGestureRecognizer(previewTap)
             locationPreviewImageView.isUserInteractionEnabled = true
-
-            guard let geoLocationRichObject = message.geoLocation()
-            else { return }
-
-            let geoLocation = GeoLocationRichObject(from: geoLocationRichObject)
-
-            guard let latitude = Double(geoLocation.latitude),
-                  let longitude = Double(geoLocation.longitude)
-            else { return }
-
-            let mapView = MKMapView(frame: .init(x: 0, y: 0, width: locationMessageCellPreviewWidth, height: locationMessageCellPreviewHeight))
-
-            let mapRegion = MKCoordinateRegion(center: .init(latitude: latitude, longitude: longitude),
-                                               span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005))
-
-            let options: MKMapSnapshotter.Options = .init()
-            options.region = mapRegion
-            options.size = mapView.frame.size
-            options.scale = UIScreen.main.scale
-
-            let mapSnapshooter = MKMapSnapshotter(options: options)
-            mapSnapshooter.start { snapshot, _ in
-                guard let snapshot = snapshot
-                else { return }
-
-                let pin = MKPinAnnotationView(annotation: nil, reuseIdentifier: nil)
-                let image = snapshot.image
-
-                UIGraphicsBeginImageContextWithOptions(image.size, true, image.scale)
-                image.draw(at: CGPoint.zero)
-
-                let rect = CGRect(origin: CGPoint.zero, size: image.size)
-                let annotation = MKPointAnnotation()
-                annotation.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-                var point = snapshot.point(for: annotation.coordinate)
-                if rect.contains(point) {
-                    point.x += pin.centerOffset.x - (pin.bounds.size.width / 2)
-                    point.y += pin.centerOffset.y - (pin.bounds.size.height / 2)
-                    pin.pinTintColor = NCAppBranding.elementColor()
-                    pin.image?.draw(at: point)
-                }
-
-                let compositeImage = UIGraphicsGetImageFromCurrentImageContext()
-                self.locationPreviewImageView?.image = compositeImage
-                UIGraphicsEndImageContext()
-            }
 
             // Add everything to messageBodyView
             let heightConstraint = locationPreviewImageView.heightAnchor.constraint(equalToConstant: locationMessageCellPreviewHeight)
@@ -112,14 +64,67 @@ extension BaseChatTableViewCell {
             ])
         }
 
-        guard let messageTextView = self.messageTextView
+        guard let locationPreviewImageView = self.locationPreviewImageView,
+              let messageTextView = self.messageTextView
         else { return }
+
+        guard let geoLocationRichObject = message.geoLocation()
+        else { return }
+
+        let geoLocation = GeoLocationRichObject(from: geoLocationRichObject)
+
+        guard let latitude = Double(geoLocation.latitude),
+              let longitude = Double(geoLocation.longitude)
+        else { return }
+
+        let mapView = MKMapView(frame: .init(x: 0, y: 0, width: locationMessageCellPreviewWidth, height: locationMessageCellPreviewHeight))
+
+        let mapRegion = MKCoordinateRegion(center: .init(latitude: latitude, longitude: longitude),
+                                           span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005))
+
+        let options: MKMapSnapshotter.Options = .init()
+        options.region = mapRegion
+        options.size = mapView.frame.size
+        options.scale = UIScreen.main.scale
+
+        self.locationMapSnapshooter = MKMapSnapshotter(options: options)
+
+        guard let locationMapSnapshooter = self.locationMapSnapshooter
+        else { return }
+
+        locationMapSnapshooter.start { snapshot, _ in
+            guard let snapshot = snapshot
+            else { return }
+
+            let pin = MKPinAnnotationView(annotation: nil, reuseIdentifier: nil)
+            let image = snapshot.image
+
+            UIGraphicsBeginImageContextWithOptions(image.size, true, image.scale)
+            image.draw(at: CGPoint.zero)
+
+            let rect = CGRect(origin: CGPoint.zero, size: image.size)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            var point = snapshot.point(for: annotation.coordinate)
+            if rect.contains(point) {
+                point.x += pin.centerOffset.x - (pin.bounds.size.width / 2)
+                point.y += pin.centerOffset.y - (pin.bounds.size.height / 2)
+                pin.pinTintColor = NCAppBranding.elementColor()
+                pin.image?.draw(at: point)
+            }
+
+            let compositeImage = UIGraphicsGetImageFromCurrentImageContext()
+
+            self.locationPreviewImageView?.image = compositeImage
+            UIGraphicsEndImageContext()
+        }
 
         messageTextView.attributedText = message.parsedMarkdownForChat()
     }
 
     func prepareForReuseLocationCell() {
-        self.locationPreviewImageView = nil
+        self.locationMapSnapshooter?.cancel()
+        self.locationPreviewImageView?.image = nil
     }
 
     @objc func locationPreviewTapped() {
