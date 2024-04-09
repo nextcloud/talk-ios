@@ -34,6 +34,9 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject)
 }
 
+// Common elements
+public let chatMessageCellPreviewCornerRadius = 4.0
+
 // Message cell
 public let chatMessageCellIdentifier = "chatMessageCellIdentifier"
 public let chatGroupedMessageCellIdentifier = "chatGroupedMessageCellIdentifier"
@@ -49,7 +52,6 @@ public let fileMessageCellFileMaxPreviewHeight = 120.0
 public let fileMessageCellFileMaxPreviewWidth = 230.0
 public let fileMessageCellMediaFilePreviewHeight = 230.0
 public let fileMessageCellMediaFileMaxPreviewWidth = 230.0
-public let fileMessageCellFilePreviewCornerRadius = 4.0
 public let fileMessageCellVideoPlayIconSize = 48.0
 
 // Location cell

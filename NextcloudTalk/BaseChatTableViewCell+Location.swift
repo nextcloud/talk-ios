@@ -28,7 +28,7 @@ extension BaseChatTableViewCell {
             self.locationPreviewImageView = locationPreviewImageView
 
             locationPreviewImageView.translatesAutoresizingMaskIntoConstraints = false
-            locationPreviewImageView.layer.cornerRadius = fileMessageCellFilePreviewCornerRadius
+            locationPreviewImageView.layer.cornerRadius = chatMessageCellPreviewCornerRadius
             locationPreviewImageView.layer.masksToBounds = true
             locationPreviewImageView.contentMode = .scaleAspectFit
 
@@ -65,10 +65,8 @@ extension BaseChatTableViewCell {
         }
 
         guard let locationPreviewImageView = self.locationPreviewImageView,
-              let messageTextView = self.messageTextView
-        else { return }
-
-        guard let geoLocationRichObject = message.geoLocation()
+              let messageTextView = self.messageTextView,
+              let geoLocationRichObject = message.geoLocation()
         else { return }
 
         let geoLocation = GeoLocationRichObject(from: geoLocationRichObject)
@@ -87,14 +85,11 @@ extension BaseChatTableViewCell {
         options.size = mapView.frame.size
         options.scale = UIScreen.main.scale
 
-        self.locationMapSnapshooter = MKMapSnapshotter(options: options)
-
-        guard let locationMapSnapshooter = self.locationMapSnapshooter
-        else { return }
+        let locationMapSnapshooter = MKMapSnapshotter(options: options)
+        self.locationMapSnapshooter = locationMapSnapshooter
 
         locationMapSnapshooter.start { snapshot, _ in
-            guard let snapshot = snapshot
-            else { return }
+            guard let snapshot else { return }
 
             let pin = MKPinAnnotationView(annotation: nil, reuseIdentifier: nil)
             let image = snapshot.image
