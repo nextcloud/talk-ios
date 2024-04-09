@@ -60,11 +60,16 @@
             setViewController(placeholderViewController, for: .secondary)
             navController.setViewControllers([placeholderViewController], animated: false)
 
+            // Instead of always allowing a gesture to be recognized, we need more control here.
+            // See gestureRecognizerShouldBegin.
             navigationController.interactivePopGestureRecognizer?.delegate = self
         }
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        // We only want to recognize a "back gesture" through the interactivePopGestureRecognizer
+        // when a chatViewController is shown. Otherwise (on the RoomsTableViewController)
+        // recognizing a gesture might result in an unfinished transition and a broken UI
         if self.hasActiveChatViewController() {
             return true
         }
