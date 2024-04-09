@@ -2,6 +2,7 @@
 // Copyright (c) 2024 Marcel Müller <marcel-mueller@gmx.de>
 //
 // Author Marcel Müller <marcel-mueller@gmx.de>
+// Author Ivan Sein <ivan@nextcloud.com>
 //
 // GNU GPL version 3 or any later version
 //
@@ -19,6 +20,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import MapKit
+
 protocol BaseChatTableViewCellDelegate: AnyObject {
 
     func cellWantsToScroll(to message: NCChatMessage)
@@ -27,7 +30,12 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
 
     func cellWants(toDownloadFile fileParameter: NCMessageFileParameter)
     func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage)
+
+    func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject)
 }
+
+// Common elements
+public let chatMessageCellPreviewCornerRadius = 4.0
 
 // Message cell
 public let chatMessageCellIdentifier = "chatMessageCellIdentifier"
@@ -44,8 +52,14 @@ public let fileMessageCellFileMaxPreviewHeight = 120.0
 public let fileMessageCellFileMaxPreviewWidth = 230.0
 public let fileMessageCellMediaFilePreviewHeight = 230.0
 public let fileMessageCellMediaFileMaxPreviewWidth = 230.0
-public let fileMessageCellFilePreviewCornerRadius = 4.0
 public let fileMessageCellVideoPlayIconSize = 48.0
+
+// Location cell
+public let locationMessageCellIdentifier = "locationMessageCellIdentifier"
+public let locationGroupedMessageCellIdentifier = "locationGroupedMessageCellIdentifier"
+public let locationMessageCellMinimumHeight = 50.0
+public let locationMessageCellPreviewHeight = 120.0
+public let locationMessageCellPreviewWidth = 240.0
 
 class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
@@ -81,6 +95,12 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     internal var fileActivityIndicator: MDCActivityIndicator?
     internal var filePreviewActivityIndicator: MDCActivityIndicator?
     internal var filePreviewPlayIconImageView: UIImageView?
+
+    // Location cell
+    internal var locationPreviewImageView: UIImageView?
+    internal var locationMapSnapshooter: MKMapSnapshotter?
+    internal var locationPreviewImageViewHeightConstraint: NSLayoutConstraint?
+    internal var locationPreviewImageViewWidthConstraint: NSLayoutConstraint?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -120,6 +140,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
         self.prepareForReuseMessageCell()
         self.prepareForReuseFileCell()
+        self.prepareForReuseLocationCell()
 
         if let replyGestureRecognizer {
             self.removeGestureRecognizer(replyGestureRecognizer)
@@ -241,6 +262,9 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         if message.file() != nil {
             // File message
             self.setupForFileCell(with: message, with: activeAccount)
+        } else if message.geoLocation() != nil {
+            // Location message
+            self.setupForLocationCell(with: message)
         } else {
             // Normal text message
             self.setupForMessageCell(with: message)

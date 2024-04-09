@@ -279,6 +279,7 @@
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
+		2C21446E2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21446D2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift */; };
 		2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C2D7A172B8C9C0000642373 /* RoomCreationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2D7A162B8C9C0000642373 /* RoomCreationTableViewController.swift */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
@@ -439,7 +440,6 @@
 		2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBA26385A3800D3D641 /* ShareLocationViewController.m */; };
 		2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */; };
 		2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */; };
-		2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */; };
 		2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
 		2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */; };
@@ -737,6 +737,7 @@
 		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2C1EF36925505DCE007C9768 /* NCNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNavigationController.h; sourceTree = "<group>"; };
 		2C1EF36A25505DCE007C9768 /* NCNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNavigationController.m; sourceTree = "<group>"; };
+		2C21446D2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+Location.swift"; sourceTree = "<group>"; };
 		2C2A788C2359CC8800EEB797 /* NCAppBranding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAppBranding.h; sourceTree = "<group>"; };
 		2C2A788D2359CC8800EEB797 /* NCAppBranding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAppBranding.m; sourceTree = "<group>"; };
 		2C2D7A162B8C9C0000642373 /* RoomCreationTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomCreationTableViewController.swift; sourceTree = "<group>"; };
@@ -977,8 +978,6 @@
 		2CB6ACBB26385A3800D3D641 /* ShareLocationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareLocationViewController.xib; sourceTree = "<group>"; };
 		2CB6ACC826401D5100D3D641 /* GeoLocationRichObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeoLocationRichObject.h; sourceTree = "<group>"; };
 		2CB6ACC926401D5100D3D641 /* GeoLocationRichObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeoLocationRichObject.m; sourceTree = "<group>"; };
-		2CB6ACD02640814100D3D641 /* LocationMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocationMessageTableViewCell.h; sourceTree = "<group>"; };
-		2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocationMessageTableViewCell.m; sourceTree = "<group>"; };
 		2CB6ACD82641483800D3D641 /* NCMessageLocationParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCMessageLocationParameter.h; sourceTree = "<group>"; };
 		2CB6ACD92641483800D3D641 /* NCMessageLocationParameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCMessageLocationParameter.m; sourceTree = "<group>"; };
 		2CB6ACE62641954700D3D641 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
@@ -1682,12 +1681,11 @@
 				1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */,
 				1F1B503D2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift */,
 				1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */,
+				2C21446D2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift */,
 				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
 				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
 				1F35F9022AEEDEE800044BDA /* AutoCompletionTableViewCell.h */,
 				1F35F9032AEEDF0E00044BDA /* AutoCompletionTableViewCell.m */,
-				2CB6ACD02640814100D3D641 /* LocationMessageTableViewCell.h */,
-				2CB6ACD12640814100D3D641 /* LocationMessageTableViewCell.m */,
 				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
 				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
 				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
@@ -2718,6 +2716,7 @@
 				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				1F77A6162AB9B161007B6037 /* ScreenCaptureController.m in Sources */,
 				2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */,
+				2C21446E2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift in Sources */,
 				2C4230F72B207AB00013E1FA /* ContextChatViewController.swift in Sources */,
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
@@ -2747,7 +2746,6 @@
 				1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
-				2CB6ACD22640814100D3D641 /* LocationMessageTableViewCell.m in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,

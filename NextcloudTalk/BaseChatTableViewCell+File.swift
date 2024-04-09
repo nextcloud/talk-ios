@@ -28,7 +28,7 @@ extension BaseChatTableViewCell {
             self.filePreviewImageView = filePreviewImageView
 
             filePreviewImageView.translatesAutoresizingMaskIntoConstraints = false
-            filePreviewImageView.layer.cornerRadius = fileMessageCellFilePreviewCornerRadius
+            filePreviewImageView.layer.cornerRadius = chatMessageCellPreviewCornerRadius
             filePreviewImageView.layer.masksToBounds = true
             filePreviewImageView.contentMode = .scaleAspectFit
 
