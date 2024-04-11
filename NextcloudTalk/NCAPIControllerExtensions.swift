@@ -70,15 +70,15 @@ import Foundation
     }
 
     public func getFederationInvitations(for accountId: String, completionBlock: @escaping (_ invitations: [FederationInvitation]?) -> Void) {
-        let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
-        let apiVersion = self.federationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIVersion: apiVersion, for: account)
-
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: accountId) as? NCAPISessionManager,
+              let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)
         else {
             completionBlock(nil)
             return
         }
+
+        let apiVersion = self.federationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIVersion: apiVersion, for: account)
 
         apiSessionManager.get(urlString, parameters: nil, progress: nil) { _, result in
             if let ocs = self.getOcsResponse(data: result),
