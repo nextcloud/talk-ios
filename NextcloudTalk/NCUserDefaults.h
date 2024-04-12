@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSInteger)preferredCameraFlashMode;
 + (void)setBackgroundBlurEnabled:(BOOL)enabled;
 + (BOOL)backgroundBlurEnabled;
++ (void)setIncludeCallsInRecentsEnabled:(BOOL)enabled;
++ (BOOL)includeCallsInRecents;
 
 @end
 

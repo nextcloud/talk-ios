@@ -104,6 +104,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         configuration.supportsVideo = YES;
         configuration.maximumCallGroups = 1;
         configuration.maximumCallsPerCallGroup = 1;
+        configuration.includesCallsInRecents = [NCUserDefaults includeCallsInRecents];
         configuration.supportedHandleTypes = [NSSet setWithObjects:@(CXHandleTypePhoneNumber), @(CXHandleTypeEmailAddress), @(CXHandleTypeGeneric), nil];
         configuration.iconTemplateImageData = UIImagePNGRepresentation([UIImage imageNamed:@"app-logo-callkit"]);
         _provider = [[CXProvider alloc] initWithConfiguration:configuration];
