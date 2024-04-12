@@ -2672,6 +2672,10 @@ import QuickLook
         return self.getCellHeight(for: message, with: width)
     }
 
+    lazy var textViewForSizing: UITextView = {
+        return MessageBodyTextView()
+    }()
+
     // swiftlint:disable:next cyclomatic_complexity
     func getCellHeight(for message: NCChatMessage, with originalWidth: CGFloat) -> CGFloat {
         // Chat separators
@@ -2695,18 +2699,9 @@ import QuickLook
             width -= kObjectShareMessageCellObjectTypeImageSize + 25 // 2*right(10) + left(5)
         }
 
-        let textStorage = NSTextStorage(attributedString: messageString)
-        let targetBounding = CGRect(x: 0, y: 0, width: width, height: CGFLOAT_MAX)
-        let container = NSTextContainer(size: targetBounding.size)
-        container.lineFragmentPadding = 0
+        self.textViewForSizing.attributedText = messageString
 
-        let manager = NSLayoutManager()
-        manager.addTextContainer(container)
-        textStorage.addLayoutManager(manager)
-
-        manager.glyphRange(forBoundingRect: targetBounding, in: container)
-        let bodyBounds = manager.usedRect(for: container)
-
+        let bodyBounds = self.textViewForSizing.sizeThatFits(CGSize(width: width, height: CGFLOAT_MAX))
         var height = ceil(bodyBounds.height)
 
         if (message.isGroupMessage && message.parent() == nil) || message.isSystemMessage() {
