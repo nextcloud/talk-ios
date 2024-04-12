@@ -59,7 +59,7 @@ NSString * const kNCIncludeCallsInRecents       = @"ncIncludeCallsInRecents";
 + (BOOL)includeCallsInRecents
 {
     id includeCallsInRecentsObject = [[NSUserDefaults standardUserDefaults] objectForKey:kNCIncludeCallsInRecents];
-    if (!includeCallsInRecentsObject) {
+    if (includeCallsInRecentsObject == nil) {
         [self setIncludeCallsInRecentsEnabled:YES];
         return YES;
     }

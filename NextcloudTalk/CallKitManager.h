@@ -52,6 +52,7 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransactionNotificati
 
 + (instancetype)sharedInstance;
 + (BOOL)isCallKitAvailable;
+- (void)setDefaultProviderConfiguration;
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
 - (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification;
 - (void)reportIncomingCallForOldAccount;

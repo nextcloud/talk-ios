@@ -544,6 +544,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     @objc func includeInRecentsValueChanged(_ sender: Any?) {
         NCUserDefaults.setIncludeCallsInRecentsEnabled(includeInRecentsSwitch.isOn)
+        CallKitManager.sharedInstance().setDefaultProviderConfiguration()
     }
 
     // MARK: - Advanced actions
@@ -942,7 +943,7 @@ extension SettingsTableViewController {
         case ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue:
             cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
             cell.textLabel?.text = NSLocalizedString("Include calls in call history", comment: "")
-            cell.setSettingsImage(image: UIImage(systemName: "clock")?.applyingSymbolConfiguration(iconConfiguration))
+            cell.setSettingsImage(image: UIImage(systemName: "clock.arrow.circlepath")?.applyingSymbolConfiguration(iconConfiguration))
             cell.selectionStyle = .none
             cell.accessoryView = includeInRecentsSwitch
             includeInRecentsSwitch.isOn = NCUserDefaults.includeCallsInRecents()
