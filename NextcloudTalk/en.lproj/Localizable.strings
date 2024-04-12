@@ -899,7 +899,7 @@
 "in" = "in";
 
 /* No comment provided by engineer. */
-"Include calls in recents" = "Include calls in recents";
+"Include calls in call history" = "Include calls in call history";
 
 /* Internal signaling used */
 "Internal" = "Internal";

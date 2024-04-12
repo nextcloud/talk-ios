@@ -941,7 +941,7 @@ extension SettingsTableViewController {
 
         case ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue:
             cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
-            cell.textLabel?.text = NSLocalizedString("Include calls in recents", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Include calls in call history", comment: "")
             cell.setSettingsImage(image: UIImage(systemName: "clock")?.applyingSymbolConfiguration(iconConfiguration))
             cell.selectionStyle = .none
             cell.accessoryView = includeInRecentsSwitch
