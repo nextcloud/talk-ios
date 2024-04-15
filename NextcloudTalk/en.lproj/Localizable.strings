@@ -898,6 +898,9 @@
 /* No comment provided by engineer. */
 "in" = "in";
 
+/* No comment provided by engineer. */
+"Include calls in call history" = "Include calls in call history";
+
 /* Internal signaling used */
 "Internal" = "Internal";
 

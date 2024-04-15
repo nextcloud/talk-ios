@@ -29,6 +29,7 @@
 
 NSString * const kNCPreferredCameraFlashMode    = @"ncPreferredCameraFlashMode";
 NSString * const kNCBackgroundBlurEnabled       = @"ncBackgroundBlurEnabled";
+NSString * const kNCIncludeCallsInRecents       = @"ncIncludeCallsInRecents";
 
 + (void)setPreferredCameraFlashMode:(NSInteger)flashMode
 {
@@ -48,6 +49,22 @@ NSString * const kNCBackgroundBlurEnabled       = @"ncBackgroundBlurEnabled";
 + (BOOL)backgroundBlurEnabled
 {
     return [[[NSUserDefaults standardUserDefaults] objectForKey:kNCBackgroundBlurEnabled] boolValue];
+}
+
++ (void)setIncludeCallsInRecentsEnabled:(BOOL)enabled
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(enabled) forKey:kNCIncludeCallsInRecents];
+}
+
++ (BOOL)includeCallsInRecents
+{
+    id includeCallsInRecentsObject = [[NSUserDefaults standardUserDefaults] objectForKey:kNCIncludeCallsInRecents];
+    if (includeCallsInRecentsObject == nil) {
+        [self setIncludeCallsInRecentsEnabled:YES];
+        return YES;
+    }
+
+    return [includeCallsInRecentsObject boolValue];
 }
 
 @end

@@ -44,6 +44,7 @@ enum AccountSettingsOptions: Int {
 
 enum ConfigurationSectionOption: Int {
     case kConfigurationSectionOptionVideo = 0
+    case kConfigurationSectionOptionRecents
 }
 
 enum AdvancedSectionOption: Int {
@@ -73,6 +74,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     var contactSyncSwitch = UISwitch()
     var setPhoneAction: UIAlertAction?
     var phoneUtil = NBPhoneNumberUtil()
+    var includeInRecentsSwitch = UISwitch()
 
     var totalImageCacheSize = 0
     var totalFileCacheSize = 0
@@ -115,6 +117,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         readStatusSwitch.frame = .zero
         readStatusSwitch.addTarget(self, action: #selector(readStatusValueChanged(_:)), for: .valueChanged)
+
+        includeInRecentsSwitch.frame = .zero
+        includeInRecentsSwitch.addTarget(self, action: #selector(includeInRecentsValueChanged(_:)), for: .valueChanged)
 
         typingIndicatorSwitch.frame = .zero
         typingIndicatorSwitch.addTarget(self, action: #selector(typingIndicatorValueChanged(_:)), for: .valueChanged)
@@ -216,6 +221,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         // Video quality
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue)
+
+        // Calls in recents
+        options.append(ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue)
 
         return options
     }
@@ -532,6 +540,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)
         errorDialog.addAction(okAction)
         self.present(errorDialog, animated: true, completion: nil)
+    }
+
+    @objc func includeInRecentsValueChanged(_ sender: Any?) {
+        NCUserDefaults.setIncludeCallsInRecentsEnabled(includeInRecentsSwitch.isOn)
+        CallKitManager.sharedInstance().setDefaultProviderConfiguration()
     }
 
     // MARK: - Advanced actions
@@ -926,6 +939,15 @@ extension SettingsTableViewController {
             resolutionLabel.textColor = .secondaryLabel
             resolutionLabel.sizeToFit()
             cell.accessoryView = resolutionLabel
+
+        case ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue:
+            cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
+            cell.textLabel?.text = NSLocalizedString("Include calls in call history", comment: "")
+            cell.setSettingsImage(image: UIImage(systemName: "clock.arrow.circlepath")?.applyingSymbolConfiguration(iconConfiguration))
+            cell.selectionStyle = .none
+            cell.accessoryView = includeInRecentsSwitch
+            includeInRecentsSwitch.isOn = NCUserDefaults.includeCallsInRecents()
+
         default:
             break
         }

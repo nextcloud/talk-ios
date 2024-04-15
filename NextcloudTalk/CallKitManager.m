@@ -100,13 +100,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 - (CXProvider *)provider
 {
     if (!_provider) {
-        CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] init];
-        configuration.supportsVideo = YES;
-        configuration.maximumCallGroups = 1;
-        configuration.maximumCallsPerCallGroup = 1;
-        configuration.supportedHandleTypes = [NSSet setWithObjects:@(CXHandleTypePhoneNumber), @(CXHandleTypeEmailAddress), @(CXHandleTypeGeneric), nil];
-        configuration.iconTemplateImageData = UIImagePNGRepresentation([UIImage imageNamed:@"app-logo-callkit"]);
-        _provider = [[CXProvider alloc] initWithConfiguration:configuration];
+        _provider = [[CXProvider alloc] initWithConfiguration:[self defaultProviderConfiguration]];
         [_provider setDelegate:self queue:nil];
     }
     return _provider;
@@ -134,6 +128,19 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     return update;
 }
 
+- (CXProviderConfiguration *)defaultProviderConfiguration
+{
+    CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] init];
+    configuration.supportsVideo = YES;
+    configuration.maximumCallGroups = 1;
+    configuration.maximumCallsPerCallGroup = 1;
+    configuration.includesCallsInRecents = [NCUserDefaults includeCallsInRecents];
+    configuration.supportedHandleTypes = [NSSet setWithObjects:@(CXHandleTypePhoneNumber), @(CXHandleTypeEmailAddress), @(CXHandleTypeGeneric), nil];
+    configuration.iconTemplateImageData = UIImagePNGRepresentation([UIImage imageNamed:@"app-logo-callkit"]);
+
+    return configuration;
+}
+
 - (CallKitCall *)callForToken:(NSString *)token
 {
     for (CallKitCall *call in [_calls allValues]) {
@@ -146,6 +153,13 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 }
 
 #pragma mark - Actions
+
+- (void)setDefaultProviderConfiguration
+{
+    if (_provider) {
+        [_provider setConfiguration:[self defaultProviderConfiguration]];
+    }
+}
 
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
 {
