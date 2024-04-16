@@ -107,4 +107,6 @@
 #import "AFNetworking.h"
 #import "NCNotification.h"
 
+#import "MessageBodyTextView.h"
+
 #endif /* NextcloudTalk_Bridging_Header_h */
