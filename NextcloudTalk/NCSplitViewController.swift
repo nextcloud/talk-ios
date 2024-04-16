@@ -20,7 +20,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-@objcMembers class NCSplitViewController: UISplitViewController, UISplitViewControllerDelegate, UINavigationControllerDelegate {
+@objcMembers class NCSplitViewController: UISplitViewController, UISplitViewControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
     var placeholderViewController = UIViewController()
 
@@ -59,7 +59,22 @@
             // Make sure the chatViewController gets properly deallocated
             setViewController(placeholderViewController, for: .secondary)
             navController.setViewControllers([placeholderViewController], animated: false)
+
+            // Instead of always allowing a gesture to be recognized, we need more control here.
+            // See gestureRecognizerShouldBegin.
+            navigationController.interactivePopGestureRecognizer?.delegate = self
         }
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        // We only want to recognize a "back gesture" through the interactivePopGestureRecognizer
+        // when a chatViewController is shown. Otherwise (on the RoomsTableViewController)
+        // recognizing a gesture might result in an unfinished transition and a broken UI
+        if self.hasActiveChatViewController() {
+            return true
+        }
+
+        return false
     }
 
     override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
