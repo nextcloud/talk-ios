@@ -435,5 +435,17 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     return lastMessageProxiedDictionary;
 }
 
+- (NSString *)linkURL
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    NSString *indexString = @"/index.php";
+    if (serverCapabilities.modRewriteWorking) {
+        indexString = @"";
+    }
+
+    return [NSString stringWithFormat:@"%@%@/call/%@", activeAccount.server, indexString, self.token];
+}
+
 
 @end

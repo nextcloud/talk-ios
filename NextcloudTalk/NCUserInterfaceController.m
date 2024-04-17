@@ -439,21 +439,7 @@
 
 - (void)presentShareLinkDialogForRoom:(NCRoom *)room inViewContoller:(UITableViewController *)viewController forIndexPath:(NSIndexPath *)indexPath
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-
-    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
-    if (room.displayName && ![room.displayName isEqualToString:@""]) {
-        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", room.name]];
-    }
-
-    NSString *indexString = @"/index.php";
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities.modRewriteWorking) {
-        indexString = @"";
-    }
-
-    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@%@/call/%@", joinConversationString, indexString, activeAccount.server, room.token];
-    NSArray *items = @[shareMessage];
+    NSArray *items = @[room.linkURL];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
 
     NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
