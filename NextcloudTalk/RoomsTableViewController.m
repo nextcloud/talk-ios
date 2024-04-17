@@ -1048,12 +1048,19 @@ typedef enum RoomsSections {
 - (void)shareLinkFromRoom:(NCRoom *)room
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
     NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
-    
     if (room.displayName && ![room.displayName isEqualToString:@""]) {
         joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", room.name]];
     }
-    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@/index.php/call/%@", joinConversationString, activeAccount.server, room.token];
+
+    NSString *indexString = @"/index.php";
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities.modRewriteWorking) {
+        indexString = @"";
+    }
+
+    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@%@/call/%@", joinConversationString, indexString, activeAccount.server, room.token];
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
     

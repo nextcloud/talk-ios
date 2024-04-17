@@ -926,12 +926,19 @@ typedef enum FileAction {
 - (void)shareRoomLinkFromIndexPath:(NSIndexPath *)indexPath
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
 
+    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
     if (_room.displayName && ![_room.displayName isEqualToString:@""]) {
         joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", _room.displayName]];
     }
-    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@/index.php/call/%@", joinConversationString, activeAccount.server, _room.token];
+
+    NSString *indexString = @"/index.php";
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities.modRewriteWorking) {
+        indexString = @"";
+    }
+
+    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@%@/call/%@", joinConversationString, indexString, activeAccount.server, _room.token];
     NSArray *items = @[shareMessage];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
     
