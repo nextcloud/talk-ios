@@ -439,7 +439,13 @@
 
 - (void)presentShareLinkDialogForRoom:(NCRoom *)room inViewContoller:(UITableViewController *)viewController forIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray *items = @[room.linkURL];
+    NSString *roomLinkURL = room.linkURL;
+
+    if (!roomLinkURL) {
+        return;
+    }
+
+    NSArray *items = @[roomLinkURL];
     UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
 
     NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];

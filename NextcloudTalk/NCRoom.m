@@ -373,8 +373,8 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
         return nil;
     }
 
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    BOOL ownMessage = [lastMessage.actorId isEqualToString:activeAccount.userId];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:self.accountId];
+    BOOL ownMessage = [lastMessage.actorId isEqualToString:account.userId];
     NSString *actorName = [[lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
     // For own messages
     if (ownMessage) {
@@ -437,14 +437,19 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
 - (NSString *)linkURL
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:self.accountId];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+
+    if (!serverCapabilities) {
+        return nil;
+    }
+
     NSString *indexString = @"/index.php";
     if (serverCapabilities.modRewriteWorking) {
         indexString = @"";
     }
 
-    return [NSString stringWithFormat:@"%@%@/call/%@", activeAccount.server, indexString, self.token];
+    return [NSString stringWithFormat:@"%@%@/call/%@", account.server, indexString, self.token];
 }
 
 
