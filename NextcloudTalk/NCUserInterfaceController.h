@@ -59,6 +59,7 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 - (void)presentChatForURL:(NSURLComponents *)urlComponents;
 - (void)presentLoginViewControllerForServerURL:(NSString *)serverURL withUser:(NSString *)user;
 - (void)presentSettingsViewController;
+- (void)presentShareLinkDialogForRoom:(NCRoom *)room inViewContoller:(UITableViewController *)viewController forIndexPath:(NSIndexPath *)indexPath;
 - (void)logOutAccountWithAccountId:(NSString *)accountId;
 
 @end

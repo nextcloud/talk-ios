@@ -1047,45 +1047,10 @@ typedef enum RoomsSections {
 
 - (void)shareLinkFromRoom:(NCRoom *)room
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-
-    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
-    if (room.displayName && ![room.displayName isEqualToString:@""]) {
-        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", room.name]];
-    }
-
-    NSString *indexString = @"/index.php";
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities.modRewriteWorking) {
-        indexString = @"";
-    }
-
-    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@%@/call/%@", joinConversationString, indexString, activeAccount.server, room.token];
-    NSArray *items = @[shareMessage];
-    UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
-    
-    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-    NSString *emailSubject = [NSString stringWithFormat:NSLocalizedString(@"%@ invitation", nil), appDisplayName];
-    [controller setValue:emailSubject forKey:@"subject"];
-
-    // Presentation on iPads
     NSIndexPath *indexPath = [self indexPathForRoom:room];
-
     if (indexPath) {
-        controller.popoverPresentationController.sourceView = self.tableView;
-        controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
+        [[NCUserInterfaceController sharedInstance] presentShareLinkDialogForRoom:room inViewContoller:self forIndexPath:indexPath];
     }
-
-    [self presentViewController:controller animated:YES completion:nil];
-    
-    controller.completionWithItemsHandler = ^(NSString *activityType,
-                                              BOOL completed,
-                                              NSArray *returnedItems,
-                                              NSError *error) {
-        if (error) {
-            NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
-        }
-    };
 }
 
 - (void)markRoomAsRead:(NCRoom *)room

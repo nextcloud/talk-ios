@@ -437,6 +437,47 @@
     [self.mainViewController presentViewController:settingsNC animated:YES completion:nil];
 }
 
+- (void)presentShareLinkDialogForRoom:(NCRoom *)room inViewContoller:(UITableViewController *)viewController forIndexPath:(NSIndexPath *)indexPath
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
+    if (room.displayName && ![room.displayName isEqualToString:@""]) {
+        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", room.name]];
+    }
+
+    NSString *indexString = @"/index.php";
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    if (serverCapabilities.modRewriteWorking) {
+        indexString = @"";
+    }
+
+    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@%@/call/%@", joinConversationString, indexString, activeAccount.server, room.token];
+    NSArray *items = @[shareMessage];
+    UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
+
+    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+    NSString *emailSubject = [NSString stringWithFormat:NSLocalizedString(@"%@ invitation", nil), appDisplayName];
+    [controller setValue:emailSubject forKey:@"subject"];
+
+    // Presentation on iPads
+    if (indexPath) {
+        controller.popoverPresentationController.sourceView = viewController.tableView;
+        controller.popoverPresentationController.sourceRect = [viewController.tableView rectForRowAtIndexPath:indexPath];
+    }
+
+    [viewController presentViewController:controller animated:YES completion:nil];
+
+    controller.completionWithItemsHandler = ^(NSString *activityType,
+                                              BOOL completed,
+                                              NSArray *returnedItems,
+                                              NSError *error) {
+        if (error) {
+            NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
+        }
+    };
+}
+
 #pragma mark - Notifications
 
 - (void)appStateHasChanged:(NSNotification *)notification
