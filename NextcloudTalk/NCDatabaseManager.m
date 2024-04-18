@@ -33,7 +33,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 63;
+uint64_t const kTalkDatabaseSchemaVersion           = 64;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -631,6 +631,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.accountPropertyScopesPublishedEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesPublishedEnabled"] boolValue];
     capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     capabilities.referenceApiSupported = [[coreCaps objectForKey:@"reference-api"] boolValue];
+    capabilities.modRewriteWorking = [[coreCaps objectForKey:@"mod-rewrite-working"] boolValue];
     capabilities.notificationsCapabilities = [notificationsCaps objectForKey:@"ocs-endpoints"];
 
     [self setTalkCapabilities:talkCaps onTalkCapabilitiesObject:capabilities];

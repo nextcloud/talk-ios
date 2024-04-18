@@ -181,5 +181,6 @@ extern NSString * const NCRoomObjectTypeRoom;
 - (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration;
 - (NSString * _Nullable)lastMessageString;
 - (NCChatMessage *)lastMessage;
+- (NSString *)linkURL;
 
 @end

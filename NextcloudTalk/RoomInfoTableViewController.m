@@ -925,34 +925,7 @@ typedef enum FileAction {
 
 - (void)shareRoomLinkFromIndexPath:(NSIndexPath *)indexPath
 {
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSString *joinConversationString = NSLocalizedString(@"Join the conversation at", nil);
-
-    if (_room.displayName && ![_room.displayName isEqualToString:@""]) {
-        joinConversationString = [NSString stringWithFormat:NSLocalizedString(@"Join the conversation %@ at", nil), [NSString stringWithFormat:@"\"%@\"", _room.displayName]];
-    }
-    NSString *shareMessage = [NSString stringWithFormat:@"%@ %@/index.php/call/%@", joinConversationString, activeAccount.server, _room.token];
-    NSArray *items = @[shareMessage];
-    UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
-    
-    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-    NSString *emailSubject = [NSString stringWithFormat:NSLocalizedString(@"%@ invitation", nil), appDisplayName];
-    [controller setValue:emailSubject forKey:@"subject"];
-    
-    // Presentation on iPads
-    controller.popoverPresentationController.sourceView = self.tableView;
-    controller.popoverPresentationController.sourceRect = [self.tableView rectForRowAtIndexPath:indexPath];
-    
-    [self presentViewController:controller animated:YES completion:nil];
-    
-    controller.completionWithItemsHandler = ^(NSString *activityType,
-                                              BOOL completed,
-                                              NSArray *returnedItems,
-                                              NSError *error) {
-        if (error) {
-            NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
-        }
-    };
+    [[NCUserInterfaceController sharedInstance] presentShareLinkDialogForRoom:_room inViewContoller:self forIndexPath:indexPath];
 }
 
 - (void)setListableScope:(NCRoomListableScope)scope

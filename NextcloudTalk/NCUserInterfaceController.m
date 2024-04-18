@@ -437,6 +437,39 @@
     [self.mainViewController presentViewController:settingsNC animated:YES completion:nil];
 }
 
+- (void)presentShareLinkDialogForRoom:(NCRoom *)room inViewContoller:(UITableViewController *)viewController forIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *roomLinkURL = room.linkURL;
+
+    if (!roomLinkURL) {
+        return;
+    }
+
+    NSArray *items = @[roomLinkURL];
+    UIActivityViewController *controller = [[UIActivityViewController alloc]initWithActivityItems:items applicationActivities:nil];
+
+    NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+    NSString *emailSubject = [NSString stringWithFormat:NSLocalizedString(@"%@ invitation", nil), appDisplayName];
+    [controller setValue:emailSubject forKey:@"subject"];
+
+    // Presentation on iPads
+    if (indexPath) {
+        controller.popoverPresentationController.sourceView = viewController.tableView;
+        controller.popoverPresentationController.sourceRect = [viewController.tableView rectForRowAtIndexPath:indexPath];
+    }
+
+    [viewController presentViewController:controller animated:YES completion:nil];
+
+    controller.completionWithItemsHandler = ^(NSString *activityType,
+                                              BOOL completed,
+                                              NSArray *returnedItems,
+                                              NSError *error) {
+        if (error) {
+            NSLog(@"An Error occured sharing room: %@, %@", error.localizedDescription, error.localizedFailureReason);
+        }
+    };
+}
+
 #pragma mark - Notifications
 
 - (void)appStateHasChanged:(NSNotification *)notification
