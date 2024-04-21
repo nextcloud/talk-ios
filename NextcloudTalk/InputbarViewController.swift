@@ -114,6 +114,10 @@ import UIKit
         self.textView.layoutSubviews()
         self.textView.layer.cornerRadius = self.textView.frame.size.height / 2
 
+        if #available(iOS 17.0, *), NCUtils.isiOSAppOnMac() {
+            self.textView.inlinePredictionType = .no
+        }
+
         self.textInputbar.editorTitle.textColor = .darkGray
         self.textInputbar.editorLeftButton.tintColor = .systemBlue
         self.textInputbar.editorRightButton.tintColor = .systemBlue
