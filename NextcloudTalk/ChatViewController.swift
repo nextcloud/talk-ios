@@ -1580,6 +1580,13 @@ import UIKit
             })
         }
 
+        // Show "Add reaction" when running on MacOS because we don't have an accessory view
+        if self.isMessageReactable(message: message), hasChatPermissions, NCUtils.isiOSAppOnMac() {
+            actions.append(UIAction(title: NSLocalizedString("Add reaction", comment: ""), image: .init(systemName: "face.smiling")) { _ in
+                self.didPressAddReaction(for: message, at: indexPath)
+            })
+        }
+
         // Reply-privately option (only to other users and not in one-to-one)
         if self.isMessageReplyable(message: message), self.room.type != kNCRoomTypeOneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
             actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
