@@ -195,7 +195,9 @@ import UIKit
 
     func setTitleView() {
         let titleView = NCChatTitleView()
-        titleView.frame = .init(x: 0, y: 0, width: Int.max, height: 30)
+
+        // Int.max is problematic when running on MacOS, so we use Int32.max here
+        titleView.frame = .init(x: 0, y: 0, width: Int(Int32.max), height: 30)
         titleView.delegate = self
         titleView.titleTextView.accessibilityHint = NSLocalizedString("Double tap to go to conversation information", comment: "")
 
