@@ -440,7 +440,7 @@ import UIKit
     func startObservingExpiredMessages() {
         self.messageExpirationTimer?.invalidate()
         self.removeExpiredMessages()
-        self.messageExpirationTimer = Timer(timeInterval: 30.0, repeats: true, block: { [weak self] _ in
+        self.messageExpirationTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true, block: { [weak self] _ in
             self?.removeExpiredMessages()
         })
     }
