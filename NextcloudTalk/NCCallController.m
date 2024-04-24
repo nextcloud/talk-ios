@@ -133,14 +133,14 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         
         [self initRecorder];
 
-        // Screensharing is done in an extension, therefore we need to listen to systemwide notifications
-        [[DarwinNotificationCenter shared] addObserverWithNotificationName:DarwinNotificationCenter.broadcastStartedNotification completionBlock:^{
+        // Screensharing is done in an extension, therefore we need to listen to systemwide notifications#
+        [[DarwinNotificationCenter shared] addHandlerWithNotificationName:DarwinNotificationCenter.broadcastStartedNotification owner:self completionBlock:^{
             [[WebRTCCommon shared] dispatch:^{
                 [self startScreenshare];
             }];
         }];
 
-        [[DarwinNotificationCenter shared] addObserverWithNotificationName:DarwinNotificationCenter.broadcastStoppedNotification completionBlock:^{
+        [[DarwinNotificationCenter shared] addHandlerWithNotificationName:DarwinNotificationCenter.broadcastStoppedNotification owner:self completionBlock:^{
             [[WebRTCCommon shared] dispatch:^{
                 [self stopScreenshare];
             }];
@@ -353,8 +353,8 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     [self stopSendingCurrentState];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStartedNotification];
-    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStoppedNotification];
+    [[DarwinNotificationCenter shared] removeHandlerWithNotificationName:DarwinNotificationCenter.broadcastStartedNotification owner:self];
+    [[DarwinNotificationCenter shared] removeHandlerWithNotificationName:DarwinNotificationCenter.broadcastStoppedNotification owner:self];
 
     _externalSignalingController.delegate = nil;
 
@@ -408,8 +408,8 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStartedNotification];
-    [[DarwinNotificationCenter shared] removeObserver:DarwinNotificationCenter.broadcastStoppedNotification];
+    [[DarwinNotificationCenter shared] removeHandlerWithNotificationName:DarwinNotificationCenter.broadcastStartedNotification owner:self];
+    [[DarwinNotificationCenter shared] removeHandlerWithNotificationName:DarwinNotificationCenter.broadcastStoppedNotification owner:self];
     NSLog(@"NCCallController dealloc");
 }
 

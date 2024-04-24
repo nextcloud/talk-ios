@@ -17,7 +17,8 @@ import Foundation
     static let broadcastStoppedNotification = "TalkiOS_BroadcastStopped"
 
     private let notificationCenter: CFNotificationCenter
-    private var handlers: [String: [() -> Void]] = [:]
+
+    internal var handlers: [String: [AnyHashable: () -> Void]] = [:]
 
     override init() {
         notificationCenter = CFNotificationCenterGetDarwinNotifyCenter()
@@ -27,13 +28,15 @@ import Foundation
         CFNotificationCenterPostNotification(notificationCenter, CFNotificationName(rawValue: name as CFString), nil, nil, true)
     }
 
-    func addObserver(notificationName: String, completionBlock: @escaping () -> Void) {
-        if handlers[notificationName] == nil {
-            handlers[notificationName] = []
+    func addHandler(notificationName: String, owner: AnyHashable, completionBlock: @escaping () -> Void) {
+        // When there are already handlers, we just add our own here
+        if handlers[notificationName] != nil {
+            handlers[notificationName]?[owner] = completionBlock
+            return
         }
 
-        handlers[notificationName]?.append(completionBlock)
-        let observer = Unmanaged.passUnretained(self).toOpaque()
+        // No handler for this notification -> setup a new darwin observer for that notification
+        handlers[notificationName] = [owner: completionBlock]
 
         // see: https://stackoverflow.com/a/33262376
         let callback: CFNotificationCallback = { _, observer, name, _, _ in
@@ -43,18 +46,32 @@ import Foundation
 
                 if let handlers = mySelf.handlers[name.rawValue as String] {
                     for handler in handlers {
-                        handler()
+                        handler.value()
                     }
                 }
             }
         }
 
+        let observer = Unmanaged.passUnretained(self).toOpaque()
         CFNotificationCenterAddObserver(self.notificationCenter, observer, callback, notificationName as CFString, nil, .coalesce)
     }
 
-    func removeObserver(_ name: String) {
+    func removeHandler(notificationName: String, owner: AnyHashable) {
+        guard handlers[notificationName] != nil else { return }
+
+        // Remove the handler for the specified owner
+        handlers[notificationName]!.removeValue(forKey: owner)
+
+        // There are still other handlers registered for this notification, keep the darwin center observer
+        if !handlers[notificationName]!.isEmpty {
+            return
+        }
+
+        // No handlers registered for that notification anymore, remove the observer from darwin center
+        handlers.removeValue(forKey: notificationName)
+
         let observer = Unmanaged.passUnretained(self).toOpaque()
-        let name = CFNotificationName(rawValue: name as CFString)
+        let name = CFNotificationName(rawValue: notificationName as CFString)
         CFNotificationCenterRemoveObserver(notificationCenter, observer, name, nil)
     }
 }
