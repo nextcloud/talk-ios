@@ -17,6 +17,7 @@
 		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
 		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
+		1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */; };
 		1F1B50342B8E069800B0F2F4 /* BaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */; };
 		1F1B50382B8E070100B0F2F4 /* BaseChatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */; };
 		1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */; };
@@ -575,6 +576,7 @@
 		1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MentionSuggestion.swift; sourceTree = "<group>"; };
 		1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitMentionSuggestionTest.swift; sourceTree = "<group>"; };
 		1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCZoomableView.swift; sourceTree = "<group>"; };
+		1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitDarwinCenterTest.swift; sourceTree = "<group>"; };
 		1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseChatTableViewCell.swift; sourceTree = "<group>"; };
 		1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BaseChatTableViewCell.xib; sourceTree = "<group>"; };
 		1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+File.swift"; sourceTree = "<group>"; };
@@ -1240,6 +1242,7 @@
 			children = (
 				1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */,
 				1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */,
+				1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */,
 				1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */,
 				1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */,
 			);
@@ -2521,6 +2524,7 @@
 				1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */,
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
+				1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
 				1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */,
 				1F0B0A772BA26BE10073FF8D /* UnitMentionSuggestionTest.swift in Sources */,
