@@ -9,6 +9,7 @@ on:
       - NextcloudTalkTests/**
       - NotificationServiceExtension/**
       - ShareExtension/**
+      - BroadcastUploadExtension/**
 
     push:
       branches:
