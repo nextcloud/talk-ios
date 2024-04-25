@@ -42,6 +42,12 @@
     }
 
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if NCUtils.isiOSAppOnMac() {
+            // When the app is running on MacOS there's a gap between the titleBar and the navigationBar.
+            // We can remove that gap when setting a negative additionalSafeAreaInsets.top
+            navigationController.additionalSafeAreaInsets.top = -navigationController.navigationBar.frame.maxY
+        }
+
         if !isCollapsed {
             return
         }
