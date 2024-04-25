@@ -109,7 +109,7 @@
 
         __weak typeof(self) weakSelf = self;
         self.debugLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
-            [weakSelf.debugLabel setText:[[NCUserInterfaceController sharedInstance] allocationTracker].description];
+            [weakSelf.debugLabel setText:[AllocationTracker shared].description];
         }];
     }
 
