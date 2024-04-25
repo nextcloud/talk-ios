@@ -28,19 +28,6 @@ final class UIRoomTest: XCTestCase {
         continueAfterFailure = false
     }
 
-    func createConversation(for app: XCUIApplication, with newConversationName: String) {
-        app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"].tap()
-
-        let createNewConversationButton = app.buttons["Create a new conversation"]
-        XCTAssert(createNewConversationButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        createNewConversationButton.tap()
-
-        let newConversationNavBar = app.navigationBars["New conversation"]
-        XCTAssert(newConversationNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
-        app.typeText(newConversationName)
-        newConversationNavBar.buttons["Create"].tap()
-    }
-
     func testCreateConversation() {
         let app = launchAndLogin()
         let newConversationName = "Test conversation"
@@ -76,7 +63,7 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(app.tables.cells.staticTexts[newConversationName].waitForExistence(timeout: TestConstants.timeoutLong))
     }
 
-    func testChatViewControllerDeallocation() {
+    func testDeallocation() {
         let app = launchAndLogin()
         let newConversationName = "DeAllocTest"
 
@@ -84,7 +71,7 @@ final class UIRoomTest: XCTestCase {
         self.createConversation(for: app, with: newConversationName)
 
         // Check if we have one chat view controller allocated
-        let predicate = NSPredicate(format: "label CONTAINS[c] %@", "ChatViewController")
+        let predicate = NSPredicate(format: "label CONTAINS[c] %@", "ChatViewController\":1")
         XCTAssert(app.staticTexts.containing(predicate).firstMatch.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Send a test message
@@ -118,8 +105,23 @@ final class UIRoomTest: XCTestCase {
             app.buttons["Reply"].tap()
         }
 
-        // Go back to the main view controller
+        // Start a call
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
+        let voiceCallButton = chatNavBar.buttons["Voice call"]
+        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        waitForEnabled(object: voiceCallButton)
+        waitForHittable(object: voiceCallButton)
+
+        voiceCallButton.tap()
+
+        let hangupCallButton = app.buttons["Hang up"]
+        XCTAssert(hangupCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        waitForEnabled(object: hangupCallButton)
+        waitForHittable(object: hangupCallButton)
+        hangupCallButton.tap()
+
+        // Go back to the main view controller
+        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Back"].tap()
 
         // Check if all chat view controllers are deallocated
