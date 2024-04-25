@@ -122,4 +122,23 @@ final class UnitDarwinCenterTest: XCTestCase {
         // We can't wait for an expectation twice, that's why we use a second expectation
         wait(for: [expStartedSecond, expStoppedSecond, expSingleStartedEnd, expSingleStoppedEnd], timeout: TestConstants.timeoutShort)
     }
+
+    func testDarwinCenterUnbalancedRemove() throws {
+        let center = DarwinNotificationCenter.shared
+
+        let expStarted = expectation(description: "\(#function)\(#line)")
+
+        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self) {
+            expStarted.fulfill()
+        }
+
+        center.postNotification(DarwinNotificationCenter.broadcastStartedNotification)
+        wait(for: [expStarted], timeout: TestConstants.timeoutShort)
+
+        // Remove ourselves twice
+        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self)
+        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self)
+
+        XCTAssertNil(center.handlers[DarwinNotificationCenter.broadcastStartedNotification])
+    }
 }
