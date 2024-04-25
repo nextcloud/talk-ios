@@ -18,6 +18,7 @@
 		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
 		1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */; };
+		1F1B0F272BDA61C5003FD766 /* AllocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */; };
 		1F1B50342B8E069800B0F2F4 /* BaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */; };
 		1F1B50382B8E070100B0F2F4 /* BaseChatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */; };
 		1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */; };
@@ -577,6 +578,7 @@
 		1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitMentionSuggestionTest.swift; sourceTree = "<group>"; };
 		1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCZoomableView.swift; sourceTree = "<group>"; };
 		1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitDarwinCenterTest.swift; sourceTree = "<group>"; };
+		1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllocationTracker.swift; sourceTree = "<group>"; };
 		1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseChatTableViewCell.swift; sourceTree = "<group>"; };
 		1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BaseChatTableViewCell.xib; sourceTree = "<group>"; };
 		1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+File.swift"; sourceTree = "<group>"; };
@@ -1407,6 +1409,7 @@
 		2C0633102046CCA60043481A /* User Interface */ = {
 			isa = PBXGroup;
 			children = (
+				1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */,
 				1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */,
 				1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */,
 				2C06330D2046CC8B0043481A /* NCUserInterfaceController.h */,
@@ -2638,6 +2641,7 @@
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
+				1F1B0F272BDA61C5003FD766 /* AllocationTracker.swift in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				DA66582B27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift in Sources */,
 				2C69323D2923ECAA00017AD2 /* WSMessage.m in Sources */,

@@ -94,14 +94,22 @@
     NSArray *arguments = [[NSProcessInfo processInfo] arguments];
 
     if ([arguments containsObject:@"-TestEnvironment"]) {
-        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 30, 200, 50)];
-        [[NCUserInterfaceController sharedInstance].mainViewController.view addSubview:self.debugLabel];
+        UIView *mainView = [NCUserInterfaceController sharedInstance].mainViewController.view;
+
+        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 30, 200, 20)];
+        self.debugLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+        self.debugLabel.translatesAutoresizingMaskIntoConstraints = NO;
+
+        [mainView addSubview:self.debugLabel];
+        [NSLayoutConstraint activateConstraints:@[
+            [self.debugLabel.topAnchor constraintEqualToAnchor:mainView.safeAreaLayoutGuide.topAnchor constant:-15],
+            [self.debugLabel.leadingAnchor constraintEqualToAnchor:mainView.safeAreaLayoutGuide.leadingAnchor constant:5],
+            [self.debugLabel.trailingAnchor constraintEqualToAnchor:mainView.safeAreaLayoutGuide.trailingAnchor]
+        ]];
 
         __weak typeof(self) weakSelf = self;
         self.debugLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
-            long numChatVC = [NCUserInterfaceController sharedInstance].numberOfAllocatedChatViewControllers;
-            long numCallVC = [NCUserInterfaceController sharedInstance].numberOfAllocatedCallViewControllers;
-            [weakSelf.debugLabel setText:[NSString stringWithFormat:@"ChatVC: %ld / CallVC: %ld", numChatVC, numCallVC]];
+            [weakSelf.debugLabel setText:[[NCUserInterfaceController sharedInstance] allocationTracker].description];
         }];
     }
 

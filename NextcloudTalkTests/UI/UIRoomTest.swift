@@ -84,7 +84,8 @@ final class UIRoomTest: XCTestCase {
         self.createConversation(for: app, with: newConversationName)
 
         // Check if we have one chat view controller allocated
-        XCTAssert(app.staticTexts["ChatVC: 1 / CallVC: 0"].waitForExistence(timeout: TestConstants.timeoutShort))
+        let predicate = NSPredicate(format: "label CONTAINS[c] %@", "ChatViewController")
+        XCTAssert(app.staticTexts.containing(predicate).firstMatch.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Send a test message
         let testMessage = "TestMessage"
@@ -122,7 +123,7 @@ final class UIRoomTest: XCTestCase {
         chatNavBar.buttons["Back"].tap()
 
         // Check if all chat view controllers are deallocated
-        XCTAssert(app.staticTexts["ChatVC: 0 / CallVC: 0"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
     func testChatViewControllerMentions() {

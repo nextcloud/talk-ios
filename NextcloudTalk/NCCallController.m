@@ -147,6 +147,8 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         }];
 
         _screensharingController = [[NCScreensharingController alloc] init];
+
+        [[NCUserInterfaceController sharedInstance].allocationTracker addAllocation:@"NCCallController"];
     }
     
     return self;
@@ -410,6 +412,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[DarwinNotificationCenter shared] removeHandlerWithNotificationName:DarwinNotificationCenter.broadcastStartedNotification owner:self];
     [[DarwinNotificationCenter shared] removeHandlerWithNotificationName:DarwinNotificationCenter.broadcastStoppedNotification owner:self];
+    [[NCUserInterfaceController sharedInstance].allocationTracker removeAllocation:@"NCCallController"];
     NSLog(@"NCCallController dealloc");
 }
 

@@ -31,6 +31,7 @@
 
 @class NCSplitViewController;
 @class ChatViewController;
+@class AllocationTracker;
 
 typedef void (^PresentCallControllerCompletionBlock)(void);
 
@@ -38,8 +39,7 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 
 @property (nonatomic, strong) NCSplitViewController *mainViewController;
 @property (nonatomic, strong) RoomsTableViewController *roomsTableViewController;
-@property (nonatomic, assign) NSInteger numberOfAllocatedChatViewControllers;
-@property (nonatomic, assign) NSInteger numberOfAllocatedCallViewControllers;
+@property (nonatomic, strong) AllocationTracker *allocationTracker;
 
 + (instancetype)sharedInstance;
 - (void)presentConversationsList;

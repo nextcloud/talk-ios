@@ -67,6 +67,9 @@
     self = [super init];
     if (self) {
         [self configureToasts];
+
+        self.allocationTracker = [[AllocationTracker alloc] init];
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkNotInstalledWarningAlert) name:NCTalkNotInstalledNotification object:nil];
