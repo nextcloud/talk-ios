@@ -74,10 +74,10 @@ final class UnitDarwinCenterTest: XCTestCase {
         // We need to wait twice for the expectation
         // 1. Before the handler is removed to ensure it is correctly called
         // 2. After a notification was posted a second time to ensure the first handler wasn't called multiple times
-        var expSingleStarted = expectation(description: "\(#function)\(#line)")
-        var expSingleStopped = expectation(description: "\(#function)\(#line)")
-        var expSingleStartedEnd = expectation(description: "\(#function)\(#line)")
-        var expSingleStoppedEnd = expectation(description: "\(#function)\(#line)")
+        let expSingleStarted = expectation(description: "\(#function)\(#line)")
+        let expSingleStopped = expectation(description: "\(#function)\(#line)")
+        let expSingleStartedEnd = expectation(description: "\(#function)\(#line)")
+        let expSingleStoppedEnd = expectation(description: "\(#function)\(#line)")
 
         center.addHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: owner1) {
             expSingleStarted.fulfill()
@@ -90,8 +90,8 @@ final class UnitDarwinCenterTest: XCTestCase {
         }
 
         let owner2 = NSObject()
-        var expStartedSecond = expectation(description: "\(#function)\(#line)")
-        var expStoppedSecond = expectation(description: "\(#function)\(#line)")
+        let expStartedSecond = expectation(description: "\(#function)\(#line)")
+        let expStoppedSecond = expectation(description: "\(#function)\(#line)")
 
         expStartedSecond.expectedFulfillmentCount = 2
         expStoppedSecond.expectedFulfillmentCount = 2
