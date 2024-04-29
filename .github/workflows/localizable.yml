@@ -22,7 +22,7 @@ permissions:
 jobs:
   check-localizable:
     name: Check for localizable changes
-    runs-on: macOS-latest
+    runs-on: macOS-12
 
     steps:
     - name: Checkout app
