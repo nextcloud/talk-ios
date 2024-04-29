@@ -193,6 +193,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
 
                         if (!serverNotification) {
                             self.contentHandler(self.bestAttemptContent);
+                            return;
                         }
 
                         // Add the serverNotification as userInfo as well -> this can later be used to access the actions directly
