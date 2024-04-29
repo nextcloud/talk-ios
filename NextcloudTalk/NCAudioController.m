@@ -131,13 +131,9 @@ NSString * const AudioSessionDidChangeRoutingInformationNotification   = @"Audio
 - (void)updateRouteInformation
 {
     AVAudioSession *audioSession = self.rtcAudioSession.session;
-    AVAudioSessionPortDescription *currentOutput = nil;
+    AVAudioSessionPortDescription *currentOutput = [audioSession.currentRoute.outputs firstObject];
 
     self.numberOfAvailableInputs = audioSession.availableInputs.count;
-
-    if (audioSession.currentRoute.outputs.count > 0) {
-        currentOutput = audioSession.currentRoute.outputs[0];
-    }
 
     if ([_rtcAudioSession mode] == AVAudioSessionModeVideoChat || [currentOutput.portType isEqualToString:AVAudioSessionPortBuiltInSpeaker]) {
         self.isSpeakerActive = YES;
