@@ -674,9 +674,8 @@ import AVFoundation
                         self.uploadFile(to: fileServerURL, with: filePath, with: item)
                     } else {
                         self.uploadErrors.append(nkError.errorDescription)
+                        self.uploadGroup.leave()
                     }
-
-                    self.uploadGroup.leave()
                 }
             } else {
                 NCUtils.log(String(format: "Failed to upload file. Error: %@", nkError.errorDescription))
