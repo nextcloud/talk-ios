@@ -213,6 +213,10 @@ typedef enum RoomsSections {
     }
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+    [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
+    [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+    _searchController.searchBar.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
+
     UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
     UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
     searchTextField.tintColor = [NCAppBranding themeTextColor];
