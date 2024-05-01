@@ -3168,7 +3168,16 @@ import QuickLook
 
     // MARK: - FileMessageTableViewCellDelegate
 
-    public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter) {
+    public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter, for message: NCChatMessage) {
+        if NCUtils.isImage(fileType: fileParameter.mimetype) {
+            let mediaViewController = NCMediaViewerViewController(initialMessage: message)
+            let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
+
+            self.present(navController, interactiveDismissalType: .standard)
+
+            return
+        }
+
         if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
             print("File already downloading -> skipping new download")
             return
