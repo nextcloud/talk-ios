@@ -203,11 +203,12 @@ extension BaseChatTableViewCell {
 
     @objc
     func filePreviewTapped() {
-        guard let fileParameter = self.message?.file(),
+        guard let message = self.message,
+              let fileParameter = message.file(),
               fileParameter.path != nil, fileParameter.link != nil
         else { return }
 
-        self.delegate?.cellWants(toDownloadFile: fileParameter)
+        self.delegate?.cellWants(toDownloadFile: fileParameter, for: message)
     }
 
     // MARK: - Preview height calculation
