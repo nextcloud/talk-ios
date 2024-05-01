@@ -209,6 +209,7 @@
 		1FB78E272B6AE8C900B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
 		1FB78E282B6AE8C900B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
 		1FB78E292B6AE8CA00B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
+		1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */; };
 		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -666,6 +667,7 @@
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPIControllerExtensions.swift; sourceTree = "<group>"; };
 		1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FederationInvitation.swift; sourceTree = "<group>"; };
+		1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
@@ -1241,6 +1243,7 @@
 				1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */,
 				1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */,
 				1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */,
+				1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */,
 				1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */,
 			);
 			path = Unit;
@@ -2516,6 +2519,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */,
 				1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */,
 				1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */,
 				1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */,
