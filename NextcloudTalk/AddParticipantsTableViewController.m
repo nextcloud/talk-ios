@@ -44,6 +44,8 @@
     PlaceholderView *_participantsBackgroundView;
     NSTimer *_searchTimer;
     NSURLSessionTask *_searchParticipantsTask;
+    UIActivityIndicatorView *_addingParticipantsIndicator;
+    BOOL _errorAddingParticipants;
 }
 @end
 
@@ -64,7 +66,10 @@
     _participants = [[NSMutableDictionary alloc] init];
     _indexes = [[NSArray alloc] init];
     _selectedParticipants = [[NSMutableArray alloc] init];
-    
+
+    _addingParticipantsIndicator = [[UIActivityIndicatorView alloc] init];
+    _addingParticipantsIndicator.color = [NCAppBranding themeTextColor];
+
     return self;
 }
 
@@ -209,22 +214,34 @@
 
 - (void)addButtonPressed
 {
-    self.tableView.allowsSelection = NO;
-    _resultTableViewController.tableView.allowsSelection = NO;
+    if (_room && _selectedParticipants.count > 0) {
+        dispatch_group_t addParticipantsGroup = dispatch_group_create();
 
-    if (_room) {
+        [self showAddingParticipantsView];
         for (NCUser *participant in _selectedParticipants) {
-            [self addParticipantToRoom:participant];
+            [self addParticipantToRoom:participant withDispatchGroup:addParticipantsGroup];
         }
+
+        dispatch_group_notify(addParticipantsGroup, dispatch_get_main_queue(), ^{
+            [self removeAddingParticipantsView];
+
+            if (!self->_errorAddingParticipants) {
+                [self close];
+            }
+
+            // Reset flag once adding participants process has finished
+            self->_errorAddingParticipants = NO;
+        });
     } else if ([self.delegate respondsToSelector:@selector(addParticipantsTableViewController:wantsToAdd:)]) {
         [self.delegate addParticipantsTableViewController:self wantsToAdd:_selectedParticipants];
+        [self close];
     }
-    
-    [self close];
 }
 
-- (void)addParticipantToRoom:(NCUser *)participant
+- (void)addParticipantToRoom:(NCUser *)participant withDispatchGroup:(dispatch_group_t)dispatchGroup
 {
+    dispatch_group_enter(dispatchGroup);
+
     [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
         if (error) {
             UIAlertController * alert = [UIAlertController
@@ -238,9 +255,13 @@
                                        handler:nil];
             
             [alert addAction:okButton];
-            
+
+            self->_errorAddingParticipants = YES;
+
             [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
         }
+
+        dispatch_group_leave(dispatchGroup);
     }];
 }
 
@@ -261,6 +282,23 @@
     }
 
     self.navigationController.navigationBar.topItem.rightBarButtonItem = addButton;
+}
+
+- (void)showAddingParticipantsView
+{
+    [_addingParticipantsIndicator startAnimating];
+    UIBarButtonItem *addingParticipantButton = [[UIBarButtonItem alloc] initWithCustomView:_addingParticipantsIndicator];
+    self.navigationItem.rightBarButtonItems = @[addingParticipantButton];
+    self.tableView.allowsSelection = NO;
+    _resultTableViewController.tableView.allowsSelection = NO;
+}
+
+- (void)removeAddingParticipantsView
+{
+    [_addingParticipantsIndicator stopAnimating];
+    [self updateCounter];
+    self.tableView.allowsSelection = YES;
+    _resultTableViewController.tableView.allowsSelection = YES;
 }
 
 #pragma mark - Participants actions
