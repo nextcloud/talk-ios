@@ -108,6 +108,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@pendinginvitations@</string>
+        <key>pendinginvitations</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Gonbidapen %ld duzu zain</string>
+            <key>other</key>
+            <string>%ld gonbidapen dituzu zain</string>
+        </dict>
     </dict>
 </dict>
 </plist>
