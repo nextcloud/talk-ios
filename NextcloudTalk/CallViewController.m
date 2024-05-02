@@ -840,7 +840,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [self adjustMoreButtonMenu];
 
-        if ([self->_room canModerate] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions]) {
+        if (([self->_room canModerate] || self->_room.type == kNCRoomTypeOneToOne) &&
+            [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions]) {
             __weak typeof(self) weakSelf = self;
             UIAction *hangupForAllAction = [UIAction actionWithTitle:NSLocalizedString(@"End call for everyone", @"") image:[UIImage systemImageNamed:@"phone.down.fill"] identifier:nil handler:^(UIAction *action) {
                 [weakSelf hangupForAll:YES];
