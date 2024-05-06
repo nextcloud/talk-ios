@@ -154,6 +154,7 @@ import UIKit
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive(notification:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive(notification:)), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(connectionStateHasChanged(notification:)), name: NSNotification.Name.NCConnectionStateHasChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(maintenanceModeActive(notification:)), name: NSNotification.Name.NCServerMaintenanceMode, object: nil)
 
         // Notifications when runing on Mac
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive(notification:)), name: NSNotification.Name(rawValue: "NSApplicationDidBecomeActiveNotification"), object: nil)
@@ -287,6 +288,10 @@ import UIKit
         default:
             break
         }
+    }
+
+    func maintenanceModeActive(notification: Notification) {
+        self.setOfflineMode()
     }
 
     // MARK: - User Interface
@@ -433,6 +438,14 @@ import UIKit
             // Scrolling after removing the tableFooterView won't scroll all the way to the bottom therefore just keep the current position
             // And don't try to call scrollToBottom
         }
+    }
+
+    func setOfflineMode() {
+        self.offlineMode = true
+        self.setOfflineFooterView()
+        self.chatController.stopReceivingNewChatMessages()
+        self.disableRoomControls()
+        self.checkRoomControlsAvailability()
     }
 
     // MARK: - Message expiration
@@ -675,12 +688,8 @@ import UIKit
             notification.userInfo?["error"] != nil,
             let errorReason = notification.userInfo?["errorReason"] as? String {
 
-            self.offlineMode = true
-            self.setOfflineFooterView()
-            self.chatController.stopReceivingNewChatMessages()
+            self.setOfflineMode()
             self.presentJoinError(errorReason)
-            self.disableRoomControls()
-            self.checkRoomControlsAvailability()
             return
         }
 
