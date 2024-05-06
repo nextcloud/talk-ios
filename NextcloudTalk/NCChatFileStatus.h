@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString *filePath;
 @property (nonatomic, strong) NSString *fileLocalPath;
 @property (nonatomic, assign) BOOL isDownloading;
+@property (nonatomic, assign) BOOL canReportProgress;
 @property (nonatomic, assign) CGFloat downloadProgress;
 
 + (instancetype)initWithFileName:(NSString *)fileName withFilePath:(NSString *)filePath withFileId:(NSString *)fileId;

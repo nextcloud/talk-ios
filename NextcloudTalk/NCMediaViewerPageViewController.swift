@@ -183,13 +183,14 @@ import UIKit
                   let receivedStatus = userInfo["fileStatus"] as? NCChatFileStatus,
                   let fileParameter = self.message.file(),
                   receivedStatus.fileId == fileParameter.parameterId,
-                  receivedStatus.filePath == fileParameter.path,
-                  let progress = userInfo["progress"] as? CGFloat
+                  receivedStatus.filePath == fileParameter.path
             else { return }
 
             // Switch to determinate mode and set the progress
-            self.activityIndicator.indicatorMode = .determinate
-            self.activityIndicator.setProgress(Float(progress), animated: true)
+            if receivedStatus.canReportProgress {
+                self.activityIndicator.indicatorMode = .determinate
+                self.activityIndicator.setProgress(Float(receivedStatus.downloadProgress), animated: true)
+            }
         }
     }
 

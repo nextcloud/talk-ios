@@ -330,12 +330,10 @@
             return;
         }
         
-        BOOL isDownloading = [[notification.userInfo objectForKey:@"isDownloading"] boolValue];
-        
-        if (isDownloading && !self->_activityIndicator) {
+        if (receivedStatus.isDownloading && !self->_activityIndicator) {
             // Immediately show an indeterminate indicator as long as we don't have a progress value
             [self addActivityIndicator:0];
-        } else if (!isDownloading && self->_activityIndicator) {
+        } else if (!receivedStatus.isDownloading && self->_activityIndicator) {
             [self clearFileStatusView];
         }
     });
@@ -349,16 +347,16 @@
             // Received a notification for a different cell
             return;
         }
-        
-        double progress = [[notification.userInfo objectForKey:@"progress"] doubleValue];
 
         if (self->_activityIndicator) {
             // Switch to determinate-mode and show progress
-            self->_activityIndicator.indicatorMode = MDCActivityIndicatorModeDeterminate;
-            [self->_activityIndicator setProgress:progress animated:YES];
+            if (receivedStatus.canReportProgress) {
+                self->_activityIndicator.indicatorMode = MDCActivityIndicatorModeDeterminate;
+                [self->_activityIndicator setProgress:receivedStatus.downloadProgress animated:YES];
+            }
         } else {
             // Make sure we have an activity indicator added to this cell
-            [self addActivityIndicator:progress];
+            [self addActivityIndicator:receivedStatus.downloadProgress];
         }
     });
 }
