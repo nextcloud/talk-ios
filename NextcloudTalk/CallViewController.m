@@ -176,8 +176,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
 
-    [NCUserInterfaceController sharedInstance].numberOfAllocatedCallViewControllers += 1;
-    
+    [[AllocationTracker shared] addAllocation:@"CallViewController"];
+
     return self;
 }
 
@@ -355,7 +355,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)dealloc
 {
     NSLog(@"CallViewController dealloc");
-    [NCUserInterfaceController sharedInstance].numberOfAllocatedCallViewControllers -= 1;
+    [[AllocationTracker shared] removeAllocation:@"CallViewController"];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

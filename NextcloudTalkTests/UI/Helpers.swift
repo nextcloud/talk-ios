@@ -126,4 +126,17 @@ extension XCTestCase {
 
         return app
     }
+
+    func createConversation(for app: XCUIApplication, with newConversationName: String) {
+        app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"].tap()
+
+        let createNewConversationButton = app.buttons["Create a new conversation"]
+        XCTAssert(createNewConversationButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        createNewConversationButton.tap()
+
+        let newConversationNavBar = app.navigationBars["New conversation"]
+        XCTAssert(newConversationNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
+        app.typeText(newConversationName)
+        newConversationNavBar.buttons["Create"].tap()
+    }
 }

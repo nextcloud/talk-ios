@@ -200,7 +200,7 @@ import QuickLook
         NotificationCenter.default.addObserver(self, selector: #selector(willShowKeyboard(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willHideKeyboard(notification:)), name: UIWindow.keyboardWillHideNotification, object: nil)
 
-        NCUserInterfaceController.sharedInstance().numberOfAllocatedChatViewControllers += 1
+        AllocationTracker.shared.addAllocation("ChatViewController")
     }
 
     // Not using an optional here, because it is not available from ObjC
@@ -230,7 +230,7 @@ import QuickLook
 
     deinit {
         NotificationCenter.default.removeObserver(self)
-        NCUserInterfaceController.sharedInstance().numberOfAllocatedChatViewControllers -= 1
+        AllocationTracker.shared.removeAllocation("ChatViewController")
         NSLog("Dealloc BaseChatViewController")
     }
 

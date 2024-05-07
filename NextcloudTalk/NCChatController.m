@@ -60,9 +60,16 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     if (self) {
         _room = room;
         _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
+
+        [[AllocationTracker shared] addAllocation:@"NCChatController"];
     }
     
     return self;
+}
+
+- (void)dealloc
+{
+    [[AllocationTracker shared] removeAllocation:@"NCChatController"];
 }
 
 #pragma mark - Database
