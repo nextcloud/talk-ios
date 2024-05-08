@@ -201,10 +201,17 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         if let parent {
             self.showQuotePart()
 
-            self.quotedMessageView?.actorLabel.text = parent.actorDisplayName.isEmpty ? NSLocalizedString("Guest", comment: "") : parent.actorDisplayName
-            self.quotedMessageView?.messageLabel.text = parent.parsedMarkdownForChat().string
-            self.quotedMessageView?.highlighted = parent.isMessage(fromUser: activeAccount.userId)
+            let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
+            self.quotedMessageView?.messageLabel.text = quoteString
 
+            var parentActorDisplayName = parent.actorDisplayName ?? ""
+
+            if parentActorDisplayName.isEmpty {
+                parentActorDisplayName = NSLocalizedString("Guest", comment: "")
+            }
+
+            self.quotedMessageView?.actorLabel.text = parentActorDisplayName
+            self.quotedMessageView?.highlighted = parent.isMessage(fromUser: activeAccount.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
         }
 
