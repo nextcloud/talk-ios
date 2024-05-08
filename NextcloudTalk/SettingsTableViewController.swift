@@ -974,31 +974,30 @@ extension SettingsTableViewController {
         let advancedCellDisclosureIdentifier = "AdvancedCellDisclosureIdentifier"
         let advancedCellValue1Identifier = "AdvancedCellType1Identifier"
 
-        if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue {
-            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
+        let options = getAdvancedSectionOptions()
+        let option = options[indexPath.row]
+        var cell = UITableViewCell()
+        switch option {
+        case AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue:
+            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
             cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "gear")?.applyingSymbolConfiguration(iconConfiguration))
-
             cell.accessoryType = .disclosureIndicator
 
-            return cell
-
-        } else if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue {
-            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
+        case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
+            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
             cell.textLabel?.text = NSLocalizedString("Calls from old accounts", comment: "")
             cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "exclamationmark.triangle.fill")?.applyingSymbolConfiguration(iconConfiguration))
             cell.accessoryType = .disclosureIndicator
 
-            return cell
-
-        } else if indexPath.row == AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue {
+        case AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue:
             let byteFormatter = ByteCountFormatter()
             byteFormatter.allowedUnits = [.useMB]
             byteFormatter.countStyle = .file
 
-            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
+            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
             cell.textLabel?.text = NSLocalizedString("Cached images", comment: "")
             cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "photo")?.applyingSymbolConfiguration(iconConfiguration))
@@ -1009,16 +1008,12 @@ extension SettingsTableViewController {
             byteCounterLabel.sizeToFit()
             cell.accessoryView = byteCounterLabel
 
-            return cell
-
-        } else {
-            // AdvancedSectionOption.kAdvancedSectionOptionCachedFiles.rawValue
-
+        case AdvancedSectionOption.kAdvancedSectionOptionCachedFiles.rawValue:
             let byteFormatter = ByteCountFormatter()
             byteFormatter.allowedUnits = [.useMB]
             byteFormatter.countStyle = .file
 
-            let cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
+            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
             cell.textLabel?.text = NSLocalizedString("Cached files", comment: "")
             cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "doc")?.applyingSymbolConfiguration(iconConfiguration))
@@ -1029,8 +1024,11 @@ extension SettingsTableViewController {
             byteCounterLabel.sizeToFit()
             cell.accessoryView = byteCounterLabel
 
-            return cell
+        default:
+            break
         }
+
+        return cell
     }
 
     func sectionAboutCell(for indexPath: IndexPath) -> UITableViewCell {
