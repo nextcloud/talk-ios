@@ -94,6 +94,13 @@ import UIKit
         self.navigationItem.rightBarButtonItems = [closeButton]
 
         self.navigationController?.setToolbarHidden(false, animated: false)
+
+        let appearance = UIToolbarAppearance()
+        appearance.backgroundColor = .secondarySystemBackground
+        self.navigationController?.toolbar.standardAppearance = appearance
+        self.navigationController?.toolbar.compactAppearance = appearance
+        self.navigationController?.toolbar.scrollEdgeAppearance = appearance
+
         self.toolbarItems = [shareButton]
     }
 
