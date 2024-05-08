@@ -803,8 +803,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         let option = options[indexPath.row]
         switch option {
         case AboutSection.kAboutSectionPrivacy.rawValue:
-            let safariVC = SFSafariViewController(url: URL(string: privacyURL)!)
-            self.present(safariVC, animated: true, completion: nil)
+            if let url = URL(string: privacyURL), ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
+                let safariVC = SFSafariViewController(url: url)
+                self.present(safariVC, animated: true, completion: nil)
+            }
         case AboutSection.kAboutSectionSourceCode.rawValue:
             let safariVC = SFSafariViewController(url: URL(string: "https://github.com/nextcloud/talk-ios")!)
             self.present(safariVC, animated: true, completion: nil)
