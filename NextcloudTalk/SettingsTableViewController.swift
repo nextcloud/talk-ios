@@ -788,7 +788,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     func didSelectAboutSectionCell(for indexPath: IndexPath) {
         switch indexPath.row {
         case AboutSection.kAboutSectionPrivacy.rawValue:
-            let safariVC = SFSafariViewController(url: URL(string: "https://nextcloud.com/privacy")!)
+            let safariVC = SFSafariViewController(url: URL(string: privacyURL)!)
             self.present(safariVC, animated: true, completion: nil)
         case AboutSection.kAboutSectionSourceCode.rawValue:
             let safariVC = SFSafariViewController(url: URL(string: "https://github.com/nextcloud/talk-ios")!)
