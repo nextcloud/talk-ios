@@ -35,6 +35,8 @@ extern NSString * const bundleIdentifier;
 extern NSString * const groupIdentifier;
 extern NSString * const appsGroupIdentifier;
 extern NSString * const pushNotificationServer;
+extern NSString * const privacyURL;
+extern BOOL const isBrandedApp;
 extern BOOL const multiAccountEnabled;
 extern BOOL const useAppsGroup;
 extern BOOL const forceDomain;
