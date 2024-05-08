@@ -453,7 +453,7 @@ import UIKit
     func startObservingExpiredMessages() {
         self.messageExpirationTimer?.invalidate()
         self.removeExpiredMessages()
-        self.messageExpirationTimer = Timer(timeInterval: 30.0, repeats: true, block: { [weak self] _ in
+        self.messageExpirationTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true, block: { [weak self] _ in
             self?.removeExpiredMessages()
         })
     }
@@ -462,7 +462,8 @@ import UIKit
         DispatchQueue.main.async {
             let currentTimestamp = Int(Date().timeIntervalSince1970)
 
-            for sectionIndex in self.dateSections.indices {
+            // Iterate backwards in case we need to delete multiple sections in one go
+            for sectionIndex in self.dateSections.indices.reversed() {
                 let section = self.dateSections[sectionIndex]
 
                 guard let messages = self.messages[section] else { continue }
@@ -482,7 +483,7 @@ import UIKit
                     } else {
                         self.messages.removeValue(forKey: section)
                         self.sortDateSections()
-                        self.tableView?.deleteSections(IndexSet(integer: sectionIndex), with: .top  )
+                        self.tableView?.deleteSections(IndexSet(integer: sectionIndex), with: .top)
                     }
 
                     self.tableView?.endUpdates()

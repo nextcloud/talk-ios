@@ -44,6 +44,8 @@ class TestBaseRealm: XCTestCase {
         let account = TalkAccount()
         account.accountId = fakeAccountId
         account.active = true
+        account.user = TestConstants.username
+        account.server = TestConstants.server
 
         try? realm.transaction {
             realm.add(account)
