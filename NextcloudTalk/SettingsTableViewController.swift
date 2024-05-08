@@ -57,7 +57,6 @@ enum AdvancedSectionOption: Int {
 enum AboutSection: Int {
     case kAboutSectionPrivacy = 0
     case kAboutSectionSourceCode
-    case kAboutSectionNumber
 }
 
 class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate {
@@ -241,6 +240,20 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         // Received calls from old accounts
         if NCSettingsController.sharedInstance().didReceiveCallsFromOldAccount() {
             options.append(AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue)
+        }
+
+        return options
+    }
+
+    func getAboutSectionOptions() -> [Int] {
+        var options = [Int]()
+
+        // Privacy
+        options.append(AboutSection.kAboutSectionPrivacy.rawValue)
+
+        // Source code
+        if !isBrandedApp.boolValue {
+            options.append(AboutSection.kAboutSectionSourceCode.rawValue)
         }
 
         return options
@@ -631,7 +644,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         case SettingsSection.kSettingsSectionAdvanced.rawValue:
             return getAdvancedSectionOptions().count
         case SettingsSection.kSettingsSectionAbout.rawValue:
-            return AboutSection.kAboutSectionNumber.rawValue
+            return getAboutSectionOptions().count
         case SettingsSection.kSettingsSectionOtherAccounts.rawValue:
             return inactiveAccounts.count
         default:
@@ -786,7 +799,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 
     func didSelectAboutSectionCell(for indexPath: IndexPath) {
-        switch indexPath.row {
+        let options = getAboutSectionOptions()
+        let option = options[indexPath.row]
+        switch option {
         case AboutSection.kAboutSectionPrivacy.rawValue:
             let safariVC = SFSafariViewController(url: URL(string: privacyURL)!)
             self.present(safariVC, animated: true, completion: nil)
@@ -1021,8 +1036,10 @@ extension SettingsTableViewController {
     func sectionAboutCell(for indexPath: IndexPath) -> UITableViewCell {
         let privacyCellIdentifier = "PrivacyCellIdentifier"
         let sourceCodeCellIdentifier = "SourceCodeCellIdentifier"
+        let options = getAboutSectionOptions()
+        let option = options[indexPath.row]
         var cell = UITableViewCell()
-        switch indexPath.row {
+        switch option {
         case AboutSection.kAboutSectionPrivacy.rawValue:
             cell =
             UITableViewCell(style: .default, reuseIdentifier: privacyCellIdentifier)
