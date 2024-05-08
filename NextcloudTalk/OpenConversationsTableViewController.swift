@@ -177,6 +177,8 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
         cell.contactImage.setGroupAvatar()
         // Try to get room avatar even though at the moment (Talk 17) it is not exposed
         cell.contactImage.setAvatar(for: openConversation)
+        // Set description
+        cell.setUserStatusMessage(openConversation.roomDescription, withIcon: nil)
 
         return cell
     }
