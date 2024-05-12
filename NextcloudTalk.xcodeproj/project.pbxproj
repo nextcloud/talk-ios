@@ -226,6 +226,9 @@
 		1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
 		1FB7B9912BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
 		1FB7B9922BF0CDF90093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
+		1FB7B9952BF0DF1C0093CE98 /* BannedActorTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9942BF0DF1C0093CE98 /* BannedActorTableViewController.swift */; };
+		1FB7B99A2BF0DF290093CE98 /* BannedActorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9992BF0DF290093CE98 /* BannedActorCell.swift */; };
+		1FB7B99C2BF0DF360093CE98 /* BannedActorCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */; };
 		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -733,6 +736,9 @@
 		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCell.swift; sourceTree = "<group>"; };
 		1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActor.swift; sourceTree = "<group>"; };
+		1FB7B9942BF0DF1C0093CE98 /* BannedActorTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActorTableViewController.swift; sourceTree = "<group>"; };
+		1FB7B9992BF0DF290093CE98 /* BannedActorCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActorCell.swift; sourceTree = "<group>"; };
+		1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BannedActorCell.xib; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
@@ -1398,12 +1404,15 @@
 			name = Federation;
 			sourceTree = "<group>";
 		};
-		1FB7B98F2BF0CDD20093CE98 /* Model */ = {
+		1FB7B9932BF0DE4A0093CE98 /* Banned Actors */ = {
 			isa = PBXGroup;
 			children = (
+				1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */,
+				1FB7B9992BF0DF290093CE98 /* BannedActorCell.swift */,
+				1FB7B9942BF0DF1C0093CE98 /* BannedActorTableViewController.swift */,
 				1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */,
 			);
-			name = Model;
+			name = "Banned Actors";
 			sourceTree = "<group>";
 		};
 		1FF2FD5E2AB99CCB000C9905 /* BroadcastUploadExtension */ = {
@@ -1603,6 +1612,7 @@
 		2C5521661F7D47A50077E587 /* Rooms */ = {
 			isa = PBXGroup;
 			children = (
+				1FB7B9932BF0DE4A0093CE98 /* Banned Actors */,
 				1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */,
 				1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */,
 				2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */,
@@ -2387,6 +2397,7 @@
 				2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */,
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
 				2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */,
+				1FB7B99C2BF0DF360093CE98 /* BannedActorCell.xib in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
@@ -2744,6 +2755,7 @@
 				1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */,
 				2CD4F6B72C11C80600ED594F /* ContactsSearchResultTableViewContoller.swift in Sources */,
+				1FB7B99A2BF0DF290093CE98 /* BannedActorCell.swift in Sources */,
 				1F35F8FB2AEEDBC600044BDA /* ChatViewControllerExtension.swift in Sources */,
 				2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */,
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
@@ -2772,6 +2784,7 @@
 				DA66582B27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift in Sources */,
 				2C69323D2923ECAA00017AD2 /* WSMessage.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
+				1FB7B9952BF0DF1C0093CE98 /* BannedActorTableViewController.swift in Sources */,
 				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
 				2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
