@@ -221,6 +221,12 @@
 		1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */; };
 		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */; };
 		1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */; };
+		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */; };
+		1FB7B98E2BF0CBA60093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
+		1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
+		1FB7B9912BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
+		1FB7B9922BF0CDF90093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
+		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -725,6 +731,9 @@
 		1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
 		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
+		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCell.swift; sourceTree = "<group>"; };
+		1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActor.swift; sourceTree = "<group>"; };
+		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
@@ -1389,6 +1398,14 @@
 			name = Federation;
 			sourceTree = "<group>";
 		};
+		1FB7B98F2BF0CDD20093CE98 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		1FF2FD5E2AB99CCB000C9905 /* BroadcastUploadExtension */ = {
 			isa = PBXGroup;
 			children = (
@@ -1445,6 +1462,7 @@
 				2C5521681F7D481C0077E587 /* Login */,
 				2CB6ACA72638489300D3D641 /* Maps */,
 				1F1B0F3A2BE0476C003FD766 /* Media Viewer */,
+				1FB7B98F2BF0CDD20093CE98 /* Model */,
 				2C55216B1F7D48970077E587 /* Network */,
 				2C9B0B99217F6E3400A4752C /* Notifications */,
 				2C5521661F7D47A50077E587 /* Rooms */,
@@ -2652,6 +2670,7 @@
 				1F77A5F42AB9A4B2007B6037 /* ABContact.m in Sources */,
 				1F77A6012AB9A51D007B6037 /* NCNotificationAction.swift in Sources */,
 				1F77A6242ABA0003007B6037 /* SampleHandler.swift in Sources */,
+				1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */,
 				1F77A5F32AB9A43B007B6037 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1FF4DA832C025DBF00C1B952 /* NCAPISessionManager.swift in Sources */,
 				1FDFC9502BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
@@ -2740,6 +2759,7 @@
 				1FF1360F2BFB4F8C006A6101 /* NCRoom.swift in Sources */,
 				1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */,
 				1F1B0F2C2BDBB3AC003FD766 /* NCMediaViewerViewController.swift in Sources */,
+				1FB7B98E2BF0CBA60093CE98 /* BannedActor.swift in Sources */,
 				1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */,
 				1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */,
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
@@ -2967,6 +2987,7 @@
 				1F0B0A742BA265310073FF8D /* MentionSuggestion.swift in Sources */,
 				2C62B00D24C1BDC1007E460A /* NCPushNotification.m in Sources */,
 				1F1B50492B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
+				1FB7B9912BF0CDF80093CE98 /* BannedActor.swift in Sources */,
 				2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */,
 				2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				1F35F8ED2AEEBC1600044BDA /* UIView+SLKAdditions.m in Sources */,
@@ -3038,6 +3059,9 @@
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
 				1FF136162BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
+				1F45A1352A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
+				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,
+				1FB7B9922BF0CDF90093CE98 /* BannedActor.swift in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
 				2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,

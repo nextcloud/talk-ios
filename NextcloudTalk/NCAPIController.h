@@ -146,6 +146,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)breakoutRoomsAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)federationAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)banAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
