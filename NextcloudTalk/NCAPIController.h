@@ -29,7 +29,7 @@ typedef void (^MakeRoomPublicCompletionBlock)(NSError *error);
 typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error);
 typedef void (^DeleteRoomCompletionBlock)(NSError *error);
 typedef void (^SetPasswordCompletionBlock)(NSError *error, NSString *errorDescription);
-typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode);
+typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode, NSString * _Nullable statusReason);
 typedef void (^ExitRoomCompletionBlock)(NSError *error);
 typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
 typedef void (^NotificationLevelCompletionBlock)(NSError *error);
