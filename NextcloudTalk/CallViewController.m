@@ -108,6 +108,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     UIImageSymbolConfiguration *_barButtonsConfiguration;
     CGFloat _lastScheduledReaction;
     NSTimer *_callDurationTimer;
+    AVAudioPlayer *_soundsPlayer;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -662,6 +663,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)showWaitingScreen
 {
     [self setWaitingScreenText];
+    [self startPlayingConnectingSound];
     dispatch_async(dispatch_get_main_queue(), ^{
         self.collectionView.backgroundView = self.waitingView;
     });
@@ -669,9 +671,26 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)hideWaitingScreen
 {
+    [self stopPlayingConnectingSound];
     dispatch_async(dispatch_get_main_queue(), ^{
         self.collectionView.backgroundView = nil;
     });
+}
+
+- (void)startPlayingConnectingSound
+{
+    NSString *soundFilePath = [[NSBundle mainBundle] pathForResource:@"connecting" ofType:@"mp3"];
+    NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
+
+    _soundsPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:soundFileURL error:nil];
+    _soundsPlayer.numberOfLoops = -1;
+
+    [_soundsPlayer play];
+}
+
+- (void)stopPlayingConnectingSound
+{
+    [_soundsPlayer stop];
 }
 
 - (void)addTapGestureForDetailedView
