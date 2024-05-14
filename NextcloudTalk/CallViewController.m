@@ -584,6 +584,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         case CallStateWaitingParticipants:
         case CallStateReconnecting:
         {
+            [self startPlayingConnectingSound];
             [self showWaitingScreen];
             [self invalidateDetailedViewTimer];
             [self showDetailedView];
@@ -593,6 +594,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             
         case CallStateInCall:
         {
+            [self stopPlayingConnectingSound];
             [self hideWaitingScreen];
             if (!_isAudioOnly) {
                 [self addTapGestureForDetailedView];
@@ -664,7 +666,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)showWaitingScreen
 {
     [self setWaitingScreenText];
-    [self startPlayingConnectingSound];
     dispatch_async(dispatch_get_main_queue(), ^{
         self.collectionView.backgroundView = self.waitingView;
     });
@@ -672,7 +673,6 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)hideWaitingScreen
 {
-    [self stopPlayingConnectingSound];
     dispatch_async(dispatch_get_main_queue(), ^{
         self.collectionView.backgroundView = nil;
     });
