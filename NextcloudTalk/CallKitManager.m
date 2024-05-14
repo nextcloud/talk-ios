@@ -410,11 +410,12 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }];
 }
 
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName asInitiator:(BOOL)initiator silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId
 {
     if (![CallKitManager isCallKitAvailable]) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
         [userInfo setValue:@(videoEnabled) forKey:@"isVideoEnabled"];
+        [userInfo setValue:@(initiator) forKey:@"initiator"];
         [userInfo setValue:@(silently) forKey:@"silentCall"];
         [userInfo setValue:@(recordingConsent) forKey:@"recordingConsent"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
@@ -438,6 +439,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         call.displayName = displayName;
         call.accountId = accountId;
         call.update = update;
+        call.initiator = initiator;
         call.silentCall = silently;
         call.recordingConsent = recordingConsent;
 
@@ -463,7 +465,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
                                                                           userInfo:userInfo];
                     } else {
                         self->_startCallRetried = YES;
-                        [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName silently:silently recordingConsent:recordingConsent withAccountId:accountId];
+                        [self startCall:token withVideoEnabled:videoEnabled andDisplayName:displayName asInitiator:initiator silently:silently recordingConsent:recordingConsent withAccountId:accountId];
                     }
                 }
             }];
@@ -560,6 +562,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         [provider reportOutgoingCallWithUUID:action.callUUID connectedAtDate:[NSDate new]];
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:action.handle.value forKey:@"roomToken"];
         [userInfo setValue:@(action.isVideo) forKey:@"isVideoEnabled"];
+        [userInfo setValue:@(call.initiator) forKey:@"initiator"];
         [userInfo setValue:@(call.silentCall) forKey:@"silentCall"];
         [userInfo setValue:@(call.recordingConsent) forKey:@"recordingConsent"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification

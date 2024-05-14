@@ -97,6 +97,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     BOOL _isHandRaised;
     BOOL _proximityState;
     BOOL _showChatAfterRoomSwitch;
+    BOOL _connectingSoundAlreadyPlayed;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
@@ -679,6 +680,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)startPlayingConnectingSound
 {
+    if (!_initiator || _connectingSoundAlreadyPlayed) {
+        return;
+    }
+
     NSString *soundFilePath = [[NSBundle mainBundle] pathForResource:@"connecting" ofType:@"mp3"];
     NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
 
@@ -686,6 +691,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     _soundsPlayer.numberOfLoops = -1;
 
     [_soundsPlayer play];
+
+    _connectingSoundAlreadyPlayed = YES;
 }
 
 - (void)stopPlayingConnectingSound

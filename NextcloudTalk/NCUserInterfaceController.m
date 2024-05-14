@@ -394,7 +394,7 @@
 {
     NSString *roomToken = [callDict objectForKey:@"roomToken"];
     BOOL video = [[callDict objectForKey:@"isVideoEnabled"] boolValue];
-    [[NCRoomsManager sharedInstance] joinCallWithCallToken:roomToken withVideo:video recordingConsent:NO];
+    [[NCRoomsManager sharedInstance] joinCallWithCallToken:roomToken withVideo:video asInitiator:YES recordingConsent:NO];
 }
 
 - (void)presentChatForURL:(NSURLComponents *)urlComponents
