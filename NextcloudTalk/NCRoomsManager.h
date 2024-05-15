@@ -73,7 +73,7 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 - (void)leaveChatInRoom:(NSString *)token;
 - (void)startChatWithRoomToken:(NSString *)token;
 // Call
-- (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video recordingConsent:(BOOL)recordingConsent;
+- (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video asInitiator:(BOOL)initiator recordingConsent:(BOOL)recordingConsent;
 // Switch to
 - (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
 

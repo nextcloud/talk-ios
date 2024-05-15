@@ -97,6 +97,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     BOOL _isHandRaised;
     BOOL _proximityState;
     BOOL _showChatAfterRoomSwitch;
+    BOOL _connectingSoundAlreadyPlayed;
     UIImpactFeedbackGenerator *_buttonFeedbackGenerator;
     CGPoint _localVideoDragStartingPosition;
     CGPoint _localVideoOriginPosition;
@@ -108,6 +109,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     UIImageSymbolConfiguration *_barButtonsConfiguration;
     CGFloat _lastScheduledReaction;
     NSTimer *_callDurationTimer;
+    AVAudioPlayer *_soundsPlayer;
 }
 
 @property (nonatomic, strong) IBOutlet UIButton *audioMuteButton;
@@ -582,6 +584,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         case CallStateWaitingParticipants:
         case CallStateReconnecting:
         {
+            [self startPlayingConnectingSound];
             [self showWaitingScreen];
             [self invalidateDetailedViewTimer];
             [self showDetailedView];
@@ -591,6 +594,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             
         case CallStateInCall:
         {
+            [self stopPlayingConnectingSound];
             [self hideWaitingScreen];
             if (!_isAudioOnly) {
                 [self addTapGestureForDetailedView];
@@ -672,6 +676,28 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     dispatch_async(dispatch_get_main_queue(), ^{
         self.collectionView.backgroundView = nil;
     });
+}
+
+- (void)startPlayingConnectingSound
+{
+    if (!_initiator || _connectingSoundAlreadyPlayed) {
+        return;
+    }
+
+    NSString *soundFilePath = [[NSBundle mainBundle] pathForResource:@"connecting" ofType:@"mp3"];
+    NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
+
+    _soundsPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:soundFileURL error:nil];
+    _soundsPlayer.numberOfLoops = -1;
+
+    [_soundsPlayer play];
+
+    _connectingSoundAlreadyPlayed = YES;
+}
+
+- (void)stopPlayingConnectingSound
+{
+    [_soundsPlayer stop];
 }
 
 - (void)addTapGestureForDetailedView

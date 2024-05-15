@@ -88,7 +88,7 @@ import UIKit
                                           preferredStyle: .alert)
 
             alert.addAction(.init(title: NSLocalizedString("Give consent and join call", comment: "Give consent to the recording of the call and join that call"), style: .default) { _ in
-                CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: silently, recordingConsent: true, withAccountId: self.room.accountId)
+                CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, asInitiator: !self.room.hasCall, silently: silently, recordingConsent: true, withAccountId: self.room.accountId)
             })
 
             alert.addAction(.init(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
@@ -98,7 +98,7 @@ import UIKit
             NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
 
         } else {
-            CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, silently: silently, recordingConsent: false, withAccountId: self.room.accountId)
+            CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, asInitiator: !self.room.hasCall, silently: silently, recordingConsent: false, withAccountId: self.room.accountId)
         }
     }
 

@@ -446,6 +446,7 @@
 		2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */; };
 		2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */; };
 		2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */; };
+		2CB052A12BF2297500191349 /* connecting.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2CB052A02BF2297500191349 /* connecting.mp3 */; };
 		2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
 		2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
 		2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB303A12264775E0053078A /* SLKTextInputbar.m */; };
@@ -985,6 +986,7 @@
 		2CA80EDE256C1296006BA449 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2CA80EDF256C12E7006BA449 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2CA80EE0256C12E7006BA449 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2CB052A02BF2297500191349 /* connecting.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = connecting.mp3; path = Sounds/connecting.mp3; sourceTree = SOURCE_ROOT; };
 		2CB2B24D28BCB9D900A9D606 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = cs; path = cs.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CB2B24E28BCB9E800A9D606 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = hu; path = hu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CB2B24F28BCBABC00A9D606 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = pl; path = pl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -1430,6 +1432,7 @@
 				1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
 				2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */,
+				2CB052A02BF2297500191349 /* connecting.mp3 */,
 				2C7F47AC20289B9600081CC7 /* Localizable.strings */,
 				2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */,
 				2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */,
@@ -2312,6 +2315,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CB052A12BF2297500191349 /* connecting.mp3 in Resources */,
 				2C84BCCE29EEDCE8001BA6DA /* CallReactionView.xib in Resources */,
 				2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */,
 				2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */,

@@ -39,6 +39,7 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransactionNotificati
 @property (nonatomic, strong) CXCallUpdate *update;
 @property (nonatomic, assign) BOOL reportedWhileInCall;
 @property (nonatomic, assign) BOOL isRinging;
+@property (nonatomic, assign) BOOL initiator;
 @property (nonatomic, assign) BOOL silentCall;
 @property (nonatomic, assign) BOOL recordingConsent;
 
@@ -56,7 +57,7 @@ extern NSString * const CallKitManagerDidFailRequestingCallTransactionNotificati
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId;
 - (void)reportIncomingCallForNonCallKitDevicesWithPushNotification:(NCPushNotification *)pushNotification;
 - (void)reportIncomingCallForOldAccount;
-- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId;
+- (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName asInitiator:(BOOL)initiator silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId;
 - (void)endCall:(NSString *)token withStatusCode:(NSInteger)statusCode;
 - (void)changeAudioMuted:(BOOL)muted forCall:(NSString *)token;
 - (void)switchCallFrom:(NSString *)from toCall:(NSString *)to;

@@ -46,6 +46,7 @@
 @property (nonatomic, assign) BOOL audioDisabledAtStart;
 @property (nonatomic, assign) BOOL videoDisabledAtStart;
 @property (nonatomic, assign) BOOL voiceChatModeAtStart;
+@property (nonatomic, assign) BOOL initiator;
 @property (nonatomic, assign) BOOL silentCall;
 @property (nonatomic, assign) BOOL recordingConsent;
 

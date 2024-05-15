@@ -69,6 +69,13 @@ xcodebuild test -workspace NextcloudTalk.xcworkspace \
 
 If you are experiencing problems with push notifications, please check this [document](https://github.com/nextcloud/talk-ios/blob/master/docs/notifications.md) to detect possible issues.
 
+## Credits
+
+### Ringtones
+
+- [Telefon-Freiton in Deutschland nach DTAG 1 TR 110-1, Kap. 8.3](https://commons.wikimedia.org/wiki/File:1TR110-1_Kap8.3_Freiton1.ogg)
+  author: arvedkrynil
+
 ## TestFlight
 
 Do you want to try the latest version in development of Nextcloud Talk iOS? Simple, follow this simple step
