@@ -23,12 +23,14 @@
 import Foundation
 
 @objc protocol NCZoomableViewDelegate {
-    @objc func resizeContentViewToOriginalSize(_ view: NCZoomableView)
+    @objc func contentViewZoomDidChange(_ view: NCZoomableView, _ scale: Double)
 }
 
 @objcMembers class NCZoomableView: UIView, UIGestureRecognizerDelegate {
 
     public weak var delegate: NCZoomableViewDelegate?
+
+    public var disablePanningOnInitialZoom = false
 
     var pinchGestureRecognizer: UIPinchGestureRecognizer?
     var panGestureRecognizer: UIPanGestureRecognizer?
@@ -36,6 +38,11 @@ import Foundation
 
     private(set) var contentView = UIView()
     var contentViewSize = CGSize()
+
+    public var isZoomed: Bool {
+        let scaleFactor = self.contentView.transform.a
+        return scaleFactor != 1
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -111,6 +118,10 @@ import Foundation
     }
 
     func handlePan(_ recognizer: UIPanGestureRecognizer) {
+        if self.disablePanningOnInitialZoom, !self.isZoomed {
+            return
+        }
+
         let point = recognizer.translation(in: self.contentView)
 
         // We need to take the current scaling into account when panning
@@ -157,6 +168,8 @@ import Foundation
         transform = CGAffineTransformScale(transform, scale, scale)
         transform = CGAffineTransformTranslate(transform, -resultPoint.x, -resultPoint.y)
         view.transform = transform
+
+        self.delegate?.contentViewZoomDidChange(self, transform.a)
     }
 
     func adjustViewPosition() {
@@ -210,6 +223,7 @@ import Foundation
 
     public func resizeContentView() {
         self.contentView.transform = .identity
+        self.delegate?.contentViewZoomDidChange(self, self.contentView.transform.a)
 
         let bounds = self.bounds
         let contentSize = self.contentViewSize

@@ -203,11 +203,12 @@ extension BaseChatTableViewCell {
 
     @objc
     func filePreviewTapped() {
-        guard let fileParameter = self.message?.file(),
+        guard let message = self.message,
+              let fileParameter = message.file(),
               fileParameter.path != nil, fileParameter.link != nil
         else { return }
 
-        self.delegate?.cellWants(toDownloadFile: fileParameter)
+        self.delegate?.cellWants(toDownloadFile: fileParameter, for: message)
     }
 
     // MARK: - Preview height calculation
@@ -300,14 +301,13 @@ extension BaseChatTableViewCell {
                   let receivedStatus = userInfo["fileStatus"] as? NCChatFileStatus,
                   let fileParameter = self.message?.file(),
                   receivedStatus.fileId == fileParameter.parameterId,
-                  receivedStatus.filePath == fileParameter.path,
-                  let isDownloading = userInfo["isDownloading"] as? Bool
+                  receivedStatus.filePath == fileParameter.path
             else { return }
 
-            if isDownloading, self.fileActivityIndicator == nil {
+            if receivedStatus.isDownloading, self.fileActivityIndicator == nil {
                 // Immediately show an indeterminate indicator as long as we don't have a progress value
                 self.addActivityIndicator(with: 0)
-            } else if !isDownloading, self.fileActivityIndicator != nil {
+            } else if !receivedStatus.isDownloading, self.fileActivityIndicator != nil {
                 self.clearFileStatusView()
             }
         }
@@ -320,17 +320,18 @@ extension BaseChatTableViewCell {
                   let receivedStatus = userInfo["fileStatus"] as? NCChatFileStatus,
                   let fileParameter = self.message?.file(),
                   receivedStatus.fileId == fileParameter.parameterId,
-                  receivedStatus.filePath == fileParameter.path,
-                  let progress = userInfo["progress"] as? CGFloat
+                  receivedStatus.filePath == fileParameter.path
             else { return }
 
             if self.fileActivityIndicator != nil {
                 // Switch to determinate-mode and show progress
-                self.fileActivityIndicator?.indicatorMode = .determinate
-                self.fileActivityIndicator?.setProgress(Float(progress), animated: true)
+                if receivedStatus.canReportProgress {
+                    self.fileActivityIndicator?.indicatorMode = .determinate
+                    self.fileActivityIndicator?.setProgress(Float(receivedStatus.downloadProgress), animated: true)
+                }
             } else {
                 // Make sure we have an activity indicator added to this cell
-                self.addActivityIndicator(with: Float(progress))
+                self.addActivityIndicator(with: Float(receivedStatus.downloadProgress))
             }
         }
     }

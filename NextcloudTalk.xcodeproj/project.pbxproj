@@ -19,6 +19,19 @@
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
 		1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */; };
 		1F1B0F272BDA61C5003FD766 /* AllocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */; };
+		1F1B0F2C2BDBB3AC003FD766 /* NCMediaViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F2B2BDBB3AC003FD766 /* NCMediaViewerViewController.swift */; };
+		1F1B0F302BDBC9D6003FD766 /* NCMediaViewerPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F2F2BDBC9D6003FD766 /* NCMediaViewerPageViewController.swift */; };
+		1F1B0F322BDC57E3003FD766 /* UIPageViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F312BDC57E3003FD766 /* UIPageViewControllerExtension.swift */; };
+		1F1B0F362BDD8B9C003FD766 /* NCActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F352BDD8B9C003FD766 /* NCActivityIndicator.swift */; };
+		1F1B0F422BE047CE003FD766 /* UIViewController+Transitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F3B2BE047CD003FD766 /* UIViewController+Transitions.swift */; };
+		1F1B0F432BE047CE003FD766 /* ModalTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F3C2BE047CD003FD766 /* ModalTransitionAnimator.swift */; };
+		1F1B0F442BE047CE003FD766 /* ModalTransitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F3D2BE047CD003FD766 /* ModalTransitionManager.swift */; };
+		1F1B0F452BE047CE003FD766 /* ModalPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F3E2BE047CD003FD766 /* ModalPresentationController.swift */; };
+		1F1B0F462BE047CE003FD766 /* InteractionControlling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F3F2BE047CD003FD766 /* InteractionControlling.swift */; };
+		1F1B0F472BE047CE003FD766 /* StandardInteractionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F402BE047CE003FD766 /* StandardInteractionController.swift */; };
+		1F1B0F482BE047CE003FD766 /* CustomPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F412BE047CE003FD766 /* CustomPresentable.swift */; };
+		1F1B0F4A2BE047D5003FD766 /* OneWayPanGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F492BE047D5003FD766 /* OneWayPanGestureRecognizer.swift */; };
+		1F1B0F4C2BE18FF3003FD766 /* CustomPresentableNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F4B2BE18FF3003FD766 /* CustomPresentableNavigationController.swift */; };
 		1F1B50342B8E069800B0F2F4 /* BaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */; };
 		1F1B50382B8E070100B0F2F4 /* BaseChatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */; };
 		1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */; };
@@ -582,6 +595,19 @@
 		1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCZoomableView.swift; sourceTree = "<group>"; };
 		1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitDarwinCenterTest.swift; sourceTree = "<group>"; };
 		1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllocationTracker.swift; sourceTree = "<group>"; };
+		1F1B0F2B2BDBB3AC003FD766 /* NCMediaViewerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCMediaViewerViewController.swift; sourceTree = "<group>"; };
+		1F1B0F2F2BDBC9D6003FD766 /* NCMediaViewerPageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCMediaViewerPageViewController.swift; sourceTree = "<group>"; };
+		1F1B0F312BDC57E3003FD766 /* UIPageViewControllerExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIPageViewControllerExtension.swift; sourceTree = "<group>"; };
+		1F1B0F352BDD8B9C003FD766 /* NCActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCActivityIndicator.swift; sourceTree = "<group>"; };
+		1F1B0F3B2BE047CD003FD766 /* UIViewController+Transitions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+Transitions.swift"; sourceTree = "<group>"; };
+		1F1B0F3C2BE047CD003FD766 /* ModalTransitionAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModalTransitionAnimator.swift; sourceTree = "<group>"; };
+		1F1B0F3D2BE047CD003FD766 /* ModalTransitionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModalTransitionManager.swift; sourceTree = "<group>"; };
+		1F1B0F3E2BE047CD003FD766 /* ModalPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModalPresentationController.swift; sourceTree = "<group>"; };
+		1F1B0F3F2BE047CD003FD766 /* InteractionControlling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionControlling.swift; sourceTree = "<group>"; };
+		1F1B0F402BE047CE003FD766 /* StandardInteractionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardInteractionController.swift; sourceTree = "<group>"; };
+		1F1B0F412BE047CE003FD766 /* CustomPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomPresentable.swift; sourceTree = "<group>"; };
+		1F1B0F492BE047D5003FD766 /* OneWayPanGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OneWayPanGestureRecognizer.swift; sourceTree = "<group>"; };
+		1F1B0F4B2BE18FF3003FD766 /* CustomPresentableNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPresentableNavigationController.swift; sourceTree = "<group>"; };
 		1F1B50332B8E069800B0F2F4 /* BaseChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseChatTableViewCell.swift; sourceTree = "<group>"; };
 		1F1B50372B8E070100B0F2F4 /* BaseChatTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BaseChatTableViewCell.xib; sourceTree = "<group>"; };
 		1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+File.swift"; sourceTree = "<group>"; };
@@ -1177,6 +1203,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1F1B0F3A2BE0476C003FD766 /* Media Viewer */ = {
+			isa = PBXGroup;
+			children = (
+				1F1B0F2B2BDBB3AC003FD766 /* NCMediaViewerViewController.swift */,
+				1F1B0F2F2BDBC9D6003FD766 /* NCMediaViewerPageViewController.swift */,
+				1F1B0F492BE047D5003FD766 /* OneWayPanGestureRecognizer.swift */,
+				1F1B0F412BE047CE003FD766 /* CustomPresentable.swift */,
+				1F1B0F3F2BE047CD003FD766 /* InteractionControlling.swift */,
+				1F1B0F3E2BE047CD003FD766 /* ModalPresentationController.swift */,
+				1F1B0F3C2BE047CD003FD766 /* ModalTransitionAnimator.swift */,
+				1F1B0F3D2BE047CD003FD766 /* ModalTransitionManager.swift */,
+				1F1B0F402BE047CE003FD766 /* StandardInteractionController.swift */,
+				1F1B0F3B2BE047CD003FD766 /* UIViewController+Transitions.swift */,
+				1F1B0F4B2BE18FF3003FD766 /* CustomPresentableNavigationController.swift */,
+			);
+			name = "Media Viewer";
+			sourceTree = "<group>";
+		};
 		1F46CE2528E05ABB00E7D88E /* Reactions */ = {
 			isa = PBXGroup;
 			children = (
@@ -1369,6 +1413,7 @@
 				2C8A2BCA221F096200DE6D2C /* File sharing */,
 				2C5521681F7D481C0077E587 /* Login */,
 				2CB6ACA72638489300D3D641 /* Maps */,
+				1F1B0F3A2BE0476C003FD766 /* Media Viewer */,
 				2C55216B1F7D48970077E587 /* Network */,
 				2C9B0B99217F6E3400A4752C /* Notifications */,
 				2C5521661F7D47A50077E587 /* Rooms */,
@@ -1456,6 +1501,8 @@
 				2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */,
 				1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */,
 				1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */,
+				1F1B0F312BDC57E3003FD766 /* UIPageViewControllerExtension.swift */,
+				1F1B0F352BDD8B9C003FD766 /* NCActivityIndicator.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -2622,9 +2669,11 @@
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */,
+				1F1B0F472BE047CE003FD766 /* StandardInteractionController.swift in Sources */,
 				2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
+				1F1B0F4C2BE18FF3003FD766 /* CustomPresentableNavigationController.swift in Sources */,
 				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
@@ -2648,13 +2697,16 @@
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
 				1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */,
+				1F1B0F2C2BDBB3AC003FD766 /* NCMediaViewerViewController.swift in Sources */,
 				1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */,
 				1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */,
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
+				1F1B0F452BE047CE003FD766 /* ModalPresentationController.swift in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				1F1B0F272BDA61C5003FD766 /* AllocationTracker.swift in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
+				1F1B0F302BDBC9D6003FD766 /* NCMediaViewerPageViewController.swift in Sources */,
 				DA66582B27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift in Sources */,
 				2C69323D2923ECAA00017AD2 /* WSMessage.m in Sources */,
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
@@ -2668,6 +2720,7 @@
 				2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */,
 				2C5BFBFB2891598A00E75118 /* PollResultTableViewCell.swift in Sources */,
 				1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */,
+				1F1B0F322BDC57E3003FD766 /* UIPageViewControllerExtension.swift in Sources */,
 				2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */,
 				2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */,
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
@@ -2676,6 +2729,7 @@
 				2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */,
 				1F1B503E2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift in Sources */,
 				DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */,
+				1F1B0F422BE047CE003FD766 /* UIViewController+Transitions.swift in Sources */,
 				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */,
 				2C1ABD9925769F7500AEDFB6 /* ShareItem.m in Sources */,
@@ -2696,6 +2750,7 @@
 				1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */,
 				2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
+				1F1B0F362BDD8B9C003FD766 /* NCActivityIndicator.swift in Sources */,
 				1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */,
 				1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */,
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
@@ -2714,6 +2769,7 @@
 				1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
+				1F1B0F432BE047CE003FD766 /* ModalTransitionAnimator.swift in Sources */,
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
 				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
@@ -2747,6 +2803,7 @@
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
+				1F1B0F482BE047CE003FD766 /* CustomPresentable.swift in Sources */,
 				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */,
 				1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */,
@@ -2767,6 +2824,7 @@
 				2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
+				1F1B0F4A2BE047D5003FD766 /* OneWayPanGestureRecognizer.swift in Sources */,
 				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
 				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
@@ -2786,6 +2844,7 @@
 				1FADECD82B82269E007AD94B /* FederationInvitationCell.swift in Sources */,
 				1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */,
 				2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */,
+				1F1B0F442BE047CE003FD766 /* ModalTransitionManager.swift in Sources */,
 				2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */,
 				1F66B71F29FA703B003FB168 /* TypingIndicatorView.swift in Sources */,
 				1F35F9042AEEDF0E00044BDA /* AutoCompletionTableViewCell.m in Sources */,
@@ -2806,6 +2865,7 @@
 				1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
+				1F1B0F462BE047CE003FD766 /* InteractionControlling.swift in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
 				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,
 				1FDFC94D2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,

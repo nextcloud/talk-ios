@@ -58,6 +58,7 @@ extern BOOL const customNavigationLogo;
 + (UIColor *)chatForegroundColor;
 + (UIStatusBarStyle)statusBarStyleForBrandColor;
 + (UIStatusBarStyle)statusBarStyleForThemeColor;
++ (void)styleViewController:(UIViewController *)controller;
 
 @end
 

@@ -218,7 +218,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
             [[NextcloudKit shared] downloadWithServerUrlFileName:serverUrlFileName fileNameLocalPath:self->_fileStatus.fileLocalPath customUserAgent:nil addCustomHeaders:nil queue:dispatch_get_main_queue() taskHandler:^(NSURLSessionTask *task) {
                 NSLog(@"Download task");
             } progressHandler:^(NSProgress *progress) {
-                [self didChangeDownloadProgressNotification:progress.fractionCompleted];
+                [self didChangeDownloadProgressNotification:progress];
             } completionHandler:^(NSString *account, NSString *etag, NSDate *date, int64_t length, NSDictionary *allHeaderFields, NKError *error) {
                 if (error.errorCode == 0) {
                     // Set modification date to invalidate our cache
@@ -250,19 +250,18 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_fileStatus forKey:@"fileStatus"];
-    [userInfo setObject:@(isDownloading) forKey:@"isDownloading"];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCChatFileControllerDidChangeIsDownloadingNotification
                                                         object:self
                                                       userInfo:userInfo];
 }
 
-- (void)didChangeDownloadProgressNotification:(double)progress
+- (void)didChangeDownloadProgressNotification:(NSProgress *)progress
 {
-    _fileStatus.downloadProgress = progress;
-    
+    _fileStatus.downloadProgress = progress.fractionCompleted;
+    _fileStatus.canReportProgress = (progress.totalUnitCount != -1);
+
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_fileStatus forKey:@"fileStatus"];
-    [userInfo setObject:@(progress) forKey:@"progress"];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCChatFileControllerDidChangeDownloadProgressNotification
                                                         object:self
                                                       userInfo:userInfo];

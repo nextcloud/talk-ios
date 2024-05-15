@@ -225,4 +225,20 @@ BOOL const useServerThemimg = YES;
     return (luma > 0.6) ? NCTextColorStyleDark : NCTextColorStyleLight;
 }
 
++ (void)styleViewController:(UIViewController *)controller {
+    [controller.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
+    controller.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    controller.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+    controller.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
+
+    UIColor *themeColor = [NCAppBranding themeColor];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = themeColor;
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
+    controller.navigationItem.standardAppearance = appearance;
+    controller.navigationItem.compactAppearance = appearance;
+    controller.navigationItem.scrollEdgeAppearance = appearance;
+}
+
 @end
