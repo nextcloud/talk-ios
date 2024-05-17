@@ -61,7 +61,7 @@ import UIKit
         errorImage.image = UIImage(systemName: "photo")?.withConfiguration(iconConfiguration)
         errorImage.contentMode = .scaleAspectFit
         errorImage.translatesAutoresizingMaskIntoConstraints = false
-        errorImage.tintColor = .label
+        errorImage.tintColor = .secondaryLabel
 
         let errorText = UILabel()
         errorText.translatesAutoresizingMaskIntoConstraints = false
@@ -162,7 +162,7 @@ import UIKit
         } else {
             self.imageView.image = nil
             self.showErrorView()
-            
+
             print("Error in fileControllerDidLoadFile getting UIImage")
         }
     }
