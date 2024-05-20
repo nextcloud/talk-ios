@@ -292,8 +292,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     @objc func appStateHasChanged(notification: NSNotification) {
         let appState = notification.userInfo?["appState"]
-        if let rawAppState = appState as? UInt32 {
-            let appState = AppState(rawValue: rawAppState)
+        if let rawAppState = appState as? Int, let appState = AppState(rawValue: rawAppState) {
             self.adaptInterfaceForAppState(appState: appState)
         }
     }
@@ -320,7 +319,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     func adaptInterfaceForAppState(appState: AppState) {
         switch appState {
-        case kAppStateReady:
+        case .ready:
             refreshUserProfile()
         default:
             break
@@ -931,7 +930,7 @@ extension SettingsTableViewController {
         cell.accessoryView = nil
         if account.unreadBadgeNumber > 0 {
             let badgeView = RoundedNumberView()
-            badgeView.highlightType = kHighlightTypeImportant
+            badgeView.highlightType = .important
             badgeView.number = account.unreadBadgeNumber
             cell.accessoryView = badgeView
         }

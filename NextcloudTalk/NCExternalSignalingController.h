@@ -33,11 +33,11 @@ extern NSString * const NCExternalSignalingControllerDidReceiveLeaveOfParticipan
 extern NSString * const NCExternalSignalingControllerDidReceiveStartedTypingNotification;
 extern NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotification;
 
-typedef enum NCExternalSignalingSendMessageStatus {
+typedef NS_ENUM(NSInteger, NCExternalSignalingSendMessageStatus) {
     SendMessageSuccess = 0,
     SendMessageSocketError,
     SendMessageApplicationError
-} NCExternalSignalingSendMessageStatus;
+};
 
 @protocol NCExternalSignalingControllerDelegate <NSObject>
 

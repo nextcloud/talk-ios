@@ -65,16 +65,16 @@ import SDWebImage
             completionBlock(UIImage(named: "password-avatar", in: nil, compatibleWith: traitCollection))
         } else {
             switch room.type {
-            case kNCRoomTypeOneToOne:
+            case .oneToOne:
                 let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId)
                 return self.getUserAvatar(forId: room.name, withStyle: style, usingAccount: account, completionBlock: completionBlock)
-            case kNCRoomTypeFormerOneToOne:
+            case .formerOneToOne:
                 completionBlock(UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection))
-            case kNCRoomTypePublic:
+            case .public:
                 completionBlock(UIImage(named: "public-avatar", in: nil, compatibleWith: traitCollection))
-            case kNCRoomTypeGroup:
+            case .group:
                 completionBlock(UIImage(named: "group-avatar", in: nil, compatibleWith: traitCollection))
-            case kNCRoomTypeChangelog:
+            case .changelog:
                 completionBlock(UIImage(named: "changelog-avatar", in: nil, compatibleWith: traitCollection))
             default:
                 completionBlock(nil)

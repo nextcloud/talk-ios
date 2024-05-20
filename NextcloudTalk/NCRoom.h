@@ -26,43 +26,43 @@
 #import "NCRoomParticipant.h"
 #import "NCChatMessage.h"
 
-typedef enum NCRoomType {
+typedef NS_ENUM(NSInteger, NCRoomType) {
     kNCRoomTypeOneToOne = 1,
     kNCRoomTypeGroup,
     kNCRoomTypePublic,
     kNCRoomTypeChangelog,
     kNCRoomTypeFormerOneToOne,
     kNCRoomTypeNoteToSelf
-} NCRoomType;
+};
 
-typedef enum NCRoomNotificationLevel {
+typedef NS_ENUM(NSInteger, NCRoomNotificationLevel) {
     kNCRoomNotificationLevelDefault = 0,
     kNCRoomNotificationLevelAlways,
     kNCRoomNotificationLevelMention,
     kNCRoomNotificationLevelNever
-} NCRoomNotificationLevel;
+};
 
-typedef enum NCRoomReadOnlyState {
+typedef NS_ENUM(NSInteger, NCRoomReadOnlyState) {
     NCRoomReadOnlyStateReadWrite = 0,
     NCRoomReadOnlyStateReadOnly
-} NCRoomReadOnlyState;
+};
 
-typedef enum NCRoomListableScope {
+typedef NS_ENUM(NSInteger, NCRoomListableScope) {
     NCRoomListableScopeParticipantsOnly = 0,
     NCRoomListableScopeRegularUsersOnly,
     NCRoomListableScopeEveryone
-} NCRoomListableScope;
+};
 
-typedef enum NCRoomLobbyState {
+typedef NS_ENUM(NSInteger, NCRoomLobbyState) {
     NCRoomLobbyStateAllParticipants = 0,
     NCRoomLobbyStateModeratorsOnly
-} NCRoomLobbyState;
+};
 
-typedef enum NCRoomSIPState {
+typedef NS_ENUM(NSInteger, NCRoomSIPState) {
     NCRoomSIPStateDisabled = 0,
     NCRoomSIPStateEnabled,
     NCRoomSIPStateEnabledWithoutPIN
-} NCRoomSIPState;
+};
 
 typedef NS_OPTIONS(NSInteger, NCPermission) {
     NCPermissionDefaultPermissions = 0,
@@ -76,23 +76,23 @@ typedef NS_OPTIONS(NSInteger, NCPermission) {
     NCPermissionChat = 128,
 };
 
-typedef enum NCMessageExpiration {
+typedef NS_ENUM(NSInteger, NCMessageExpiration) {
     NCMessageExpirationOff = 0,
     NCMessageExpiration1Hour = 3600,
     NCMessageExpiration8Hours = 28800,
     NCMessageExpiration1Day = 86400,
     NCMessageExpiration1Week = 604800,
     NCMessageExpiration4Weeks = 2419200,
-} NCMessageExpiration;
+};
 
-typedef enum NCCallRecordingState {
+typedef NS_ENUM(NSInteger, NCCallRecordingState) {
     NCCallRecordingStateStopped = 0,
     NCCallRecordingStateVideoRunning = 1,
     NCCallRecordingStateAudioRunning = 2,
     NCCallRecordingStateVideoStarting = 3,
     NCCallRecordingStateAudioStarting = 4,
     NCCallRecordingStateFailed = 5
-} NCCallRecordingState;
+};
 
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;

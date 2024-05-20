@@ -92,14 +92,14 @@ import UIKit
         guard let poll = poll else {return}
         // Set poll settings
         let activeAccountUserId = NCDatabaseManager.sharedInstance().activeAccount().userId
-        self.isPollOpen = poll.status == NCPollStatusOpen
+        self.isPollOpen = poll.status == .open
         self.isOwnPoll = poll.actorId == activeAccountUserId && poll.actorType == "users"
         self.canModeratePoll = self.isOwnPoll || room?.isUserOwnerOrModerator() ?? false
         self.userVoted = !poll.votedSelf.isEmpty
         self.userVotedOptions = poll.votedSelf as? [Int] ?? []
         self.userSelectedOptions = self.userVotedOptions
         self.showPollResults = (userVoted && !editingVote) || !isPollOpen
-        self.showIntermediateResults = showPollResults && isPollOpen && poll.resultMode == NCPollResultModeHidden
+        self.showIntermediateResults = showPollResults && isPollOpen && poll.resultMode == .hidden
         // Set footer buttons
         self.tableView.tableFooterView = pollFooterView()
         // Set vote button state

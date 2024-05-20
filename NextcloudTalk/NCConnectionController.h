@@ -25,7 +25,7 @@
 extern NSString * const NCAppStateHasChangedNotification;
 extern NSString * const NCConnectionStateHasChangedNotification;
 
-typedef enum AppState {
+typedef NS_ENUM(NSInteger, AppState) {
     kAppStateUnknown = 0,
     kAppStateNotServerProvided,
     kAppStateAuthenticationNeeded,
@@ -33,13 +33,13 @@ typedef enum AppState {
     kAppStateMissingServerCapabilities,
     kAppStateMissingSignalingConfiguration,
     kAppStateReady
-} AppState;
+};
 
-typedef enum ConnectionState {
+typedef NS_ENUM(NSInteger, ConnectionState) {
     kConnectionStateUnknown = 0,
     kConnectionStateDisconnected,
     kConnectionStateConnected
-} ConnectionState;
+};
 
 @interface NCConnectionController : NSObject
 

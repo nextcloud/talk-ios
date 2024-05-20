@@ -752,8 +752,8 @@ import QuickLook
             items.append(shareLocationAction)
         }
 
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room), 
-            self.room.type != kNCRoomTypeOneToOne, self.room.type != kNCRoomTypeNoteToSelf {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room),
+            self.room.type != .oneToOne, self.room.type != .noteToSelf {
 
             items.append(pollAction)
         }
@@ -2361,7 +2361,7 @@ import QuickLook
         }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        self.setTemporaryReaction(reaction: reaction, withState: NCChatReactionStateAdding, toMessage: message)
+        self.setTemporaryReaction(reaction: reaction, withState: .adding, toMessage: message)
 
         NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
@@ -2373,7 +2373,7 @@ import QuickLook
 
     func removeReaction(reaction: String, from message: NCChatMessage) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        self.setTemporaryReaction(reaction: reaction, withState: NCChatReactionStateRemoving, toMessage: message)
+        self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
         NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
@@ -2413,9 +2413,9 @@ import QuickLook
 
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: message.messageId) else { return }
 
-            if state == NCChatReactionStateAdding {
+            if state == .adding {
                 message.addTemporaryReaction(reaction)
-            } else if state == NCChatReactionStateRemoving {
+            } else if state == .removing {
                 message.removeReactionTemporarily(reaction)
             }
 

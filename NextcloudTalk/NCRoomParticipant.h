@@ -22,14 +22,14 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum NCParticipantType {
+typedef NS_ENUM(NSInteger, NCParticipantType) {
     kNCParticipantTypeOwner = 1,
     kNCParticipantTypeModerator,
     kNCParticipantTypeUser,
     kNCParticipantTypeGuest,
     kNCParticipantTypeUserSelfJoined,
     kNCParticipantTypeGuestModerator
-} NCParticipantType;
+};
 
 extern NSString * const NCAttendeeTypeUser;
 extern NSString * const NCAttendeeTypeGroup;

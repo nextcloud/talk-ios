@@ -22,13 +22,13 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum NCNotificationType {
+typedef NS_ENUM(NSInteger, NCNotificationType) {
     kNCNotificationTypeRoom = 0,
     kNCNotificationTypeChat,
     kNCNotificationTypeCall,
     kNCNotificationTypeRecording,
     kNCNotificationTypeFederation
-} NCNotificationType;
+};
 
 @interface NCNotification : NSObject
 

@@ -172,7 +172,7 @@ import UIKit
         super.viewDidLoad()
 
         if NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)?.callEnabled ?? false &&
-            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf,
+            room.type != .changelog && room.type != .noteToSelf,
             !room.isFederated() {
 
             self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
@@ -273,12 +273,12 @@ import UIKit
     }
 
     func connectionStateHasChanged(notification: Notification) {
-        guard let connectionState = notification.userInfo?["connectionState"] as? UInt32 else {
+        guard let rawConnectionState = notification.userInfo?["connectionState"] as? Int, let connectionState = ConnectionState(rawValue: rawConnectionState) else {
             return
         }
 
         switch connectionState {
-        case kConnectionStateConnected.rawValue:
+        case .connected:
             if offlineMode {
                 offlineMode = false
                 startReceivingMessagesAfterJoin = true
@@ -329,7 +329,7 @@ import UIKit
             self.voiceCallButton.isEnabled = false
         }
 
-        if room.readOnlyState == NCRoomReadOnlyStateReadOnly || self.shouldPresentLobbyView() {
+        if room.readOnlyState == .readOnly || self.shouldPresentLobbyView() {
             // Hide text input
             self.setTextInputbarHidden(true, animated: self.isVisible)
 
@@ -1263,7 +1263,7 @@ import UIKit
             return false
         }
 
-        return self.room.lobbyState == NCRoomLobbyStateModeratorsOnly && self.room.canModerate()
+        return self.room.lobbyState == .moderatorsOnly && self.room.canModerate()
     }
 
     // MARK: - Chat functions
@@ -1352,7 +1352,7 @@ import UIKit
     func isMessageReactable(message: NCChatMessage) -> Bool {
         var isReactable = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityReactions, for: room)
         isReactable = isReactable && !self.offlineMode
-        isReactable = isReactable && self.room.readOnlyState != NCRoomReadOnlyStateReadOnly
+        isReactable = isReactable && self.room.readOnlyState != .readOnly
         isReactable = isReactable && !message.isDeletedMessage() && !message.isCommandMessage() && !message.sendingFailed && !message.isTemporary
 
         return isReactable
@@ -1598,7 +1598,7 @@ import UIKit
         }
 
         // Reply-privately option (only to other users and not in one-to-one)
-        if self.isMessageReplyable(message: message), self.room.type != kNCRoomTypeOneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
+        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
             actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
                 self.didPressReplyPrivately(for: message)
             })
@@ -1612,7 +1612,7 @@ import UIKit
         }
 
         // Note to self
-        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage(), room.type != kNCRoomTypeNoteToSelf,
+        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage(), room.type != .noteToSelf,
            NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNoteToSelf, for: room) {
             actions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
                 self.didPressNoteToSelf(for: message)

@@ -223,16 +223,16 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         self.statusView.subviews.forEach { $0.removeFromSuperview() }
 
         if message.isDeleting {
-            self.setDeliveryState(to: ChatMessageDeliveryStateDeleting)
+            self.setDeliveryState(to: .deleting)
         } else if message.sendingFailed {
-            self.setDeliveryState(to: ChatMessageDeliveryStateFailed)
+            self.setDeliveryState(to: .failed)
         } else if message.isTemporary {
-            self.setDeliveryState(to: ChatMessageDeliveryStateSending)
+            self.setDeliveryState(to: .sending)
         } else if message.isMessage(fromUser: activeAccount.userId), shouldShowDeliveryStatus {
             if lastCommonRead >= message.messageId, shouldShowReadStatus {
-                self.setDeliveryState(to: ChatMessageDeliveryStateRead)
+                self.setDeliveryState(to: .read)
             } else {
-                self.setDeliveryState(to: ChatMessageDeliveryStateSent)
+                self.setDeliveryState(to: .sent)
             }
         }
 
@@ -316,7 +316,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     func setDeliveryState(to deliveryState: ChatMessageDeliveryState) {
         self.statusView.subviews.forEach { $0.removeFromSuperview() }
 
-        if deliveryState == ChatMessageDeliveryStateSending || deliveryState == ChatMessageDeliveryStateDeleting {
+        if deliveryState == .sending || deliveryState == .deleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
             activityIndicator.radius = 7.0
@@ -326,7 +326,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
             self.statusView.addArrangedSubview(activityIndicator)
 
-        } else if deliveryState == ChatMessageDeliveryStateFailed {
+        } else if deliveryState == .failed {
             let errorView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
             let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.red).withRenderingMode(.alwaysOriginal)
 
@@ -336,10 +336,10 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
             self.statusView.addArrangedSubview(errorView)
 
-        } else if deliveryState == ChatMessageDeliveryStateSent || deliveryState == ChatMessageDeliveryStateRead {
+        } else if deliveryState == .sent || deliveryState == .read {
             var checkImageName = "check"
 
-            if deliveryState == ChatMessageDeliveryStateRead {
+            if deliveryState == .read {
                 checkImageName = "check-all"
             }
 

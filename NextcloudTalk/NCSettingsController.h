@@ -52,10 +52,10 @@ typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
 typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
 typedef void (^SubscribeForPushNotificationsCompletionBlock)(BOOL success);
 
-typedef enum NCPreferredFileSorting {
+typedef NS_ENUM(NSInteger, NCPreferredFileSorting) {
     NCAlphabeticalSorting = 1,
     NCModificationDateSorting
-} NCPreferredFileSorting;
+};
 
 @class NCExternalSignalingController;
 
