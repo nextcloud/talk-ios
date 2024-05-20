@@ -237,122 +237,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return messageCopy;
 }
 
-- (BOOL)isSystemMessage
-{
-    if (self.systemMessage && ![self.systemMessage isEqualToString:@""]) {
-        return YES;
-    }
-    return NO;
-}
-
-- (BOOL)isEmojiMessage
-{
-    if (self.message && self.message.containsOnlyEmoji && self.message.emojiCount <= 3) {
-        return YES;
-    }
-    
-    return NO;
-}
-
-- (BOOL)isUpdateMessage
-{
-    return  [self.systemMessage isEqualToString:@"message_deleted"] ||
-            [self.systemMessage isEqualToString:@"reaction"] ||
-            [self.systemMessage isEqualToString:@"reaction_revoked"] ||
-            [self.systemMessage isEqualToString:@"reaction_deleted"] ||
-            [self.systemMessage isEqualToString:@"poll_voted"] ||
-            [self.systemMessage isEqualToString:@"message_edited"];
-}
-
-- (BOOL)isDeletedMessage
-{
-    return [_messageType isEqualToString:kMessageTypeCommentDeleted];
-}
-
-- (BOOL)isVoiceMessage
-{
-    return [_messageType isEqualToString:kMessageTypeVoiceMessage];
-}
-
-- (BOOL)isCommandMessage
-{
-    return [_messageType isEqualToString:kMessageTypeCommand];
-}
-
-- (BOOL)isMessageFromUser:(NSString *)userId
-{
-    return [self.actorId isEqualToString:userId] && [self.actorType isEqualToString:@"users"];
-}
-
-- (BOOL)isDeletableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room
-{
-    NSInteger sixHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (6 * 3600);
-    
-    BOOL serverCanDeleteMessage =
-    // Delete normal messages
-    ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessages forAccountId:account.accountId] && [self.messageType isEqualToString:kMessageTypeComment] && !self.file && ![self isObjectShare]) ||
-    // Delete files or shared objects
-    ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectDelete forAccountId:account.accountId] && (self.file || [self isVoiceMessage] ||[self isObjectShare]));
-    
-    BOOL userCanDeleteMessage = [self isMessageFromUser:account.userId]
-    || (room.type != kNCRoomTypeOneToOne
-        && room.type != kNCRoomTypeFormerOneToOne
-        && (room.participantType == kNCParticipantTypeOwner
-            || room.participantType == kNCParticipantTypeModerator));
-
-    BOOL noTimeLimitForMessageDeletion = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDeleteMessagesUnlimited forAccountId:account.accountId];
-    BOOL deletionAllowedByTime = (self.timestamp >= sixHoursAgoTimestamp || noTimeLimitForMessageDeletion);
-
-    return serverCanDeleteMessage && userCanDeleteMessage && deletionAllowedByTime && !self.isDeleting;
-}
-
-- (BOOL)isEditableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room
-{
-    NSInteger twentyFourHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (24 * 3600);
-
-    BOOL serverCanEditMessage = [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityEditMessages forAccountId:account.accountId];
-    serverCanEditMessage = serverCanEditMessage && [self.messageType isEqualToString:kMessageTypeComment] && ![self isObjectShare];
-
-    BOOL userCanEditMessage = [self isMessageFromUser:account.userId]
-    || (room.type != kNCRoomTypeOneToOne
-        && room.type != kNCRoomTypeFormerOneToOne
-        && (room.participantType == kNCParticipantTypeOwner
-            || room.participantType == kNCParticipantTypeModerator));
-
-    return serverCanEditMessage && userCanEditMessage && !self.isDeleting && self.timestamp >= twentyFourHoursAgoTimestamp;
-}
-
-- (BOOL)isObjectShare
-{
-    if ([self.message isEqualToString:@"{object}"] && [self.messageParameters objectForKey:@"object"]) {
-        return YES;
-    }
-    return NO;
-}
-
-- (NSDictionary *)richObjectFromObjectShare
-{
-    NSDictionary *richObjectDict = @{};
-    if ([self isObjectShare]) {
-        NSDictionary *objectDict = [self.messageParameters objectForKey:@"object"];
-        NSError *error;
-        NSString *jsonString = @"";
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:objectDict
-                                                           options:0
-                                                             error:&error];
-        if (!jsonData) {
-            NSLog(@"Got an error: %@", error);
-        } else {
-            jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        }
-        NCMessageParameter *parameter = [[NCMessageParameter alloc] initWithDictionary:objectDict];
-        richObjectDict = @{@"objectType": parameter.type,
-                           @"objectId": parameter.parameterId,
-                           @"metaData": jsonString};
-    }
-    return richObjectDict;
-}
-
 - (NCMessageParameter *)file
 {
     if (!_fileParameter) {
@@ -406,28 +290,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return _deckCardParameter;
 }
 
-- (NCMessageParameter *)poll
-{
-    if ([self isObjectShare]) {
-        NCMessageParameter *objectParameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:@"object"]];
-        if ([objectParameter.type isEqualToString:@"talk-poll"]) {
-            return objectParameter;
-        }
-    }
-    
-    return nil;
-}
-
-- (NCMessageParameter *)objectShareParameter
-{
-    if ([self isObjectShare]) {
-        NCMessageParameter *objectParameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:@"object"]];
-        return objectParameter;
-    }
-    
-    return nil;
-}
-
 - (NSString *)objectShareLink;
 {
     if (!_objectShareLink && [self isObjectShare]) {
@@ -435,24 +297,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 
     return _objectShareLink;
-}
-
-- (NSDictionary *)messageParameters
-{
-    NSDictionary *messageParametersDict = @{};
-    NSData *data = [self.messageParametersJSONString dataUsingEncoding:NSUTF8StringEncoding];
-    if (data) {
-        NSError* error;
-        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
-                                                                 options:0
-                                                                   error:&error];
-        if (jsonData) {
-            messageParametersDict = jsonData;
-        } else {
-            NSLog(@"Error retrieving message parameters JSON data: %@", error);
-        }
-    }
-    return messageParametersDict;
 }
 
 - (NSMutableAttributedString *)parsedMessage
@@ -585,99 +429,12 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
 }
 
-- (NSMutableAttributedString *)systemMessageFormat
-{
-    NSMutableAttributedString *message = [self parsedMessage];
-
-    [message addAttribute:NSForegroundColorAttributeName value:[UIColor tertiaryLabelColor] range:NSMakeRange(0,message.length)];
-    
-    return message;
-}
-
-- (NSString *)sendingMessage
-{
-    NSString *resultMessage = [[self.message copy] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-
-    for (NSString *parameterKey in self.messageParameters.allKeys) {
-        NCMessageParameter *parameter = [[NCMessageParameter alloc] initWithDictionary:[self.messageParameters objectForKey:parameterKey]];
-        NSString *parameterKeyString = [[NSString alloc] initWithFormat:@"{%@}", parameterKey];
-        resultMessage = [resultMessage stringByReplacingOccurrencesOfString:parameterKeyString withString:parameter.mentionId];
-    }
-    
-    return resultMessage;
-}
-
-- (NCChatMessage *)parent
-{
-    if ([self isDeletedMessage]) {
-        // Ignore parents of deleted messages
-        return nil;
-    }
-
-    if (self.parentId) {
-        NCChatMessage *unmanagedChatMessage = nil;
-        NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.parentId].firstObject;
-        if (managedChatMessage) {
-            unmanagedChatMessage = [[NCChatMessage alloc] initWithValue:managedChatMessage];
-        }
-        return unmanagedChatMessage;
-    }
-    
-    return nil;
-}
-
-- (NSInteger)parentMessageId
-{
-    NSInteger messageId = self.parent ? self.parent.messageId : -1;
-    return messageId;
-}
-
 - (NSMutableArray *)temporaryReactions
 {
     if (!_temporaryReactions) {
         _temporaryReactions = [NSMutableArray new];
     }
     return _temporaryReactions;
-}
-
-- (BOOL)isReactionBeingModified:(NSString *)reaction
-{
-    for (NCChatReaction *temporaryReaction in [self temporaryReactions]) {
-        if ([temporaryReaction.reaction isEqualToString:reaction]) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
-- (void)removeReactionFromTemporayReactions:(NSString *)reaction
-{
-    NCChatReaction *removeReaction = nil;
-    for (NCChatReaction *temporaryReaction in [self temporaryReactions]) {
-        if ([temporaryReaction.reaction isEqualToString:reaction]) {
-            removeReaction = temporaryReaction;
-            break;
-        }
-    }
-    if (removeReaction) {
-        [[self temporaryReactions] removeObject:removeReaction];
-    }
-}
-
-- (void)addTemporaryReaction:(NSString *)reaction
-{
-    NCChatReaction *temporaryReaction = [[NCChatReaction alloc] init];
-    temporaryReaction.reaction = reaction;
-    temporaryReaction.state = NCChatReactionStateAdding;
-    [[self temporaryReactions] addObject:temporaryReaction];
-}
-
-- (void)removeReactionTemporarily:(NSString *)reaction
-{
-    NCChatReaction *temporaryReaction = [[NCChatReaction alloc] init];
-    temporaryReaction.reaction = reaction;
-    temporaryReaction.state = NCChatReactionStateRemoving;
-    [[self temporaryReactions] addObject:temporaryReaction];
 }
 
 - (void)mergeTemporaryReactionsWithReactions:(NSMutableArray *)reactions
@@ -793,17 +550,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return reactionsArray;
 }
 
-- (BOOL)isReferenceApiSupported
-{
-    // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities) {
-        return serverCapabilities.referenceApiSupported;
-    }
-    return NO;
-}
-
 - (NSString *)getDeckCardUrlForReferenceProvider
 {
     // Check if the message is a shared deck card and a reference provider can be used to retrieve details
@@ -878,21 +624,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 }
 
-- (BOOL)isSameMessage:(NCChatMessage *)message
-{
-    if (self.isTemporary) {
-        if ([self.referenceId isEqualToString:message.referenceId]) {
-            return YES;
-        }
-    } else {
-        if (self.messageId == message.messageId) {
-            return YES;
-        }
-    }
-
-    return NO;
-}
-
 - (void)setPreviewImageHeight:(CGFloat)height
 {
     // Since the messageParameters property is a non-mutable dictionary, we create a mutable copy
@@ -934,39 +665,6 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             [realm transactionWithBlock:^{
                 update();
             }];
-        }
-    }
-}
-
-- (NSDictionary *)collapsedMessageParameters
-{
-    NSDictionary *messageParametersDict = @{};
-    NSData *data = [self.collapsedMessageParametersJSONString dataUsingEncoding:NSUTF8StringEncoding];
-    if (data) {
-        NSError* error;
-        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
-                                                                 options:0
-                                                                   error:&error];
-        if (jsonData) {
-            messageParametersDict = jsonData;
-        } else {
-            NSLog(@"Error retrieving collapsed message parameters JSON data: %@", error);
-        }
-    }
-    return messageParametersDict;
-}
-
-- (void)setCollapsedMessageParameters:(NSDictionary *)messageParameters
-{
-    if ([messageParameters isKindOfClass:[NSDictionary class]]) {
-        NSError *error;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messageParameters
-                                                           options:0
-                                                             error:&error];
-        if (jsonData) {
-            self.collapsedMessageParametersJSONString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        } else {
-            NSLog(@"Error generating collapsed message parameters JSON string: %@", error);
         }
     }
 }

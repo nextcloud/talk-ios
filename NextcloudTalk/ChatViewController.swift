@@ -759,7 +759,7 @@ import UIKit
             if let messages = notification.userInfo?["messages"] as? [NCChatMessage], !messages.isEmpty {
 
                 var indexPathUnreadMessageSeparator: IndexPath?
-                let lastMessage = messages.reversed().first(where: { !$0.isUpdateMessage() })
+                let lastMessage = messages.reversed().first(where: { !$0.isUpdateMessage })
 
                 self.appendMessages(messages: messages)
 
@@ -941,7 +941,7 @@ import UIKit
                         insertIndexPaths.insert(indexPath)
                     }
 
-                    if newMessage.isUpdateMessage(), let parentMessage = newMessage.parent(), let parentPath = self.indexPath(for: parentMessage) {
+                    if newMessage.isUpdateMessage, let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
                         if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
                             // We received an update message to a message which is already part of our current data, therefore we need to reload it
                             reloadIndexPaths.insert(parentPath)
@@ -1092,7 +1092,7 @@ import UIKit
         }
 
         guard let message = notification.userInfo?["updateMessage"] as? NCChatMessage,
-              let updateMessage = message.parent()
+              let updateMessage = message.parent
         else { return }
 
         self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
@@ -1319,7 +1319,7 @@ import UIKit
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
 
-            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage(), for: activeAccount) { messageDict, error, _ in
+            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: activeAccount) { messageDict, error, _ in
                 if error != nil {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred while editing a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                     return
@@ -1353,7 +1353,7 @@ import UIKit
         var isReactable = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityReactions, for: room)
         isReactable = isReactable && !self.offlineMode
         isReactable = isReactable && self.room.readOnlyState != .readOnly
-        isReactable = isReactable && !message.isDeletedMessage() && !message.isCommandMessage() && !message.sendingFailed && !message.isTemporary
+        isReactable = isReactable && !message.isDeletedMessage && !message.isCommandMessage && !message.sendingFailed && !message.isTemporary
 
         return isReactable
     }
@@ -1565,7 +1565,7 @@ import UIKit
 
         guard let message = self.message(for: indexPath) else { return nil }
 
-        if message.isSystemMessage() || message.isDeletedMessage() || message.messageId == kUnreadMessagesSeparatorIdentifier {
+        if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
             return nil
         }
 
@@ -1605,14 +1605,14 @@ import UIKit
         }
 
         // Forward option (only normal messages for now)
-        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage() {
+        if message.file() == nil, message.poll == nil, !message.isDeletedMessage {
             actions.append(UIAction(title: NSLocalizedString("Forward", comment: ""), image: .init(systemName: "arrowshape.turn.up.right")) { _ in
                 self.didPressForward(for: message)
             })
         }
 
         // Note to self
-        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage(), room.type != .noteToSelf,
+        if message.file() == nil, message.poll == nil, !message.isDeletedMessage, room.type != .noteToSelf,
            NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNoteToSelf, for: room) {
             actions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
                 self.didPressNoteToSelf(for: message)

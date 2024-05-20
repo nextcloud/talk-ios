@@ -181,7 +181,7 @@
         [self.statusView addSubview:errorView];
     }
     
-    self.objectParameter = message.objectShareParameter;
+    self.objectParameter = message.objectParameter;
     self.objectTitle.text = self.objectParameter.name;
     
     if (message.poll) {

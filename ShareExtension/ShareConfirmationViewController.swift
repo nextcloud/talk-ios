@@ -542,7 +542,7 @@ import AVFoundation
     }
 
     func sendObjectShare() {
-        NCAPIController.sharedInstance().shareRichObject(self.objectShareMessage?.richObjectFromObjectShare(), inRoom: self.room.token, for: self.account) { error in
+        NCAPIController.sharedInstance().shareRichObject(self.objectShareMessage?.richObjectFromObjectShare, inRoom: self.room.token, for: self.account) { error in
             if let error {
                 NCUtils.log(String(format: "Failed to share rich object. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFailed(self)
@@ -598,7 +598,7 @@ import AVFoundation
                 message.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParameters)
                 message.messageParametersJSONString = messageParameters
 
-                shareItem.caption = message.sendingMessage()
+                shareItem.caption = message.sendingMessage
             }
         }
 

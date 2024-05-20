@@ -1,6 +1,7 @@
 //
 // Copyright (c) 2024 Marcel Müller <marcel-mueller@gmx.de>
 //
+// Author Ivan Sein <ivan@nextcloud.com>
 // Author Marcel Müller <marcel-mueller@gmx.de>
 //
 // GNU GPL version 3 or any later version
@@ -187,7 +188,7 @@ import Realm
         }
 
         // No actor name cases
-        if lastMessage.isSystemMessage() || (self.type == .oneToOne && !ownMessage) {
+        if lastMessage.isSystemMessage || (self.type == .oneToOne && !ownMessage) {
             actorName = ""
         }
 
