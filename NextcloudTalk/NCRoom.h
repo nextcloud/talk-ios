@@ -101,24 +101,19 @@ extern NSString * const NCRoomObjectTypeRoom;
 @interface NCRoom : RLMObject
 
 @property (nonatomic, copy) NSString *internalId; // accountId@token
-@property (nonatomic, assign) NSInteger roomId;
 @property (nonatomic, copy) NSString *accountId;
 @property (nonatomic, copy) NSString *token;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *displayName;
 @property (nonatomic, copy) NSString *roomDescription;
 @property (nonatomic, assign) NCRoomType type;
-@property (nonatomic, assign) NSInteger count;
 @property (nonatomic, assign) BOOL hasPassword;
 @property (nonatomic, assign) NCParticipantType participantType;
 @property (nonatomic, assign) NSInteger attendeeId;
 @property (nonatomic, copy) NSString *attendeePin;
-@property (nonatomic, assign) NSInteger lastPing;
-@property (nonatomic, assign) NSInteger numGuests;
 @property (nonatomic, assign) NSInteger unreadMessages;
 @property (nonatomic, assign) BOOL unreadMention;
 @property (nonatomic, assign) BOOL unreadMentionDirect;
-@property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
 @property (nonatomic, copy, nullable) NSString *lastMessageId;
