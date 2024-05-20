@@ -136,7 +136,8 @@ import Foundation
     public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ invitations: [MentionSuggestion]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
-              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
         else {
             completionBlock(nil)
             return
@@ -144,7 +145,6 @@ import Foundation
 
         let apiVersion = self.chatAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/mentions", withAPIVersion: apiVersion, for: account)
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
 
         let parameters: [String: Any] = [
             "limit": 20,

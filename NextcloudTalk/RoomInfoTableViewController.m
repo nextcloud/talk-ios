@@ -687,7 +687,7 @@ typedef enum FileAction {
 
 - (UIAlertAction *)actionForNotificationLevel:(NCRoomNotificationLevel)level
 {
-    UIAlertAction *action = [UIAlertAction actionWithTitle:[_room stringForNotificationLevel:level]
+    UIAlertAction *action = [UIAlertAction actionWithTitle:[NCRoom stringForNotificationLevel:level]
                                                      style:UIAlertActionStyleDefault
                                                    handler:^void (UIAlertAction *action) {
                                                        [self setNotificationLevel:level];
@@ -721,7 +721,7 @@ typedef enum FileAction {
 
 - (UIAlertAction *)actionForMessageExpiration:(NCMessageExpiration)messageExpiration
 {
-    UIAlertAction *action = [UIAlertAction actionWithTitle:[_room stringForMessageExpiration:messageExpiration]
+    UIAlertAction *action = [UIAlertAction actionWithTitle:[NCRoom stringForMessageExpiration:messageExpiration]
                                                      style:UIAlertActionStyleDefault
                                                    handler:^void (UIAlertAction *action) {
                                                        [self setMessageExpiration:messageExpiration];

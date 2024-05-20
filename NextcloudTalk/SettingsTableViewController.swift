@@ -82,7 +82,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     var inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
     var serverCapabilities: ServerCapabilities {
         // Since NCDatabaseManager already caches the capabilities, we don't need a lazy var here
-        NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+        NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)!
     }
 
     lazy var profilePictures: [String: UIImage] = {

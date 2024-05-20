@@ -121,7 +121,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
-@property (nonatomic, copy) NSString *lastMessageId;
+@property (nonatomic, copy, nullable) NSString *lastMessageId;
 @property (nonatomic, copy) NSString *lastMessageProxiedJSONString;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
@@ -163,24 +163,5 @@ extern NSString * const NCRoomObjectTypeRoom;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
 + (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
-
-- (BOOL)isPublic;
-- (BOOL)isFederated;
-- (BOOL)isBreakoutRoom;
-- (BOOL)isUserOwnerOrModerator;
-- (BOOL)canModerate;
-- (BOOL)isNameEditable;
-- (BOOL)isLeavable;
-- (BOOL)userCanStartCall;
-- (BOOL)hasUnreadMention;
-- (BOOL)callRecordingIsInActiveState;
-- (NSString *)deletionMessage;
-- (NSString *)notificationLevelString;
-- (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
-- (NSString *)messageExpirationString;
-- (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration;
-- (NSString * _Nullable)lastMessageString;
-- (NCChatMessage *)lastMessage;
-- (NSString *)linkURL;
 
 @end

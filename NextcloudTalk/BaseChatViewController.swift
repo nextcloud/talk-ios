@@ -1306,7 +1306,7 @@ import QuickLook
     internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: activeAccount, serverCapabilities: serverCapabilities)!
+        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: activeAccount, serverCapabilities: serverCapabilities!)!
         shareConfirmationVC.delegate = self
         shareConfirmationVC.isModal = true
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)

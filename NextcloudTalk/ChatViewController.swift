@@ -173,13 +173,13 @@ import UIKit
 
         if NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)?.callEnabled ?? false &&
             room.type != .changelog && room.type != .noteToSelf,
-            !room.isFederated() {
+            !room.isFederated {
 
             self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
         }
 
         // No sharing options in federation v1
-        if room.isFederated() {
+        if room.isFederated {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
             self.leftButton.setImage(nil, for: .normal)
@@ -323,7 +323,7 @@ import UIKit
         self.rightButton.isEnabled = self.canPressRightButton()
         self.textInputbar.isUserInteractionEnabled = true
 
-        if !room.userCanStartCall(), !room.hasCall {
+        if !room.userCanStartCall, !room.hasCall {
             // Disable call buttons
             self.videoCallButton.isEnabled = false
             self.voiceCallButton.isEnabled = false
@@ -526,7 +526,7 @@ import UIKit
         // If in offline mode, we don't want to show the voice button
         if !offlineMode, !canPress, !presentedInCall,
            NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityVoiceMessage, for: room),
-           !room.isFederated() {
+           !room.isFederated {
 
             self.showVoiceMessageRecordButton()
             return true
@@ -1263,7 +1263,7 @@ import UIKit
             return false
         }
 
-        return self.room.lobbyState == .moderatorsOnly && self.room.canModerate()
+        return self.room.lobbyState == .moderatorsOnly && self.room.canModerate
     }
 
     // MARK: - Chat functions

@@ -94,7 +94,7 @@ import UIKit
         let activeAccountUserId = NCDatabaseManager.sharedInstance().activeAccount().userId
         self.isPollOpen = poll.status == .open
         self.isOwnPoll = poll.actorId == activeAccountUserId && poll.actorType == "users"
-        self.canModeratePoll = self.isOwnPoll || room?.isUserOwnerOrModerator() ?? false
+        self.canModeratePoll = self.isOwnPoll || room?.isUserOwnerOrModerator ?? false
         self.userVoted = !poll.votedSelf.isEmpty
         self.userVotedOptions = poll.votedSelf as? [Int] ?? []
         self.userSelectedOptions = self.userVotedOptions
