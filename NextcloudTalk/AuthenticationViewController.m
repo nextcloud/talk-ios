@@ -182,7 +182,13 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
-    
+
+    if (navigationAction.targetFrame == nil) {
+        [NCUtils openLinkInBrowserWithLink:url.absoluteString];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
