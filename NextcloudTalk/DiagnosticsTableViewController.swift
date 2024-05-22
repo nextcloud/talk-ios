@@ -44,6 +44,7 @@ class DiagnosticsTableViewController: UITableViewController {
         case kAppSectionAllowContactsAccess
         case kAppSectionAllowLocationAccess
         case kAppSectionAllowPhotoLibraryAccess
+        case kAppSectionCallKitEnabled
         case kAppSectionOpenSettings
         case kAppSectionCount
     }
@@ -345,6 +346,10 @@ class DiagnosticsTableViewController: UITableViewController {
         case AppSections.kAppSectionVersion.rawValue:
             cell.textLabel?.text = NSLocalizedString("Version", comment: "")
             cell.detailTextLabel?.text = NCAppBranding.getAppVersionString()
+
+        case AppSections.kAppSectionCallKitEnabled.rawValue:
+            cell.textLabel?.text = NSLocalizedString("CallKit supported?", comment: "")
+            cell.detailTextLabel?.text = readableBool(for: CallKitManager.isCallKitAvailable())
 
         default:
             break
