@@ -196,9 +196,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         let shouldShowReadStatus = !roomCapabilities.readStatusPrivacy
 
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
-        let parent = message.parent()
-
-        if let parent {
+        if let parent = message.parent {
             self.showQuotePart()
 
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
@@ -211,11 +209,11 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             }
 
             self.quotedMessageView?.actorLabel.text = parentActorDisplayName
-            self.quotedMessageView?.highlighted = parent.isMessage(fromUser: activeAccount.userId)
+            self.quotedMessageView?.highlighted = parent.isMessage(from: activeAccount.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
         }
 
-        if message.isGroupMessage, parent == nil {
+        if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
         }
 
@@ -223,16 +221,16 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         self.statusView.subviews.forEach { $0.removeFromSuperview() }
 
         if message.isDeleting {
-            self.setDeliveryState(to: ChatMessageDeliveryStateDeleting)
+            self.setDeliveryState(to: .deleting)
         } else if message.sendingFailed {
-            self.setDeliveryState(to: ChatMessageDeliveryStateFailed)
+            self.setDeliveryState(to: .failed)
         } else if message.isTemporary {
-            self.setDeliveryState(to: ChatMessageDeliveryStateSending)
-        } else if message.isMessage(fromUser: activeAccount.userId), shouldShowDeliveryStatus {
+            self.setDeliveryState(to: .sending)
+        } else if message.isMessage(from: activeAccount.userId), shouldShowDeliveryStatus {
             if lastCommonRead >= message.messageId, shouldShowReadStatus {
-                self.setDeliveryState(to: ChatMessageDeliveryStateRead)
+                self.setDeliveryState(to: .read)
             } else {
-                self.setDeliveryState(to: ChatMessageDeliveryStateSent)
+                self.setDeliveryState(to: .sent)
             }
         }
 
@@ -277,7 +275,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             self.setupForMessageCell(with: message)
         }
 
-        if message.isDeletedMessage() {
+        if message.isDeletedMessage {
             self.statusView.isHidden = true
             self.messageTextView?.textColor = .tertiaryLabel
         }
@@ -316,7 +314,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     func setDeliveryState(to deliveryState: ChatMessageDeliveryState) {
         self.statusView.subviews.forEach { $0.removeFromSuperview() }
 
-        if deliveryState == ChatMessageDeliveryStateSending || deliveryState == ChatMessageDeliveryStateDeleting {
+        if deliveryState == .sending || deliveryState == .deleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
             activityIndicator.radius = 7.0
@@ -326,7 +324,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
             self.statusView.addArrangedSubview(activityIndicator)
 
-        } else if deliveryState == ChatMessageDeliveryStateFailed {
+        } else if deliveryState == .failed {
             let errorView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
             let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.red).withRenderingMode(.alwaysOriginal)
 
@@ -336,10 +334,10 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
             self.statusView.addArrangedSubview(errorView)
 
-        } else if deliveryState == ChatMessageDeliveryStateSent || deliveryState == ChatMessageDeliveryStateRead {
+        } else if deliveryState == .sent || deliveryState == .read {
             var checkImageName = "check"
 
-            if deliveryState == ChatMessageDeliveryStateRead {
+            if deliveryState == .read {
                 checkImageName = "check-all"
             }
 
@@ -382,7 +380,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     }
 
     @objc func quoteTapped(_ sender: UITapGestureRecognizer?) {
-        if let message = self.message, let parent = message.parent() {
+        if let parent = self.message?.parent {
             self.delegate?.cellWantsToScroll(to: parent)
         }
     }

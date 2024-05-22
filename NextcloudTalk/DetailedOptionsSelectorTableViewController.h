@@ -30,10 +30,10 @@
 @property (nonatomic, assign) BOOL selected;
 @end
 
-typedef enum DetailedOptionsSelectorType {
+typedef NS_ENUM(NSInteger, DetailedOptionsSelectorType) {
     DetailedOptionsSelectorTypeDefault = 0,
     DetailedOptionsSelectorTypeAccounts
-} DetailedOptionsSelectorType;
+};
 
 @class DetailedOptionsSelectorTableViewController;
 @protocol DetailedOptionsSelectorTableViewControllerDelegate <NSObject>

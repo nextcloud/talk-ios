@@ -172,7 +172,7 @@
     self.message = message;
     self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
     self.quotedMessageView.messageLabel.text = message.parsedMarkdownForChat.string;
-    self.quotedMessageView.highlighted = [message isMessageFromUser:userId];
+    self.quotedMessageView.highlighted = [message isMessageFrom:userId];
     [self.quotedMessageView.avatarView setActorAvatarForMessage:message];
     [self.cancelButton setHidden:NO];
 

@@ -26,43 +26,43 @@
 #import "NCRoomParticipant.h"
 #import "NCChatMessage.h"
 
-typedef enum NCRoomType {
+typedef NS_ENUM(NSInteger, NCRoomType) {
     kNCRoomTypeOneToOne = 1,
     kNCRoomTypeGroup,
     kNCRoomTypePublic,
     kNCRoomTypeChangelog,
     kNCRoomTypeFormerOneToOne,
     kNCRoomTypeNoteToSelf
-} NCRoomType;
+};
 
-typedef enum NCRoomNotificationLevel {
+typedef NS_ENUM(NSInteger, NCRoomNotificationLevel) {
     kNCRoomNotificationLevelDefault = 0,
     kNCRoomNotificationLevelAlways,
     kNCRoomNotificationLevelMention,
     kNCRoomNotificationLevelNever
-} NCRoomNotificationLevel;
+};
 
-typedef enum NCRoomReadOnlyState {
+typedef NS_ENUM(NSInteger, NCRoomReadOnlyState) {
     NCRoomReadOnlyStateReadWrite = 0,
     NCRoomReadOnlyStateReadOnly
-} NCRoomReadOnlyState;
+};
 
-typedef enum NCRoomListableScope {
+typedef NS_ENUM(NSInteger, NCRoomListableScope) {
     NCRoomListableScopeParticipantsOnly = 0,
     NCRoomListableScopeRegularUsersOnly,
     NCRoomListableScopeEveryone
-} NCRoomListableScope;
+};
 
-typedef enum NCRoomLobbyState {
+typedef NS_ENUM(NSInteger, NCRoomLobbyState) {
     NCRoomLobbyStateAllParticipants = 0,
     NCRoomLobbyStateModeratorsOnly
-} NCRoomLobbyState;
+};
 
-typedef enum NCRoomSIPState {
+typedef NS_ENUM(NSInteger, NCRoomSIPState) {
     NCRoomSIPStateDisabled = 0,
     NCRoomSIPStateEnabled,
     NCRoomSIPStateEnabledWithoutPIN
-} NCRoomSIPState;
+};
 
 typedef NS_OPTIONS(NSInteger, NCPermission) {
     NCPermissionDefaultPermissions = 0,
@@ -76,23 +76,23 @@ typedef NS_OPTIONS(NSInteger, NCPermission) {
     NCPermissionChat = 128,
 };
 
-typedef enum NCMessageExpiration {
+typedef NS_ENUM(NSInteger, NCMessageExpiration) {
     NCMessageExpirationOff = 0,
     NCMessageExpiration1Hour = 3600,
     NCMessageExpiration8Hours = 28800,
     NCMessageExpiration1Day = 86400,
     NCMessageExpiration1Week = 604800,
     NCMessageExpiration4Weeks = 2419200,
-} NCMessageExpiration;
+};
 
-typedef enum NCCallRecordingState {
+typedef NS_ENUM(NSInteger, NCCallRecordingState) {
     NCCallRecordingStateStopped = 0,
     NCCallRecordingStateVideoRunning = 1,
     NCCallRecordingStateAudioRunning = 2,
     NCCallRecordingStateVideoStarting = 3,
     NCCallRecordingStateAudioStarting = 4,
     NCCallRecordingStateFailed = 5
-} NCCallRecordingState;
+};
 
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
@@ -101,27 +101,22 @@ extern NSString * const NCRoomObjectTypeRoom;
 @interface NCRoom : RLMObject
 
 @property (nonatomic, copy) NSString *internalId; // accountId@token
-@property (nonatomic, assign) NSInteger roomId;
 @property (nonatomic, copy) NSString *accountId;
 @property (nonatomic, copy) NSString *token;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *displayName;
 @property (nonatomic, copy) NSString *roomDescription;
 @property (nonatomic, assign) NCRoomType type;
-@property (nonatomic, assign) NSInteger count;
 @property (nonatomic, assign) BOOL hasPassword;
 @property (nonatomic, assign) NCParticipantType participantType;
 @property (nonatomic, assign) NSInteger attendeeId;
 @property (nonatomic, copy) NSString *attendeePin;
-@property (nonatomic, assign) NSInteger lastPing;
-@property (nonatomic, assign) NSInteger numGuests;
 @property (nonatomic, assign) NSInteger unreadMessages;
 @property (nonatomic, assign) BOOL unreadMention;
 @property (nonatomic, assign) BOOL unreadMentionDirect;
-@property (nonatomic, copy) NSString *guestList;
 @property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
-@property (nonatomic, copy) NSString *lastMessageId;
+@property (nonatomic, copy, nullable) NSString *lastMessageId;
 @property (nonatomic, copy) NSString *lastMessageProxiedJSONString;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) NCRoomNotificationLevel notificationLevel;
@@ -163,24 +158,5 @@ extern NSString * const NCRoomObjectTypeRoom;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
 + (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
-
-- (BOOL)isPublic;
-- (BOOL)isFederated;
-- (BOOL)isBreakoutRoom;
-- (BOOL)isUserOwnerOrModerator;
-- (BOOL)canModerate;
-- (BOOL)isNameEditable;
-- (BOOL)isLeavable;
-- (BOOL)userCanStartCall;
-- (BOOL)hasUnreadMention;
-- (BOOL)callRecordingIsInActiveState;
-- (NSString *)deletionMessage;
-- (NSString *)notificationLevelString;
-- (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level;
-- (NSString *)messageExpirationString;
-- (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration;
-- (NSString * _Nullable)lastMessageString;
-- (NCChatMessage *)lastMessage;
-- (NSString *)linkURL;
 
 @end

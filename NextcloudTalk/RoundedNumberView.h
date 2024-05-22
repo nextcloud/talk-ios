@@ -22,11 +22,11 @@
 
 #import <UIKit/UIKit.h>
 
-typedef enum HighlightType {
+typedef NS_ENUM(NSInteger, HighlightType) {
     kHighlightTypeNone = 0,
     kHighlightTypeBorder,
     kHighlightTypeImportant
-} HighlightType;
+};
 
 @interface RoundedNumberView : UIView
 

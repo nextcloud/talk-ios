@@ -28,7 +28,7 @@
 extern NSString *const kRoomTypeVideo;
 extern NSString *const kRoomTypeScreen;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, NCSignalingMessageType) {
     kNCSignalingMessageTypeUnknown,
     kNCSignalingMessageTypeCandidate,
     kNCSignalingMessageTypeOffer,
@@ -43,7 +43,7 @@ typedef enum {
     kNCSignalingMessageTypeReaction,
     kNCSignalingMessageTypeStartedTyping,
     kNCSignalingMessageTypeStoppedTyping
-} NCSignalingMessageType;
+};
 
 
 @interface NCSignalingMessage : NSObject

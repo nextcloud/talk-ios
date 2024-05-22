@@ -172,14 +172,14 @@ import UIKit
         super.viewDidLoad()
 
         if NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)?.callEnabled ?? false &&
-            room.type != kNCRoomTypeChangelog && room.type != kNCRoomTypeNoteToSelf,
-            !room.isFederated() {
+            room.type != .changelog && room.type != .noteToSelf,
+            !room.isFederated {
 
             self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
         }
 
         // No sharing options in federation v1
-        if room.isFederated() {
+        if room.isFederated {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
             self.leftButton.setImage(nil, for: .normal)
@@ -273,12 +273,12 @@ import UIKit
     }
 
     func connectionStateHasChanged(notification: Notification) {
-        guard let connectionState = notification.userInfo?["connectionState"] as? UInt32 else {
+        guard let rawConnectionState = notification.userInfo?["connectionState"] as? Int, let connectionState = ConnectionState(rawValue: rawConnectionState) else {
             return
         }
 
         switch connectionState {
-        case kConnectionStateConnected.rawValue:
+        case .connected:
             if offlineMode {
                 offlineMode = false
                 startReceivingMessagesAfterJoin = true
@@ -323,13 +323,13 @@ import UIKit
         self.rightButton.isEnabled = self.canPressRightButton()
         self.textInputbar.isUserInteractionEnabled = true
 
-        if !room.userCanStartCall(), !room.hasCall {
+        if !room.userCanStartCall, !room.hasCall {
             // Disable call buttons
             self.videoCallButton.isEnabled = false
             self.voiceCallButton.isEnabled = false
         }
 
-        if room.readOnlyState == NCRoomReadOnlyStateReadOnly || self.shouldPresentLobbyView() {
+        if room.readOnlyState == .readOnly || self.shouldPresentLobbyView() {
             // Hide text input
             self.setTextInputbarHidden(true, animated: self.isVisible)
 
@@ -526,7 +526,7 @@ import UIKit
         // If in offline mode, we don't want to show the voice button
         if !offlineMode, !canPress, !presentedInCall,
            NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityVoiceMessage, for: room),
-           !room.isFederated() {
+           !room.isFederated {
 
             self.showVoiceMessageRecordButton()
             return true
@@ -759,7 +759,7 @@ import UIKit
             if let messages = notification.userInfo?["messages"] as? [NCChatMessage], !messages.isEmpty {
 
                 var indexPathUnreadMessageSeparator: IndexPath?
-                let lastMessage = messages.reversed().first(where: { !$0.isUpdateMessage() })
+                let lastMessage = messages.reversed().first(where: { !$0.isUpdateMessage })
 
                 self.appendMessages(messages: messages)
 
@@ -941,7 +941,7 @@ import UIKit
                         insertIndexPaths.insert(indexPath)
                     }
 
-                    if newMessage.isUpdateMessage(), let parentMessage = newMessage.parent(), let parentPath = self.indexPath(for: parentMessage) {
+                    if newMessage.isUpdateMessage, let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
                         if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
                             // We received an update message to a message which is already part of our current data, therefore we need to reload it
                             reloadIndexPaths.insert(parentPath)
@@ -1092,7 +1092,7 @@ import UIKit
         }
 
         guard let message = notification.userInfo?["updateMessage"] as? NCChatMessage,
-              let updateMessage = message.parent()
+              let updateMessage = message.parent
         else { return }
 
         self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
@@ -1263,7 +1263,7 @@ import UIKit
             return false
         }
 
-        return self.room.lobbyState == NCRoomLobbyStateModeratorsOnly && self.room.canModerate()
+        return self.room.lobbyState == .moderatorsOnly && self.room.canModerate
     }
 
     // MARK: - Chat functions
@@ -1319,7 +1319,7 @@ import UIKit
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
 
-            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage(), for: activeAccount) { messageDict, error, _ in
+            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: activeAccount) { messageDict, error, _ in
                 if error != nil {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred while editing a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                     return
@@ -1352,8 +1352,8 @@ import UIKit
     func isMessageReactable(message: NCChatMessage) -> Bool {
         var isReactable = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityReactions, for: room)
         isReactable = isReactable && !self.offlineMode
-        isReactable = isReactable && self.room.readOnlyState != NCRoomReadOnlyStateReadOnly
-        isReactable = isReactable && !message.isDeletedMessage() && !message.isCommandMessage() && !message.sendingFailed && !message.isTemporary
+        isReactable = isReactable && self.room.readOnlyState != .readOnly
+        isReactable = isReactable && !message.isDeletedMessage && !message.isCommandMessage && !message.sendingFailed && !message.isTemporary
 
         return isReactable
     }
@@ -1565,7 +1565,7 @@ import UIKit
 
         guard let message = self.message(for: indexPath) else { return nil }
 
-        if message.isSystemMessage() || message.isDeletedMessage() || message.messageId == kUnreadMessagesSeparatorIdentifier {
+        if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
             return nil
         }
 
@@ -1598,21 +1598,21 @@ import UIKit
         }
 
         // Reply-privately option (only to other users and not in one-to-one)
-        if self.isMessageReplyable(message: message), self.room.type != kNCRoomTypeOneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
+        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
             actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
                 self.didPressReplyPrivately(for: message)
             })
         }
 
         // Forward option (only normal messages for now)
-        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage() {
+        if message.file() == nil, message.poll == nil, !message.isDeletedMessage {
             actions.append(UIAction(title: NSLocalizedString("Forward", comment: ""), image: .init(systemName: "arrowshape.turn.up.right")) { _ in
                 self.didPressForward(for: message)
             })
         }
 
         // Note to self
-        if message.file() == nil, message.poll() == nil, !message.isDeletedMessage(), room.type != kNCRoomTypeNoteToSelf,
+        if message.file() == nil, message.poll == nil, !message.isDeletedMessage, room.type != .noteToSelf,
            NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNoteToSelf, for: room) {
             actions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
                 self.didPressNoteToSelf(for: message)

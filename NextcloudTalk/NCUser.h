@@ -24,13 +24,13 @@
 
 #import "NCContact.h"
 
-typedef enum NCShareType {
+typedef NS_ENUM(NSInteger, NCShareType) {
     NCShareTypeUser = 0,
     NCShareTypeGroup = 1,
     NCShareTypeEmail = 4,
     NCShareTypeRemote = 6,
     NCShareTypeCircle = 7
-} NCShareType;
+};
 
 extern NSString * const kParticipantTypeUser;
 extern NSString * const kParticipantTypeGroup;

@@ -36,7 +36,7 @@ extern NSString * const NCNotificationActionFederationInvitationReject;
 typedef void (^CheckForNewNotificationsCompletionBlock)(NSError *error);
 typedef void (^CheckNotificationExistanceCompletionBlock)(NSError *error);
 
-typedef enum {
+typedef NS_ENUM(NSInteger, NCLocalNotificationType) {
     kNCLocalNotificationTypeMissedCall = 1,
     kNCLocalNotificationTypeCancelledCall,
     kNCLocalNotificationTypeFailedSendChat,
@@ -45,7 +45,7 @@ typedef enum {
     kNCLocalNotificationTypeFailedToShareRecording,
     kNCLocalNotificationTypeFailedToAcceptInvitation,
     kNCLocalNotificationTypeRecordingConsentRequired
-} NCLocalNotificationType;
+};
 
 @interface NCNotificationController : NSObject
 

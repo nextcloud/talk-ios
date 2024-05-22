@@ -594,7 +594,7 @@ import QuickLook
             if let visibleIndexPaths = self.tableView?.indexPathsForVisibleRows {
                 let referencingIndexPaths = visibleIndexPaths.filter({
                     guard let message = self.message(for: $0),
-                          let parentMessage = message.parent()
+                          let parentMessage = message.parent
                     else { return false }
 
                     return parentMessage.messageId == messageId
@@ -752,8 +752,8 @@ import QuickLook
             items.append(shareLocationAction)
         }
 
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room), 
-            self.room.type != kNCRoomTypeOneToOne, self.room.type != kNCRoomTypeNoteToSelf {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room),
+            self.room.type != .oneToOne, self.room.type != .noteToSelf {
 
             items.append(pollAction)
         }
@@ -922,7 +922,7 @@ import QuickLook
     func didPressForward(for message: NCChatMessage) {
         var shareViewController: ShareViewController
 
-        if message.isObjectShare() {
+        if message.isObjectShare {
             shareViewController = ShareViewController(toForwardObjectShare: message, fromChatViewController: self)
         } else {
             shareViewController = ShareViewController(toForwardMessage: message.parsedMessage().string, fromChatViewController: self)
@@ -938,8 +938,8 @@ import QuickLook
         NCAPIController.sharedInstance().getNoteToSelfRoom(for: activeAccount) { roomDict, error in
             if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
 
-                if message.isObjectShare() {
-                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare(), inRoom: room.token, for: activeAccount) { error in
+                if message.isObjectShare {
+                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: activeAccount) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -966,8 +966,8 @@ import QuickLook
         self.removeUnreadMessagesSeparator()
 
         self.removePermanentlyTemporaryMessage(temporaryMessage: message)
-        let originalMessage = self.replaceMessageMentionsKeysWithMentionsDisplayNames(message: message.message, parameters: message.messageParametersJSONString)
-        self.sendChatMessage(message: originalMessage, withParentMessage: message.parent(), messageParameters: message.messageParametersJSONString, silently: message.isSilent)
+        let originalMessage = self.replaceMessageMentionsKeysWithMentionsDisplayNames(message: message.message, parameters: message.messageParametersJSONString ?? "")
+        self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
     }
 
     func didPressCopy(for message: NCChatMessage) {
@@ -1029,7 +1029,7 @@ import QuickLook
             self.mentionsDict = [:]
 
             // Try to reconstruct the mentionsDict
-            for (key, value) in message.messageParameters() {
+            for (key, value) in message.messageParameters {
                 if let key = key as? String,
                    key.hasPrefix("mention-"),
                    let value = value as? [String: String] {
@@ -1306,7 +1306,7 @@ import QuickLook
     internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: activeAccount, serverCapabilities: serverCapabilities)!
+        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: activeAccount, serverCapabilities: serverCapabilities!)!
         shareConfirmationVC.delegate = self
         shareConfirmationVC.isModal = true
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)
@@ -1732,7 +1732,7 @@ import QuickLook
             if let messages = self.messages[sectionDate] {
                 let message = messages[indexPath.row]
 
-                if message.isVoiceMessage() {
+                if message.isVoiceMessage {
                     guard let cell = tableView.cellForRow(at: indexPath) as? VoiceMessageTableViewCell,
                           let file = message.file()
                     else { continue }
@@ -2080,14 +2080,14 @@ import QuickLook
 
     func shouldGroupMessage(newMessage: NCChatMessage, withMessage lastMessage: NCChatMessage) -> Bool {
         let sameActor = newMessage.actorId == lastMessage.actorId
-        let sameType = newMessage.isSystemMessage() == lastMessage.isSystemMessage()
+        let sameType = newMessage.isSystemMessage == lastMessage.isSystemMessage
         let timeDiff = (newMessage.timestamp - lastMessage.timestamp) < kChatMessageGroupTimeDifference
         let notEdited = newMessage.lastEditTimestamp == 0
 
         // Try to collapse system messages if the new message is not already collapsing some messages
         // Disable swiftlint -> not supported on Realm object
         // swiftlint:disable:next empty_count
-        if newMessage.isSystemMessage(), lastMessage.isSystemMessage(), newMessage.collapsedMessages.count == 0 {
+        if newMessage.isSystemMessage, lastMessage.isSystemMessage, newMessage.collapsedMessages.count == 0 {
             self.tryToGroupSystemMessage(newMessage: newMessage, withMessage: lastMessage)
         }
 
@@ -2137,11 +2137,11 @@ import QuickLook
         var isUser0Self = false
         var isUser1Self = false
 
-        if let userDict = collapseByMessage.messageParameters()?["user"] as? [String: Any] {
+        if let userDict = collapseByMessage.messageParameters["user"] as? [String: Any] {
             isUser0Self = userDict["id"] as? String == activeAccount.userId && userDict["type"] as? String == "user"
         }
 
-        if let userDict = newMessage.messageParameters()?["user"] as? [String: Any] {
+        if let userDict = newMessage.messageParameters["user"] as? [String: Any] {
             isUser1Self = userDict["id"] as? String == activeAccount.userId && userDict["type"] as? String == "user"
         }
 
@@ -2154,15 +2154,15 @@ import QuickLook
 
         var collapsedMessageParameters: [String: Any] = [:]
 
-        if let actor0Dict = collapseByMessage.messageParameters()["actor"],
-           let actor1Dict = newMessage.messageParameters()["actor"] {
+        if let actor0Dict = collapseByMessage.messageParameters["actor"],
+           let actor1Dict = newMessage.messageParameters["actor"] {
 
             collapsedMessageParameters["actor0"] = isActor0Self ? actor1Dict : actor0Dict
             collapsedMessageParameters["actor1"] = actor1Dict
         }
 
-        if let user0Dict = collapseByMessage.messageParameters()["user"],
-           let user1Dict = newMessage.messageParameters()["user"] {
+        if let user0Dict = collapseByMessage.messageParameters["user"],
+           let user1Dict = newMessage.messageParameters["user"] {
 
             collapsedMessageParameters["user0"] = isUser0Self ? user1Dict : user0Dict
             collapsedMessageParameters["user1"] = user1Dict
@@ -2361,7 +2361,7 @@ import QuickLook
         }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        self.setTemporaryReaction(reaction: reaction, withState: NCChatReactionStateAdding, toMessage: message)
+        self.setTemporaryReaction(reaction: reaction, withState: .adding, toMessage: message)
 
         NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
@@ -2373,7 +2373,7 @@ import QuickLook
 
     func removeReaction(reaction: String, from message: NCChatMessage) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        self.setTemporaryReaction(reaction: reaction, withState: NCChatReactionStateRemoving, toMessage: message)
+        self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
         NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
@@ -2413,9 +2413,9 @@ import QuickLook
 
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: message.messageId) else { return }
 
-            if state == NCChatReactionStateAdding {
+            if state == .adding {
                 message.addTemporaryReaction(reaction)
-            } else if state == NCChatReactionStateRemoving {
+            } else if state == .removing {
                 message.removeReactionTemporarily(reaction)
             }
 
@@ -2563,13 +2563,13 @@ import QuickLook
             return cell
         }
 
-        if message.isUpdateMessage(),
+        if message.isUpdateMessage,
            let cell = self.tableView?.dequeueReusableCell(withIdentifier: InvisibleSystemMessageCellIdentifier) as? SystemMessageTableViewCell {
 
             return cell
         }
 
-        if message.isSystemMessage(),
+        if message.isSystemMessage,
            let cell = self.tableView?.dequeueReusableCell(withIdentifier: SystemMessageCellIdentifier) as? SystemMessageTableViewCell {
 
             cell.delegate = self
@@ -2577,7 +2577,7 @@ import QuickLook
             return cell
         }
 
-        if message.isVoiceMessage() {
+        if message.isVoiceMessage {
             let cellIdentifier = message.isGroupMessage ? GroupedVoiceMessageCellIdentifier : VoiceMessageCellIdentifier
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? VoiceMessageTableViewCell {
@@ -2622,7 +2622,7 @@ import QuickLook
             }
         }
 
-        if message.poll() != nil {
+        if message.poll != nil {
             let cellIdentifier = message.isGroupMessage ? GroupedObjectShareMessageCellIdentifier : ObjectShareMessageCellIdentifier
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? ObjectShareMessageTableViewCell {
@@ -2637,7 +2637,7 @@ import QuickLook
 
         if message.isGroupMessage {
             cellIdentifier = chatGroupedMessageCellIdentifier
-        } else if message.parent() != nil {
+        } else if message.parent != nil {
             cellIdentifier = chatReplyMessageCellIdentifier
         }
 
@@ -2685,16 +2685,16 @@ import QuickLook
         }
 
         // Update messages (the ones that notify about an update in one message, they should not be displayed)
-        if message.message.isEmpty || message.isUpdateMessage() || (message.isCollapsed && message.collapsedBy != nil) {
+        if message.message.isEmpty || message.isUpdateMessage || (message.isCollapsed && message.collapsedBy != nil) {
             return 0.0
         }
 
         // Chat messages
         var messageString = message.parsedMarkdownForChat() ?? NSMutableAttributedString()
         var width = originalWidth
-        width -= message.isSystemMessage() ? 80.0 : 30.0 // *right(10) + dateLabel(40) : 3*right(10)
+        width -= message.isSystemMessage ? 80.0 : 30.0 // *right(10) + dateLabel(40) : 3*right(10)
 
-        if message.poll() != nil {
+        if message.poll != nil {
             messageString = messageString.withFont(.preferredFont(forTextStyle: .body))
             width -= kObjectShareMessageCellObjectTypeImageSize + 25 // 2*right(10) + left(5)
         }
@@ -2704,7 +2704,7 @@ import QuickLook
         let bodyBounds = self.textViewForSizing.sizeThatFits(CGSize(width: width, height: CGFLOAT_MAX))
         var height = ceil(bodyBounds.height)
 
-        if (message.isGroupMessage && message.parent() == nil) || message.isSystemMessage() {
+        if (message.isGroupMessage && message.parent == nil) || message.isSystemMessage {
             height += 10 // 2*left(5)
 
             if height < chatGroupedMessageCellMinimumHeight {
@@ -2727,12 +2727,12 @@ import QuickLook
             height += 105
         }
 
-        if message.parent() != nil {
+        if message.parent != nil {
             height += 60 // quoteView(60)
         }
 
         // Voice message should be before message.file check since it contains a file
-        if message.isVoiceMessage() {
+        if message.isVoiceMessage {
             height -= ceil(bodyBounds.height)
             height += kVoiceMessageCellPlayerHeight + 10
 
@@ -2761,7 +2761,7 @@ import QuickLook
             height += locationMessageCellPreviewHeight + 10 // right(10)
         }
 
-        if message.poll() != nil {
+        if message.poll != nil {
             height += 20 // 2*right(10)
         }
 
@@ -2818,7 +2818,7 @@ import QuickLook
 
         guard let message = self.message(for: indexPath) else { return nil }
 
-        if message.isSystemMessage() || message.isDeletedMessage() || message.messageId == kUnreadMessagesSeparatorIdentifier {
+        if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
             return nil
         }
 
@@ -3082,7 +3082,7 @@ import QuickLook
     }
 
     internal func getLastNonUpdateMessage() -> (indexPath: IndexPath, message: NCChatMessage)? {
-        return self.indexPathAndMessageFromEnd(with: { !$0.isUpdateMessage() })
+        return self.indexPathAndMessageFromEnd(with: { !$0.isUpdateMessage })
     }
 
     internal func getLastRealMessage() -> (indexPath: IndexPath, message: NCChatMessage)? {
@@ -3459,11 +3459,11 @@ extension Sequence where Iterator.Element == NCChatMessage {
 
     func containsUserMessage() -> Bool {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        return self.contains(where: { !$0.isSystemMessage() && $0.actorId == activeAccount.userId })
+        return self.contains(where: { !$0.isSystemMessage && $0.actorId == activeAccount.userId })
     }
 
     func containsVisibleMessages() -> Bool {
-        return self.contains(where: { !$0.isUpdateMessage() })
+        return self.contains(where: { !$0.isUpdateMessage })
     }
 
 }

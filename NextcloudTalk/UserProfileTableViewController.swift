@@ -84,8 +84,11 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         self.tableView.tableHeaderView = self.avatarHeaderView()
         self.showEditButton()
         self.getUserProfileEditableFields()
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        showScopes = serverCapabilities.accountPropertyScopesVersion2
+
+        if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId) {
+            showScopes = serverCapabilities.accountPropertyScopesVersion2
+        }
+
         modifyingProfileView = UIActivityIndicatorView()
         modifyingProfileView.color = NCAppBranding.themeTextColor()
         tableView.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
@@ -239,9 +242,13 @@ extension UserProfileTableViewController {
     func setupViewforHeaderInSection(profileSection: Int) -> HeaderWithButton {
         var headerView = HeaderWithButton()
         headerView.button.addTarget(self, action: #selector(showScopeSelectionDialog(_:)), for: .touchUpInside)
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        let shouldEnableNameAndEmailScopeButton = serverCapabilities.accountPropertyScopesFederationEnabled ||
-        serverCapabilities.accountPropertyScopesFederatedEnabled || serverCapabilities.accountPropertyScopesPublishedEnabled
+
+        var shouldEnableNameAndEmailScopeButton = false
+
+        if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId) {
+            shouldEnableNameAndEmailScopeButton = serverCapabilities.accountPropertyScopesFederationEnabled ||
+            serverCapabilities.accountPropertyScopesFederatedEnabled || serverCapabilities.accountPropertyScopesPublishedEnabled
+        }
 
         switch profileSection {
         case ProfileSection.kProfileSectionName.rawValue:

@@ -49,7 +49,7 @@ final class IntegrationRoomTest: TestBase {
         let exp = expectation(description: "\(#function)\(#line)")
 
         // Create a room
-        NCAPIController.sharedInstance().createRoom(for: activeAccount, with: nil, of: kNCRoomTypePublic, andName: roomName) { _, error in
+        NCAPIController.sharedInstance().createRoom(for: activeAccount, with: nil, of: .public, andName: roomName) { _, error in
             XCTAssertNil(error)
             exp.fulfill()
         }

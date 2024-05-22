@@ -22,15 +22,15 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum NCPollStatus {
+typedef NS_ENUM(NSInteger, NCPollStatus) {
     NCPollStatusOpen = 0,
     NCPollStatusClosed
-} NCPollStatus;
+};
 
-typedef enum NCPollResultMode {
+typedef NS_ENUM(NSInteger, NCPollResultMode) {
     NCPollResultModePublic = 0,
     NCPollResultModeHidden
-} NCPollResultMode;
+};
 
 @interface NCPoll : NSObject
 

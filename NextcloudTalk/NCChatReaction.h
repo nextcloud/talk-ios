@@ -22,11 +22,11 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum NCChatReactionState {
+typedef NS_ENUM(NSInteger, NCChatReactionState) {
     NCChatReactionStateSet = 0,
     NCChatReactionStateAdding,
     NCChatReactionStateRemoving
-} NCChatReactionState;
+};
 
 @interface NCChatReaction : NSObject
 

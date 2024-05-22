@@ -23,6 +23,7 @@
 #import "NCRoom.h"
 
 #import "NCDatabaseManager.h"
+#import "NextcloudTalk-Swift.h"
 
 NSString * const NCRoomObjectTypeFile           = @"file";
 NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
@@ -37,21 +38,16 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     }
     
     NCRoom *room = [[self alloc] init];
-    room.roomId = [[roomDict objectForKey:@"id"] integerValue];
     room.token = [roomDict objectForKey:@"token"];
     room.type = (NCRoomType)[[roomDict objectForKey:@"type"] integerValue];
     room.roomDescription = [roomDict objectForKey:@"description"];
-    room.count = [[roomDict objectForKey:@"count"] integerValue];
     room.hasPassword = [[roomDict objectForKey:@"hasPassword"] boolValue];
     room.participantType = (NCParticipantType)[[roomDict objectForKey:@"participantType"] integerValue];
     room.attendeeId = [[roomDict objectForKey:@"attendeeId"] integerValue];
     room.attendeePin = [roomDict objectForKey:@"attendeePin"];
-    room.lastPing = [[roomDict objectForKey:@"lastPing"] integerValue];
-    room.numGuests = [[roomDict objectForKey:@"numGuests"] integerValue];
     room.unreadMessages = [[roomDict objectForKey:@"unreadMessages"] integerValue];
     room.unreadMention = [[roomDict objectForKey:@"unreadMention"] boolValue];
     room.unreadMentionDirect = [[roomDict objectForKey:@"unreadMentionDirect"] boolValue];
-    room.guestList = [roomDict objectForKey:@"guestList"];
     room.lastActivity = [[roomDict objectForKey:@"lastActivity"] integerValue];
     room.isFavorite = [[roomDict objectForKey:@"isFavorite"] boolValue];
     room.notificationLevel = (NCRoomNotificationLevel)[[roomDict objectForKey:@"notificationLevel"] integerValue];
@@ -167,17 +163,13 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.displayName = room.displayName;
     managedRoom.type = room.type;
     managedRoom.roomDescription = room.roomDescription;
-    managedRoom.count = room.count;
     managedRoom.hasPassword = room.hasPassword;
     managedRoom.participantType = room.participantType;
     managedRoom.attendeeId = room.attendeeId;
     managedRoom.attendeePin = room.attendeePin;
-    managedRoom.lastPing = room.lastPing;
-    managedRoom.numGuests = room.numGuests;
     managedRoom.unreadMessages = room.unreadMessages;
     managedRoom.unreadMention = room.unreadMention;
     managedRoom.unreadMentionDirect = room.unreadMentionDirect;
-    managedRoom.guestList = room.guestList;
     managedRoom.participants = room.participants;
     managedRoom.lastActivity = room.lastActivity;
     managedRoom.lastMessageId = room.lastMessageId;
@@ -221,236 +213,5 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 + (NSString *)primaryKey {
     return @"internalId";
 }
-
-- (BOOL)isPublic
-{
-    return self.type == kNCRoomTypePublic;
-}
-
-- (BOOL)isFederated
-{
-    return self.remoteToken.length > 0 && self.remoteServer.length > 0;
-}
-
-- (BOOL)isBreakoutRoom
-{
-    return [self.objectType isEqualToString:NCRoomObjectTypeRoom];
-}
-
-- (BOOL)isUserOwnerOrModerator
-{
-    return self.participantType == kNCParticipantTypeOwner || self.participantType == kNCParticipantTypeModerator;
-}
-
-- (BOOL)canModerate
-{
-    return [self isUserOwnerOrModerator] && ![self isLockedOneToOne];
-}
-
-- (BOOL)isNameEditable
-{
-    return [self canModerate] && self.type != kNCRoomTypeOneToOne && self.type != kNCRoomTypeFormerOneToOne;
-}
-
-- (BOOL)isLockedOneToOne
-{
-    return (self.type == kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityLockedOneToOneRooms])
-        || self.type == kNCRoomTypeFormerOneToOne || self.type == kNCRoomTypeNoteToSelf;
-}
-
-- (BOOL)userCanStartCall
-{
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityStartCallFlag] && !self.canStartCall) {
-        return NO;
-    }
-    return YES;
-}
-
-- (BOOL)callRecordingIsInActiveState
-{
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRecordingV1]) {
-        // Starting states and running states are considered active
-        if (self.callRecording != NCCallRecordingStateStopped && self.callRecording != NCCallRecordingStateFailed) {
-            return YES;
-        }
-    }
-
-    return NO;
-}
-
-- (BOOL)hasUnreadMention
-{
-    return self.unreadMention || self.unreadMentionDirect || (self.type == kNCRoomTypeOneToOne && self.unreadMessages > 0)
-        || (self.type == kNCRoomTypeFormerOneToOne && self.unreadMessages > 0);
-}
-
-- (BOOL)isLeavable
-{
-    // Allow users to leave when there are no moderators in the room
-    // (No need to check room type because in one2one rooms users will always be moderators)
-    // or when in a group call and there are other participants.
-    // We can also check "canLeaveConversation" since v2
-    return self.canLeaveConversation || ![self canModerate] || (self.type != kNCRoomTypeOneToOne && [self.participants count] > 1)
-        || (self.type != kNCRoomTypeFormerOneToOne && [self.participants count] > 1);
-}
-
-- (NSString *)deletionMessage
-{
-    NSString *message = NSLocalizedString(@"Do you really want to delete this conversation?", nil);
-    if (self.type == kNCRoomTypeOneToOne || self.type == kNCRoomTypeFormerOneToOne) {
-        message = [NSString stringWithFormat:NSLocalizedString(@"If you delete the conversation, it will also be deleted for %@", nil), self.displayName];
-    } else if ([self.participants count] > 1) {
-        message = NSLocalizedString(@"If you delete the conversation, it will also be deleted for all other participants.", nil);
-    }
-    
-    return message;
-}
-
-- (NSString *)notificationLevelString
-{
-    return [self stringForNotificationLevel:self.notificationLevel];
-}
-
-- (NSString *)stringForNotificationLevel:(NCRoomNotificationLevel)level
-{
-    NSString *levelString = NSLocalizedString(@"Default", nil);
-    switch (level) {
-        case kNCRoomNotificationLevelAlways:
-            levelString = NSLocalizedString(@"All messages", nil);
-            break;
-        case kNCRoomNotificationLevelMention:
-            levelString = NSLocalizedString(@"@-mentions only", nil);
-            break;
-        case kNCRoomNotificationLevelNever:
-            levelString = NSLocalizedString(@"Off", nil);
-            break;
-        default:
-            break;
-    }
-    return levelString;
-}
-
-- (NSString *)messageExpirationString
-{
-    return [self stringForMessageExpiration:self.messageExpiration];
-}
-
-- (NSString *)stringForMessageExpiration:(NSInteger)messageExpiration
-{
-    NSString *levelString = NSLocalizedString(@"Off", nil);
-    switch (messageExpiration) {
-        case NCMessageExpiration4Weeks:
-            levelString = NSLocalizedString(@"4 weeks", nil);
-            break;
-        case NCMessageExpiration1Week:
-            levelString = NSLocalizedString(@"1 week", nil);
-            break;
-        case NCMessageExpiration1Day:
-            levelString = NSLocalizedString(@"1 day", nil);
-            break;
-        case NCMessageExpiration8Hours:
-            levelString = NSLocalizedString(@"8 hours", nil);
-            break;
-        case NCMessageExpiration1Hour:
-            levelString = NSLocalizedString(@"1 hour", nil);
-            break;
-        default:
-            break;
-    }
-    return levelString;
-}
-
-- (NSString *)lastMessageString
-{
-    NCChatMessage *lastMessage = self.lastMessage;
-
-    if ([self isFederated] && !lastMessage) {
-        NSDictionary *lastMessageProxiedDict = [self lastMessageProxiedDictionary];
-        lastMessage = [NCChatMessage messageWithDictionary:lastMessageProxiedDict];
-    }
-
-    if (!lastMessage) {
-        return nil;
-    }
-
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:self.accountId];
-    BOOL ownMessage = [lastMessage.actorId isEqualToString:account.userId];
-    NSString *actorName = [[lastMessage.actorDisplayName componentsSeparatedByString:@" "] objectAtIndex:0];
-    // For own messages
-    if (ownMessage) {
-        actorName = NSLocalizedString(@"You", nil);
-    }
-    // For guests
-    if ([self.lastMessage.actorDisplayName isEqualToString:@""]) {
-        actorName = NSLocalizedString(@"Guest", nil);
-    }
-    // No actor name cases
-    if (lastMessage.isSystemMessage || (self.type == kNCRoomTypeOneToOne && !ownMessage) || self.type == kNCRoomTypeChangelog) {
-        actorName = @"";
-    }
-    // Add separator
-    if (![actorName isEqualToString:@""]) {
-        actorName = [NSString stringWithFormat:@"%@: ", actorName];
-    }
-
-    // Create last message
-    NSString *lastMessageString = [NSString stringWithFormat:@"%@%@", actorName, lastMessage.parsedMarkdown.string];
-
-    // Limit last message string to 80 characters
-    NSRange stringRange = {0, MIN([lastMessageString length], 80)};
-    stringRange = [lastMessageString rangeOfComposedCharacterSequencesForRange:stringRange];
-
-    return [lastMessageString substringWithRange:stringRange];
-}
-
-- (NCChatMessage *)lastMessage
-{
-    if (self.lastMessageId) {
-        NCChatMessage *unmanagedChatMessage = nil;
-        NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.lastMessageId].firstObject;
-        if (managedChatMessage) {
-            unmanagedChatMessage = [[NCChatMessage alloc] initWithValue:managedChatMessage];
-        }
-        return unmanagedChatMessage;
-    }
-    
-    return nil;
-}
-
-- (NSDictionary *)lastMessageProxiedDictionary
-{
-    NSDictionary *lastMessageProxiedDictionary = @{};
-    NSData *data = [self.lastMessageProxiedJSONString dataUsingEncoding:NSUTF8StringEncoding];
-    if (data) {
-        NSError* error;
-        NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data
-                                                                 options:0
-                                                                   error:&error];
-        if (jsonData) {
-            lastMessageProxiedDictionary = jsonData;
-        } else {
-            NSLog(@"Error retrieving reactions JSON data: %@", error);
-        }
-    }
-    return lastMessageProxiedDictionary;
-}
-
-- (NSString *)linkURL
-{
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:self.accountId];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-
-    if (!serverCapabilities) {
-        return nil;
-    }
-
-    NSString *indexString = @"/index.php";
-    if (serverCapabilities.modRewriteWorking) {
-        indexString = @"";
-    }
-
-    return [NSString stringWithFormat:@"%@%@/call/%@", account.server, indexString, self.token];
-}
-
 
 @end

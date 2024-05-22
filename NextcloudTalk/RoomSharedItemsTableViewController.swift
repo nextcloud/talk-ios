@@ -257,7 +257,7 @@ import QuickLook
         if message.deckCard() != nil {
             image = UIImage(named: "deck-item")
         }
-        if message.poll() != nil {
+        if message.poll != nil {
             image = UIImage(systemName: "chart.bar")
         }
         return image ?? UIImage()
@@ -480,7 +480,7 @@ import QuickLook
                 openLink(link: link)
             }
         case kSharedItemTypePoll:
-            if let pollId = Int(message.poll().parameterId) {
+            if let poll = message.poll, let pollId = Int(poll.parameterId) {
                 presentPoll(pollId: pollId)
             }
         default:

@@ -64,7 +64,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, strong) NSString *actorType;
 @property (nonatomic, assign) NSInteger messageId;
 @property (nonatomic, strong) NSString *message;
-@property (nonatomic, strong) NSString *messageParametersJSONString;
+@property (nonatomic, strong, nullable) NSString *messageParametersJSONString;
 @property (nonatomic, assign) NSInteger timestamp;
 @property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) NSString *systemMessage;
@@ -99,41 +99,19 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
 + (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage;
 
-- (BOOL)isSystemMessage;
-- (BOOL)isEmojiMessage;
-- (BOOL)isUpdateMessage;
-- (BOOL)isDeletedMessage;
-- (BOOL)isVoiceMessage;
-- (BOOL)isCommandMessage;
-- (BOOL)isMessageFromUser:(NSString *)userId;
-- (BOOL)isDeletableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room;
-- (BOOL)isEditableForAccount:(TalkAccount *)account inRoom:(NCRoom *)room;
-- (BOOL)isObjectShare;
-- (NSDictionary *)richObjectFromObjectShare;
 - (NCMessageFileParameter *)file;
 - (NCMessageLocationParameter *)geoLocation;
 - (NCDeckCardParameter *)deckCard;
-- (NCMessageParameter *)poll;
-- (NCMessageParameter *)objectShareParameter;
 - (NSString *)objectShareLink;
-- (NSDictionary *)messageParameters;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)parsedMarkdown;
 - (NSMutableAttributedString *)parsedMarkdownForChat;
-- (NSMutableAttributedString *)systemMessageFormat;
-- (NSString *)sendingMessage;
-- (NCChatMessage * _Nullable)parent;
-- (NSInteger)parentMessageId;
 - (NSArray<NCChatReaction *> * _Nonnull)reactionsArray;
-- (BOOL)isReactionBeingModified:(NSString * _Nonnull)reaction;
-- (void)addTemporaryReaction:(NSString * _Nonnull)reaction;
-- (void)removeReactionTemporarily:(NSString * _Nonnull)reaction;
-- (void)removeReactionFromTemporayReactions:(NSString * _Nonnull)reaction;
 - (BOOL)containsURL;
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock _Nullable)block;
-- (BOOL)isSameMessage:(NCChatMessage * _Nonnull)message;
 - (void)setPreviewImageHeight:(CGFloat)height;
-- (NSDictionary * _Nonnull)collapsedMessageParameters;
-- (void)setCollapsedMessageParameters:(NSDictionary * _Nonnull)messageParameters;
+
+// Public for swift extension
+- (NSMutableArray * _Nonnull)temporaryReactions;
 
 @end

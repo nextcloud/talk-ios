@@ -24,13 +24,13 @@
 #ifndef CallConstants_h
 #define CallConstants_h
 
-typedef enum CallFlag {
+typedef NS_ENUM(NSInteger, CallFlag) {
     CallFlagDisconnected = 0,
     CallFlagInCall = 1,
     CallFlagWithAudio = 2,
     CallFlagWithVideo = 4,
     CallFlagWithPhone = 8
-} CallFlag;
+};
 
 
 #endif /* CallConstants_h */

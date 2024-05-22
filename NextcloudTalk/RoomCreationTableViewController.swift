@@ -243,7 +243,7 @@ enum RoomVisibilityOption: Int {
         self.roomCreationErrors = []
 
         // Create conversation
-        let roomType = self.isPublic ? kNCRoomTypePublic : kNCRoomTypeGroup
+        let roomType: NCRoomType = self.isPublic ? .public : .group
         NCAPIController.sharedInstance().createRoom(for: self.account, with: nil, of: roomType, andName: self.roomName) { token, error in
             if let error {
                 NCUtils.log(String(format: "Failed to create room. Error: %@", error.localizedDescription))
@@ -327,7 +327,7 @@ enum RoomVisibilityOption: Int {
         // Room listable scope
         if self.isOpenConversation {
             self.roomCreationGroup.enter()
-            let listableScope = self.isOpenForGuests ? NCRoomListableScopeEveryone : NCRoomListableScopeRegularUsersOnly
+            let listableScope: NCRoomListableScope = self.isOpenForGuests ? .everyone : .regularUsersOnly
             NCAPIController.sharedInstance().setListableScope(listableScope, forRoom: token, for: self.account) { error in
                 if let error {
                     NCUtils.log(String(format: "Failed to set listable scope. Error: %@", error.localizedDescription))

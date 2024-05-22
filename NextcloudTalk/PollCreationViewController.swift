@@ -118,7 +118,7 @@ import UIKit
     }
 
     func createPollButtonPressed() {
-        let resultMode: NCPollResultMode = privateSwitch.isOn ? NCPollResultModeHidden : NCPollResultModePublic
+        let resultMode: NCPollResultMode = privateSwitch.isOn ? .hidden : .public
         let maxVotes: Int = multipleSwitch.isOn ? 0 : 1
         footerView.primaryButton.setButtonEnabled(enabled: false)
         self.pollCreationDelegate?.pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: self, question: question, options: options, resultMode: resultMode, maxVotes: maxVotes)

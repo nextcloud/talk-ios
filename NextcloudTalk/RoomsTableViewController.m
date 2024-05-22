@@ -1030,7 +1030,7 @@ typedef enum RoomsSections {
 
 - (UIAction *)actionForNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NCRoom *)room
 {
-    UIAction *notificationAction = [UIAction actionWithTitle:[room stringForNotificationLevel:level] image:nil identifier:nil handler:^(UIAction *action) {
+    UIAction *notificationAction = [UIAction actionWithTitle:[NCRoom stringForNotificationLevel:level] image:nil identifier:nil handler:^(UIAction *action) {
         if (level == room.notificationLevel) {
             return;
         }

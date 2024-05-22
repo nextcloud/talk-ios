@@ -29,13 +29,13 @@ static CGFloat kChatCellStatusViewHeight    = 20.0;
 static CGFloat kChatCellDateLabelWidth      = 40.0;
 static CGFloat kChatCellAvatarHeight        = 30.0;
 
-typedef enum ChatMessageDeliveryState {
+typedef NS_ENUM(NSInteger, ChatMessageDeliveryState) {
     ChatMessageDeliveryStateSent = 0,
     ChatMessageDeliveryStateRead,
     ChatMessageDeliveryStateSending,
     ChatMessageDeliveryStateDeleting,
     ChatMessageDeliveryStateFailed
-} ChatMessageDeliveryState;
+};
 
 @protocol ChatTableViewCellDelegate <NSObject>
 
