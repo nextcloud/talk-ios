@@ -349,10 +349,10 @@
 
 - (void)presentConversationsList
 {
-    [_mainViewController dismissViewControllerAnimated:YES completion:nil];
-
-    [_mainViewController popSecondaryColumnToRootViewController];
-    [_mainViewController showColumn:UISplitViewControllerColumnPrimary];
+    [_mainViewController dismissViewControllerAnimated:YES completion:^{
+        [self->_mainViewController popSecondaryColumnToRootViewController];
+        [self->_mainViewController showColumn:UISplitViewControllerColumnPrimary];
+    }];
 }
 
 - (void)popToConversationsList

@@ -80,7 +80,7 @@ NSString * const kParticipantTypeFederated = @"federated_users";
     return user;
 }
 
-+ (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users
++ (NSDictionary<NSString *, NSArray<NCUser *> *> *)indexedUsersFromUsersArray:(NSArray *)users
 {
     NSMutableDictionary *indexedUsers = [[NSMutableDictionary alloc] init];
     for (NCUser *user in users) {
@@ -100,7 +100,7 @@ NSString * const kParticipantTypeFederated = @"federated_users";
     return indexedUsers;
 }
 
-+ (NSMutableArray *)combineUsersArray:(NSArray *)firstArray withUsersArray:(NSArray *)secondArray
++ (NSArray<NCUser *> *)combineUsersArray:(NSArray *)firstArray withUsersArray:(NSArray *)secondArray
 {
     // Add first array of users
     NSMutableArray *combinedUserArray = [[NSMutableArray alloc] initWithArray:firstArray];

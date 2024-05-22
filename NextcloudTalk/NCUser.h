@@ -47,8 +47,8 @@ extern NSString * const kParticipantTypeFederated;
 + (instancetype)userWithDictionary:(NSDictionary *)userDict;
 + (instancetype)userFromNCContact:(NCContact *)contact;
 
-+ (NSMutableDictionary *)indexedUsersFromUsersArray:(NSArray *)users;
++ (NSDictionary<NSString *, NSArray<NCUser *> *> *)indexedUsersFromUsersArray:(NSArray *)users;
 // Duplicate users found in second array will be deleted
-+ (NSMutableArray *)combineUsersArray:(NSArray *)firstArray withUsersArray:(NSArray *)secondArray;
++ (NSArray<NCUser *> *)combineUsersArray:(NSArray *)firstArray withUsersArray:(NSArray *)secondArray;
 
 @end
