@@ -45,7 +45,6 @@
 
 #import "NCUserDefaults.h"
 #import "NCIntentController.h"
-#import "NCAPISessionManager.h"
 #import "NCNotification.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

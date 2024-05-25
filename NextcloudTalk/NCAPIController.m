@@ -29,11 +29,8 @@
 #import <SDWebImage/SDImageCache.h>
 
 #import "CCCertificate.h"
-#import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCImageSessionManager.h"
-#import "NCPushProxySessionManager.h"
 #import "NCKeyChainController.h"
 #import "NCWebImageDownloaderOperation.h"
 #import "NotificationCenterNotifications.h"
@@ -84,7 +81,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     configuration.HTTPCookieStorage = nil;
-    _defaultAPISessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
+    _defaultAPISessionManager = [[NCAPISessionManager alloc] initWithConfiguration:configuration];
     
     _apiSessionManagers = [NSMutableDictionary new];
     _longPollingApiSessionManagers = [NSMutableDictionary new];
@@ -99,7 +96,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
     configuration.HTTPCookieStorage = cookieStorage;
-    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
+    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithConfiguration:configuration];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
 
     // As we can run max. 30s in the background, the default timeout should be lower than 30 to avoid being killed by the OS
@@ -109,7 +106,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
     configuration.HTTPCookieStorage = cookieStorage;
-    apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
+    apiSessionManager = [[NCAPISessionManager alloc] initWithConfiguration:configuration];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     [_longPollingApiSessionManagers setObject:apiSessionManager forKey:account.accountId];
 }
@@ -125,13 +122,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (void)initImageDownloaders
 {
     _imageDownloader = [[AFImageDownloader alloc]
-                        initWithSessionManager:[NCImageSessionManager sharedInstance]
+                        initWithSessionManager:[NCImageSessionManager shared]
                         downloadPrioritization:AFImageDownloadPrioritizationFIFO
                         maximumActiveDownloads:4
                                     imageCache:[[AFAutoPurgingImageCache alloc] init]];
     
     _imageDownloaderNoCache = [[AFImageDownloader alloc]
-                               initWithSessionManager:[NCImageSessionManager sharedInstance]
+                               initWithSessionManager:[NCImageSessionManager shared]
                                downloadPrioritization:AFImageDownloadPrioritizationFIFO
                                maximumActiveDownloads:4
                                             imageCache:nil];
@@ -3132,7 +3129,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"userPublicKey" : account.userPublicKey
                                  };
 
-    NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [[NCPushProxySessionManager shared] POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }
@@ -3153,7 +3150,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"userPublicKey" : account.userPublicKey
                                  };
 
-    NSURLSessionDataTask *task = [[NCPushProxySessionManager sharedInstance] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [[NCPushProxySessionManager shared] DELETE:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {
             block(nil);
         }

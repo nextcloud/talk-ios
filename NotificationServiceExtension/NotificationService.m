@@ -22,10 +22,8 @@
 
 #import "NotificationService.h"
 
-#import "NCAPISessionManager.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCImageSessionManager.h"
 #import "NCIntentController.h"
 #import "NCRoom.h"
 #import "NCKeyChainController.h"
@@ -178,7 +176,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
                     NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
                     configuration.HTTPCookieStorage = cookieStorage;
-                    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithSessionConfiguration:configuration];
+                    NCAPISessionManager *apiSessionManager = [[NCAPISessionManager alloc] initWithConfiguration:configuration];
 
                     NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]];
                     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
@@ -215,7 +213,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                                     NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, 512L];
 
                                     AFImageDownloader *downloader = [[AFImageDownloader alloc]
-                                                                     initWithSessionManager:[NCImageSessionManager sharedInstance]
+                                                                     initWithSessionManager:[NCImageSessionManager shared]
                                                                      downloadPrioritization:AFImageDownloadPrioritizationFIFO
                                                                      maximumActiveDownloads:1
                                                                      imageCache:nil];

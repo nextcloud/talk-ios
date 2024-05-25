@@ -141,7 +141,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         NotificationCenter.default.addObserver(self, selector: #selector(contactsAccessHasBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsAccessUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
 
-        let imageCacheSize = NCImageSessionManager.sharedInstance().cache.currentDiskUsage
+        let imageCacheSize = NCImageSessionManager.shared.cache.currentDiskUsage
         let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
         self.totalImageCacheSize = imageCacheSize + Int(sdImageCacheSize)
 
@@ -574,7 +574,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             preferredStyle: .alert)
 
         let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
-            NCImageSessionManager.sharedInstance().cache.removeAllCachedResponses()
+            NCImageSessionManager.shared.cache.removeAllCachedResponses()
 
             SDImageCache.shared.clearMemory()
             SDImageCache.shared.clearDisk()
