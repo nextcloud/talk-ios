@@ -24,7 +24,8 @@
 #import <UIKit/UIKit.h>
 
 #import "NCMessageParameter.h"
-#import "NCChatFileStatus.h"
+
+@class NCChatFileStatus;
 
 NS_ASSUME_NONNULL_BEGIN
 

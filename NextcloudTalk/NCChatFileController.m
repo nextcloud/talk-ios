@@ -27,6 +27,8 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString * const NCChatFileControllerDidChangeIsDownloadingNotification     = @"NCChatFileControllerDidChangeIsDownloadingNotification";
 NSString * const NCChatFileControllerDidChangeDownloadProgressNotification  = @"NCChatFileControllerDidChangeDownloadProgressNotification";
 
@@ -161,7 +163,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 
 - (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter
 {
-    _fileStatus = [NCChatFileStatus initWithFileName:fileParameter.name withFilePath:fileParameter.path withFileId:fileParameter.parameterId];
+    _fileStatus = [[NCChatFileStatus alloc] initWithFileId:fileParameter.parameterId fileName:fileParameter.name filePath:fileParameter.path];
     fileParameter.fileStatus = _fileStatus;
     
     [self startDownload];
@@ -178,7 +180,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
             
             NSString *filePath = [NSString stringWithFormat:@"%@%@", directoryPath, file.fileName];
             
-            self->_fileStatus = [NCChatFileStatus initWithFileName:file.fileName withFilePath:filePath withFileId:file.fileId];
+            self->_fileStatus = [[NCChatFileStatus alloc] initWithFileId:file.fileId fileName:file.fileName filePath:filePath];
             [self startDownload];
         } else {
             NSLog(@"An error occurred while getting file with fileId %@: %@", fileId, errorDescription);

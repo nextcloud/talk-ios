@@ -110,7 +110,6 @@
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
 		1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */; };
-		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
 		1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F628CB92842BAAF0083A425 /* QRCodeReader */; };
@@ -285,6 +284,7 @@
 		1FF2FD852AB99F51000C9905 /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
 		1FF2FD862AB99F5B000C9905 /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
 		1FF4DA7E2C0237D000C1B952 /* DirectoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */; };
+		1FF4DA802C023FF300C1B952 /* NCChatFileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -654,8 +654,6 @@
 		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
 		1F5A24322ADA77DA009939FE /* InputbarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputbarViewController.swift; sourceTree = "<group>"; };
 		1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UnitColorGeneratorTest.swift; path = NextcloudTalkTests/Unit/UnitColorGeneratorTest.swift; sourceTree = SOURCE_ROOT; };
-		1F5CDF622584E78900B0026E /* NCChatFileStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatFileStatus.h; sourceTree = "<group>"; };
-		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
 		1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTableViewController.swift; sourceTree = "<group>"; };
 		1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorView.swift; sourceTree = "<group>"; };
@@ -753,6 +751,7 @@
 		1FF2FD7B2AB99E4D000C9905 /* SampleUploader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleUploader.swift; sourceTree = "<group>"; };
 		1FF2FD7D2AB99E4D000C9905 /* SocketConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketConnection.swift; sourceTree = "<group>"; };
 		1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTableViewCell.swift; sourceTree = "<group>"; };
+		1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCChatFileStatus.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1979,8 +1978,7 @@
 				2C42ADB320B58E6300296DEA /* NCChatController.m */,
 				1FEDE3C5257D439500853F79 /* NCChatFileController.h */,
 				1FEDE3C4257D439500853F79 /* NCChatFileController.m */,
-				1F5CDF622584E78900B0026E /* NCChatFileStatus.h */,
-				1F5CDF632584E78900B0026E /* NCChatFileStatus.m */,
+				1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */,
 				2C5BFBF0288A97D800E75118 /* NCPoll.h */,
 				2C5BFBF1288A97D800E75118 /* NCPoll.m */,
 				2C43BA7421309A1000B3068A /* NCMessageParameter.h */,
@@ -2829,7 +2827,6 @@
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
 				1F1B0F482BE047CE003FD766 /* CustomPresentable.swift in Sources */,
-				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */,
 				1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */,
 				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
@@ -2881,6 +2878,7 @@
 				1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */,
+				1FF4DA802C023FF300C1B952 /* NCChatFileStatus.swift in Sources */,
 				DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */,

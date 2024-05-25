@@ -278,13 +278,15 @@ import QuickLook
                 return
             }
 
-            self.previewControllerFilePath = fileStatus.fileLocalPath
+            guard let fileLocalPath = fileStatus.fileLocalPath else { return }
+
+            self.previewControllerFilePath = fileLocalPath
             self.isPreviewControllerShown = true
 
-            let fileExtension = NSURL(fileURLWithPath: fileStatus.fileLocalPath).pathExtension
+            let fileExtension = NSURL(fileURLWithPath: fileLocalPath).pathExtension
 
             if fileExtension?.lowercased() == "webm" {
-                let vlcViewController = VLCKitVideoViewController(filePath: fileStatus.fileLocalPath)
+                let vlcViewController = VLCKitVideoViewController(filePath: fileLocalPath)
                 vlcViewController.delegate = self
                 vlcViewController.modalPresentationStyle = .fullScreen
 

@@ -23,7 +23,8 @@
 
 #import "NCDatabaseManager.h"
 #import "NCMessageFileParameter.h"
-#import "NCChatFileStatus.h"
+
+@class NCChatFileStatus;
 
 NS_ASSUME_NONNULL_BEGIN
 
