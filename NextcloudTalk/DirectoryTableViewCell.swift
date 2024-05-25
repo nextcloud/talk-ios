@@ -56,10 +56,8 @@ import Foundation
     func didChangeIsDownloading(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let receivedStatus = notification.userInfo?["fileStatus"] as? NCChatFileStatus,
-                  let fileParameter = self.fileParameter,
-                  receivedStatus.fileId == fileParameter.parameterId,
-                  receivedStatus.filePath == fileParameter.path
+            guard let fileParameter = self.fileParameter,
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
             else { return }
 
             if receivedStatus.isDownloading, self.activityIndicator == nil {
@@ -75,10 +73,8 @@ import Foundation
     func didChangeDownloadProgress(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let receivedStatus = notification.userInfo?["fileStatus"] as? NCChatFileStatus,
-                  let fileParameter = self.fileParameter,
-                  receivedStatus.fileId == fileParameter.parameterId,
-                  receivedStatus.filePath == fileParameter.path
+            guard let fileParameter = self.fileParameter,
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
             else { return }
 
             if self.activityIndicator != nil {

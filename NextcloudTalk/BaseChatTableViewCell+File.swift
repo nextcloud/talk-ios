@@ -297,11 +297,8 @@ extension BaseChatTableViewCell {
     @objc func didChangeIsDownloading(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let userInfo = notification.userInfo,
-                  let receivedStatus = userInfo["fileStatus"] as? NCChatFileStatus,
-                  let fileParameter = self.message?.file(),
-                  receivedStatus.fileId == fileParameter.parameterId,
-                  receivedStatus.filePath == fileParameter.path
+            guard let fileParameter = self.message?.file(),
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
             else { return }
 
             if receivedStatus.isDownloading, self.fileActivityIndicator == nil {
@@ -316,11 +313,8 @@ extension BaseChatTableViewCell {
     @objc func didChangeDownloadProgress(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let userInfo = notification.userInfo,
-                  let receivedStatus = userInfo["fileStatus"] as? NCChatFileStatus,
-                  let fileParameter = self.message?.file(),
-                  receivedStatus.fileId == fileParameter.parameterId,
-                  receivedStatus.filePath == fileParameter.path
+            guard let fileParameter = self.message?.file(),
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
             else { return }
 
             if self.fileActivityIndicator != nil {
