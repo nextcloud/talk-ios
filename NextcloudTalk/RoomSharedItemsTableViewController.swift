@@ -70,7 +70,7 @@ import QuickLook
         self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
-        self.tableView.register(UINib(nibName: kDirectoryTableCellNibName, bundle: nil), forCellReuseIdentifier: kDirectoryCellIdentifier)
+        self.tableView.register(UINib(nibName: DirectoryTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: DirectoryTableViewCell.identifier)
 
         self.hideShowMoreButton()
         self.getItemsOverview()
@@ -370,12 +370,12 @@ import QuickLook
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return kDirectoryTableCellHeight
+        return DirectoryTableViewCell.cellHeight
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: kDirectoryCellIdentifier) as? DirectoryTableViewCell ??
-        DirectoryTableViewCell(style: .default, reuseIdentifier: kShareCellIdentifier)
+        let cell = tableView.dequeueReusableCell(withIdentifier: DirectoryTableViewCell.identifier) as? DirectoryTableViewCell ??
+        DirectoryTableViewCell(style: .default, reuseIdentifier: DirectoryTableViewCell.identifier)
 
         let message = currentItems[indexPath.row]
 

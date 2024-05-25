@@ -28,7 +28,6 @@
 #import "CallParticipantViewCell.h"
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
-#import "DirectoryTableViewCell.h"
 #import "HeaderWithButton.h"
 #import "NBPhoneNumber.h"
 #import "NBPhoneNumberDefines.h"

@@ -26,7 +26,6 @@
 
 #import "UIImageView+AFNetworking.h"
 
-#import "DirectoryTableViewCell.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCAppBranding.h"
@@ -103,7 +102,7 @@
     
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 64, 0, 0);
     
-    [self.tableView registerNib:[UINib nibWithNibName:kDirectoryTableCellNibName bundle:nil] forCellReuseIdentifier:kDirectoryCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:DirectoryTableViewCell.nibName bundle:nil] forCellReuseIdentifier:DirectoryTableViewCell.identifier];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -315,15 +314,15 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return kDirectoryTableCellHeight;
+    return DirectoryTableViewCell.cellHeight;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NKFile *item = [_itemsInDirectory objectAtIndex:indexPath.row];
-    DirectoryTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDirectoryCellIdentifier];
+    DirectoryTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:DirectoryTableViewCell.identifier];
     if (!cell) {
-        cell = [[DirectoryTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDirectoryCellIdentifier];
+        cell = [[DirectoryTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:DirectoryTableViewCell.identifier];
     }
     
     // Name and modification date

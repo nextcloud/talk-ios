@@ -284,6 +284,7 @@
 		1FF2FD832AB99F3B000C9905 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		1FF2FD852AB99F51000C9905 /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
 		1FF2FD862AB99F5B000C9905 /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
+		1FF4DA7E2C0237D000C1B952 /* DirectoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -424,7 +425,6 @@
 		2C84BCCC29EEB9C6001BA6DA /* CallReactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */; };
 		2C84BCCE29EEDCE8001BA6DA /* CallReactionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */; };
 		2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
-		2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
 		2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */; };
 		2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */; };
 		2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */; };
@@ -752,6 +752,7 @@
 		1FF2FD7A2AB99E4D000C9905 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		1FF2FD7B2AB99E4D000C9905 /* SampleUploader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleUploader.swift; sourceTree = "<group>"; };
 		1FF2FD7D2AB99E4D000C9905 /* SocketConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketConnection.swift; sourceTree = "<group>"; };
+		1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTableViewCell.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -929,8 +930,6 @@
 		2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CallReactionView.xib; sourceTree = "<group>"; };
 		2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewController.h; sourceTree = "<group>"; };
 		2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DirectoryTableViewController.m; sourceTree = "<group>"; };
-		2C8A2BCB221FEEFE00DE6D2C /* DirectoryTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewCell.h; sourceTree = "<group>"; };
-		2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DirectoryTableViewCell.m; sourceTree = "<group>"; };
 		2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DirectoryTableViewCell.xib; sourceTree = "<group>"; };
 		2C8CDD0421C2EDE8004E2997 /* AvatarBackgroundImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AvatarBackgroundImageView.h; sourceTree = "<group>"; };
 		2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AvatarBackgroundImageView.m; sourceTree = "<group>"; };
@@ -1832,8 +1831,7 @@
 		2C8A2BCA221F096200DE6D2C /* File sharing */ = {
 			isa = PBXGroup;
 			children = (
-				2C8A2BCB221FEEFE00DE6D2C /* DirectoryTableViewCell.h */,
-				2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */,
+				1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */,
 				2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */,
 				2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */,
 				2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */,
@@ -2716,11 +2714,11 @@
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
 				2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
-				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				1F1B50442B9095D100B0F2F4 /* FederatedCapabilities.m in Sources */,
 				2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
+				1FF4DA7E2C0237D000C1B952 /* DirectoryTableViewCell.swift in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
 				1FF1360F2BFB4F8C006A6101 /* NCRoom.swift in Sources */,
 				1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */,
