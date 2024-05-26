@@ -32,7 +32,6 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
-#import "NCWebImageDownloaderOperation.h"
 #import "NotificationCenterNotifications.h"
 
 #import "NextcloudTalk-Swift.h"

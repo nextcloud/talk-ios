@@ -92,9 +92,6 @@
 		1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */; };
 		1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */; };
 		1F45A1252A01D8F7005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */; };
-		1F45A1342A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
-		1F45A1352A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
-		1F45A1362A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
 		1F468E7628DCC6C60099597B /* Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 1F468E7528DCC6C60099597B /* Dynamic */; };
 		1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F468E7728DCC7310099597B /* EmojiTextField.swift */; };
 		1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */; };
@@ -167,7 +164,6 @@
 		1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
 		1F77A6062AB9A581007B6037 /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
 		1F77A6082AB9A58D007B6037 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
-		1F77A6092AB9A593007B6037 /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
 		1F77A60A2AB9A5AE007B6037 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
 		1F77A60C2AB9A5BE007B6037 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F77A60B2AB9A5BE007B6037 /* CDMarkdownKit */; };
 		1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
@@ -298,6 +294,10 @@
 		1FF4DA922C02677F00C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
 		1FF4DA932C02678000C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
 		1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
+		1FF4DA962C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA992C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -647,8 +647,6 @@
 		1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AvatarEditView.xib; sourceTree = "<group>"; };
 		1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarButtonItemWithActivity.m; sourceTree = "<group>"; };
 		1F3D3B21255F109E00230DAE /* BarButtonItemWithActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarButtonItemWithActivity.h; sourceTree = "<group>"; };
-		1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCWebImageDownloaderOperation.m; sourceTree = "<group>"; };
-		1F45A1332A026EF9005FE87D /* NCWebImageDownloaderOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCWebImageDownloaderOperation.h; sourceTree = "<group>"; };
 		1F468E7728DCC7310099597B /* EmojiTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiTextField.swift; sourceTree = "<group>"; };
 		1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDefaultView.swift; sourceTree = "<group>"; };
 		1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDefaultView.xib; sourceTree = "<group>"; };
@@ -760,6 +758,7 @@
 		1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCBaseSessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCPushProxySessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCImageSessionManager.swift; sourceTree = "<group>"; };
+		1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCWebImageDownloaderOperation.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1722,8 +1721,7 @@
 				1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */,
 				1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */,
 				2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */,
-				1F45A1332A026EF9005FE87D /* NCWebImageDownloaderOperation.h */,
-				1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */,
+				1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -2637,7 +2635,6 @@
 				1F77A6012AB9A51D007B6037 /* NCNotificationAction.swift in Sources */,
 				1F77A6242ABA0003007B6037 /* SampleHandler.swift in Sources */,
 				1F77A5F32AB9A43B007B6037 /* SwiftMarkdownObjCBridge.swift in Sources */,
-				1F77A6092AB9A593007B6037 /* NCWebImageDownloaderOperation.m in Sources */,
 				1FF4DA832C025DBF00C1B952 /* NCAPISessionManager.swift in Sources */,
 				1FDFC9502BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1FF2FD832AB99F3B000C9905 /* NCAppBranding.m in Sources */,
@@ -2660,6 +2657,7 @@
 				1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */,
 				1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */,
 				1F77A60A2AB9A5AE007B6037 /* NCUser.m in Sources */,
+				1FF4DA992C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				1F1B504A2B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2C6955122B0CE1A10070F6E1 /* NCUtils.swift in Sources */,
 				1FF4DA8D2C0264B100C1B952 /* NCPushProxySessionManager.swift in Sources */,
@@ -2763,7 +2761,6 @@
 				2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */,
 				2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */,
 				2CB304222264775E0053078A /* UIView+SLKAdditions.m in Sources */,
-				1F45A1342A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
 				1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */,
 				2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */,
@@ -2845,6 +2842,7 @@
 				1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
+				1FF4DA962C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				1F1B0F4A2BE047D5003FD766 /* OneWayPanGestureRecognizer.swift in Sources */,
 				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
@@ -2924,12 +2922,12 @@
 				1F35F8F12AEEC25B00044BDA /* TypingIndicatorView.swift in Sources */,
 				2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */,
 				1F35F8EC2AEEBC1400044BDA /* UIScrollView+SLKAdditions.m in Sources */,
-				1F45A1362A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
 				1FF136172BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
 				1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
 				1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */,
 				1F35F8E62AEEBC0300044BDA /* SLKTextInput+Implementation.m in Sources */,
+				1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				1F35F8E72AEEBC0600044BDA /* SLKTextInputbar.m in Sources */,
 				1F35F8E52AEEBC0100044BDA /* SLKInputAccessoryView.m in Sources */,
 				1F35F8E92AEEBC0C00044BDA /* SLKTextView.m in Sources */,
@@ -3017,7 +3015,6 @@
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
 				1FF136162BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
-				1F45A1352A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
 				2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
@@ -3030,6 +3027,7 @@
 				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */,
 				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
+				1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */,
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,
