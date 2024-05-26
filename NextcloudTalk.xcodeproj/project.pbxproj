@@ -299,6 +299,7 @@
 		1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
 		1FF4DA992C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
 		1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */; };
+		1FF4DAA02C03351E00C1B952 /* RoomNameTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -503,7 +504,6 @@
 		2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
-		2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */; };
 		2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
 		2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1C38029C0945600C8436B /* DRCellSlideGestureRecognizer.m */; };
@@ -760,6 +760,7 @@
 		1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCImageSessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCWebImageDownloaderOperation.swift; sourceTree = "<group>"; };
 		1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomTableViewCell.swift; sourceTree = "<group>"; };
+		1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomNameTableViewCell.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1051,8 +1052,6 @@
 		2CC0015B24A1F1D700A20167 /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		2CC007B220D7AE990096D91F /* ResultMultiSelectionTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResultMultiSelectionTableViewController.h; sourceTree = "<group>"; };
 		2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResultMultiSelectionTableViewController.m; sourceTree = "<group>"; };
-		2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomNameTableViewCell.h; sourceTree = "<group>"; };
-		2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomNameTableViewCell.m; sourceTree = "<group>"; };
 		2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomNameTableViewCell.xib; sourceTree = "<group>"; };
 		2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageBodyTextView.h; sourceTree = "<group>"; };
 		2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageBodyTextView.m; sourceTree = "<group>"; };
@@ -1583,8 +1582,7 @@
 				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
 				1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */,
-				2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */,
-				2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */,
+				1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */,
 				2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */,
 				2C4CDCC9269618230023F403 /* RoomDescriptionTableViewCell.h */,
 				2C4CDCCA269618230023F403 /* RoomDescriptionTableViewCell.m */,
@@ -2830,7 +2828,6 @@
 				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
-				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
@@ -2900,6 +2897,7 @@
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
 				1F35F8E02AEEB9DE00044BDA /* ShareConfirmationViewController.swift in Sources */,
+				1FF4DAA02C03351E00C1B952 /* RoomNameTableViewCell.swift in Sources */,
 				2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */,
 				1FD6F83E2B87B712004048AB /* NCUserStatusExtensions.swift in Sources */,
 				1FEC45A32A02F92700A636AA /* GithubPermalinkViewController.swift in Sources */,

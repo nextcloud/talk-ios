@@ -45,7 +45,6 @@
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "RoomDescriptionTableViewCell.h"
-#import "RoomNameTableViewCell.h"
 #import "NCUserStatus.h"
 
 typedef enum RoomInfoSection {
@@ -234,7 +233,7 @@ typedef enum FileAction {
     [_headerView.button addTarget:self action:@selector(addParticipantsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:RoomNameTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomNameTableViewCell.identifier];
     [self.tableView registerNib:[UINib nibWithNibName:kRoomDescriptionTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomDescriptionCellIdentifier];
     
     if (!_chatViewController || [self.navigationController.viewControllers count] == 1) {
@@ -1657,9 +1656,9 @@ typedef enum FileAction {
     switch (section) {
         case kRoomInfoSectionName:
         {
-            RoomNameTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomNameCellIdentifier];
+            RoomNameTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomNameTableViewCell.identifier];
             if (!cell) {
-                cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
+                cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomNameTableViewCell.identifier];
             }
             
             cell.roomNameTextField.text = _room.name;
