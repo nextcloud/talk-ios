@@ -30,7 +30,6 @@
 #import "NCRoom.h"
 #import "NCSettingsController.h"
 #import "PlaceholderView.h"
-#import "RoomTableViewCell.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -52,7 +51,7 @@ typedef enum RoomSearchSection {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
@@ -195,9 +194,9 @@ typedef enum RoomSearchSection {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForMessageAtIndexPath:(NSIndexPath *)indexPath
 {
     NKSearchEntry *messageEntry = [_messages objectAtIndex:indexPath.row];
-    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomTableViewCell.identifier];
     if (!cell) {
-        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomTableViewCell.identifier];
     }
     
     cell.titleLabel.text = messageEntry.title;
@@ -216,8 +215,8 @@ typedef enum RoomSearchSection {
     
     // Clear possible content not removed by cell reuse
     cell.dateLabel.text = @"";
-    [cell setUnreadMessages:0 mentioned:NO groupMentioned:NO];
-    
+    [cell setUnreadWithMessages:0 mentioned:NO groupMentioned:NO];
+
     // Add message date (if it is included in attributes)
     NSInteger timestamp = [[messageEntry.attributes objectForKey:@"timestamp"] integerValue];
     if (timestamp > 0) {
@@ -241,14 +240,14 @@ typedef enum RoomSearchSection {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForUserAtIndexPath:(NSIndexPath *)indexPath
 {
     NCUser *user = [_users objectAtIndex:indexPath.row];
-    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomTableViewCell.identifier];
     if (!cell) {
-        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomTableViewCell.identifier];
     }
 
     // Clear possible content not removed by cell reuse
     cell.dateLabel.text = @"";
-    [cell setUnreadMessages:0 mentioned:NO groupMentioned:NO];
+    [cell setUnreadWithMessages:0 mentioned:NO groupMentioned:NO];
 
     cell.titleLabel.text = user.name;
     cell.titleOnly = YES;
@@ -283,7 +282,7 @@ typedef enum RoomSearchSection {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return kRoomTableCellHeight;
+    return RoomTableViewCell.cellHeight;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -317,9 +316,9 @@ typedef enum RoomSearchSection {
     
     NCRoom *room = [self roomForIndexPath:indexPath];
     
-    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomTableViewCell.identifier];
     if (!cell) {
-        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomTableViewCell.identifier];
     }
     
     // Set room name
@@ -339,10 +338,10 @@ typedef enum RoomSearchSection {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
         BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         BOOL groupMentioned = room.unreadMention && !room.unreadMentionDirect;
-        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
+        [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
     } else {
         BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
-        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
+        [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
     [cell.roomImage setAvatarFor:room];

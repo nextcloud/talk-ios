@@ -298,6 +298,7 @@
 		1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
 		1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
 		1FF4DA992C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -462,7 +463,6 @@
 		2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */; };
 		2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
 		2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */; };
-		2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
 		2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */; };
 		2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */; };
 		2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */; };
@@ -759,6 +759,7 @@
 		1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCPushProxySessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCImageSessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCWebImageDownloaderOperation.swift; sourceTree = "<group>"; };
+		1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomTableViewCell.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -991,8 +992,6 @@
 		2CA1CCD31F1E664C002FE6A2 /* ContactsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsTableViewCell.h; sourceTree = "<group>"; };
 		2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsTableViewCell.m; sourceTree = "<group>"; };
 		2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactsTableViewCell.xib; sourceTree = "<group>"; };
-		2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomTableViewCell.h; sourceTree = "<group>"; };
-		2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomTableViewCell.m; sourceTree = "<group>"; };
 		2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceMessageRecordingView.h; sourceTree = "<group>"; };
 		2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageRecordingView.m; sourceTree = "<group>"; };
 		2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VoiceMessageRecordingView.xib; sourceTree = "<group>"; };
@@ -1579,8 +1578,7 @@
 				1FF1360E2BFB4F8C006A6101 /* NCRoom.swift */,
 				2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */,
 				2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */,
-				2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */,
-				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
+				1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */,
 				2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */,
 				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
@@ -2697,7 +2695,6 @@
 				1F1B0F4C2BE18FF3003FD766 /* CustomPresentableNavigationController.swift in Sources */,
 				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
-				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
 				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
@@ -2817,6 +2814,7 @@
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
+				1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */,
 				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */,
 				807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */,

@@ -43,7 +43,6 @@
 #import "PlaceholderView.h"
 #import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
-#import "RoomTableViewCell.h"
 #import "UIBarButtonItem+Badge.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
@@ -96,7 +95,7 @@ typedef enum RoomsSections {
        [weakSelf refreshRoomList];
     }];
     
-    [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
     [self.tableView registerNib:[UINib nibWithNibName:RoomInvitationViewCell.NibName bundle:nil] forCellReuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
 
     // Align header's title to ContactsTableViewCell's label
@@ -1309,7 +1308,7 @@ typedef enum RoomsSections {
         return RoomInvitationViewCell.CellHeight;
     }
 
-    return kRoomTableCellHeight;
+    return RoomTableViewCell.cellHeight;
 }
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1429,9 +1428,9 @@ typedef enum RoomsSections {
         return cell;
     }
 
-    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomTableViewCell.identifier];
     if (!cell) {
-        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomTableViewCell.identifier];
     }
 
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -1453,10 +1452,10 @@ typedef enum RoomsSections {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
         BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         BOOL groupMentioned = room.unreadMention && !room.unreadMentionDirect;
-        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
+        [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
     } else {
         BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
-        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
+        [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
     [cell.roomImage setAvatarFor:room];
