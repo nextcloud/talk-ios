@@ -819,7 +819,7 @@ typedef enum RoomsSections {
 - (void)refreshRoomList
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId witRealm:nil];
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId withRealm:nil];
     _allRooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
