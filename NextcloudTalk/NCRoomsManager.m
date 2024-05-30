@@ -162,7 +162,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSInteger modifiedSince = onlyLastModified ? [activeAccount.lastReceivedModifiedSince integerValue] : 0;
-    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus modifiedSince:modifiedSince withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus modifiedSince:modifiedSince completionBlock:^(NSArray * _Nullable rooms, NSError * _Nullable error, NSInteger statusCode) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         NSMutableArray *roomsWithNewMessages = [NSMutableArray new];
 
@@ -225,7 +225,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)updateRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
@@ -260,6 +260,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     NCChatMessage *lastMessage = nil;
     NSDictionary *messageDict = [roomDict objectForKey:@"lastMessage"];
     if (!room.isFederated) {
+        // TODO: Move handling to NCRoom roomWithDictionary?
         lastMessage = [NCChatMessage messageWithDictionary:messageDict andAccountId:activeAccount.accountId];
         room.lastMessageId = lastMessage.internalId;
     }
@@ -393,7 +394,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         [self startChatInRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                 [self startChatInRoom:room];
@@ -472,7 +473,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video asInitiator:(BOOL)initiator recordingConsent:(BOOL)recordingConsent
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
             [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName asInitiator:initiator silently:YES recordingConsent:recordingConsent withAccountId:activeAccount.accountId];
@@ -483,7 +484,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video enabledAtStart:(BOOL)enabled asInitiator:(BOOL)initiator silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent andVoiceChatMode:(BOOL)voiceChatMode
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
             [self startCall:video inRoom:room withVideoEnabled:enabled asInitiator:initiator silently:silently recordingConsent:recordingConsent andVoiceChatMode:voiceChatMode];
@@ -678,7 +679,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)joinOrCreateChatWithUser:(NSString *)userId usingAccountId:(NSString *)accountId
 {
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:accountId withRealm:nil];
-    
+
     for (NCRoom *room in accountRooms) {
         NSArray *participantsInRoom = [room.participants valueForKey:@"self"];
         

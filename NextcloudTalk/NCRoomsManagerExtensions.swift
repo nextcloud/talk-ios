@@ -277,7 +277,7 @@ import Foundation
         return unmanagedRooms
     }
 
-    public func resendOfflineMessagesWithCompletionBlock(_ block: @escaping SendOfflineMessagesCompletionBlock) {
+    public func resendOfflineMessagesWithCompletionBlock(_ block: SendOfflineMessagesCompletionBlock?) {
         // Try to send offline messages for all rooms
         self.resendOfflineMessages(forToken: nil, withCompletionBlock: block)
     }

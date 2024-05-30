@@ -1223,7 +1223,7 @@ typedef enum RoomsSections {
         if (room) {
             [self presentContextChatInRoom:room forMessageId:messageId];
         } else {
-            [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+            [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken completionBlock:^(NSDictionary *roomDict, NSError *error) {
                 if (!error) {
                     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                     [self presentContextChatInRoom:room forMessageId:messageId];

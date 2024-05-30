@@ -31,6 +31,92 @@ import Foundation
         return ocs
     }
 
+    func getOcsDictResponse(data: Any?) -> [String: AnyObject]? {
+        guard let ocs = self.getOcsResponse(data: data),
+              let ocsData = ocs["data"] as? [String: AnyObject]
+        else { return nil }
+
+        return ocsData
+    }
+
+    func getOcsArrayDictResponse(data: Any?) -> [[String: AnyObject]]? {
+        guard let ocs = self.getOcsResponse(data: data),
+              let ocsData = ocs["data"] as? [[String: AnyObject]]
+        else { return nil }
+
+        return ocsData
+    }
+
+    func checkResponseHeaders(withDataTask task: URLSessionTask?, forAccount account: TalkAccount) {
+        guard let task,
+              let response = task.response,
+              let headers = self.getResponseHeaders(response)
+        else { return }
+
+        self.checkResponseHeaders(headers, for: account)
+    }
+
+    // MARK: - Rooms Controller
+
+    public func getRooms(forAccount account: TalkAccount, updateStatus: Bool, modifiedSince: Int, completionBlock: @escaping (_ rooms: [[String: AnyObject]]?, _ error: Error?, _ statusCode: Int) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        else {
+            completionBlock(nil, NSError(domain: "", code: 0), 0)
+            return
+        }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        var urlString = self.getRequestURL(forEndpoint: "room", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: Any] = [
+            "noStatusUpdate": !updateStatus,
+            "modifiedSince": modifiedSince
+        ]
+
+        // Since we are using "modifiedSince" only in background fetches
+        // we will request including user status only when getting the complete room list
+        if serverCapabilities.userStatus, modifiedSince == 0 {
+            urlString = urlString.appending("?includeStatus=true")
+        }
+
+        apiSessionManager.get(urlString, parameters: parameters, progress: nil) { task, result in
+            self.checkResponseHeaders(withDataTask: task, forAccount: account)
+
+            // TODO: Move away from generic dictionary return type
+            // let rooms = data.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
+            completionBlock(self.getOcsArrayDictResponse(data: result), nil, 0)
+        } failure: { task, error in
+            let statusCode = self.getResponseStatusCode(task?.response)
+            self.checkResponseStatusCode(statusCode, for: account)
+
+            completionBlock(nil, error, statusCode)
+        }
+    }
+
+    public func getRoom(forAccount account: TalkAccount, withToken token: String, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil, NSError(domain: "", code: 0))
+            return
+        }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.get(urlString, parameters: nil, progress: nil) { task, result in
+            self.checkResponseHeaders(withDataTask: task, forAccount: account)
+
+            completionBlock(self.getOcsDictResponse(data: result), nil)
+        } failure: { task, error in
+            let statusCode = self.getResponseStatusCode(task?.response)
+            self.checkResponseStatusCode(statusCode, for: account)
+
+            completionBlock(nil, error)
+        }
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
