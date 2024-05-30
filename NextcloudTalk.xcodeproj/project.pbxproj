@@ -218,8 +218,8 @@
 		1FB78E292B6AE8CA00B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
 		1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */; };
 		1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */; };
-		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */; };
-		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
+		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */; };
+		1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -301,6 +301,7 @@
 		1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */; };
 		1FF4DAA02C03351E00C1B952 /* RoomNameTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */; };
 		1FF4DAA22C0338D000C1B952 /* RoomDescriptionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */; };
+		1FF4DAA62C08D81D00C1B952 /* UnitNCChatMessageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -713,8 +714,8 @@
 		1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FederationInvitation.swift; sourceTree = "<group>"; };
 		1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
-		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCell.swift; sourceTree = "<group>"; };
-		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
+		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCellTest.swift; sourceTree = "<group>"; };
+		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
@@ -762,6 +763,7 @@
 		1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomTableViewCell.swift; sourceTree = "<group>"; };
 		1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomNameTableViewCell.swift; sourceTree = "<group>"; };
 		1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomDescriptionTableViewCell.swift; sourceTree = "<group>"; };
+		1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCChatMessageTest.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1311,8 +1313,9 @@
 				1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */,
 				1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */,
 				1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */,
-				1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */,
-				1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */,
+				1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */,
+				1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */,
+				1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -2589,17 +2592,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FF4DAA62C08D81D00C1B952 /* UnitNCChatMessageTest.swift in Sources */,
 				1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */,
 				1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */,
 				1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */,
 				1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */,
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
-				1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCell.swift in Sources */,
+				1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
 				1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
 				1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */,
-				1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */,
+				1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */,
 				1F0B0A772BA26BE10073FF8D /* UnitMentionSuggestionTest.swift in Sources */,
 				1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */,
 			);

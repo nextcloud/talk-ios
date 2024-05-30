@@ -74,7 +74,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         chatViewController.removeExpiredMessages()
 
         // Since removeExpiredMessages is dispatched, we need to wait until it was scheduled
-        var exp = expectation(description: "\(#function)\(#line)")
+        let exp = expectation(description: "\(#function)\(#line)")
 
         DispatchQueue.main.async {
             exp.fulfill()
