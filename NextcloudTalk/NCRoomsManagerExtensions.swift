@@ -299,7 +299,6 @@ import Foundation
             // If we were unable to send a message after 12 hours, mark as failed
             if offlineMessage.timestamp < twelveHoursAgoTimestamp {
                 try? realm.transaction {
-                    // TODO: ObjC code had another query here -> Check
                     offlineMessage.isOfflineMessage = false
                     offlineMessage.sendingFailed = true
                 }
@@ -312,14 +311,13 @@ import Foundation
                     userInfo["referenceId"] = offlineMessage.referenceId
                 }
 
-                // Inform the callViewController about this change
+                // Inform the chatViewController about this change
                 NotificationCenter.default.post(name: .NCChatControllerDidSendChatMessage, object: self, userInfo: userInfo)
-                return
-            }
-
-            if let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: offlineMessage.accountId),
-               let chatController = NCChatController(for: room) {
-                chatController.send(offlineMessage)
+            } else {
+                if let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: offlineMessage.accountId),
+                   let chatController = NCChatController(for: room) {
+                    chatController.send(offlineMessage)
+                }
             }
         }
 

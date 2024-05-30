@@ -302,6 +302,7 @@
 		1FF4DAA02C03351E00C1B952 /* RoomNameTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */; };
 		1FF4DAA22C0338D000C1B952 /* RoomDescriptionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */; };
 		1FF4DAA62C08D81D00C1B952 /* UnitNCChatMessageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */; };
+		1FF4DAA82C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -764,6 +765,7 @@
 		1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomNameTableViewCell.swift; sourceTree = "<group>"; };
 		1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomDescriptionTableViewCell.swift; sourceTree = "<group>"; };
 		1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCChatMessageTest.swift; sourceTree = "<group>"; };
+		1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCRoomsManagerTest.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1313,6 +1315,7 @@
 				1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */,
 				1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */,
 				1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */,
+				1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */,
 				1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */,
 				1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */,
 				1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */,
@@ -2600,6 +2603,7 @@
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
 				1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
+				1FF4DAA82C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift in Sources */,
 				1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
 				1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */,
