@@ -28,6 +28,7 @@
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "TalkAccount.h"
+#import "NotificationCenterNotifications.h"
 
 #import "NCChatTitleView.h"
 #import "SLKTextViewController.h"

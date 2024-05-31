@@ -303,6 +303,10 @@
 		1FF4DAA22C0338D000C1B952 /* RoomDescriptionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */; };
 		1FF4DAA62C08D81D00C1B952 /* UnitNCChatMessageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */; };
 		1FF4DAA82C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */; };
+		1FF4DAAA2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
+		1FF4DAAB2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
+		1FF4DAAC2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
+		1FF4DAAD2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -766,6 +770,7 @@
 		1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomDescriptionTableViewCell.swift; sourceTree = "<group>"; };
 		1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCChatMessageTest.swift; sourceTree = "<group>"; };
 		1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCRoomsManagerTest.swift; sourceTree = "<group>"; };
+		1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OcsResponse.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1722,6 +1727,7 @@
 				1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */,
 				2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */,
 				1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */,
+				1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -2673,6 +2679,7 @@
 				1F77A5F72AB9A4C5007B6037 /* NCContact.m in Sources */,
 				1FF2FD822AB99E4D000C9905 /* SocketConnection.swift in Sources */,
 				1F77A6082AB9A58D007B6037 /* NCRoomParticipants.m in Sources */,
+				1FF4DAAD2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1FF2FD862AB99F5B000C9905 /* NCDatabaseManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2773,6 +2780,7 @@
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				1F1B0F362BDD8B9C003FD766 /* NCActivityIndicator.swift in Sources */,
 				1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */,
+				1FF4DAAA2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */,
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
 				2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */,
@@ -2985,6 +2993,7 @@
 				2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */,
 				1F35F8F32AEEC29A00044BDA /* AvatarButton.swift in Sources */,
 				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				1FF4DAAC2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1F1B504C2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				1FB78E282B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
 				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
@@ -3030,6 +3039,7 @@
 				2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */,
 				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
 				1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
+				1FF4DAAB2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */,
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,

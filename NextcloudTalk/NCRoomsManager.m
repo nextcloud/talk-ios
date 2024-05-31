@@ -162,7 +162,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSInteger modifiedSince = onlyLastModified ? [activeAccount.lastReceivedModifiedSince integerValue] : 0;
-    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus modifiedSince:modifiedSince completionBlock:^(NSArray * _Nullable rooms, NSError * _Nullable error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus modifiedSince:modifiedSince completionBlock:^(NSArray * _Nullable rooms, NSError * _Nullable error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         NSMutableArray *roomsWithNewMessages = [NSMutableArray new];
 

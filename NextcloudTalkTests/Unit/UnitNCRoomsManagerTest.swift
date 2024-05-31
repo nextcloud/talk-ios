@@ -28,7 +28,7 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomToken = "offToken"
 
-        _ = addRoom(withToken: roomToken)
+        addRoom(withToken: roomToken)
 
         // Create 2 messages which are in different sections
         let oldOfflineMessage = NCChatMessage()
@@ -86,7 +86,7 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
         }
 
         // Add an unrelated room, which should not be returned
-        _ = addRoom(withToken: "Unrelated", withAccountId: "foo")
+        addRoom(withToken: "Unrelated", withAccountId: "foo")
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let rooms = NCRoomsManager.sharedInstance().roomsForAccountId(activeAccount.accountId, withRealm: nil)

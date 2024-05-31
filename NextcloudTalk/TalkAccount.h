@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL hasCustomAvatar;
 @property BOOL hasContactSyncEnabled;
 @property BOOL active;
-@property NSString *lastReceivedConfigurationHash;
+@property NSString * _Nullable lastReceivedConfigurationHash;
 @property NSString *lastReceivedModifiedSince;
 @property NSInteger lastNotificationId;
 @property NSString *lastNotificationETag;

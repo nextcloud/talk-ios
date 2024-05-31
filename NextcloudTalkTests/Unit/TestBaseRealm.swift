@@ -62,6 +62,7 @@ class TestBaseRealm: XCTestCase {
         }
     }
 
+    @discardableResult
     func addRoom(withToken roomToken: String, withName roomName: String = "", withAccountId accountId: String = fakeAccountId, updateBlock: ((NCRoom) -> Void)? = nil) -> NCRoom {
         let room = NCRoom()
         room.token = roomToken
