@@ -29,8 +29,7 @@ final class IntegrationRoomTest: TestBase {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getRoomsFor(activeAccount, updateStatus: false, modifiedSince: 0) { rooms, error, errorCode in
-            XCTAssertEqual(errorCode, 0)
+        NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: false, modifiedSince: 0) { rooms, error in
             XCTAssertNil(error)
 
             // By default, the room list should never be empty, it should contain atleast the talk changelog room

@@ -78,6 +78,42 @@ import Foundation
         }
     }
 
+    public func getNoteToSelfRoom(forAccount account: TalkAccount, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil, NSError())
+            return
+        }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/note-to-self", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.getOcs(urlString, account: account) { ocs, error in
+            completionBlock(ocs?.dataDict, error)
+        }
+    }
+
+    public func getListableRooms(forAccount account: TalkAccount, withSerachTerm searchTerm: String?, completionBlock: @escaping (_ rooms: [NCRoom]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil, NSError(domain: "", code: 0))
+            return
+        }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "listed-room", withAPIVersion: apiVersion, for: account)
+        var parameters: [String: Any] = [:]
+
+        if let searchTerm, !searchTerm.isEmpty {
+            parameters["searchTerm"] = searchTerm
+        }
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
+            let rooms = ocs?.dataArrayDict?.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
+            completionBlock(rooms, error)
+        }
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {

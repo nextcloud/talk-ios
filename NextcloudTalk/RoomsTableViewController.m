@@ -705,7 +705,7 @@ typedef enum RoomsSections {
     // Search for listable rooms
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
         _resultTableViewController.listableRooms = @[];
-        [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSearchTerm:searchString andCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+        [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSerachTerm:searchString completionBlock:^(NSArray<NCRoom *> * _Nullable rooms, NSError * _Nullable error) {
             if (!error) {
                 self->_resultTableViewController.listableRooms = rooms;
             }

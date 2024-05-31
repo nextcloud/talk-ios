@@ -935,7 +935,7 @@ import QuickLook
     func didPressNoteToSelf(for message: NCChatMessage) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        NCAPIController.sharedInstance().getNoteToSelfRoom(for: activeAccount) { roomDict, error in
+        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: activeAccount) { roomDict, error in
             if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
 
                 if message.isObjectShare {
