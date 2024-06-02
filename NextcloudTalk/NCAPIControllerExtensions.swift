@@ -34,15 +34,12 @@ import Foundation
     // MARK: - Rooms Controller
 
     public func getRooms(forAccount account: TalkAccount, updateStatus: Bool, modifiedSince: Int, completionBlock: @escaping (_ rooms: [[String: AnyObject]]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
-              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        else {
-            completionBlock(nil, NSError(domain: "", code: 0))
-            return
-        }
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
 
         let apiVersion = self.conversationAPIVersion(for: account)
         var urlString = self.getRequestURL(forEndpoint: "room", withAPIVersion: apiVersion, for: account)
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
 
         let parameters: [String: Any] = [
             "noStatusUpdate": !updateStatus,
@@ -51,7 +48,7 @@ import Foundation
 
         // Since we are using "modifiedSince" only in background fetches
         // we will request including user status only when getting the complete room list
-        if serverCapabilities.userStatus, modifiedSince == 0 {
+        if serverCapabilities?.userStatus == true, modifiedSince == 0 {
             urlString = urlString.appending("?includeStatus=true")
         }
 
@@ -65,10 +62,7 @@ import Foundation
     public func getRoom(forAccount account: TalkAccount, withToken token: String, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        else {
-            completionBlock(nil, NSError())
-            return
-        }
+        else { return }
 
         let apiVersion = self.conversationAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)", withAPIVersion: apiVersion, for: account)
@@ -80,10 +74,7 @@ import Foundation
 
     public func getNoteToSelfRoom(forAccount account: TalkAccount, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
-        else {
-            completionBlock(nil, NSError())
-            return
-        }
+        else { return }
 
         let apiVersion = self.conversationAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "room/note-to-self", withAPIVersion: apiVersion, for: account)
@@ -95,10 +86,7 @@ import Foundation
 
     public func getListableRooms(forAccount account: TalkAccount, withSerachTerm searchTerm: String?, completionBlock: @escaping (_ rooms: [NCRoom]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
-        else {
-            completionBlock(nil, NSError(domain: "", code: 0))
-            return
-        }
+        else { return }
 
         let apiVersion = self.conversationAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "listed-room", withAPIVersion: apiVersion, for: account)
