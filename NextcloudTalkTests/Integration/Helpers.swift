@@ -37,14 +37,17 @@ extension XCTestCase {
         return rooms
     }
 
-    func checkRoomExists(roomName: String, withAccoun account: TalkAccount) {
+    func checkRoomExists(roomName: String, withAccount account: TalkAccount, completion: ((NCRoom?) -> Void)? = nil) {
         let exp = expectation(description: "\(#function)\(#line)")
 
         NCAPIController.sharedInstance().getRooms(forAccount: account, updateStatus: false, modifiedSince: 0) { roomsDict, error in
             XCTAssertNil(error)
 
             let rooms = self.getRoomDict(from: roomsDict!)
-            XCTAssertNotNil(rooms.first(where: { $0.displayName == roomName }))
+            let room = rooms.first(where: { $0.displayName == roomName })
+            XCTAssertNotNil(room)
+
+            completion?(room)
 
             exp.fulfill()
         }
