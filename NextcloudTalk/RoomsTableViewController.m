@@ -1264,15 +1264,15 @@ typedef enum RoomsSections {
 - (void)createRoomForSelectedUser:(NCUser *)user
 {
     [[NCAPIController sharedInstance]
-     createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] with:user.userId
+     createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withInvite:user.userId
      ofType:kNCRoomTypeOneToOne
      andName:nil
-     withCompletionBlock:^(NSString *token, NSError *error) {
+     completionBlock:^(NCRoom *room, NSError *error) {
         if (!error) {
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedUserForChatNotification
                                                                     object:self
-                                                                  userInfo:@{@"token":token}];
+                                                                  userInfo:@{@"token":room.token}];
             }];
         }
 

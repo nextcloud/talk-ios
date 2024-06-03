@@ -244,15 +244,15 @@ enum RoomVisibilityOption: Int {
 
         // Create conversation
         let roomType: NCRoomType = self.isPublic ? .public : .group
-        NCAPIController.sharedInstance().createRoom(for: self.account, with: nil, of: roomType, andName: self.roomName) { token, error in
+        NCAPIController.sharedInstance().createRoom(forAccount: self.account, withInvite: nil, ofType: roomType, andName: self.roomName) { room, error in
             if let error {
                 NCUtils.log(String(format: "Failed to create room. Error: %@", error.localizedDescription))
                 self.roomCreationErrors.append(error.localizedDescription)
 
                 self.removeModifyingView()
                 self.presentRoomCreationFailedErrorDialog()
-            } else if let token = token {
-                self.setAdditionalRoomSettings(token: token)
+            } else if let room {
+                self.setAdditionalRoomSettings(token: room.token)
             }
         }
     }
@@ -288,7 +288,7 @@ enum RoomVisibilityOption: Int {
         // Room description
         if !self.roomDescription.isEmpty {
             self.roomCreationGroup.enter()
-            NCAPIController.sharedInstance().setRoomDescription(self.roomDescription, forRoom: token, for: account) { error in
+            NCAPIController.sharedInstance().setRoomDescription(self.roomDescription, forRoom: token, forAccount: account) { error in
                 if let error {
                     NCUtils.log(String(format: "Failed to set room description. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)

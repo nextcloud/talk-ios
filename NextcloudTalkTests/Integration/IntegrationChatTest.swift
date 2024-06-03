@@ -34,10 +34,10 @@ final class IntegrationChatTest: TestBase {
         var roomToken = ""
 
         // Create a room
-        NCAPIController.sharedInstance().createRoom(for: activeAccount, with: nil, of: .public, andName: roomName) { token, error in
+        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
             XCTAssertNil(error)
 
-            roomToken = token ?? ""
+            roomToken = room?.token ?? ""
 
             exp.fulfill()
         }

@@ -102,6 +102,56 @@ import Foundation
         }
     }
 
+    public func createRoom(forAccount account: TalkAccount, withInvite invite: String?, ofType roomType: NCRoomType, andName roomName: String?, completionBlock: @escaping (_ rooms: NCRoom?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room", withAPIVersion: apiVersion, for: account)
+        var parameters: [String: Any] = ["roomType": roomType.rawValue]
+
+        if let invite, !invite.isEmpty {
+            parameters["invite"] = invite
+        }
+
+        if let roomName, !roomName.isEmpty {
+            parameters["roomName"] = roomName
+        }
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocs, error in
+            let room = NCRoom(dictionary: ocs?.dataDict, andAccountId: account.accountId)
+            completionBlock(room, error)
+        }
+    }
+
+    public func renameRoom(_ token: String, forAccount account: TalkAccount, withName roomName: String, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let parameters: [String: String] = ["roomName": roomName]
+
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
+            completionBlock(error)
+        }
+    }
+
+    public func setRoomDescription(_ description: String?, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/description", withAPIVersion: apiVersion, for: account)
+        let parameters: [String: String] = ["description": description ?? ""]
+
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
+            completionBlock(error)
+        }
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {

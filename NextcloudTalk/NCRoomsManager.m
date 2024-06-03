@@ -692,13 +692,13 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }
     
     // Did not find a one-to-one room for this user -> create a new one
-    [[NCAPIController sharedInstance] createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] with:userId
+    [[NCAPIController sharedInstance] createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withInvite:userId
                                                     ofType:kNCRoomTypeOneToOne
                                                    andName:nil
-                    withCompletionBlock:^(NSString *token, NSError *error) {
+                    completionBlock:^(NCRoom *room, NSError *error) {
                         if (!error) {
-                            [self startChatWithRoomToken:token];
-                             NSLog(@"Room %@ with %@ created", token, userId);
+                            [self startChatWithRoomToken:room.token];
+                             NSLog(@"Room %@ with %@ created", room.token, userId);
                          } else {
                              NSLog(@"Failed creating a room with %@", userId);
                          }

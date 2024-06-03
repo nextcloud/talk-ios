@@ -194,7 +194,7 @@ enum RoomAvatarInfoSection: Int {
         self.descriptionHeaderView.button.isHidden = true
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setRoomDescription(currentDescription, forRoom: room.token, for: activeAccount) { error in
+        NCAPIController.sharedInstance().setRoomDescription(currentDescription, forRoom: room.token, forAccount: activeAccount) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while setting description", comment: ""), withMessage: nil)
             }
@@ -404,7 +404,7 @@ enum RoomAvatarInfoSection: Int {
         self.showModifyingView()
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().renameRoom(self.room.token, for: activeAccount, withName: newRoomValue) { error in
+        NCAPIController.sharedInstance().renameRoom(self.room.token, forAccount: activeAccount, withName: newRoomValue) { error in
             if error != nil {
                 let alertTitle = NSLocalizedString("Could not rename the conversation", comment: "")
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: alertTitle, withMessage: nil)
