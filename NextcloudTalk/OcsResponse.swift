@@ -24,7 +24,8 @@ import Foundation
 @objcMembers public class OcsResponse: NSObject {
 
     let data: Any?
-    
+    let task: URLSessionDataTask?
+
     lazy var responseDict: [String: AnyObject]? = {
         return data as? [String: AnyObject]
     }()
@@ -41,7 +42,8 @@ import Foundation
         return ocsDict?["data"] as? [[String: AnyObject]]
     }()
 
-    init(withData data: Any?) {
+    init(withData data: Any?, withTask task: URLSessionDataTask?) {
         self.data = data
+        self.task = task
     }
 }

@@ -72,15 +72,41 @@ import Foundation
     }
 
     @discardableResult
-    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, progress downloadProgress: ((Progress) -> Void)? = nil, checkHeaders: Bool = true, checkStatusCode: Bool = true, completion: ((OcsResponse?, (any Error)?) -> Void)?) -> URLSessionDataTask? {
+    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, progress downloadProgress: ((Progress) -> Void)? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, (any Error)?) -> Void)?) -> URLSessionDataTask? {
         return self.get(URLString, parameters: parameters, progress: downloadProgress) { task, data in
-            if checkHeaders {
+            if checkResponseHeaders {
                 self.checkHeaders(for: task, for: account)
             }
 
-            completion?(OcsResponse(withData: data), nil)
+            completion?(OcsResponse(withData: data, withTask: task), nil)
         } failure: { task, error in
-            if checkStatusCode, let task {
+            if checkResponseStatusCode, let task {
+                self.checkStatusCode(for: task, for: account)
+            }
+
+            completion?(nil, error)
+        }
+    }
+
+    @discardableResult
+    public func postOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, progress downloadProgress: ((Progress) -> Void)? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, (any Error)?) -> Void)?) -> URLSessionDataTask? {
+        return self.post(URLString, parameters: parameters, progress: downloadProgress) { task, data in
+            completion?(OcsResponse(withData: data, withTask: task), nil)
+        } failure: { task, error in
+            if checkResponseStatusCode, let task {
+                self.checkStatusCode(for: task, for: account)
+            }
+
+            completion?(nil, error)
+        }
+    }
+
+    @discardableResult
+    public func putOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, (any Error)?) -> Void)?) -> URLSessionDataTask? {
+        return self.put(URLString, parameters: parameters) { task, data in
+            completion?(OcsResponse(withData: data, withTask: task), nil)
+        } failure: { task, error in
+            if checkResponseStatusCode, let task {
                 self.checkStatusCode(for: task, for: account)
             }
 
