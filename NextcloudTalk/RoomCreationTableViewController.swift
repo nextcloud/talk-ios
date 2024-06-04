@@ -107,7 +107,7 @@ enum RoomVisibilityOption: Int {
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
 
         self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
-        self.tableView.register(UINib(nibName: kRoomDescriptionTableCellNibName, bundle: nil), forCellReuseIdentifier: kRoomDescriptionCellIdentifier)
+        self.tableView.register(UINib(nibName: RoomDescriptionTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomDescriptionTableViewCell.identifier)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
         self.tableView.tableHeaderView = self.headerView
         self.tableView.keyboardDismissMode = .onDrag
@@ -244,15 +244,15 @@ enum RoomVisibilityOption: Int {
 
         // Create conversation
         let roomType: NCRoomType = self.isPublic ? .public : .group
-        NCAPIController.sharedInstance().createRoom(for: self.account, with: nil, of: roomType, andName: self.roomName) { token, error in
+        NCAPIController.sharedInstance().createRoom(forAccount: self.account, withInvite: nil, ofType: roomType, andName: self.roomName) { room, error in
             if let error {
                 NCUtils.log(String(format: "Failed to create room. Error: %@", error.localizedDescription))
                 self.roomCreationErrors.append(error.localizedDescription)
 
                 self.removeModifyingView()
                 self.presentRoomCreationFailedErrorDialog()
-            } else if let token = token {
-                self.setAdditionalRoomSettings(token: token)
+            } else if let room {
+                self.setAdditionalRoomSettings(token: room.token)
             }
         }
     }
@@ -288,7 +288,7 @@ enum RoomVisibilityOption: Int {
         // Room description
         if !self.roomDescription.isEmpty {
             self.roomCreationGroup.enter()
-            NCAPIController.sharedInstance().setRoomDescription(self.roomDescription, forRoom: token, for: account) { error in
+            NCAPIController.sharedInstance().setRoomDescription(self.roomDescription, forRoom: token, forAccount: account) { error in
                 if let error {
                     NCUtils.log(String(format: "Failed to set room description. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
@@ -453,8 +453,8 @@ enum RoomVisibilityOption: Int {
             textInputCell.selectionStyle = .none
             return textInputCell
         } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: kRoomDescriptionCellIdentifier) as? RoomDescriptionTableViewCell ??
-            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: kRoomDescriptionCellIdentifier)
+            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: RoomDescriptionTableViewCell.identifier) as? RoomDescriptionTableViewCell ??
+            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: RoomDescriptionTableViewCell.identifier)
             descriptionCell.textView?.text = self.roomDescription
             descriptionCell.textView?.isEditable = true
             descriptionCell.delegate = self

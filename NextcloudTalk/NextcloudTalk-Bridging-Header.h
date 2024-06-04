@@ -28,7 +28,6 @@
 #import "CallParticipantViewCell.h"
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
-#import "DirectoryTableViewCell.h"
 #import "HeaderWithButton.h"
 #import "NBPhoneNumber.h"
 #import "NBPhoneNumberDefines.h"
@@ -40,7 +39,6 @@
 #import "NCDatabaseManager.h"
 #import "NCChatFileController.h"
 #import "NCExternalSignalingController.h"
-#import "NCImageSessionManager.h"
 #import "NCNavigationController.h"
 #import "NCPoll.h"
 #import "NCRoomsManager.h"
@@ -52,7 +50,6 @@
 #import "MapViewController.h"
 #import "PlaceholderView.h"
 #import "RoundedNumberView.h"
-#import "RoomDescriptionTableViewCell.h"
 #import "RoomsTableViewController.h"
 #import "ShareTableViewCell.h"
 #import "UIView+Toast.h"
@@ -103,7 +100,6 @@
 #import "ScreenCapturer.h"
 #import "ScreenCaptureController.h"
 
-#import "NCAPISessionManager.h"
 #import "AFNetworking.h"
 #import "NCNotification.h"
 

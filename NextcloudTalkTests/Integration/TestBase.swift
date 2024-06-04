@@ -35,7 +35,7 @@ class TestBase: XCTestCase {
         let authHeader = "Basic \(credentialsString.data(using: .utf8)!.base64EncodedString())"
 
         let configuration = URLSessionConfiguration.default
-        let apiSessionManager = NCAPISessionManager(sessionConfiguration: configuration)
+        let apiSessionManager = NCAPISessionManager(configuration: configuration)
         apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
 
         let exp = expectation(description: "\(#function)\(#line)")
@@ -61,7 +61,7 @@ class TestBase: XCTestCase {
         let authHeader = "Basic \(self.appToken.data(using: .utf8)!.base64EncodedString())"
 
         let configuration = URLSessionConfiguration.default
-        let apiSessionManager = NCAPISessionManager(sessionConfiguration: configuration)
+        let apiSessionManager = NCAPISessionManager(configuration: configuration)
         apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
 
         self.apiSessionManager = apiSessionManager

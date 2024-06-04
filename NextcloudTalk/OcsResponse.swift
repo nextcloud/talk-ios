@@ -21,10 +21,29 @@
 
 import Foundation
 
-extension UIView {
-    // From https://stackoverflow.com/a/36388769
-    class func fromNib<T: UIView>() -> T {
-        // swiftlint:disable:next force_cast
-        return Bundle(for: T.self).loadNibNamed(String(describing: T.self), owner: nil, options: nil)![0] as! T
+@objcMembers public class OcsResponse: NSObject {
+
+    let data: Any?
+    let task: URLSessionDataTask?
+
+    lazy var responseDict: [String: AnyObject]? = {
+        return data as? [String: AnyObject]
+    }()
+
+    lazy var ocsDict: [String: AnyObject]? = {
+        return responseDict?["ocs"] as? [String: AnyObject]
+    }()
+
+    lazy var dataDict: [String: AnyObject]? = {
+        return ocsDict?["data"] as? [String: AnyObject]
+    }()
+
+    lazy var dataArrayDict: [[String: AnyObject]]? = {
+        return ocsDict?["data"] as? [[String: AnyObject]]
+    }()
+
+    init(withData data: Any?, withTask task: URLSessionDataTask?) {
+        self.data = data
+        self.task = task
     }
 }

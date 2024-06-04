@@ -44,8 +44,6 @@
 #import "NCRoomParticipant.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
-#import "RoomDescriptionTableViewCell.h"
-#import "RoomNameTableViewCell.h"
 #import "NCUserStatus.h"
 
 typedef enum RoomInfoSection {
@@ -234,9 +232,9 @@ typedef enum FileAction {
     [_headerView.button addTarget:self action:@selector(addParticipantsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
-    [self.tableView registerNib:[UINib nibWithNibName:kRoomNameTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomNameCellIdentifier];
-    [self.tableView registerNib:[UINib nibWithNibName:kRoomDescriptionTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomDescriptionCellIdentifier];
-    
+    [self.tableView registerNib:[UINib nibWithNibName:RoomNameTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomNameTableViewCell.identifier];
+    [self.tableView registerNib:[UINib nibWithNibName:RoomDescriptionTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomDescriptionTableViewCell.identifier];
+
     if (!_chatViewController || [self.navigationController.viewControllers count] == 1) {
         UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                       target:self action:@selector(cancelButtonPressed)];
@@ -1657,9 +1655,9 @@ typedef enum FileAction {
     switch (section) {
         case kRoomInfoSectionName:
         {
-            RoomNameTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomNameCellIdentifier];
+            RoomNameTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomNameTableViewCell.identifier];
             if (!cell) {
-                cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomNameCellIdentifier];
+                cell = [[RoomNameTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomNameTableViewCell.identifier];
             }
             
             cell.roomNameTextField.text = _room.name;
@@ -1693,9 +1691,9 @@ typedef enum FileAction {
             break;
         case kRoomInfoSectionDescription:
         {
-            RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomDescriptionCellIdentifier];
+            RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomDescriptionTableViewCell.identifier];
             if (!cell) {
-                cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomDescriptionCellIdentifier];
+                cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomDescriptionTableViewCell.identifier];
             }
             
             cell.textView.text = _room.roomDescription;
@@ -2054,9 +2052,9 @@ typedef enum FileAction {
             switch (indexPath.row) {
                 case kSIPActionSIPInfo:
                 {
-                    RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomDescriptionCellIdentifier];
+                    RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomDescriptionTableViewCell.identifier];
                     if (!cell) {
-                        cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomDescriptionCellIdentifier];
+                        cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomDescriptionTableViewCell.identifier];
                     }
                     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
                     NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];

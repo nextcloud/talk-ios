@@ -935,7 +935,7 @@ import QuickLook
     func didPressNoteToSelf(for message: NCChatMessage) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        NCAPIController.sharedInstance().getNoteToSelfRoom(for: activeAccount) { roomDict, error in
+        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: activeAccount) { roomDict, error in
             if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
 
                 if message.isObjectShare {
@@ -1638,8 +1638,10 @@ import QuickLook
     // MARK: - Voice Messages Transcribe
 
     func transcribeVoiceMessage(with fileStatus: NCChatFileStatus) {
+        guard let fileLocalPath = fileStatus.fileLocalPath else { return }
+
         DispatchQueue.main.async {
-            let audioFileURL = URL(fileURLWithPath: fileStatus.fileLocalPath)
+            let audioFileURL = URL(fileURLWithPath: fileLocalPath)
             let viewController = VoiceMessageTranscribeViewController(audiofileUrl: audioFileURL)
             let navController = NCNavigationController(rootViewController: viewController)
             self.present(navController, animated: true)
@@ -1649,7 +1651,8 @@ import QuickLook
     // MARK: - Voice Message Player
 
     func setupVoiceMessagePlayer(with fileStatus: NCChatFileStatus) {
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: fileStatus.fileLocalPath)),
+        guard let fileLocalPath = fileStatus.fileLocalPath,
+              let data = try? Data(contentsOf: URL(fileURLWithPath: fileLocalPath)),
               let player = try? AVAudioPlayer(data: data)
         else { return }
 
@@ -3389,11 +3392,12 @@ import QuickLook
             // When the keyboard is not dismissed, dismissing the previewController might result in a corrupted keyboardView
             self.dismissKeyboard(false)
 
-            let fileExtension = URL(fileURLWithPath: fileStatus.fileLocalPath).pathExtension.lowercased()
+            guard let fileLocalPath = fileStatus.fileLocalPath else { return }
+            let fileExtension = URL(fileURLWithPath: fileLocalPath).pathExtension.lowercased()
 
             // For WebM we use the VLCKitVideoViewController because the native PreviewController does not support WebM
             if fileExtension == "webm" {
-                let vlcKitViewController = VLCKitVideoViewController(filePath: fileStatus.fileLocalPath)
+                let vlcKitViewController = VLCKitVideoViewController(filePath: fileLocalPath)
                 vlcKitViewController.delegate = self
                 vlcKitViewController.modalPresentationStyle = .fullScreen
                 self.present(vlcKitViewController, animated: true)

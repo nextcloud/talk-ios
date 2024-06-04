@@ -115,12 +115,12 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
     // MARK: - Search open conversations
 
     func searchForListableRooms() {
-        NCAPIController.sharedInstance().getListableRooms(for: NCDatabaseManager.sharedInstance().activeAccount(), withSearchTerm: "") { listableRooms, _, _ in
+        NCAPIController.sharedInstance().getListableRooms(forAccount: NCDatabaseManager.sharedInstance().activeAccount(), withSerachTerm: "") { listableRooms, _ in
 
             self.tableBackgroundView.loadingView.stopAnimating()
             self.tableBackgroundView.loadingView.isHidden = true
 
-            if let listableRooms = listableRooms as? [NCRoom] {
+            if let listableRooms {
                 self.openConversations = listableRooms
                 self.tableBackgroundView.placeholderView.isHidden = !listableRooms.isEmpty
             } else {

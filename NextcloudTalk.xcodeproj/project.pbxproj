@@ -92,9 +92,6 @@
 		1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1202A01D8BA005FE87D /* SDWebImageSVGKitPlugin */; };
 		1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */; };
 		1F45A1252A01D8F7005FE87D /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1242A01D8F7005FE87D /* SDWebImageSVGKitPlugin */; };
-		1F45A1342A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
-		1F45A1352A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
-		1F45A1362A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
 		1F468E7628DCC6C60099597B /* Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 1F468E7528DCC6C60099597B /* Dynamic */; };
 		1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F468E7728DCC7310099597B /* EmojiTextField.swift */; };
 		1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */; };
@@ -110,7 +107,6 @@
 		1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
 		1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */; };
-		1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F5CDF632584E78900B0026E /* NCChatFileStatus.m */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
 		1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F628CB92842BAAF0083A425 /* QRCodeReader */; };
@@ -166,12 +162,8 @@
 		1F77A6012AB9A51D007B6037 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1F77A6022AB9A532007B6037 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
-		1F77A6042AB9A574007B6037 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
-		1F77A6052AB9A57B007B6037 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
 		1F77A6062AB9A581007B6037 /* NCKeyChainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */; };
-		1F77A6072AB9A587007B6037 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		1F77A6082AB9A58D007B6037 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
-		1F77A6092AB9A593007B6037 /* NCWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */; };
 		1F77A60A2AB9A5AE007B6037 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
 		1F77A60C2AB9A5BE007B6037 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F77A60B2AB9A5BE007B6037 /* CDMarkdownKit */; };
 		1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
@@ -226,8 +218,8 @@
 		1FB78E292B6AE8CA00B0D69D /* FederationInvitation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */; };
 		1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */; };
 		1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */; };
-		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */; };
-		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
+		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */; };
+		1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -284,6 +276,37 @@
 		1FF2FD832AB99F3B000C9905 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		1FF2FD852AB99F51000C9905 /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
 		1FF2FD862AB99F5B000C9905 /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
+		1FF4DA7E2C0237D000C1B952 /* DirectoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */; };
+		1FF4DA802C023FF300C1B952 /* NCChatFileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */; };
+		1FF4DA822C025DB900C1B952 /* NCAPISessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */; };
+		1FF4DA832C025DBF00C1B952 /* NCAPISessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */; };
+		1FF4DA842C025DC000C1B952 /* NCAPISessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */; };
+		1FF4DA852C025DC000C1B952 /* NCAPISessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */; };
+		1FF4DA872C02626D00C1B952 /* NCBaseSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */; };
+		1FF4DA882C0262BA00C1B952 /* NCBaseSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */; };
+		1FF4DA892C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */; };
+		1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */; };
+		1FF4DA8C2C0263A200C1B952 /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
+		1FF4DA8D2C0264B100C1B952 /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
+		1FF4DA8E2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
+		1FF4DA8F2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
+		1FF4DA912C02677C00C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
+		1FF4DA922C02677F00C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
+		1FF4DA932C02678000C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
+		1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
+		1FF4DA962C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA992C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
+		1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */; };
+		1FF4DAA02C03351E00C1B952 /* RoomNameTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */; };
+		1FF4DAA22C0338D000C1B952 /* RoomDescriptionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */; };
+		1FF4DAA62C08D81D00C1B952 /* UnitNCChatMessageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */; };
+		1FF4DAA82C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */; };
+		1FF4DAAA2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
+		1FF4DAAB2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
+		1FF4DAAC2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
+		1FF4DAAD2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -348,8 +371,6 @@
 		2C4446FC265D5C5800DF1DBC /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
 		2C4446FE265D5DFA00DF1DBC /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
-		2C4446FF265D5EB100DF1DBC /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
-		2C444700265D5EB200DF1DBC /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C444702265D641300DF1DBC /* NCUserDefaults.m */; };
 		2C444704265D641300DF1DBC /* NCUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C444702265D641300DF1DBC /* NCUserDefaults.m */; };
 		2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C444702265D641300DF1DBC /* NCUserDefaults.m */; };
@@ -359,7 +380,6 @@
 		2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */; };
 		2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 2C477C1828B79D980044DEB4 /* Localizable.stringsdict */; };
 		2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
-		2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCA269618230023F403 /* RoomDescriptionTableViewCell.m */; };
 		2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCB269618230023F403 /* RoomDescriptionTableViewCell.xib */; };
 		2C4CDCD026A84AEA0023F403 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C62AFB824C1A4E6007E460A /* ShareViewController.m */; };
 		2C4CDCD126A84E500023F403 /* ShareTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3195C024C5E2100066F221 /* ShareTableViewCell.m */; };
@@ -392,8 +412,6 @@
 		2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
 		2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
 		2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
-		2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
-		2C62B00A24C1BDBD007E460A /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
 		2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2C62B00D24C1BDC1007E460A /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
@@ -424,7 +442,6 @@
 		2C84BCCC29EEB9C6001BA6DA /* CallReactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */; };
 		2C84BCCE29EEDCE8001BA6DA /* CallReactionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */; };
 		2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
-		2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */; };
 		2C8A2BCF221FEEFE00DE6D2C /* DirectoryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */; };
 		2C8CDD0621C2EDE8004E2997 /* AvatarBackgroundImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */; };
 		2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */; };
@@ -453,7 +470,6 @@
 		2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCF1F1E1779002FE6A2 /* SearchTableViewController.m */; };
 		2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */; };
 		2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */; };
-		2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */; };
 		2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */; };
 		2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */; };
 		2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */; };
@@ -481,17 +497,12 @@
 		2CB997C62A052449003C41AC /* EmojiAvatarPickerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
-		2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
-		2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
-		2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */; };
 		2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC0015224A1F0E900A20167 /* NotificationService.m */; };
 		2CC0015724A1F0E900A20167 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */; };
 		2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
 		2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
 		2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C43BA7521309A1000B3068A /* NCMessageParameter.m */; };
-		2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */; };
-		2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B51FD0939600636459 /* NCAPISessionManager.m */; };
 		2CC001B724A37A9A00A20167 /* NCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCCC1F181741002FE6A2 /* NCUser.m */; };
 		2CC001C124A37AC500A20167 /* NCNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B0B9B217F756B00A4752C /* NCNotification.m */; };
 		2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
@@ -499,7 +510,6 @@
 		2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
-		2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */; };
 		2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
 		2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1C38029C0945600C8436B /* DRCellSlideGestureRecognizer.m */; };
@@ -643,8 +653,6 @@
 		1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AvatarEditView.xib; sourceTree = "<group>"; };
 		1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarButtonItemWithActivity.m; sourceTree = "<group>"; };
 		1F3D3B21255F109E00230DAE /* BarButtonItemWithActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarButtonItemWithActivity.h; sourceTree = "<group>"; };
-		1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCWebImageDownloaderOperation.m; sourceTree = "<group>"; };
-		1F45A1332A026EF9005FE87D /* NCWebImageDownloaderOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCWebImageDownloaderOperation.h; sourceTree = "<group>"; };
 		1F468E7728DCC7310099597B /* EmojiTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiTextField.swift; sourceTree = "<group>"; };
 		1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDefaultView.swift; sourceTree = "<group>"; };
 		1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDefaultView.xib; sourceTree = "<group>"; };
@@ -654,8 +662,6 @@
 		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
 		1F5A24322ADA77DA009939FE /* InputbarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputbarViewController.swift; sourceTree = "<group>"; };
 		1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UnitColorGeneratorTest.swift; path = NextcloudTalkTests/Unit/UnitColorGeneratorTest.swift; sourceTree = SOURCE_ROOT; };
-		1F5CDF622584E78900B0026E /* NCChatFileStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatFileStatus.h; sourceTree = "<group>"; };
-		1F5CDF632584E78900B0026E /* NCChatFileStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatFileStatus.m; sourceTree = "<group>"; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
 		1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTableViewController.swift; sourceTree = "<group>"; };
 		1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorView.swift; sourceTree = "<group>"; };
@@ -713,8 +719,8 @@
 		1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FederationInvitation.swift; sourceTree = "<group>"; };
 		1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
-		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCell.swift; sourceTree = "<group>"; };
-		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
+		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCellTest.swift; sourceTree = "<group>"; };
+		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
@@ -752,6 +758,19 @@
 		1FF2FD7A2AB99E4D000C9905 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		1FF2FD7B2AB99E4D000C9905 /* SampleUploader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleUploader.swift; sourceTree = "<group>"; };
 		1FF2FD7D2AB99E4D000C9905 /* SocketConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketConnection.swift; sourceTree = "<group>"; };
+		1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTableViewCell.swift; sourceTree = "<group>"; };
+		1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCChatFileStatus.swift; sourceTree = "<group>"; };
+		1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPISessionManager.swift; sourceTree = "<group>"; };
+		1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCBaseSessionManager.swift; sourceTree = "<group>"; };
+		1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCPushProxySessionManager.swift; sourceTree = "<group>"; };
+		1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCImageSessionManager.swift; sourceTree = "<group>"; };
+		1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCWebImageDownloaderOperation.swift; sourceTree = "<group>"; };
+		1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomTableViewCell.swift; sourceTree = "<group>"; };
+		1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomNameTableViewCell.swift; sourceTree = "<group>"; };
+		1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomDescriptionTableViewCell.swift; sourceTree = "<group>"; };
+		1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCChatMessageTest.swift; sourceTree = "<group>"; };
+		1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCRoomsManagerTest.swift; sourceTree = "<group>"; };
+		1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OcsResponse.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -834,8 +853,6 @@
 		2C477C1728B79D980044DEB4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C4987BB21E640E20060AC27 /* CallKitManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallKitManager.h; sourceTree = "<group>"; };
 		2C4987BC21E640E20060AC27 /* CallKitManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CallKitManager.m; sourceTree = "<group>"; };
-		2C4CDCC9269618230023F403 /* RoomDescriptionTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomDescriptionTableViewCell.h; sourceTree = "<group>"; };
-		2C4CDCCA269618230023F403 /* RoomDescriptionTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomDescriptionTableViewCell.m; sourceTree = "<group>"; };
 		2C4CDCCB269618230023F403 /* RoomDescriptionTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomDescriptionTableViewCell.xib; sourceTree = "<group>"; };
 		2C4CDCD326AF16650023F403 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2C4CDCD426AF16650023F403 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -929,8 +946,6 @@
 		2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CallReactionView.xib; sourceTree = "<group>"; };
 		2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewController.h; sourceTree = "<group>"; };
 		2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DirectoryTableViewController.m; sourceTree = "<group>"; };
-		2C8A2BCB221FEEFE00DE6D2C /* DirectoryTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewCell.h; sourceTree = "<group>"; };
-		2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DirectoryTableViewCell.m; sourceTree = "<group>"; };
 		2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DirectoryTableViewCell.xib; sourceTree = "<group>"; };
 		2C8CDD0421C2EDE8004E2997 /* AvatarBackgroundImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AvatarBackgroundImageView.h; sourceTree = "<group>"; };
 		2C8CDD0521C2EDE8004E2997 /* AvatarBackgroundImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AvatarBackgroundImageView.m; sourceTree = "<group>"; };
@@ -986,8 +1001,6 @@
 		2CA1CCD31F1E664C002FE6A2 /* ContactsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsTableViewCell.h; sourceTree = "<group>"; };
 		2CA1CCD41F1E664C002FE6A2 /* ContactsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsTableViewCell.m; sourceTree = "<group>"; };
 		2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactsTableViewCell.xib; sourceTree = "<group>"; };
-		2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoomTableViewCell.h; sourceTree = "<group>"; };
-		2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoomTableViewCell.m; sourceTree = "<group>"; };
 		2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceMessageRecordingView.h; sourceTree = "<group>"; };
 		2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageRecordingView.m; sourceTree = "<group>"; };
 		2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VoiceMessageRecordingView.xib; sourceTree = "<group>"; };
@@ -1040,12 +1053,6 @@
 		2CBF82AD1FC888FC00636459 /* NCPushNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotification.m; sourceTree = "<group>"; };
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
 		2CBF82B11FCC7DBA00636459 /* CCCertificate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCCertificate.m; sourceTree = "<group>"; };
-		2CBF82B41FD0939600636459 /* NCAPISessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAPISessionManager.h; sourceTree = "<group>"; };
-		2CBF82B51FD0939600636459 /* NCAPISessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAPISessionManager.m; sourceTree = "<group>"; };
-		2CBF82BB1FD5AE0A00636459 /* NCImageSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCImageSessionManager.h; sourceTree = "<group>"; };
-		2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCImageSessionManager.m; sourceTree = "<group>"; };
-		2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushProxySessionManager.h; sourceTree = "<group>"; };
-		2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushProxySessionManager.m; sourceTree = "<group>"; };
 		2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CC0015124A1F0E900A20167 /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		2CC0015224A1F0E900A20167 /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
@@ -1053,8 +1060,6 @@
 		2CC0015B24A1F1D700A20167 /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		2CC007B220D7AE990096D91F /* ResultMultiSelectionTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResultMultiSelectionTableViewController.h; sourceTree = "<group>"; };
 		2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResultMultiSelectionTableViewController.m; sourceTree = "<group>"; };
-		2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoomNameTableViewCell.h; sourceTree = "<group>"; };
-		2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RoomNameTableViewCell.m; sourceTree = "<group>"; };
 		2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomNameTableViewCell.xib; sourceTree = "<group>"; };
 		2CC007CC20E50B0A0096D91F /* MessageBodyTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageBodyTextView.h; sourceTree = "<group>"; };
 		2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageBodyTextView.m; sourceTree = "<group>"; };
@@ -1315,8 +1320,10 @@
 				1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */,
 				1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */,
 				1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */,
-				1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */,
-				1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */,
+				1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */,
+				1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */,
+				1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */,
+				1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -1580,17 +1587,14 @@
 				1FF1360E2BFB4F8C006A6101 /* NCRoom.swift */,
 				2CA1CCA21F025F64002FE6A2 /* RoomsTableViewController.h */,
 				2CA1CCA31F025F64002FE6A2 /* RoomsTableViewController.m */,
-				2CA1CCD81F1F6FCA002FE6A2 /* RoomTableViewCell.h */,
-				2CA1CCD91F1F6FCA002FE6A2 /* RoomTableViewCell.m */,
+				1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */,
 				2C98F77C216231D3001A6A73 /* RoomTableViewCell.xib */,
 				2C06BF5B20A89F510031EB46 /* NCRoomsManager.h */,
 				2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */,
 				1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */,
-				2CC007C220D90AE50096D91F /* RoomNameTableViewCell.h */,
-				2CC007C320D90AE50096D91F /* RoomNameTableViewCell.m */,
+				1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */,
 				2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */,
-				2C4CDCC9269618230023F403 /* RoomDescriptionTableViewCell.h */,
-				2C4CDCCA269618230023F403 /* RoomDescriptionTableViewCell.m */,
+				1FF4DAA12C0338D000C1B952 /* RoomDescriptionTableViewCell.swift */,
 				2C4CDCCB269618230023F403 /* RoomDescriptionTableViewCell.xib */,
 				2C440D0E20EA4A770005F9BB /* RoomInfoTableViewController.h */,
 				2C440D0F20EA4A770005F9BB /* RoomInfoTableViewController.m */,
@@ -1717,15 +1721,13 @@
 				1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */,
 				2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */,
 				2CA1CC901F014354002FE6A2 /* NCConnectionController.m */,
-				2CBF82B41FD0939600636459 /* NCAPISessionManager.h */,
-				2CBF82B51FD0939600636459 /* NCAPISessionManager.m */,
-				2CBF82BB1FD5AE0A00636459 /* NCImageSessionManager.h */,
-				2CBF82BC1FD5AE0A00636459 /* NCImageSessionManager.m */,
-				2CBF82BF1FD5AE3F00636459 /* NCPushProxySessionManager.h */,
-				2CBF82C01FD5AE3F00636459 /* NCPushProxySessionManager.m */,
+				1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */,
+				1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */,
+				1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */,
+				1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */,
 				2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */,
-				1F45A1332A026EF9005FE87D /* NCWebImageDownloaderOperation.h */,
-				1F45A1322A026EF9005FE87D /* NCWebImageDownloaderOperation.m */,
+				1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */,
+				1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -1832,8 +1834,7 @@
 		2C8A2BCA221F096200DE6D2C /* File sharing */ = {
 			isa = PBXGroup;
 			children = (
-				2C8A2BCB221FEEFE00DE6D2C /* DirectoryTableViewCell.h */,
-				2C8A2BCC221FEEFE00DE6D2C /* DirectoryTableViewCell.m */,
+				1FF4DA7D2C0237D000C1B952 /* DirectoryTableViewCell.swift */,
 				2C8A2BCD221FEEFE00DE6D2C /* DirectoryTableViewCell.xib */,
 				2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */,
 				2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */,
@@ -1981,8 +1982,7 @@
 				2C42ADB320B58E6300296DEA /* NCChatController.m */,
 				1FEDE3C5257D439500853F79 /* NCChatFileController.h */,
 				1FEDE3C4257D439500853F79 /* NCChatFileController.m */,
-				1F5CDF622584E78900B0026E /* NCChatFileStatus.h */,
-				1F5CDF632584E78900B0026E /* NCChatFileStatus.m */,
+				1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */,
 				2C5BFBF0288A97D800E75118 /* NCPoll.h */,
 				2C5BFBF1288A97D800E75118 /* NCPoll.m */,
 				2C43BA7421309A1000B3068A /* NCMessageParameter.h */,
@@ -2601,17 +2601,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FF4DAA62C08D81D00C1B952 /* UnitNCChatMessageTest.swift in Sources */,
 				1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */,
 				1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */,
 				1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */,
 				1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */,
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
-				1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCell.swift in Sources */,
+				1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
+				1FF4DAA82C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift in Sources */,
 				1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
 				1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */,
-				1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */,
+				1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */,
 				1F0B0A772BA26BE10073FF8D /* UnitMentionSuggestionTest.swift in Sources */,
 				1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */,
 			);
@@ -2641,20 +2643,19 @@
 				1F77A6012AB9A51D007B6037 /* NCNotificationAction.swift in Sources */,
 				1F77A6242ABA0003007B6037 /* SampleHandler.swift in Sources */,
 				1F77A5F32AB9A43B007B6037 /* SwiftMarkdownObjCBridge.swift in Sources */,
-				1F77A6092AB9A593007B6037 /* NCWebImageDownloaderOperation.m in Sources */,
+				1FF4DA832C025DBF00C1B952 /* NCAPISessionManager.swift in Sources */,
 				1FDFC9502BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
-				1F77A6072AB9A587007B6037 /* NCPushProxySessionManager.m in Sources */,
 				1FF2FD832AB99F3B000C9905 /* NCAppBranding.m in Sources */,
 				1F77A5F82AB9A4CD007B6037 /* NCDeckCardParameter.m in Sources */,
 				1F77A5FD2AB9A4F3007B6037 /* ServerCapabilities.m in Sources */,
+				1FF4DA892C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				1F77A6062AB9A581007B6037 /* NCKeyChainController.m in Sources */,
 				1F0B0A732BA265300073FF8D /* MentionSuggestion.swift in Sources */,
 				1F77A5FB2AB9A4E6007B6037 /* NCMessageParameter.m in Sources */,
-				1F77A6042AB9A574007B6037 /* NCImageSessionManager.m in Sources */,
 				1F77A5F62AB9A4BF007B6037 /* NCChatReaction.m in Sources */,
+				1FF4DA922C02677F00C1B952 /* NCImageSessionManager.swift in Sources */,
 				1FB78E272B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
 				1F77A5FE2AB9A4F9007B6037 /* TalkAccount.m in Sources */,
-				1F77A6052AB9A57B007B6037 /* NCAPISessionManager.m in Sources */,
 				1FF136132BFB6FCD006A6101 /* RLMSupport.swift in Sources */,
 				1F77A5ED2AB9A408007B6037 /* NCChatMessage.m in Sources */,
 				1F77A5EB2AB9A3EE007B6037 /* BGTaskHelper.swift in Sources */,
@@ -2664,8 +2665,10 @@
 				1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */,
 				1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */,
 				1F77A60A2AB9A5AE007B6037 /* NCUser.m in Sources */,
+				1FF4DA992C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				1F1B504A2B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2C6955122B0CE1A10070F6E1 /* NCUtils.swift in Sources */,
+				1FF4DA8D2C0264B100C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				1FF2FD802AB99E4D000C9905 /* SampleUploader.swift in Sources */,
 				1F77A5F52AB9A4B9007B6037 /* NCAPIController.m in Sources */,
 				1F77A5F92AB9A4D9007B6037 /* NCMessageFileParameter.m in Sources */,
@@ -2676,6 +2679,7 @@
 				1F77A5F72AB9A4C5007B6037 /* NCContact.m in Sources */,
 				1FF2FD822AB99E4D000C9905 /* SocketConnection.swift in Sources */,
 				1F77A6082AB9A58D007B6037 /* NCRoomParticipants.m in Sources */,
+				1FF4DAAD2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1FF2FD862AB99F5B000C9905 /* NCDatabaseManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2702,7 +2706,6 @@
 				1F1B0F4C2BE18FF3003FD766 /* CustomPresentableNavigationController.swift in Sources */,
 				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
-				2CA1CCDB1F1F6FCA002FE6A2 /* RoomTableViewCell.m in Sources */,
 				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
 				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
@@ -2716,11 +2719,12 @@
 				2CA1CCC31F166CC5002FE6A2 /* NCRoom.m in Sources */,
 				2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */,
 				2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
-				2C8A2BCE221FEEFE00DE6D2C /* DirectoryTableViewCell.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				1F1B50442B9095D100B0F2F4 /* FederatedCapabilities.m in Sources */,
+				1FF4DAA22C0338D000C1B952 /* RoomDescriptionTableViewCell.swift in Sources */,
 				2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
+				1FF4DA7E2C0237D000C1B952 /* DirectoryTableViewCell.swift in Sources */,
 				2CB6ACE92641954700D3D641 /* MapViewController.m in Sources */,
 				1FF1360F2BFB4F8C006A6101 /* NCRoom.swift in Sources */,
 				1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */,
@@ -2753,11 +2757,9 @@
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
 				2C2D7A172B8C9C0000642373 /* RoomCreationTableViewController.swift in Sources */,
 				1F8995B52973547700CABA33 /* WebRTCCommon.swift in Sources */,
-				2C4CDCCC269618240023F403 /* RoomDescriptionTableViewCell.m in Sources */,
 				1F1B503E2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift in Sources */,
 				DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */,
 				1F1B0F422BE047CE003FD766 /* UIViewController+Transitions.swift in Sources */,
-				2CBF82BD1FD5AE0A00636459 /* NCImageSessionManager.m in Sources */,
 				1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */,
 				2C1ABD9925769F7500AEDFB6 /* ShareItem.m in Sources */,
 				2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */,
@@ -2767,7 +2769,6 @@
 				2C9E6CCE1F6F34F000399B7A /* ARDSDPUtils.m in Sources */,
 				2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */,
 				2CB304222264775E0053078A /* UIView+SLKAdditions.m in Sources */,
-				1F45A1342A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
 				1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */,
 				2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */,
@@ -2779,6 +2780,7 @@
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
 				1F1B0F362BDD8B9C003FD766 /* NCActivityIndicator.swift in Sources */,
 				1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */,
+				1FF4DAAA2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */,
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
 				2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */,
@@ -2793,6 +2795,7 @@
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
+				1FF4DA872C02626D00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */,
 				2C98F77921622445001A6A73 /* RoomSearchTableViewController.m in Sources */,
 				2CB3041B2264775E0053078A /* SLKTextInputbar.m in Sources */,
@@ -2816,7 +2819,6 @@
 				1F5683CF2BA7980C0023E151 /* FilePreviewImageView.swift in Sources */,
 				1F0B0A722BA264540073FF8D /* MentionSuggestion.swift in Sources */,
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
-				2CBF82B61FD0939600636459 /* NCAPISessionManager.m in Sources */,
 				1F77A6162AB9B161007B6037 /* ScreenCaptureController.m in Sources */,
 				2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */,
 				2C21446E2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift in Sources */,
@@ -2824,6 +2826,7 @@
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
+				1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */,
 				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */,
 				807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */,
@@ -2831,17 +2834,14 @@
 				DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */,
 				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
 				1F1B0F482BE047CE003FD766 /* CustomPresentable.swift in Sources */,
-				1F5CDF642584E78900B0026E /* NCChatFileStatus.m in Sources */,
 				1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */,
 				1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */,
-				2CBF82C11FD5AE3F00636459 /* NCPushProxySessionManager.m in Sources */,
 				1F77A6222AB9EB06007B6037 /* SocketConnection.m in Sources */,
 				1FF136152BFB74C3006A6101 /* NCChatMessage.swift in Sources */,
 				2CC1C38829C0945700C8436B /* DRCellSlideActionView.m in Sources */,
 				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
 				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
-				2CC007C520D90AE50096D91F /* RoomNameTableViewCell.m in Sources */,
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
@@ -2851,6 +2851,7 @@
 				1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */,
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
+				1FF4DA962C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
 				1F1B0F4A2BE047D5003FD766 /* OneWayPanGestureRecognizer.swift in Sources */,
 				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
@@ -2883,6 +2884,7 @@
 				1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */,
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */,
+				1FF4DA802C023FF300C1B952 /* NCChatFileStatus.swift in Sources */,
 				DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */,
@@ -2890,8 +2892,10 @@
 				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,
 				2CA1CC911F014354002FE6A2 /* NCConnectionController.m in Sources */,
 				1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */,
+				1FF4DA912C02677C00C1B952 /* NCImageSessionManager.swift in Sources */,
 				1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
+				1FF4DA8C2C0263A200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
 				1F1B0F462BE047CE003FD766 /* InteractionControlling.swift in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
@@ -2899,6 +2903,7 @@
 				1FDFC94D2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */,
 				80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */,
+				1FF4DA822C025DB900C1B952 /* NCAPISessionManager.swift in Sources */,
 				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
@@ -2906,6 +2911,7 @@
 				2C4D7D631F2F7C2C00FF4A0D /* ARDCaptureController.m in Sources */,
 				2C4D7D6A1F2F7DBC00FF4A0D /* ARDSettingsStore.m in Sources */,
 				1F35F8E02AEEB9DE00044BDA /* ShareConfirmationViewController.swift in Sources */,
+				1FF4DAA02C03351E00C1B952 /* RoomNameTableViewCell.swift in Sources */,
 				2C9200C32474262C0050084F /* UIBarButtonItem+Badge.m in Sources */,
 				1FD6F83E2B87B712004048AB /* NCUserStatusExtensions.swift in Sources */,
 				1FEC45A32A02F92700A636AA /* GithubPermalinkViewController.swift in Sources */,
@@ -2922,16 +2928,16 @@
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
 				2C1ABD8625769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.m in Sources */,
 				1F35F90B2AEEE76C00044BDA /* ReplyMessageView.m in Sources */,
-				2C444700265D5EB200DF1DBC /* NCPushProxySessionManager.m in Sources */,
 				1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */,
 				1F35F8F12AEEC25B00044BDA /* TypingIndicatorView.swift in Sources */,
 				2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */,
 				1F35F8EC2AEEBC1400044BDA /* UIScrollView+SLKAdditions.m in Sources */,
-				1F45A1362A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
 				1FF136172BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
+				1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
 				1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */,
 				1F35F8E62AEEBC0300044BDA /* SLKTextInput+Implementation.m in Sources */,
+				1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				1F35F8E72AEEBC0600044BDA /* SLKTextInputbar.m in Sources */,
 				1F35F8E52AEEBC0100044BDA /* SLKInputAccessoryView.m in Sources */,
 				1F35F8E92AEEBC0C00044BDA /* SLKTextView.m in Sources */,
@@ -2966,12 +2972,14 @@
 				1F35F8E22AEEBAF900044BDA /* InputbarViewController.swift in Sources */,
 				1F35F8E12AEEB9DE00044BDA /* ShareConfirmationViewController.swift in Sources */,
 				1F90EFBE25FE39F800F3FA55 /* NCIntentController.m in Sources */,
-				2C62B00A24C1BDBD007E460A /* NCImageSessionManager.m in Sources */,
+				1FF4DA842C025DC000C1B952 /* NCAPISessionManager.swift in Sources */,
 				2C3195C224C5E2100066F221 /* ShareTableViewCell.m in Sources */,
 				2CC1FF4A2818395F009F7288 /* NCDeckCardParameter.m in Sources */,
 				1FF136112BFB4F8C006A6101 /* NCRoom.swift in Sources */,
 				2C4446DA265814D100DF1DBC /* ServerCapabilities.m in Sources */,
+				1FF4DA932C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
 				2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				1FF4DA8E2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */,
 				1FDDB0D92AF440DD00FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
 				2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */,
@@ -2985,9 +2993,9 @@
 				2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */,
 				1F35F8F32AEEC29A00044BDA /* AvatarButton.swift in Sources */,
 				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				1FF4DAAC2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1F1B504C2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				1FB78E282B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
-				2C62B00924C1BDBD007E460A /* NCAPISessionManager.m in Sources */,
 				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
 				2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */,
 				2C5BFBF4288AA37F00E75118 /* NCPoll.m in Sources */,
@@ -3003,8 +3011,8 @@
 				2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */,
 				2C4446D42658147900DF1DBC /* TalkAccount.m in Sources */,
 				1FDCC3E329EC787400DEB39B /* AvatarManager.swift in Sources */,
-				2C4446FF265D5EB100DF1DBC /* NCPushProxySessionManager.m in Sources */,
 				2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */,
+				1FF4DA852C025DC000C1B952 /* NCAPISessionManager.swift in Sources */,
 				1FEDE3CF257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				1FB78E222B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */,
@@ -3018,25 +3026,27 @@
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
 				1FF136162BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
-				1F45A1352A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
-				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
 				2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955142B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
+				1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
 				1F0B0A752BA265310073FF8D /* MentionSuggestion.swift in Sources */,
 				1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
+				1FF4DA882C0262BA00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */,
 				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
+				1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
+				1FF4DAAB2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */,
 				2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */,
 				1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4446ED265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				1F1B50482B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */,
-				2CC0017424A3796400A20167 /* NCAPISessionManager.m in Sources */,
+				1FF4DA8F2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */,
 				1FF136102BFB4F8C006A6101 /* NCRoom.swift in Sources */,
 				2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */,

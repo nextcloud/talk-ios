@@ -43,7 +43,6 @@
 #import "PlaceholderView.h"
 #import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
-#import "RoomTableViewCell.h"
 #import "UIBarButtonItem+Badge.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
@@ -96,7 +95,7 @@ typedef enum RoomsSections {
        [weakSelf refreshRoomList];
     }];
     
-    [self.tableView registerNib:[UINib nibWithNibName:kRoomTableCellNibName bundle:nil] forCellReuseIdentifier:kRoomCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
     [self.tableView registerNib:[UINib nibWithNibName:RoomInvitationViewCell.NibName bundle:nil] forCellReuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
 
     // Align header's title to ContactsTableViewCell's label
@@ -706,7 +705,7 @@ typedef enum RoomsSections {
     // Search for listable rooms
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
         _resultTableViewController.listableRooms = @[];
-        [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSearchTerm:searchString andCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+        [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSerachTerm:searchString completionBlock:^(NSArray<NCRoom *> * _Nullable rooms, NSError * _Nullable error) {
             if (!error) {
                 self->_resultTableViewController.listableRooms = rooms;
             }
@@ -820,7 +819,7 @@ typedef enum RoomsSections {
 - (void)refreshRoomList
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId witRealm:nil];
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:account.accountId withRealm:nil];
     _allRooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     
@@ -1224,7 +1223,7 @@ typedef enum RoomsSections {
         if (room) {
             [self presentContextChatInRoom:room forMessageId:messageId];
         } else {
-            [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+            [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken completionBlock:^(NSDictionary *roomDict, NSError *error) {
                 if (!error) {
                     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                     [self presentContextChatInRoom:room forMessageId:messageId];
@@ -1265,15 +1264,15 @@ typedef enum RoomsSections {
 - (void)createRoomForSelectedUser:(NCUser *)user
 {
     [[NCAPIController sharedInstance]
-     createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] with:user.userId
+     createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withInvite:user.userId
      ofType:kNCRoomTypeOneToOne
      andName:nil
-     withCompletionBlock:^(NSString *token, NSError *error) {
+     completionBlock:^(NCRoom *room, NSError *error) {
         if (!error) {
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedUserForChatNotification
                                                                     object:self
-                                                                  userInfo:@{@"token":token}];
+                                                                  userInfo:@{@"token":room.token}];
             }];
         }
 
@@ -1309,7 +1308,7 @@ typedef enum RoomsSections {
         return RoomInvitationViewCell.CellHeight;
     }
 
-    return kRoomTableCellHeight;
+    return RoomTableViewCell.cellHeight;
 }
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1429,9 +1428,9 @@ typedef enum RoomsSections {
         return cell;
     }
 
-    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kRoomCellIdentifier];
+    RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomTableViewCell.identifier];
     if (!cell) {
-        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRoomCellIdentifier];
+        cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomTableViewCell.identifier];
     }
 
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
@@ -1453,10 +1452,10 @@ typedef enum RoomsSections {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
         BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         BOOL groupMentioned = room.unreadMention && !room.unreadMentionDirect;
-        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
+        [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:groupMentioned];
     } else {
         BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
-        [cell setUnreadMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
+        [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
     [cell.roomImage setAvatarFor:room];

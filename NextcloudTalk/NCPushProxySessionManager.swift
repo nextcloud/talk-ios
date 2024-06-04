@@ -1,6 +1,7 @@
 //
 // Copyright (c) 2024 Marcel Müller <marcel-mueller@gmx.de>
 //
+// Author Ivan Sein <ivan@nextcloud.com>
 // Author Marcel Müller <marcel-mueller@gmx.de>
 //
 // GNU GPL version 3 or any later version
@@ -21,10 +22,20 @@
 
 import Foundation
 
-extension UIView {
-    // From https://stackoverflow.com/a/36388769
-    class func fromNib<T: UIView>() -> T {
-        // swiftlint:disable:next force_cast
-        return Bundle(for: T.self).loadNibNamed(String(describing: T.self), owner: nil, options: nil)![0] as! T
+@objcMembers public class NCPushProxySessionManager: NCBaseSessionManager {
+
+    public static let shared = NCPushProxySessionManager()
+
+    init() {
+        let configuration = URLSessionConfiguration.default
+        super.init(configuration: configuration, responseSerializer: AFHTTPResponseSerializer(), requestSerializer: AFHTTPRequestSerializer())
+
+        self.userAgent += " (Strict VoIP)"
+        self.updateUserAgent()
+
+        // As we can run max. 30s in the background, we need to lower the default timeout from 60s to something < 30s.
+        // Otherwise our app can be killed when trying to register while in the background
+        self.requestSerializer.timeoutInterval = 25
     }
+
 }

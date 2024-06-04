@@ -48,16 +48,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 @interface NCRoomsManager () <CallViewControllerDelegate>
 
-@property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
-@property (nonatomic, strong) NSString *joiningRoomToken;
-@property (nonatomic, strong) NSString *joiningSessionId;
-@property (nonatomic, assign) NSInteger joiningAttempts;
-@property (nonatomic, strong) NSURLSessionTask *joinRoomTask;
-@property (nonatomic, strong) NSURLSessionTask *leaveRoomTask;
-@property (nonatomic, strong) NSString *upgradeCallToken;
-@property (nonatomic, strong) NSString *pendingToStartCallToken;
-@property (nonatomic, assign) BOOL pendingToStartCallHasVideo;
-@property (nonatomic, strong) NSDictionary *highlightMessageDict;
+
 
 @end
 
@@ -108,335 +99,6 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 }
 
 #pragma mark - Room
-
-- (void)joinRoom:(NSString *)token forCall:(BOOL)call
-{
-    // Clean up joining room flag and attemps
-    _joiningRoomToken = nil;
-    _joiningSessionId = nil;
-    _joiningAttempts = 0;
-    [_joinRoomTask cancel];
-
-    [self joinRoomHelper:token forCall:call];
-}
-
-- (void)joinRoomHelper:(NSString *)token forCall:(BOOL)call
-{
-    NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    NCRoomController *roomController = [_activeRooms objectForKey:token];
-
-    if (!roomController) {
-        _joiningRoomToken = token;
-        [self joinRoomHelper:token forCall:call withCompletionBlock:^(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode) {
-            if (statusCode == kNotJoiningAnymoreStatusCode){
-                // Not joining the room any more. Ignore response.
-                return;
-            }
-
-            if (!error) {
-                NCRoomController *controller = [[NCRoomController alloc] init];
-                controller.userSessionId = sessionId;
-                controller.inChat = !call;
-                controller.inCall = call;
-                [userInfo setObject:controller forKey:@"roomController"];
-                if (room) {
-                    [userInfo setObject:room forKey:@"room"];
-                }
-
-                // Set room as active room
-                [self->_activeRooms setObject:controller forKey:token];
-            } else {
-                if (self->_joiningAttempts < 3) {
-                    [NCUtils log:[NSString stringWithFormat:@"Error joining room, retrying. %ld", (long)self->_joiningAttempts]];
-                    self->_joiningAttempts += 1;
-                    [self joinRoomHelper:token forCall:call];
-                    return;
-                }
-
-                // Add error to user info
-                [userInfo setObject:error forKey:@"error"];
-                [userInfo setObject:@(statusCode) forKey:@"statusCode"];
-                [userInfo setObject:[self getJoinRoomErrorReason:statusCode] forKey:@"errorReason"];
-                [NCUtils log:[NSString stringWithFormat:@"Could not join room. Status code: %ld. Error: %@", (long)statusCode, error.description]];
-            }
-
-            // Send join room notification
-            [userInfo setObject:token forKey:@"token"];
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-        }];
-    } else {
-        if (call) {
-            roomController.inCall = YES;
-        } else {
-            roomController.inChat = YES;
-        }
-        [userInfo setObject:token forKey:@"token"];
-        [userInfo setObject:roomController forKey:@"roomController"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidJoinRoomNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-    }
-}
-
-- (BOOL)isJoiningRoomWithToken:(NSString *)token
-{
-    return _joiningRoomToken && [_joiningRoomToken isEqualToString:token];
-}
-
-- (BOOL)isJoiningRoomWithSessionId:(NSString *)sessionId
-{
-    return _joiningSessionId && [_joiningSessionId isEqualToString:sessionId];
-}
-
-- (void)joinRoomHelper:(NSString *)token forCall:(BOOL)call withCompletionBlock:(JoinRoomCompletionBlock)block
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode) {
-
-        // If we left the room before the request completed or tried to join another room, there's nothing for us to do here anymore
-        if (![self isJoiningRoomWithToken:token]) {
-            [NCUtils log:@"Not joining the room any more. Ignore response."];
-
-            if (block) {
-                block(nil, nil, nil, kNotJoiningAnymoreStatusCode);
-            }
-
-            return;
-        }
-
-        // Failed to join room in NC.
-        if (error) {
-            if (block) {
-                block(nil, nil, error, statusCode);
-            }
-
-            return;
-        }
-
-        [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in NC successfully.", token]];
-        NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
-
-        if ([extSignalingController isEnabled]) {
-            [NCUtils log:[NSString stringWithFormat:@"Trying to join room %@ in external signaling server...", token]];
-
-            // Remember the latest sessionId we're using to join a room, to be able to check when joining the external signaling server
-            self->_joiningSessionId = sessionId;
-
-            [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:^(NSError *error) {
-                // If the sessionId is not the same anymore we tried to join with, we either already left again before
-                // joining the external signaling server succeeded, or we already have another join in process
-                if (![self isJoiningRoomWithToken:token] || ![self isJoiningRoomWithSessionId:sessionId]) {
-                    [NCUtils log:@"Not joining the room any more or joining the same room with a different sessionId. Ignore external signaling completion block."];
-
-                    if (block) {
-                        block(nil, nil, nil, kNotJoiningAnymoreStatusCode);
-                    }
-
-                    return;
-                }
-
-                if (!error) {
-                    [NCUtils log:[NSString stringWithFormat:@"Joined room %@ in external signaling server successfully.", token]];
-                    block(sessionId, room, nil, 0);
-                } else if (block) {
-                    [NCUtils log:[NSString stringWithFormat:@"Failed joining room %@ in external signaling server.", token]];
-                    block(nil, nil, error, statusCode);
-                }
-            }];
-        } else if (block) {
-            // Joined room in NC successfully and no external signaling server configured.
-            block(sessionId, room, nil, 0);
-        }
-    }];
-}
-
-- (NSString *)getJoinRoomErrorReason:(NSInteger)statusCode
-{
-    NSString *errorReason = NSLocalizedString(@"Unknown error occurred", nil);
-    
-    switch (statusCode) {
-        case 0:
-            errorReason = NSLocalizedString(@"No response from server", nil);
-            break;
-            
-        case 403:
-            errorReason = NSLocalizedString(@"The password is wrong", nil);
-            break;
-            
-        case 404:
-            errorReason = NSLocalizedString(@"Conversation not found", nil);
-            break;
-            
-        case 409:
-            // Currently not triggered, needs to be enabled in API with sending force=false
-            errorReason = NSLocalizedString(@"Duplicate session", nil);
-            break;
-
-        case 422:
-            errorReason = NSLocalizedString(@"Remote server is unreachable", nil);
-            break;
-
-        case 503:
-            errorReason = NSLocalizedString(@"Server is currently in maintenance mode", nil);
-            break;
-    }
-    
-    return errorReason;
-}
-
-- (void)rejoinRoom:(NSString *)token
-{
-    NCRoomController *roomController = [_activeRooms objectForKey:token];
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    if (roomController) {
-        _joiningRoomToken = [token copy];
-        _joinRoomTask = [[NCAPIController sharedInstance] joinRoom:token forAccount:activeAccount withCompletionBlock:^(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode) {
-            if (!error) {
-                roomController.userSessionId = sessionId;
-                roomController.inChat = YES;
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
-                if ([extSignalingController isEnabled]) {
-                    [extSignalingController joinRoom:token withSessionId:sessionId withCompletionBlock:nil];
-                }
-            } else {
-                NSLog(@"Could not re-join room. Status code: %ld. Error: %@", (long)statusCode, error.description);
-            }
-            self->_joiningRoomToken = nil;
-            self->_joiningSessionId = nil;
-        }];
-    }
-}
-
-- (void)leaveRoom:(NSString *)token
-{
-    // Check if leaving the room we are joining
-    if ([_joiningRoomToken isEqualToString:token]) {
-        _joiningRoomToken = nil;
-        _joiningSessionId = nil;
-        [_joinRoomTask cancel];
-    }
-    
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    // Remove room controller and exit room
-    NCRoomController *roomController = [_activeRooms objectForKey:token];
-    if (roomController && !roomController.inCall && !roomController.inChat) {
-        [_activeRooms removeObjectForKey:token];
-        _leaveRoomTask = [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount withCompletionBlock:^(NSError *error) {
-            NSMutableDictionary *userInfo = [NSMutableDictionary new];
-            if (!error) {
-                NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
-                if ([extSignalingController isEnabled]) {
-                    [extSignalingController leaveRoom:token];
-                }
-            } else {
-                [userInfo setObject:error forKey:@"error"];
-                NSLog(@"Could not exit room. Error: %@", error.description);
-            }
-            self->_leaveRoomTask = nil;
-            [self checkForPendingToStartCalls];
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCRoomsManagerDidLeaveRoomNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-        }];
-    } else {
-        [self checkForPendingToStartCalls];
-    }
-}
-
-- (NSArray *)roomsForAccountId:(NSString *)accountId witRealm:(RLMRealm *)realm
-{
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    RLMResults *managedRooms = nil;
-    if (realm) {
-        managedRooms = [NCRoom objectsInRealm:realm withPredicate:query];
-    } else {
-        managedRooms = [NCRoom objectsWithPredicate:query];
-    }
-    // Create an unmanaged copy of the rooms
-    NSMutableArray *unmanagedRooms = [NSMutableArray new];
-    for (NCRoom *managedRoom in managedRooms) {
-        NCRoom *unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
-        // Filter out breakout rooms with lobby enabled
-        if ([unmanagedRoom isBreakoutRoom] && unmanagedRoom.lobbyState == NCRoomLobbyStateModeratorsOnly) {
-            continue;
-        }
-        [unmanagedRooms addObject:unmanagedRoom];
-    }
-    // Sort by favorites
-    NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-        NCRoom *first = (NCRoom*)obj1;
-        NCRoom *second = (NCRoom*)obj2;
-        BOOL favorite1 = first.isFavorite;
-        BOOL favorite2 = second.isFavorite;
-        if (favorite1 != favorite2) {
-            return favorite2 - favorite1;
-        }
-        return NSOrderedSame;
-    }];
-    // Sort by lastActivity
-    NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
-    NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
-    [unmanagedRooms sortUsingDescriptors:descriptors];
-    
-    return unmanagedRooms;
-}
-
-- (void)resendOfflineMessagesWithCompletionBlock:(SendOfflineMessagesCompletionBlock)block
-{
-    // Try to send offline messages for all rooms
-    [self resendOfflineMessagesForToken:nil withCompletionBlock:block];
-}
-
-- (void)resendOfflineMessagesForToken:(NSString *)token withCompletionBlock:(SendOfflineMessagesCompletionBlock)block
-{
-    NSPredicate *query;
-
-    if (!token) {
-        query = [NSPredicate predicateWithFormat:@"isOfflineMessage = true"];
-    } else {
-        query = [NSPredicate predicateWithFormat:@"isOfflineMessage = true AND token = %@", token];
-    }
-
-    RLMRealm *realm = [RLMRealm defaultRealm];
-    RLMResults *managedTemporaryMessages = [NCChatMessage objectsWithPredicate:query];
-    NSInteger twelveHoursAgoTimestamp = [[NSDate date] timeIntervalSince1970] - (60 * 60 * 12);
-
-    for (NCChatMessage *offlineMessage in managedTemporaryMessages) {
-        // If we were unable to send a message after 12 hours, mark as failed
-        if (offlineMessage.timestamp < twelveHoursAgoTimestamp) {
-            [realm transactionWithBlock:^{
-                NCChatMessage *managedChatMessage = [NCChatMessage objectsWhere:@"referenceId = %@ AND isTemporary = true", offlineMessage.referenceId].firstObject;
-                managedChatMessage.isOfflineMessage = NO;
-                managedChatMessage.sendingFailed = YES;
-            }];
-
-            NSMutableDictionary *userInfo = [NSMutableDictionary new];
-            [userInfo setObject:offlineMessage forKey:@"message"];
-            [userInfo setObject:@(NO) forKey:@"isOfflineMessage"];
-
-            if (offlineMessage.referenceId) {
-                [userInfo setObject:offlineMessage.referenceId forKey:@"referenceId"];
-            }
-
-            // Inform the callViewController about this change
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidSendChatMessageNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-            return;
-        }
-
-        NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:offlineMessage.token forAccountId:offlineMessage.accountId];
-        NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
-
-        [chatController sendChatMessage:offlineMessage];
-    }
-
-    if (block) {
-        block();
-    }
-}
 
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus onlyLastModified:(BOOL)onlyLastModified
 {
@@ -500,7 +162,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NSInteger modifiedSince = onlyLastModified ? [activeAccount.lastReceivedModifiedSince integerValue] : 0;
-    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus modifiedSince:modifiedSince withCompletionBlock:^(NSArray *rooms, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getRoomsForAccount:activeAccount updateStatus:updateStatus modifiedSince:modifiedSince completionBlock:^(NSArray * _Nullable rooms, NSError * _Nullable error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         NSMutableArray *roomsWithNewMessages = [NSMutableArray new];
 
@@ -563,7 +225,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)updateRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         if (!error) {
             RLMRealm *realm = [RLMRealm defaultRealm];
@@ -598,6 +260,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     NCChatMessage *lastMessage = nil;
     NSDictionary *messageDict = [roomDict objectForKey:@"lastMessage"];
     if (!room.isFederated) {
+        // TODO: Move handling to NCRoom roomWithDictionary?
         lastMessage = [NCChatMessage messageWithDictionary:messageDict andAccountId:activeAccount.accountId];
         room.lastMessageId = lastMessage.internalId;
     }
@@ -731,7 +394,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         [self startChatInRoom:room];
     } else {
         //TODO: Show spinner?
-        [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+        [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
             if (!error) {
                 NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                 [self startChatInRoom:room];
@@ -810,7 +473,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video asInitiator:(BOOL)initiator recordingConsent:(BOOL)recordingConsent
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
             [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:video andDisplayName:room.displayName asInitiator:initiator silently:YES recordingConsent:recordingConsent withAccountId:activeAccount.accountId];
@@ -821,7 +484,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video enabledAtStart:(BOOL)enabled asInitiator:(BOOL)initiator silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent andVoiceChatMode:(BOOL)voiceChatMode
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:token completionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
             [self startCall:video inRoom:room withVideoEnabled:enabled asInitiator:initiator silently:silently recordingConsent:recordingConsent andVoiceChatMode:voiceChatMode];
@@ -1015,8 +678,8 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 - (void)joinOrCreateChatWithUser:(NSString *)userId usingAccountId:(NSString *)accountId
 {
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:accountId witRealm:nil];
-    
+    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:accountId withRealm:nil];
+
     for (NCRoom *room in accountRooms) {
         NSArray *participantsInRoom = [room.participants valueForKey:@"self"];
         
@@ -1029,13 +692,13 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }
     
     // Did not find a one-to-one room for this user -> create a new one
-    [[NCAPIController sharedInstance] createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] with:userId
+    [[NCAPIController sharedInstance] createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withInvite:userId
                                                     ofType:kNCRoomTypeOneToOne
                                                    andName:nil
-                    withCompletionBlock:^(NSString *token, NSError *error) {
+                    completionBlock:^(NCRoom *room, NSError *error) {
                         if (!error) {
-                            [self startChatWithRoomToken:token];
-                             NSLog(@"Room %@ with %@ created", token, userId);
+                            [self startChatWithRoomToken:room.token];
+                             NSLog(@"Room %@ with %@ created", room.token, userId);
                          } else {
                              NSLog(@"Failed creating a room with %@", userId);
                          }

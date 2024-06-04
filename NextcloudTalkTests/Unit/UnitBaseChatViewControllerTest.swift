@@ -22,7 +22,7 @@
 import XCTest
 @testable import NextcloudTalk
 
-final class UnitChatCellTest: TestBaseRealm {
+final class UnitBaseChatViewControllerTest: TestBaseRealm {
 
     var baseController: BaseChatViewController!
     var testMessage: NCChatMessage!
@@ -239,17 +239,6 @@ final class UnitChatCellTest: TestBaseRealm {
         testMessage.message = "test"
         testMessage.parentId = "internal-1"
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 130.0)
-    }
-
-    func testUnreadMessageSeparatorUrlCheck() throws {
-        let message = NCChatMessage()
-        message.messageId = kUnreadMessagesSeparatorIdentifier
-
-        updateCapabilities { cap in
-            cap.referenceApiSupported = true
-        }
-
-        XCTAssertFalse(message.containsURL())
     }
 
 }

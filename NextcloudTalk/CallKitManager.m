@@ -298,7 +298,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }
     
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
-    [[NCAPIController sharedInstance] getRoomForAccount:account withToken:call.token withCompletionBlock:^(NSDictionary *roomDict, NSError *error) {
+    [[NCAPIController sharedInstance] getRoomForAccount:account withToken:call.token completionBlock:^(NSDictionary *roomDict, NSError *error) {
         if (!error) {
             NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:call.accountId];
             [self updateCall:call withDisplayName:room.displayName];

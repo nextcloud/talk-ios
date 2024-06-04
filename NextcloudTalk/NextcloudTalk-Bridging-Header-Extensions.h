@@ -28,6 +28,7 @@
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
 #import "TalkAccount.h"
+#import "NotificationCenterNotifications.h"
 
 #import "NCChatTitleView.h"
 #import "SLKTextViewController.h"
@@ -45,7 +46,6 @@
 
 #import "NCUserDefaults.h"
 #import "NCIntentController.h"
-#import "NCAPISessionManager.h"
 #import "NCNotification.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

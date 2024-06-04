@@ -323,9 +323,9 @@
 - (void)didChangeIsDownloading:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NCChatFileStatus *receivedStatus = [notification.userInfo objectForKey:@"fileStatus"];
-        
-        if (![receivedStatus.fileId isEqualToString:self->_fileParameter.parameterId] || ![receivedStatus.filePath isEqualToString:self->_fileParameter.path]) {
+        NCChatFileStatus *receivedStatus = [NCChatFileStatus getStatusFrom:notification for:self->_fileParameter];
+
+        if (!receivedStatus) {
             // Received a notification for a different cell
             return;
         }
@@ -341,9 +341,9 @@
 - (void)didChangeDownloadProgress:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NCChatFileStatus *receivedStatus = [notification.userInfo objectForKey:@"fileStatus"];
-        
-        if (![receivedStatus.fileId isEqualToString:self->_fileParameter.parameterId] || ![receivedStatus.filePath isEqualToString:self->_fileParameter.path]) {
+        NCChatFileStatus *receivedStatus = [NCChatFileStatus getStatusFrom:notification for:self->_fileParameter];
+
+        if (!receivedStatus) {
             // Received a notification for a different cell
             return;
         }

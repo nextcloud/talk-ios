@@ -86,7 +86,7 @@ enum RoomAvatarInfoSection: Int {
         self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
-        self.tableView.register(UINib(nibName: kRoomDescriptionTableCellNibName, bundle: nil), forCellReuseIdentifier: kRoomDescriptionCellIdentifier)
+        self.tableView.register(UINib(nibName: RoomDescriptionTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomDescriptionTableViewCell.identifier)
         self.tableView.tableHeaderView = self.headerView
 
         self.modifyingView.color = NCAppBranding.themeTextColor()
@@ -152,8 +152,8 @@ enum RoomAvatarInfoSection: Int {
             textInputCell.selectionStyle = .none
             return textInputCell
         } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: kRoomDescriptionCellIdentifier) as? RoomDescriptionTableViewCell ??
-            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: kRoomDescriptionCellIdentifier)
+            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: RoomDescriptionTableViewCell.identifier) as? RoomDescriptionTableViewCell ??
+            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: RoomDescriptionTableViewCell.identifier)
             descriptionCell.textView?.text = self.room.roomDescription
             descriptionCell.textView?.isEditable = true
             descriptionCell.delegate = self
@@ -194,7 +194,7 @@ enum RoomAvatarInfoSection: Int {
         self.descriptionHeaderView.button.isHidden = true
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setRoomDescription(currentDescription, forRoom: room.token, for: activeAccount) { error in
+        NCAPIController.sharedInstance().setRoomDescription(currentDescription, forRoom: room.token, forAccount: activeAccount) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while setting description", comment: ""), withMessage: nil)
             }
@@ -404,7 +404,7 @@ enum RoomAvatarInfoSection: Int {
         self.showModifyingView()
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().renameRoom(self.room.token, for: activeAccount, withName: newRoomValue) { error in
+        NCAPIController.sharedInstance().renameRoom(self.room.token, forAccount: activeAccount, withName: newRoomValue) { error in
             if error != nil {
                 let alertTitle = NSLocalizedString("Could not rename the conversation", comment: "")
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: alertTitle, withMessage: nil)

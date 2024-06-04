@@ -22,7 +22,7 @@
 import XCTest
 @testable import NextcloudTalk
 
-final class UnitBaseChatTableViewCell: TestBaseRealm {
+final class UnitBaseChatTableViewCellTest: TestBaseRealm {
 
     func testSharedDeckCardQuote() throws {
         let deckObject = """

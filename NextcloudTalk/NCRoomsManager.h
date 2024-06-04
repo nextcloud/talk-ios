@@ -54,9 +54,23 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 @property (nonatomic, strong) ChatViewController *chatViewController;
 @property (nonatomic, strong) CallViewController *callViewController;
 
+// START - Public for swift migration
+@property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
+@property (nonatomic, strong, nullable) NSString *joiningRoomToken;
+@property (nonatomic, strong, nullable) NSString *joiningSessionId;
+@property (nonatomic, assign) NSInteger joiningAttempts;
+@property (nonatomic, strong, nullable) NSURLSessionTask *joinRoomTask;
+@property (nonatomic, strong, nullable) NSURLSessionTask *leaveRoomTask;
+@property (nonatomic, strong) NSString *upgradeCallToken;
+@property (nonatomic, strong) NSString *pendingToStartCallToken;
+@property (nonatomic, assign) BOOL pendingToStartCallHasVideo;
+@property (nonatomic, strong) NSDictionary *highlightMessageDict;
+
+- (void)checkForPendingToStartCalls;
+// END
+
 + (instancetype)sharedInstance;
 // Room
-- (NSArray *)roomsForAccountId:(NSString *)accountId witRealm:(RLMRealm *)realm;
 - (void)updateRoomsAndChatsUpdatingUserStatus:(BOOL)updateStatus onlyLastModified:(BOOL)onlyLastModified withCompletionBlock:(UpdateRoomsAndChatsCompletionBlock)block;
 - (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus onlyLastModified:(BOOL)onlyLastModified;
 - (void)updateRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
@@ -64,10 +78,6 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 - (void)updateLastReadMessage:(NSInteger)lastReadMessage forRoom:(NCRoom *)room;
 - (void)updateLastMessage:(NCChatMessage *)message withNoUnreadMessages:(BOOL)noUnreadMessages forRoom:(NCRoom *)room;
 - (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room;
-- (void)joinRoom:(NSString *)token forCall:(BOOL)call;
-- (void)rejoinRoom:(NSString *)token;
-- (void)resendOfflineMessagesWithCompletionBlock:(SendOfflineMessagesCompletionBlock)block;
-- (void)resendOfflineMessagesForToken:(NSString *)token withCompletionBlock:(SendOfflineMessagesCompletionBlock)block;
 // Chat
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)leaveChatInRoom:(NSString *)token;

@@ -151,7 +151,7 @@ import UIKit
         self.activityIndicator.stopAnimating()
         self.activityIndicator.isHidden = true
 
-        if let image = UIImage(contentsOfFile: fileStatus.fileLocalPath) {
+        if let localPath = fileStatus.fileLocalPath, let image = UIImage(contentsOfFile: localPath) {
             self.imageView.image = image
 
             // Adjust the view to the new image
