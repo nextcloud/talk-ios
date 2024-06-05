@@ -113,4 +113,17 @@ import Foundation
             completion?(nil, error)
         }
     }
+
+    @discardableResult
+    public func deleteOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, (any Error)?) -> Void)?) -> URLSessionDataTask? {
+        return self.delete(URLString, parameters: parameters) { task, data in
+            completion?(OcsResponse(withData: data, withTask: task), nil)
+        } failure: { task, error in
+            if checkResponseStatusCode, let task {
+                self.checkStatusCode(for: task, for: account)
+            }
+
+            completion?(nil, error)
+        }
+    }
 }
