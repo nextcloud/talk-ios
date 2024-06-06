@@ -190,12 +190,8 @@ import Foundation
         let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIVersion: apiVersion, for: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
-            if let data = ocs?.dataArrayDict {
-                let invitations = data.map { FederationInvitation(dictionary: $0, for: accountId)}
-                completionBlock(invitations)
-            } else {
-                completionBlock(nil)
-            }
+            let invitations = ocs?.dataArrayDict?.map { FederationInvitation(dictionary: $0, for: accountId) }
+            completionBlock(invitations)
 
             NCDatabaseManager.sharedInstance().updateLastFederationInvitationUpdate(forAccountId: accountId, withTimestamp: Int(Date().timeIntervalSince1970))
         }
@@ -255,12 +251,8 @@ import Foundation
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
-            if let data = ocs?.dataArrayDict {
-                let mentions = data.map { MentionSuggestion(dictionary: $0)}
-                completionBlock(mentions)
-            } else {
-                completionBlock(nil)
-            }
+            let mentions = ocs?.dataArrayDict?.map { MentionSuggestion(dictionary: $0) }
+            completionBlock(mentions)
         }
     }
 }
