@@ -27,17 +27,23 @@ enum NewRoomOption: Int {
 }
 
 @objcMembers class NewRoomTableViewController: UITableViewController,
-                                               UINavigationControllerDelegate {
+                                               UINavigationControllerDelegate,
+                                               UISearchResultsUpdating {
 
     var account: TalkAccount
 
     var indexes: [String] = []
     var contacts: [String: [NCUser]] = [:]
-    var serverContacts: [NCUser] = []
-    var addressBookContacts: [NCUser] = []
+
+    var searchController: UISearchController
+    let resultTableViewController = ContactsSearchResultTableViewController(style: .insetGrouped)
+
+    var searchTimer: Timer?
+    var searchRequest: URLSessionTask?
 
     init(account: TalkAccount) {
         self.account = account
+        self.searchController = UISearchController(searchResultsController: resultTableViewController)
         super.init(style: .insetGrouped)
     }
 
@@ -48,6 +54,7 @@ enum NewRoomOption: Int {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        self.navigationItem.hidesSearchBarWhenScrolling = false
         self.getPossibleContacts()
     }
 
@@ -59,6 +66,41 @@ enum NewRoomOption: Int {
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
         self.navigationController?.navigationBar.isTranslucent = false
         self.navigationItem.title = NSLocalizedString("New conversation", comment: "")
+
+        self.resultTableViewController.tableView.delegate = self
+        self.searchController.searchResultsUpdater = self
+        self.searchController.searchBar.tintColor = NCAppBranding.themeTextColor()
+        self.navigationItem.searchController = searchController
+        self.navigationItem.searchController?.searchBar.searchTextField.backgroundColor = NCUtils.searchbarBGColor(forColor: NCAppBranding.themeColor())
+        if #available(iOS 16.0, *) {
+            self.navigationItem.preferredSearchBarPlacement = .stacked
+        }
+
+        if let searchTextField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+            searchTextField.tintColor = NCAppBranding.themeTextColor()
+            searchTextField.textColor = NCAppBranding.themeTextColor()
+
+            DispatchQueue.main.async {
+                // Search bar placeholder
+                searchTextField.attributedPlaceholder = NSAttributedString(string: NSLocalizedString("Search", comment: ""),
+                                                                           attributes: [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor().withAlphaComponent(0.5)])
+                // Search bar search icon
+                if let searchImageView = searchTextField.leftView as? UIImageView {
+                    searchImageView.image = searchImageView.image?.withRenderingMode(.alwaysTemplate)
+                    searchImageView.tintColor = NCAppBranding.themeTextColor().withAlphaComponent(0.5)
+                }
+                // Search bar search clear button
+                if let clearButton = searchTextField.value(forKey: "_clearButton") as? UIButton {
+                    let clearButtonImage = clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
+                    clearButton.setImage(clearButtonImage, for: .normal)
+                    clearButton.setImage(clearButtonImage, for: .highlighted)
+                    clearButton.tintColor = NCAppBranding.themeTextColor()
+                }
+            }
+        }
+
+        // Fix uisearchcontroller animation
+        self.extendedLayoutIncludesOpaqueBars = true
 
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -99,21 +141,48 @@ enum NewRoomOption: Int {
     // MARK: - Contacts
 
     func getPossibleContacts() {
-        NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: "") { indexes, _, contacts, _ in
-            self.indexes = indexes as? [String] ?? []
-            self.indexes.insert("", at: 0)
-            self.serverContacts = contacts as? [NCUser] ?? []
-            self.loadCombinedContacts()
+        NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: "") { indexes, _, contactList, error in
+            if error == nil, let indexes = indexes as? [String], let contactList = contactList as? [NCUser] {
+                let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: nil)
+                let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
+                if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
+                    let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                    self.indexes = combinedIndexes
+                    self.indexes.insert("", at: 0)
+                    self.contacts = combinedContacts
+                    self.tableView.reloadData()
+                }
+            }
         }
     }
 
-    func loadCombinedContacts() {
-        self.addressBookContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: nil)
+    // MARK: - Search
 
-        let combinedContactArray = NCUser.combineUsersArray(self.addressBookContacts, withUsersArray: self.serverContacts)
-        self.contacts = NCUser.indexedUsers(fromUsersArray: combinedContactArray)
+    func updateSearchResults(for searchController: UISearchController) {
+        self.resultTableViewController.showSearchingUI()
+        DispatchQueue.main.async {
+            self.searchTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.searchForContacts), userInfo: nil, repeats: false)
+        }
+    }
 
-        self.tableView.reloadData()
+    func searchForContacts() {
+        if let searchTerm = self.searchController.searchBar.text, !searchTerm.isEmpty {
+            self.searchForContactsWithSearchParameter(searchTerm)
+        }
+    }
+
+    func searchForContactsWithSearchParameter(_ searchParameter: String) {
+        searchRequest?.cancel()
+        searchRequest = NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: searchParameter) { indexes, contacts, contactList, error in
+            if error == nil, let contactList = contactList as? [NCUser] {
+                let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: searchParameter)
+                let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
+                if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
+                    let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                    self.resultTableViewController.setSearchResultContacts(combinedContacts, indexes: combinedIndexes)
+                }
+            }
+        }
     }
 
     // MARK: - TableView
@@ -182,7 +251,13 @@ enum NewRoomOption: Int {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 0 {
+        if searchController.isActive && !resultTableViewController.contacts.isEmpty {
+            let index = resultTableViewController.indexes[indexPath.section]
+            let contactsForIndex = resultTableViewController.contacts[index]
+            guard let contact = contactsForIndex?[indexPath.row] else { return }
+
+            self.createConversationWithContact(contact)
+        } else if indexPath.section == 0 {
             let options = getNewRoomOptions()
             let option = options[indexPath.row]
 
