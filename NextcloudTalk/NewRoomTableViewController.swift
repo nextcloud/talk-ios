@@ -255,7 +255,7 @@ enum NewRoomOption: Int {
             let contactsForIndex = resultTableViewController.contacts[index]
             guard let contact = contactsForIndex?[indexPath.row] else { return }
 
-            self.createConversationWithContact(contact)
+            self.createRoomWithContact(contact)
         } else if indexPath.section == 0 {
             let options = getNewRoomOptions()
             let option = options[indexPath.row]
@@ -271,7 +271,7 @@ enum NewRoomOption: Int {
             let contactsForIndex = contacts[index]
             guard let contact = contactsForIndex?[indexPath.row] else { return }
 
-            self.createConversationWithContact(contact)
+            self.createRoomWithContact(contact)
         }
 
         tableView.deselectRow(at: indexPath, animated: true)
@@ -291,7 +291,7 @@ enum NewRoomOption: Int {
         self.present(navController, animated: true)
     }
 
-    func createConversationWithContact(_ contact: NCUser) {
+    func createRoomWithContact(_ contact: NCUser) {
         NCAPIController.sharedInstance().createRoom(forAccount: account, withInvite: contact.userId, ofType: .oneToOne, andName: nil) { room, error in
             if let token = room?.token, error == nil {
                 self.navigationController?.dismiss(animated: true, completion: {
