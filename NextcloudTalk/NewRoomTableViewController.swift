@@ -32,7 +32,7 @@ enum NewRoomOption: Int {
 
     var account: TalkAccount
 
-    var indexes: [String] = []
+    var indexes: [String] = [""]
     var contacts: [String: [NCUser]] = [:]
 
     var searchController: UISearchController
@@ -147,8 +147,7 @@ enum NewRoomOption: Int {
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
                 if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
                     let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.indexes = combinedIndexes
-                    self.indexes.insert("", at: 0)
+                    self.indexes.append(contentsOf: combinedIndexes)
                     self.contacts = combinedContacts
                     self.tableView.reloadData()
                 }
