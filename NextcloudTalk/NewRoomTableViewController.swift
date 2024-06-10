@@ -158,6 +158,7 @@ enum NewRoomOption: Int {
     // MARK: - Search
 
     func updateSearchResults(for searchController: UISearchController) {
+        self.searchTimer?.invalidate()
         self.resultTableViewController.showSearchingUI()
         DispatchQueue.main.async {
             self.searchTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.searchForContacts), userInfo: nil, repeats: false)
