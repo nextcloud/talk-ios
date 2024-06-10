@@ -59,6 +59,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
 @property (nonatomic, assign) BOOL sessionChanged;
+@property (nonatomic, assign) NSInteger disconnectTime;
 
 @end
 
@@ -141,15 +142,27 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     }
 
     [self invalidateReconnectionTimer];
+
     _disconnected = NO;
     _messageId = 1;
     _messagesWithCompletionBlocks = [NSMutableArray new];
     _helloResponseReceived = NO;
+
     [NCUtils log:[NSString stringWithFormat:@"Connecting to: %@", _serverUrl]];
     NSURL *url = [NSURL URLWithString:_serverUrl];
     NSURLSession *wsSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
     NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:kWebSocketTimeoutInterval];
     NSURLSessionWebSocketTask *webSocket = [wsSession webSocketTaskWithRequest:wsRequest];
+
+    if (self.resumeId) {
+        NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
+
+        // We are only allowed to resume a session 30s after disconnect
+        if (!self.disconnectTime || (currentTimestamp - self.disconnectTime) >= 30) {
+            [NCUtils log:@"We have a resumeId, but we disconnected outside of the 30s resume window. Connecting without resumeId."];
+            self.resumeId = nil;
+        }
+    }
 
     _webSocket = webSocket;
     
@@ -189,6 +202,8 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 - (void)disconnect
 {
     [NCUtils log:[NSString stringWithFormat:@"Disconnecting from: %@", _serverUrl]];
+
+    self.disconnectTime = [[NSDate date] timeIntervalSince1970];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [self invalidateReconnectionTimer];
@@ -361,7 +376,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
     [NCUtils log:[NSString stringWithFormat:@"Received error response %@", errorCode]];
 
-    if ([errorCode isEqualToString:@"no_such_session"]) {
+    if ([errorCode isEqualToString:@"no_such_session"] || [errorCode isEqualToString:@"too_many_requests"]) {
         // We could not resume the previous session, but the websocket is still alive -> resend the hello message without a resumeId
         _resumeId = nil;
         [self sendHelloMessage];
