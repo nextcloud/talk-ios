@@ -294,9 +294,9 @@ enum NewRoomOption: Int {
     func createRoomWithContact(_ contact: NCUser) {
         NCAPIController.sharedInstance().createRoom(forAccount: account, withInvite: contact.userId, ofType: .oneToOne, andName: nil) { room, error in
             if let token = room?.token, error == nil {
-                self.navigationController?.dismiss(animated: true, completion: {
+                self.navigationController?.dismiss(animated: true) {
                     NotificationCenter.default.post(name: NSNotification.Name.NCSelectedUserForChat, object: self, userInfo: ["token": token])
-                })
+                }
             }
         }
     }
