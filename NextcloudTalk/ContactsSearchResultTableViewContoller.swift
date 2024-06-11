@@ -26,7 +26,7 @@ import UIKit
     var indexes: [String] = []
     var contacts: [String: [NCUser]] = [:]
 
-    let tableBackgroundView = PlaceholderView()
+    let tableBackgroundView = PlaceholderView(for: .insetGrouped)!
 
     override init(style: UITableView.Style) {
         super.init(style: style)
