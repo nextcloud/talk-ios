@@ -23,6 +23,8 @@
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
 
+@class NCUser;
+
 @interface NCContact : RLMObject
 
 @property (nonatomic, copy) NSString *internalId; // accountId@identifier
@@ -33,7 +35,7 @@
 
 + (instancetype)contactWithIdentifier:(NSString *)identifier cloudId:(NSString *)cloudId lastUpdate:(NSInteger)lastUpdate andAccountId:(NSString *)accountId;
 + (void)updateContact:(NCContact *)managedContact withContact:(NCContact *)contact;
-+ (NSMutableArray *)contactsForAccountId:(NSString *)accountId contains:(NSString *)searchString;
++ (NSArray<NCUser *> *)contactsForAccountId:(NSString *)accountId contains:(NSString * _Nullable)searchString;
 - (NSString *)userId;
 - (NSString *)name;
 

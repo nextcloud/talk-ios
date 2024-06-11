@@ -240,54 +240,20 @@ typedef enum RoomsSections {
 
 - (void)createNewConversationButton
 {
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    SEL selector = nil;
+    if ([[NCSettingsController sharedInstance] canCreateGroupAndPublicRooms] ||
+        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
 
-    // Create a new conversation
-    if ([[NCSettingsController sharedInstance] canCreateGroupAndPublicRooms]) {
-        UIAction *newConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Create a new conversation", nil) image:[[UIImage systemImageNamed:@"bubble"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
-            [self presentRoomCreationViewController];
-        }];
-
-        [items addObject:newConversationAction];
-        selector = @selector(presentRoomCreationViewController);
+        _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] style:UIBarButtonItemStylePlain target:self action:@selector(presentNewRoomViewController)];
+        _newConversationButton.accessibilityLabel = NSLocalizedString(@"Create or join a conversation", nil);
+        [self.navigationItem setRightBarButtonItem:_newConversationButton];
     }
-
-    // Join open conversations
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
-        UIAction *joinOpenConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Join open conversations", nil) image:[[UIImage systemImageNamed:@"list.bullet"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
-            [self presentOpenConversationsViewController];
-        }];
-
-        [items addObject:joinOpenConversationAction];
-        selector = @selector(presentOpenConversationsViewController);
-    }
-
-    // Menu or single option check
-    if (items.count > 1) {
-        _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] menu:[UIMenu menuWithTitle:@"" children:items]];
-    } else if (items.count == 1) {
-        _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] style:UIBarButtonItemStylePlain target:self action:selector];
-    } else {
-        return;
-    }
-
-    _newConversationButton.accessibilityLabel = NSLocalizedString(@"Create or join a conversation", nil);
-    [self.navigationItem setRightBarButtonItem:_newConversationButton];
 }
 
-- (void)presentRoomCreationViewController
+- (void)presentNewRoomViewController
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    RoomCreationTableViewController *newRoowVC = [[RoomCreationTableViewController alloc] initWithAccount:activeAccount];
+    NewRoomTableViewController *newRoowVC = [[NewRoomTableViewController alloc] initWithAccount:activeAccount];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:newRoowVC];
-    [self presentViewController:navigationController animated:YES completion:nil];
-}
-
-- (void)presentOpenConversationsViewController
-{
-    OpenConversationsTableViewController *openConversationsVC = [[OpenConversationsTableViewController alloc] init];
-    NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:openConversationsVC];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 

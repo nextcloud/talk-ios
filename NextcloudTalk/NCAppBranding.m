@@ -229,6 +229,7 @@ BOOL const useServerThemimg = YES;
     [controller.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
     controller.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     controller.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
+    controller.navigationController.navigationBar.translucent = NO;
     controller.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
 
     UIColor *themeColor = [NCAppBranding themeColor];
@@ -239,6 +240,9 @@ BOOL const useServerThemimg = YES;
     controller.navigationItem.standardAppearance = appearance;
     controller.navigationItem.compactAppearance = appearance;
     controller.navigationItem.scrollEdgeAppearance = appearance;
+
+    // Fix uisearchcontroller animation
+    controller.extendedLayoutIncludesOpaqueBars = YES;
 }
 
 @end

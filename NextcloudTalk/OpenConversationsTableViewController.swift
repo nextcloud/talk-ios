@@ -67,8 +67,8 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
         searchController.searchBar.tintColor = NCAppBranding.themeTextColor()
 
         if navigationController?.viewControllers.first == self {
-            let barButtonItem = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
-            barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
+            let barButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: nil)
+            barButtonItem.primaryAction = UIAction(title: "", handler: { [unowned self] _ in
                 self.dismiss(animated: true)
             })
             self.navigationItem.leftBarButtonItems = [barButtonItem]

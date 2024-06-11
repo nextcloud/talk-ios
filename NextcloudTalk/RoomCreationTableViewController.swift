@@ -342,7 +342,6 @@ enum RoomVisibilityOption: Int {
             self.removeModifyingView()
 
             if self.roomCreationErrors.isEmpty {
-                self.dismiss(animated: true)
                 NotificationCenter.default.post(name: NSNotification.Name.NCRoomCreated, object: self, userInfo: ["token": token])
             } else {
                 self.presentRoomCreationFailedErrorDialog()
