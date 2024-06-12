@@ -110,6 +110,7 @@
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
 		1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F628CB92842BAAF0083A425 /* QRCodeReader */; };
+		1F6629FA2C17700E001C6C0E /* IntegrationRoomsManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6629F92C17700E001C6C0E /* IntegrationRoomsManagerTest.swift */; };
 		1F66B71F29FA703B003FB168 /* TypingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */; };
 		1F66B72129FA7089003FB168 /* TypingIndicatorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */; };
 		1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */; };
@@ -666,6 +667,7 @@
 		1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UnitColorGeneratorTest.swift; path = NextcloudTalkTests/Unit/UnitColorGeneratorTest.swift; sourceTree = SOURCE_ROOT; };
 		1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsTableViewController.swift; sourceTree = "<group>"; };
 		1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTableViewController.swift; sourceTree = "<group>"; };
+		1F6629F92C17700E001C6C0E /* IntegrationRoomsManagerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntegrationRoomsManagerTest.swift; sourceTree = "<group>"; };
 		1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorView.swift; sourceTree = "<group>"; };
 		1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TypingIndicatorView.xib; sourceTree = "<group>"; };
 		1F66B72729FA936E003FB168 /* SLKDefaultReplyView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLKDefaultReplyView.h; sourceTree = "<group>"; };
@@ -1310,6 +1312,7 @@
 				1F6D8C422B2F26EE004376B8 /* Helpers.swift */,
 				1F6D8C4A2B2F5B61004376B8 /* TestBase.swift */,
 				1F6D8C322B2E3756004376B8 /* IntegrationRoomTest.swift */,
+				1F6629F92C17700E001C6C0E /* IntegrationRoomsManagerTest.swift */,
 				1F6D8C4C2B2F8FE5004376B8 /* IntegrationChatTest.swift */,
 			);
 			path = Integration;
@@ -2608,6 +2611,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1FF4DAA62C08D81D00C1B952 /* UnitNCChatMessageTest.swift in Sources */,
+				1F6629FA2C17700E001C6C0E /* IntegrationRoomsManagerTest.swift in Sources */,
 				1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */,
 				1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */,
 				1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */,

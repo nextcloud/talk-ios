@@ -37,7 +37,7 @@ import Foundation
         self.joinRoomHelper(token, forCall: call)
     }
 
-    public func joinRoomHelper(_ token: String, forCall call: Bool) {
+    private func joinRoomHelper(_ token: String, forCall call: Bool) {
         if let roomController = self.activeRooms[token] as? NCRoomController {
             if call {
                 roomController.inCall = true
@@ -78,7 +78,7 @@ import Foundation
                 if self.joiningAttempts < 3 {
                     NCUtils.log("Error joining room, retrying. \(self.joiningAttempts)")
                     self.joiningAttempts += 1
-                    self.joinRoom(token, forCall: call)
+                    self.joinRoomHelper(token, forCall: call)
                     return
                 }
 
@@ -95,19 +95,19 @@ import Foundation
         }
     }
 
-    public func isJoiningRoom(withToken token: String) -> Bool {
+    private func isJoiningRoom(withToken token: String) -> Bool {
         guard let joiningRoomToken = self.joiningRoomToken else { return false }
 
         return joiningRoomToken == token
     }
 
-    public func isJoiningRoom(withSessionId sessionId: String) -> Bool {
+    private func isJoiningRoom(withSessionId sessionId: String) -> Bool {
         guard let joiningSessionId = self.joiningSessionId else { return false }
 
         return joiningSessionId == sessionId
     }
 
-    public func joinRoomHelper(_ token: String, forCall call: Bool, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int) -> Void) {
+    private func joinRoomHelper(_ token: String, forCall call: Bool, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int) -> Void) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode in
@@ -222,7 +222,7 @@ import Foundation
         }
     }
 
-    public func getJoinRoomErrorReason(_ statusCode: Int) -> String {
+    private func getJoinRoomErrorReason(_ statusCode: Int) -> String {
         var errorReason = ""
 
         switch statusCode {
