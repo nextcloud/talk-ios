@@ -461,7 +461,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         return;
     }
     
-    [self hangupForAll:NO];
+    [self hangupForAll:_room.type == kNCRoomTypeOneToOne];
 }
 
 - (void)providerWantsToUpgradeToVideoCall:(NSNotification *)notification
@@ -866,8 +866,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [self adjustMoreButtonMenu];
 
-        if (([self->_room canModerate] || self->_room.type == kNCRoomTypeOneToOne) &&
-            [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions]) {
+        if ([self->_room canModerate] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions]) {
             __weak typeof(self) weakSelf = self;
             UIAction *hangupForAllAction = [UIAction actionWithTitle:NSLocalizedString(@"End call for everyone", @"") image:[UIImage systemImageNamed:@"phone.down.fill"] identifier:nil handler:^(UIAction *action) {
                 [weakSelf hangupForAll:YES];
@@ -1471,7 +1470,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (IBAction)hangupButtonPressed:(id)sender
 {
-    [self hangupForAll:NO];
+    [self hangupForAll:_room.type == kNCRoomTypeOneToOne];
 }
 
 - (void)hangupForAll:(BOOL)allParticipants
