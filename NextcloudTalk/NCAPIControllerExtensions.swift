@@ -23,14 +23,6 @@ import Foundation
 
 @objc extension NCAPIController {
 
-    func getOcsResponse(data: Any?) -> [String: AnyObject]? {
-        guard let resultDict = data as? [String: AnyObject],
-              let ocs = resultDict["ocs"] as? [String: AnyObject]
-        else { return nil }
-
-        return ocs
-    }
-
     // MARK: - Rooms Controller
 
     public func getRooms(forAccount account: TalkAccount, updateStatus: Bool, modifiedSince: Int, completionBlock: @escaping (_ rooms: [[String: AnyObject]]?, _ error: Error?) -> Void) {
@@ -165,10 +157,8 @@ import Foundation
             return
         }
 
-        apiSessionManager.post(urlString, parameters: nil, progress: nil) { _, _ in
-            completionBlock(true)
-        } failure: { _, _ in
-            completionBlock(false)
+        apiSessionManager.postOcs(urlString, account: account) { _, error in
+            completionBlock(error == nil)
         }
     }
 
@@ -183,10 +173,8 @@ import Foundation
             return
         }
 
-        apiSessionManager.delete(urlString, parameters: nil) { _, _ in
-            completionBlock(true)
-        } failure: { _, _ in
-            completionBlock(false)
+        apiSessionManager.deleteOcs(urlString, account: account) { _, error in
+            completionBlock(error == nil)
         }
     }
 
@@ -201,19 +189,11 @@ import Foundation
         let apiVersion = self.federationAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIVersion: apiVersion, for: account)
 
-        apiSessionManager.get(urlString, parameters: nil, progress: nil) { _, result in
-            if let ocs = self.getOcsResponse(data: result),
-               let data = ocs["data"] as? [[String: AnyObject]] {
-
-                let invitations = data.map { FederationInvitation(dictionary: $0, for: accountId)}
-                completionBlock(invitations)
-            } else {
-                completionBlock(nil)
-            }
+        apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
+            let invitations = ocs?.dataArrayDict?.map { FederationInvitation(dictionary: $0, for: accountId) }
+            completionBlock(invitations)
 
             NCDatabaseManager.sharedInstance().updateLastFederationInvitationUpdate(forAccountId: accountId, withTimestamp: Int(Date().timeIntervalSince1970))
-        } failure: { _, _ in
-            completionBlock(nil)
         }
     }
 
@@ -231,10 +211,9 @@ import Foundation
         let apiVersion = self.conversationAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/capabilities", withAPIVersion: apiVersion, for: account)
 
-        apiSessionManager.get(urlString, parameters: nil, progress: nil) { task, result in
-            if let ocs = self.getOcsResponse(data: result),
-               let data = ocs["data"] as? [String: AnyObject],
-               let response = task.response,
+        apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
+            if let data = ocs?.dataDict,
+               let response = ocs?.task?.response,
                let headers = self.getResponseHeaders(response) {
 
                 // Need to use lowercase name in swift
@@ -247,8 +226,6 @@ import Foundation
             } else {
                 completionBlock(nil, nil)
             }
-        } failure: { _, _ in
-            completionBlock(nil, nil)
         }
     }
 
@@ -273,19 +250,9 @@ import Foundation
             "includeStatus": serverCapabilities.userStatus
         ]
 
-        apiSessionManager.get(urlString, parameters: parameters, progress: nil) { _, result in
-            if let ocs = self.getOcsResponse(data: result),
-               let data = ocs["data"] as? [[String: AnyObject]] {
-
-                let mentions = data.map { MentionSuggestion(dictionary: $0)}
-                completionBlock(mentions)
-            } else {
-                completionBlock(nil)
-            }
-
-            NCDatabaseManager.sharedInstance().updateLastFederationInvitationUpdate(forAccountId: accountId, withTimestamp: Int(Date().timeIntervalSince1970))
-        } failure: { _, _ in
-            completionBlock(nil)
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
+            let mentions = ocs?.dataArrayDict?.map { MentionSuggestion(dictionary: $0) }
+            completionBlock(mentions)
         }
     }
 }
