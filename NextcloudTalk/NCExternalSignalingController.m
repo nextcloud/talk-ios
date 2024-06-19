@@ -150,9 +150,13 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
     [NCUtils log:[NSString stringWithFormat:@"Connecting to: %@", _serverUrl]];
     NSURL *url = [NSURL URLWithString:_serverUrl];
+
+    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
+                           [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+
     NSURLSession *wsSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-    NSURLRequest *wsRequest = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:kWebSocketTimeoutInterval];
-    NSURLSessionWebSocketTask *webSocket = [wsSession webSocketTaskWithRequest:wsRequest];
+    NSMutableURLRequest *wsRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:kWebSocketTimeoutInterval];
+    [wsRequest setValue:userAgent forHTTPHeaderField:@"User-Agent"];
 
     if (self.resumeId) {
         NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -164,6 +168,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         }
     }
 
+    NSURLSessionWebSocketTask *webSocket = [wsSession webSocketTaskWithRequest:wsRequest];
     _webSocket = webSocket;
     
     [_webSocket resume];
