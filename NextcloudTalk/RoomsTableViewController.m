@@ -1270,7 +1270,7 @@ typedef enum RoomsSections {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
+    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
         return RoomInvitationViewCell.CellHeight;
     }
 
