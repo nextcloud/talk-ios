@@ -52,6 +52,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Hai %d día</string>
+            <key>other</key>
+            <string>Hai %d díes</string>
+        </dict>
     </dict>
 
     <key>%ld notifications</key>
