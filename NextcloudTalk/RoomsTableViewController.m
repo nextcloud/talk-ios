@@ -104,7 +104,7 @@ typedef enum RoomsSections {
 
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
-    _resultTableViewController = [[RoomSearchTableViewController alloc] init];
+    _resultTableViewController = [[RoomSearchTableViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
