@@ -46,7 +46,7 @@ final class IntegrationRoomsManagerTest: TestBase {
         waitForExpectations(timeout: TestConstants.timeoutShort)
     }
 
-    func testJoinExistantRoom() throws {
+    func testJoinLeaveExistantRoom() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         var roomToken = ""
 
@@ -74,11 +74,29 @@ final class IntegrationRoomsManagerTest: TestBase {
             // swiftlint:disable:next force_cast
             XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
 
+            // Check if the NCRoomController was correctly added to the activeRooms dictionary
+            XCTAssertNotNil(NCRoomsManager.sharedInstance().activeRooms[roomToken])
+
             return true
         }
 
         // Try to join the room
         NCRoomsManager.sharedInstance().joinRoom(roomToken, forCall: false)
+
+        waitForExpectations(timeout: TestConstants.timeoutShort)
+
+        // Setup expectations for the DidLeaveRoom notification
+        expectation(forNotification: .NCRoomsManagerDidLeaveRoom, object: nil) { notification -> Bool in
+            XCTAssertNil(notification.userInfo?["error"])
+
+            // Check if the NCRoomController was correctly removed from the activeRooms dictionary
+            XCTAssertNil(NCRoomsManager.sharedInstance().activeRooms[roomToken])
+
+            return true
+        }
+
+        // Try to leave the room
+        NCRoomsManager.sharedInstance().leaveChat(inRoom: roomToken)
 
         waitForExpectations(timeout: TestConstants.timeoutShort)
     }

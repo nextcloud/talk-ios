@@ -73,7 +73,7 @@ import Foundation
                 }
 
                 // Set room as active
-                self.activeRooms["token"] = controller
+                self.activeRooms[token] = controller
             } else {
                 if self.joiningAttempts < 3 {
                     NCUtils.log("Error joining room, retrying. \(self.joiningAttempts)")
