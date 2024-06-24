@@ -77,11 +77,6 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     return self;
 }
 
-- (BOOL)isEnabled
-{
-    return (_serverUrl) ? YES : NO;
-}
-
 - (BOOL)hasMCU
 {
     return _mcuSupport;

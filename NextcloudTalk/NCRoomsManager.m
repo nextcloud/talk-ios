@@ -371,7 +371,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         // Workaround until external signaling supports multi-room
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
-        if ([extSignalingController isEnabled]) {
+        if (extSignalingController) {
             NSString *currentRoom = extSignalingController.currentRoom;
             if (![currentRoom isEqualToString:room.token]) {
                 // Since we are going to join another conversation, we don't need to leaveRoom() in extSignalingController.
@@ -448,7 +448,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
         // Workaround until external signaling supports multi-room
         NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
-        if ([extSignalingController isEnabled]) {
+        if (extSignalingController) {
             NSString *extSignalingRoomToken = extSignalingController.currentRoom;
 
             if (![extSignalingRoomToken isEqualToString:joiningRoomToken]) {

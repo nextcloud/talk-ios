@@ -173,7 +173,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (NSString *)signalingSessionId
 {
-    if ([_externalSignalingController isEnabled]) {
+    if (_externalSignalingController) {
         return [_externalSignalingController sessionId];
     }
     return _userSessionId;
@@ -203,7 +203,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                 [self getPeersForCall];
                 [self startMonitoringMicrophoneAudioLevel];
 
-                if ([self->_externalSignalingController isEnabled]) {
+                if (self->_externalSignalingController) {
                     if ([self->_externalSignalingController hasMCU]) {
                         [self createPublisherPeerConnection];
                     }
@@ -332,7 +332,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         self->_disableAudioAtStart = ![self isAudioEnabled];
         self->_disableVideoAtStart = ![self isVideoEnabled];
 
-        if ([self->_externalSignalingController isEnabled]) {
+        if (self->_externalSignalingController) {
             [self->_externalSignalingController forceReconnect];
         } else {
             [self rejoinCallUsingInternalSignaling];
@@ -517,7 +517,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                                                                           roomType:peer.roomType
                                                                            payload:payload];
 
-            if ([self->_externalSignalingController isEnabled]) {
+            if (self->_externalSignalingController) {
                 [self->_externalSignalingController sendCallMessage:message];
             } else {
                 [self->_signalingController sendSignalingMessage:message];
@@ -559,7 +559,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                                                                         roomType:peer.roomType
                                                                          payload:payload];
 
-            if ([self->_externalSignalingController isEnabled]) {
+            if (self->_externalSignalingController) {
                 [self->_externalSignalingController sendCallMessage:message];
             } else {
                 [self->_signalingController sendSignalingMessage:message];
@@ -989,7 +989,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     }
 
     // Send a signaling message only if we are using an external signaling server
-    if (![self->_externalSignalingController isEnabled]) {
+    if (!self->_externalSignalingController) {
         return;
     }
     
@@ -1586,7 +1586,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [[WebRTCCommon shared] assertQueue];
 
-    if ([_externalSignalingController isEnabled]) {
+    if (_externalSignalingController) {
         return [_externalSignalingController getUserIdFromSessionId:sessionId];
     }
 
@@ -1608,7 +1608,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [[WebRTCCommon shared] assertQueue];
 
-    if ([_externalSignalingController isEnabled]) {
+    if (_externalSignalingController) {
         return [_externalSignalingController getDisplayNameFromSessionId:sessionId];
     }
     for (NSMutableDictionary *user in _peersInCall) {
@@ -1695,7 +1695,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                                                                              roomType:peerConnection.roomType
                                                                           broadcaster:peerConnection.isOwnScreensharePeer ? [self signalingSessionId] : nil];
     
-    if ([_externalSignalingController isEnabled]) {
+    if (_externalSignalingController) {
         [_externalSignalingController sendCallMessage:message];
     } else {
         [_signalingController sendSignalingMessage:message];
@@ -1713,7 +1713,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                                             broadcaster:peerConnection.isOwnScreensharePeer ? [self signalingSessionId] : nil
                                             nick:_userDisplayName];
     
-    if ([_externalSignalingController isEnabled]) {
+    if (_externalSignalingController) {
         [_externalSignalingController sendCallMessage:message];
     } else {
         [_signalingController sendSignalingMessage:message];
