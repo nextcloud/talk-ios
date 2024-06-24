@@ -53,6 +53,21 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 @end
 
 @implementation NCRoomController
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [[AllocationTracker shared] addAllocation:@"NCRoomController"];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [[AllocationTracker shared] removeAllocation:@"NCRoomController"];
+}
+
 @end
 
 @implementation NCRoomsManager
