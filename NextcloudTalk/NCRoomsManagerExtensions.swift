@@ -170,9 +170,7 @@ import Foundation
                 roomController.inChat = true
 
                 if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
-                    if extSignalingController.isEnabled() {
-                        extSignalingController.joinRoom(token, withSessionId: sessionId, withCompletionBlock: nil)
-                    }
+                    extSignalingController.joinRoom(token, withSessionId: sessionId, withCompletionBlock: nil)
                 }
             } else {
                 print("Could not re-join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "Unknown")")
@@ -206,9 +204,7 @@ import Foundation
                     print("Could not exit room. Error: \(error.localizedDescription)")
                 } else {
                     if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
-                        if extSignalingController.isEnabled() {
-                            extSignalingController.leaveRoom(token)
-                        }
+                        extSignalingController.leaveRoom(token)
                     }
                 }
 

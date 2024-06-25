@@ -118,7 +118,7 @@ class DiagnosticsTableViewController: UITableViewController {
         // Build signaling sections based on external signaling server
         signalingSections.append(AllSignalingSections.kSignalingSectionMode.rawValue)
 
-        if externalSignalingController?.isEnabled() ?? false {
+        if externalSignalingController != nil {
             signalingSections.append(AllSignalingSections.kSignalingSectionVersion.rawValue)
         }
 
@@ -589,7 +589,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
         switch allSectionsIndex {
         case AllSignalingSections.kSignalingSectionMode.rawValue:
-            let externalSignalingServerUsed = externalSignalingController?.isEnabled() ?? false
+            let externalSignalingServerUsed = externalSignalingController != nil
 
             cell.textLabel?.text = NSLocalizedString("Mode", comment: "The signaling mode used")
 

@@ -60,7 +60,6 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 @property (nonatomic, weak) id<NCExternalSignalingControllerDelegate> delegate;
 
 - (instancetype)initWithAccount:(TalkAccount *)account server:(NSString *)serverUrl andTicket:(NSString *)ticket;
-- (BOOL)isEnabled;
 - (BOOL)hasMCU;
 - (NSString *)sessionId;
 - (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block;

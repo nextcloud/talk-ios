@@ -886,7 +886,7 @@ extension SettingsTableViewController {
             typingIndicatorSwitch.isOn = !serverCapabilities.typingPrivacy
 
             let externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
-            let externalSignalingServerUsed = externalSignalingController?.isEnabled() ?? false
+            let externalSignalingServerUsed = externalSignalingController != nil
 
             if !externalSignalingServerUsed {
                 cell.detailTextLabel?.text = NSLocalizedString("Typing indicators are only available when using a high performance backend (HPB)", comment: "")
