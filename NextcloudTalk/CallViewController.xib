@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="ipad12_9rounded" orientation="portrait" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -24,6 +24,8 @@
                 <outlet property="lowerHandButton" destination="RpQ-sH-1qf" id="g5K-YY-Va1"/>
                 <outlet property="moreMenuButton" destination="Gjp-FF-fc2" id="qXV-GI-Uuu"/>
                 <outlet property="recordingButton" destination="aQX-QQ-eLT" id="Jh5-wa-IyR"/>
+                <outlet property="screenshareLabel" destination="jS8-GI-SJT" id="l5i-yo-wU9"/>
+                <outlet property="screenshareLabelContainer" destination="o1l-BI-9Qm" id="w1I-1t-qFm"/>
                 <outlet property="screenshareViewRightContraint" destination="IS9-3G-cQz" id="QGY-es-LX7"/>
                 <outlet property="screensharingView" destination="Zzc-Pq-hMC" id="kaT-G4-IxS"/>
                 <outlet property="sideBarView" destination="fSY-ZT-xIC" id="4UK-JE-3Md"/>
@@ -262,12 +264,35 @@
                                 <action selector="closeScreensharingButtonPressed:" destination="-1" eventType="touchUpInside" id="Pio-Dr-GaB"/>
                             </connections>
                         </button>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o1l-BI-9Qm" userLabel="ScreenshareLabelContainer">
+                            <rect key="frame" x="463.5" y="1224" width="97" height="26"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="sdfsdfsdf" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jS8-GI-SJT" userLabel="ScreenshareLabel">
+                                    <rect key="frame" x="16" y="4" width="65" height="18"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" id="fl4-VY-OBo"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                            </subviews>
+                            <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="displayP3"/>
+                            <constraints>
+                                <constraint firstItem="jS8-GI-SJT" firstAttribute="leading" secondItem="o1l-BI-9Qm" secondAttribute="leading" constant="16" id="L7w-HG-xVj"/>
+                                <constraint firstAttribute="bottom" secondItem="jS8-GI-SJT" secondAttribute="bottom" constant="4" id="TMQ-6H-QNh"/>
+                                <constraint firstAttribute="trailing" secondItem="jS8-GI-SJT" secondAttribute="trailing" constant="16" id="dnd-lP-phb"/>
+                                <constraint firstItem="jS8-GI-SJT" firstAttribute="top" secondItem="o1l-BI-9Qm" secondAttribute="top" constant="4" id="jNW-9o-AJP"/>
+                            </constraints>
+                        </view>
                     </subviews>
                     <viewLayoutGuide key="safeArea" id="j53-tu-e0T"/>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstItem="j53-tu-e0T" firstAttribute="trailing" secondItem="N0N-Ny-Aeg" secondAttribute="trailing" constant="12" id="Pxi-mX-3dC"/>
+                        <constraint firstItem="j53-tu-e0T" firstAttribute="bottom" secondItem="o1l-BI-9Qm" secondAttribute="bottom" constant="8" id="bNY-pf-A4h"/>
                         <constraint firstItem="N0N-Ny-Aeg" firstAttribute="top" secondItem="j53-tu-e0T" secondAttribute="top" constant="12" id="pDR-Pt-2K8"/>
+                        <constraint firstItem="o1l-BI-9Qm" firstAttribute="centerX" secondItem="Zzc-Pq-hMC" secondAttribute="centerX" id="yHO-ZB-x8k"/>
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TXj-7E-NAa" userLabel="LocalVideo" customClass="MTKView">
@@ -342,9 +367,9 @@
         <image name="mic.fill" catalog="system" width="110" height="128"/>
         <image name="phone.down.fill" catalog="system" width="128" height="55"/>
         <image name="record.circle.fill" catalog="system" width="128" height="123"/>
-        <image name="speaker.slash.fill" catalog="system" width="118" height="128"/>
+        <image name="speaker.slash.fill" catalog="system" width="115" height="128"/>
         <image name="video.fill" catalog="system" width="128" height="81"/>
-        <image name="video.slash.fill" catalog="system" width="128" height="103"/>
+        <image name="video.slash.fill" catalog="system" width="128" height="114"/>
         <image name="xmark" catalog="system" width="128" height="113"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
