@@ -800,11 +800,6 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
     account.lastPendingFederationInvitationFetch = timestamp;
     [realm commitWriteTransaction];
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerPendingFederationInvitationsDidChange
-                                                        object:self
-                                                      userInfo:nil];
-
     [bgTask stopBackgroundTask];
 }
 
