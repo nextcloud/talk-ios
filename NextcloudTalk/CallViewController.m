@@ -79,6 +79,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     NSMutableArray *_screenPeersInCall;
     NSMutableDictionary *_videoRenderersDict; // peerIdentifier -> renderer
     NSMutableDictionary *_screenRenderersDict; // peerId -> renderer
+    NSString *_presentedScreenPeerId;
     NCCallController *_callController;
     ChatViewController *_chatViewController;
     UINavigationController *_chatNavigationController;
@@ -2134,6 +2135,12 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self updatePeer:peer block:^(CallParticipantViewCell *cell) {
         [cell setDisplayName:nick];
     }];
+
+    if ([peer.peerId isEqualToString:_presentedScreenPeerId]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_screenshareLabel setText:nick];
+        });
+    }
 }
 
 - (void)callController:(NCCallController *)callController didReceiveUnshareScreenFromPeer:(NCPeerConnection *)peer
@@ -2252,6 +2259,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             peerDisplayName = NSLocalizedString(@"Guest", nil);
         }
 
+        self->_presentedScreenPeerId = peer.peerId;
         [self->_screenshareLabel setText:peerDisplayName];
         [self->_screensharingView bringSubviewToFront:self->_screenshareLabelContainer];
 
@@ -2274,6 +2282,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     dispatch_async(dispatch_get_main_queue(), ^{
         RTCMTLVideoView *screenRenderer = [self->_screenRenderersDict objectForKey:peer.peerId];
         NCPeerConnection *screenPeerConnection = [self screenPeerConnectionForPeerId:peer.peerId];
+        self->_presentedScreenPeerId = nil;
         [self->_screenRenderersDict removeObjectForKey:peer.peerId];
         [self updatePeer:screenPeerConnection block:^(CallParticipantViewCell *cell) {
             [cell setScreenShared:NO];
