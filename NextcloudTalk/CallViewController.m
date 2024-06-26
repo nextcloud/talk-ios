@@ -300,6 +300,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 }
 
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+
+    [self.screenshareLabelContainer.layer setCornerRadius:self.screenshareLabelContainer.frame.size.height / 2];
+}
+
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
@@ -1871,7 +1878,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell
 {
     NCPeerConnection *peerConnection = [self peerConnectionForPeerIdentifier:participantCell.peerIdentifier];
-    [self showScreenOfPeerId:peerConnection.peerId];
+    [self showScreenOfPeer:peerConnection];
 }
 
 - (void)cellWantsToChangeZoom:(CallParticipantViewCell *)participantCell showOriginalSize:(BOOL)showOriginalSize
@@ -2063,7 +2070,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         } else if ([remotePeer.roomType isEqualToString:kRoomTypeScreen]) {
             [self->_screenRenderersDict setObject:renderView forKey:remotePeer.peerId];
             [self->_screenPeersInCall addObject:remotePeer];
-            [self showScreenOfPeerId:remotePeer.peerId];
+            [self showScreenOfPeer:remotePeer];
             [self updatePeer:remotePeer block:^(CallParticipantViewCell *cell) {
                 [cell setScreenShared:YES];
             }];
@@ -2230,13 +2237,23 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 #pragma mark - Screensharing
 
-- (void)showScreenOfPeerId:(NSString *)peerId
+- (void)showScreenOfPeer:(NCPeerConnection *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peerId];
+        RTCMTLVideoView *renderView = [self->_screenRenderersDict objectForKey:peer.peerId];
 
         [self->_screensharingView replaceContentView:renderView];
         [self->_screensharingView bringSubviewToFront:self->_closeScreensharingButton];
+
+        // The screenPeer does not have a name associated to it, try to get the nonScreenPeer
+        NCPeerConnection *nonScreenPeer = [self peerConnectionForPeerId:peer.peerId];
+        NSString *peerDisplayName = nonScreenPeer.peerName;
+        if (!peerDisplayName || [peerDisplayName isKindOfClass:[NSNull class]] || [peerDisplayName isEqualToString:@""]) {
+            peerDisplayName = NSLocalizedString(@"Guest", nil);
+        }
+
+        [self->_screenshareLabel setText:peerDisplayName];
+        [self->_screensharingView bringSubviewToFront:self->_screenshareLabelContainer];
 
         [UIView transitionWithView:self->_screensharingView duration:0.4
                            options:UIViewAnimationOptionTransitionCrossDissolve

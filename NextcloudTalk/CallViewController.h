@@ -59,6 +59,8 @@
 @property (nonatomic, strong) IBOutlet UILabel *waitingLabel;
 @property (nonatomic, strong) IBOutlet NCChatTitleView *titleView;
 @property (nonatomic, strong) IBOutlet UILabel *callTimeLabel;
+@property (nonatomic, strong) IBOutlet UIView *screenshareLabelContainer;
+@property (nonatomic, strong) IBOutlet UILabel *screenshareLabel;
 
 - (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;
 - (void)toggleChatView;
