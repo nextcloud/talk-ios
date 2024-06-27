@@ -255,4 +255,13 @@ import Foundation
             completionBlock(mentions)
         }
     }
+
+    // MARK: - Avatars
+
+    public func getDateHash() -> String {
+        // TODO: Mark private when swift migration is done
+        let dateString = NCUtils.getDate(fromDate: Date())
+
+        return String(NCUtils.sha1(fromString: dateString).prefix(16))
+    }
 }
