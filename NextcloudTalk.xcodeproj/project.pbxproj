@@ -221,7 +221,6 @@
 		1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */; };
 		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */; };
 		1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */; };
-		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */; };
 		1FB7B98E2BF0CBA60093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
 		1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
 		1FB7B9912BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
@@ -229,7 +228,6 @@
 		1FB7B9952BF0DF1C0093CE98 /* BannedActorTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9942BF0DF1C0093CE98 /* BannedActorTableViewController.swift */; };
 		1FB7B99A2BF0DF290093CE98 /* BannedActorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9992BF0DF290093CE98 /* BannedActorCell.swift */; };
 		1FB7B99C2BF0DF360093CE98 /* BannedActorCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */; };
-		1FBC3BE52B61ACD5003909E0 /* UnitChatCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -734,12 +732,10 @@
 		1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
 		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
-		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCell.swift; sourceTree = "<group>"; };
 		1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActor.swift; sourceTree = "<group>"; };
 		1FB7B9942BF0DF1C0093CE98 /* BannedActorTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActorTableViewController.swift; sourceTree = "<group>"; };
 		1FB7B9992BF0DF290093CE98 /* BannedActorCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActorCell.swift; sourceTree = "<group>"; };
 		1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BannedActorCell.xib; sourceTree = "<group>"; };
-		1FBC3BE42B61ACD5003909E0 /* UnitChatCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatCellTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
