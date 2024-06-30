@@ -73,6 +73,7 @@ typedef enum GuestAction {
 
 typedef enum ConversationAction {
     kConversationActionMessageExpiration = 0,
+    kConversationActionBannedActors,
     kConversationActionListable,
     kConversationActionListableForEveryone,
     kConversationActionReadOnly,
@@ -118,6 +119,7 @@ typedef enum ModificationError {
     kModificationErrorReadOnly,
     kModificationErrorMessageExpiration,
     kModificationErrorRoomDescription,
+    kModificationErrorBanActor,
 } ModificationError;
 
 typedef enum FileAction {
@@ -418,6 +420,11 @@ typedef enum FileAction {
         [actions addObject:[NSNumber numberWithInt:kConversationActionMessageExpiration]];
     }
 
+    // Banning actors
+    if (_room.isUserOwnerOrModerator && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1]) {
+        [actions addObject:[NSNumber numberWithInt:kConversationActionBannedActors]];
+    }
+
     if (_room.canModerate) {
         // Listable room action
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
@@ -604,6 +611,10 @@ typedef enum FileAction {
 
         case kModificationErrorRoomDescription:
             errorDescription = NSLocalizedString(@"Could not set conversation description", nil);
+            break;
+
+        case kModificationErrorBanActor:
+            errorDescription = NSLocalizedString(@"Could not ban participant", nil);
             break;
 
         default:
@@ -1042,6 +1053,12 @@ typedef enum FileAction {
     [self.navigationController pushViewController:vc animated:YES];
 }
 
+- (void)presentBannedActorsViewController
+{
+    BannedActorTableViewController *vc = [[BannedActorTableViewController alloc] initWithRoom:_room];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
 - (void)clearHistory
 {
     [[NCAPIController sharedInstance] clearChatHistoryInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *messageDict, NSError *error, NSInteger statusCode) {
@@ -1249,6 +1266,18 @@ typedef enum FileAction {
     }
     
     if (canParticipantBeModerated) {
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1] && !participant.isGroup && !participant.isCircle) {
+            NSString *banTitle = NSLocalizedString(@"Ban participant", nil);
+
+            UIAlertAction *banParticipant = [UIAlertAction actionWithTitle:banTitle
+                                                                        style:UIAlertActionStyleDestructive
+                                                                      handler:^void (UIAlertAction *action) {
+                [self banParticipant:participant];
+            }];
+            [banParticipant setValue:[UIImage systemImageNamed:@"person.badge.minus"] forKey:@"image"];
+            [optionsActionSheet addAction:banParticipant];
+        }
+
         // Remove participant
         NSString *title = NSLocalizedString(@"Remove participant", nil);
         if (participant.isGroup) {
@@ -1310,6 +1339,42 @@ typedef enum FileAction {
             [self showRoomModificationError:kModificationErrorModeration];
         }
     }];
+}
+
+- (void)banParticipant:(NCRoomParticipant *)participant
+{
+    UIAlertController *internalNoteController =
+    [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Ban %@", @"e.g. Ban John Doe"), participant.displayName]
+                                        message:NSLocalizedString(@"Add an internal note about this ban", nil)
+                                 preferredStyle:UIAlertControllerStyleAlert];
+
+    [internalNoteController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = NSLocalizedString(@"Internal note", @"Internal note about why a user/guest was banned");
+    }];
+
+    // TODO: Do we need to enforce a maximum length for the internal note?
+    UIAlertAction *banAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ban", @"Ban a user/guest") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *internalNote = [[internalNoteController textFields][0] text];
+        NSString *trimmedInternalNote = [internalNote stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
+        [self setModifyingRoomUI];
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+        [[NCAPIController sharedInstance] banActorFor:activeAccount.accountId in:self->_room.token with:participant.actorType with:participant.actorId with:trimmedInternalNote completionBlock:^(BOOL success) {
+            if (success) {
+                [self getRoomParticipants];
+            } else {
+                [self showRoomModificationError:kModificationErrorBanActor];
+            }
+        }];
+    }];
+
+    [internalNoteController addAction:banAction];
+
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [internalNoteController addAction:cancelAction];
+
+    [self presentViewController:internalNoteController animated:YES completion:nil];
 }
 
 - (void)removeParticipant:(NCRoomParticipant *)participant
@@ -1646,6 +1711,7 @@ typedef enum FileAction {
     static NSString *deleteRoomCellIdentifier = @"DeleteRoomCellIdentifier";
     static NSString *sharedItemsCellIdentifier = @"SharedItemsCellIdentifier";
     static NSString *messageExpirationCellIdentifier = @"MessageExpirationCellIdentifier";
+    static NSString *bannedActorsCellIdentifier = @"BannedActorsCellIdentifier";
     static NSString *listableCellIdentifier = @"ListableCellIdentifier";
     static NSString *listableForEveryoneCellIdentifier = @"ListableForEveryoneCellIdentifier";
     static NSString *readOnlyStateCellIdentifier = @"ReadOnlyStateCellIdentifier";
@@ -1882,6 +1948,22 @@ typedef enum FileAction {
                     [cell.imageView setImage:[UIImage systemImageNamed:@"timer"]];
                      cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
+                    return cell;
+                }
+                    break;
+                case kConversationActionBannedActors:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:bannedActorsCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:bannedActorsCellIdentifier];
+                    }
+
+                    cell.textLabel.text = NSLocalizedString(@"Banned users and guests", nil);
+                    cell.textLabel.numberOfLines = 0;
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"person.badge.minus"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+
                     return cell;
                 }
                     break;
@@ -2289,6 +2371,9 @@ typedef enum FileAction {
             switch (action) {
                 case kConversationActionMessageExpiration:
                     [self presentMessageExpirationSelector];
+                    break;
+                case kConversationActionBannedActors:
+                    [self presentBannedActorsViewController];
                     break;
                 case kConversationActionShareLink:
                     [self shareRoomLinkFromIndexPath:indexPath];

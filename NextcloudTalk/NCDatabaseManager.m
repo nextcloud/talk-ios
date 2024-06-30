@@ -88,6 +88,7 @@ NSString * const kCapabilityEditMessages            = @"edit-messages";
 NSString * const kCapabilityDeleteMessagesUnlimited = @"delete-messages-unlimited";
 NSString * const kCapabilityFederationV1            = @"federation-v1";
 NSString * const kCapabilityChatReadLast            = @"chat-read-last";
+NSString * const kCapabilityBanV1                   = @"ban-v1";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 

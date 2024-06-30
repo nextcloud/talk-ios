@@ -691,6 +691,15 @@ import UIKit
 
             self.setOfflineMode()
             self.presentJoinError(errorReason)
+
+            if let isBanned = notification.userInfo?["isBanned"] as? Bool, isBanned {
+                // Usually we remove all notifications when the view disappears, but in this case, we want to keep it
+                self.dismissNotificationsOnViewWillDisappear = false
+
+                // We are not allowed to join this conversation -> Move back to the conversation list
+                NCUserInterfaceController.sharedInstance().presentConversationsList()
+            }
+
             return
         }
 

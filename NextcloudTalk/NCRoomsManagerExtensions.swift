@@ -54,7 +54,7 @@ import Foundation
 
         self.joiningRoomToken = token
 
-        self.joinRoomHelper(token, forCall: call) { sessionId, room, error, statusCode in
+        self.joinRoomHelper(token, forCall: call) { sessionId, room, error, statusCode, statusReason in
             if statusCode == NCRoomsManager.statusCodeNotJoiningAnymore {
                 // Not joining the room any more. Ignore response
                 return
@@ -75,7 +75,7 @@ import Foundation
                 // Set room as active
                 self.activeRooms[token] = controller
             } else {
-                if self.joiningAttempts < 3 {
+                if self.joiningAttempts < 3 && statusCode != 403 {
                     NCUtils.log("Error joining room, retrying. \(self.joiningAttempts)")
                     self.joiningAttempts += 1
                     self.joinRoomHelper(token, forCall: call)
@@ -85,7 +85,11 @@ import Foundation
                 // Add error to user info
                 userInfo["error"] = error
                 userInfo["statusCode"] = statusCode
-                userInfo["errorReason"] = self.getJoinRoomErrorReason(statusCode)
+                userInfo["errorReason"] = self.getJoinRoomErrorReason(statusCode, andReason: statusReason)
+
+                if statusCode == 403, statusReason == "ban" {
+                    userInfo["isBanned"] = true
+                }
 
                 NCUtils.log("Could not join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "")")
             }
@@ -107,20 +111,20 @@ import Foundation
         return joiningSessionId == sessionId
     }
 
-    private func joinRoomHelper(_ token: String, forCall call: Bool, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int) -> Void) {
+    private func joinRoomHelper(_ token: String, forCall call: Bool, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode in
+        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode, statusReason in
             // If we left the room before the request completed or tried to join another room, there's nothing for us to do here anymore
             if !self.isJoiningRoom(withToken: token) {
                 NCUtils.log("Not joining the room any more. Ignore response.")
-                completionBlock(nil, nil, nil, NCRoomsManager.statusCodeNotJoiningAnymore)
+                completionBlock(nil, nil, nil, NCRoomsManager.statusCodeNotJoiningAnymore, nil)
                 return
             }
 
             // Failed to join room in NC
             if let error {
-                completionBlock(nil, nil, error, statusCode)
+                completionBlock(nil, nil, error, statusCode, statusReason)
                 return
             }
 
@@ -129,7 +133,7 @@ import Foundation
             guard let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
             else {
                 // Joined room in NC successfully and no external signaling server configured.
-                completionBlock(sessionId, room, nil, 0)
+                completionBlock(sessionId, room, nil, 0, nil)
                 return
             }
 
@@ -143,16 +147,16 @@ import Foundation
                 // joining the external signaling server succeeded, or we already have another join in process
                 if !self.isJoiningRoom(withToken: token) || !self.isJoiningRoom(withSessionId: sessionId ?? "") {
                     NCUtils.log("Not joining the room any more or joining the same room with a different sessionId. Ignore external signaling completion block.")
-                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeNotJoiningAnymore)
+                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeNotJoiningAnymore, nil)
                     return
                 }
 
                 if error == nil {
                     NCUtils.log("Joined room \(token) in external signaling server successfully.")
-                    completionBlock(sessionId, room, nil, 0)
+                    completionBlock(sessionId, room, nil, 0, nil)
                 } else {
                     NCUtils.log("Failed joining room \(token) in external signaling server.")
-                    completionBlock(nil, nil, error, statusCode)
+                    completionBlock(nil, nil, error, statusCode, statusReason)
                 }
             }
         })
@@ -164,7 +168,7 @@ import Foundation
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         self.joiningRoomToken = token
-        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, _, error, statusCode in
+        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, _, error, statusCode, _ in
             if error == nil {
                 roomController.userSessionId = sessionId
                 roomController.inChat = true
@@ -218,14 +222,18 @@ import Foundation
         }
     }
 
-    private func getJoinRoomErrorReason(_ statusCode: Int) -> String {
+    private func getJoinRoomErrorReason(_ statusCode: Int, andReason statusReason: String?) -> String {
         var errorReason = ""
 
         switch statusCode {
         case 0:
             errorReason = NSLocalizedString("No response from server", comment: "")
         case 403:
-            errorReason = NSLocalizedString("The password is wrong", comment: "")
+            if statusReason == "ban" {
+                errorReason = NSLocalizedString("No permission to join this conversation", comment: "")
+            } else {
+                errorReason = NSLocalizedString("The password is wrong", comment: "")
+            }
         case 404:
             errorReason = NSLocalizedString("Conversation not found", comment: "")
         case 409:

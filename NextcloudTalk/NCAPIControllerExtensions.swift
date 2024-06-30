@@ -231,7 +231,7 @@ import Foundation
 
     // MARK: - Mentions
 
-    public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ invitations: [MentionSuggestion]?) -> Void) {
+    public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ mentions: [MentionSuggestion]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
@@ -263,5 +263,81 @@ import Foundation
         let dateString = NCUtils.getDate(fromDate: Date())
 
         return String(NCUtils.sha1(fromString: dateString).prefix(16))
+    }
+
+    // MARK: - Ban
+
+    public func banActor(for accountId: String, in roomToken: String, with actorType: String, with actorId: String, with internalNote: String?, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let apiVersion = self.banAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+
+        var parameters: [String: Any] = [
+            "actorType": actorType,
+            "actorId": actorId
+        ]
+
+        if let internalNote, !internalNote.isEmpty {
+            parameters["internalNote"] = internalNote
+        }
+
+        apiSessionManager.post(urlString, parameters: parameters, progress: nil) { _, _ in
+            completionBlock(true)
+        } failure: { _, _ in
+            completionBlock(false)
+        }
+    }
+
+    public func listBans(for accountId: String, in roomToken: String, completionBlock: @escaping (_ bannedActors: [BannedActor]?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let apiVersion = self.banAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.get(urlString, parameters: nil, progress: nil) { _, result in
+            if let ocs = self.getOcsResponse(data: result),
+               let data = ocs["data"] as? [[String: AnyObject]] {
+
+                let actorBans = data.map { BannedActor(dictionary: $0)}
+                completionBlock(actorBans)
+            } else {
+                completionBlock(nil)
+            }
+        } failure: { _, _ in
+            completionBlock(nil)
+        }
+    }
+
+    public func unbanActor(for accountId: String, in roomToken: String, with banId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let apiVersion = self.banAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: Any] = [
+            "banId": banId
+        ]
+
+        apiSessionManager.delete(urlString, parameters: parameters) { _, _ in
+            completionBlock(true)
+        } failure: { _, _ in
+            completionBlock(false)
+        }
     }
 }

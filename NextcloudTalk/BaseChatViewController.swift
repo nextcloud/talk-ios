@@ -55,8 +55,9 @@ import QuickLook
     internal var dateSections: [Date] = []
 
     internal var isVisible = false
-    internal var isTyping: Bool = false
+    internal var isTyping = false
     internal var firstUnreadMessage: NCChatMessage?
+    internal var dismissNotificationsOnViewWillDisappear = true
 
     internal var replyMessageView: ReplyMessageView?
     internal var voiceMessagesPlayer: AVAudioPlayer?
@@ -398,7 +399,10 @@ import QuickLook
         if !self.textInputbar.isHidden {
             self.savePendingMessage()
         }
-        NotificationPresenter.shared().dismiss(animated: false)
+
+        if dismissNotificationsOnViewWillDisappear {
+            NotificationPresenter.shared().dismiss(animated: false)
+        }
     }
 
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
