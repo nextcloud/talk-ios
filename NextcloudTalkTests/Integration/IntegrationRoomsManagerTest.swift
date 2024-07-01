@@ -38,6 +38,9 @@ final class IntegrationRoomsManagerTest: TestBase {
             // swiftlint:disable:next force_cast
             XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
 
+            // There's no NCRoomController when joining fails
+            XCTAssertNil(notification.userInfo?["roomController"])
+
             return true
         }
 
@@ -76,6 +79,9 @@ final class IntegrationRoomsManagerTest: TestBase {
 
             // Check if the NCRoomController was correctly added to the activeRooms dictionary
             XCTAssertNotNil(NCRoomsManager.sharedInstance().activeRooms[roomToken])
+
+            // When successfully joined, the NCRoomController should be included in the notification
+            XCTAssertNotNil(notification.userInfo?["roomController"])
 
             return true
         }
