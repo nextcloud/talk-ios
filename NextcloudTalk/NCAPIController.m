@@ -2142,16 +2142,19 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         urlString = [NSString stringWithFormat:@"%@/dark", urlString];
     }
 
-    // Add talk ios specific date hash to get a unique URL per day
-    urlString = [NSString stringWithFormat:@"%@?sd=%@", urlString, [self getDateHash]];
-
     NSURL *url = [NSURL URLWithString:urlString];
 
     SDWebImageOptions options = SDWebImageRetryFailed;
 
     if (ignoreCache) {
-        // In case we want to ignore our local caches, we need to explicitly set that option
+        // In case we want to ignore our local caches, we can't provide SDWebImageRefreshCached, as this will
+        // always use NSURLCache and could still return a cached value here
         options |= SDWebImageFromLoaderOnly;
+    } else {
+        // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
+        // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
+        // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
+        options |= SDWebImageRefreshCached;
     }
 
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
@@ -2185,14 +2188,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
 
     NSString *encodedUserId = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    endpoint = [NSString stringWithFormat:@"%@?cloudId=%@&sd=%@", endpoint, encodedUserId, [self getDateHash]];
+    endpoint = [NSString stringWithFormat:@"%@?cloudId=%@", endpoint, encodedUserId];
 
     NSInteger avatarAPIVersion = 1;
     NSString *urlString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
     NSURL *url = [NSURL URLWithString:urlString];
 
     // See getAvatarForRoom for explanation
-    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageQueryDiskDataSync;
+    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached | SDWebImageQueryDiskDataSync;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
 
     // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
@@ -2229,9 +2232,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         endpoint = [NSString stringWithFormat:@"%@/dark", endpoint];
     }
 
-    // We add a hash of the current date here, as NSURLCache will not correctly cache requests with query parameters,
-    // but if we soley rely on SDWebImage caching, we will never invalidate any cached avatar
-    endpoint = [NSString stringWithFormat:@"%@?avatarVersion=%@&sd=%@", endpoint, room.avatarVersion, [self getDateHash]];
+    // For non-one-to-one conversation we do have a valid avatarVersion which we can use to cache the avatar
+    // For one-to-one conversations we rely on the caching that is specified by the server via cache-control header
+    if (room.type != kNCRoomTypeOneToOne) {
+        endpoint = [NSString stringWithFormat:@"%@?avatarVersion=%@", endpoint, room.avatarVersion];
+    }
 
     NSInteger avatarAPIVersion = 1;
     NSString *urlString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
@@ -2242,6 +2247,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                     load these URLs again, but we want to retry these.
                                     Also see https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
 
+     SDWebImageRefreshCached:       By default the cache-control header returned by the webserver is ignored and
+                                    images are cached forever. With this parameter we let NSURLCache determine
+                                    if a resource needs to be reloaded from the server again.
+                                    Could be removed if this endpoint returns an avatar version for all calls.
+                                    Also see https://github.com/nextcloud/spreed/issues/9320
+
      SDWebImageQueryDiskDataSync:   SDImage loads data from the disk cache on a separate (async) queue. This leads
                                     to 2 problems: 1. It can cause some flickering on a reload, 2. It causes UIImage methods
                                     being called to leak memory. This is noticeable in NSE with a tight memory constraint.
@@ -2250,6 +2261,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
     SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageQueryDiskDataSync;
     SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
+
+    // Since we do not have a valid avatarVersion for one-to-one conversations, we need to rely on the
+    // cache-control header by the server and therefore on NSURLCache
+    // Note: There seems to be an issue with NSURLCache to correctly cache URLs that contain a query parameter
+    // so it's currently only suiteable for one-to-ones that don't have a correct avatarVersion anyway
+    if (room.type == kNCRoomTypeOneToOne) {
+        options |= SDWebImageRefreshCached;
+    }
 
     // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
     SDWebImageContext *context = @{
