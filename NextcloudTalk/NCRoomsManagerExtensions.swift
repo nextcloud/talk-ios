@@ -38,6 +38,9 @@ import Foundation
     }
 
     private func joinRoomHelper(_ token: String, forCall call: Bool) {
+        var userInfo: [AnyHashable: Any] = [:]
+        userInfo["token"] = token
+
         if let roomController = self.activeRooms[token] as? NCRoomController {
             if call {
                 roomController.inCall = true
@@ -45,12 +48,11 @@ import Foundation
                 roomController.inChat = true
             }
 
-            NotificationCenter.default.post(name: .NCRoomsManagerDidJoinRoom, object: self, userInfo: ["token": token])
+            userInfo["roomController"] = roomController
+            NotificationCenter.default.post(name: .NCRoomsManagerDidJoinRoom, object: self, userInfo: userInfo)
 
             return
         }
-
-        var userInfo: [AnyHashable: Any] = [:]
 
         self.joiningRoomToken = token
 
@@ -90,7 +92,6 @@ import Foundation
                 NCUtils.log("Could not join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "")")
             }
 
-            userInfo["token"] = token
             NotificationCenter.default.post(name: .NCRoomsManagerDidJoinRoom, object: self, userInfo: userInfo)
         }
     }
