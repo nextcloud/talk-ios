@@ -306,6 +306,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [super viewDidLayoutSubviews];
 
     [self.screenshareLabelContainer.layer setCornerRadius:self.screenshareLabelContainer.frame.size.height / 2];
+    [self.participantsLabelContainer.layer setCornerRadius:self.participantsLabelContainer.frame.size.height / 2];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
@@ -635,6 +636,21 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         if (_callState == CallStateInCall) {
             [self setCallState:CallStateWaitingParticipants];
         }
+    }
+
+    if (_room.type != kNCRoomTypeOneToOne) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSTextAttachment *participantsAttachment = [[NSTextAttachment alloc] init];
+            participantsAttachment.image = [[UIImage systemImageNamed:@"person.2"] imageWithTintColor:self.participantsLabel.textColor];
+
+            NSMutableAttributedString *resultString = [[NSMutableAttributedString alloc] initWithAttributedString:[NSAttributedString attributedStringWithAttachment:participantsAttachment]];
+            [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  %ld", [self->_peersInCall count] + 1]]];
+
+            NSRange range = NSMakeRange(0, [resultString length]);
+            [resultString addAttribute:NSFontAttributeName value:self.participantsLabel.font range:range];
+
+            self.participantsLabel.attributedText = resultString;
+        });
     }
 }
 
