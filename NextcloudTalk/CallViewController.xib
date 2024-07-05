@@ -250,6 +250,27 @@
                         <outlet property="delegate" destination="-1" id="rTW-Ir-7cH"/>
                     </connections>
                 </collectionView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cRK-6e-FFN" userLabel="ParticipantsLabelContainer">
+                    <rect key="frame" x="8" y="96" width="34.5" height="35.5"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jKC-M1-4EZ" userLabel="ParticipantsLabel">
+                            <rect key="frame" x="12" y="8" width="10.5" height="19.5"/>
+                            <constraints>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="bvS-tX-y9s"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="displayP3"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="jKC-M1-4EZ" secondAttribute="bottom" constant="8" id="2X5-nV-O2N"/>
+                        <constraint firstItem="jKC-M1-4EZ" firstAttribute="top" secondItem="cRK-6e-FFN" secondAttribute="top" constant="8" id="F3Z-XM-Igo"/>
+                        <constraint firstItem="jKC-M1-4EZ" firstAttribute="leading" secondItem="cRK-6e-FFN" secondAttribute="leading" constant="12" id="mb0-zM-Fqk"/>
+                        <constraint firstAttribute="trailing" secondItem="jKC-M1-4EZ" secondAttribute="trailing" constant="12" id="zhd-Ya-rRk"/>
+                    </constraints>
+                </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC" userLabel="ScreenshareView" customClass="NCZoomableView" customModule="NextcloudTalk" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="88" width="1024" height="1258"/>
                     <subviews>
@@ -319,27 +340,6 @@
                         <constraint firstAttribute="width" constant="350" id="8kc-f3-P81"/>
                     </constraints>
                 </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cRK-6e-FFN" userLabel="ParticipantsLabelContainer">
-                    <rect key="frame" x="981.5" y="96" width="34.5" height="35.5"/>
-                    <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jKC-M1-4EZ" userLabel="ParticipantsLabel">
-                            <rect key="frame" x="12" y="8" width="10.5" height="19.5"/>
-                            <constraints>
-                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="bvS-tX-y9s"/>
-                            </constraints>
-                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
-                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                    </subviews>
-                    <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="displayP3"/>
-                    <constraints>
-                        <constraint firstAttribute="bottom" secondItem="jKC-M1-4EZ" secondAttribute="bottom" constant="8" id="2X5-nV-O2N"/>
-                        <constraint firstItem="jKC-M1-4EZ" firstAttribute="top" secondItem="cRK-6e-FFN" secondAttribute="top" constant="8" id="F3Z-XM-Igo"/>
-                        <constraint firstItem="jKC-M1-4EZ" firstAttribute="leading" secondItem="cRK-6e-FFN" secondAttribute="leading" constant="12" id="mb0-zM-Fqk"/>
-                        <constraint firstAttribute="trailing" secondItem="jKC-M1-4EZ" secondAttribute="trailing" constant="12" id="zhd-Ya-rRk"/>
-                    </constraints>
-                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="bbs-K4-b33"/>
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -355,7 +355,7 @@
                 <constraint firstItem="aUh-Z0-hO6" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="XPT-Wv-kZY"/>
                 <constraint firstItem="cRK-6e-FFN" firstAttribute="top" secondItem="reh-cY-1Qv" secondAttribute="bottom" constant="8" id="XUL-j4-h0o"/>
                 <constraint firstItem="reh-cY-1Qv" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="c1h-3M-GBu"/>
-                <constraint firstItem="aUh-Z0-hO6" firstAttribute="trailing" secondItem="cRK-6e-FFN" secondAttribute="trailing" constant="8" id="ch5-E2-gZj"/>
+                <constraint firstItem="cRK-6e-FFN" firstAttribute="leading" secondItem="aUh-Z0-hO6" secondAttribute="leading" constant="8" id="ch5-E2-gZj"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="fSY-ZT-xIC" secondAttribute="bottom" constant="8" id="cnF-xe-Mjs"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="fSY-ZT-xIC" secondAttribute="trailing" constant="8" id="grQ-FV-QY8"/>
                 <constraint firstItem="Zzc-Pq-hMC" firstAttribute="bottom" secondItem="bbs-K4-b33" secondAttribute="bottom" id="nY6-7m-HGN"/>
