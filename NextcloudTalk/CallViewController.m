@@ -536,7 +536,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 
     UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
-    _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant, 80 + safeAreaInsets.top);
+    CGSize viewSize = self.view.frame.size;
+    CGFloat defaultPadding = 16;
+    CGFloat extraPadding = 60; // Padding to not cover  participant name or mute indicator when there is only one other participant in the call
+    _localVideoOriginPosition = CGPointMake(viewSize.width - localVideoSize.width - _collectionViewRightConstraint.constant - safeAreaInsets.right - defaultPadding,
+                                            viewSize.height - localVideoSize.height - _collectionViewBottomConstraint.constant - safeAreaInsets.bottom - extraPadding);
 
     CGRect localVideoRect = CGRectMake(_localVideoOriginPosition.x, _localVideoOriginPosition.y, localVideoSize.width, localVideoSize.height);
     
