@@ -206,7 +206,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     UILongPressGestureRecognizer *pushToTalkRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlePushToTalk:)];
     [self.audioMuteButton addGestureRecognizer:pushToTalkRecognizer];
-    
+
+    [_participantsLabelContainer setHidden:YES];
+
     [_screensharingView setHidden:YES];
     [_screensharingView setClipsToBounds:YES];
 
@@ -650,6 +652,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [resultString addAttribute:NSFontAttributeName value:self.participantsLabel.font range:range];
 
             self.participantsLabel.attributedText = resultString;
+
+            [self.participantsLabelContainer setHidden:NO];
         });
     }
 }
