@@ -265,10 +265,10 @@
                             </connections>
                         </button>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o1l-BI-9Qm" userLabel="ScreenshareLabelContainer">
-                            <rect key="frame" x="463.5" y="1224" width="97" height="26"/>
+                            <rect key="frame" x="480" y="1216" width="64.5" height="34"/>
                             <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="sdfsdfsdf" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jS8-GI-SJT" userLabel="ScreenshareLabel">
-                                    <rect key="frame" x="16" y="4" width="65" height="18"/>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jS8-GI-SJT" userLabel="ScreenshareLabel">
+                                    <rect key="frame" x="16" y="8" width="32.5" height="18"/>
                                     <constraints>
                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" id="fl4-VY-OBo"/>
                                     </constraints>
@@ -280,9 +280,9 @@
                             <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="displayP3"/>
                             <constraints>
                                 <constraint firstItem="jS8-GI-SJT" firstAttribute="leading" secondItem="o1l-BI-9Qm" secondAttribute="leading" constant="16" id="L7w-HG-xVj"/>
-                                <constraint firstAttribute="bottom" secondItem="jS8-GI-SJT" secondAttribute="bottom" constant="4" id="TMQ-6H-QNh"/>
+                                <constraint firstAttribute="bottom" secondItem="jS8-GI-SJT" secondAttribute="bottom" constant="8" id="TMQ-6H-QNh"/>
                                 <constraint firstAttribute="trailing" secondItem="jS8-GI-SJT" secondAttribute="trailing" constant="16" id="dnd-lP-phb"/>
-                                <constraint firstItem="jS8-GI-SJT" firstAttribute="top" secondItem="o1l-BI-9Qm" secondAttribute="top" constant="4" id="jNW-9o-AJP"/>
+                                <constraint firstItem="jS8-GI-SJT" firstAttribute="top" secondItem="o1l-BI-9Qm" secondAttribute="top" constant="8" id="jNW-9o-AJP"/>
                             </constraints>
                         </view>
                     </subviews>
