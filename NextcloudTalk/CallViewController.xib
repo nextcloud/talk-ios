@@ -23,6 +23,8 @@
                 <outlet property="localVideoView" destination="TXj-7E-NAa" id="nXn-uK-PDD"/>
                 <outlet property="lowerHandButton" destination="RpQ-sH-1qf" id="g5K-YY-Va1"/>
                 <outlet property="moreMenuButton" destination="Gjp-FF-fc2" id="qXV-GI-Uuu"/>
+                <outlet property="participantsLabel" destination="jKC-M1-4EZ" id="NIv-kp-5HO"/>
+                <outlet property="participantsLabelContainer" destination="cRK-6e-FFN" id="lRs-B4-zOS"/>
                 <outlet property="recordingButton" destination="aQX-QQ-eLT" id="Jh5-wa-IyR"/>
                 <outlet property="screenshareLabel" destination="jS8-GI-SJT" id="l5i-yo-wU9"/>
                 <outlet property="screenshareLabelContainer" destination="o1l-BI-9Qm" id="w1I-1t-qFm"/>
@@ -248,6 +250,27 @@
                         <outlet property="delegate" destination="-1" id="rTW-Ir-7cH"/>
                     </connections>
                 </collectionView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cRK-6e-FFN" userLabel="ParticipantsLabelContainer">
+                    <rect key="frame" x="8" y="96" width="34.5" height="35.5"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jKC-M1-4EZ" userLabel="ParticipantsLabel">
+                            <rect key="frame" x="12" y="8" width="10.5" height="19.5"/>
+                            <constraints>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="bvS-tX-y9s"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="displayP3"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="jKC-M1-4EZ" secondAttribute="bottom" constant="8" id="2X5-nV-O2N"/>
+                        <constraint firstItem="jKC-M1-4EZ" firstAttribute="top" secondItem="cRK-6e-FFN" secondAttribute="top" constant="8" id="F3Z-XM-Igo"/>
+                        <constraint firstItem="jKC-M1-4EZ" firstAttribute="leading" secondItem="cRK-6e-FFN" secondAttribute="leading" constant="12" id="mb0-zM-Fqk"/>
+                        <constraint firstAttribute="trailing" secondItem="jKC-M1-4EZ" secondAttribute="trailing" constant="12" id="zhd-Ya-rRk"/>
+                    </constraints>
+                </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC" userLabel="ScreenshareView" customClass="NCZoomableView" customModule="NextcloudTalk" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="88" width="1024" height="1258"/>
                     <subviews>
@@ -330,7 +353,9 @@
                 <constraint firstItem="Zzc-Pq-hMC" firstAttribute="top" secondItem="reh-cY-1Qv" secondAttribute="bottom" id="SEj-Nc-c8l"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="aUh-Z0-hO6" secondAttribute="bottom" id="TOU-Pk-3pi"/>
                 <constraint firstItem="aUh-Z0-hO6" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="XPT-Wv-kZY"/>
+                <constraint firstItem="cRK-6e-FFN" firstAttribute="top" secondItem="reh-cY-1Qv" secondAttribute="bottom" constant="8" id="XUL-j4-h0o"/>
                 <constraint firstItem="reh-cY-1Qv" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="c1h-3M-GBu"/>
+                <constraint firstItem="cRK-6e-FFN" firstAttribute="leading" secondItem="aUh-Z0-hO6" secondAttribute="leading" constant="8" id="ch5-E2-gZj"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="fSY-ZT-xIC" secondAttribute="bottom" constant="8" id="cnF-xe-Mjs"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="fSY-ZT-xIC" secondAttribute="trailing" constant="8" id="grQ-FV-QY8"/>
                 <constraint firstItem="Zzc-Pq-hMC" firstAttribute="bottom" secondItem="bbs-K4-b33" secondAttribute="bottom" id="nY6-7m-HGN"/>
@@ -348,7 +373,7 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 </imageView>
                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Waiting for others to the call..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="11" translatesAutoresizingMaskIntoConstraints="NO" id="ihe-9I-8ts">
-                    <rect key="frame" x="44" y="32" width="936" height="42"/>
+                    <rect key="frame" x="44" y="44" width="936" height="42"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

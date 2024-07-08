@@ -206,7 +206,9 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
     UILongPressGestureRecognizer *pushToTalkRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handlePushToTalk:)];
     [self.audioMuteButton addGestureRecognizer:pushToTalkRecognizer];
-    
+
+    [_participantsLabelContainer setHidden:YES];
+
     [_screensharingView setHidden:YES];
     [_screensharingView setClipsToBounds:YES];
 
@@ -306,6 +308,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [super viewDidLayoutSubviews];
 
     [self.screenshareLabelContainer.layer setCornerRadius:self.screenshareLabelContainer.frame.size.height / 2];
+    [self.participantsLabelContainer.layer setCornerRadius:self.participantsLabelContainer.frame.size.height / 2];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
@@ -533,7 +536,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     }
 
     UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
-    _localVideoOriginPosition = CGPointMake(16 + safeAreaInsets.left + _collectionViewLeftConstraint.constant, 80 + safeAreaInsets.top);
+    CGSize viewSize = self.view.frame.size;
+    CGFloat defaultPadding = 16;
+    CGFloat extraPadding = 60; // Padding to not cover  participant name or mute indicator when there is only one other participant in the call
+    _localVideoOriginPosition = CGPointMake(viewSize.width - localVideoSize.width - _collectionViewRightConstraint.constant - safeAreaInsets.right - defaultPadding,
+                                            viewSize.height - localVideoSize.height - _collectionViewBottomConstraint.constant - safeAreaInsets.bottom - extraPadding);
 
     CGRect localVideoRect = CGRectMake(_localVideoOriginPosition.x, _localVideoOriginPosition.y, localVideoSize.width, localVideoSize.height);
     
@@ -635,6 +642,23 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         if (_callState == CallStateInCall) {
             [self setCallState:CallStateWaitingParticipants];
         }
+    }
+
+    if (_room.type != kNCRoomTypeOneToOne) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSTextAttachment *participantsAttachment = [[NSTextAttachment alloc] init];
+            participantsAttachment.image = [[UIImage systemImageNamed:@"person.2"] imageWithTintColor:self.participantsLabel.textColor];
+
+            NSMutableAttributedString *resultString = [[NSMutableAttributedString alloc] initWithAttributedString:[NSAttributedString attributedStringWithAttachment:participantsAttachment]];
+            [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  %ld", [self->_peersInCall count] + 1]]];
+
+            NSRange range = NSMakeRange(0, [resultString length]);
+            [resultString addAttribute:NSFontAttributeName value:self.participantsLabel.font range:range];
+
+            self.participantsLabel.attributedText = resultString;
+
+            [self.participantsLabelContainer setHidden:NO];
+        });
     }
 }
 
