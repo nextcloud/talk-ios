@@ -61,8 +61,8 @@
 @property (nonatomic, strong) IBOutlet UILabel *callTimeLabel;
 @property (nonatomic, strong) IBOutlet UIView *screenshareLabelContainer;
 @property (nonatomic, strong) IBOutlet UILabel *screenshareLabel;
-@property (weak, nonatomic) IBOutlet UIView *participantsLabelContainer;
-@property (weak, nonatomic) IBOutlet UILabel *participantsLabel;
+@property (nonatomic, strong) IBOutlet UIView *participantsLabelContainer;
+@property (nonatomic, strong) IBOutlet UILabel *participantsLabel;
 
 - (instancetype)initCallInRoom:(NCRoom *)room asUser:(NSString*)displayName audioOnly:(BOOL)audioOnly;
 - (void)toggleChatView;
