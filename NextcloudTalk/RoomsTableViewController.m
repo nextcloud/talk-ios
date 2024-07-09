@@ -1476,6 +1476,14 @@ typedef enum RoomsSections {
     [self setSelectedRoomToken:nil];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
+    BOOL isAppInForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+
+    if (!isAppInForeground) {
+        // In case we are not in the active state, we don't want to invoke any navigation event as this might
+        // lead to crashes, when the wrong NavBar is referenced
+        return;
+    }
+
     if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
         FederationInvitationTableViewController *federationInvitationVC = [[FederationInvitationTableViewController alloc] init];
         NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:federationInvitationVC];
