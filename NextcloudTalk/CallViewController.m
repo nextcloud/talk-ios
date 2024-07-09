@@ -1518,7 +1518,11 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
             [_chatViewController leaveChat];
             _chatViewController = nil;
         }
-        
+
+        // Make sure there's no menu interfering with our dismissal
+        [self.moreMenuButton.contextMenuInteraction dismissMenu];
+        [self.hangUpButton.contextMenuInteraction dismissMenu];
+
         [self.delegate callViewControllerWantsToBeDismissed:self];
         
         [_callController stopCapturing];
