@@ -3297,7 +3297,15 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, account.accountId];
     NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
 
-    if (!managedRoom || [proxyHash isEqualToString:managedRoom.lastReceivedProxyHash]) {
+    if (!managedRoom) {
+        // The room is not known to us locally, don't try to fetch room capabilities
+        return;
+    }
+
+    FederatedCapabilities *federatedCapabilities = [[NCDatabaseManager sharedInstance] federatedCapabilitiesForAccountId:managedRoom.accountId remoteServer:managedRoom.remoteServer roomToken:managedRoom.token];
+
+    if ([proxyHash isEqualToString:managedRoom.lastReceivedProxyHash] && federatedCapabilities != nil) {
+        // The proxy hash is equal to our last known proxy hash and we are also able to retrieve capabilities locally -> skip fetching capabilities
         return;
     }
 
