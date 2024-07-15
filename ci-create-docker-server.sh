@@ -9,4 +9,4 @@ docker run --rm -d \
     --name $CONTAINER_NAME \
     -e SERVER_BRANCH=$TEST_BRANCH \
     -p $SERVER_PORT:80 \
-    ghcr.io/juliushaertl/nextcloud-dev-php80:latest
+    ghcr.io/juliushaertl/nextcloud-dev-php81:latest
