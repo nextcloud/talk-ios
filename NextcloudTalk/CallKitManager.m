@@ -376,12 +376,19 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
     __weak CallKitManager *weakSelf = self;
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
-    [[NCAPIController sharedInstance] getPeersForCall:call.token forAccount:account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+    [[NCAPIController sharedInstance] getPeersForCall:call.token forAccount:account withCompletionBlock:^(NSMutableArray *peers, NSError *error, NSInteger statusCode) {
         // Make sure call is still ringing at this point to avoid a race-condition between answering the call on this device and the API callback
         if (!call.isRinging) {
             return;
         }
-        
+
+        if (statusCode == 404) {
+            // The conversation was not found for this participant
+            // Mostlikely the conversation was removed while an incoming call was ongoing
+            [self endCallWithUUID:call.uuid];
+            return;
+        }
+
         if (!error && peers.count == 0) {
             // No one is in the call, we can hang up and show missed call notification
             [self presentMissedCallNotificationForCall:call];

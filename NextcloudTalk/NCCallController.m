@@ -804,7 +804,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)getPeersForCall
 {
-    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error) {
+    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error, NSInteger statusCode) {
         if (error) {
             return;
         }

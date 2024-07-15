@@ -62,7 +62,7 @@ typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participa
 typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
 typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
 
-typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error);
+typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error, NSInteger statusCode);
 typedef void (^JoinCallCompletionBlock)(NSError *error, NSInteger statusCode);
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
