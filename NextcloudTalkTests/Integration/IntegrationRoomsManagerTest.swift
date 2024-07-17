@@ -79,6 +79,9 @@ final class IntegrationRoomsManagerTest: TestBase {
         expectation(forNotification: .NCRoomsManagerDidLeaveRoom, object: nil) { notification -> Bool in
             XCTAssertNil(notification.userInfo?["error"])
 
+            // swiftlint:disable:next force_cast
+            XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
+
             // Check if the NCRoomController was correctly removed from the activeRooms dictionary
             XCTAssertNil(NCRoomsManager.sharedInstance().activeRooms[roomToken])
 

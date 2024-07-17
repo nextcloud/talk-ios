@@ -713,6 +713,17 @@ import UIKit
     }
 
     func didLeaveRoom(notification: Notification) {
+        guard let token = notification.userInfo?["token"] as? String else { return }
+
+        if token != self.room.token {
+            return
+        }
+
+        if notification.userInfo?["error"] != nil {
+            // In case an error occurred when leaving the room, we assume we are still joined
+            return
+        }
+
         self.hasJoinedRoom = false
         self.disableRoomControls()
         self.checkRoomControlsAvailability()

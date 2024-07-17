@@ -7,7 +7,8 @@ import Foundation
 
 @objc extension NCRoomsManager {
 
-    public static let statusCodeNotJoiningAnymore = 999
+    public static let statusCodeShouldIgnoreAttemptButJoinedSuccessfully = 998
+    public static let statusCodeIgnoreJoinAttempt = 999
 
     // MARK: - Join/Leave room
 
@@ -17,6 +18,12 @@ import Foundation
         self.joiningSessionId = nil
         self.joiningAttempts = 0
         self.joinRoomTask?.cancel()
+
+        // Check if we try to join a room, we're still trying to leave
+        if self.isLeavingRoom(withToken: token) {
+            self.leavingRoomToken = nil
+            self.leaveRoomTask?.cancel()
+        }
 
         self.joinRoomHelper(token, forCall: call)
     }
@@ -41,8 +48,24 @@ import Foundation
         self.joiningRoomToken = token
 
         self.joinRoomHelper(token, forCall: call) { sessionId, room, error, statusCode, statusReason in
-            if statusCode == NCRoomsManager.statusCodeNotJoiningAnymore {
+            if statusCode == NCRoomsManager.statusCodeIgnoreJoinAttempt {
                 // Not joining the room any more. Ignore response
+                return
+            } else if statusCode == NCRoomsManager.statusCodeShouldIgnoreAttemptButJoinedSuccessfully {
+                // We joined the Nextcloud server successfully, but locally we are not trying to join that room anymore.
+                // We need to make sure that we leave the room on the server again to not leave an active session.
+                // Do a direct API call here, as the join method will check for an active NCRoomController, which we don't have
+
+                if !self.isLeavingRoom(withToken: token) {
+                    self.leavingRoomToken = token
+
+                    let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+                    self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, for: activeAccount, withCompletionBlock: { _ in
+                        self.leaveRoomTask = nil
+                        self.leavingRoomToken = nil
+                    })
+                }
+
                 return
             }
 
@@ -90,6 +113,12 @@ import Foundation
         return joiningRoomToken == token
     }
 
+    private func isLeavingRoom(withToken token: String) -> Bool {
+        guard let leavingRoomToken = self.leavingRoomToken else { return false }
+
+        return leavingRoomToken == token
+    }
+
     private func isJoiningRoom(withSessionId sessionId: String) -> Bool {
         guard let joiningSessionId = self.joiningSessionId else { return false }
 
@@ -100,10 +129,16 @@ import Foundation
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode, statusReason in
-            // If we left the room before the request completed or tried to join another room, there's nothing for us to do here anymore
             if !self.isJoiningRoom(withToken: token) {
-                NCUtils.log("Not joining the room any more. Ignore response.")
-                completionBlock(nil, nil, nil, NCRoomsManager.statusCodeNotJoiningAnymore, nil)
+                // Treat a cancelled request as success, as we can't determine if the request was processed on the server or not
+                if let error = error as? NSError, error.code != NSURLErrorCancelled {
+                    NCUtils.log("Not joining the room any more. Ignore attempt as the join request failed anyway.")
+                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeIgnoreJoinAttempt, nil)
+                } else {
+                    NCUtils.log("Not joining the room any more, but our join request was successful.")
+                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeShouldIgnoreAttemptButJoinedSuccessfully, nil)
+                }
+
                 return
             }
 
@@ -130,9 +165,15 @@ import Foundation
             extSignalingController.joinRoom(token, withSessionId: sessionId) { error in
                 // If the sessionId is not the same anymore we tried to join with, we either already left again before
                 // joining the external signaling server succeeded, or we already have another join in process
-                if !self.isJoiningRoom(withToken: token) || !self.isJoiningRoom(withSessionId: sessionId ?? "") {
-                    NCUtils.log("Not joining the room any more or joining the same room with a different sessionId. Ignore external signaling completion block.")
-                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeNotJoiningAnymore, nil)
+                if !self.isJoiningRoom(withToken: token) {
+                    NCUtils.log("Not joining the room any more. Ignore external signaling completion block, but we joined the Nextcloud instance before.")
+                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeShouldIgnoreAttemptButJoinedSuccessfully, nil)
+                    return
+                }
+
+                if !self.isJoiningRoom(withSessionId: sessionId ?? "") {
+                    NCUtils.log("Joining the same room with a different sessionId. Ignore external signaling completion block.")
+                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeIgnoreJoinAttempt, nil)
                     return
                 }
 
@@ -185,8 +226,14 @@ import Foundation
            !roomController.inCall, !roomController.inChat {
 
             self.activeRooms.removeObject(forKey: token)
+
+            self.leavingRoomToken = token
             self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, for: activeAccount, withCompletionBlock: { error in
                 var userInfo = [:]
+                userInfo["token"] = token
+
+                self.leaveRoomTask = nil
+                self.leavingRoomToken = nil
 
                 if let error {
                     userInfo["error"] = error
@@ -195,10 +242,9 @@ import Foundation
                     if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
                         extSignalingController.leaveRoom(token)
                     }
-                }
 
-                self.leaveRoomTask = nil
-                self.checkForPendingToStartCalls()
+                    self.checkForPendingToStartCalls()
+                }
 
                 NotificationCenter.default.post(name: .NCRoomsManagerDidLeaveRoom, object: self, userInfo: userInfo)
             })

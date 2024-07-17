@@ -40,6 +40,7 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 // START - Public for swift migration
 @property (nonatomic, strong) NSMutableDictionary *activeRooms; //roomToken -> roomController
 @property (nonatomic, strong, nullable) NSString *joiningRoomToken;
+@property (nonatomic, strong, nullable) NSString *leavingRoomToken;
 @property (nonatomic, strong, nullable) NSString *joiningSessionId;
 @property (nonatomic, assign) NSInteger joiningAttempts;
 @property (nonatomic, strong, nullable) NSURLSessionTask *joinRoomTask;
