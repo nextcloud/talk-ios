@@ -90,15 +90,15 @@ import SDWebImage
     public func getActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         if let actorId {
             if actorType == "bots" {
-                return getBotsAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
+                return getBotsAvatar(forId: actorId, withStyle: style, completionBlock: completionBlock)
             } else if actorType == "guests" {
-                return getGuestsAvatar(forId: actorId, withDisplayName: actorDisplayName ?? "", withStyle: style, usingAccount: account, completionBlock: completionBlock)
+                return getGuestsAvatar(withDisplayName: actorDisplayName ?? "", completionBlock: completionBlock)
             } else if actorType == "users" {
                 return getUserAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             } else if actorType == "federated_users" {
                 return getFederatedUserAvatar(forId: actorId, withRoomToken: roomToken, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             } else if actorType == "deleted_users" {
-                return getDeletedUserAvatar(withStyle: style, completionBlock: completionBlock)
+                return getDeletedUserAvatar(completionBlock: completionBlock)
             }
         }
 
@@ -116,7 +116,7 @@ import SDWebImage
         return nil
     }
 
-    private func getBotsAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+    private func getBotsAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         if actorId == "changelog" {
             let traitCollection = UITraitCollection(userInterfaceStyle: style)
             completionBlock(UIImage(named: "changelog-avatar", in: nil, compatibleWith: traitCollection))
@@ -128,7 +128,7 @@ import SDWebImage
         return nil
     }
 
-    private func getGuestsAvatar(forId actorId: String, withDisplayName actorDisplayName: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+    private func getGuestsAvatar(withDisplayName actorDisplayName: String, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         let name = actorDisplayName.isEmpty ? "?" : actorDisplayName
         let image = NCUtils.getImage(withString: name, withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
 
@@ -137,7 +137,7 @@ import SDWebImage
         return nil
     }
 
-    private func getDeletedUserAvatar(withStyle style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+    private func getDeletedUserAvatar(completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         let image = NCUtils.getImage(withString: "X", withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
 
         completionBlock(image)
