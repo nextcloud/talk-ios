@@ -32,13 +32,17 @@ import MobileVLCKit
     public weak var delegate: VLCKitVideoViewControllerDelegate?
 
     @IBOutlet weak var videoViewContainer: NCZoomableView!
-    @IBOutlet weak var buttonView: UIView!
+    @IBOutlet weak var buttonView: UIStackView!
+    @IBOutlet weak var jumpBackButton: UIButton!
     @IBOutlet weak var playPauseButton: UIButton!
+    @IBOutlet weak var jumpForwardButton: UIButton!
     @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var currentTimeLabel: UILabel!
     @IBOutlet weak var totalTimeLabel: UILabel!
     @IBOutlet weak var positionSlider: UISlider!
+
+    private static let jumpInterval: Int32 = 10
 
     private var mediaPlayer: VLCMediaPlayer?
     private var filePath: String
@@ -170,6 +174,14 @@ import MobileVLCKit
             self.currentTimeLabel.text = "-:-"
             self.totalTimeLabel.text = "-:-"
         }
+
+        if let mediaPlayer, mediaPlayer.isSeekable {
+            jumpBackButton.isEnabled = true
+            jumpForwardButton.isEnabled = true
+        } else {
+            jumpBackButton.isEnabled = false
+            jumpForwardButton.isEnabled = false
+        }
     }
 
     private func resetMedia(drawFirstFrame: Bool) {
@@ -232,6 +244,32 @@ import MobileVLCKit
     }
 
     // MARK: InterfaceBuilder Actions
+
+    @IBAction func jumpBackButtonTap(_ sender: Any) {
+        guard let mediaPlayer = self.mediaPlayer else { return }
+
+        mediaPlayer.jumpBackward(Self.jumpInterval)
+        updateInformation()
+    }
+
+    @IBAction func jumpForwardButtonTap(_ sender: Any) {
+        guard let mediaPlayer = self.mediaPlayer else { return }
+
+        // VLCKit does not clamp to the media end, if the jump is beyond its length.
+        // Hence the destination must be calculated manually to mimic first party video playback views.
+
+        if let remainingTime = mediaPlayer.remainingTime {
+            let remainingSeconds = abs(remainingTime.intValue) / 1000
+
+            if remainingSeconds >= Self.jumpInterval {
+                mediaPlayer.jumpForward(Self.jumpInterval)
+            } else {
+                mediaPlayer.jumpForward(remainingSeconds)
+            }
+        }
+
+        updateInformation()
+    }
 
     @IBAction func playPauseButtonTap(_ sender: Any) {
         guard let mediaPlayer = self.mediaPlayer else { return }
