@@ -1039,13 +1039,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSArray *responsePeers = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *peers = [[NSMutableArray alloc] initWithArray:responsePeers];
         if (block) {
-            block(peers, nil);
+            block(peers, nil, 0);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
         [self checkResponseStatusCode:statusCode forAccount:account];
         if (block) {
-            block(nil, error);
+            block(nil, error, statusCode);
         }
     }];
     
