@@ -163,7 +163,11 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         var actorDisplayName = message.actorDisplayName ?? ""
 
         if actorDisplayName.isEmpty {
-            actorDisplayName = NSLocalizedString("Guest", comment: "")
+            if message.actorId == "deleted_users", message.actorType == "deleted_users" {
+                actorDisplayName = NSLocalizedString("Deleted user", comment: "")
+            } else {
+                actorDisplayName = NSLocalizedString("Guest", comment: "")
+            }
         }
 
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {

@@ -97,6 +97,8 @@ import SDWebImage
                 return getUserAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             } else if actorType == "federated_users" {
                 return getFederatedUserAvatar(forId: actorId, withRoomToken: roomToken, withStyle: style, usingAccount: account, completionBlock: completionBlock)
+            } else if actorType == "deleted_users" {
+                return getDeletedUserAvatar(withStyle: style, completionBlock: completionBlock)
             }
         }
 
@@ -129,6 +131,14 @@ import SDWebImage
     private func getGuestsAvatar(forId actorId: String, withDisplayName actorDisplayName: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         let name = actorDisplayName.isEmpty ? "?" : actorDisplayName
         let image = NCUtils.getImage(withString: name, withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
+
+        completionBlock(image)
+
+        return nil
+    }
+
+    private func getDeletedUserAvatar(withStyle style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+        let image = NCUtils.getImage(withString: "X", withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
 
         completionBlock(image)
 
