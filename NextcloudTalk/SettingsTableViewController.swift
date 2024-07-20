@@ -80,9 +80,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     var activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
     var inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
-    var serverCapabilities: ServerCapabilities {
+    var serverCapabilities: ServerCapabilities? {
         // Since NCDatabaseManager already caches the capabilities, we don't need a lazy var here
-        NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)!
+        NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
     }
 
     lazy var profilePictures: [String: UIImage] = {
@@ -172,7 +172,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         sections.append(SettingsSection.kSettingsSectionUser.rawValue)
 
         // User status section
-        if serverCapabilities.userStatus {
+        if serverCapabilities?.userStatus ?? false {
             sections.append(SettingsSection.kSettingsSectionUserStatus.rawValue)
         }
 
@@ -874,7 +874,7 @@ extension SettingsTableViewController {
             cell.selectionStyle = .none
             cell.setSettingsImage(image: UIImage(named: "check-all"))
             cell.accessoryView = readStatusSwitch
-            readStatusSwitch.isOn = !serverCapabilities.readStatusPrivacy
+            readStatusSwitch.isOn = !(serverCapabilities?.readStatusPrivacy ?? true)
 
         case AccountSettingsOptions.kAccountSettingsTypingPrivacy.rawValue:
             cell = tableView.dequeueReusableCell(withIdentifier: typingIndicatorCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: typingIndicatorCellIdentifier)
@@ -883,7 +883,7 @@ extension SettingsTableViewController {
             cell.setSettingsImage(image: UIImage(systemName: "rectangle.and.pencil.and.ellipsis")?.applyingSymbolConfiguration(iconConfiguration))
 
             cell.accessoryView = typingIndicatorSwitch
-            typingIndicatorSwitch.isOn = !serverCapabilities.typingPrivacy
+            typingIndicatorSwitch.isOn = !(serverCapabilities?.typingPrivacy ?? true)
 
             let externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
             let externalSignalingServerUsed = externalSignalingController != nil
