@@ -622,10 +622,9 @@ import AVFoundation
             self.stopAnimatingSharingIndicator()
             self.hud?.hide(animated: true)
 
-            self.shareItemController.removeAllItems()
-
             // TODO: Do error reporting per item
             if self.uploadErrors.isEmpty {
+                self.shareItemController.removeAllItems()
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
             } else {
                 let alert = UIAlertController(title: NSLocalizedString("Upload failed", comment: ""),
@@ -664,6 +663,9 @@ import AVFoundation
                     if let error {
                         NCUtils.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)
+                    } else {
+                        // When upload was successful, remove the item so only the failed items are kept
+                        self.shareItemController.remove(item)
                     }
 
                     self.uploadGroup.leave()
