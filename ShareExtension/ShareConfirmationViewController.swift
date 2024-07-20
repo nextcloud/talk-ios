@@ -775,7 +775,8 @@ import AVFoundation
         cell.setPlaceHolderImage(item.placeholderImage)
         cell.setPlaceHolderText(item.fileName)
 
-        if let image = self.shareItemController.getImageFrom(item) {
+        if let fileURL = item.fileURL, NCUtils.isImage(fileExtension: fileURL.pathExtension),
+           let image = self.shareItemController.getImageFrom(item) {
             // We're able to get an image directly from the fileURL -> use it
             cell.setPreviewImage(image)
         } else {
