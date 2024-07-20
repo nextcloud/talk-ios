@@ -1263,7 +1263,7 @@ import UIKit
             return false
         }
 
-        return self.room.lobbyState == .moderatorsOnly && self.room.canModerate
+        return self.room.lobbyState == .moderatorsOnly && !self.room.canModerate
     }
 
     // MARK: - Chat functions
