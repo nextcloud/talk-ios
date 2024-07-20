@@ -249,7 +249,11 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                 NSLog(@"Room updated");
             }];
             NCRoom *updatedRoom = [[NCDatabaseManager sharedInstance] roomWithToken:token forAccountId:activeAccount.accountId];
-            [userInfo setObject:updatedRoom forKey:@"room"];
+
+            if (updatedRoom) {
+                // It seems to be somehow possible to have the updatedRoom be nil as seen in AppStore crashes
+                [userInfo setObject:updatedRoom forKey:@"room"];
+            }
         } else {
             [userInfo setObject:error forKey:@"error"];
             NSLog(@"Could not update rooms. Error: %@", error.description);
