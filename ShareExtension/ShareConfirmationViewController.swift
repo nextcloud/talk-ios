@@ -70,6 +70,7 @@ import AVFoundation
     private var uploadGroup = DispatchGroup()
     private var uploadFailed = false
     private var uploadErrors: [String] = []
+    private var uploadSuccess: [ShareItem] = []
 
     private enum ShareConfirmationType {
         case text
@@ -589,6 +590,7 @@ import AVFoundation
 
         self.uploadGroup = DispatchGroup()
         self.uploadErrors = []
+        self.uploadSuccess = []
 
         // Add caption to last shareItem
         if let shareItem = self.shareItemController.shareItems.last {
@@ -627,6 +629,9 @@ import AVFoundation
                 self.shareItemController.removeAllItems()
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
             } else {
+                // We remove the successfully uploaded items, so only the failed ones are kept
+                self.shareItemController.remove(self.uploadSuccess)
+
                 let alert = UIAlertController(title: NSLocalizedString("Upload failed", comment: ""),
                                               message: self.uploadErrors.joined(separator: "\n"),
                                               preferredStyle: .alert)
@@ -664,8 +669,7 @@ import AVFoundation
                         NCUtils.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)
                     } else {
-                        // When upload was successful, remove the item so only the failed items are kept
-                        self.shareItemController.remove(item)
+                        self.uploadSuccess.append(item)
                     }
 
                     self.uploadGroup.leave()

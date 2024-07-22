@@ -222,11 +222,18 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 
 - (void)removeItem:(ShareItem *)item
 {
-    [self cleanupItem:item];
-    
-    NSLog(@"Removing shareItem: %@ %@", item.fileName, item.fileURL);
-    
-    [self.internalShareItems removeObject:item];
+    [self removeItems:@[item]];
+}
+
+- (void)removeItems:(NSArray<ShareItem *> *)items
+{
+    for (ShareItem *item in items) {
+        [self cleanupItem:item];
+
+        NSLog(@"Removing shareItem: %@ %@", item.fileName, item.fileURL);
+        [self.internalShareItems removeObject:item];
+    }
+
     [self.delegate shareItemControllerItemsChanged:self];
 }
 
