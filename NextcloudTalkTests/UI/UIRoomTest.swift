@@ -158,4 +158,33 @@ final class UIRoomTest: XCTestCase {
         // Check if the input field is now empty
         XCTAssertEqual(textView.value as? String ?? "", "")
     }
+
+    func testLobbyView() {
+        let app = launchAndLogin()
+
+        let lobbyCell = app.tables.cells.staticTexts["LobbyTest"]
+        XCTAssert(lobbyCell.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        lobbyCell.tap()
+
+        // Seems we can't access the backgroundView of a UITableView from the UITests
+        // let lobbyText = app.staticTexts["You are currently waiting in the lobby"]
+
+        // Check that the table has no rows
+        let tables = app.tables.firstMatch
+        XCTAssert(tables.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        XCTAssertEqual(tables.tableRows.count, 0)
+
+        // Check that there's no activity indicator
+        XCTAssertEqual(app.activityIndicators.count, 0)
+
+        let shareButton = app.buttons["Share a file from your Nextcloud"]
+        XCTAssert(!shareButton.exists)
+
+        // Check that there's no inputbar
+        let toolbar = app.toolbars["Toolbar"]
+        let textView = toolbar.textViews["Write message, @ to mention someone …"]
+        XCTAssert(!textView.exists)
+    }
 }
