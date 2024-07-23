@@ -3,6 +3,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+protocol FederationInvitationCellDelegate: AnyObject {
+    func federationInvitationCellAccept(_ cell: FederationInvitationCell, invitation: FederationInvitation)
+    func federationInvitationCellReject(_ cell: FederationInvitationCell, invitation: FederationInvitation)
+}
+
 class FederationInvitationCell: UITableViewCell {
 
     public weak var delegate: FederationInvitationCellDelegate?
