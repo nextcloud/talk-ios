@@ -299,7 +299,17 @@ import UIKit
 
         let suggestion = self.autocompletionUsers[indexPath.row]
 
-        cell.titleLabel.text = suggestion.label
+        if let details = suggestion.details {
+            cell.titleLabel.numberOfLines = 2
+
+            let attributedLabel = (suggestion.label + "\n").withFont(.preferredFont(forTextStyle: .body))
+            let attributedDetails = details.withFont(.preferredFont(forTextStyle: .callout)).withTextColor(.secondaryLabel)
+            attributedLabel.append(attributedDetails)
+            cell.titleLabel.attributedText = attributedLabel
+        } else {
+            cell.titleLabel.numberOfLines = 1
+            cell.titleLabel.text = suggestion.label
+        }
 
         if let suggestionUserStatus = suggestion.userStatus {
             cell.setUserStatus(suggestionUserStatus)
