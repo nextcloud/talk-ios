@@ -10,3 +10,4 @@ SERVER_PORT=8080
 source ./ci-create-docker-server.sh
 source ./ci-wait-for-server.sh
 source ./ci-install-talk.sh
+source ./ci-setup-rooms.sh

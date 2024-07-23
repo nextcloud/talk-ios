@@ -134,6 +134,7 @@ jobs:
         ./server/occ config:system:set memcache.distributed --value='\OC\Memcache\APCu'
         ./server/occ app:enable --force spreed
         ./server/occ background:cron
+        OC_PASS=alice ./server/occ user:add --password-from-env alice
         PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
 
     - name: Download test-build
@@ -143,6 +144,10 @@ jobs:
 
     - name: Check status.php
       run: curl -s --retry 5 --retry-delay 5 --retry-all-errors http://localhost:8080/status.php || true
+
+    - name: Setup test-specific rooms
+      run: |
+        source ./ci-setup-rooms.sh
 
     - name: Test NextcloudTalk iOS
       run: |
