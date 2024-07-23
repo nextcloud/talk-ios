@@ -1,4 +1,5 @@
 // From https://github.com/react-native-webrtc/react-native-webrtc (MIT License)
+// SPDX-FileCopyrightText: 2023 React-Native-WebRTC authors
 // SPDX-License-Identifier: MIT
 
 #import <WebRTC/RTCVideoCapturer.h>
