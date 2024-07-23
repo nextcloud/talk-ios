@@ -1,6 +1,5 @@
 //
-//  SPDX-FileCopyrightText: 2019 Marino Faggiana <marino.faggiana@nextcloud.com>
-//  SPDX-FileCopyrightText: 2022 Marcel Müller <marcel-mueller@gmx.de>
+//  SPDX-FileCopyrightText: 2019 Nextcloud GmbH and Nextcloud contributors
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 

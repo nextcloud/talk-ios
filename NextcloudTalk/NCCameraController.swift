@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+// Based on https://developer.apple.com/documentation/vision/applying_matte_effects_to_people_in_images_and_video
+
 import Foundation
 import Vision
 import CoreImage.CIFilterBuiltins

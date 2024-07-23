@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-class DatePickerTextField: UITextField {
+@objcMembers class DatePickerTextField: UITextField {
 
     public let datePicker = UIDatePicker()
 

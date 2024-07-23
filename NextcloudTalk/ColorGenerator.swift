@@ -3,6 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+// See https://github.com/nextcloud/nextcloud-vue/blob/56b79afae93f4701a0cb933bfeb7b4a2fbd590fb/src/functions/usernameToColor/usernameToColor.js
+// and https://github.com/nextcloud/nextcloud-vue/blob/56b79afae93f4701a0cb933bfeb7b4a2fbd590fb/src/utils/GenColors.js
+
 import Foundation
 import CryptoKit
 
