@@ -18,6 +18,12 @@ SPDX-FileCopyrightText = "2016 Nextcloud GmbH"
 SPDX-License-Identifier = "LicenseRef-NextcloudTrademarks"
 
 [[annotations]]
+path = ["NextcloudTalk/Images.xcassets/twitter.imageset/twitter*.png"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "X Corp."
+SPDX-License-Identifier = "LicenseRef-XTrademarks"
+
+[[annotations]]
 path = ["NextcloudTalk/Images.xcassets/*.imageset/Contents.json", "NextcloudTalk/Images.xcassets/AppIcon.appiconset/Contents.json"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2019-2024 Nextcloud GmbH and Nextcloud contributors"
