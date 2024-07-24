@@ -10,3 +10,9 @@ path = ["Podfile"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2017 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = ["ThirdParty/AppRTC/*"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2014-2017 The WebRTC Project Authors. All rights reserved."
+SPDX-License-Identifier = "BSD-3-Clause"

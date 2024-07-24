@@ -5,6 +5,11 @@
 //  Created by Mike on 2014-05-05.
 //  Copyright (c) 2014 Valnet Inc. All rights reserved.
 //
+//  https://github.com/mikeMTOL/UIBarButtonItem-Badge
+//
+//  SPDX-FileCopyrightText: 2014 Mike, Valnet Inc.
+//  SPDX-License-Identifier: MIT
+//
 #import <objc/runtime.h>
 #import "UIBarButtonItem+Badge.h"
 
