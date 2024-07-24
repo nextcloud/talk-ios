@@ -381,7 +381,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageApplicationError];
 }
 
-- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
+- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withFederation:(NSDictionary *)federationDict withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
 {
 
     if (_disconnected) {
@@ -399,6 +399,17 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
                                           @"sessionid": sessionId
                                           }
                                   };
+
+    if (federationDict) {
+        messageDict = @{
+            @"type": @"room",
+            @"room": @{
+                @"roomid": roomId,
+                @"sessionid": sessionId,
+                @"federation": federationDict
+            }
+        };
+    }
 
     [self sendMessage:messageDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NCExternalSignalingSendMessageStatus status) {
         if (status == SendMessageSocketError && task == self->_webSocket) {
@@ -425,7 +436,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 {
     if ([_currentRoom isEqualToString:roomId]) {
         _currentRoom = nil;
-        [self joinRoom:@"" withSessionId:@"" withCompletionBlock:nil];
+        [self joinRoom:@"" withSessionId:@"" withFederation:nil withCompletionBlock:nil];
     } else {
         NSLog(@"External signaling: Not leaving because it's not room we joined");
     }
