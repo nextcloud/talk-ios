@@ -474,12 +474,10 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:account forRoom:nil withCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    [[NCAPIController sharedInstance] getSignalingSettingsFor:account forRoom:nil completionBlock:^(SignalingSettings * _Nullable settings, NSError * _Nullable error) {
         if (!error) {
-            NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
-
-            if (signalingConfiguration && account && account.accountId) {
-                [self->_signalingConfigurations setObject:signalingConfiguration forKey:account.accountId];
+            if (settings && account && account.accountId) {
+                [self->_signalingConfigurations setObject:settings forKey:account.accountId];
 
                 if (block) {
                     block(nil);
@@ -501,16 +499,9 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 // SetSignalingConfiguration should be called just once
 - (void)setSignalingConfigurationForAccountId:(NSString *)accountId
 {
-    NSDictionary *signalingConfiguration = [_signalingConfigurations objectForKey:accountId];
-    NSString *externalSignalingTicket = [signalingConfiguration objectForKey:@"ticket"];
-    NSString *externalSignalingServer = nil;
-    
-    id server = [signalingConfiguration objectForKey:@"server"];
-    if ([server isKindOfClass:[NSString class]] && ![server isEqualToString:@""]) {
-        externalSignalingServer = server;
-    }
+    SignalingSettings *signalingSettings = [_signalingConfigurations objectForKey:accountId];
 
-    if (externalSignalingServer && externalSignalingTicket) {
+    if (signalingSettings.server && signalingSettings.server.length > 0 && signalingSettings.ticket && signalingSettings.ticket.length > 0) {
         BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCSetSignalingConfiguration" expirationHandler:nil];
 
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -521,7 +512,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             }
             
             TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-            extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:externalSignalingServer andTicket:externalSignalingTicket];
+            extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:signalingSettings.server andTicket:signalingSettings.ticket];
             [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
 
             [bgTask stopBackgroundTask];
