@@ -6,9 +6,45 @@ SPDX-PackageSupplier = "Nextcloud GmbH <https://nextcloud.com/impressum/>"
 SPDX-PackageDownloadLocation = "https://github.com/nextcloud/talk-ios/"
 
 [[annotations]]
-path = ["Podfile"]
+path = [".gitmodules", "Podfile"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2017 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = ["NextcloudTalk/Images.xcassets/app-logo-callkit.imageset/app-logo-callkit*.png", "NextcloudTalk/Images.xcassets/AppIcon.appiconset/*.png", "NextcloudTalk/Images.xcassets/navigationLogo.imageset/navigationLogo*.png", "NextcloudTalk/Images.xcassets/navigationLogoDark.imageset/navigationLogoDark*.png", "NextcloudTalk/Images.xcassets/loginLogo.imageset/loginLogo*.png", "NextcloudTalk/Images.xcassets/navigationLogoOffline.imageset/navigationLogoOffline*.png", "NextcloudTalk/Images.xcassets/launchscreen.imageset/launchscreen*.png", "NextcloudTalk/Images.xcassets/logo-action.imageset/logo-action*.png", "NextcloudTalk/Images.xcassets/talk-20.imageset/talk-20*.png", "Icons/talk.svg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 Nextcloud GmbH"
+SPDX-License-Identifier = "LicenseRef-NextcloudTrademarks"
+
+[[annotations]]
+path = ["NextcloudTalk/Images.xcassets/twitter.imageset/twitter*.png"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "X Corp."
+SPDX-License-Identifier = "LicenseRef-XTrademarks"
+
+[[annotations]]
+path = ["NextcloudTalk/Images.xcassets/*.imageset/Contents.json", "NextcloudTalk/Images.xcassets/AppIcon.appiconset/Contents.json"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019-2024 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = [".tx/config"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = ["NextcloudTalk/*.lproj/*.strings", "NextcloudTalk/*.lproj/*.stringsdict"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Nextcloud translators"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = [".pyspelling.wordlist.txt"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "GPL-3.0-or-later"
 
 [[annotations]]
