@@ -15,6 +15,10 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////
+//
+//  SPDX-FileCopyrightText: 2014 Realm Inc.
+//  SPDX-License-Identifier: Apache-2.0
+//
 
 import Realm
 

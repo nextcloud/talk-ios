@@ -6,6 +6,7 @@
 //  Copyright © 2021 8x8, Inc. All rights reserved.
 //
 // From https://github.com/jitsi/jitsi-meet-sdk-samples (Apache 2.0 license)
+// SPDX-FileCopyrightText: 2021 Alex-Dan Bumbu, 8x8, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 import Foundation
