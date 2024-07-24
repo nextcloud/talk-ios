@@ -162,27 +162,32 @@ import Foundation
             // Remember the latest sessionId we're using to join a room, to be able to check when joining the external signaling server
             self.joiningSessionId = sessionId
 
-            extSignalingController.joinRoom(token, withSessionId: sessionId) { error in
-                // If the sessionId is not the same anymore we tried to join with, we either already left again before
-                // joining the external signaling server succeeded, or we already have another join in process
-                if !self.isJoiningRoom(withToken: token) {
-                    NCUtils.log("Not joining the room any more. Ignore external signaling completion block, but we joined the Nextcloud instance before.")
-                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeShouldIgnoreAttemptButJoinedSuccessfully, nil)
-                    return
-                }
+            // TODO: For non-federated rooms, we could skip getting the settings for now
+            NCAPIController.sharedInstance().getSignalingSettings(for: activeAccount, forRoom: token) { signalingSettings, error in
+                let federation = signalingSettings?.getFederationJoinDictionary()
 
-                if !self.isJoiningRoom(withSessionId: sessionId ?? "") {
-                    NCUtils.log("Joining the same room with a different sessionId. Ignore external signaling completion block.")
-                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeIgnoreJoinAttempt, nil)
-                    return
-                }
+                extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
+                    // If the sessionId is not the same anymore we tried to join with, we either already left again before
+                    // joining the external signaling server succeeded, or we already have another join in process
+                    if !self.isJoiningRoom(withToken: token) {
+                        NCUtils.log("Not joining the room any more. Ignore external signaling completion block, but we joined the Nextcloud instance before.")
+                        completionBlock(nil, nil, nil, NCRoomsManager.statusCodeShouldIgnoreAttemptButJoinedSuccessfully, nil)
+                        return
+                    }
 
-                if error == nil {
-                    NCUtils.log("Joined room \(token) in external signaling server successfully.")
-                    completionBlock(sessionId, room, nil, 0, nil)
-                } else {
-                    NCUtils.log("Failed joining room \(token) in external signaling server.")
-                    completionBlock(nil, nil, error, statusCode, statusReason)
+                    if !self.isJoiningRoom(withSessionId: sessionId ?? "") {
+                        NCUtils.log("Joining the same room with a different sessionId. Ignore external signaling completion block.")
+                        completionBlock(nil, nil, nil, NCRoomsManager.statusCodeIgnoreJoinAttempt, nil)
+                        return
+                    }
+
+                    if error == nil {
+                        NCUtils.log("Joined room \(token) in external signaling server successfully.")
+                        completionBlock(sessionId, room, nil, 0, nil)
+                    } else {
+                        NCUtils.log("Failed joining room \(token) in external signaling server.")
+                        completionBlock(nil, nil, error, statusCode, statusReason)
+                    }
                 }
             }
         })
@@ -200,7 +205,7 @@ import Foundation
                 roomController.inChat = true
 
                 if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
-                    extSignalingController.joinRoom(token, withSessionId: sessionId, withCompletionBlock: nil)
+                    extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: nil, withCompletionBlock: nil)
                 }
             } else {
                 print("Could not re-join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "Unknown")")
