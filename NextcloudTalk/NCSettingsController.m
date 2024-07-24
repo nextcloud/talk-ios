@@ -474,7 +474,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:account withCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    [[NCAPIController sharedInstance] getSignalingSettingsForAccount:account forRoom:nil withCompletionBlock:^(NSDictionary *settings, NSError *error) {
         if (!error) {
             NSDictionary *signalingConfiguration = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
 

@@ -10,6 +10,8 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @interface NCSignalingController()
 {
     NCRoom *_room;
@@ -28,7 +30,6 @@
     self = [super init];
     if (self) {
         _room = room;
-        [self getSignalingSettings];
     }
     return self;
 }
@@ -38,16 +39,25 @@
     NSLog(@"NCSignalingController dealloc");
 }
 
-- (void)getSignalingSettings
+- (void)updateSignalingSettingsWithCompletionBlock:(SignalingSettingsUpdatedCompletionBlock)block
 {
-    _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsForAccount:activeAccount forRoom:_room.token withCompletionBlock:^(NSDictionary *settings, NSError *error) {
         if (error) {
-            //TODO: Error handling
-            NSLog(@"Error getting signaling settings.");
+            if (error.code == NSURLErrorCancelled) {
+                return;
+            }
+
+            // TODO: Error handling
+            [NCUtils log:[NSString stringWithFormat:@"Could not get signaling settings. Error: %@", error.description]];
         }
-        
+
         if (settings) {
             self->_signalingSettings = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
+        }
+
+        if (block) {
+            block();
         }
     }];
 }

@@ -139,19 +139,21 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)startCall
 {
-    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    [_signalingController updateSignalingSettingsWithCompletionBlock:^{
+        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
 
-    if (!_isAudioOnly && authStatus == AVAuthorizationStatusNotDetermined) {
-        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-            [self createLocalMedia];
-            [self joinCall];
-        }];
+        if (!_isAudioOnly && authStatus == AVAuthorizationStatusNotDetermined) {
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                [self createLocalMedia];
+                [self joinCall];
+            }];
 
-        return;
-    }
+            return;
+        }
 
-    [self createLocalMedia];
-    [self joinCall];
+        [self createLocalMedia];
+        [self joinCall];
+    }];
 }
 
 - (NSString *)signalingSessionId

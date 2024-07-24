@@ -1810,14 +1810,22 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)getSignalingSettingsForAccount:(TalkAccount *)account withCompletionBlock:(GetSignalingSettingsCompletionBlock)block
+- (NSURLSessionDataTask *)getSignalingSettingsForAccount:(TalkAccount *)account forRoom:(NSString *)token withCompletionBlock:(GetSignalingSettingsCompletionBlock)block
 {
     NSString *endpoint = @"signaling/settings";
     NSInteger signalingAPIVersion = [self signalingAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:signalingAPIVersion forAccount:account];
-    
+
+    NSDictionary *parameters = nil;
+
+    if (token) {
+        parameters = @{
+            @"token" : token,
+        };
+    }
+
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *responseDict = responseObject;
         if (block) {
             block(responseDict, nil);

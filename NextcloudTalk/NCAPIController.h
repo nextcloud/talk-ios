@@ -226,7 +226,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Signaling Controller
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)getSignalingSettingsForAccount:(TalkAccount *)account withCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
+- (NSURLSessionDataTask *)getSignalingSettingsForAccount:(TalkAccount *)account forRoom:(NSString * _Nullable)token withCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 - (NSString *)authenticationBackendUrlForAccount:(TalkAccount *)account;
 
 // Settings Controller

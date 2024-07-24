@@ -16,6 +16,8 @@
 
 @end
 
+typedef void (^SignalingSettingsUpdatedCompletionBlock)(void);
+
 @interface NCSignalingController : NSObject
 
 @property (nonatomic, weak) id<NCSignalingControllerObserver> observer;
@@ -25,5 +27,6 @@
 - (void)startPullingSignalingMessages;
 - (void)sendSignalingMessage:(NCSignalingMessage *)message;
 - (void)stopAllRequests;
+- (void)updateSignalingSettingsWithCompletionBlock:(SignalingSettingsUpdatedCompletionBlock)block;
 
 @end
