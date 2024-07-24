@@ -1345,7 +1345,7 @@ typedef enum FileAction {
 
         [[NCAPIController sharedInstance] banActorFor:activeAccount.accountId in:self->_room.token with:participant.actorType with:participant.actorId with:trimmedInternalNote completionBlock:^(BOOL success) {
             if (success) {
-                [self getRoomParticipants];
+                [self removeParticipant:participant];
             } else {
                 [self showRoomModificationError:kModificationErrorBanActor];
             }

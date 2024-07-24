@@ -52,19 +52,34 @@ class BannedActorCell: UITableViewCell {
     public func setupFor(bannedActor: BannedActor) {
         self.bannedActor = bannedActor
 
-        self.titleLabel.text = bannedActor.bannedId ?? "Unknown"
+        self.titleLabel.text = bannedActor.bannedDisplayName ?? "Unknown"
 
-        var bannedTime = ""
+        var bannedDate = ""
 
         if let time = bannedActor.bannedTime {
-            bannedTime = NCUtils.readableDateTime(fromDate: Date(timeIntervalSince1970: TimeInterval(time)))
+            bannedDate = NCUtils.readableDateTime(fromDate: Date(timeIntervalSince1970: TimeInterval(time)))
         }
 
-        var details = "\(bannedTime)"
-        details = "\(details)\n\(bannedActor.actorId ?? "Unknown")"
-        details = "\(details)\n\(bannedActor.internalNote ?? "")"
+        let bannedByLabel = NSLocalizedString("Banned by:", comment: "Date and time of ban creation")
+        let bannedDateLabel = NSLocalizedString("Date:", comment: "name of a moderator who banned a participant")
+        let bannedNoteLabel = NSLocalizedString("Note:", comment: "Internal note for moderators, usually a reason for this ban")
 
-        self.detailsLabel.text = details
+        var details = NSMutableAttributedString()
+        let attributedNewLine = NSAttributedString(string: "\n")
+
+        details.append(bannedByLabel.withFont(.preferredFont(for: .caption1, weight: .bold)))
+        details.append(" \(bannedActor.bannedDisplayName ?? NSLocalizedString("Unknown", comment: ""))".withFont(.preferredFont(forTextStyle: .caption1)))
+        details.append(attributedNewLine)
+        details.append(bannedDateLabel.withFont(.preferredFont(for: .caption1, weight: .bold)))
+        details.append(" \(bannedDate)".withFont(.preferredFont(forTextStyle: .caption1)))
+
+        if let internalNote = bannedActor.internalNote, !internalNote.isEmpty {
+            details.append(attributedNewLine)
+            details.append(bannedNoteLabel.withFont(.preferredFont(for: .caption1, weight: .bold)))
+            details.append(" \(internalNote)".withFont(.preferredFont(forTextStyle: .caption1)))
+        }
+
+        self.detailsLabel.attributedText = details
 
         self.unbanButton.setTitle(NSLocalizedString("Unban", comment: ""), for: .normal)
         self.unbanButton.setButtonStyle(style: .primary)

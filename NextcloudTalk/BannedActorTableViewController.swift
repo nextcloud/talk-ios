@@ -57,6 +57,7 @@
         self.tableView.register(UINib(nibName: bannedActorCellIdentifier, bundle: nil), forCellReuseIdentifier: bannedActorCellIdentifier)
         self.tableView.backgroundView = backgroundView
 
+        // We only want the loadingView, so always hide the placeholder
         self.backgroundView.placeholderView.isHidden = true
         self.backgroundView.loadingView.startAnimating()
 

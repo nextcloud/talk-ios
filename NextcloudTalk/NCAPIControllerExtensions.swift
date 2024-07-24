@@ -280,17 +280,9 @@ import Foundation
         let apiVersion = self.banAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
 
-        apiSessionManager.get(urlString, parameters: nil, progress: nil) { _, result in
-            if let ocs = self.getOcsResponse(data: result),
-               let data = ocs["data"] as? [[String: AnyObject]] {
-
-                let actorBans = data.map { BannedActor(dictionary: $0)}
-                completionBlock(actorBans)
-            } else {
-                completionBlock(nil)
-            }
-        } failure: { _, _ in
-            completionBlock(nil)
+        apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
+            let actorBans = ocs?.dataArrayDict?.map { BannedActor(dictionary: $0) }
+            completionBlock(actorBans)
         }
     }
 
@@ -303,13 +295,9 @@ import Foundation
         }
 
         let apiVersion = self.banAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)/\(banId)", withAPIVersion: apiVersion, for: account)
 
-        let parameters: [String: Any] = [
-            "banId": banId
-        ]
-
-        apiSessionManager.delete(urlString, parameters: parameters) { _, _ in
+        apiSessionManager.delete(urlString, parameters: nil) { _, _ in
             completionBlock(true)
         } failure: { _, _ in
             completionBlock(false)

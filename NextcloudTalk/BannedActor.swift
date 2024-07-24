@@ -24,10 +24,12 @@ import Foundation
 @objcMembers public class BannedActor: NSObject {
 
     public var banId: Int = 0
-    public var actorType: String?
-    public var actorId: String?
+    public var moderatorActorType: String?
+    public var moderatorActorId: String?
+    public var moderatorDisplayName: String?
     public var bannedType: String?
     public var bannedId: String?
+    public var bannedDisplayName: String?
     public var bannedTime: Int?
     public var internalNote: String?
 
@@ -35,10 +37,12 @@ import Foundation
         super.init()
 
         self.banId = dictionary["id"] as? Int ?? 0
-        self.actorType = dictionary["actorType"] as? String
-        self.actorId = dictionary["actorId"] as? String
-        self.bannedType = dictionary["bannedType"] as? String
-        self.bannedId = dictionary["bannedId"] as? String
+        self.moderatorActorType = dictionary["moderatorActorType"] as? String
+        self.moderatorActorId = dictionary["moderatorActorId"] as? String
+        self.moderatorDisplayName = dictionary["moderatorDisplayName"] as? String
+        self.bannedType = dictionary["bannedActorType"] as? String
+        self.bannedId = dictionary["bannedActorId"] as? String
+        self.bannedDisplayName = dictionary["bannedDisplayName"] as? String
         self.bannedTime = dictionary["bannedTime"] as? Int
         self.internalNote = dictionary["internalNote"] as? String
     }
