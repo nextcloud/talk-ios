@@ -9,6 +9,7 @@
 #import "NCSignalingMessage.h"
 
 @class NCSignalingController;
+@class SignalingSettings;
 
 @protocol NCSignalingControllerObserver <NSObject>
 
@@ -16,7 +17,7 @@
 
 @end
 
-typedef void (^SignalingSettingsUpdatedCompletionBlock)(void);
+typedef void (^SignalingSettingsUpdatedCompletionBlock)(SignalingSettings *signalingSettings);
 
 @interface NCSignalingController : NSObject
 

@@ -184,6 +184,18 @@
 		1F8848122A75B68D00063860 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
 		1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B22970644C00CABA33 /* ColorGenerator.swift */; };
 		1F8995B52973547700CABA33 /* WebRTCCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B42973547700CABA33 /* WebRTCCommon.swift */; };
+		1F8AAC322C518759004DA20A /* SignalingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC312C518759004DA20A /* SignalingSettings.swift */; };
+		1F8AAC332C518B8A004DA20A /* SignalingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC312C518759004DA20A /* SignalingSettings.swift */; };
+		1F8AAC342C518B8A004DA20A /* SignalingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC312C518759004DA20A /* SignalingSettings.swift */; };
+		1F8AAC352C518B8B004DA20A /* SignalingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC312C518759004DA20A /* SignalingSettings.swift */; };
+		1F8AAC372C519577004DA20A /* TurnServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC362C519577004DA20A /* TurnServer.swift */; };
+		1F8AAC382C519577004DA20A /* TurnServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC362C519577004DA20A /* TurnServer.swift */; };
+		1F8AAC392C519577004DA20A /* TurnServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC362C519577004DA20A /* TurnServer.swift */; };
+		1F8AAC3A2C519577004DA20A /* TurnServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC362C519577004DA20A /* TurnServer.swift */; };
+		1F8AAC3C2C519689004DA20A /* StunServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC3B2C519689004DA20A /* StunServer.swift */; };
+		1F8AAC3D2C519689004DA20A /* StunServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC3B2C519689004DA20A /* StunServer.swift */; };
+		1F8AAC3E2C519689004DA20A /* StunServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC3B2C519689004DA20A /* StunServer.swift */; };
+		1F8AAC3F2C519689004DA20A /* StunServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC3B2C519689004DA20A /* StunServer.swift */; };
 		1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */; };
 		1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
@@ -707,6 +719,9 @@
 		1F785DDC2707865F00AC4B40 /* VoiceMessageTranscribeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoiceMessageTranscribeViewController.h; sourceTree = "<group>"; };
 		1F8995B22970644C00CABA33 /* ColorGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorGenerator.swift; sourceTree = "<group>"; };
 		1F8995B42973547700CABA33 /* WebRTCCommon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRTCCommon.swift; sourceTree = "<group>"; };
+		1F8AAC312C518759004DA20A /* SignalingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalingSettings.swift; sourceTree = "<group>"; };
+		1F8AAC362C519577004DA20A /* TurnServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TurnServer.swift; sourceTree = "<group>"; };
+		1F8AAC3B2C519689004DA20A /* StunServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StunServer.swift; sourceTree = "<group>"; };
 		1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarManager.swift; sourceTree = "<group>"; };
 		1F90EFBA25FE39F800F3FA55 /* NCIntentController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCIntentController.h; sourceTree = "<group>"; };
 		1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCIntentController.m; sourceTree = "<group>"; };
@@ -1859,6 +1874,9 @@
 				2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */,
 				2C69323B2923ECAA00017AD2 /* WSMessage.h */,
 				2C69323C2923ECAA00017AD2 /* WSMessage.m */,
+				1F8AAC312C518759004DA20A /* SignalingSettings.swift */,
+				1F8AAC362C519577004DA20A /* TurnServer.swift */,
+				1F8AAC3B2C519689004DA20A /* StunServer.swift */,
 				1F8995B42973547700CABA33 /* WebRTCCommon.swift */,
 			);
 			name = WebRTC;
@@ -2685,6 +2703,7 @@
 				1F77A5F82AB9A4CD007B6037 /* NCDeckCardParameter.m in Sources */,
 				1F77A5FD2AB9A4F3007B6037 /* ServerCapabilities.m in Sources */,
 				1FF4DA892C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
+				1F8AAC352C518B8B004DA20A /* SignalingSettings.swift in Sources */,
 				1F77A6062AB9A581007B6037 /* NCKeyChainController.m in Sources */,
 				1F0B0A732BA265300073FF8D /* MentionSuggestion.swift in Sources */,
 				1F77A5FB2AB9A4E6007B6037 /* NCMessageParameter.m in Sources */,
@@ -2701,6 +2720,7 @@
 				1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */,
 				1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */,
 				1F77A60A2AB9A5AE007B6037 /* NCUser.m in Sources */,
+				1F8AAC3F2C519689004DA20A /* StunServer.swift in Sources */,
 				1FF4DA992C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				1F1B504A2B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2C6955122B0CE1A10070F6E1 /* NCUtils.swift in Sources */,
@@ -2709,6 +2729,7 @@
 				1F77A5F52AB9A4B9007B6037 /* NCAPIController.m in Sources */,
 				1F77A5F92AB9A4D9007B6037 /* NCMessageFileParameter.m in Sources */,
 				1FF2FD852AB99F51000C9905 /* NCUserStatus.m in Sources */,
+				1F8AAC3A2C519577004DA20A /* TurnServer.swift in Sources */,
 				1FB78E202B6ADBB600B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				1FF136122BFB4F8C006A6101 /* NCRoom.swift in Sources */,
 				1FF2FD7F2AB99E4D000C9905 /* Atomic.swift in Sources */,
@@ -2774,6 +2795,7 @@
 				1F1B0F452BE047CE003FD766 /* ModalPresentationController.swift in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
 				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
+				1F8AAC322C518759004DA20A /* SignalingSettings.swift in Sources */,
 				1F1B0F272BDA61C5003FD766 /* AllocationTracker.swift in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
 				1F1B0F302BDBC9D6003FD766 /* NCMediaViewerPageViewController.swift in Sources */,
@@ -2797,6 +2819,7 @@
 				2C9B0B9C217F756B00A4752C /* NCNotification.m in Sources */,
 				2C2D7A172B8C9C0000642373 /* RoomCreationTableViewController.swift in Sources */,
 				1F8995B52973547700CABA33 /* WebRTCCommon.swift in Sources */,
+				1F8AAC3C2C519689004DA20A /* StunServer.swift in Sources */,
 				2C2145682BF6B8E900470C0C /* NewRoomTableViewController.swift in Sources */,
 				1F1B503E2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift in Sources */,
 				DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */,
@@ -2825,6 +2848,7 @@
 				1FAB2E852ACB482B001214EB /* ChatViewController.swift in Sources */,
 				1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */,
 				2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */,
+				1F8AAC372C519577004DA20A /* TurnServer.swift in Sources */,
 				2CA1CCA41F025F64002FE6A2 /* RoomsTableViewController.m in Sources */,
 				2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */,
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
@@ -2976,6 +3000,7 @@
 				1FF136172BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
 				1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
+				1F8AAC3E2C519689004DA20A /* StunServer.swift in Sources */,
 				1F1C0D7F29A7F33600D17C6D /* NCNotificationAction.swift in Sources */,
 				1F35F8E62AEEBC0300044BDA /* SLKTextInput+Implementation.m in Sources */,
 				1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
@@ -3004,6 +3029,7 @@
 				1FDFC94F2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1F35F8EA2AEEBC0E00044BDA /* SLKTextViewController.m in Sources */,
 				2C6955132B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
+				1F8AAC342C518B8A004DA20A /* SignalingSettings.swift in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
 				1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				1FB78E212B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */,
@@ -3033,6 +3059,7 @@
 				1F35F8FC2AEEDBC600044BDA /* ChatViewControllerExtension.swift in Sources */,
 				1FEDE3D0257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C62AFB924C1A4E6007E460A /* ShareViewController.m in Sources */,
+				1F8AAC392C519577004DA20A /* TurnServer.swift in Sources */,
 				1F35F8F32AEEC29A00044BDA /* AvatarButton.swift in Sources */,
 				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				1FF4DAAC2C0A114900C1B952 /* OcsResponse.swift in Sources */,
@@ -3071,14 +3098,17 @@
 				1F45A1352A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
 				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,
 				1FB7B9922BF0CDF90093CE98 /* BannedActor.swift in Sources */,
+				1F8AAC382C519577004DA20A /* TurnServer.swift in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
 				2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */,
+				1F8AAC3D2C519689004DA20A /* StunServer.swift in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955142B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
 				1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
 				1F0B0A752BA265310073FF8D /* MentionSuggestion.swift in Sources */,
 				1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1FF4DA882C0262BA00C1B952 /* NCBaseSessionManager.swift in Sources */,
+				1F8AAC332C518B8A004DA20A /* SignalingSettings.swift in Sources */,
 				2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */,
