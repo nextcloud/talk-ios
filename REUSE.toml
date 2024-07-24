@@ -18,6 +18,12 @@ SPDX-FileCopyrightText = "2020 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "GPL-3.0-or-later"
 
 [[annotations]]
+path = ["NextcloudTalk/*.lproj/*.strings", "NextcloudTalk/*.lproj/*.stringsdict"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Nextcloud translators"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
 path = [".pyspelling.wordlist.txt"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2023 Nextcloud GmbH and Nextcloud contributors"
