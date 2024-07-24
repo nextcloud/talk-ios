@@ -155,10 +155,7 @@ import UIKit
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        if NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)?.callEnabled ?? false &&
-            room.type != .changelog && room.type != .noteToSelf,
-            !room.isFederated {
-
+        if room.supportsCalling {
             self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
         }
 

@@ -70,6 +70,7 @@ NSString * const kCapabilityMediaCaption            = @"media-caption";
 NSString * const kCapabilityEditMessages            = @"edit-messages";
 NSString * const kCapabilityDeleteMessagesUnlimited = @"delete-messages-unlimited";
 NSString * const kCapabilityFederationV1            = @"federation-v1";
+NSString * const kCapabilityFederationV2            = @"federation-v2";
 NSString * const kCapabilityChatReadLast            = @"chat-read-last";
 NSString * const kCapabilityBanV1                   = @"ban-v1";
 

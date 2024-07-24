@@ -58,6 +58,16 @@ import Realm
         return false
     }
 
+    public var supportsCalling: Bool {
+        // Federated calling is only supported with federation-v2
+        if self.isFederated, !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityFederationV2, for: self) {
+            return false
+        }
+
+        return NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self)?.callEnabled ?? false &&
+            self.type != .changelog && self.type != .noteToSelf
+    }
+
     public var isBreakoutRoom: Bool {
         return self.objectType == NCRoomObjectTypeRoom
     }
