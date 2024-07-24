@@ -328,6 +328,9 @@
 /* No comment provided by engineer. */
 "Ban participant" = "Ban participant";
 
+/* Date and time of ban creation */
+"Banned by:" = "Banned by:";
+
 /* No comment provided by engineer. */
 "Banned users and guests" = "Banned users and guests";
 
@@ -600,6 +603,9 @@
 
 /* No comment provided by engineer. */
 "Credentials for this account were no longer valid" = "Credentials for this account were no longer valid";
+
+/* name of a moderator who banned a participant */
+"Date:" = "Date:";
 
 /* No comment provided by engineer. */
 "days" = "days";
@@ -1191,6 +1197,9 @@
 
 /* No comment provided by engineer. */
 "Note to self" = "Note to self";
+
+/* Internal note for moderators, usually a reason for this ban */
+"Note:" = "Note:";
 
 /* No comment provided by engineer. */
 "Notifications" = "Notifications";
