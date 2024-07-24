@@ -67,7 +67,6 @@ typedef void (^PollCompletionBlock)(NCPoll *poll, NSError *error, NSInteger stat
 
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
-typedef void (^GetSignalingSettingsCompletionBlock)(NSDictionary *settings, NSError *error);
 
 typedef void (^SetReadStatusPrivacySettingCompletionBlock)(NSError *error);
 typedef void (^SetTypingPrivacySettingCompletionBlock)(NSError *error);
@@ -226,7 +225,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Signaling Controller
 - (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block;
-- (NSURLSessionDataTask *)getSignalingSettingsForAccount:(TalkAccount *)account forRoom:(NSString * _Nullable)token withCompletionBlock:(GetSignalingSettingsCompletionBlock)block;
 - (NSString *)authenticationBackendUrlForAccount:(TalkAccount *)account;
 
 // Settings Controller
