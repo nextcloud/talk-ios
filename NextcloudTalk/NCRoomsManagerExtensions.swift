@@ -163,7 +163,7 @@ import Foundation
             self.joiningSessionId = sessionId
 
             // TODO: For non-federated rooms, we could skip getting the settings for now
-            NCAPIController.sharedInstance().getSignalingSettings(for: activeAccount, forRoom: token) { signalingSettings, error in
+            NCAPIController.sharedInstance().getSignalingSettings(for: activeAccount, forRoom: token) { signalingSettings, _ in
                 let federation = signalingSettings?.getFederationJoinDictionary()
 
                 extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
@@ -205,7 +205,11 @@ import Foundation
                 roomController.inChat = true
 
                 if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
-                    extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: nil, withCompletionBlock: nil)
+                    NCAPIController.sharedInstance().getSignalingSettings(for: activeAccount, forRoom: token) { signalingSettings, _ in
+                        let federation = signalingSettings?.getFederationJoinDictionary()
+
+                        extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation, withCompletionBlock: nil)
+                    }
                 }
             } else {
                 print("Could not re-join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "Unknown")")
