@@ -1184,8 +1184,10 @@ import UIKit
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let userId = notification.userInfo?["userId"] as? String
+        let isFederated = notification.userInfo?["isFederated"] as? Bool ?? false
 
-        if userId == activeAccount.userId || serverCapabilities.typingPrivacy {
+        // Since our own userId can exist on other servers, only suppress the notification if it's not federated
+        if (userId == activeAccount.userId && !isFederated) || serverCapabilities.typingPrivacy {
             return
         }
 

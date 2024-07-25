@@ -676,8 +676,10 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     NSString *messageType = [[messageDict objectForKey:@"data"] objectForKey:@"type"];
     if ([messageType isEqualToString:@"startedTyping"] || [messageType isEqualToString:@"stoppedTyping"]) {
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        NSString *fromSession = [[messageDict objectForKey:@"sender"] objectForKey:@"sessionid"];
-        NSString *fromUser = [[messageDict objectForKey:@"sender"] objectForKey:@"userid"];
+
+        NSDictionary *sender = [messageDict objectForKey:@"sender"];
+        NSString *fromSession = [sender objectForKey:@"sessionid"];
+        NSString *fromUser = [sender objectForKey:@"userid"];
 
         if (_currentRoom && fromSession){
             [userInfo setObject:_currentRoom forKey:@"roomToken"];
@@ -685,6 +687,12 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
             if (fromUser) {
                 [userInfo setObject:fromUser forKey:@"userId"];
+            }
+
+            NSDictionary *participant = [_participantsMap objectForKey:fromSession];
+            if (participant) {
+                BOOL isFederated = [[participant objectForKey:@"federated"] boolValue];
+                [userInfo setObject:@(isFederated) forKey:@"isFederated"];
             }
 
             NSString *displayName = [self getDisplayNameFromSessionId:fromSession];
