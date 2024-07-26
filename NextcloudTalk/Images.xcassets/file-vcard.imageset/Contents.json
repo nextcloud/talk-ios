@@ -1,23 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "file-vcard.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "file-vcard@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "file-vcard@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "file-vcard.svg",
+      "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
   }
 }

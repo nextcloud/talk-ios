@@ -178,13 +178,17 @@ extension BaseChatTableViewCell {
     }
 
     func showFallbackIcon(for message: NCChatMessage) {
-        let imageName = "\(NCUtils.previewImage(forMimeType: message.file().mimetype))-chat-preview"
+        let imageName = NCUtils.previewImage(forMimeType: message.file().mimetype)
 
         if let image = UIImage(named: imageName) {
-            self.filePreviewImageView?.image = image
+            let size = CGSize(width: fileMessageCellFileMaxPreviewWidth, height: fileMessageCellFileMaxPreviewHeight)
 
-            self.filePreviewImageViewHeightConstraint?.constant = image.size.height
-            self.filePreviewImageViewWidthConstraint?.constant = image.size.width
+            if let renderedImage = NCUtils.renderAspectImage(image: image, ofSize: size, toOrigin: .zero) {
+                self.filePreviewImageView?.image = renderedImage
+
+                self.filePreviewImageViewHeightConstraint?.constant = renderedImage.size.height
+                self.filePreviewImageViewWidthConstraint?.constant = renderedImage.size.width
+            }
         }
 
         self.filePreviewActivityIndicator?.isHidden = true

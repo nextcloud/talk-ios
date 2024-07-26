@@ -754,7 +754,7 @@ import AVFoundation
 
         let item = self.shareItemController.shareItems[indexPath.row]
 
-        // Setting placeholde rher in case we can't generate any other preview
+        // Setting placeholder here in case we can't generate any other preview
         cell.setPlaceHolderImage(item.placeholderImage)
         cell.setPlaceHolderText(item.fileName)
 
