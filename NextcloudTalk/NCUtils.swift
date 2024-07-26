@@ -28,7 +28,9 @@ import AVFoundation
         guard let fileType else { return "file" }
 
         if let mimeType = fileType.preferredMIMEType {
-            if mimeType.contains("org.openxmlformats") || mimeType.contains("org.oasis-open.opendocument") {
+            if mimeType.contains("org.openxmlformats") || mimeType.contains("org.oasis-open.opendocument") ||
+                mimeType.contains("officedocument.wordprocessingml") {
+
                 return "file-document"
             } else if mimeType == "httpd/unix-directory" {
                 return "folder"
