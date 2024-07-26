@@ -833,7 +833,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 private extension UITableViewCell {
     func setSettingsImage(image: UIImage?, renderingMode: UIImage.RenderingMode = .alwaysTemplate) {
         // Render all images to a size of 20x20 so all cells have the same width for the imageView
-        self.imageView?.image = NCUtils.renderAspectImage(image: image, of: .init(width: 20, height: 20))?.withRenderingMode(renderingMode)
+        self.imageView?.image = NCUtils.renderAspectImage(image: image, ofSize: .init(width: 20, height: 20))?.withRenderingMode(renderingMode)
         self.imageView?.tintColor = .secondaryLabel
         self.imageView?.contentMode = .scaleAspectFit
     }
