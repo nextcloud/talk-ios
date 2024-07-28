@@ -162,8 +162,7 @@ import Foundation
             // Remember the latest sessionId we're using to join a room, to be able to check when joining the external signaling server
             self.joiningSessionId = sessionId
 
-            // TODO: For non-federated rooms, we could skip getting the settings for now
-            NCAPIController.sharedInstance().getSignalingSettings(for: activeAccount, forRoom: token) { signalingSettings, _ in
+            self.getSignalingSettingsHelper(for: activeAccount, forRoom: token) { signalingSettings in
                 let federation = signalingSettings?.getFederationJoinDictionary()
 
                 extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
@@ -193,6 +192,19 @@ import Foundation
         })
     }
 
+    private func getSignalingSettingsHelper(for account: TalkAccount, forRoom token: String, withCompletion completion: @escaping (SignalingSettings?) -> Void) {
+        // Currently we only need the signaling settings in case the room is federated and we support federation-v2
+        if let room = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: account.accountId), room.isFederated,
+           NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV2, forAccountId: account.accountId) {
+
+            NCAPIController.sharedInstance().getSignalingSettings(for: account, forRoom: token) { signalingSettings, _ in
+                completion(signalingSettings)
+            }
+        } else {
+            completion(nil)
+        }
+    }
+
     public func rejoinRoom(_ token: String) {
         guard let roomController = self.activeRooms[token] as? NCRoomController else { return }
 
@@ -205,7 +217,7 @@ import Foundation
                 roomController.inChat = true
 
                 if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
-                    NCAPIController.sharedInstance().getSignalingSettings(for: activeAccount, forRoom: token) { signalingSettings, _ in
+                    self.getSignalingSettingsHelper(for: activeAccount, forRoom: token) { signalingSettings in
                         let federation = signalingSettings?.getFederationJoinDictionary()
 
                         extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation, withCompletionBlock: nil)
