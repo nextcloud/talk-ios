@@ -293,19 +293,18 @@ import AVFoundation
         return image
     }
 
-    // Workaround for ObjC
-    public static func renderAspectImage(image: UIImage?, ofSize size: CGSize) -> UIImage? {
-        return renderAspectImage(image: image, ofSize: size, toOrigin: nil)
-    }
-
-    public static func renderAspectImage(image: UIImage?, ofSize size: CGSize, toOrigin origin: CGPoint?) -> UIImage? {
+    public static func renderAspectImage(image: UIImage?, ofSize size: CGSize, centerImage center: Bool) -> UIImage? {
         guard let image else { return nil }
 
         let newRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         UIGraphicsBeginImageContextWithOptions(newRect.size, false, 0.0)
 
         let aspectRatio = AVMakeRect(aspectRatio: image.size, insideRect: newRect)
-        let targetOrigin = origin ?? CGPoint(x: newRect.maxX / 2 - aspectRatio.width / 2, y: newRect.maxY / 2 - aspectRatio.height / 2)
+        var targetOrigin: CGPoint = .zero
+
+        if center {
+            targetOrigin = CGPoint(x: newRect.maxX / 2 - aspectRatio.width / 2, y: newRect.maxY / 2 - aspectRatio.height / 2)
+        }
 
         image.draw(in: CGRect(origin: targetOrigin, size: aspectRatio.size))
         let newImage = UIGraphicsGetImageFromCurrentImageContext()

@@ -183,7 +183,7 @@ extension BaseChatTableViewCell {
         if let image = UIImage(named: imageName) {
             let size = CGSize(width: fileMessageCellFileMaxPreviewWidth, height: fileMessageCellFileMaxPreviewHeight)
 
-            if let renderedImage = NCUtils.renderAspectImage(image: image, ofSize: size, toOrigin: .zero) {
+            if let renderedImage = NCUtils.renderAspectImage(image: image, ofSize: size, centerImage: false) {
                 self.filePreviewImageView?.image = renderedImage
 
                 self.filePreviewImageViewHeightConstraint?.constant = renderedImage.size.height
