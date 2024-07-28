@@ -127,6 +127,9 @@
 /* No comment provided by engineer. */
 "Allow guests" = "Allow guests";
 
+/* '@all' should not be translated */
+"Allow participants to mention @all" = "Allow participants to mention @all";
+
 /* No comment provided by engineer. */
 "Allow to dial-in without a pin" = "Allow to dial-in without a pin";
 
@@ -510,6 +513,9 @@
 
 /* No comment provided by engineer. */
 "Could not change lobby state of the conversation" = "Could not change lobby state of the conversation";
+
+/* No comment provided by engineer. */
+"Could not change mention permissions of the conversation" = "Could not change mention permissions of the conversation";
 
 /* No comment provided by engineer. */
 "Could not change moderation permissions of the participant" = "Could not change moderation permissions of the participant";

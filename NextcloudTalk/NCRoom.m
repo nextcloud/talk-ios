@@ -61,6 +61,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     room.recordingConsent = [[roomDict objectForKey:@"recordingConsent"] integerValue];
     room.remoteServer = [roomDict objectForKey:@"remoteServer"];
     room.remoteToken = [roomDict objectForKey:@"remoteToken"];
+    room.mentionPermissions = [[roomDict objectForKey:@"mentionPermissions"] integerValue];
 
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -191,6 +192,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.recordingConsent = room.recordingConsent;
     managedRoom.remoteToken = room.remoteToken;
     managedRoom.remoteServer = room.remoteServer;
+    managedRoom.mentionPermissions = room.mentionPermissions;
 }
 
 + (NSString *)primaryKey {

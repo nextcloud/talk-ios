@@ -59,6 +59,7 @@ typedef enum ConversationAction {
     kConversationActionBannedActors,
     kConversationActionListable,
     kConversationActionListableForEveryone,
+    kConversationActionMentionPermission,
     kConversationActionReadOnly,
     kConversationActionShareLink
 } ConversationAction;
@@ -103,6 +104,7 @@ typedef enum ModificationError {
     kModificationErrorMessageExpiration,
     kModificationErrorRoomDescription,
     kModificationErrorBanActor,
+    kModificationErrorMentionPermissions,
 } ModificationError;
 
 typedef enum FileAction {
@@ -119,6 +121,7 @@ typedef enum FileAction {
 @property (nonatomic, strong) UISwitch *publicSwitch;
 @property (nonatomic, strong) UISwitch *listableSwitch;
 @property (nonatomic, strong) UISwitch *listableForEveryoneSwitch;
+@property (nonatomic, strong) UISwitch *mentionPermissionsSwitch;
 @property (nonatomic, strong) UISwitch *readOnlySwitch;
 @property (nonatomic, strong) UISwitch *lobbySwitch;
 @property (nonatomic, strong) UISwitch *sipSwitch;
@@ -181,7 +184,10 @@ typedef enum FileAction {
     
     _listableForEveryoneSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_listableForEveryoneSwitch addTarget: self action: @selector(listableForEveryoneValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
+    _mentionPermissionsSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_mentionPermissionsSwitch addTarget: self action: @selector(mentionPermissionsValueChanged:) forControlEvents:UIControlEventValueChanged];
+
     _readOnlySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_readOnlySwitch addTarget: self action: @selector(readOnlyValueChanged:) forControlEvents:UIControlEventValueChanged];
     
@@ -418,6 +424,11 @@ typedef enum FileAction {
             }
         }
 
+        // Mention permission
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityMentionPermissions]) {
+            [actions addObject:[NSNumber numberWithInt:kConversationActionMentionPermission]];
+        }
+
         // Read only room action
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityReadOnlyRooms]) {
             [actions addObject:[NSNumber numberWithInt:kConversationActionReadOnly]];
@@ -598,6 +609,10 @@ typedef enum FileAction {
 
         case kModificationErrorBanActor:
             errorDescription = NSLocalizedString(@"Could not ban participant", nil);
+            break;
+
+        case kModificationErrorMentionPermissions:
+            errorDescription = NSLocalizedString(@"Could not change mention permissions of the conversation", nil);
             break;
 
         default:
@@ -937,6 +952,28 @@ typedef enum FileAction {
         
         self->_listableSwitch.enabled = YES;
         self->_listableForEveryoneSwitch.enabled = YES;
+    }];
+}
+
+- (void)setMentionPermissions:(NCRoomMentionPermissions)permissions
+{
+    if (permissions == _room.mentionPermissions) {
+        return;
+    }
+
+    [self setModifyingRoomUI];
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] setMentionPermissions:permissions forRoom:_room.token forAccount:activeAccount completionBlock:^(NSError * _Nullable error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
+        } else {
+            NSLog(@"Error setting room mention permissions state: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorMentionPermissions];
+        }
+
+        self->_mentionPermissionsSwitch.enabled = true;
     }];
 }
 
@@ -1455,6 +1492,18 @@ typedef enum FileAction {
     }
 }
 
+#pragma mark - Mention permissions switch
+
+- (void)mentionPermissionsValueChanged:(id)sender
+{
+    _mentionPermissionsSwitch.enabled = NO;
+    if (_mentionPermissionsSwitch.on) {
+        [self setMentionPermissions:NCRoomMentionPermissionsEveryone];
+    } else {
+        [self setMentionPermissions:NCRoomMentionPermissionsModeratorsOnly];
+    }
+}
+
 
 #pragma mark - ReadOnly switch
 
@@ -1697,6 +1746,7 @@ typedef enum FileAction {
     static NSString *bannedActorsCellIdentifier = @"BannedActorsCellIdentifier";
     static NSString *listableCellIdentifier = @"ListableCellIdentifier";
     static NSString *listableForEveryoneCellIdentifier = @"ListableForEveryoneCellIdentifier";
+    static NSString *mentionPermissionsCellIdentifier = @"mentionPermissionsCellIdentifier";
     static NSString *readOnlyStateCellIdentifier = @"ReadOnlyStateCellIdentifier";
     
     NSArray *sections = [self getRoomInfoSections];
@@ -1985,6 +2035,24 @@ typedef enum FileAction {
                     [cell.imageView setImage:[UIImage systemImageNamed:@"list.bullet"]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     [cell.imageView setHidden:YES];
+
+                    return cell;
+                }
+                    break;
+                case kConversationActionMentionPermission:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:mentionPermissionsCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:mentionPermissionsCellIdentifier];
+                    }
+
+                    cell.textLabel.text = NSLocalizedString(@"Allow participants to mention @all", @"'@all' should not be translated");
+                    cell.textLabel.numberOfLines = 0;
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _mentionPermissionsSwitch;
+                    _mentionPermissionsSwitch.on = (_room.mentionPermissions == NCRoomMentionPermissionsEveryone);
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"at.circle"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
 
                     return cell;
                 }

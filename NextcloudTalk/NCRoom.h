@@ -36,6 +36,11 @@ typedef NS_ENUM(NSInteger, NCRoomListableScope) {
     NCRoomListableScopeEveryone
 };
 
+typedef NS_ENUM(NSInteger, NCRoomMentionPermissions) {
+    NCRoomMentionPermissionsEveryone = 0,
+    NCRoomMentionPermissionsModeratorsOnly
+};
+
 typedef NS_ENUM(NSInteger, NCRoomLobbyState) {
     NCRoomLobbyStateAllParticipants = 0,
     NCRoomLobbyStateModeratorsOnly
@@ -137,6 +142,7 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, copy) NSString *remoteServer;
 @property (nonatomic, copy) NSString *remoteToken;
 @property (nonatomic, copy) NSString *lastReceivedProxyHash;
+@property (nonatomic, assign) NSInteger mentionPermissions;
 
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
 + (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;

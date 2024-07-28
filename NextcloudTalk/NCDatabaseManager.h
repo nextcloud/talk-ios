@@ -71,6 +71,7 @@ extern NSString * const kCapabilityDeleteMessagesUnlimited;
 extern NSString * const kCapabilityFederationV1;
 extern NSString * const kCapabilityChatReadLast;
 extern NSString * const kCapabilityBanV1;
+extern NSString * const kCapabilityMentionPermissions;
 
 extern NSString * const kNotificationsCapabilityExists;
 
