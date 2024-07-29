@@ -119,19 +119,9 @@ extension BaseChatTableViewCell {
     // MARK: - Preview
 
     func requestPreview(for message: NCChatMessage, with account: TalkAccount) {
+        // Don't request a preview if we know that there's none
         if !message.file().previewAvailable {
-            // Don't request a preview if we know that there's none
-            let imageName = "\(NCUtils.previewImage(forMimeType: message.file().mimetype))-chat-preview"
-
-            if let image = UIImage(named: imageName) {
-                self.filePreviewImageView?.image = image
-
-                self.filePreviewImageViewHeightConstraint?.constant = image.size.height
-                self.filePreviewImageViewWidthConstraint?.constant = image.size.width
-            }
-
-            self.filePreviewActivityIndicator?.isHidden = true
-            self.filePreviewActivityIndicator?.stopAnimating()
+            self.showFallbackIcon(for: message)
 
             return
         }
@@ -182,7 +172,23 @@ extension BaseChatTableViewCell {
             imageView.image = image
 
             self.delegate?.cellHasDownloadedImagePreview(withHeight: ceil(previewSize.height), for: message)
+        }, failure: { _, _, _ in
+            self.showFallbackIcon(for: message)
         })
+    }
+
+    func showFallbackIcon(for message: NCChatMessage) {
+        let imageName = "\(NCUtils.previewImage(forMimeType: message.file().mimetype))-chat-preview"
+
+        if let image = UIImage(named: imageName) {
+            self.filePreviewImageView?.image = image
+
+            self.filePreviewImageViewHeightConstraint?.constant = image.size.height
+            self.filePreviewImageViewWidthConstraint?.constant = image.size.width
+        }
+
+        self.filePreviewActivityIndicator?.isHidden = true
+        self.filePreviewActivityIndicator?.stopAnimating()
     }
 
     @objc
