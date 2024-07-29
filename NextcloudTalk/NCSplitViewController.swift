@@ -96,6 +96,8 @@
                     // Otherwise UI might break or crash (view not loaded correctly)
                     // This might happen if a chatViewController is shown by a push notification
                     if self.hasActiveChatViewController() {
+                        // First set the placeholderViewController, to make sure it is only referencing one navController
+                        navController.setViewControllers([self.placeholderViewController], animated: false)
                         navController.setViewControllers([vc], animated: false)
                     }
                 }
