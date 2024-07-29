@@ -631,6 +631,7 @@ typedef enum RoomsSections {
         [self.tableView reloadData];
     } else {
         _resultTableViewController.rooms = [self filterRooms:filteredRooms withString:searchString];
+        [self calculateLastRoomWithMention];
     }
 }
 
@@ -889,24 +890,25 @@ typedef enum RoomsSections {
     
     // Calculate index of first room with a mention outside visible cells
     _nextRoomWithMentionIndexPath = nil;
-    if (_lastRoomWithMentionIndexPath) {
-        for (int i = (int)lastVisibleRowIndexPath.row; i <= (int)_lastRoomWithMentionIndexPath.row; i++) {
-            NCRoom *room = [_rooms objectAtIndex:i];
-            if (room.hasUnreadMention) {
-                _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:1];
-                break;
-            }
+
+    if (!_lastRoomWithMentionIndexPath) {
+        return;
+    }
+
+    for (int i = (int)lastVisibleRowIndexPath.row; i <= (int)_lastRoomWithMentionIndexPath.row && i < [_rooms count]; i++) {
+        NCRoom *room = [_rooms objectAtIndex:i];
+        if (room.hasUnreadMention) {
+            _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:1];
+            break;
         }
     }
-    
-    // Update unread mentions indicator visibility
-    if (_lastRoomWithMentionIndexPath) {
-        _unreadMentionsBottomButton.hidden = [visibleRows containsObject:_lastRoomWithMentionIndexPath] || lastVisibleRowIndexPath.row > _lastRoomWithMentionIndexPath.row;
 
-        // Make sure the style is adjusted to current accounts theme
-        _unreadMentionsBottomButton.backgroundColor = [NCAppBranding themeColor];
-        [_unreadMentionsBottomButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
-    }
+    // Update unread mentions indicator visibility
+    _unreadMentionsBottomButton.hidden = [visibleRows containsObject:_lastRoomWithMentionIndexPath] || lastVisibleRowIndexPath.row > _lastRoomWithMentionIndexPath.row;
+
+    // Make sure the style is adjusted to current accounts theme
+    _unreadMentionsBottomButton.backgroundColor = [NCAppBranding themeColor];
+    [_unreadMentionsBottomButton setTitleColor:[NCAppBranding themeTextColor] forState:UIControlStateNormal];
 }
 
 - (void)unreadMentionsBottomButtonPressed:(id)sender

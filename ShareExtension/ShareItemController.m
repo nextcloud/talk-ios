@@ -115,8 +115,8 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     
     // Try to determine if the item is an image file
     // This can happen when sharing an image from the native ios files app
-    UIImage *image = [self getImageFromFileURL:fileLocalURL];
-    BOOL fileIsImage = (image != nil);
+    NSString *extension = fileLocalURL.pathExtension;
+    BOOL fileIsImage = (extension && [NCUtils isImageWithFileExtension:extension]);
     
     ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:fileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:fileIsImage];
     [self.internalShareItems addObject:item];
@@ -150,15 +150,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
         return nil;
     }
         
-    return [self getImageFromFileURL:item.fileURL];
-}
-
-- (UIImage *)getImageFromFileURL:(NSURL *)fileURL
-{
-    NSData *fileData = [NSData dataWithContentsOfURL:fileURL];
-    UIImage *image = [UIImage imageWithData:fileData];
-    
-    return image;
+    return [UIImage imageWithContentsOfFile:item.filePath];
 }
 
 - (void)addItemWithContactData:(NSData *)data
@@ -213,11 +205,18 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 
 - (void)removeItem:(ShareItem *)item
 {
-    [self cleanupItem:item];
-    
-    NSLog(@"Removing shareItem: %@ %@", item.fileName, item.fileURL);
-    
-    [self.internalShareItems removeObject:item];
+    [self removeItems:@[item]];
+}
+
+- (void)removeItems:(NSArray<ShareItem *> *)items
+{
+    for (ShareItem *item in items) {
+        [self cleanupItem:item];
+
+        NSLog(@"Removing shareItem: %@ %@", item.fileName, item.fileURL);
+        [self.internalShareItems removeObject:item];
+    }
+
     [self.delegate shareItemControllerItemsChanged:self];
 }
 

@@ -66,6 +66,10 @@ import AVFoundation
         return self.previewImage(forMimeType: fileType) == "file-image"
     }
 
+    public static func isImage(fileExtension: String) -> Bool {
+        return self.previewImage(forFileExtension: fileExtension) == "file-image"
+    }
+
     public static func isVideo(fileType: String) -> Bool {
         return self.previewImage(forMimeType: fileType) == "file-video"
     }

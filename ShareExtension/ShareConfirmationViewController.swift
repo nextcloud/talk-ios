@@ -53,6 +53,7 @@ import AVFoundation
     private var uploadGroup = DispatchGroup()
     private var uploadFailed = false
     private var uploadErrors: [String] = []
+    private var uploadSuccess: [ShareItem] = []
 
     private enum ShareConfirmationType {
         case text
@@ -572,6 +573,7 @@ import AVFoundation
 
         self.uploadGroup = DispatchGroup()
         self.uploadErrors = []
+        self.uploadSuccess = []
 
         // Add caption to last shareItem
         if let shareItem = self.shareItemController.shareItems.last {
@@ -605,12 +607,14 @@ import AVFoundation
             self.stopAnimatingSharingIndicator()
             self.hud?.hide(animated: true)
 
-            self.shareItemController.removeAllItems()
-
             // TODO: Do error reporting per item
             if self.uploadErrors.isEmpty {
+                self.shareItemController.removeAllItems()
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
             } else {
+                // We remove the successfully uploaded items, so only the failed ones are kept
+                self.shareItemController.remove(self.uploadSuccess)
+
                 let alert = UIAlertController(title: NSLocalizedString("Upload failed", comment: ""),
                                               message: self.uploadErrors.joined(separator: "\n"),
                                               preferredStyle: .alert)
@@ -647,6 +651,8 @@ import AVFoundation
                     if let error {
                         NCUtils.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)
+                    } else {
+                        self.uploadSuccess.append(item)
                     }
 
                     self.uploadGroup.leave()
@@ -758,7 +764,8 @@ import AVFoundation
         cell.setPlaceHolderImage(item.placeholderImage)
         cell.setPlaceHolderText(item.fileName)
 
-        if let image = self.shareItemController.getImageFrom(item) {
+        if let fileURL = item.fileURL, NCUtils.isImage(fileExtension: fileURL.pathExtension),
+           let image = self.shareItemController.getImageFrom(item) {
             // We're able to get an image directly from the fileURL -> use it
             cell.setPreviewImage(image)
         } else {
