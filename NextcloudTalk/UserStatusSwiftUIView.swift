@@ -6,6 +6,7 @@
 import UIKit
 import SwiftUI
 import SwiftUIIntrospect
+@_spi(Advanced) import SwiftUIIntrospect
 
 protocol UserStatusViewDelegate: AnyObject {
     func userStatusViewDidDisappear()
@@ -59,7 +60,7 @@ struct UserStatusSwiftUIView: View {
                 }
             })
         }
-        .introspect(.navigationView(style: .stack), on: .iOS(.v15, .v16, .v17)) { navController in
+        .introspect(.navigationView(style: .stack), on: .iOS(.v15...)) { navController in
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = NCAppBranding.themeColor()

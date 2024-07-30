@@ -4109,7 +4109,7 @@
 			repositoryURL = "https://github.com/krzyzanowskim/OpenSSL";
 			requirement = {
 				kind = exactVersion;
-				version = 3.1.5004;
+				version = 3.1.6000;
 			};
 		};
 		80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
