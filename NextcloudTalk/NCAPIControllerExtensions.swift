@@ -235,11 +235,7 @@ import Foundation
         }
 
         return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
-            if let dataDict = ocs?.dataDict {
-                completionBlock(SignalingSettings(dictionary: dataDict), nil)
-            } else {
-                completionBlock(nil, error)
-            }
+            completionBlock(SignalingSettings(dictionary: ocs?.dataDict), error)
         }
     }
 

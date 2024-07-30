@@ -25,7 +25,7 @@ import Foundation
         }
 
         if let turnCredential = dictionary["credential"] as? String {
-            self.credential = turnCredential
+            credential = turnCredential
         }
     }
 }

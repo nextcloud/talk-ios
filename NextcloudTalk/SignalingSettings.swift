@@ -15,7 +15,9 @@ import Foundation
     public var turnServers: [TurnServer] = []
     public var federation: [String: Any]?
 
-    init(dictionary: [String: Any]) {
+    init?(dictionary: [String: Any]?) {
+        guard let dictionary else { return nil }
+
         super.init()
 
         self.server = dictionary["server"] as? String
