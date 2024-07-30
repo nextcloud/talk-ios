@@ -9,12 +9,15 @@
 #import "NCSignalingMessage.h"
 
 @class NCSignalingController;
+@class SignalingSettings;
 
 @protocol NCSignalingControllerObserver <NSObject>
 
 - (void)signalingController:(NCSignalingController *)signalingController didReceiveSignalingMessage:(NSDictionary *)message;
 
 @end
+
+typedef void (^SignalingSettingsUpdatedCompletionBlock)(SignalingSettings *signalingSettings);
 
 @interface NCSignalingController : NSObject
 
@@ -25,5 +28,6 @@
 - (void)startPullingSignalingMessages;
 - (void)sendSignalingMessage:(NCSignalingMessage *)message;
 - (void)stopAllRequests;
+- (void)updateSignalingSettingsWithCompletionBlock:(SignalingSettingsUpdatedCompletionBlock)block;
 
 @end

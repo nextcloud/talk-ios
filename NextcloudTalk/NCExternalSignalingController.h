@@ -45,7 +45,7 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 - (instancetype)initWithAccount:(TalkAccount *)account server:(NSString *)serverUrl andTicket:(NSString *)ticket;
 - (BOOL)hasMCU;
 - (NSString *)sessionId;
-- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block;
+- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withFederation:(NSDictionary * _Nullable)federationDict withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block;
 - (void)leaveRoom:(NSString *)roomId;
 - (void)sendCallMessage:(NCSignalingMessage *)message;
 - (void)sendSendOfferMessageWithSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;

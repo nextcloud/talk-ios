@@ -153,6 +153,13 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             }
         }
 
+        var titleLabel = actorDisplayName.withTextColor(.secondaryLabel)
+
+        if message.actorType == "federated_users", let remoteServer = message.actorId.split(separator: "@").last {
+            let remoteServerString = " (\(String(remoteServer)))"
+            titleLabel.append(remoteServerString.withTextColor(.tertiaryLabel))
+        }
+
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
             var editedString = ""
 
@@ -161,17 +168,15 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
                 editedString = " (\(editedString))"
             } else {
                 editedString = NSLocalizedString("edited by", comment: "A message was edited by ...")
-                editedString = " (\(editedString) \(lastEditActorDisplayName)"
+                editedString = " (\(editedString) \(lastEditActorDisplayName))"
             }
 
             let editedAttributedString = editedString.withTextColor(.tertiaryLabel)
-            let actorDisplayName = actorDisplayName.withTextColor(.secondaryLabel)
 
-            actorDisplayName.append(editedAttributedString)
-            self.titleLabel.attributedText = actorDisplayName
-        } else {
-            self.titleLabel.text = actorDisplayName
+            titleLabel.append(editedAttributedString)
         }
+
+        self.titleLabel.attributedText = titleLabel
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 

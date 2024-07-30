@@ -381,7 +381,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageApplicationError];
 }
 
-- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
+- (void)joinRoom:(NSString *)roomId withSessionId:(NSString *)sessionId withFederation:(NSDictionary *)federationDict withCompletionBlock:(JoinRoomExternalSignalingCompletionBlock)block
 {
 
     if (_disconnected) {
@@ -399,6 +399,17 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
                                           @"sessionid": sessionId
                                           }
                                   };
+
+    if (federationDict) {
+        messageDict = @{
+            @"type": @"room",
+            @"room": @{
+                @"roomid": roomId,
+                @"sessionid": sessionId,
+                @"federation": federationDict
+            }
+        };
+    }
 
     [self sendMessage:messageDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NCExternalSignalingSendMessageStatus status) {
         if (status == SendMessageSocketError && task == self->_webSocket) {
@@ -425,7 +436,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 {
     if ([_currentRoom isEqualToString:roomId]) {
         _currentRoom = nil;
-        [self joinRoom:@"" withSessionId:@"" withCompletionBlock:nil];
+        [self joinRoom:@"" withSessionId:@"" withFederation:nil withCompletionBlock:nil];
     } else {
         NSLog(@"External signaling: Not leaving because it's not room we joined");
     }
@@ -665,8 +676,10 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     NSString *messageType = [[messageDict objectForKey:@"data"] objectForKey:@"type"];
     if ([messageType isEqualToString:@"startedTyping"] || [messageType isEqualToString:@"stoppedTyping"]) {
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        NSString *fromSession = [[messageDict objectForKey:@"sender"] objectForKey:@"sessionid"];
-        NSString *fromUser = [[messageDict objectForKey:@"sender"] objectForKey:@"userid"];
+
+        NSDictionary *sender = [messageDict objectForKey:@"sender"];
+        NSString *fromSession = [sender objectForKey:@"sessionid"];
+        NSString *fromUser = [sender objectForKey:@"userid"];
 
         if (_currentRoom && fromSession){
             [userInfo setObject:_currentRoom forKey:@"roomToken"];
@@ -674,6 +687,12 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
             if (fromUser) {
                 [userInfo setObject:fromUser forKey:@"userId"];
+            }
+
+            NSDictionary *participant = [_participantsMap objectForKey:fromSession];
+            if (participant) {
+                BOOL isFederated = [[participant objectForKey:@"federated"] boolValue];
+                [userInfo setObject:@(isFederated) forKey:@"isFederated"];
             }
 
             NSString *displayName = [self getDisplayNameFromSessionId:fromSession];

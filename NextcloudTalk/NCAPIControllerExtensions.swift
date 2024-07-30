@@ -213,6 +213,32 @@ import Foundation
         }
     }
 
+    // MARK: - Signaling
+
+    @discardableResult
+    public func getSignalingSettings(for account: TalkAccount, forRoom roomToken: String?, completionBlock: @escaping (_ signalingSettings: SignalingSettings?, _ error: (any Error)?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil, nil)
+            return nil
+        }
+
+        let apiVersion = self.signalingAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/settings", withAPIVersion: apiVersion, for: account)
+
+        var parameters: [String: Any]?
+
+        if let roomToken, let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
+            parameters = [
+                "token": encodedToken
+            ]
+        }
+
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
+            completionBlock(SignalingSettings(dictionary: ocs?.dataDict), error)
+        }
+    }
+
     // MARK: - Mentions
 
     public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ mentions: [MentionSuggestion]?) -> Void) {

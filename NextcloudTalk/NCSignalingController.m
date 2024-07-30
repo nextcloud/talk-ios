@@ -10,11 +10,13 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @interface NCSignalingController()
 {
     NCRoom *_room;
     BOOL _shouldStopPullingMessages;
-    NSDictionary *_signalingSettings;
+    SignalingSettings *_signalingSettings;
     NSURLSessionTask *_getSignalingSettingsTask;
     NSURLSessionTask *_pullSignalingMessagesTask;
 }
@@ -28,7 +30,6 @@
     self = [super init];
     if (self) {
         _room = room;
-        [self getSignalingSettings];
     }
     return self;
 }
@@ -38,16 +39,26 @@
     NSLog(@"NCSignalingController dealloc");
 }
 
-- (void)getSignalingSettings
+- (void)updateSignalingSettingsWithCompletionBlock:(SignalingSettingsUpdatedCompletionBlock)block
 {
-    _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *settings, NSError *error) {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    _getSignalingSettingsTask = [[NCAPIController sharedInstance] getSignalingSettingsFor:activeAccount forRoom:_room.token completionBlock:^(SignalingSettings * _Nullable settings, NSError * _Nullable error) {
         if (error) {
-            //TODO: Error handling
-            NSLog(@"Error getting signaling settings.");
+            if (error.code == NSURLErrorCancelled) {
+                return;
+            }
+
+            // TODO: Error handling
+            [NCUtils log:[NSString stringWithFormat:@"Could not get signaling settings. Error: %@", error.description]];
         }
-        
+
         if (settings) {
-            self->_signalingSettings = [[settings objectForKey:@"ocs"] objectForKey:@"data"];
+            self->_signalingSettings = settings;
+        }
+
+        if (block) {
+            block(self->_signalingSettings);
         }
     }];
 }
@@ -55,36 +66,20 @@
 - (NSArray *)getIceServers
 {
     NSMutableArray *servers = [[NSMutableArray alloc] init];
-    NSInteger signalingAPIVersion = [[NCAPIController sharedInstance] signalingAPIVersionForAccount:[[NCDatabaseManager sharedInstance] activeAccount]];
-    
+
     if (_signalingSettings) {
-        NSArray *stunServers = [_signalingSettings objectForKey:@"stunservers"];
-        for (NSDictionary *stunServer in stunServers) {
-            NSArray *stunURLs = nil;
-            if (signalingAPIVersion >= APIv3) {
-                stunURLs = [stunServer objectForKey:@"urls"];
-            } else {
-                NSString *stunURL = [stunServer objectForKey:@"url"];
-                stunURLs = @[stunURL];
-            }
-            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:stunURLs
-                                                                     username:@""
-                                                                   credential:@""];
+        for (StunServer *stunServer in _signalingSettings.stunServers) {
+            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:stunServer.urls
+                                                                      username:@""
+                                                                    credential:@""];
             [servers addObject:iceServer];
         }
-        NSArray *turnServers = [_signalingSettings objectForKey:@"turnservers"];
-        for (NSDictionary *turnServer in turnServers) {
-            NSArray *turnURLs = nil;
-            if (signalingAPIVersion >= APIv3) {
-                turnURLs = [turnServer objectForKey:@"urls"];
-            } else {
-                turnURLs = [turnServer objectForKey:@"url"];
-            }
-            NSString *turnUserName = [turnServer objectForKey:@"username"];
-            NSString *turnCredential = [turnServer objectForKey:@"credential"];
-            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:turnURLs
-                                                                      username:turnUserName
-                                                                    credential:turnCredential];
+
+        for (TurnServer *turnServer in _signalingSettings.turnServers) {
+            RTCIceServer *iceServer = [[RTCIceServer alloc] initWithURLStrings:turnServer.urls
+                                                                      username:turnServer.username
+                                                                    credential:turnServer.credential];
+
             [servers addObject:iceServer];
         }
     }
