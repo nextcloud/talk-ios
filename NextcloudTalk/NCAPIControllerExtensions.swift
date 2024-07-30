@@ -215,7 +215,7 @@ import Foundation
 
     // MARK: - Mentions
 
-    public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ invitations: [MentionSuggestion]?) -> Void) {
+    public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ mentions: [MentionSuggestion]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
@@ -237,6 +237,70 @@ import Foundation
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
             let mentions = ocs?.dataArrayDict?.map { MentionSuggestion(dictionary: $0) }
             completionBlock(mentions)
+        }
+    }
+
+    // MARK: - Ban
+
+    public func banActor(for accountId: String, in roomToken: String, with actorType: String, with actorId: String, with internalNote: String?, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let apiVersion = self.banAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+
+        var parameters: [String: Any] = [
+            "actorType": actorType,
+            "actorId": actorId
+        ]
+
+        if let internalNote, !internalNote.isEmpty {
+            parameters["internalNote"] = internalNote
+        }
+
+        apiSessionManager.post(urlString, parameters: parameters, progress: nil) { _, _ in
+            completionBlock(true)
+        } failure: { _, _ in
+            completionBlock(false)
+        }
+    }
+
+    public func listBans(for accountId: String, in roomToken: String, completionBlock: @escaping (_ bannedActors: [BannedActor]?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let apiVersion = self.banAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
+            let actorBans = ocs?.dataArrayDict?.map { BannedActor(dictionary: $0) }
+            completionBlock(actorBans)
+        }
+    }
+
+    public func unbanActor(for accountId: String, in roomToken: String, with banId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let apiVersion = self.banAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)/\(banId)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.delete(urlString, parameters: nil) { _, _ in
+            completionBlock(true)
+        } failure: { _, _ in
+            completionBlock(false)
         }
     }
 }

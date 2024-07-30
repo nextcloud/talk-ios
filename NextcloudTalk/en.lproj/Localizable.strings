@@ -83,6 +83,9 @@
 "Add account" = "Add account";
 
 /* No comment provided by engineer. */
+"Add an internal note about this ban" = "Add an internal note about this ban";
+
+/* No comment provided by engineer. */
 "Add answer" = "Add answer";
 
 /* No comment provided by engineer. */
@@ -316,6 +319,21 @@
 /* No comment provided by engineer. */
 "Away" = "Away";
 
+/* Ban a user/guest */
+"Ban" = "Ban";
+
+/* e.g. Ban John Doe */
+"Ban %@" = "Ban %@";
+
+/* No comment provided by engineer. */
+"Ban participant" = "Ban participant";
+
+/* Date and time of ban creation */
+"Banned by:" = "Banned by:";
+
+/* No comment provided by engineer. */
+"Banned users and guests" = "Banned users and guests";
+
 /* No comment provided by engineer. */
 "bot" = "bot";
 
@@ -482,6 +500,9 @@
 "Could not add participant" = "Could not add participant";
 
 /* No comment provided by engineer. */
+"Could not ban participant" = "Could not ban participant";
+
+/* No comment provided by engineer. */
 "Could not change call notifications setting" = "Could not change call notifications setting";
 
 /* No comment provided by engineer. */
@@ -582,6 +603,9 @@
 
 /* No comment provided by engineer. */
 "Credentials for this account were no longer valid" = "Credentials for this account were no longer valid";
+
+/* name of a moderator who banned a participant */
+"Date:" = "Date:";
 
 /* No comment provided by engineer. */
 "days" = "days";
@@ -830,6 +854,9 @@
 "Failed to share recording" = "Failed to share recording";
 
 /* No comment provided by engineer. */
+"Failed to unban selected entry" = "Failed to unban selected entry";
+
+/* No comment provided by engineer. */
 "Federated" = "Federated";
 
 /* No comment provided by engineer. */
@@ -915,6 +942,9 @@
 
 /* Internal signaling used */
 "Internal" = "Internal";
+
+/* Internal note about why a user/guest was banned */
+"Internal note" = "Internal note";
 
 /* No comment provided by engineer. */
 "Invalid server address" = "Invalid server address";
@@ -1151,6 +1181,9 @@
 "No participants found" = "No participants found";
 
 /* No comment provided by engineer. */
+"No permission to join this conversation" = "No permission to join this conversation";
+
+/* No comment provided by engineer. */
 "No response from server" = "No response from server";
 
 /* No comment provided by engineer. */
@@ -1167,6 +1200,9 @@
 
 /* No comment provided by engineer. */
 "Note to self" = "Note to self";
+
+/* Internal note for moderators, usually a reason for this ban */
+"Note:" = "Note:";
 
 /* No comment provided by engineer. */
 "Notifications" = "Notifications";
@@ -1698,6 +1734,9 @@
 
 /* No comment provided by engineer. */
 "Unavailable" = "Unavailable";
+
+/* No comment provided by engineer. */
+"Unban" = "Unban";
 
 /* No comment provided by engineer. */
 "Under \"Devices & sessions\" check if there are duplicate entries for the same device." = "Under \"Devices & sessions\" check if there are duplicate entries for the same device.";

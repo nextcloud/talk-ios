@@ -194,6 +194,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return APIv1;
 }
 
+- (NSInteger)banAPIVersionForAccount:(TalkAccount *)account
+{
+    return APIv1;
+}
+
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account
 {
     NSInteger signalingAPIVersion = APIv1;
@@ -424,13 +429,17 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
 
         if (block) {
-            block(sessionId, room, nil, 0);
+            block(sessionId, room, nil, 0, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSInteger statusCode = [self getResponseStatusCode:task.response];
         [self checkResponseStatusCode:statusCode forAccount:account];
+
+        NSDictionary *errorDict = [[[self getFailureResponseObjectFromError:error] objectForKey:@"ocs"] objectForKey:@"data"];
+        NSString *statusReason = [errorDict objectForKey:@"error"];
+
         if (block) {
-            block(nil, nil, error, statusCode);
+            block(nil, nil, error, statusCode, statusReason);
         }
     }];
     
