@@ -128,6 +128,20 @@ import Foundation
         }
     }
 
+    public func setMentionPermissions(_ permissions: NCRoomMentionPermissions, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/mention-permissions", withAPIVersion: apiVersion, for: account)
+        let parameters: [String: Int] = ["mentionPermissions": permissions.rawValue]
+
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
+            completionBlock(error)
+        }
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {

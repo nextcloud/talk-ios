@@ -72,6 +72,7 @@ extern NSString * const kCapabilityFederationV1;
 extern NSString * const kCapabilityFederationV2;
 extern NSString * const kCapabilityChatReadLast;
 extern NSString * const kCapabilityBanV1;
+extern NSString * const kCapabilityMentionPermissions;
 
 extern NSString * const kNotificationsCapabilityExists;
 
