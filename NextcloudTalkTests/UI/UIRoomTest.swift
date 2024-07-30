@@ -128,7 +128,8 @@ final class UIRoomTest: XCTestCase {
         textView.typeText("M")
         textView.typeText("e")
 
-        let autoCompleteCell = app.tables.cells["AutoCompletionCellIdentifier"].staticTexts[newConversationName]
+        let predicate = NSPredicate(format: "label CONTAINS[c] %@", newConversationName)
+        let autoCompleteCell = app.tables.cells["AutoCompletionCellIdentifier"].staticTexts.containing(predicate).firstMatch
         XCTAssert(autoCompleteCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
         autoCompleteCell.tap()

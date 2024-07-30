@@ -12,6 +12,7 @@ import Foundation
     public var source: String
     public var mentionId: String?
     public var userStatus: String?
+    public var details: String?
 
     init(dictionary: [String: Any]) {
         self.id = dictionary["id"] as? String ?? ""
@@ -19,6 +20,7 @@ import Foundation
         self.source = dictionary["source"] as? String ?? ""
         self.mentionId = dictionary["mentionId"] as? String
         self.userStatus = dictionary["status"] as? String
+        self.details = dictionary["details"] as? String
 
         super.init()
     }
