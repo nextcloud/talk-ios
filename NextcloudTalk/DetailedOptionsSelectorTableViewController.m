@@ -81,7 +81,7 @@
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DetailOptionIdentifier"];
 
     if (_type == DetailedOptionsSelectorTypeAccounts) {
-        [cell.imageView setImage:[NCUtils renderAspectImageWithImage:option.image of:CGSizeMake(20, 20)]];
+        [cell.imageView setImage:[NCUtils renderAspectImageWithImage:option.image ofSize:CGSizeMake(20, 20) centerImage:YES]];
         [cell.detailTextLabel setText:[option.subtitle stringByReplacingOccurrencesOfString:@"https://" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [option.subtitle length])]];
         [cell.detailTextLabel setTextColor:[UIColor secondaryLabelColor]];
     } else {

@@ -28,7 +28,9 @@ import AVFoundation
         guard let fileType else { return "file" }
 
         if let mimeType = fileType.preferredMIMEType {
-            if mimeType.contains("org.openxmlformats") || mimeType.contains("org.oasis-open.opendocument") {
+            if mimeType.contains("org.openxmlformats") || mimeType.contains("org.oasis-open.opendocument") ||
+                mimeType.contains("officedocument.wordprocessingml") {
+
                 return "file-document"
             } else if mimeType == "httpd/unix-directory" {
                 return "folder"
@@ -295,16 +297,20 @@ import AVFoundation
         return image
     }
 
-    public static func renderAspectImage(image: UIImage?, of size: CGSize) -> UIImage? {
+    public static func renderAspectImage(image: UIImage?, ofSize size: CGSize, centerImage center: Bool) -> UIImage? {
         guard let image else { return nil }
 
         let newRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         UIGraphicsBeginImageContextWithOptions(newRect.size, false, 0.0)
 
         let aspectRatio = AVMakeRect(aspectRatio: image.size, insideRect: newRect)
-        let origin = CGPoint(x: newRect.maxX / 2 - aspectRatio.width / 2, y: newRect.maxY / 2 - aspectRatio.height / 2)
+        var targetOrigin: CGPoint = .zero
 
-        image.draw(in: CGRect(origin: origin, size: aspectRatio.size))
+        if center {
+            targetOrigin = CGPoint(x: newRect.maxX / 2 - aspectRatio.width / 2, y: newRect.maxY / 2 - aspectRatio.height / 2)
+        }
+
+        image.draw(in: CGRect(origin: targetOrigin, size: aspectRatio.size))
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 

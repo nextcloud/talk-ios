@@ -239,8 +239,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 - (UIImage *)getPlaceholderImageForFileURL:(NSURL *)fileURL
 {
     NSString *previewImage = [NCUtils previewImageForFileExtension:[fileURL pathExtension]];
-    NSString *imageName = [previewImage stringByAppendingString:@"-chat-preview"];
-    return [UIImage imageNamed:imageName];
+    return [UIImage imageNamed:previewImage];
 }
 
 @end
