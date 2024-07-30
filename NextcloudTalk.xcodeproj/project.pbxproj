@@ -196,6 +196,7 @@
 		1F8AAC3D2C519689004DA20A /* StunServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC3B2C519689004DA20A /* StunServer.swift */; };
 		1F8AAC3E2C519689004DA20A /* StunServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC3B2C519689004DA20A /* StunServer.swift */; };
 		1F8AAC3F2C519689004DA20A /* StunServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC3B2C519689004DA20A /* StunServer.swift */; };
+		1F8AAC622C596308004DA20A /* UnitSignalingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8AAC612C596308004DA20A /* UnitSignalingSettings.swift */; };
 		1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */; };
 		1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
@@ -232,7 +233,6 @@
 		1FB7B9852BE2EE020093CE98 /* UnitChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */; };
 		1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */; };
 		1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */; };
-		1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */; };
 		1FB7B98E2BF0CBA60093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
 		1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
 		1FB7B9912BF0CDF80093CE98 /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
@@ -240,6 +240,7 @@
 		1FB7B9952BF0DF1C0093CE98 /* BannedActorTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9942BF0DF1C0093CE98 /* BannedActorTableViewController.swift */; };
 		1FB7B99A2BF0DF290093CE98 /* BannedActorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B9992BF0DF290093CE98 /* BannedActorCell.swift */; };
 		1FB7B99C2BF0DF360093CE98 /* BannedActorCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */; };
+		1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
@@ -722,6 +723,7 @@
 		1F8AAC312C518759004DA20A /* SignalingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalingSettings.swift; sourceTree = "<group>"; };
 		1F8AAC362C519577004DA20A /* TurnServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TurnServer.swift; sourceTree = "<group>"; };
 		1F8AAC3B2C519689004DA20A /* StunServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StunServer.swift; sourceTree = "<group>"; };
+		1F8AAC612C596308004DA20A /* UnitSignalingSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitSignalingSettings.swift; sourceTree = "<group>"; };
 		1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarManager.swift; sourceTree = "<group>"; };
 		1F90EFBA25FE39F800F3FA55 /* NCIntentController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCIntentController.h; sourceTree = "<group>"; };
 		1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCIntentController.m; sourceTree = "<group>"; };
@@ -746,11 +748,11 @@
 		1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
 		1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatTableViewCellTest.swift; sourceTree = "<group>"; };
-		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActor.swift; sourceTree = "<group>"; };
 		1FB7B9942BF0DF1C0093CE98 /* BannedActorTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActorTableViewController.swift; sourceTree = "<group>"; };
 		1FB7B9992BF0DF290093CE98 /* BannedActorCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BannedActorCell.swift; sourceTree = "<group>"; };
 		1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BannedActorCell.xib; sourceTree = "<group>"; };
+		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
@@ -1347,16 +1349,14 @@
 		1F6D8C3B2B2F237F004376B8 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				1F8AAC602C5962BE004DA20A /* Chat */,
 				1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */,
 				1FB7B9862BE441450093CE98 /* UIViewExtensions.swift */,
 				1F5CDAE62B3B05110040ECC0 /* UnitColorGeneratorTest.swift */,
 				1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */,
 				1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */,
-				1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */,
 				1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */,
-				1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */,
-				1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */,
-				1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */,
+				1F8AAC612C596308004DA20A /* UnitSignalingSettings.swift */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -1393,6 +1393,17 @@
 				1F77A6262ABA0CD9007B6037 /* NCScreensharingController.m */,
 			);
 			name = Screensharing;
+			sourceTree = "<group>";
+		};
+		1F8AAC602C5962BE004DA20A /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				1FB7B9882BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift */,
+				1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */,
+				1FB7B9842BE2EE020093CE98 /* UnitChatViewControllerTest.swift */,
+				1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */,
+			);
+			path = Chat;
 			sourceTree = "<group>";
 		};
 		1F90EFB925FE398B00F3FA55 /* Siri */ = {
@@ -1482,7 +1493,6 @@
 				2C5521681F7D481C0077E587 /* Login */,
 				2CB6ACA72638489300D3D641 /* Maps */,
 				1F1B0F3A2BE0476C003FD766 /* Media Viewer */,
-				1FB7B98F2BF0CDD20093CE98 /* Model */,
 				2C55216B1F7D48970077E587 /* Network */,
 				2C9B0B99217F6E3400A4752C /* Notifications */,
 				2C5521661F7D47A50077E587 /* Rooms */,
@@ -2667,6 +2677,7 @@
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
 				1FB7B9872BE441450093CE98 /* UIViewExtensions.swift in Sources */,
 				1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */,
+				1F8AAC622C596308004DA20A /* UnitSignalingSettings.swift in Sources */,
 				1F0B0A772BA26BE10073FF8D /* UnitMentionSuggestionTest.swift in Sources */,
 				1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */,
 			);
@@ -3095,8 +3106,6 @@
 				2C4446D9265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */,
 				1FF136162BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
-				1F45A1352A026EFA005FE87D /* NCWebImageDownloaderOperation.m in Sources */,
-				2CC0017324A3795B00A20167 /* NCImageSessionManager.m in Sources */,
 				1FB7B9922BF0CDF90093CE98 /* BannedActor.swift in Sources */,
 				1F8AAC382C519577004DA20A /* TurnServer.swift in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
