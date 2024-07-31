@@ -1179,7 +1179,9 @@ import UIKit
         let displayName = notification.userInfo?["displayName"] as? String ?? NSLocalizedString("Guest", comment: "")
 
         // Don't show a typing indicator for ourselves or if typing indicator setting is disabled
-        guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)
+        // Workaround: TypingPrivacy should be checked locally, not from the remote server, use serverCapabilities for now
+        // TODO: Remove workaround for federated typing indicators.
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
         else { return }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
