@@ -436,7 +436,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         [self checkResponseStatusCode:statusCode forAccount:account];
 
         NSDictionary *errorDict = [[[self getFailureResponseObjectFromError:error] objectForKey:@"ocs"] objectForKey:@"data"];
-        NSString *statusReason = [errorDict objectForKey:@"error"];
+        NSString *statusReason = nil;
+
+        // Depending on the error, an empty array instead of a dictionary is returned by the server
+        if (errorDict && [errorDict isKindOfClass:[NSDictionary class]]) {
+            statusReason = [errorDict objectForKey:@"error"];
+        }
 
         if (block) {
             block(nil, nil, error, statusCode, statusReason);
