@@ -1146,7 +1146,9 @@ import QuickLook
     // MARK: - TypingIndicator support
 
     func sendStartedTypingMessage(to sessionId: String) {
-        guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room)
+        // Workaround: TypingPrivacy should be checked locally, not from the remote server, use serverCapabilities for now
+        // TODO: Remove workaround for federated typing indicators.
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
         else { return }
 
         if serverCapabilities.typingPrivacy {
@@ -1161,7 +1163,9 @@ import QuickLook
     }
 
     func sendStartedTypingMessageToAll() {
-        guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room),
+        // Workaround: TypingPrivacy should be checked locally, not from the remote server, use serverCapabilities for now
+        // TODO: Remove workaround for federated typing indicators.
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
               !serverCapabilities.typingPrivacy,
               let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId),
               let participantMap = signalingController.getParticipantMap()
