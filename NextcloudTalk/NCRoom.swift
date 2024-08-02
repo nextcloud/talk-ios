@@ -68,7 +68,7 @@ import Realm
             self.type != .changelog && self.type != .noteToSelf
     }
 
-    public var supportsMessageExpiration: Bool {
+    public var supportsMessageExpirationModeration: Bool {
         if self.type == .formerOneToOne || self.type == .changelog {
             return false
         }
@@ -76,12 +76,10 @@ import Realm
         return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMessageExpiration)
     }
 
-    public var supportsBanning: Bool {
-        if self.type == .oneToOne || self.type == .formerOneToOne || self.type == .changelog || self.type == .noteToSelf {
-            return false
-        }
+    public var supportsBanningModeration: Bool {
+        let supportedType = self.type == .group || self.type == .public
 
-        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBanV1)
+        return supportedType && self.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBanV1)
     }
 
     public var isBreakoutRoom: Bool {
