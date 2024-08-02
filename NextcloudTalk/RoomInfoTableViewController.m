@@ -405,12 +405,12 @@ typedef enum FileAction {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
 
     // Message expiration action
-    if (_room.isUserOwnerOrModerator && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityMessageExpiration]) {
+    if ([_room supportsMessageExpiration]) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionMessageExpiration]];
     }
 
     // Banning actors
-    if (_room.isUserOwnerOrModerator && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1]) {
+    if ([_room supportsBanning]) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionBannedActors]];
     }
 
