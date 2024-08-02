@@ -72,7 +72,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
     var account: TalkAccount
     var serverCapabilities: ServerCapabilities
-    var signalingConfiguration: NSDictionary?
+    var signalingConfiguration: SignalingSettings?
     var externalSignalingController: NCExternalSignalingController?
     var signalingVersion: Int
 
@@ -95,7 +95,7 @@ class DiagnosticsTableViewController: UITableViewController {
         self.account = account
 
         self.serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)!
-        self.signalingConfiguration = NCSettingsController.sharedInstance().signalingConfigurations[account.accountId] as? NSDictionary
+        self.signalingConfiguration = NCSettingsController.sharedInstance().signalingConfigurations[account.accountId] as? SignalingSettings
         self.externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId)
         self.signalingVersion = NCAPIController.sharedInstance().signalingAPIVersion(for: account)
 
@@ -596,58 +596,24 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.textLabel?.text = NSLocalizedString("STUN servers", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Unavailable", comment: "")
 
-            let stunServersConfig = signalingConfiguration?.object(forKey: "stunservers") as? [NSDictionary]
             var stunServers: [String] = []
 
-            if let stunServersArray = stunServersConfig {
-                for stunServerDict in stunServersArray {
-                    if signalingVersion >= APIv3 {
-                        guard let stunServerStringDict = stunServerDict["urls"] as? [String] else {
-                            continue
-                        }
+            signalingConfiguration?.stunServers.forEach { stunServers += $0.urls ?? [] }
 
-                        stunServers += stunServerStringDict
-                    } else {
-                        guard let stunServerString = stunServerDict["url"] as? String else {
-                            continue
-                        }
-
-                        stunServers.append(stunServerString)
-                    }
-                }
-
-                if !stunServers.isEmpty {
-                    cell.detailTextLabel?.text = stunServers.joined(separator: "\n")
-                }
+            if !stunServers.isEmpty {
+                cell.detailTextLabel?.text = stunServers.joined(separator: "\n")
             }
 
         case AllSignalingSections.kSignalingSectionTurnServers.rawValue:
             cell.textLabel?.text = NSLocalizedString("TURN servers", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Unavailable", comment: "")
 
-            let turnServersConfig = signalingConfiguration?.object(forKey: "turnservers") as? [NSDictionary]
             var turnServers: [String] = []
 
-            if let turnServersArray = turnServersConfig {
-                for turnServerDict in turnServersArray {
-                    if signalingVersion >= APIv3 {
-                        guard let turnServerStringDict = turnServerDict["urls"] as? [String] else {
-                            continue
-                        }
+            signalingConfiguration?.turnServers.forEach { turnServers += $0.urls ?? [] }
 
-                        turnServers += turnServerStringDict
-                    } else {
-                        guard let turnServerString = turnServerDict["url"] as? String else {
-                            continue
-                        }
-
-                        turnServers.append(turnServerString)
-                    }
-                }
-
-                if !turnServers.isEmpty {
-                    cell.detailTextLabel?.text = turnServers.joined(separator: "\n")
-                }
+            if !turnServers.isEmpty {
+                cell.detailTextLabel?.text = turnServers.joined(separator: "\n")
             }
 
         default:
