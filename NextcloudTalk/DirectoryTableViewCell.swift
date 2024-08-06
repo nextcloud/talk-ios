@@ -34,6 +34,10 @@ import Foundation
         self.fileImageView.image = nil
         self.fileNameLabel.text = ""
         self.fileInfoLabel.text = ""
+        self.fileParameter = nil
+
+        self.accessoryView = nil
+        self.activityIndicator = nil
     }
 
     func didChangeIsDownloading(notification: Notification) {
