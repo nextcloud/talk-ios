@@ -143,19 +143,10 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         let date = Date(timeIntervalSince1970: TimeInterval(message.timestamp))
         self.dateLabel.text = NCUtils.getTime(fromDate: date)
 
-        var actorDisplayName = message.actorDisplayName ?? ""
+        let messageActor = message.actor
+        let titleLabel = messageActor.displayNameProcessed.withTextColor(.secondaryLabel)
 
-        if actorDisplayName.isEmpty {
-            if message.actorId == "deleted_users", message.actorType == "deleted_users" {
-                actorDisplayName = NSLocalizedString("Deleted user", comment: "")
-            } else {
-                actorDisplayName = NSLocalizedString("Guest", comment: "")
-            }
-        }
-
-        var titleLabel = actorDisplayName.withTextColor(.secondaryLabel)
-
-        if message.actorType == "federated_users", let remoteServer = message.actorId.split(separator: "@").last {
+        if let remoteServer = messageActor.cloudId {
             let remoteServerString = " (\(String(remoteServer)))"
             titleLabel.append(remoteServerString.withTextColor(.tertiaryLabel))
         }
