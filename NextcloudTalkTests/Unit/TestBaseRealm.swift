@@ -37,12 +37,16 @@ class TestBaseRealm: XCTestCase {
     }
 
     func updateCapabilities(updateBlock: @escaping (ServerCapabilities) -> Void) {
-        let capabilities = ServerCapabilities()
-        capabilities.accountId = TestBaseRealm.fakeAccountId
-        updateBlock(capabilities)
-
         try? realm.transaction {
-            realm.add(capabilities)
+            var capabilities = ServerCapabilities()
+            capabilities.accountId = TestBaseRealm.fakeAccountId
+
+            if let storedCapabilities = ServerCapabilities.object(forPrimaryKey: TestBaseRealm.fakeAccountId) {
+                capabilities = storedCapabilities
+            }
+
+            updateBlock(capabilities)
+            realm.addOrUpdate(capabilities)
         }
     }
 

@@ -49,6 +49,7 @@
 		1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */; };
 		1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
+		1F1DF8412C63C25900E5EA86 /* UnitNCDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
 		1F35F8E02AEEB9DE00044BDA /* ShareConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F35F8DF2AEEB9DE00044BDA /* ShareConfirmationViewController.swift */; };
@@ -663,6 +664,7 @@
 		1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TalkCapabilities.m; sourceTree = "<group>"; };
 		1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VLCKitVideoViewController.xib; sourceTree = "<group>"; };
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
+		1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCDatabaseManager.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
 		1F24B5A328E0649200654457 /* ReferenceGithubView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubView.xib; sourceTree = "<group>"; };
 		1F35F8DF2AEEB9DE00044BDA /* ShareConfirmationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareConfirmationViewController.swift; sourceTree = "<group>"; };
@@ -1356,6 +1358,7 @@
 				1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */,
 				1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */,
 				1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */,
+				1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */,
 				1F8AAC612C596308004DA20A /* UnitSignalingSettings.swift */,
 			);
 			path = Unit;
@@ -2672,6 +2675,7 @@
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
 				1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
+				1F1DF8412C63C25900E5EA86 /* UnitNCDatabaseManager.swift in Sources */,
 				1FF4DAA82C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift in Sources */,
 				1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */,
 				1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */,
