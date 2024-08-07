@@ -681,6 +681,9 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
 
         if (managedServerCapabilities && managedServerCapabilities.externalSignalingServerVersion != version) {
             managedServerCapabilities.externalSignalingServerVersion = version;
+
+            ServerCapabilities *unmanagedServerCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+            [self.capabilitiesCache setObject:unmanagedServerCapabilities forKey:accountId];
         }
     }];
 }
