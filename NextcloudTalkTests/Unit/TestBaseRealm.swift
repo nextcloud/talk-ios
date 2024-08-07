@@ -24,6 +24,11 @@ class TestBaseRealm: XCTestCase {
         createFakeActiveAccount()
     }
 
+    override func tearDownWithError() throws {
+        // Make sure we correctly remove the fake account again, to clear the capability cache in NCDatabaseManager
+        NCDatabaseManager.sharedInstance().removeAccount(withAccountId: TestBaseRealm.fakeAccountId)
+    }
+
     func createFakeActiveAccount() {
         let account = TalkAccount()
         account.accountId = TestBaseRealm.fakeAccountId
