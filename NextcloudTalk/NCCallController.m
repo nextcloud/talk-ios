@@ -929,7 +929,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         
         // Try to get displayName early
         TalkActor *actor = [self getActorFromSessionId:sessionId];
-        if (actor && actor.displayName) {
+        if (actor && ![actor.rawDisplayName isEqualToString:@""]) {
             [peerConnectionWrapper setPeerName:actor.displayName];
         }
         

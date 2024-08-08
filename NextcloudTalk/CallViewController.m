@@ -1932,6 +1932,10 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [[WebRTCCommon shared] dispatch:^{
         TalkActor *actor = [self->_callController getActorFromSessionId:peerConnection.peerId];
 
+        if ([actor.rawDisplayName isEqualToString:@""] && peerConnection.peerName && ![peerConnection.peerName isEqualToString:@""]) {
+            actor.rawDisplayName = peerConnection.peerName;
+        }
+
         RTCIceConnectionState connectionState = peerConnection.isDummyPeer ?
         RTCIceConnectionStateConnected : [peerConnection getPeerConnection].iceConnectionState;
 
