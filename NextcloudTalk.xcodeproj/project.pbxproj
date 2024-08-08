@@ -54,6 +54,10 @@
 		1F1DF83D2C5C17AF00E5EA86 /* TalkActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */; };
 		1F1DF83E2C5C17AF00E5EA86 /* TalkActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */; };
 		1F1DF83F2C5C17AF00E5EA86 /* TalkActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */; };
+		1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
+		1F1DF8442C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
+		1F1DF8452C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
+		1F1DF8462C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
 		1F35F8E02AEEB9DE00044BDA /* ShareConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F35F8DF2AEEB9DE00044BDA /* ShareConfirmationViewController.swift */; };
@@ -670,6 +674,7 @@
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
 		1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCDatabaseManager.swift; sourceTree = "<group>"; };
 		1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkActor.swift; sourceTree = "<group>"; };
+		1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingParticipant.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
 		1F24B5A328E0649200654457 /* ReferenceGithubView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubView.xib; sourceTree = "<group>"; };
 		1F35F8DF2AEEB9DE00044BDA /* ShareConfirmationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareConfirmationViewController.swift; sourceTree = "<group>"; };
@@ -1893,6 +1898,7 @@
 				2C69323B2923ECAA00017AD2 /* WSMessage.h */,
 				2C69323C2923ECAA00017AD2 /* WSMessage.m */,
 				1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */,
+				1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */,
 				1F8AAC312C518759004DA20A /* SignalingSettings.swift */,
 				1F8AAC362C519577004DA20A /* TurnServer.swift */,
 				1F8AAC3B2C519689004DA20A /* StunServer.swift */,
@@ -2720,6 +2726,7 @@
 				1F77A5F32AB9A43B007B6037 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1FF4DA832C025DBF00C1B952 /* NCAPISessionManager.swift in Sources */,
 				1FDFC9502BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
+				1F1DF8462C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				1FF2FD832AB99F3B000C9905 /* NCAppBranding.m in Sources */,
 				1F77A5F82AB9A4CD007B6037 /* NCDeckCardParameter.m in Sources */,
 				1F77A5FD2AB9A4F3007B6037 /* ServerCapabilities.m in Sources */,
@@ -2911,6 +2918,7 @@
 				2C21446E2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift in Sources */,
 				2C4230F72B207AB00013E1FA /* ContextChatViewController.swift in Sources */,
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
+				1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
 				1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */,
@@ -3065,6 +3073,7 @@
 				1F35F8E12AEEB9DE00044BDA /* ShareConfirmationViewController.swift in Sources */,
 				1F90EFBE25FE39F800F3FA55 /* NCIntentController.m in Sources */,
 				1FF4DA842C025DC000C1B952 /* NCAPISessionManager.swift in Sources */,
+				1F1DF8452C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2C3195C224C5E2100066F221 /* ShareTableViewCell.m in Sources */,
 				2CC1FF4A2818395F009F7288 /* NCDeckCardParameter.m in Sources */,
 				1FF136112BFB4F8C006A6101 /* NCRoom.swift in Sources */,
@@ -3124,6 +3133,7 @@
 				1F8AAC382C519577004DA20A /* TurnServer.swift in Sources */,
 				2CC001C124A37AC500A20167 /* NCNotification.m in Sources */,
 				2C4446FD265D5DFA00DF1DBC /* ABContact.m in Sources */,
+				1F1DF8442C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				1F8AAC3D2C519689004DA20A /* StunServer.swift in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955142B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
