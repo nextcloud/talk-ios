@@ -1930,12 +1930,13 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [cell.audioOffIndicator setAlpha:_isDetailedViewVisible ? 1.0 : 0.0];
 
     [[WebRTCCommon shared] dispatch:^{
-        NSString *userId = [self->_callController getUserIdFromSessionId:peerConnection.peerId];
+        TalkActor *actor = [self->_callController getActorFromSessionId:peerConnection.peerId];
+
         RTCIceConnectionState connectionState = peerConnection.isDummyPeer ?
         RTCIceConnectionStateConnected : [peerConnection getPeerConnection].iceConnectionState;
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            [cell setUserAvatar:userId withDisplayName:peerConnection.peerName];
+            [cell setAvatarForActor:actor];
             [cell setConnectionState:connectionState];
         });
     }];

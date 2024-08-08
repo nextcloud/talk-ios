@@ -12,6 +12,7 @@
 @class RTCAudioTrack;
 @class RTCVideoTrack;
 @class NCCameraController;
+@class TalkActor;
 
 typedef void (^GetVideoEnabledStateCompletionBlock)(BOOL isEnabled);
 typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
@@ -72,7 +73,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)stopRecording;
 - (void)startScreenshare;
 - (void)stopScreenshare;
-- (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
+- (TalkActor * _Nullable)getActorFromSessionId:(NSString * _Nonnull)sessionId;
 - (NSString *)signalingSessionId;
 - (BOOL)isBackgroundBlurEnabled;
 - (void)enableBackgroundBlur:(BOOL)enable;

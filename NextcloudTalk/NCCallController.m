@@ -928,9 +928,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         peerConnectionWrapper.isOwnScreensharePeer = ownScreenshare;
         
         // Try to get displayName early
-        NSString *displayName = [self getDisplayNameFromSessionId:sessionId];
-        if (displayName) {
-            [peerConnectionWrapper setPeerName:displayName];
+        TalkActor *actor = [self getActorFromSessionId:sessionId];
+        if (actor && actor.displayName) {
+            [peerConnectionWrapper setPeerName:actor.displayName];
         }
         
         // Do not add local stream when using a MCU or to screensharing peers
@@ -1568,42 +1568,30 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     return sessions;
 }
 
-- (NSString *)getUserIdFromSessionId:(NSString *)sessionId
+- (TalkActor *)getActorFromSessionId:(NSString *)sessionId
 {
     [[WebRTCCommon shared] assertQueue];
 
     if (_externalSignalingController) {
-        return [_externalSignalingController getUserIdFromSessionId:sessionId];
+        return [_externalSignalingController getParticipantFromSessionId:sessionId].actor;
     }
 
     NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:_account];
-    NSString *userId = nil;
+
     for (NSMutableDictionary *user in _peersInCall) {
         NSString *userSessionId = [user objectForKey:@"sessionId"];
         if ([userSessionId isEqualToString:sessionId]) {
-            userId = [user objectForKey:@"userId"];
+            TalkActor *actor = [[TalkActor alloc] initWithActorId:[user objectForKey:@"userId"] actorType:@"users" actorDisplayName:[user objectForKey:@"displayName"]];
+
             if (callAPIVersion >= APIv3) {
-                userId = [user objectForKey:@"actorId"];
+                [actor setId:[user objectForKey:@"actorId"]];
+                [actor setType:[user objectForKey:@"actorType"]];
             }
+
+            return actor;
         }
     }
-    return userId;
-}
 
-- (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId
-{
-    [[WebRTCCommon shared] assertQueue];
-
-    if (_externalSignalingController) {
-        return [_externalSignalingController getDisplayNameFromSessionId:sessionId];
-    }
-    for (NSMutableDictionary *user in _peersInCall) {
-        NSString *userSessionId = [user objectForKey:@"sessionId"];
-        if ([userSessionId isEqualToString:sessionId]) {
-            return [user objectForKey:@"displayName"];
-        }
-    }
-    
     return nil;
 }
 
