@@ -557,29 +557,25 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         for (NSDictionary *participantDict in joins) {
             SignalingParticipant *participant = [[SignalingParticipant alloc] initWithJoinDictionary:participantDict];
 
-            if (participant.userId == nil || [participant.userId isEqualToString:@""]) {
-                NSLog(@"Guest joined room.");
+            if (!participant.isFederated && [participant.userId isEqualToString:_userId]) {
+                NSLog(@"App user joined room.");
             } else {
-                if (!participant.isFederated && [participant.userId isEqualToString:_userId]) {
-                    NSLog(@"App user joined room.");
-                } else {
-                    NSLog(@"Participant joined room.");
+                NSLog(@"Participant joined room.");
 
-                    // Only notify if another participant joined the room and not ourselves from a different device
-                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+                // Only notify if another participant joined the room and not ourselves from a different device
+                NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
 
-                    if (_currentRoom && participant.signalingSessionId){
-                        [userInfo setObject:_currentRoom forKey:@"roomToken"];
-                        [userInfo setObject:participant.signalingSessionId forKey:@"sessionId"];
-                    }
-
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification
-                                                                        object:self
-                                                                      userInfo:userInfo];
+                if (_currentRoom && participant.signalingSessionId){
+                    [userInfo setObject:_currentRoom forKey:@"roomToken"];
+                    [userInfo setObject:participant.signalingSessionId forKey:@"sessionId"];
                 }
 
-                [_participantsMap setObject:participant forKey:participant.signalingSessionId];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
             }
+
+            [_participantsMap setObject:participant forKey:participant.signalingSessionId];
         }
     } else if ([eventType isEqualToString:@"leave"]) {
         NSArray *leftSessions = [eventDict objectForKey:@"leave"];
