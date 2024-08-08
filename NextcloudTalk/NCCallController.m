@@ -1311,16 +1311,26 @@ static NSString * const kNCScreenTrackKind  = @"screen";
             // If there is already a peer connection but a new offer is received with a different sid the existing
             // peer connection is stale, so it needs to be removed and a new one created instead.
             NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
+            NSString *peerName;
             if (signalingMessage.messageType == kNCSignalingMessageTypeOffer && peerConnectionWrapper &&
                 signalingMessage.sid.length > 0 && ![signalingMessage.sid isEqualToString:peerConnectionWrapper.sid]) {
+
+                // Remember the peerName for the new connectionWrapper
+                peerName = peerConnectionWrapper.peerName;
                 [self cleanPeerConnectionForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
             }
 
             peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
             NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
             RTCSessionDescription *sessionDescription = sdpMessage.sessionDescription;
-            [peerConnectionWrapper setPeerName:sdpMessage.nick];
             [peerConnectionWrapper setRemoteDescription:sessionDescription];
+
+            if (sdpMessage.nick && ![sdpMessage.nick isEqualToString:@""]) {
+                [peerConnectionWrapper setPeerName:sdpMessage.nick];
+            } else if (peerName) {
+                [peerConnectionWrapper setPeerName:peerName];
+            }
+
             break;
         }
         case kNCSignalingMessageTypeCandidate:
