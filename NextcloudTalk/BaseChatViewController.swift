@@ -3387,8 +3387,8 @@ import QuickLook
             guard let fileLocalPath = fileStatus.fileLocalPath else { return }
             let fileExtension = URL(fileURLWithPath: fileLocalPath).pathExtension.lowercased()
 
-            // For WebM we use the VLCKitVideoViewController because the native PreviewController does not support WebM
-            if fileExtension == "webm" {
+            // Use VLCKitVideoViewController for file formats unsupported by the native PreviewController
+            if VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
                 let vlcKitViewController = VLCKitVideoViewController(filePath: fileLocalPath)
                 vlcKitViewController.delegate = self
                 vlcKitViewController.modalPresentationStyle = .fullScreen

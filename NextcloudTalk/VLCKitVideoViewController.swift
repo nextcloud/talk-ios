@@ -15,6 +15,8 @@ import MobileVLCKit
 
     public weak var delegate: VLCKitVideoViewControllerDelegate?
 
+    public static let supportedFileExtensions = ["webm", "mkv"]
+
     @IBOutlet weak var videoViewContainer: NCZoomableView!
     @IBOutlet weak var buttonView: UIStackView!
     @IBOutlet weak var jumpBackButton: UIButton!
