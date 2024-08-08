@@ -246,6 +246,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     ServerCapabilities *serverCapabilities = [ServerCapabilities objectsWithPredicate:query].firstObject;
     if (serverCapabilities) {
         [realm deleteObject:serverCapabilities];
+        [_capabilitiesCache removeObjectForKey:accountId];
     }
     [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
@@ -681,6 +682,9 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
 
         if (managedServerCapabilities && managedServerCapabilities.externalSignalingServerVersion != version) {
             managedServerCapabilities.externalSignalingServerVersion = version;
+
+            ServerCapabilities *unmanagedServerCapabilities = [[ServerCapabilities alloc] initWithValue:managedServerCapabilities];
+            [self.capabilitiesCache setObject:unmanagedServerCapabilities forKey:accountId];
         }
     }];
 }

@@ -24,6 +24,11 @@ class TestBaseRealm: XCTestCase {
         createFakeActiveAccount()
     }
 
+    override func tearDownWithError() throws {
+        // Make sure we correctly remove the fake account again, to clear the capability cache in NCDatabaseManager
+        NCDatabaseManager.sharedInstance().removeAccount(withAccountId: TestBaseRealm.fakeAccountId)
+    }
+
     func createFakeActiveAccount() {
         let account = TalkAccount()
         account.accountId = TestBaseRealm.fakeAccountId
@@ -37,12 +42,16 @@ class TestBaseRealm: XCTestCase {
     }
 
     func updateCapabilities(updateBlock: @escaping (ServerCapabilities) -> Void) {
-        let capabilities = ServerCapabilities()
-        capabilities.accountId = TestBaseRealm.fakeAccountId
-        updateBlock(capabilities)
-
         try? realm.transaction {
-            realm.add(capabilities)
+            var capabilities = ServerCapabilities()
+            capabilities.accountId = TestBaseRealm.fakeAccountId
+
+            if let storedCapabilities = ServerCapabilities.object(forPrimaryKey: TestBaseRealm.fakeAccountId) {
+                capabilities = storedCapabilities
+            }
+
+            updateBlock(capabilities)
+            realm.addOrUpdate(capabilities)
         }
     }
 

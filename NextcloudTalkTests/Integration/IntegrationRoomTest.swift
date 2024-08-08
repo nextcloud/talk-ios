@@ -27,7 +27,7 @@ final class IntegrationRoomTest: TestBase {
 
     func testRoomCreation() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let roomName = "Integration Test Room"
+        let roomName = "Integration Test Room " + UUID().uuidString
 
         let exp = expectation(description: "\(#function)\(#line)")
 
@@ -44,7 +44,7 @@ final class IntegrationRoomTest: TestBase {
 
     func testRoomDescription() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let roomName = "Description Test Room"
+        let roomName = "Description Test Room " + UUID().uuidString
         let roomDescription = "This is a room description"
 
         let exp = expectation(description: "\(#function)\(#line)")
@@ -79,7 +79,7 @@ final class IntegrationRoomTest: TestBase {
 
     func testRoomRename() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let roomName = "Rename Test Room"
+        let roomName = "Rename Test Room " + UUID().uuidString
         let roomNameNew = "\(roomName)- New"
 
         let exp = expectation(description: "\(#function)\(#line)")
