@@ -236,6 +236,7 @@ import MobileVLCKit
 
         mediaPlayer.jumpBackward(Self.jumpInterval)
         updateInformation()
+        updateIdleTimer()
     }
 
     @IBAction func jumpForwardButtonTap(_ sender: Any) {
@@ -255,6 +256,7 @@ import MobileVLCKit
         }
 
         updateInformation()
+        updateIdleTimer()
     }
 
     @IBAction func playPauseButtonTap(_ sender: Any) {
