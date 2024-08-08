@@ -4,29 +4,47 @@
 //
 
 import Foundation
+import SwiftyAttributes
 
 @objcMembers public class TalkActor: NSObject {
 
     public var id: String?
     public var type: String?
-    public var displayName: String
 
-    public var displayNameProcessed: String {
-        if displayName.isEmpty {
-            if id == "deleted_users", type == "deleted_users" {
+    /// Contains the raw displayName that was used to create the TalkActor
+    public var rawDisplayName: String
+
+    /// Takes deleted users and guests into account and returns the correct displayName
+    /// Does **not** append a potential `cloudId`
+    public var displayName: String {
+        if rawDisplayName.isEmpty {
+            if isDeleted {
                 return NSLocalizedString("Deleted user", comment: "")
             } else {
                 return NSLocalizedString("Guest", comment: "")
             }
         }
 
-        return displayName
+        return rawDisplayName
+    }
+
+    /// Takes deleted users and guests into account and returns it as `secondaryLabel`
+    /// This also appends a potential `cloudId` as `tertiaryLabel` in parentheses
+    public var attributedDisplayName: NSMutableAttributedString {
+        let titleLabel = displayName.withTextColor(.secondaryLabel)
+
+        if let remoteServer = cloudId {
+            let remoteServerString = " (\(String(remoteServer)))"
+            titleLabel.append(remoteServerString.withTextColor(.tertiaryLabel))
+        }
+
+        return titleLabel
     }
 
     init(actorId: String? = nil, actorType: String? = nil, actorDisplayName: String? = nil) {
         self.id = actorId
         self.type = actorType
-        self.displayName = actorDisplayName ?? ""
+        self.rawDisplayName = actorDisplayName ?? ""
     }
 
     public var isDeleted: Bool {

@@ -144,12 +144,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         self.dateLabel.text = NCUtils.getTime(fromDate: date)
 
         let messageActor = message.actor
-        let titleLabel = messageActor.displayNameProcessed.withTextColor(.secondaryLabel)
-
-        if let remoteServer = messageActor.cloudId {
-            let remoteServerString = " (\(String(remoteServer)))"
-            titleLabel.append(remoteServerString.withTextColor(.tertiaryLabel))
-        }
+        let titleLabel = messageActor.attributedDisplayName
 
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
             var editedString = ""
@@ -186,14 +181,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
             self.quotedMessageView?.messageLabel.text = quoteString
-
-            var parentActorDisplayName = parent.actorDisplayName ?? ""
-
-            if parentActorDisplayName.isEmpty {
-                parentActorDisplayName = NSLocalizedString("Guest", comment: "")
-            }
-
-            self.quotedMessageView?.actorLabel.text = parentActorDisplayName
+            self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: activeAccount.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
         }
