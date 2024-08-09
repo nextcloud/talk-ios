@@ -152,11 +152,16 @@ extension BaseChatTableViewCell {
             self.filePreviewActivityIndicator?.isHidden = true
             self.filePreviewActivityIndicator?.stopAnimating()
 
-            imageView.layer.borderColor = UIColor.secondarySystemFill.cgColor
-            imageView.layer.borderWidth = 1
-
             let imageSize = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
             let previewSize = BaseChatTableViewCell.getPreviewSize(from: imageSize, isMediaFile)
+
+            if !previewSize.width.isFinite || !previewSize.height.isFinite {
+                self.showFallbackIcon(for: message)
+                return
+            }
+
+            imageView.layer.borderColor = UIColor.secondarySystemFill.cgColor
+            imageView.layer.borderWidth = 1
 
             self.filePreviewImageViewHeightConstraint?.constant = previewSize.height
             self.filePreviewImageViewWidthConstraint?.constant = previewSize.width
