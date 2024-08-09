@@ -11,6 +11,7 @@ import Foundation
     public var signalingMode: String?
     public var ticket: String?
     public var userId: String?
+    public var sipDialinInfo: String?
     public var stunServers: [StunServer] = []
     public var turnServers: [TurnServer] = []
     public var federation: [String: Any]?
@@ -24,6 +25,7 @@ import Foundation
         self.signalingMode = dictionary["signalingMode"] as? String
         self.ticket = dictionary["ticket"] as? String
         self.userId = dictionary["userId"] as? String
+        self.sipDialinInfo = dictionary["sipDialinInfo"] as? String
         self.federation = dictionary["federation"] as? [String: Any]
 
         if let stunArray = dictionary["stunservers"] as? [[String: Any]] {
