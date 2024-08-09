@@ -12,6 +12,8 @@
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString * const NCAppStateHasChangedNotification           = @"NCAppStateHasChangedNotification";
 NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStateHasChangedNotification";
 
@@ -85,9 +87,9 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
 
 - (void)checkAppState
 {
-    TalkAccount *activeAccount                  = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];
-    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    SignalingSettings *activeAccountSignalingConfig = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];
+
     if (!activeAccount.server || !activeAccount.user) {
         [self setAppState:kAppStateNotServerProvided];
         [[NCUserInterfaceController sharedInstance] presentLoginViewController];

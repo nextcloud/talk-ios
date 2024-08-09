@@ -2190,8 +2190,14 @@ typedef enum FileAction {
                         cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomDescriptionTableViewCell.identifier];
                     }
                     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-                    NSDictionary *activeAccountSignalingConfig  = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];
-                    cell.textView.text = [activeAccountSignalingConfig objectForKey:@"sipDialinInfo"];
+                    SignalingSettings *activeAccountSignalingConfig = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];
+
+                    if (activeAccountSignalingConfig.sipDialinInfo) {
+                        cell.textView.text = activeAccountSignalingConfig.sipDialinInfo;
+                    } else {
+                        cell.textView.text = @"";
+                    }
+
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     
                     return cell;
