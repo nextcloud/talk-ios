@@ -68,6 +68,20 @@ import Realm
             self.type != .changelog && self.type != .noteToSelf
     }
 
+    public var supportsMessageExpirationModeration: Bool {
+        if self.type == .formerOneToOne || self.type == .changelog {
+            return false
+        }
+
+        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMessageExpiration)
+    }
+
+    public var supportsBanningModeration: Bool {
+        let supportedType = self.type == .group || self.type == .public
+
+        return supportedType && self.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBanV1)
+    }
+
     public var isBreakoutRoom: Bool {
         return self.objectType == NCRoomObjectTypeRoom
     }
