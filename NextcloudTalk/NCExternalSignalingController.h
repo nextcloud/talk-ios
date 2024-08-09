@@ -9,6 +9,7 @@
 
 @class NCExternalSignalingController;
 @class TalkAccount;
+@class SignalingParticipant;
 
 extern NSString * const NCExternalSignalingControllerDidUpdateParticipantsNotification;
 extern NSString * const NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification;
@@ -51,9 +52,8 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 - (void)sendSendOfferMessageWithSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
 - (void)sendRoomMessageOfType:(NSString *)messageType andRoomType:(NSString *)roomType;
 - (void)requestOfferForSessionId:(NSString *)sessionId andRoomType:(NSString *)roomType;
-- (NSString *)getUserIdFromSessionId:(NSString *)sessionId;
-- (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId;
-- (NSMutableDictionary *)getParticipantMap;
+- (SignalingParticipant * _Nullable)getParticipantFromSessionId:(NSString * _Nonnull)sessionId;
+- (NSMutableDictionary * _Nonnull)getParticipantMap;
 - (void)connect;
 - (void)forceConnect;
 - (void)disconnect;

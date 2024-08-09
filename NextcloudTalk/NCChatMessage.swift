@@ -225,4 +225,8 @@ import SwiftyAttributes
         self.collapsedMessageParametersJSONString = jsonString
     }
 
+    public var actor: TalkActor {
+        return TalkActor(actorId: self.actorId, actorType: self.actorType, actorDisplayName: self.actorDisplayName)
+    }
+
 }

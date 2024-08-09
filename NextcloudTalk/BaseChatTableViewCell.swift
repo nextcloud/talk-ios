@@ -143,22 +143,8 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         let date = Date(timeIntervalSince1970: TimeInterval(message.timestamp))
         self.dateLabel.text = NCUtils.getTime(fromDate: date)
 
-        var actorDisplayName = message.actorDisplayName ?? ""
-
-        if actorDisplayName.isEmpty {
-            if message.actorId == "deleted_users", message.actorType == "deleted_users" {
-                actorDisplayName = NSLocalizedString("Deleted user", comment: "")
-            } else {
-                actorDisplayName = NSLocalizedString("Guest", comment: "")
-            }
-        }
-
-        var titleLabel = actorDisplayName.withTextColor(.secondaryLabel)
-
-        if message.actorType == "federated_users", let remoteServer = message.actorId.split(separator: "@").last {
-            let remoteServerString = " (\(String(remoteServer)))"
-            titleLabel.append(remoteServerString.withTextColor(.tertiaryLabel))
-        }
+        let messageActor = message.actor
+        let titleLabel = messageActor.attributedDisplayName
 
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
             var editedString = ""
@@ -195,14 +181,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
             self.quotedMessageView?.messageLabel.text = quoteString
-
-            var parentActorDisplayName = parent.actorDisplayName ?? ""
-
-            if parentActorDisplayName.isEmpty {
-                parentActorDisplayName = NSLocalizedString("Guest", comment: "")
-            }
-
-            self.quotedMessageView?.actorLabel.text = parentActorDisplayName
+            self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: activeAccount.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
         }

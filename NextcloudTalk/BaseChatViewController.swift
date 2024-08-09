@@ -1167,10 +1167,10 @@ import QuickLook
         // TODO: Remove workaround for federated typing indicators.
         guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
               !serverCapabilities.typingPrivacy,
-              let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId),
-              let participantMap = signalingController.getParticipantMap()
+              let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId)
         else { return }
 
+        let participantMap = signalingController.getParticipantMap()
         let mySessionId = signalingController.sessionId()
 
         for (key, _) in participantMap {
@@ -1184,10 +1184,10 @@ import QuickLook
     func sendStoppedTypingMessageToAll() {
         guard let serverCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self.room),
               !serverCapabilities.typingPrivacy,
-              let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId),
-              let participantMap = signalingController.getParticipantMap()
+              let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId)
         else { return }
 
+        let participantMap = signalingController.getParticipantMap()
         let mySessionId = signalingController.sessionId()
 
         for (key, _) in participantMap {
