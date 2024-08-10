@@ -1079,16 +1079,16 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     [userInfo setObject:roomType forKey:@"roomType"];
     [userInfo setValue:timeout forKey:@"timeout"];
 
+    NSTimer *pendingOfferTimer = [NSTimer timerWithTimeInterval:8.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
+    NSString *peerKey = [sessionId stringByAppendingString:roomType];
+    
+    [self->_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
+
     // Request new offer
     [self->_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
-    // Set timeout to request new offer
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
 
-        NSString *peerKey = [sessionId stringByAppendingString:roomType];
-        [[WebRTCCommon shared] dispatch:^{
-            [self->_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
-        }];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSRunLoop mainRunLoop] addTimer:pendingOfferTimer forMode:NSDefaultRunLoopMode];
     });
 }
 
