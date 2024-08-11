@@ -1918,7 +1918,20 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
         isVideoDisabled = YES;
     }
     
-    [cell setVideoView:[_videoRenderersDict objectForKey:peerConnection.peerIdentifier]];
+    RTCMTLVideoView *videoView = [_videoRenderersDict objectForKey:peerConnection.peerIdentifier];
+    [cell setVideoView:videoView];
+
+    // It is possible that we receive a `didChangeVideoSize` call, while the participant cell was not yet shown,
+    // therefore the remote video size will never be set. In case we have a videoView here, use the frame size
+    if (videoView) {
+        CGSize videoSize = videoView.frame.size;
+        CGSize currentSize = [cell getRemoteVideoSize];
+
+        // Only set it, when there's no size set yet
+        if (CGSizeEqualToSize(CGSizeZero, currentSize) && !CGSizeEqualToSize(CGSizeZero, videoSize)) {
+            [cell setRemoteVideoSize:videoView.frame.size];
+        }
+    }
 
     [cell setDisplayName:peerConnection.peerName];
     [cell setAudioDisabled:peerConnection.isRemoteAudioDisabled];
