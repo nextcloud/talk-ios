@@ -292,6 +292,11 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     });
 }
 
+- (CGSize)getRemoteVideoSize
+{
+    return self->_remoteVideoSize;
+}
+
 - (void)setRemoteVideoSize:(CGSize)size
 {
     self->_remoteVideoSize = size;
