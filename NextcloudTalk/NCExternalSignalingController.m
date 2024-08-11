@@ -34,7 +34,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 @property (nonatomic, strong) NSString* authenticationBackendUrl;
 @property (nonatomic, assign) BOOL helloResponseReceived;
 @property (nonatomic, assign) BOOL mcuSupport;
-@property (nonatomic, strong) NSMutableDictionary* participantsMap;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, SignalingParticipant *>* participantsMap;
 @property (nonatomic, strong) NSMutableArray* pendingMessages;
 @property (nonatomic, assign) NSInteger messageId;
 @property (nonatomic, strong) WSMessage *helloMessage;
@@ -554,43 +554,37 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     NSString *eventType = [eventDict objectForKey:@"type"];
     if ([eventType isEqualToString:@"join"]) {
         NSArray *joins = [eventDict objectForKey:@"join"];
-        for (NSDictionary *participant in joins) {
-            NSString *participantId = [participant objectForKey:@"userid"];
+        for (NSDictionary *participantDict in joins) {
+            SignalingParticipant *participant = [[SignalingParticipant alloc] initWithJoinDictionary:participantDict];
 
-            if (!participantId || [participantId isEqualToString:@""]) {
-                NSLog(@"Guest joined room.");
+            if (!participant.isFederated && [participant.userId isEqualToString:_userId]) {
+                NSLog(@"App user joined room.");
             } else {
-                NSString *sessionId = [participant objectForKey:@"sessionid"];
+                NSLog(@"Participant joined room.");
 
-                if ([participantId isEqualToString:_userId]) {
-                    NSLog(@"App user joined room.");
-                } else {
-                    NSLog(@"Participant joined room.");
+                // Only notify if another participant joined the room and not ourselves from a different device
+                NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
 
-                    // Only notify if another participant joined the room and not ourselves from a different device
-                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-
-                    if (_currentRoom && sessionId){
-                        [userInfo setObject:_currentRoom forKey:@"roomToken"];
-                        [userInfo setObject:sessionId forKey:@"sessionId"];
-                    }
-
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification
-                                                                        object:self
-                                                                      userInfo:userInfo];
+                if (_currentRoom && participant.signalingSessionId){
+                    [userInfo setObject:_currentRoom forKey:@"roomToken"];
+                    [userInfo setObject:participant.signalingSessionId forKey:@"sessionId"];
                 }
 
-                [_participantsMap setObject:participant forKey:sessionId];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
             }
+
+            [_participantsMap setObject:participant forKey:participant.signalingSessionId];
         }
     } else if ([eventType isEqualToString:@"leave"]) {
         NSArray *leftSessions = [eventDict objectForKey:@"leave"];
         for (NSString *sessionId in leftSessions) {
-            NSString *userId = [self getUserIdFromSessionId:sessionId];
+            SignalingParticipant *participant = [self getParticipantFromSessionId:sessionId];
 
             [_participantsMap removeObjectForKey:sessionId];
 
-            if ([sessionId isEqualToString:_sessionId] || [userId isEqualToString:_userId]) {
+            if ([participant.signalingSessionId isEqualToString:_sessionId] || (!participant.isFederated && [participant.userId isEqualToString:_userId])) {
                 // Ignore own session
                 continue;
             }
@@ -601,8 +595,8 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
                 [userInfo setObject:_currentRoom forKey:@"roomToken"];
                 [userInfo setObject:sessionId forKey:@"sessionId"];
 
-                if (userId) {
-                    [userInfo setObject:userId forKey:@"userId"];
+                if (participant.userId) {
+                    [userInfo setObject:participant.userId forKey:@"userId"];
                 }
             }
 
@@ -661,6 +655,15 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         }
         NSArray *users = [updateDict objectForKey:@"users"];
         if (users) {
+            for (NSDictionary *userDict in users) {
+                NSString *sessionId = [userDict objectForKey:@"sessionId"];
+                SignalingParticipant *participant = [self getParticipantFromSessionId:sessionId];
+
+                if (participant) {
+                    [participant updateWithUpdateDictionary:userDict];
+                }
+            }
+
             [userInfo setObject:users forKey:@"users"];
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCExternalSignalingControllerDidUpdateParticipantsNotification
@@ -689,16 +692,14 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
                 [userInfo setObject:fromUser forKey:@"userId"];
             }
 
-            NSDictionary *participant = [_participantsMap objectForKey:fromSession];
+            SignalingParticipant *participant = [_participantsMap objectForKey:fromSession];
             if (participant) {
-                BOOL isFederated = [[participant objectForKey:@"federated"] boolValue];
+                BOOL isFederated = participant.isFederated;
                 [userInfo setObject:@(isFederated) forKey:@"isFederated"];
-            }
 
-            NSString *displayName = [self getDisplayNameFromSessionId:fromSession];
-
-            if (displayName) {
-                [userInfo setObject:displayName forKey:@"displayName"];
+                if (participant.displayName != nil) {
+                    [userInfo setObject:participant.displayName forKey:@"displayName"];
+                }
             }
         }
 
@@ -848,28 +849,9 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
 #pragma mark - Utils
 
-- (NSString *)getUserIdFromSessionId:(NSString *)sessionId
+- (SignalingParticipant *)getParticipantFromSessionId:(NSString *)sessionId
 {
-    NSString *userId = nil;
-    NSDictionary *user = [_participantsMap objectForKey:sessionId];
-    if (user) {
-        userId = [user objectForKey:@"userid"];
-    }
-    return userId;
-}
-
-- (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId
-{
-    NSString *displayName = nil;
-    NSDictionary *user = [_participantsMap objectForKey:sessionId];
-    if (user) {
-        NSDictionary *userSubKey = [user objectForKey:@"user"];
-        
-        if (userSubKey) {
-            displayName = [userSubKey objectForKey:@"displayname"];
-        }
-    }
-    return displayName;
+    return [_participantsMap objectForKey:sessionId];
 }
 
 - (NSMutableDictionary *)getParticipantMap

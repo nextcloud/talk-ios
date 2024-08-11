@@ -115,17 +115,17 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     [self resizeRemoteVideoView];
 }
 
-- (void)setUserAvatar:(NSString *)userId withDisplayName:(NSString *)displayName
+- (void)setAvatarForActor:(TalkActor * _Nullable)actor
 {
-    if (!userId || userId.length == 0) {
+    if (actor.id == nil || actor.id.length == 0) {
         [self setBackgroundColor:[UIColor colorWithWhite:0.5 alpha:1]];
-    } else if (displayName.length > 0) {
-        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:displayName]];
+    } else if (actor.displayName && actor.displayName.length > 0) {
+        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:actor.displayName]];
     } else {
-        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:userId]];
+        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:actor.id]];
     }
 
-    [self.peerAvatarImageView setActorAvatarForId:userId withType:@"users" withDisplayName:@"" withRoomToken:nil];
+    [self.peerAvatarImageView setActorAvatarForId:actor.id withType:actor.type withDisplayName:actor.displayName withRoomToken:nil];
 }
 
 - (void)setDisplayName:(NSString *)displayName

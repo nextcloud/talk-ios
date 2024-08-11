@@ -928,9 +928,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         peerConnectionWrapper.isOwnScreensharePeer = ownScreenshare;
         
         // Try to get displayName early
-        NSString *displayName = [self getDisplayNameFromSessionId:sessionId];
-        if (displayName) {
-            [peerConnectionWrapper setPeerName:displayName];
+        TalkActor *actor = [self getActorFromSessionId:sessionId];
+        if (actor && ![actor.rawDisplayName isEqualToString:@""]) {
+            [peerConnectionWrapper setPeerName:actor.displayName];
         }
         
         // Do not add local stream when using a MCU or to screensharing peers
@@ -1079,16 +1079,16 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     [userInfo setObject:roomType forKey:@"roomType"];
     [userInfo setValue:timeout forKey:@"timeout"];
 
+    NSTimer *pendingOfferTimer = [NSTimer timerWithTimeInterval:8.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
+    NSString *peerKey = [sessionId stringByAppendingString:roomType];
+    
+    [self->_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
+
     // Request new offer
     [self->_externalSignalingController requestOfferForSessionId:sessionId andRoomType:roomType];
-    // Set timeout to request new offer
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSTimer *pendingOfferTimer = [NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(requestNewOffer:) userInfo:userInfo repeats:YES];
 
-        NSString *peerKey = [sessionId stringByAppendingString:roomType];
-        [[WebRTCCommon shared] dispatch:^{
-            [self->_pendingOffersDict setObject:pendingOfferTimer forKey:peerKey];
-        }];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSRunLoop mainRunLoop] addTimer:pendingOfferTimer forMode:NSDefaultRunLoopMode];
     });
 }
 
@@ -1311,16 +1311,26 @@ static NSString * const kNCScreenTrackKind  = @"screen";
             // If there is already a peer connection but a new offer is received with a different sid the existing
             // peer connection is stale, so it needs to be removed and a new one created instead.
             NCPeerConnection *peerConnectionWrapper = [self getPeerConnectionWrapperForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
+            NSString *peerName;
             if (signalingMessage.messageType == kNCSignalingMessageTypeOffer && peerConnectionWrapper &&
                 signalingMessage.sid.length > 0 && ![signalingMessage.sid isEqualToString:peerConnectionWrapper.sid]) {
+
+                // Remember the peerName for the new connectionWrapper
+                peerName = peerConnectionWrapper.peerName;
                 [self cleanPeerConnectionForSessionId:signalingMessage.from ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
             }
 
             peerConnectionWrapper = [self getOrCreatePeerConnectionWrapperForSessionId:signalingMessage.from withSid:signalingMessage.sid ofType:signalingMessage.roomType forOwnScreenshare:isAnswerToOwnScreenshare];
             NCSessionDescriptionMessage *sdpMessage = (NCSessionDescriptionMessage *)signalingMessage;
             RTCSessionDescription *sessionDescription = sdpMessage.sessionDescription;
-            [peerConnectionWrapper setPeerName:sdpMessage.nick];
             [peerConnectionWrapper setRemoteDescription:sessionDescription];
+
+            if (sdpMessage.nick && ![sdpMessage.nick isEqualToString:@""]) {
+                [peerConnectionWrapper setPeerName:sdpMessage.nick];
+            } else if (peerName) {
+                [peerConnectionWrapper setPeerName:peerName];
+            }
+
             break;
         }
         case kNCSignalingMessageTypeCandidate:
@@ -1568,42 +1578,30 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     return sessions;
 }
 
-- (NSString *)getUserIdFromSessionId:(NSString *)sessionId
+- (TalkActor * _Nullable)getActorFromSessionId:(NSString *)sessionId
 {
     [[WebRTCCommon shared] assertQueue];
 
     if (_externalSignalingController) {
-        return [_externalSignalingController getUserIdFromSessionId:sessionId];
+        return [_externalSignalingController getParticipantFromSessionId:sessionId].actor;
     }
 
     NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:_account];
-    NSString *userId = nil;
+
     for (NSMutableDictionary *user in _peersInCall) {
         NSString *userSessionId = [user objectForKey:@"sessionId"];
         if ([userSessionId isEqualToString:sessionId]) {
-            userId = [user objectForKey:@"userId"];
+            TalkActor *actor = [[TalkActor alloc] initWithActorId:[user objectForKey:@"userId"] actorType:@"users" actorDisplayName:[user objectForKey:@"displayName"]];
+
             if (callAPIVersion >= APIv3) {
-                userId = [user objectForKey:@"actorId"];
+                [actor setId:[user objectForKey:@"actorId"]];
+                [actor setType:[user objectForKey:@"actorType"]];
             }
+
+            return actor;
         }
     }
-    return userId;
-}
 
-- (NSString *)getDisplayNameFromSessionId:(NSString *)sessionId
-{
-    [[WebRTCCommon shared] assertQueue];
-
-    if (_externalSignalingController) {
-        return [_externalSignalingController getDisplayNameFromSessionId:sessionId];
-    }
-    for (NSMutableDictionary *user in _peersInCall) {
-        NSString *userSessionId = [user objectForKey:@"sessionId"];
-        if ([userSessionId isEqualToString:sessionId]) {
-            return [user objectForKey:@"displayName"];
-        }
-    }
-    
     return nil;
 }
 

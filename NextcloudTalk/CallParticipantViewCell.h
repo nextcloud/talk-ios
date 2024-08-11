@@ -13,6 +13,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 @class CallParticipantViewCell;
 @class MDCActivityIndicator;
 @class AvatarImageView;
+@class TalkActor;
 
 @protocol CallParticipantViewCellDelegate <NSObject>
 - (void)cellWantsToPresentScreenSharing:(CallParticipantViewCell *)participantCell;
@@ -47,7 +48,7 @@ extern CGFloat const kCallParticipantCellMinHeight;
 
 - (void)setVideoView:(RTCMTLVideoView *)videoView;
 - (void)setSpeaking:(BOOL)speaking;
-- (void)setUserAvatar:(NSString *)userId withDisplayName:(NSString *)displayName;
+- (void)setAvatarForActor:(TalkActor *)actor;
 - (void)setRemoteVideoSize:(CGSize)size;
 - (void)setRaiseHand:(BOOL)raised;
 - (void)resizeRemoteVideoView;
