@@ -57,6 +57,6 @@ typedef void (^JoinRoomExternalSignalingCompletionBlock)(NSError *error);
 - (void)connect;
 - (void)forceConnect;
 - (void)disconnect;
-- (void)forceReconnect;
+- (void)forceReconnectForRejoin;
 
 @end

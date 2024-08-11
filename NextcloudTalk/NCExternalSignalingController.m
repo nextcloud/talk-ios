@@ -182,6 +182,17 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     });
 }
 
+- (void)forceReconnectForRejoin
+{
+    // In case we force reconnect in order to rejoin the call again, we need to keep the currently joined room.
+    // In `helloResponseReceived` we determine that we were in a room and that the sessionId changed, in that case
+    // we trigger a re-join in `NCRoomsManager` which takes care of re-joining.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_resumeId = nil;
+        [self reconnect];
+    });
+}
+
 - (void)disconnect
 {
     [NCUtils log:[NSString stringWithFormat:@"Disconnecting from: %@", _serverUrl]];

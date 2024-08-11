@@ -319,7 +319,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         self->_disableVideoAtStart = ![self isVideoEnabled];
 
         if (self->_externalSignalingController) {
-            [self->_externalSignalingController forceReconnect];
+            [self->_externalSignalingController forceReconnectForRejoin];
         } else {
             [self rejoinCallUsingInternalSignaling];
         }
