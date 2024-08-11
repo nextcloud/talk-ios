@@ -1578,7 +1578,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     return sessions;
 }
 
-- (TalkActor *)getActorFromSessionId:(NSString *)sessionId
+- (TalkActor * _Nullable)getActorFromSessionId:(NSString *)sessionId
 {
     [[WebRTCCommon shared] assertQueue];
 

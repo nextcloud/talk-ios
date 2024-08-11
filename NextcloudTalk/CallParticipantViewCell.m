@@ -115,7 +115,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     [self resizeRemoteVideoView];
 }
 
-- (void)setAvatarForActor:(TalkActor *)actor
+- (void)setAvatarForActor:(TalkActor * _Nullable)actor
 {
     if (actor.id == nil || actor.id.length == 0) {
         [self setBackgroundColor:[UIColor colorWithWhite:0.5 alpha:1]];
