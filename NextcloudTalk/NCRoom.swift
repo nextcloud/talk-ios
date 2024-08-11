@@ -58,9 +58,17 @@ import Realm
         return false
     }
 
+    public var supportsFederationV2: Bool {
+        guard self.isFederated else { return false }
+
+        let remoteSupported = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityFederationV2, for: self)
+        let localSupported = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV2, forAccountId: self.accountId)
+
+        return remoteSupported && localSupported
+    }
+
     public var supportsCalling: Bool {
-        // Federated calling is only supported with federation-v2
-        if self.isFederated, !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityFederationV2, for: self) {
+        if self.isFederated, !self.supportsFederationV2 {
             return false
         }
 
