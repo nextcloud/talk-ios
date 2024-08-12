@@ -194,7 +194,7 @@ import Foundation
 
     private func getSignalingSettingsHelper(for account: TalkAccount, forRoom token: String, withCompletion completion: @escaping (SignalingSettings?) -> Void) {
         // Currently we only need the signaling settings in case the room supports federation-v2
-        if let room = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: account.accountId), room.supportsFederationV2 {
+        if let room = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: account.accountId), room.supportsFederatedCalling {
             NCAPIController.sharedInstance().getSignalingSettings(for: account, forRoom: token) { signalingSettings, _ in
                 completion(signalingSettings)
             }
