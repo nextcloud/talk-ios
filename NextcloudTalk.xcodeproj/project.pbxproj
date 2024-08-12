@@ -49,11 +49,11 @@
 		1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */; };
 		1F1C999D2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
 		1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
-		1F1DF8412C63C25900E5EA86 /* UnitNCDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */; };
 		1F1DF83C2C5C17AF00E5EA86 /* TalkActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */; };
 		1F1DF83D2C5C17AF00E5EA86 /* TalkActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */; };
 		1F1DF83E2C5C17AF00E5EA86 /* TalkActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */; };
 		1F1DF83F2C5C17AF00E5EA86 /* TalkActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */; };
+		1F1DF8412C63C25900E5EA86 /* UnitNCDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */; };
 		1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
 		1F1DF8442C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
 		1F1DF8452C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
@@ -672,8 +672,8 @@
 		1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TalkCapabilities.m; sourceTree = "<group>"; };
 		1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VLCKitVideoViewController.xib; sourceTree = "<group>"; };
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
-		1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCDatabaseManager.swift; sourceTree = "<group>"; };
 		1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkActor.swift; sourceTree = "<group>"; };
+		1F1DF8402C63C25900E5EA86 /* UnitNCDatabaseManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCDatabaseManager.swift; sourceTree = "<group>"; };
 		1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingParticipant.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
 		1F24B5A328E0649200654457 /* ReferenceGithubView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubView.xib; sourceTree = "<group>"; };
@@ -3439,7 +3439,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3484,7 +3484,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3643,7 +3643,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3689,7 +3689,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3744,7 +3744,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3837,7 +3837,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3928,7 +3928,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -4001,7 +4001,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
