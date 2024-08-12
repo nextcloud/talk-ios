@@ -58,17 +58,23 @@ import Realm
         return false
     }
 
-    public var supportsFederationV2: Bool {
+    public var supportsFederatedCalling: Bool {
         guard self.isFederated else { return false }
 
-        let remoteSupported = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityFederationV2, for: self)
-        let localSupported = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV2, forAccountId: self.accountId)
+        let remoteCapabilitySupported = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityFederationV2, for: self)
+        let localCapabilitySupported = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV2, forAccountId: self.accountId)
 
-        return remoteSupported && localSupported
+        let remoteCallingEnabled = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self)?.callEnabled ?? false
+        let localCallingEnabled = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId)?.callEnabled ?? false
+
+        let capabilitySupported = remoteCapabilitySupported && localCapabilitySupported
+        let callingEnabled = remoteCallingEnabled && localCallingEnabled
+
+        return capabilitySupported && callingEnabled
     }
 
     public var supportsCalling: Bool {
-        if self.isFederated, !self.supportsFederationV2 {
+        if self.isFederated, !self.supportsFederatedCalling {
             return false
         }
 
