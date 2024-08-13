@@ -63,14 +63,19 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
     }
     
     if (statusImage) {
-        [_userStatusImageView setImage:statusImage];
-        _userStatusImageView.contentMode = UIViewContentModeCenter;
-        _userStatusImageView.layer.cornerRadius = 10;
-        _userStatusImageView.clipsToBounds = YES;
-
-        // When a background color is set directly to the cell it seems that there is no background configuration.
-        _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
+        [self setUserStatusIconWithImage:statusImage];
     }
+}
+
+- (void)setUserStatusIconWithImage:(UIImage *)image
+{
+    [_userStatusImageView setImage:image];
+    _userStatusImageView.contentMode = UIViewContentModeCenter;
+    _userStatusImageView.layer.cornerRadius = 10;
+    _userStatusImageView.clipsToBounds = YES;
+
+    // When a background color is set directly to the cell it seems that there is no background configuration.
+    _userStatusImageView.backgroundColor = (self.backgroundColor) ? self.backgroundColor : [[self backgroundConfiguration] backgroundColor];
 }
 
 - (void)setUserStatusMessage:(NSString *)userStatusMessage withIcon:(NSString *)userStatusIcon
