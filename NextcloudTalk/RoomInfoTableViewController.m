@@ -1286,7 +1286,7 @@ typedef enum FileAction {
     }
     
     if (canParticipantBeModerated) {
-        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1] && !participant.isGroup && !participant.isCircle) {
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1] && !participant.isGroup && !participant.isCircle && !participant.isFederated) {
             NSString *banTitle = NSLocalizedString(@"Ban participant", nil);
 
             UIAlertAction *banParticipant = [UIAlertAction actionWithTitle:banTitle

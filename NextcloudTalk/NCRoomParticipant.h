@@ -19,6 +19,7 @@ extern NSString * const NCAttendeeTypeGroup;
 extern NSString * const NCAttendeeTypeCircle;
 extern NSString * const NCAttendeeTypeGuest;
 extern NSString * const NCAttendeeTypeEmail;
+extern NSString * const NCAttendeeTypeFederated;
 
 extern NSString * const NCAttendeeBridgeBotId;
 
@@ -48,6 +49,7 @@ extern NSString * const NCAttendeeBridgeBotId;
 - (BOOL)isGroup;
 - (BOOL)isCircle;
 - (BOOL)isOffline;
+- (BOOL)isFederated;
 - (NSString *)detailedName;
 - (NSString *)participantId;
 
