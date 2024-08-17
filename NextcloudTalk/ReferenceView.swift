@@ -113,6 +113,16 @@ class ReferenceView: UIView {
 
             referenceView.addSubview(githubPermalinkView)
             foundReferenceView = true
+        } else if richObjectType == "integration_zammad",
+                  let reference = firstReference["richObject"] as? [String: AnyObject] {
+
+            let zammadView = ReferenceZammadView(frame: self.frame)
+            zammadView.update(for: reference, and: url)
+            zammadView.frame = self.bounds
+            zammadView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+            referenceView.addSubview(zammadView)
+            foundReferenceView = true
         } else if richObjectType == "deck-card",
                   let reference = firstReference["richObject"] as? [String: AnyObject] {
 

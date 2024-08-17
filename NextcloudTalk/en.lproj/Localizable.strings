@@ -1915,6 +1915,9 @@
 /* No comment provided by engineer. */
 "Your postal address" = "Your postal address";
 
+/* 'Zammad' is a product name */
+"Zammad API error" = "Zammad API error";
+
 /* Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them */
 "{actor0} added you and %ld more participants" = "{actor0} added you and %ld more participants";
 
