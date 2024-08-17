@@ -2258,21 +2258,10 @@ typedef enum FileAction {
             // Avatar
             [cell.contactImage setActorAvatarForId:participant.actorId withType:participant.actorType withDisplayName:participant.displayName withRoomToken:self.room.token];
 
-            // Online status
-            if (participant.isOffline) {
-                cell.contactImage.alpha = 0.5;
-                cell.labelTitle.alpha = 0.5;
-                cell.userStatusMessageLabel.alpha = 0.5;
-            } else {
-                cell.contactImage.alpha = 1;
-                cell.labelTitle.alpha = 1;
-                cell.userStatusMessageLabel.alpha = 1;
-            }
-            
             // User status
             [cell setUserStatus:participant.status];
             
-            //User status message
+            // User status message
             [cell setUserStatusMessage:participant.statusMessage withIcon:participant.statusIcon];
             
             if (!participant.statusMessage || [participant.statusMessage isEqualToString:@""]) {
@@ -2282,7 +2271,29 @@ typedef enum FileAction {
                     [cell setUserStatusMessage: NSLocalizedString(@"Away", nil) withIcon:nil];
                 }
             }
-            
+
+            // Federated users
+            if (participant.isFederated) {
+                UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:14];
+                UIImage *publicRoomImage = [UIImage systemImageNamed:@"globe"];
+                publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+                publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
+                [cell setUserStatusIconWithImage:publicRoomImage];
+            }
+
+            // Online status
+            if (participant.isOffline) {
+                cell.contactImage.alpha = 0.5;
+                cell.labelTitle.alpha = 0.5;
+                cell.userStatusMessageLabel.alpha = 0.5;
+                cell.userStatusImageView.alpha = 0.5;
+            } else {
+                cell.contactImage.alpha = 1;
+                cell.labelTitle.alpha = 1;
+                cell.userStatusMessageLabel.alpha = 1;
+                cell.userStatusImageView.alpha = 1;
+            }
+
             // Call status
             if (participant.callIconImageName) {
                 cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:participant.callIconImageName]];
