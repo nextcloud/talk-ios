@@ -134,6 +134,10 @@ typedef enum FileAction {
 @property (nonatomic, strong) UIAlertAction *setPasswordAction;
 @property (nonatomic, strong) UIActivityIndicatorView *fileDownloadIndicator;
 @property (nonatomic, strong) NSString *previewControllerFilePath;
+@property (nonatomic, strong) UIAlertAction *banAction;
+
+@property (nonatomic, weak) UITextField *setPasswordTextField;
+@property (nonatomic, weak) UITextField *banInternalNoteTextField;
 
 @end
 
@@ -819,6 +823,8 @@ typedef enum FileAction {
         textField.placeholder = NSLocalizedString(@"Password", nil);
         textField.secureTextEntry = YES;
         textField.delegate = weakSelf;
+
+        weakSelf.setPasswordTextField = textField;
     }];
     
     NSString *actionTitle = _room.hasPassword ? NSLocalizedString(@"Change password", nil) : NSLocalizedString(@"OK", nil);
@@ -1368,12 +1374,15 @@ typedef enum FileAction {
                                         message:NSLocalizedString(@"Add an internal note about this ban", nil)
                                  preferredStyle:UIAlertControllerStyleAlert];
 
+    __weak typeof(self) weakSelf = self;
     [internalNoteController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = NSLocalizedString(@"Internal note", @"Internal note about why a user/guest was banned");
+        textField.delegate = weakSelf;
+
+        weakSelf.banInternalNoteTextField = textField;
     }];
 
-    // TODO: Do we need to enforce a maximum length for the internal note?
-    UIAlertAction *banAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ban", @"Ban a user/guest") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    _banAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ban", @"Ban a user/guest") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSString *internalNote = [[internalNoteController textFields][0] text];
         NSString *trimmedInternalNote = [internalNote stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 
@@ -1389,7 +1398,7 @@ typedef enum FileAction {
         }];
     }];
 
-    [internalNoteController addAction:banAction];
+    [internalNoteController addAction:_banAction];
 
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [internalNoteController addAction:cancelAction];
@@ -1566,14 +1575,24 @@ typedef enum FileAction {
     if (range.length + range.location > textField.text.length) {
         return NO;
     }
+
     // Set maximum character length
     NSUInteger newLength = [textField.text length] + [string length] - range.length;
-    BOOL hasAllowedLength = newLength <= 200;
-    // Enable/Disable password confirmation button
-    if (hasAllowedLength) {
+
+    NSUInteger allowedLength = 200;
+
+    if (textField == _banInternalNoteTextField) {
+        allowedLength = 4000;
+    }
+
+    BOOL hasAllowedLength = newLength <= allowedLength;
+
+    // An internal note on banning is optional, so only enable/disable password confirmation button
+    if (hasAllowedLength && textField == _setPasswordTextField) {
         NSString *newValue = [[textField.text stringByReplacingCharactersInRange:range withString:string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         _setPasswordAction.enabled = (newValue.length > 0);
     }
+
     return hasAllowedLength;
 }
 
