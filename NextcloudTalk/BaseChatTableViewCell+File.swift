@@ -123,14 +123,29 @@ extension BaseChatTableViewCell {
             return
         }
 
+        let isVideoFile = NCUtils.isVideo(fileType: message.file().mimetype)
+        let isMediaFile = isVideoFile || NCUtils.isImage(fileType: message.file().mimetype)
+
+        var placeholderImage: UIImage?
+        var previewImageHeight: CGFloat?
+
         // In case we can determine the height before requesting the preview, adjust the imageView constraints accordingly
         if file.previewImageHeight > 0 {
-            self.filePreviewImageViewHeightConstraint?.constant = CGFloat(file.previewImageHeight)
+            previewImageHeight = CGFloat(file.previewImageHeight)
         } else {
             let estimatedPreviewHeight = BaseChatTableViewCell.getEstimatedPreviewSize(for: message)
 
             if estimatedPreviewHeight > 0 {
-                self.filePreviewImageViewHeightConstraint?.constant = estimatedPreviewHeight
+                previewImageHeight = estimatedPreviewHeight
+            }
+        }
+
+        if let previewImageHeight {
+            self.filePreviewImageViewHeightConstraint?.constant = previewImageHeight
+
+            if let blurhash = message.file()?.blurhash {
+                // TODO: Need to determine width as well, we currently only store the height in some cases
+                placeholderImage = .init(blurHash: blurhash, size: .init(width: 250, height: previewImageHeight))
             }
         }
 
@@ -177,7 +192,7 @@ extension BaseChatTableViewCell {
         let requestedHeight = Int(3 * fileMessageCellFileMaxPreviewHeight)
         guard let previewRequest = NCAPIController.sharedInstance().createPreviewRequest(forFile: file.parameterId, withMaxHeight: requestedHeight, using: account) else { return }
 
-        self.filePreviewImageView?.setImageWith(previewRequest, placeholderImage: nil, success: {  [weak self] _, _, image in
+        self.filePreviewImageView?.setImageWith(previewRequest, placeholderImage: placeholderImage, success: {  [weak self] _, _, image in
             guard let self, let imageView = self.filePreviewImageView else { return }
 
             imageView.image = image
