@@ -20,6 +20,7 @@
         self.previewImageHeight = [[parameterDict objectForKey:@"preview-image-height"] intValue];
         self.width = [[parameterDict objectForKey:@"width"] intValue];
         self.height = [[parameterDict objectForKey:@"height"] intValue];
+        self.blurhash = [parameterDict objectForKey:@"blurhash"];
     }
     
     return self;
