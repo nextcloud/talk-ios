@@ -203,26 +203,40 @@ import Foundation
         }
     }
 
-    public func rejoinRoom(_ token: String) {
+    public func rejoinRoom(_ token: String, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) {
         guard let roomController = self.activeRooms[token] as? NCRoomController else { return }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         self.joiningRoomToken = token
-        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, _, error, statusCode, _ in
+        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode, statusReason in
             if error == nil {
                 roomController.userSessionId = sessionId
                 roomController.inChat = true
 
-                if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
-                    self.getSignalingSettingsHelper(for: activeAccount, forRoom: token) { signalingSettings in
-                        let federation = signalingSettings?.getFederationJoinDictionary()
+                guard let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
+                else {
+                    // Joined room in NC successfully and no external signaling server configured.
+                    completionBlock(sessionId, room, nil, 0, nil)
+                    return
+                }
 
-                        extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation, withCompletionBlock: nil)
+                self.getSignalingSettingsHelper(for: activeAccount, forRoom: token) { signalingSettings in
+                    let federation = signalingSettings?.getFederationJoinDictionary()
+
+                    extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
+                        if error == nil {
+                            NCUtils.log("Re-Joined room \(token) in external signaling server successfully.")
+                            completionBlock(sessionId, room, nil, 0, nil)
+                        } else {
+                            NCUtils.log("Failed re-joining room \(token) in external signaling server.")
+                            completionBlock(nil, nil, error, statusCode, statusReason)
+                        }
                     }
                 }
             } else {
-                print("Could not re-join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "Unknown")")
+                NCUtils.log("Could not re-join room \(token). Status code: \(statusCode). Error: \(error?.localizedDescription ?? "Unknown")")
+                completionBlock(nil, nil, error, statusCode, statusReason)
             }
 
             self.joiningRoomToken = nil

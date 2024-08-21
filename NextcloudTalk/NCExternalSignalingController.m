@@ -188,8 +188,16 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     // In `helloResponseReceived` we determine that we were in a room and that the sessionId changed, in that case
     // we trigger a re-join in `NCRoomsManager` which takes care of re-joining.
     dispatch_async(dispatch_get_main_queue(), ^{
-        self->_resumeId = nil;
-        [self reconnect];
+        NSDictionary *byeDict = @{
+            @"type": @"bye",
+            @"bye": @{}
+        };
+
+        // Close our current session. Don't leave the room, as that would defeat the above mentioned purpose
+        [self sendMessage:byeDict withCompletionBlock:^(NSURLSessionWebSocketTask *task, NCExternalSignalingSendMessageStatus status) {
+            self->_resumeId = nil;
+            [self reconnect];
+        }];
     });
 }
 
@@ -359,7 +367,9 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     // Re-join if user was in a room
     if (_currentRoom && _sessionChanged) {
         [self.delegate externalSignalingControllerWillRejoinCall:self];
-        [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom];
+        [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom completionBlock:^(NSString * _Nullable, NCRoom * _Nullable, NSError * _Nullable, NSInteger, NSString * _Nullable) {
+            // TODO: Instead of waiting for a room message, can we call [self.delegate externalSignalingControllerShouldRejoinCall:self]; here?
+        }];
     }
 }
 

@@ -200,6 +200,11 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                 self->_joinedCallOnce = YES;
                 self->_joinCallAttempts = 0;
             } else {
+                if (error.code == NSURLErrorCancelled) {
+                    self->_joinCallAttempts = 0;
+                    return;
+                }
+
                 if (self->_joinCallAttempts < 3) {
                     NSLog(@"Could not join call, retrying. %ld", (long)self->_joinCallAttempts);
                     self->_joinCallAttempts += 1;
@@ -310,6 +315,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     [NCUtils log:@"Force reconnect"];
 
     [[WebRTCCommon shared] dispatch:^{
+        [self.joinCallTask cancel];
+        self.joinCallTask = nil;
+
         self->_userInCall = 0;
         [self cleanCurrentPeerConnections];
         [self.delegate callControllerIsReconnectingCall:self];
@@ -318,11 +326,12 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         self->_disableAudioAtStart = ![self isAudioEnabled];
         self->_disableVideoAtStart = ![self isVideoEnabled];
 
-        if (self->_externalSignalingController) {
-            [self->_externalSignalingController forceReconnectForRejoin];
-        } else {
+        if (!self->_externalSignalingController) {
             [self rejoinCallUsingInternalSignaling];
+            return;
         }
+
+        [self->_externalSignalingController forceReconnectForRejoin];
     }];
 }
 
@@ -1244,9 +1253,14 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     // Also we should check that it has joined the call first with the startCall method.
 
     [[WebRTCCommon shared] dispatch:^{
-        if (self->_preparedForRejoin && self->_joinedCallOnce) {
+        if (self->_preparedForRejoin) {
             self->_preparedForRejoin = NO;
-            [self shouldRejoinCall];
+
+            if (self->_joinedCallOnce) {
+                [self shouldRejoinCall];
+            } else {
+                [self joinCall];
+            }
         }
     }];
 }
