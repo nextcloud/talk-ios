@@ -1264,13 +1264,17 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callDurationTimerUpdate
 {
+    NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
+
     // In case we are the ones who start the call, we don't have the server-side callStartTime, so we set it locally
     if (self.room.callStartTime == 0) {
-        self.room.callStartTime = [[NSDate date] timeIntervalSince1970];
+        self.room.callStartTime = currentTimestamp;
     }
 
-    NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
-    long callDuration = currentTimestamp - self.room.callStartTime;
+    // Make sure that the remote callStartTime is not in the future
+    NSInteger callStartTime = MIN(self.room.callStartTime, currentTimestamp);
+
+    long callDuration = currentTimestamp - callStartTime;
     long oneHourInSeconds = 60 * 60;
 
     long hours = callDuration / 3600;
