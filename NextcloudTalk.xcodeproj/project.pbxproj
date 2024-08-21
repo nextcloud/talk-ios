@@ -337,6 +337,8 @@
 		1FF4DAAB2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
 		1FF4DAAC2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
 		1FF4DAAD2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
+		1FFF41622C70937B00162F4D /* ReferenceZammadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF41612C70937B00162F4D /* ReferenceZammadView.swift */; };
+		1FFF41642C70938700162F4D /* ReferenceZammadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FFF41632C70938700162F4D /* ReferenceZammadView.xib */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -815,6 +817,8 @@
 		1FF4DAA52C08D81D00C1B952 /* UnitNCChatMessageTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCChatMessageTest.swift; sourceTree = "<group>"; };
 		1FF4DAA72C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitNCRoomsManagerTest.swift; sourceTree = "<group>"; };
 		1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OcsResponse.swift; sourceTree = "<group>"; };
+		1FFF41612C70937B00162F4D /* ReferenceZammadView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceZammadView.swift; sourceTree = "<group>"; };
+		1FFF41632C70938700162F4D /* ReferenceZammadView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceZammadView.xib; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1323,6 +1327,8 @@
 				1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */,
 				1F24B5A128E0648600654457 /* ReferenceGithubView.swift */,
 				1F24B5A328E0649200654457 /* ReferenceGithubView.xib */,
+				1FFF41612C70937B00162F4D /* ReferenceZammadView.swift */,
+				1FFF41632C70938700162F4D /* ReferenceZammadView.xib */,
 				1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */,
 				1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */,
 				1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */,
@@ -2442,6 +2448,7 @@
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
 				1F785DDE2707865F00AC4B40 /* VoiceMessageTranscribeViewController.xib in Resources */,
 				2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */,
+				1FFF41642C70938700162F4D /* ReferenceZammadView.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */,
 				1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */,
@@ -2954,6 +2961,7 @@
 				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				1F77A6172AB9B161007B6037 /* ScreenCapturer.m in Sources */,
+				1FFF41622C70937B00162F4D /* ReferenceZammadView.swift in Sources */,
 				1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */,
 				DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift in Sources */,
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,

@@ -16,3 +16,4 @@ nextcloud
 CallKit
 Unban
 unban
+Zammad
