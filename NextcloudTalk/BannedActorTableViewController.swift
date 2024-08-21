@@ -41,8 +41,9 @@
         self.tableView.register(UINib(nibName: bannedActorCellIdentifier, bundle: nil), forCellReuseIdentifier: bannedActorCellIdentifier)
         self.tableView.backgroundView = backgroundView
 
-        // We only want the loadingView, so always hide the placeholder
         self.backgroundView.placeholderView.isHidden = true
+        self.backgroundView.placeholderTextView.text = NSLocalizedString("No banned users or guests", comment: "")
+        self.backgroundView.setImage(UIImage(systemName: "person.badge.minus"))
         self.backgroundView.loadingView.startAnimating()
 
         self.modifyingViewIndicator.color = NCAppBranding.themeTextColor()
@@ -62,6 +63,7 @@
 
             self.backgroundView.loadingView.stopAnimating()
             self.backgroundView.loadingView.isHidden = true
+            self.backgroundView.placeholderView.isHidden = !self.bannedActors.isEmpty
 
             self.tableView.reloadData()
             self.hideActivityIndicator()
