@@ -132,7 +132,6 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, assign) NSInteger participantFlags;
 @property (nonatomic, assign) NSInteger permissions;
 @property (nonatomic, assign) NSInteger attendeePermissions;
-@property (nonatomic, assign) NSInteger callPermissions;
 @property (nonatomic, assign) NSInteger defaultPermissions;
 @property (nonatomic, assign) NSInteger callRecording;
 @property (nonatomic, assign) NSInteger callStartTime;
