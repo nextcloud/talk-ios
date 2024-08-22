@@ -366,9 +366,11 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     
     // Re-join if user was in a room
     if (_currentRoom && _sessionChanged) {
+        _sessionChanged = NO;
         [self.delegate externalSignalingControllerWillRejoinCall:self];
+
         [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom completionBlock:^(NSString * _Nullable, NCRoom * _Nullable, NSError * _Nullable, NSInteger, NSString * _Nullable) {
-            // TODO: Instead of waiting for a room message, can we call [self.delegate externalSignalingControllerShouldRejoinCall:self]; here?
+            [self.delegate externalSignalingControllerShouldRejoinCall:self];
         }];
     }
 }
@@ -548,12 +550,6 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     
     NSString *messageId = [messageDict objectForKey:@"id"];
     [self executeCompletionBlockForMessageId:messageId withStatus:SendMessageSuccess];
-    
-    // Notify that session has change to rejoin the call if currently in a call
-    if (_sessionChanged) {
-        _sessionChanged = NO;
-        [self.delegate externalSignalingControllerShouldRejoinCall:self];
-    }
 }
 
 - (void)eventMessageReceived:(NSDictionary *)eventDict
