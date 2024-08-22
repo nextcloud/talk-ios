@@ -2024,6 +2024,7 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 {
     [self removePeer:peer];
 }
+
 - (void)callController:(NCCallController *)callController didCreateCameraController:(NCCameraController *)cameraController
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -2207,7 +2208,24 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callControllerIsReconnectingCall:(NCCallController *)callController
 {
-    [self setCallState:CallStateReconnecting];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Cancel any pending operations
+        _pendingPeerInserts = [[NSMutableArray alloc] init];
+        _pendingPeerDeletions = [[NSMutableArray alloc] init];
+        _pendingPeerUpdates = [[NSMutableArray alloc] init];
+        _peersInCall = [[NSMutableArray alloc] init];
+
+        // Reset a potential queued batch update
+        [self->_batchUpdateTimer invalidate];
+        self->_batchUpdateTimer = nil;
+
+        // Force the collectionView to reload all data
+        [self.collectionView reloadData];
+        [self.collectionView.collectionViewLayout invalidateLayout];
+        [self.collectionView layoutSubviews];
+
+        [self setCallState:CallStateReconnecting];
+    });
 }
 
 - (void)callControllerWantsToHangUpCall:(NCCallController *)callController
