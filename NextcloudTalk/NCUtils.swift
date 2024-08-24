@@ -430,9 +430,9 @@ import AVFoundation
         // We don't expect an alpha component right now
         return String(
             format: "#%02lX%02lX%02lX",
-            Int(red * multiplier),
-            Int(green * multiplier),
-            Int(blue * multiplier)
+            min(Int(red * multiplier), 255),
+            min(Int(green * multiplier), 255),
+            min(Int(blue * multiplier), 255)
         )
     }
 
