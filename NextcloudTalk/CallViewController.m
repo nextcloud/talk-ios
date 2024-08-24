@@ -2043,12 +2043,20 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
 - (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions
 {
-    [self setAudioMuteButtonEnabled:(permissions & NCPermissionCanPublishAudio)];
+    [self setAudioMuteButtonEnabled:(permissions & NCPermissionCanPublishAudio) && [callController isMicrophoneAccessAvailable]];
     [self setVideoDisableButtonEnabled:((permissions & NCPermissionCanPublishVideo) && [callController isCameraAccessAvailable])];
 }
 
 - (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack
 {
+    if (!audioTrack) {
+        // No audio track was created, probably because there are no publishing rights or microphone access was denied
+        [self setAudioMuteButtonEnabled:NO];
+        [self setAudioMuteButtonActive:NO];
+
+        return;
+    }
+
     [self setAudioMuteButtonActive:audioTrack.isEnabled];
 }
 
