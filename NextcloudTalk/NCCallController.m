@@ -208,7 +208,15 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                 if (self->_joinCallAttempts < 3) {
                     NSLog(@"Could not join call, retrying. %ld", (long)self->_joinCallAttempts);
                     self->_joinCallAttempts += 1;
-                    [self joinCall];
+
+                    if (statusCode == 404) {
+                        // The conversation was not correctly joined by us / our session expired
+                        // Instead of joining again, try to reconnect to correctly join the conversation again
+                        [self forceReconnect];
+                    } else {
+                        [self joinCall];
+                    }
+
                     return;
                 }
 
