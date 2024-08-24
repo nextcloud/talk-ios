@@ -82,7 +82,10 @@ import SwiftyAttributes
 
         let userCanDeleteMessage = sameUser || moderatorUser
 
-        return serverCanEditMessage && userCanDeleteMessage && (self.timestamp >= twentyFourHoursAgoTimestamp)
+        let noTimeLimitForMessageEdit = (room.type == .noteToSelf) && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityEditMessagesNoteToSelf, forAccountId: account.accountId)
+        let editAllowedByTime = noTimeLimitForMessageEdit || (self.timestamp >= twentyFourHoursAgoTimestamp)
+
+        return serverCanEditMessage && userCanDeleteMessage && editAllowedByTime
     }
 
     public var isObjectShare: Bool {
