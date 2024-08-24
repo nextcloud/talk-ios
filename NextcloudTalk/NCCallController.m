@@ -490,6 +490,12 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     return (authStatus == AVAuthorizationStatusAuthorized);
 }
 
+- (BOOL)isMicrophoneAccessAvailable
+{
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+    return (authStatus == AVAuthorizationStatusAuthorized);
+}
+
 - (void)stopCapturing
 {
     [self.cameraController stopAVCaptureSession];
@@ -856,7 +862,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         self->_localAudioTrack = nil;
         self->_localVideoTrack = nil;
 
-        if ((self->_userPermissions & NCPermissionCanPublishAudio) != 0 || !self->_serverSupportsConversationPermissions) {
+        BOOL hasPublishAudioPermission = ((self->_userPermissions & NCPermissionCanPublishAudio) != 0 || !self->_serverSupportsConversationPermissions);
+
+        if (hasPublishAudioPermission && [self isMicrophoneAccessAvailable]) {
             [self createLocalAudioTrack];
         } else {
             [self.delegate callController:self didCreateLocalAudioTrack:nil];
