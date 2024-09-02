@@ -55,7 +55,7 @@ import Foundation
         }
 
         if let url = federation["nextcloudServer"] as? String {
-            // TODO: Add index.php here to be safe?
+            // No `index.php` required here, as this is an ocs route
             result["url"] = url + "/ocs/v2.php/apps/spreed/api/v3/signaling/backend"
         }
 
