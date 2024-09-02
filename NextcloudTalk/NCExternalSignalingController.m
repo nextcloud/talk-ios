@@ -41,7 +41,6 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 @property (nonatomic, strong) NSMutableArray *messagesWithCompletionBlocks;
 @property (nonatomic, assign) NSInteger reconnectInterval;
 @property (nonatomic, strong) NSTimer *reconnectTimer;
-@property (nonatomic, assign) BOOL sessionChanged;
 @property (nonatomic, assign) NSInteger disconnectTime;
 
 @end
@@ -340,9 +339,11 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 
     NSDictionary *helloDict = [messageDict objectForKey:@"hello"];
     _resumeId = [helloDict objectForKey:@"resumeid"];
+
     NSString *newSessionId = [helloDict objectForKey:@"sessionid"];
-    _sessionChanged = _sessionId && ![_sessionId isEqualToString:newSessionId];
+    BOOL sessionChanged = _sessionId && ![_sessionId isEqualToString:newSessionId];
     _sessionId = newSessionId;
+
     NSArray *serverFeatures = [[helloDict objectForKey:@"server"] objectForKey:@"features"];
     for (NSString *feature in serverFeatures) {
         if ([feature isEqualToString:@"mcu"]) {
@@ -365,11 +366,11 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
     });
     
     // Re-join if user was in a room
-    if (_currentRoom && _sessionChanged) {
-        _sessionChanged = NO;
+    if (_currentRoom && sessionChanged) {
+        sessionChanged = NO;
         [self.delegate externalSignalingControllerWillRejoinCall:self];
 
-        [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom completionBlock:^(NSString * _Nullable, NCRoom * _Nullable, NSError * _Nullable, NSInteger, NSString * _Nullable) {
+        [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom completionBlock:^(NSString * _Nullable sessionId, NCRoom * _Nullable room, NSError * _Nullable error, NSInteger statusCode, NSString * _Nullable statusReason) {
             [self.delegate externalSignalingControllerShouldRejoinCall:self];
         }];
     }
