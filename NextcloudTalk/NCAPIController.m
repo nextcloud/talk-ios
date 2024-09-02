@@ -123,9 +123,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     // Make sure we support self-signed certificates we trusted before
     [[SDWebImageDownloader sharedDownloader].config setOperationClass:[NCWebImageDownloaderOperation class]];
 
-    // Set the caching path to be in our app group and limit size to 100 MB
-    NSURL *avatarCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
-    SDImageCache.defaultDiskCacheDirectory = avatarCacheURL.path;
+    // Try to remove legacy avatar cache in app group
+    NSURL *legacyCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
+    if (legacyCacheURL != nil) {
+        [[NSFileManager defaultManager] removeItemAtURL:legacyCacheURL error:nil];
+    }
+
+    // Limit the cache size to 100 MB and prevent uploading to iCloud
+    // Don't set the path to an app group in order to prevent crashes
     [SDImageCache sharedImageCache].config.shouldDisableiCloud = YES;
     [SDImageCache sharedImageCache].config.maxDiskSize = 100 * 1024 * 1024;
 
