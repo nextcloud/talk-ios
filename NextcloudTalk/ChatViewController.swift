@@ -26,6 +26,8 @@ import UIKit
     private var offlineMode = false
     private var hasStoredHistory = true
     private var hasStopped = false
+    private var viewWasShown = false
+    private var roomWasUpdated = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
 
@@ -187,8 +189,23 @@ import UIKit
         }
 
         if !self.offlineMode {
+            if self.room == nil {
+                fatalRoomError("Room should not be nil")
+            }
+
+            if self.room.token == nil {
+                fatalRoomError("Room token should not be nil")
+            }
+
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
+
+        self.viewWasShown = true
+    }
+
+    private func fatalRoomError(_ message: String) {
+        let errorMessage = "\(message): WasShown \(self.viewWasShown) | RoomWasUpdated \(self.roomWasUpdated)"
+        fatalError(errorMessage)
     }
 
     public override func viewWillDisappear(_ animated: Bool) {
@@ -649,6 +666,8 @@ import UIKit
         if room.token != self.room.token {
             return
         }
+
+        self.roomWasUpdated = true
 
         self.room = room
         self.setTitleView()
