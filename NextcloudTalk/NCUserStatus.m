@@ -138,4 +138,12 @@ NSString * const kUserStatusOffline     = @"offline";
     return [UIImage systemImageNamed:@"person.fill.questionmark"];
 }
 
+- (BOOL)hasVisibleStatusIcon
+{
+    return [_status isEqualToString:kUserStatusOnline] ||
+    [_status isEqualToString:kUserStatusAway] ||
+    [_status isEqualToString:kUserStatusDND] ||
+    [_status isEqualToString:kUserStatusInvisible];
+}
+
 @end

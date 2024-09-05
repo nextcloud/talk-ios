@@ -528,6 +528,7 @@
 		2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */; };
 		2CB997C62A052449003C41AC /* EmojiAvatarPickerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */; };
+		2CBD0D5A2C8770A40013C089 /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBD0D592C8770A40013C089 /* UIImageExtension.swift */; };
 		2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82AD1FC888FC00636459 /* NCPushNotification.m */; };
 		2CBF82B21FCC7DBA00636459 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CC0015324A1F0E900A20167 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC0015224A1F0E900A20167 /* NotificationService.m */; };
@@ -1110,6 +1111,7 @@
 		2CB6ACE82641954700D3D641 /* MapViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MapViewController.xib; sourceTree = "<group>"; };
 		2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiAvatarPickerViewController.swift; sourceTree = "<group>"; };
 		2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EmojiAvatarPickerViewController.xib; sourceTree = "<group>"; };
+		2CBD0D592C8770A40013C089 /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
 		2CBF82AC1FC888FC00636459 /* NCPushNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPushNotification.h; sourceTree = "<group>"; };
 		2CBF82AD1FC888FC00636459 /* NCPushNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPushNotification.m; sourceTree = "<group>"; };
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
@@ -1612,6 +1614,7 @@
 				2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */,
 				1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */,
 				1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */,
+				2CBD0D592C8770A40013C089 /* UIImageExtension.swift */,
 				1F1B0F312BDC57E3003FD766 /* UIPageViewControllerExtension.swift */,
 				1F1B0F352BDD8B9C003FD766 /* NCActivityIndicator.swift */,
 			);
@@ -2940,6 +2943,7 @@
 				2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */,
 				2C21446E2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift in Sources */,
 				2C4230F72B207AB00013E1FA /* ContextChatViewController.swift in Sources */,
+				2CBD0D5A2C8770A40013C089 /* UIImageExtension.swift in Sources */,
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
 				1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
