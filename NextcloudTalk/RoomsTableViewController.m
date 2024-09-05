@@ -41,7 +41,7 @@ typedef enum RoomsSections {
     kRoomsSectionRoomList
 } RoomsSections;
 
-@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
+@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UserStatusViewDelegate>
 {
     RLMNotificationToken *_rlmNotificationToken;
     NSMutableArray *_rooms;
@@ -442,6 +442,13 @@ typedef enum RoomsSections {
     AudioServicesPlaySystemSound(1519);
 }
 
+#pragma mark - User Status SwiftUI View Delegate
+
+- (void)userStatusViewDidDisappear
+{
+    [self getUserStatusWithCompletionBlock:nil];
+}
+
 #pragma mark - Title menu
 
 - (void)setNavigationLogoButton
@@ -471,7 +478,7 @@ typedef enum RoomsSections {
 
             NCUserStatus *userStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
             UIImage *userStatusImage = [userStatus getSFUserStatusIcon];
-            UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus];
+            UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus delegate:self];
 
             UIAction *onlineOption = [UIAction actionWithTitle:[userStatus readableUserStatusOrMessage] image:userStatusImage identifier:nil handler:^(UIAction *action) {
                 [self presentViewController:vc animated:YES completion:nil];
