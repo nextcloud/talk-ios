@@ -809,6 +809,8 @@ typedef enum RoomsSections {
         case kAppStateMissingServerCapabilities:
         case kAppStateMissingSignalingConfiguration:
         {
+            // Clear active user status when changing users
+            _activeUserStatus = nil;
             [self setProfileButton];
         }
             break;
