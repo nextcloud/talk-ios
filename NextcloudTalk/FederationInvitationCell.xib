@@ -19,23 +19,17 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mNx-yG-fAe" userLabel="Label View">
-                        <rect key="frame" x="12" y="12" width="398" height="36"/>
+                        <rect key="frame" x="12" y="12" width="398" height="37"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XBj-oY-kPW" userLabel="ConversationName Label">
-                                <rect key="frame" x="0.0" y="0.0" width="398" height="20"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="20" id="YoD-zL-1qj"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="0.0" y="0.0" width="398" height="20.5"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ghb-EI-AhT" userLabel="Details Label">
-                                <rect key="frame" x="0.0" y="22" width="398" height="14"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="14" id="oP4-Gm-srE"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ghb-EI-AhT" userLabel="Details Label">
+                                <rect key="frame" x="0.0" y="24.5" width="398" height="12.5"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <color key="textColor" systemColor="secondaryLabelColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -43,24 +37,26 @@
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="ghb-EI-AhT" secondAttribute="trailing" id="1SQ-c8-RyU"/>
                             <constraint firstItem="XBj-oY-kPW" firstAttribute="leading" secondItem="mNx-yG-fAe" secondAttribute="leading" id="2Xu-Rj-GrX"/>
+                            <constraint firstItem="ghb-EI-AhT" firstAttribute="top" secondItem="XBj-oY-kPW" secondAttribute="bottom" constant="4" id="75S-XL-Y1T"/>
                             <constraint firstItem="ghb-EI-AhT" firstAttribute="leading" secondItem="mNx-yG-fAe" secondAttribute="leading" id="DWw-7B-Hae"/>
                             <constraint firstAttribute="bottom" secondItem="ghb-EI-AhT" secondAttribute="bottom" id="H24-hD-zTW"/>
                             <constraint firstAttribute="trailing" secondItem="XBj-oY-kPW" secondAttribute="trailing" id="d4Q-Ra-0d6"/>
                             <constraint firstItem="XBj-oY-kPW" firstAttribute="top" secondItem="mNx-yG-fAe" secondAttribute="top" id="e9M-Gj-Xs8"/>
-                            <constraint firstAttribute="height" constant="36" id="qo9-SF-MyP"/>
                         </constraints>
                     </view>
                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="OmP-GW-Hgh">
-                        <rect key="frame" x="259" y="60" width="151" height="38"/>
+                        <rect key="frame" x="250" y="61" width="160" height="37"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1qK-z7-Bwv" userLabel="Reject Button" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="68" height="38"/>
+                                <rect key="frame" x="0.0" y="0.0" width="72" height="37"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <inset key="contentEdgeInsets" minX="12" minY="8" maxX="12" maxY="8"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="Reject"/>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z0q-UE-cMb" userLabel="Accept Button" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
-                                <rect key="frame" x="78" y="0.0" width="73" height="38"/>
+                                <rect key="frame" x="82" y="0.0" width="78" height="37"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <inset key="contentEdgeInsets" minX="12" minY="8" maxX="12" maxY="8"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="Accept"/>
@@ -86,7 +82,7 @@
                 <outlet property="detailsLabel" destination="ghb-EI-AhT" id="ean-qp-TVZ"/>
                 <outlet property="rejectButton" destination="1qK-z7-Bwv" id="Qhz-8Y-xV0"/>
             </connections>
-            <point key="canvasLocation" x="121.73913043478262" y="55.580357142857139"/>
+            <point key="canvasLocation" x="121.73913043478262" y="54.241071428571423"/>
         </tableViewCell>
     </objects>
     <resources>
