@@ -416,7 +416,8 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             // Notify if "call eneded" have been received
             if ([message.systemMessage isEqualToString:@"call_ended"] ||
                 [message.systemMessage isEqualToString:@"call_ended_everyone"] ||
-                [message.systemMessage isEqualToString:@"call_missed"]) {
+                [message.systemMessage isEqualToString:@"call_missed"] ||
+                [message.systemMessage isEqualToString:@"call_tried"]) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveCallEndedMessageNotification
                                                                     object:self
                                                                   userInfo:userInfo];
