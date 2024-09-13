@@ -506,28 +506,18 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
 
 - (BOOL)roomHasTalkCapability:(NSString *)capability forRoom:(NCRoom *)room
 {
-    if (room.isFederated) {
-        FederatedCapabilities *federatedCapabilities = [self federatedCapabilitiesForAccountId:room.accountId remoteServer:room.remoteServer roomToken:room.token];
+    if (!room.isFederated) {
+        return [self serverHasTalkCapability:capability forAccountId:room.accountId];
+    }
 
-        if (federatedCapabilities) {
-            NSArray *talkFeatures = [federatedCapabilities.talkCapabilities valueForKey:@"self"];
-            if ([talkFeatures containsObject:capability]) {
-                return YES;
-            }
-        }
+    FederatedCapabilities *federatedCapabilities = [self federatedCapabilitiesForAccountId:room.accountId remoteServer:room.remoteServer roomToken:room.token];
 
+    if (!federatedCapabilities) {
         return NO;
     }
 
-    ServerCapabilities *serverCapabilities = [self serverCapabilitiesForAccountId:room.accountId];
-    if (serverCapabilities) {
-        NSArray *talkFeatures = [serverCapabilities.talkCapabilities valueForKey:@"self"];
-        if ([talkFeatures containsObject:capability]) {
-            return YES;
-        }
-    }
-    
-    return NO;
+    NSArray *talkFeatures = [federatedCapabilities.talkCapabilities valueForKey:@"self"];
+    return [talkFeatures containsObject:capability];
 }
 
 - (TalkCapabilities * __nullable)roomTalkCapabilitiesForRoom:(NCRoom *)room
