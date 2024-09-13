@@ -1615,10 +1615,19 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
     [self.collectionViewRightConstraint setConstant:rightConstraintConstant];
     [self adjustTopBar];
 
+    CGPoint localVideoViewOrigin = self.localVideoView.frame.origin;
+    // Check if localVideoView needs to be moved to the right when sidebar is being closed
+    if (!visible) {
+        CGFloat sideBarWidthGap = self.collectionView.frame.size.width - kSidebarWidth;
+        if (localVideoViewOrigin.x > sideBarWidthGap) {
+            localVideoViewOrigin.x = self.localVideoView.superview.frame.size.width;
+        }
+    }
+
     void (^animations)(void) = ^void() {
         [self.titleView layoutIfNeeded];
         [self.view layoutIfNeeded];
-        [self adjustLocalVideoPositionFromOriginPosition:self.localVideoView.frame.origin];
+        [self adjustLocalVideoPositionFromOriginPosition:localVideoViewOrigin];
     };
 
     void (^afterAnimations)(void) = ^void() {
