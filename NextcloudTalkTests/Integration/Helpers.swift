@@ -13,8 +13,8 @@ extension XCTestCase {
     func getRoomDict(from rawRoomDict: [Any], for account: TalkAccount) -> [NCRoom] {
         var rooms: [NCRoom] = []
         for roomDict in rawRoomDict {
-            if let roomDict = roomDict as? [AnyHashable: Any] {
-                rooms.append(NCRoom(dictionary: roomDict, andAccountId: account.accountId))
+            if let roomDict = roomDict as? [AnyHashable: Any], let ncRooms = NCRoom(dictionary: roomDict, andAccountId: account.accountId) {
+                rooms.append(ncRooms)
             }
         }
 

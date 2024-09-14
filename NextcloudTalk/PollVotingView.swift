@@ -73,7 +73,8 @@ import UIKit
     }
 
     func setupPollView() {
-        guard let poll = poll else {return}
+        guard let poll else {return}
+
         // Set poll settings
         let activeAccountUserId = NCDatabaseManager.sharedInstance().activeAccount().userId
         self.isPollOpen = poll.status == .open
@@ -130,7 +131,8 @@ import UIKit
     }
 
     func voteButtonPressed() {
-        guard let poll = poll, let room = room else {return}
+        guard let poll, let room else {return}
+
         footerView.primaryButton.isEnabled = false
         NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions,
         for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
@@ -190,7 +192,8 @@ import UIKit
     }
 
     func closePoll() {
-        guard let poll = poll, let room = room else {return}
+        guard let poll, let room else {return}
+
         NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll

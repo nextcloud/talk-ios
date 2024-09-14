@@ -103,7 +103,11 @@
     
     cell.labelTitle.text = contact.name;
     
-    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:_room.token];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    if (activeAccount) {
+        [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:_room.token using:activeAccount];
+    }
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];

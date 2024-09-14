@@ -465,13 +465,14 @@ import QuickLook
 
     // MARK: - Temporary messages
 
-    internal func createTemporaryMessage(message: String, replyTo parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) -> NCChatMessage {
-        let temporaryMessage = NCChatMessage()
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+    internal func createTemporaryMessage(message: String, replyTo parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) -> NCChatMessage? {
+        guard let account = self.room.account else { return nil }
 
-        temporaryMessage.accountId = activeAccount.accountId
-        temporaryMessage.actorDisplayName = activeAccount.userDisplayName
-        temporaryMessage.actorId = activeAccount.userId
+        let temporaryMessage = NCChatMessage()
+
+        temporaryMessage.accountId = account.accountId
+        temporaryMessage.actorDisplayName = account.userDisplayName
+        temporaryMessage.actorId = account.userId
         temporaryMessage.actorType = "users"
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
@@ -843,13 +844,14 @@ import QuickLook
     }
 
     func showReplyView(for message: NCChatMessage) {
+        guard let account = message.account else { return }
+
         let isAtBottom = self.shouldScrollOnNewMessages()
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if let replyProxyView = self.replyProxyView as? ReplyMessageView {
             self.replyMessageView = replyProxyView
 
-            replyProxyView.presentReply(with: message, withUserId: activeAccount.userId)
+            replyProxyView.presentReply(with: message, withUserId: account.userId)
             self.presentKeyboard(true)
 
             // Make sure we're really at the bottom after showing the replyMessageView
@@ -921,13 +923,13 @@ import QuickLook
     }
 
     func didPressNoteToSelf(for message: NCChatMessage) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account else { return }
 
-        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: activeAccount) { roomDict, error in
-            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: account) { roomDict, error in
+            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: account.accountId) {
 
                 if message.isObjectShare {
-                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: activeAccount) { error in
+                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -935,7 +937,7 @@ import QuickLook
                         }
                     }
                 } else {
-                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: activeAccount) { error in
+                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -965,8 +967,7 @@ import QuickLook
     }
 
     func didPressTranslate(for message: NCChatMessage) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: activeAccount.accountId))
+        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: self.room.accountId))
         self.presentWithNavigation(translateMessageVC, animated: true)
     }
 
@@ -1060,9 +1061,9 @@ import QuickLook
             self.updateMessage(withMessageId: deletingMessage.messageId, updatedMessage: deletingMessage)
         }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account else { return }
 
-        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: activeAccount) { messageDict, error, statusCode in
+        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: account) { messageDict, error, statusCode in
             if error == nil,
                let messageDict,
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
@@ -1073,7 +1074,7 @@ import QuickLook
                     NotificationPresenter.shared().present(text: NSLocalizedString("Message deleted successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
 
-                if let deleteMessage = NCChatMessage(dictionary: parent, andAccountId: activeAccount.accountId) {
+                if let deleteMessage = NCChatMessage(dictionary: parent, andAccountId: account.accountId) {
                     self.updateMessage(withMessageId: deleteMessage.messageId, updatedMessage: deleteMessage)
                 }
             } else if error != nil {
@@ -1295,10 +1296,11 @@ import QuickLook
         }
     }
 
-    internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: activeAccount, serverCapabilities: serverCapabilities!)!
+    internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController)? {
+        guard let account = room.account else { return nil }
+
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: account, serverCapabilities: serverCapabilities!)!
         shareConfirmationVC.delegate = self
         shareConfirmationVC.isModal = true
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)
@@ -1320,7 +1322,7 @@ import QuickLook
             return
         }
 
-        let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController() else { return }
 
         picker.dismiss(animated: true) {
             self.present(navigationController, animated: true) {
@@ -1363,9 +1365,9 @@ import QuickLook
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         self.saveImagePickerSettings(picker)
 
-        let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
-
-        guard let mediaType = info[.mediaType] as? String else { return }
+        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController(),
+              let mediaType = info[.mediaType] as? String
+        else { return }
 
         if mediaType == "public.image" {
             guard let image = info[.originalImage] as? UIImage else { return }
@@ -1400,7 +1402,7 @@ import QuickLook
     // MARK: - UIDocumentPickerViewController Delegate
 
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController() else { return }
 
         self.present(navigationController, animated: true) {
             for url in urls {
@@ -1412,10 +1414,11 @@ import QuickLook
     // MARK: - ShareLocationViewController Delegate
 
     public func shareLocationViewController(_ viewController: ShareLocationViewController, didSelectLocationWithLatitude latitude: Double, longitude: Double, andName name: String) {
-        let richObject = GeoLocationRichObject(latitude: latitude, longitude: longitude, name: name)
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = room.account else { return }
 
-        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: activeAccount) { error in
+        let richObject = GeoLocationRichObject(latitude: latitude, longitude: longitude, name: name)
+
+        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: account) { error in
             if let error {
                 print("Error sharing rich object: \(error)")
             }
@@ -1427,7 +1430,9 @@ import QuickLook
     // MARK: - CNContactPickerViewController Delegate
 
     public func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
-        guard let vCardData = try? CNContactVCardSerialization.data(with: [contact]) else { return }
+        guard let account = room.account,
+              let vCardData = try? CNContactVCardSerialization.data(with: [contact])
+        else { return }
 
         var vcString = String(data: vCardData, encoding: .utf8)
 
@@ -1445,9 +1450,8 @@ import QuickLook
             try vcString?.write(toFile: filePath, atomically: true, encoding: .utf8)
             let url = URL(fileURLWithPath: filePath)
             let contactFileName = "\(contact.identifier).vcf"
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: activeAccount) { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: account) { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil)
                 } else {
@@ -1555,6 +1559,8 @@ import QuickLook
     }
 
     func shareVoiceMessage() {
+        guard let account = room.account else { return }
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
         let dateString = dateFormatter.string(from: Date())
@@ -1577,8 +1583,7 @@ import QuickLook
 
         audioFileName += ".mp3"
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+        NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: account, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
             if let fileServerURL, let fileServerPath, let recorder = self.recorder {
                 let talkMetaData: [String: String] = ["messageType": "voice-message"]
                 self.uploadFileAtPath(localPath: recorder.url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData)
@@ -1589,8 +1594,9 @@ import QuickLook
     }
 
     func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: String]?) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setupNCCommunication(for: activeAccount)
+        guard let account = room.account else { return }
+
+        NCAPIController.sharedInstance().setupNCCommunication(for: account)
 
         NextcloudKit.shared.upload(serverUrlFileName: fileServerURL, fileNameLocalPath: localPath, taskHandler: { _ in
             NSLog("Upload task")
@@ -1600,13 +1606,13 @@ import QuickLook
             NSLog("Upload completed with error code: %ld", error.errorCode)
 
             if error.errorCode == 0 {
-                NCAPIController.sharedInstance().shareFileOrFolder(for: activeAccount, atPath: fileServerPath, toRoom: self.room.token, talkMetaData: talkMetaData, withCompletionBlock: { error in
+                NCAPIController.sharedInstance().shareFileOrFolder(for: account, atPath: fileServerPath, toRoom: self.room.token, talkMetaData: talkMetaData, withCompletionBlock: { error in
                     if error != nil {
                         NSLog("Failed to share voice message")
                     }
                 })
             } else if error.errorCode == 404 || error.errorCode == 409 {
-                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: activeAccount, withCompletionBlock: { created, _ in
+                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: account, withCompletionBlock: { created, _ in
                     if created {
                         self.uploadFileAtPath(localPath: localPath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData)
                     } else {
@@ -2127,21 +2133,21 @@ import QuickLook
         collapseByMessage.collapsedMessages.add(newMessage.messageId as NSNumber)
         collapseByMessage.isCollapsed = true
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = room.account else { return }
 
         var isUser0Self = false
         var isUser1Self = false
 
         if let userDict = collapseByMessage.messageParameters["user"] as? [String: Any] {
-            isUser0Self = userDict["id"] as? String == activeAccount.userId && userDict["type"] as? String == "user"
+            isUser0Self = userDict["id"] as? String == account.userId && userDict["type"] as? String == "user"
         }
 
         if let userDict = newMessage.messageParameters["user"] as? [String: Any] {
-            isUser1Self = userDict["id"] as? String == activeAccount.userId && userDict["type"] as? String == "user"
+            isUser1Self = userDict["id"] as? String == account.userId && userDict["type"] as? String == "user"
         }
 
-        let isActor0Self = collapseByMessage.actorId == activeAccount.userId && collapseByMessage.actorType == "users"
-        let isActor1Self = newMessage.actorId == activeAccount.userId && newMessage.actorType == "users"
+        let isActor0Self = collapseByMessage.actorId == account.userId && collapseByMessage.actorType == "users"
+        let isActor1Self = newMessage.actorId == account.userId && newMessage.actorType == "users"
         let isActor0Admin = collapseByMessage.actorId == "cli" && collapseByMessage.actorType == "guests"
 
         collapseByMessage.collapsedIncludesUserSelf = isUser0Self || isUser1Self
@@ -2355,10 +2361,11 @@ import QuickLook
             return
         }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account else { return }
+
         self.setTemporaryReaction(reaction: reaction, withState: .adding, toMessage: message)
 
-        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
+        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: account) { _, error, _ in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2367,10 +2374,11 @@ import QuickLook
     }
 
     func removeReaction(reaction: String, from message: NCChatMessage) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account else { return }
+
         self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
-        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
+        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: account) { _, error, _ in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2437,8 +2445,9 @@ import QuickLook
         reactionsVC.room = self.room
         self.presentWithNavigation(reactionsVC, animated: true)
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { reactionsDict, error, _ in
+        guard let account = message.account else { return }
+
+        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: account) { reactionsDict, error, _ in
             if error == nil,
                let reactions = reactionsDict as? [String: [[String: AnyObject]]] {
 
@@ -3268,12 +3277,11 @@ import QuickLook
         pollVC.room = self.room
         self.presentWithNavigation(pollVC, animated: true)
 
-        if let pollId = Int(poll.parameterId) {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: activeAccount) { poll, error, _ in
-                if error == nil, let poll {
-                    pollVC.updatePoll(poll: poll)
-                }
+        guard let pollId = Int(poll.parameterId), let account = room.account else { return }
+
+        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: account) { poll, error, _ in
+            if error == nil, let poll {
+                pollVC.updatePoll(poll: poll)
             }
         }
     }
@@ -3281,8 +3289,9 @@ import QuickLook
     // MARK: - PollCreationViewControllerDelegate
 
     func pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: PollCreationViewController, question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: self.room.token, for: activeAccount) { _, error, _ in
+        guard let account = room.account else { return }
+
+        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: self.room.token, for: account) { _, error, _ in
             if error != nil {
                 pollCreationViewController.showCreationError()
             } else {
@@ -3453,9 +3462,8 @@ import QuickLook
 
 extension Sequence where Iterator.Element == NCChatMessage {
 
-    func containsUserMessage() -> Bool {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        return self.contains(where: { !$0.isSystemMessage && $0.actorId == activeAccount.userId })
+    func containsMessage(forUserId userId: String) -> Bool {
+        return self.contains(where: { !$0.isSystemMessage && $0.actorId == userId })
     }
 
     func containsVisibleMessages() -> Bool {

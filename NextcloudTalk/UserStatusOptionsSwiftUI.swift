@@ -51,8 +51,8 @@ struct UserStatusOptionsSwiftUI: View {
     }
 
     func setActiveUserStatus(userStatus: String) {
-        let activeAcoount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setUserStatus(userStatus, for: activeAcoount) { _ in
+        let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().setUserStatus(userStatus, for: activeAccount) { _ in
             getActiveUserStatus()
             dismiss()
             changed.toggle()

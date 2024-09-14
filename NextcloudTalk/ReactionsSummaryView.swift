@@ -106,7 +106,9 @@ import UIKit
         let actorId = actor?["actorId"] as? String ?? ""
         let actorType = actor?["actorType"] as? String ?? ""
 
-        cell.avatarImageView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: self.room?.token)
+        if let room, let account = room.account {
+            cell.avatarImageView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: room.token, using: account)
+        }
 
         return cell
     }

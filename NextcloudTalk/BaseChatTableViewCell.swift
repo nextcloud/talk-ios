@@ -164,9 +164,8 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
         self.titleLabel.attributedText = titleLabel
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        guard let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: activeAccount.accountId)
+        guard let account = message.account,
+              let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: account.accountId)
         else { return }
 
         let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
@@ -182,7 +181,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
             self.quotedMessageView?.messageLabel.text = quoteString
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
-            self.quotedMessageView?.highlighted = parent.isMessage(from: activeAccount.userId)
+            self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
         }
 
@@ -199,7 +198,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             self.setDeliveryState(to: .failed)
         } else if message.isTemporary {
             self.setDeliveryState(to: .sending)
-        } else if message.isMessage(from: activeAccount.userId), shouldShowDeliveryStatus {
+        } else if message.isMessage(from: account.userId), shouldShowDeliveryStatus {
             if lastCommonRead >= message.messageId, shouldShowReadStatus {
                 self.setDeliveryState(to: .read)
             } else {
@@ -239,7 +238,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
 
         if message.file() != nil {
             // File message
-            self.setupForFileCell(with: message, with: activeAccount)
+            self.setupForFileCell(with: message, with: account)
         } else if message.geoLocation() != nil {
             // Location message
             self.setupForLocationCell(with: message)
@@ -417,11 +416,10 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     // MARK: - Avatar User Menu
 
     func getDeferredUserMenu() -> UIMenu? {
-        guard let message = self.message else { return nil }
+        guard let message = self.message, let account = message.account
+        else { return nil }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        if message.actorType != "users" || message.actorId == activeAccount.userId {
+        if message.actorType != "users" || message.actorId == account.userId {
             return nil
         }
 
@@ -436,9 +434,9 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     }
 
     func getMenuUserAction(for message: NCChatMessage, completionBlock: @escaping ([UIMenuElement]) -> Void) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account else { return }
 
-        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, using: activeAccount) { userActionsRaw, error in
+        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, using: account) { userActionsRaw, error in
             guard error == nil,
                   let userActionsDict = userActionsRaw as? [String: AnyObject],
                   let userActions = userActionsDict["actions"] as? [[String: String]],
