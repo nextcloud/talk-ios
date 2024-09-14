@@ -195,9 +195,7 @@ import SwiftyAttributes
 
     internal var isReferenceApiSupported: Bool {
         // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId) {
+        if self.accountId != nil, let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId) {
             return serverCapabilities.referenceApiSupported
         }
 
@@ -230,6 +228,10 @@ import SwiftyAttributes
 
     public var actor: TalkActor {
         return TalkActor(actorId: self.actorId, actorType: self.actorType, actorDisplayName: self.actorDisplayName)
+    }
+
+    public var account: TalkAccount? {
+        return NCDatabaseManager.sharedInstance().talkAccount(forAccountId: self.accountId)
     }
 
     public var messageIconName: String? {
@@ -267,5 +269,4 @@ import SwiftyAttributes
 
         return file.size <= maxGifSize
     }
-
 }

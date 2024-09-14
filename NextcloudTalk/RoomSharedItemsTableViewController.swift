@@ -13,7 +13,6 @@ import QuickLook
                                                         VLCKitVideoViewControllerDelegate {
 
     let room: NCRoom
-    let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
     let itemsOverviewLimit: Int = 1
     let itemLimit: Int = 100
     var sharedItemsOverview: [String: [NCChatMessage]] = [:]
@@ -72,7 +71,10 @@ import QuickLook
     }
 
     func getItemsForItemType(itemType: String) {
+        guard let account = room.account else { return }
+
         showFetchingItemsPlaceholderView()
+
         NCAPIController.sharedInstance()
             .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, withLimit: itemLimit,
                             inRoom: room.token, for: account) { items, lastItemId, error, _ in
@@ -109,7 +111,10 @@ import QuickLook
     }
 
     func getItemsOverview() {
+        guard let account = room.account else { return }
+
         showFetchingItemsPlaceholderView()
+
         NCAPIController.sharedInstance()
             .getSharedItemsOverview(inRoom: room.token, withLimit: itemsOverviewLimit, for: account) { itemsOverview, error, _ in
                 if error == nil {

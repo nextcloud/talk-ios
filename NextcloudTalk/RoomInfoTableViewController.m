@@ -2275,7 +2275,11 @@ typedef enum FileAction {
             cell.labelTitle.text = [self detailedNameForParticipant:participant];
             
             // Avatar
-            [cell.contactImage setActorAvatarForId:participant.actorId withType:participant.actorType withDisplayName:participant.displayName withRoomToken:self.room.token];
+            TalkAccount *account = self->_room.account;
+
+            if (account) {
+                [cell.contactImage setActorAvatarForId:participant.actorId withType:participant.actorType withDisplayName:participant.displayName withRoomToken:self.room.token using:account];
+            }
 
             // User status
             [cell setUserStatus:participant.status];

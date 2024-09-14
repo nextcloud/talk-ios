@@ -86,7 +86,8 @@ import UIKit
         contactCell.labelTitle.text = contact.name
 
         let contactType = contact.source as String
-        contactCell.contactImage.setActorAvatar(forId: contact.userId, withType: contactType, withDisplayName: contact.name, withRoomToken: nil)
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        contactCell.contactImage.setActorAvatar(forId: contact.userId, withType: contactType, withDisplayName: contact.name, withRoomToken: nil, using: activeAccount)
 
         return contactCell
     }

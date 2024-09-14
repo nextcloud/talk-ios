@@ -204,7 +204,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
             self.quotedMessageView?.messageLabel.text = quoteString
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
-            self.quotedMessageView?.highlighted = parent.isMessage(from: activeAccount.userId)
+            self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
         }
 
@@ -269,7 +269,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.setupForPollCell(with: message)
         } else if message.file() != nil {
             // File message
-            self.setupForFileCell(with: message, with: activeAccount)
+            self.setupForFileCell(with: message, with: account)
         } else if message.geoLocation() != nil {
             // Location message
             self.setupForLocationCell(with: message)
@@ -461,11 +461,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     // MARK: - Avatar User Menu
 
     func getDeferredUserMenu() -> UIMenu? {
-        guard let message = self.message else { return nil }
+        guard let message = self.message, let account = message.account
+        else { return nil }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        if message.actorType != "users" || message.actorId == activeAccount.userId {
+        if message.actorType != "users" || message.actorId == account.userId {
             return nil
         }
 
@@ -480,9 +479,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func getMenuUserAction(for message: NCChatMessage, completionBlock: @escaping ([UIMenuElement]) -> Void) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account else { return }
 
-        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, using: activeAccount) { userActionsRaw, error in
+        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, using: account) { userActionsRaw, error in
             guard error == nil,
                   let userActionsDict = userActionsRaw as? [String: AnyObject],
                   let userActions = userActionsDict["actions"] as? [[String: String]],
