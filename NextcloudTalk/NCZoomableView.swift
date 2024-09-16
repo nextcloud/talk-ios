@@ -44,11 +44,11 @@ import Foundation
     func initGestureRecognizers() {
         self.pinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
         self.pinchGestureRecognizer?.delegate = self
-        self.contentView.addGestureRecognizer(self.pinchGestureRecognizer!)
+        self.addGestureRecognizer(self.pinchGestureRecognizer!)
 
         self.panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         self.panGestureRecognizer?.delegate = self
-        self.contentView.addGestureRecognizer(self.panGestureRecognizer!)
+        self.addGestureRecognizer(self.panGestureRecognizer!)
 
         self.doubleTapGestureRecoginzer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         self.doubleTapGestureRecoginzer?.delegate = self
@@ -58,11 +58,11 @@ import Foundation
 
     public func replaceContentView(_ newView: UIView) {
         if let pinchGestureRecognizer = self.pinchGestureRecognizer {
-            self.contentView.removeGestureRecognizer(pinchGestureRecognizer)
+            self.removeGestureRecognizer(pinchGestureRecognizer)
         }
 
         if let panGestureRecognizer = self.panGestureRecognizer {
-            self.contentView.removeGestureRecognizer(panGestureRecognizer)
+            self.removeGestureRecognizer(panGestureRecognizer)
         }
 
         if let doubleTapGestureRecoginzer = self.doubleTapGestureRecoginzer {
@@ -79,12 +79,12 @@ import Foundation
     }
 
     func handlePinch(_ recognizer: UIPinchGestureRecognizer) {
-        self.zoomView(view: self.contentView, toPoint: recognizer.location(in: recognizer.view), usingScale: recognizer.scale)
+        self.zoomView(view: self.contentView, toPoint: recognizer.location(in: self.contentView), usingScale: recognizer.scale)
         recognizer.scale = 1
 
         if recognizer.state == .ended {
             let bounds = self.contentView.bounds
-            let zoomedSize = recognizer.view!.frame.size
+            let zoomedSize = self.contentView.frame.size
 
             let aspectRatioContentViewSize = AVMakeRect(aspectRatio: self.contentViewSize, insideRect: bounds).size
 
