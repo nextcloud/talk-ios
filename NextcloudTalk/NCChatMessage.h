@@ -40,8 +40,8 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 
 @interface NCChatMessage : RLMObject <NSCopying>
 
-@property (nonatomic, strong) NSString *internalId; // accountId@token@messageId
-@property (nonatomic, strong) NSString *accountId;
+@property (nonatomic, strong, nullable) NSString *internalId; // accountId@token@messageId
+@property (nonatomic, strong, nullable) NSString *accountId;
 @property (nonatomic, strong) NSString *actorDisplayName;
 @property (nonatomic, strong) NSString *actorId;
 @property (nonatomic, strong) NSString *actorType;
