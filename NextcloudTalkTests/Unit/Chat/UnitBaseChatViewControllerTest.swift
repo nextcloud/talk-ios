@@ -39,7 +39,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         try super.setUpWithError()
 
         baseController = BaseChatViewController(for: NCRoom())!
-        testMessage = NCChatMessage()
+        testMessage = NCChatMessage(dictionary: [:], andAccountId: UnitBaseChatViewControllerTest.fakeAccountId)
     }
 
     func testInvisibleCellHeight() throws {
