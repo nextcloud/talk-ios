@@ -195,7 +195,7 @@ import SwiftyAttributes
 
     internal var isReferenceApiSupported: Bool {
         // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
-        if self.accountId != nil, let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId) {
+        if let accountId, let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId) {
             return serverCapabilities.referenceApiSupported
         }
 
@@ -231,7 +231,8 @@ import SwiftyAttributes
     }
 
     public var account: TalkAccount? {
-        return NCDatabaseManager.sharedInstance().talkAccount(forAccountId: self.accountId)
+        guard let accountId else { return nil }
+        return NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)
     }
 
     public var messageIconName: String? {

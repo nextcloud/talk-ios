@@ -421,7 +421,8 @@ import Foundation
                 // Inform the chatViewController about this change
                 NotificationCenter.default.post(name: .NCChatControllerDidSendChatMessage, object: self, userInfo: userInfo)
             } else {
-                if let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: offlineMessage.accountId),
+                if let accountId = offlineMessage.accountId,
+                   let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: accountId),
                    let chatController = NCChatController(for: room) {
                     chatController.send(offlineMessage)
                 }
