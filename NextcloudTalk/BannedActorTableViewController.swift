@@ -54,9 +54,7 @@
     }
 
     func getData() {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().listBans(for: activeAccount.accountId, in: room.token) { [weak self] bannedActors in
+        NCAPIController.sharedInstance().listBans(for: room.accountId, in: room.token) { [weak self] bannedActors in
             guard let self else { return }
 
             self.bannedActors = bannedActors ?? []
@@ -105,9 +103,7 @@
         self.showActivityIndicator()
         cell.setDisabledState()
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().unbanActor(for: activeAccount.accountId, in: self.room.token, with: bannedActor.banId) { [weak self] success in
+        NCAPIController.sharedInstance().unbanActor(for: room.accountId, in: self.room.token, with: bannedActor.banId) { [weak self] success in
             if !success {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Failed to unban selected entry", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
             }

@@ -429,7 +429,12 @@
     }
     
     cell.labelTitle.text = participant.name;
-    [cell.contactImage setActorAvatarForId:participant.userId withType:participant.source withDisplayName:participant.name withRoomToken:_room.token];
+
+    TalkAccount *account = self->_room.account;
+
+    if (account) {
+        [cell.contactImage setActorAvatarForId:participant.userId withType:participant.source withDisplayName:participant.name withRoomToken:_room.token using:account];
+    }
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];
