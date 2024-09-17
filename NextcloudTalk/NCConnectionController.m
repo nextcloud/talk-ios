@@ -111,14 +111,12 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
             }
 
             [self setAppState:kAppStateMissingSignalingConfiguration];
-            [[NCSettingsController sharedInstance] getSignalingConfigurationForAccountId:activeAccount.accountId withCompletionBlock:^(NSError *error) {
+            [[NCSettingsController sharedInstance] updateSignalingConfigurationForAccountId:activeAccount.accountId withCompletionBlock:^(NCExternalSignalingController * _Nullable signalingServer, NSError *error) {
                 if (error) {
                     [self notifyAppState];
                     return;
                 }
 
-                // SetSignalingConfiguration should be called just once
-                [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:activeAccount.accountId];
                 [self checkAppState];
             }];
         }];

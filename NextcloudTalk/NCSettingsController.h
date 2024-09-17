@@ -29,18 +29,20 @@ extern NSString * const kUserProfileScopePublished;
 
 extern NSString * const NCSettingsControllerDidChangeActiveAccountNotification;
 
+@class NCExternalSignalingController;
+@class SignalingSettings;
+
 typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
 typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
-typedef void (^GetSignalingConfigCompletionBlock)(NSError *error);
+typedef void (^UpdateSignalingConfigCompletionBlock)(NCExternalSignalingController * _Nullable signalingServer, NSError * _Nullable error);
 typedef void (^SubscribeForPushNotificationsCompletionBlock)(BOOL success);
+typedef void (^EnsureSignalingConfigCompletionBlock)(NCExternalSignalingController * _Nullable signalingServer);
 
 typedef NS_ENUM(NSInteger, NCPreferredFileSorting) {
     NCAlphabeticalSorting = 1,
     NCModificationDateSorting
 };
-
-@class NCExternalSignalingController;
 
 @interface NCSettingsController : NSObject
 
@@ -56,9 +58,10 @@ typedef NS_ENUM(NSInteger, NCPreferredFileSorting) {
 - (void)getUserProfileForAccountId:(NSString *)accountId withCompletionBlock:(UpdatedProfileCompletionBlock)block;
 - (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesForAccountId:(NSString *)accountId withCompletionBlock:(GetCapabilitiesCompletionBlock)block;
-- (void)getSignalingConfigurationForAccountId:(NSString *)accountId withCompletionBlock:(GetSignalingConfigCompletionBlock)block;
-- (void)setSignalingConfigurationForAccountId:(NSString *)accountId;
-- (NCExternalSignalingController *)externalSignalingControllerForAccountId:(NSString *)accountId;
+- (void)updateSignalingConfigurationForAccountId:(NSString * _Nonnull)accountId withCompletionBlock:(UpdateSignalingConfigCompletionBlock _Nonnull)block;
+- (NCExternalSignalingController * _Nullable)setSignalingConfigurationForAccountId:(NSString * _Nonnull)accountId withSettings:(SignalingSettings * _Nonnull)settings;
+- (void)ensureSignalingConfigurationForAccountId:(NSString * _Nonnull)accountId withSettings:(SignalingSettings * _Nullable)settings withCompletionBlock:(EnsureSignalingConfigCompletionBlock _Nonnull)block;
+- (NCExternalSignalingController * _Nullable)externalSignalingControllerForAccountId:(NSString * _Nonnull)accountId;
 - (void)connectDisconnectedExternalSignalingControllers;
 - (void)disconnectAllExternalSignalingControllers;
 - (void)subscribeForPushNotificationsForAccountId:(NSString *)accountId withCompletionBlock:(SubscribeForPushNotificationsCompletionBlock)block;
