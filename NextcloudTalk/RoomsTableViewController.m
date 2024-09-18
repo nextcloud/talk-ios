@@ -1392,7 +1392,7 @@ typedef enum RoomsSections {
     // Set last activity
     if (room.lastMessageId || room.lastMessageProxiedJSONString) {
         cell.titleOnly = NO;
-        cell.subtitleLabel.text = room.lastMessageString;
+        cell.subtitleLabel.attributedText = room.lastMessageString;
     } else {
         cell.titleOnly = YES;
     }

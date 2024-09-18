@@ -83,8 +83,8 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 + (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage;
 
 - (NCMessageFileParameter *)file;
-- (NCMessageLocationParameter *)geoLocation;
-- (NCDeckCardParameter *)deckCard;
+- (NCMessageLocationParameter * _Nullable)geoLocation;
+- (NCDeckCardParameter * _Nullable)deckCard;
 - (NSString *)objectShareLink;
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)parsedMarkdown;

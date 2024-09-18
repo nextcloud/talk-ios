@@ -76,6 +76,14 @@ import AVFoundation
         return self.previewImage(forMimeType: fileType) == "file-video"
     }
 
+    public static func isAudio(fileType: String) -> Bool {
+        return self.previewImage(forMimeType: fileType) == "file-audio"
+    }
+
+    public static func isVCard(fileType: String) -> Bool {
+        return self.previewImage(forMimeType: fileType) == "file-vcard"
+    }
+
     public static func isNextcloudAppInstalled() -> Bool {
         var isInstalled = false
 

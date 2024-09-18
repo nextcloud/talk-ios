@@ -183,7 +183,7 @@ import Realm
         return "\(self.messageExpiration)s"
     }
 
-    public var lastMessageString: String? {
+    public var lastMessageString: NSMutableAttributedString? {
         var lastMessage = self.lastMessage
 
         if self.isFederated && lastMessage == nil {
@@ -218,11 +218,19 @@ import Realm
             actorName = "\(actorName): "
         }
 
-        // Create last message
-        let lastMessageString = "\(actorName)\(lastMessage.parsedMarkdown().string)"
+        let lastMessageString = NSMutableAttributedString(string: actorName)
 
-        // Limit last message string to 80 characters
-        return String(lastMessageString.prefix(80))
+        if let messageIconName = lastMessage.messageIconName, let messageIcon = UIImage(systemName: messageIconName) {
+            let attachmentString = NSMutableAttributedString(attachment: NSTextAttachment(image: messageIcon))
+            attachmentString.append(NSAttributedString(string: " "))
+
+            lastMessageString.append(attachmentString)
+        }
+
+        let parsedMarkdownString = String(lastMessage.parsedMarkdown().string.prefix(80))
+        lastMessageString.append(NSAttributedString(string: parsedMarkdownString))
+
+        return lastMessageString.withFont(.preferredFont(forTextStyle: .callout)).withTextColor(.secondaryLabel)
     }
 
     private var lastMessageProxiedDictionary: [AnyHashable: Any] {
