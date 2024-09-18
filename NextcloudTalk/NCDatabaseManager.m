@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 67;
+uint64_t const kTalkDatabaseSchemaVersion           = 68;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -453,6 +453,13 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.federationOnlyTrustedServers = [[federationConfig objectForKey:@"only-trusted-servers"] boolValue];
     } else {
         capabilities.federationOnlyTrustedServers = NO;
+    }
+
+    NSDictionary *previewConfig = [talkConfig objectForKey:@"previews"];
+    NSArray *previewConfigKeys = [previewConfig allKeys];
+
+    if ([previewConfigKeys containsObject:@"max-gif-size"]) {
+        capabilities.maxGifSize = [[previewConfig objectForKey:@"max-gif-size"] intValue];
     }
 }
 

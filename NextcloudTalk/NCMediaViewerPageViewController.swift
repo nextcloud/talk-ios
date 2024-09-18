@@ -5,6 +5,7 @@
 
 import Foundation
 import UIKit
+import SwiftyGif
 
 @objc protocol NCMediaViewerPageViewControllerDelegate {
     @objc func mediaViewerPageZoomDidChange(_ controller: NCMediaViewerPageViewController, _ scale: Double)
@@ -119,6 +120,7 @@ import UIKit
     }
 
     func showErrorView() {
+        self.imageView.image = nil
         self.view.addSubview(self.errorView)
 
         NSLayoutConstraint.activate([
@@ -130,25 +132,28 @@ import UIKit
     }
 
     // MARK: - NCChatFileController delegate
-
     func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
         self.activityIndicator.stopAnimating()
         self.activityIndicator.isHidden = true
 
-        if let localPath = fileStatus.fileLocalPath, let image = UIImage(contentsOfFile: localPath) {
-            self.imageView.image = image
-
-            // Adjust the view to the new image
-            self.zoomableView.contentViewSize = image.size
-            self.zoomableView.resizeContentView()
-
-            self.delegate?.mediaViewerPageImageDidLoad(self)
-        } else {
-            self.imageView.image = nil
+        guard let localPath = fileStatus.fileLocalPath, let image = UIImage(contentsOfFile: localPath) else {
             self.showErrorView()
-
-            print("Error in fileControllerDidLoadFile getting UIImage")
+            return
         }
+
+        if let file = message.file(), message.isAnimatableGif,
+           let data = try? Data(contentsOf: URL(fileURLWithPath: localPath)), let gifImage = try? UIImage(gifData: data) {
+
+            self.imageView.setGifImage(gifImage)
+        } else {
+            self.imageView.image = image
+        }
+
+        // Adjust the view to the new image (use the non-gif version here for correct dimensions)
+        self.zoomableView.contentViewSize = image.size
+        self.zoomableView.resizeContentView()
+
+        self.delegate?.mediaViewerPageImageDidLoad(self)
     }
 
     func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withErrorDescription errorDescription: String) {
