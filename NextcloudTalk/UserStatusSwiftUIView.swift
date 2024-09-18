@@ -8,7 +8,7 @@ import SwiftUI
 import SwiftUIIntrospect
 @_spi(Advanced) import SwiftUIIntrospect
 
-protocol UserStatusViewDelegate: AnyObject {
+@objc protocol UserStatusViewDelegate: AnyObject {
     func userStatusViewDidDisappear()
 }
 
@@ -99,8 +99,9 @@ struct UserStatusSwiftUIView: View {
 
 @objc class UserStatusSwiftUIViewFactory: NSObject {
 
-    @objc static func create(userStatus: NCUserStatus) -> UIViewController {
-        let userStatusView = UserStatusSwiftUIView(userStatus: userStatus)
+    @objc static func create(userStatus: NCUserStatus, delegate: UserStatusViewDelegate) -> UIViewController {
+        var userStatusView = UserStatusSwiftUIView(userStatus: userStatus)
+        userStatusView.delegate = delegate
         let hostingController = UIHostingController(rootView: userStatusView)
 
         return hostingController

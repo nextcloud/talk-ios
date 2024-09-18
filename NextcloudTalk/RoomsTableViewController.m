@@ -41,7 +41,7 @@ typedef enum RoomsSections {
     kRoomsSectionRoomList
 } RoomsSections;
 
-@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating>
+@interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UserStatusViewDelegate>
 {
     RLMNotificationToken *_rlmNotificationToken;
     NSMutableArray *_rooms;
@@ -56,6 +56,7 @@ typedef enum RoomsSections {
     UIBarButtonItem *_newConversationButton;
     UIBarButtonItem *_settingsButton;
     UIButton *_profileButton;
+    NCUserStatus *_activeUserStatus;
     NSTimer *_refreshRoomsTimer;
     NSIndexPath *_nextRoomWithMentionIndexPath;
     NSIndexPath *_lastRoomWithMentionIndexPath;
@@ -404,6 +405,8 @@ typedef enum RoomsSections {
         [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:nil];
     }
 
+    [self getUserStatusWithCompletionBlock:nil];
+
     dispatch_async(dispatch_get_main_queue(), ^{
         // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
         [self setUnreadMessageForInactiveAccountsIndicator];
@@ -433,9 +436,17 @@ typedef enum RoomsSections {
 
     // When we manually forced a room update, we update the invitation list as well
     [[NCRoomsManager sharedInstance] updatePendingFederationInvitations];
+    [self getUserStatusWithCompletionBlock:nil];
 
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
+}
+
+#pragma mark - User Status SwiftUI View Delegate
+
+- (void)userStatusViewDidDisappear
+{
+    [self getUserStatusWithCompletionBlock:nil];
 }
 
 #pragma mark - Title menu
@@ -459,7 +470,7 @@ typedef enum RoomsSections {
             return;
         }
 
-        [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount withCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
+        [self getUserStatusWithCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
             if (error) {
                 completion(@[]);
                 return;
@@ -467,7 +478,7 @@ typedef enum RoomsSections {
 
             NCUserStatus *userStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
             UIImage *userStatusImage = [userStatus getSFUserStatusIcon];
-            UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus];
+            UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus delegate:self];
 
             UIAction *onlineOption = [UIAction actionWithTitle:[userStatus readableUserStatusOrMessage] image:userStatusImage identifier:nil handler:^(UIAction *action) {
                 [self presentViewController:vc animated:YES completion:nil];
@@ -798,6 +809,8 @@ typedef enum RoomsSections {
         case kAppStateMissingServerCapabilities:
         case kAppStateMissingSignalingConfiguration:
         {
+            // Clear active user status when changing users
+            _activeUserStatus = nil;
             [self setProfileButton];
         }
             break;
@@ -806,6 +819,7 @@ typedef enum RoomsSections {
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:isAppActive onlyLastModified:NO];
+            [self getUserStatusWithCompletionBlock:nil];
             [self startRefreshRoomsTimer];
             [self setupNavigationBar];
         }
@@ -934,31 +948,71 @@ typedef enum RoomsSections {
 - (void)setProfileButton
 {
     _profileButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _profileButton.frame = CGRectMake(0, 0, 30, 30);
+    _profileButton.frame = CGRectMake(0, 0, 38, 38);
     _profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
 
+    _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:_profileButton];
+    [self.navigationItem setLeftBarButtonItem:_settingsButton];
+
+    [self updateProfileButtonImage];
+    [self updateAccountPickerMenu];
+    [self setUnreadMessageForInactiveAccountsIndicator];
+}
+
+- (void)updateProfileButtonImage
+{
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     UIImage *profileImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle];
     if (profileImage) {
-        UIGraphicsBeginImageContextWithOptions(_profileButton.bounds.size, NO, 3.0);
-        [[UIBezierPath bezierPathWithRoundedRect:_profileButton.bounds cornerRadius:_profileButton.bounds.size.height] addClip];
-        [profileImage drawInRect:_profileButton.bounds];
-        profileImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        [_profileButton setImage:profileImage forState:UIControlStateNormal];
+        // Crop the profile image into a circle
+        profileImage = [profileImage cropToCircleWithSize:CGSizeMake(30, 30)];
+        // Increase the profile image size to leave space for the status
+        profileImage = [profileImage withCircularBackgroundWithBackgroundColor:[UIColor clearColor] diameter:38.0 padding:4.0];
 
+        // Online status icon
+        UIImage *statusImage = nil;
+        if ([_activeUserStatus hasVisibleStatusIcon]) {
+            statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:self.navigationController.navigationBar.barTintColor
+                                                                                                    diameter:14.0 padding:2.0];
+        }
+
+        // Status message icon
+        if (_activeUserStatus.icon.length > 0) {
+            UILabel *iconLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 14, 14)];
+            iconLabel.text = _activeUserStatus.icon;
+            iconLabel.adjustsFontSizeToFitWidth = YES;
+            statusImage = [UIImage imageFrom:iconLabel];
+        }
+
+        // Set status image
+        if (statusImage) {
+            profileImage = [profileImage overlayWith:statusImage at:CGRectMake(24, 24, 14, 14)];
+        }
+
+        [_profileButton setImage:profileImage forState:UIControlStateNormal];
         // Used to distinguish between a "completely loaded" button (with a profile image) and the default gear one
         _profileButton.accessibilityIdentifier = @"LoadedProfileButton";
     } else {
         [_profileButton setImage:[UIImage systemImageNamed:@"gear"] forState:UIControlStateNormal];
         _profileButton.contentMode = UIViewContentModeCenter;
     }
-    
-    _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:_profileButton];
-    [self updateAccountPickerMenu];
-    [self setUnreadMessageForInactiveAccountsIndicator];
-    
-    [self.navigationItem setLeftBarButtonItem:_settingsButton];
+}
+
+- (void)getUserStatusWithCompletionBlock:(GetUserStatusCompletionBlock)block
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount withCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
+        if (!error) {
+            self->_activeUserStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
+            [self updateProfileButtonImage];
+
+            if (block) {
+                block(userStatusDict, nil);
+            }
+        } else if (block) {
+            block(nil, error);
+        }
+    }];
 }
 
 - (void)setUnreadMessageForInactiveAccountsIndicator

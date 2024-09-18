@@ -35,6 +35,7 @@ extern NSString * const kUserStatusOffline;
 - (NSString *)readableUserStatusMessage;
 - (NSString *)readableUserStatusOrMessage;
 - (nullable UIImage *)getSFUserStatusIcon;
+- (BOOL)hasVisibleStatusIcon;
 
 @end
 
