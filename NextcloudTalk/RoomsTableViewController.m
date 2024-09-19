@@ -973,7 +973,7 @@ typedef enum RoomsSections {
         UIImage *statusImage = nil;
         if ([_activeUserStatus hasVisibleStatusIcon]) {
             statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:self.navigationController.navigationBar.barTintColor
-                                                                                                    diameter:14.0 padding:2.0];
+                                                                                                    diameter:14.0 padding:1.0];
         }
 
         // Status message icon
