@@ -255,6 +255,8 @@
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FCE3D532C9B5918009C68A9 /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 1FCE3D522C9B5918009C68A9 /* SwiftyGif */; };
 		1FCE3D552C9C189D009C68A9 /* NCChatFileControllerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FCE3D542C9C189D009C68A9 /* NCChatFileControllerWrapper.swift */; };
+		1FCE3D572C9C4D18009C68A9 /* ReferenceGiphyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FCE3D562C9C4D18009C68A9 /* ReferenceGiphyView.swift */; };
+		1FCE3D592C9C4D21009C68A9 /* ReferenceGiphyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FCE3D582C9C4D21009C68A9 /* ReferenceGiphyView.xib */; };
 		1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */; };
 		1FD6F83E2B87B712004048AB /* NCUserStatusExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
@@ -784,6 +786,8 @@
 		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
 		1FCE3D542C9C189D009C68A9 /* NCChatFileControllerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCChatFileControllerWrapper.swift; sourceTree = "<group>"; };
+		1FCE3D562C9C4D18009C68A9 /* ReferenceGiphyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGiphyView.swift; sourceTree = "<group>"; };
+		1FCE3D582C9C4D21009C68A9 /* ReferenceGiphyView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGiphyView.xib; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1343,6 +1347,8 @@
 				1FDE7C9B28DE14B000CB718E /* ReferenceView.xib */,
 				1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */,
 				1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */,
+				1FCE3D562C9C4D18009C68A9 /* ReferenceGiphyView.swift */,
+				1FCE3D582C9C4D21009C68A9 /* ReferenceGiphyView.xib */,
 				1F24B5A128E0648600654457 /* ReferenceGithubView.swift */,
 				1F24B5A328E0649200654457 /* ReferenceGithubView.xib */,
 				1FFF41612C70937B00162F4D /* ReferenceZammadView.swift */,
@@ -2448,6 +2454,7 @@
 				2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */,
 				2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */,
 				2C3780C5210F4A26003F9AE8 /* HeaderWithButton.xib in Resources */,
+				1FCE3D592C9C4D21009C68A9 /* ReferenceGiphyView.xib in Resources */,
 				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
 				2CB997C62A052449003C41AC /* EmojiAvatarPickerViewController.xib in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
@@ -2989,6 +2996,7 @@
 				2C4446D32658147900DF1DBC /* TalkAccount.m in Sources */,
 				2CA1CCD61F1E664C002FE6A2 /* ContactsTableViewCell.m in Sources */,
 				1F77A6172AB9B161007B6037 /* ScreenCapturer.m in Sources */,
+				1FCE3D572C9C4D18009C68A9 /* ReferenceGiphyView.swift in Sources */,
 				1FFF41622C70937B00162F4D /* ReferenceZammadView.swift in Sources */,
 				1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */,
 				DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift in Sources */,
