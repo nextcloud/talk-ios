@@ -232,4 +232,29 @@ import SwiftyAttributes
         return TalkActor(actorId: self.actorId, actorType: self.actorType, actorDisplayName: self.actorDisplayName)
     }
 
+    public var messageIconName: String? {
+        if let file = self.file() {
+            if NCUtils.isImage(fileType: file.mimetype) {
+                return "photo"
+            } else if NCUtils.isVideo(fileType: file.mimetype) {
+                return "movieclapper"
+            } else if NCUtils.isVCard(fileType: file.mimetype) {
+                return "person.text.rectangle"
+            } else if self.isVoiceMessage {
+                return "mic"
+            } else if NCUtils.isAudio(fileType: file.mimetype) {
+                return "music.note"
+            } else {
+                return "doc"
+            }
+        } else if poll != nil {
+            return "chart.bar"
+        } else if deckCard() != nil {
+            return "rectangle.stack"
+        } else if geoLocation() != nil {
+            return "location"
+        }
+
+        return nil
+    }
 }
