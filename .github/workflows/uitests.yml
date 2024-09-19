@@ -91,6 +91,9 @@ jobs:
         ]
 
     steps:
+    - name: Fail
+      run: exit 1
+    
     - name: Checkout app
       uses: actions/checkout@v4
       with:
