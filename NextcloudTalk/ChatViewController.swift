@@ -1594,6 +1594,7 @@ import UIKit
         }
 
         var actions: [UIMenuElement] = []
+        var informationalActions: [UIMenuElement] = []
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || (self.room.permissions & NCPermission.chat.rawValue) != 0
 
@@ -1604,7 +1605,19 @@ import UIKit
             let editInfo = UIAction(title: NSLocalizedString("Edited by", comment: "A message was edited by ...") + " " + lastEditActorDisplayName, attributes: [.disabled], handler: {_ in })
             editInfo.subtitle = NCUtils.readableTimeAndDate(fromDate: timestampDate)
 
-            actions.append(UIMenu(options: [.displayInline], children: [editInfo]))
+            informationalActions.append(editInfo)
+        }
+
+        // Show silent send information
+        if message.isSilent {
+            let silentInfo = UIAction(title: NSLocalizedString("Sent silently", comment: "A message has been sent silently"), attributes: [.disabled], handler: {_ in })
+            silentInfo.image = UIImage(systemName: "bell.slash")
+
+            informationalActions.append(silentInfo)
+        }
+
+        if !informationalActions.isEmpty {
+            actions.append(UIMenu(options: [.displayInline], children: informationalActions))
         }
 
         // Reply option
