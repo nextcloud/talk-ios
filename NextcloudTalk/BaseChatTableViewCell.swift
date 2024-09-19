@@ -4,6 +4,7 @@
 //
 
 import MapKit
+import SwiftyGif
 
 protocol BaseChatTableViewCellDelegate: AnyObject {
 
@@ -78,6 +79,7 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     internal var fileActivityIndicator: MDCActivityIndicator?
     internal var filePreviewActivityIndicator: MDCActivityIndicator?
     internal var filePreviewPlayIconImageView: UIImageView?
+    internal var fileControllerWrapper: NCChatFileControllerWrapper?
 
     // Location cell
     internal var locationPreviewImageView: UIImageView?

@@ -254,6 +254,7 @@
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FCE3D532C9B5918009C68A9 /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 1FCE3D522C9B5918009C68A9 /* SwiftyGif */; };
+		1FCE3D552C9C189D009C68A9 /* NCChatFileControllerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FCE3D542C9C189D009C68A9 /* NCChatFileControllerWrapper.swift */; };
 		1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */; };
 		1FD6F83E2B87B712004048AB /* NCUserStatusExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
@@ -782,6 +783,7 @@
 		1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BannedActorCell.xib; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
+		1FCE3D542C9C189D009C68A9 /* NCChatFileControllerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCChatFileControllerWrapper.swift; sourceTree = "<group>"; };
 		1FD6F83B2B825069004048AB /* NCRoomsManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCRoomsManagerExtensions.swift; sourceTree = "<group>"; };
 		1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUserStatusExtensions.swift; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2081,6 +2083,7 @@
 				2C42ADB320B58E6300296DEA /* NCChatController.m */,
 				1FEDE3C5257D439500853F79 /* NCChatFileController.h */,
 				1FEDE3C4257D439500853F79 /* NCChatFileController.m */,
+				1FCE3D542C9C189D009C68A9 /* NCChatFileControllerWrapper.swift */,
 				1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */,
 				2C5BFBF0288A97D800E75118 /* NCPoll.h */,
 				2C5BFBF1288A97D800E75118 /* NCPoll.m */,
@@ -2930,6 +2933,7 @@
 				1F66B72C29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m in Sources */,
 				1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */,
 				2C444706265E59B100DF1DBC /* ShareConfirmationCollectionViewCell.m in Sources */,
+				1FCE3D552C9C189D009C68A9 /* NCChatFileControllerWrapper.swift in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
