@@ -2358,6 +2358,8 @@ import QuickLook
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         self.setTemporaryReaction(reaction: reaction, withState: .adding, toMessage: message)
 
+        NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: activeAccount.accountId)
+
         NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)

@@ -1487,7 +1487,7 @@ import UIKit
         let reactionViewPadding = 10
         let emojiButtonPadding = 10
         let emojiButtonSize = 48
-        let frequentlyUsedEmojis = ["👍", "❤️", "😂", "😅"]
+        let frequentlyUsedEmojis = NCDatabaseManager.sharedInstance().activeAccount().frequentlyUsedEmojis
 
         let totalEmojiButtonWidth = frequentlyUsedEmojis.count * emojiButtonSize
         let totalEmojiButtonPadding = frequentlyUsedEmojis.count * emojiButtonPadding
