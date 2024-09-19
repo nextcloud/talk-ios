@@ -370,7 +370,7 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
         sessionChanged = NO;
         [self.delegate externalSignalingControllerWillRejoinCall:self];
 
-        [[NCRoomsManager sharedInstance] rejoinRoom:_currentRoom completionBlock:^(NSString * _Nullable sessionId, NCRoom * _Nullable room, NSError * _Nullable error, NSInteger statusCode, NSString * _Nullable statusReason) {
+        [[NCRoomsManager sharedInstance] rejoinRoomForCall:_currentRoom completionBlock:^(NSString * _Nullable sessionId, NCRoom * _Nullable room, NSError * _Nullable error, NSInteger statusCode, NSString * _Nullable statusReason) {
             [self.delegate externalSignalingControllerShouldRejoinCall:self];
         }];
     }

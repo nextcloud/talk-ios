@@ -88,7 +88,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         _videoSettingsModel = [[ARDSettingsModel alloc] init];
         _signalingConfigurations = [NSMutableDictionary new];
         _externalSignalingControllers = [NSMutableDictionary new];
-        
+
         [self configureDatabase];
         [self checkStoredDataInKechain];
         
@@ -276,21 +276,17 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
     
-    [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:accountId withCompletionBlock:^(NSError *error) {
+    [self getCapabilitiesForAccountId:accountId withCompletionBlock:^(NSError *error) {
         if (error) {
             return;
         }
 
-        [[NCSettingsController sharedInstance] getSignalingConfigurationForAccountId:accountId withCompletionBlock:^(NSError *error) {
-            if (error) {
-                return;
+        BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateSignalingConfiguration" expirationHandler:nil];
+
+        [self updateSignalingConfigurationForAccountId:accountId withCompletionBlock:^(NCExternalSignalingController * _Nullable signalingServer, NSError *error) {
+            if (!error) {
+                [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:accountId withHash:configurationHash];
             }
-
-            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateSignalingConfiguration" expirationHandler:nil];
-
-            // SetSignalingConfiguration should be called just once
-            [[NCSettingsController sharedInstance] setSignalingConfigurationForAccountId:accountId];
-            [[NCDatabaseManager sharedInstance] updateTalkConfigurationHashForAccountId:accountId withHash:configurationHash];
 
             [bgTask stopBackgroundTask];
         }];
@@ -461,14 +457,14 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
 #pragma mark - Signaling Configuration
 
-- (void)getSignalingConfigurationForAccountId:(NSString *)accountId withCompletionBlock:(GetSignalingConfigCompletionBlock)block
+- (void)updateSignalingConfigurationForAccountId:(NSString *)accountId withCompletionBlock:(UpdateSignalingConfigCompletionBlock)block
 {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
 
     if (!account) {
         if (block) {
             NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-            block(error);
+            block(nil, error);
         }
 
         return;
@@ -477,46 +473,70 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCAPIController sharedInstance] getSignalingSettingsFor:account forRoom:nil completionBlock:^(SignalingSettings * _Nullable settings, NSError * _Nullable error) {
         if (!error) {
             if (settings && account && account.accountId) {
-                [self->_signalingConfigurations setObject:settings forKey:account.accountId];
+                NCExternalSignalingController *extSignalingController = [self setSignalingConfigurationForAccountId:account.accountId withSettings:settings];
 
                 if (block) {
-                    block(nil);
+                    block(extSignalingController, nil);
                 }
             } else {
                 NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
 
                 if (block) {
-                    block(error);
+                    block(nil, error);
                 }
             }
         } else {
             NSLog(@"Error while getting signaling configuration");
-            if (block) block(error);
+            if (block) {
+                block(nil, error);
+            }
         }
     }];
 }
 
-// SetSignalingConfiguration should be called just once
-- (void)setSignalingConfigurationForAccountId:(NSString *)accountId
+- (NCExternalSignalingController * _Nullable)setSignalingConfigurationForAccountId:(NSString *)accountId withSettings:(SignalingSettings * _Nonnull)signalingSettings
 {
-    SignalingSettings *signalingSettings = [_signalingConfigurations objectForKey:accountId];
+    [self->_signalingConfigurations setObject:signalingSettings forKey:accountId];
 
     if (signalingSettings.server && signalingSettings.server.length > 0 && signalingSettings.ticket && signalingSettings.ticket.length > 0) {
         BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCSetSignalingConfiguration" expirationHandler:nil];
+        NCExternalSignalingController *extSignalingController = [self->_externalSignalingControllers objectForKey:accountId];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NCExternalSignalingController *extSignalingController = [self->_externalSignalingControllers objectForKey:accountId];
-            
-            if (extSignalingController) {
-                [extSignalingController disconnect];
-            }
-            
-            TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-            extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:signalingSettings.server andTicket:signalingSettings.ticket];
-            [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
+        if (extSignalingController) {
+            [extSignalingController disconnect];
+        }
 
-            [bgTask stopBackgroundTask];
-        });
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+        extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:signalingSettings.server andTicket:signalingSettings.ticket];
+        [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
+
+        [bgTask stopBackgroundTask];
+
+        return extSignalingController;
+    }
+
+    return nil;
+}
+
+- (void)ensureSignalingConfigurationForAccountId:(NSString *)accountId withSettings:(SignalingSettings *)settings withCompletionBlock:(EnsureSignalingConfigCompletionBlock)block
+{
+    SignalingSettings *currentSignalingSettings = [_signalingConfigurations objectForKey:accountId];
+
+    if (currentSignalingSettings) {
+        block([self->_externalSignalingControllers objectForKey:accountId]);
+    } else {
+        [NCUtils log:@"Ensure signaling configuration -> Setting configuration"];
+
+        if (settings) {
+            // In case settings are provided, we use these provided settings
+            NCExternalSignalingController *extSignalingController = [self setSignalingConfigurationForAccountId:accountId withSettings:settings];
+            block(extSignalingController);
+        } else {
+            // There were no settings provided for that call, we have to update the settings
+            [self updateSignalingConfigurationForAccountId:accountId withCompletionBlock:^(NCExternalSignalingController * _Nullable signalingServer, NSError *error) {
+                block(signalingServer);
+            }];
+        }
     }
 }
 

@@ -7,12 +7,15 @@ import Foundation
 
 @objc extension NCRoomsManager {
 
+    public static let statusCodeFailedToJoinExternal = 997
     public static let statusCodeShouldIgnoreAttemptButJoinedSuccessfully = 998
     public static let statusCodeIgnoreJoinAttempt = 999
 
     // MARK: - Join/Leave room
 
     public func joinRoom(_ token: String, forCall call: Bool) {
+        NCUtils.log("Joining room \(token) for call \(call)")
+
         // Clean up joining room flag and attempts
         self.joiningRoomToken = nil
         self.joiningSessionId = nil
@@ -33,6 +36,8 @@ import Foundation
         userInfo["token"] = token
 
         if let roomController = self.activeRooms[token] as? NCRoomController {
+            NCUtils.log("JoinRoomHelper: Found active room controller")
+
             if call {
                 roomController.inCall = true
             } else {
@@ -103,6 +108,8 @@ import Foundation
                 NCUtils.log("Could not join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "")")
             }
 
+            self.joiningRoomToken = nil
+            self.joiningSessionId = nil
             NotificationCenter.default.post(name: .NCRoomsManagerDidJoinRoom, object: self, userInfo: userInfo)
         }
     }
@@ -150,19 +157,24 @@ import Foundation
 
             NCUtils.log("Joined room \(token) in NC successfully")
 
-            guard let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
-            else {
-                // Joined room in NC successfully and no external signaling server configured.
-                completionBlock(sessionId, room, nil, 0, nil)
-                return
-            }
-
-            NCUtils.log("Trying to join room \(token) in external signaling server...")
-
             // Remember the latest sessionId we're using to join a room, to be able to check when joining the external signaling server
             self.joiningSessionId = sessionId
 
-            self.getSignalingSettingsHelper(for: activeAccount, forRoom: token) { signalingSettings in
+            self.getExternalSignalingHelper(for: activeAccount, forRoom: token) { extSignalingController, signalingSettings, error in
+                guard error == nil else {
+                    // There was an error to ensure we have the correct signaling settings for joining a federated conversation
+                    completionBlock(nil, nil, nil, NCRoomsManager.statusCodeFailedToJoinExternal, nil)
+                    return
+                }
+
+                guard let extSignalingController else {
+                    // Joined room in NC successfully and no external signaling server configured.
+                    completionBlock(sessionId, room, nil, 0, nil)
+                    return
+                }
+
+                NCUtils.log("Trying to join room \(token) in external signaling server...")
+
                 let federation = signalingSettings?.getFederationJoinDictionary()
 
                 extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
@@ -192,18 +204,36 @@ import Foundation
         })
     }
 
-    private func getSignalingSettingsHelper(for account: TalkAccount, forRoom token: String, withCompletion completion: @escaping (SignalingSettings?) -> Void) {
-        // Currently we only need the signaling settings in case the room supports federation-v2
-        if let room = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: account.accountId), room.supportsFederatedCalling {
-            NCAPIController.sharedInstance().getSignalingSettings(for: account, forRoom: token) { signalingSettings, _ in
-                completion(signalingSettings)
+    private func getExternalSignalingHelper(for account: TalkAccount, forRoom token: String, withCompletion completion: @escaping (NCExternalSignalingController?, SignalingSettings?, Error?) -> Void) {
+        let room = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: account.accountId)
+
+        guard room?.supportsFederatedCalling ?? false else {
+            // No federated room -> just ensure that we have a signaling configuration and a potential external signaling controller
+            NCSettingsController.sharedInstance().ensureSignalingConfiguration(forAccountId: account.accountId, with: nil) { extSignalingController in
+                completion(extSignalingController, nil, nil)
             }
-        } else {
-            completion(nil)
+
+            return
+        }
+
+        // This is a federated conversation (with federated calling supported), so we require signaling settings for joining
+        // the external signaling controller
+        NCAPIController.sharedInstance().getSignalingSettings(for: account, forRoom: token) { signalingSettings, _ in
+            guard let signalingSettings else {
+                // We need to fail if we are unable to get signaling settings for a federation conversation
+                completion(nil, nil, NSError(domain: NSCocoaErrorDomain, code: 0))
+                return
+            }
+
+            NCSettingsController.sharedInstance().ensureSignalingConfiguration(forAccountId: account.accountId, with: signalingSettings) { extSignalingController in
+                completion(extSignalingController, signalingSettings, nil)
+            }
         }
     }
 
-    public func rejoinRoom(_ token: String, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) {
+    public func rejoinRoomForCall(_ token: String, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) {
+        NCUtils.log("Rejoining room \(token)")
+
         guard let roomController = self.activeRooms[token] as? NCRoomController else { return }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -212,16 +242,21 @@ import Foundation
         self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode, statusReason in
             if error == nil {
                 roomController.userSessionId = sessionId
-                roomController.inChat = true
+                roomController.inCall = true
 
-                guard let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
-                else {
-                    // Joined room in NC successfully and no external signaling server configured.
-                    completionBlock(sessionId, room, nil, 0, nil)
-                    return
-                }
+                self.getExternalSignalingHelper(for: activeAccount, forRoom: token) { extSignalingController, signalingSettings, error in
+                    guard error == nil else {
+                        // There was an error to ensure we have the correct signaling settings for joining a federated conversation
+                        completionBlock(nil, nil, nil, NCRoomsManager.statusCodeFailedToJoinExternal, nil)
+                        return
+                    }
 
-                self.getSignalingSettingsHelper(for: activeAccount, forRoom: token) { signalingSettings in
+                    guard let extSignalingController else {
+                        // Joined room in NC successfully and no external signaling server configured.
+                        completionBlock(sessionId, room, nil, 0, nil)
+                        return
+                    }
+
                     let federation = signalingSettings?.getFederationJoinDictionary()
 
                     extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
@@ -247,6 +282,8 @@ import Foundation
     public func leaveRoom(_ token: String) {
         // Check if leaving the room we are joining
         if self.isJoiningRoom(withToken: token) {
+            NCUtils.log("Leaving room \(token), but still joining -> cancel")
+
             self.joiningRoomToken = nil
             self.joiningSessionId = nil
             self.joinRoomTask?.cancel()

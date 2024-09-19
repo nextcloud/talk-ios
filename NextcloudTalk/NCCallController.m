@@ -97,6 +97,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         _signalingController.observer = self;
         
         _account = [[NCDatabaseManager sharedInstance] activeAccount];
+
+        // NCCallController is only initialized after joining the room. At that point we ensured that there's
+        // an external signaling controller set, in case we are using external signaling.
         _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_account.accountId];
         _externalSignalingController.delegate = self;
         
