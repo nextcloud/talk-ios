@@ -17,3 +17,6 @@ CallKit
 Unban
 unban
 Zammad
+Unarchive
+unarchive
+unarchived

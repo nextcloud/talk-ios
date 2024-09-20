@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 68;
+uint64_t const kTalkDatabaseSchemaVersion           = 69;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -75,6 +75,7 @@ NSString * const kCapabilityChatReadLast            = @"chat-read-last";
 NSString * const kCapabilityBanV1                   = @"ban-v1";
 NSString * const kCapabilityMentionPermissions      = @"mention-permissions";
 NSString * const kCapabilityEditMessagesNoteToSelf  = @"edit-messages-note-to-self";
+NSString * const kCapabilityArchivedConversations   = @"archived-conversations";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 
