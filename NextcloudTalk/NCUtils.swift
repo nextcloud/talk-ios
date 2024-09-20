@@ -84,6 +84,10 @@ import AVFoundation
         return self.previewImage(forMimeType: fileType) == "file-vcard"
     }
 
+    public static func isGif(fileType: String) -> Bool {
+        return UTType(mimeType: fileType)?.conforms(to: .gif) ?? false
+    }
+
     public static func isNextcloudAppInstalled() -> Bool {
         var isInstalled = false
 

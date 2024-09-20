@@ -144,6 +144,16 @@ class ReferenceView: UIView {
 
             referenceView.addSubview(talkView)
             foundReferenceView = true
+        } else if richObjectType == "integration_giphy_gif",
+                  let reference = firstReference["richObject"] as? [String: AnyObject] {
+
+            let giphyView = ReferenceGiphyView(frame: self.frame)
+            giphyView.update(for: reference, and: url)
+            giphyView.frame = self.bounds
+            giphyView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+            referenceView.addSubview(giphyView)
+            foundReferenceView = true
         } else if let reference = firstReference["openGraphObject"] as? [String: String?] {
             let defaultView = ReferenceDefaultView(frame: self.frame)
 

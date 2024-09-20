@@ -257,4 +257,15 @@ import SwiftyAttributes
 
         return nil
     }
+
+    public var isAnimatableGif: Bool {
+        guard let accountId, let file = self.file() else { return false }
+
+        let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)
+
+        guard NCUtils.isGif(fileType: file.mimetype), let maxGifSize = capabilities?.maxGifSize, maxGifSize > 0 else { return false }
+
+        return file.size <= maxGifSize
+    }
+
 }

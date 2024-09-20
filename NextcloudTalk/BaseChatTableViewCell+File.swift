@@ -120,18 +120,15 @@ extension BaseChatTableViewCell {
 
     func requestPreview(for message: NCChatMessage, with account: TalkAccount) {
         // Don't request a preview if we know that there's none
-        if !message.file().previewAvailable {
+        guard let file = message.file(), file.previewAvailable else {
             self.showFallbackIcon(for: message)
 
             return
         }
 
-        let isVideoFile = NCUtils.isVideo(fileType: message.file().mimetype)
-        let isMediaFile = isVideoFile || NCUtils.isImage(fileType: message.file().mimetype)
-
         // In case we can determine the height before requesting the preview, adjust the imageView constraints accordingly
-        if message.file().previewImageHeight > 0 {
-            self.filePreviewImageViewHeightConstraint?.constant = CGFloat(message.file().previewImageHeight)
+        if file.previewImageHeight > 0 {
+            self.filePreviewImageViewHeightConstraint?.constant = CGFloat(file.previewImageHeight)
         } else {
             let estimatedPreviewHeight = BaseChatTableViewCell.getEstimatedPreviewSize(for: message)
 
@@ -143,43 +140,88 @@ extension BaseChatTableViewCell {
         self.filePreviewActivityIndicator?.isHidden = false
         self.filePreviewActivityIndicator?.startAnimating()
 
+        if message.isAnimatableGif {
+            self.requestGifPreview(for: message, with: account)
+        } else {
+            self.requestDefaultPreview(for: message, with: account)
+        }
+    }
+
+    func requestGifPreview(for message: NCChatMessage, with account: TalkAccount) {
+        guard let fileId = message.file()?.parameterId else { return }
+
+        let fileControllerWrapper = NCChatFileControllerWrapper()
+        self.fileControllerWrapper = fileControllerWrapper
+
+        fileControllerWrapper.downloadFile(withFileId: fileId) { fileLocalPath in
+            // Check if we are still on the same cell
+            guard let cellMessage = self.message, let imageView = self.filePreviewImageView, cellMessage.file().parameterId == fileId
+            else {
+                // Different cell, don't do anything
+                return
+            }
+
+            guard let fileLocalPath, let data = try? Data(contentsOf: URL(fileURLWithPath: fileLocalPath)),
+                  let gifImage = try? UIImage(gifData: data), let baseImage = UIImage(data: data) else {
+
+                // No gif, try to request a normal preview
+                self.requestDefaultPreview(for: message, with: account)
+                return
+            }
+
+            imageView.setGifImage(gifImage)
+            self.adjustImageView(toImageSize: baseImage, ofMessage: message)
+        }
+    }
+
+    func requestDefaultPreview(for message: NCChatMessage, with account: TalkAccount) {
+        guard let file = message.file() else { return }
+
         let requestedHeight = Int(3 * fileMessageCellFileMaxPreviewHeight)
-        guard let previewRequest = NCAPIController.sharedInstance().createPreviewRequest(forFile: message.file().parameterId, withMaxHeight: requestedHeight, using: account) else { return }
+        guard let previewRequest = NCAPIController.sharedInstance().createPreviewRequest(forFile: file.parameterId, withMaxHeight: requestedHeight, using: account) else { return }
 
         self.filePreviewImageView?.setImageWith(previewRequest, placeholderImage: nil, success: {  [weak self] _, _, image in
             guard let self, let imageView = self.filePreviewImageView else { return }
 
-            self.filePreviewActivityIndicator?.isHidden = true
-            self.filePreviewActivityIndicator?.stopAnimating()
-
-            let imageSize = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
-            let previewSize = BaseChatTableViewCell.getPreviewSize(from: imageSize, isMediaFile)
-
-            if !previewSize.width.isFinite || !previewSize.height.isFinite {
-                self.showFallbackIcon(for: message)
-                return
-            }
-
-            imageView.layer.borderColor = UIColor.secondarySystemFill.cgColor
-            imageView.layer.borderWidth = 1
-
-            self.filePreviewImageViewHeightConstraint?.constant = previewSize.height
-            self.filePreviewImageViewWidthConstraint?.constant = previewSize.width
-
-            if isVideoFile {
-                // only show the play icon if there is an image preview (not on top of the default video placeholder)
-                self.filePreviewPlayIconImageView?.isHidden = false
-                // if the video preview is very narrow, make the play icon fit inside
-                self.filePreviewPlayIconImageView?.frame = CGRect(x: 0, y: 0, width: min(min(previewSize.height, previewSize.width), fileMessageCellVideoPlayIconSize), height: min(min(previewSize.height, previewSize.width), fileMessageCellVideoPlayIconSize))
-                self.filePreviewPlayIconImageView?.center = CGPoint(x: previewSize.width / 2.0, y: previewSize.height / 2.0)
-            }
-
             imageView.image = image
-
-            self.delegate?.cellHasDownloadedImagePreview(withHeight: ceil(previewSize.height), for: message)
+            self.adjustImageView(toImageSize: image, ofMessage: message)
         }, failure: { _, _, _ in
             self.showFallbackIcon(for: message)
         })
+    }
+
+    func adjustImageView(toImageSize image: UIImage, ofMessage message: NCChatMessage) {
+        guard let imageView = self.filePreviewImageView, let file = message.file() else { return }
+
+        let isVideoFile = NCUtils.isVideo(fileType: file.mimetype)
+        let isMediaFile = isVideoFile || NCUtils.isImage(fileType: file.mimetype)
+
+        self.filePreviewActivityIndicator?.isHidden = true
+        self.filePreviewActivityIndicator?.stopAnimating()
+
+        let imageSize = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
+        let previewSize = BaseChatTableViewCell.getPreviewSize(from: imageSize, isMediaFile)
+
+        if !previewSize.width.isFinite || !previewSize.height.isFinite {
+            self.showFallbackIcon(for: message)
+            return
+        }
+
+        imageView.layer.borderColor = UIColor.secondarySystemFill.cgColor
+        imageView.layer.borderWidth = 1
+
+        self.filePreviewImageViewHeightConstraint?.constant = previewSize.height
+        self.filePreviewImageViewWidthConstraint?.constant = previewSize.width
+
+        if isVideoFile {
+            // only show the play icon if there is an image preview (not on top of the default video placeholder)
+            self.filePreviewPlayIconImageView?.isHidden = false
+            // if the video preview is very narrow, make the play icon fit inside
+            self.filePreviewPlayIconImageView?.frame = CGRect(x: 0, y: 0, width: min(min(previewSize.height, previewSize.width), fileMessageCellVideoPlayIconSize), height: min(min(previewSize.height, previewSize.width), fileMessageCellVideoPlayIconSize))
+            self.filePreviewPlayIconImageView?.center = CGPoint(x: previewSize.width / 2.0, y: previewSize.height / 2.0)
+        }
+
+        self.delegate?.cellHasDownloadedImagePreview(withHeight: ceil(previewSize.height), for: message)
     }
 
     func showFallbackIcon(for message: NCChatMessage) {
