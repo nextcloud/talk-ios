@@ -64,6 +64,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     room.remoteServer = [roomDict objectForKey:@"remoteServer"];
     room.remoteToken = [roomDict objectForKey:@"remoteToken"];
     room.mentionPermissions = [[roomDict objectForKey:@"mentionPermissions"] integerValue];
+    room.isArchived = [[roomDict objectForKey:@"isArchived"] boolValue];
 
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -83,7 +84,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     } else {
         room.displayName = [displayName stringValue];
     }
-    
+
     id participants = [roomDict objectForKey:@"participants"];
     if ([participants isKindOfClass:[NSDictionary class]]) {
         room.participants = (RLMArray<RLMString> *)[participants allKeys];
@@ -183,6 +184,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.remoteToken = room.remoteToken;
     managedRoom.remoteServer = room.remoteServer;
     managedRoom.mentionPermissions = room.mentionPermissions;
+    managedRoom.isArchived = room.isArchived;
 }
 
 + (NSString *)primaryKey {

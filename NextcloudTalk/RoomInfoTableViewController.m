@@ -40,6 +40,7 @@ typedef enum RoomInfoSection {
     kRoomInfoSectionWebinar,
     kRoomInfoSectionSIP,
     kRoomInfoSectionParticipants,
+    kRoomInfoSectionNonDestructive,
     kRoomInfoSectionDestructive
 } RoomInfoSection;
 
@@ -78,6 +79,11 @@ typedef enum SIPAction {
     kSIPActionNumber
 } SIPAction;
 
+typedef enum NondestructiveAction {
+    kNondestructiveActionArchive = 0,
+    kNondestructiveActionUnarchive
+} NondestructiveAction;
+
 typedef enum DestructiveAction {
     kDestructiveActionLeave = 0,
     kDestructiveActionClearHistory,
@@ -105,6 +111,8 @@ typedef enum ModificationError {
     kModificationErrorRoomDescription,
     kModificationErrorBanActor,
     kModificationErrorMentionPermissions,
+    kModificationErrorArchive,
+    kModificationErrorUnarchive,
 } ModificationError;
 
 typedef enum FileAction {
@@ -161,7 +169,7 @@ typedef enum FileAction {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     self.navigationItem.title = NSLocalizedString(@"Conversation settings", nil);
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
@@ -177,15 +185,15 @@ typedef enum FileAction {
     self.navigationItem.standardAppearance = appearance;
     self.navigationItem.compactAppearance = appearance;
     self.navigationItem.scrollEdgeAppearance = appearance;
-    
+
     _roomParticipants = [[NSMutableArray alloc] init];
-    
+
     _publicSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_publicSwitch addTarget: self action: @selector(publicValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     _listableSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_listableSwitch addTarget: self action: @selector(listableValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     _listableForEveryoneSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_listableForEveryoneSwitch addTarget: self action: @selector(listableForEveryoneValueChanged:) forControlEvents:UIControlEventValueChanged];
 
@@ -194,23 +202,23 @@ typedef enum FileAction {
 
     _readOnlySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_readOnlySwitch addTarget: self action: @selector(readOnlyValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     _lobbySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_lobbySwitch addTarget: self action: @selector(lobbyValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     _sipSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_sipSwitch addTarget: self action: @selector(sipValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     _sipNoPINSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_sipNoPINSwitch addTarget: self action: @selector(sipNoPINValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     _callNotificationSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_callNotificationSwitch addTarget: self action: @selector(callNotificationValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
     _lobbyDatePicker.preferredDatePickerStyle = UIDatePickerStyleWheels;
-    
+
     _lobbyDateTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 00, 150, 30)];
     _lobbyDateTextField.textAlignment = NSTextAlignmentRight;
     _lobbyDateTextField.placeholder = NSLocalizedString(@"Manual", @"TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually");
@@ -218,14 +226,14 @@ typedef enum FileAction {
     _lobbyDateTextField.minimumFontSize = 9;
     [_lobbyDateTextField setInputView:_lobbyDatePicker];
     [self setupLobbyDatePicker];
-    
+
     _modifyingRoomView = [[UIActivityIndicatorView alloc] init];
     _modifyingRoomView.color = [NCAppBranding themeTextColor];
-    
+
     _headerView = [[HeaderWithButton alloc] init];
     [_headerView.button setTitle:NSLocalizedString(@"Add", nil) forState:UIControlStateNormal];
     [_headerView.button addTarget:self action:@selector(addParticipantsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    
+
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:RoomNameTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomNameTableViewCell.identifier];
     [self.tableView registerClass:TextViewTableViewCell.class forCellReuseIdentifier:TextViewTableViewCell.identifier];
@@ -235,14 +243,14 @@ typedef enum FileAction {
                                                                                       target:self action:@selector(cancelButtonPressed)];
         self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     }
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateRoom:) name:NCRoomsManagerDidUpdateRoomNotification object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
+
     [[NCRoomsManager sharedInstance] updateRoom:_room.token withCompletionBlock:nil];
     [self getRoomParticipants];
 }
@@ -279,27 +287,33 @@ typedef enum FileAction {
     NSMutableArray *sections = [[NSMutableArray alloc] init];
     // Room name section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionName]];
+
     // Room description section
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRoomDescription] && _room.roomDescription && ![_room.roomDescription isEqualToString:@""]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionDescription]];
     }
+
     // File actions section
     if ([_room.objectType isEqualToString:NCRoomObjectTypeFile]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionFile]];
     }
+
     // Shared items section
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityRichObjectListMedia] &&
         ![self.room isFederated]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSharedItems]];
     }
+
     // Notifications section
     if ([self getNotificationsActions].count > 0) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionNotifications]];
     }
+
     // Conversation section
     if ([self getConversationActions].count > 0) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionConversation]];
     }
+
     // Moderator sections
     if (_room.canModerate) {
         // Guests section
@@ -309,16 +323,24 @@ typedef enum FileAction {
             [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionWebinar]];
         }
     }
+
     // SIP section
     if (_room.sipState > NCRoomSIPStateDisabled) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSIP]];
     }
+
     // Participants section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionParticipants]];
+
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversations]) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionNonDestructive]];
+    }
+
     // Destructive actions section
     if (!_hideDestructiveActions) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionDestructive]];
     }
+
     return [NSArray arrayWithArray:sections];
 }
 
@@ -344,13 +366,13 @@ typedef enum FileAction {
         [actions addObject:[NSNumber numberWithInt:kNotificationActionChatNotifications]];
     }
     // Call notifications action
-    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityNotificationCalls forRoom:self.room] && 
+    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityNotificationCalls forRoom:self.room] &&
         [[NCDatabaseManager sharedInstance] roomTalkCapabilitiesForRoom:self.room].callEnabled &&
         ![self.room isFederated]) {
-        
+
         [actions addObject:[NSNumber numberWithInt:kNotificationActionCallNotifications]];
     }
-    
+
     return [NSArray arrayWithArray:actions];
 }
 
@@ -372,7 +394,7 @@ typedef enum FileAction {
     [actions addObject:[NSNumber numberWithInt:kFileActionPreview]];
     // Open file in nextcloud app
     [actions addObject:[NSNumber numberWithInt:kFileActionOpenInFilesApp]];
-    
+
     return [NSArray arrayWithArray:actions];
 }
 
@@ -422,7 +444,7 @@ typedef enum FileAction {
         // Listable room action
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
             [actions addObject:[NSNumber numberWithInt:kConversationActionListable]];
-            
+
             if (_room.listable != NCRoomListableScopeParticipantsOnly && [[NCSettingsController sharedInstance] isGuestsAppEnabled]) {
                 [actions addObject:[NSNumber numberWithInt:kConversationActionListableForEveryone]];
             }
@@ -442,7 +464,7 @@ typedef enum FileAction {
     if (_room.type != kNCRoomTypeChangelog && _room.type != kNCRoomTypeNoteToSelf) {
         [actions addObject:[NSNumber numberWithInt:kConversationActionShareLink]];
     }
-    
+
     return [NSArray arrayWithArray:actions];
 }
 
@@ -474,6 +496,21 @@ typedef enum FileAction {
         }
     }
     return [NSArray arrayWithArray:actions];
+}
+
+- (NSArray *)getRoomNondestructiveActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversations]) {
+        if (_room.isArchived) {
+            [actions addObject:[NSNumber numberWithInt:kNondestructiveActionUnarchive]];
+        } else {
+            [actions addObject:[NSNumber numberWithInt:kNondestructiveActionArchive]];
+        }
+    }
+
+    return actions;
 }
 
 - (NSArray *)getRoomDestructiveActions
@@ -542,67 +579,67 @@ typedef enum FileAction {
         case kModificationErrorChatNotifications:
             errorDescription = NSLocalizedString(@"Could not change notifications setting", nil);
             break;
-            
+
         case kModificationErrorCallNotifications:
             errorDescription = NSLocalizedString(@"Could not change call notifications setting", nil);
             break;
-            
+
         case kModificationErrorShare:
             errorDescription = NSLocalizedString(@"Could not change sharing permissions of the conversation", nil);
             break;
-            
+
         case kModificationErrorPassword:
             errorDescription = NSLocalizedString(@"Could not change password protection settings", nil);
             break;
-            
+
         case kModificationErrorResendInvitations:
             errorDescription = NSLocalizedString(@"Could not resend email invitations", nil);
             break;
-            
+
         case kModificationErrorSendCallNotification:
             errorDescription = NSLocalizedString(@"Could not send call notification", nil);
             break;
-            
+
         case kModificationErrorLobby:
             errorDescription = NSLocalizedString(@"Could not change lobby state of the conversation", nil);
             break;
-            
+
         case kModificationErrorSIP:
             errorDescription = NSLocalizedString(@"Could not change SIP state of the conversation", nil);
             break;
-            
+
         case kModificationErrorModeration:
             errorDescription = NSLocalizedString(@"Could not change moderation permissions of the participant", nil);
             break;
-            
+
         case kModificationErrorRemove:
             errorDescription = NSLocalizedString(@"Could not remove participant", nil);
             break;
-        
+
         case kModificationErrorLeave:
             errorDescription = NSLocalizedString(@"Could not leave conversation", nil);
             break;
-            
+
         case kModificationErrorLeaveModeration:
             errorDescription = NSLocalizedString(@"You need to promote a new moderator before you can leave this conversation", nil);
             break;
-            
+
         case kModificationErrorDelete:
             errorDescription = NSLocalizedString(@"Could not delete conversation", nil);
             break;
-            
+
         case kModificationErrorClearHistory:
             errorDescription = NSLocalizedString(@"Could not clear chat history", nil);
             break;
-            
+
         case kModificationErrorListable:
             errorDescription = NSLocalizedString(@"Could not change listable scope of the conversation", nil);
             break;
-            
+
         case kModificationErrorReadOnly:
             errorDescription = NSLocalizedString(@"Could not change read-only state of the conversation", nil);
             break;
-            
+
         case kModificationErrorMessageExpiration:
             errorDescription = NSLocalizedString(@"Could not set message expiration time", nil);
             break;
@@ -619,10 +656,18 @@ typedef enum FileAction {
             errorDescription = NSLocalizedString(@"Could not change mention permissions of the conversation", nil);
             break;
 
+        case kModificationErrorArchive:
+            errorDescription = NSLocalizedString(@"Could not archive conversation", nil);
+            break;
+
+        case kModificationErrorUnarchive:
+            errorDescription = NSLocalizedString(@"Could not unarchive conversation", nil);
+            break;
+
         default:
             break;
     }
-    
+
     UIAlertController *renameDialog =
     [UIAlertController alertControllerWithTitle:errorDescription
                                         message:errorMessage
@@ -1095,6 +1140,32 @@ typedef enum FileAction {
             NSLog(@"Error clearing chat history: %@", error.description);
             [self showRoomModificationError:kModificationErrorClearHistory];
         }
+    }];
+}
+
+- (void)archiveRoom
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    [[NCAPIController sharedInstance] archiveRoom:_room.token forAccount:activeAccount completionBlock:^(BOOL success) {
+        if (!success) {
+            [self showRoomModificationError:kModificationErrorArchive];
+        }
+
+        [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
+    }];
+}
+
+- (void)unarchiveRoom
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    [[NCAPIController sharedInstance] unarchiveRoom:_room.token forAccount:activeAccount completionBlock:^(BOOL success) {
+        if (!success) {
+            [self showRoomModificationError:kModificationErrorUnarchive];
+        }
+
+        [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
     }];
 }
 
@@ -1639,7 +1710,11 @@ typedef enum FileAction {
         case kRoomInfoSectionParticipants:
             return _roomParticipants.count;
             break;
-            
+
+        case kRoomInfoSectionNonDestructive:
+            return [self getRoomNondestructiveActions].count;
+            break;
+
         case kRoomInfoSectionDestructive:
             return [self getRoomDestructiveActions].count;
             break;
@@ -1691,6 +1766,26 @@ typedef enum FileAction {
             break;
     }
     
+    return nil;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+{
+    NSArray *sections = [self getRoomInfoSections];
+    RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
+    switch (infoSection) {
+        case kRoomInfoSectionNonDestructive:
+            if (!_room.isArchived) {
+                return NSLocalizedString(@"Once a conversation is archived, it will be hidden by default. Select the filter 'Archived' to view archived conversations. Direct mentions will still be received.", nil);
+            } else {
+                return NSLocalizedString(@"Once a conversation is unarchived, it will be shown by default again.", nil);
+            }
+
+            break;
+        default:
+            break;
+    }
+
     return nil;
 }
 
@@ -1767,7 +1862,9 @@ typedef enum FileAction {
     static NSString *listableForEveryoneCellIdentifier = @"ListableForEveryoneCellIdentifier";
     static NSString *mentionPermissionsCellIdentifier = @"mentionPermissionsCellIdentifier";
     static NSString *readOnlyStateCellIdentifier = @"ReadOnlyStateCellIdentifier";
-    
+    static NSString *archiveConversationCellIdentifier = @"ArchiveConversationCellIdentifier";
+    static NSString *unarchiveConversationCellIdentifier = @"UnarchiveConversationCellIdentifier";
+
     NSArray *sections = [self getRoomInfoSections];
     RoomInfoSection section = [[sections objectAtIndex:indexPath.section] intValue];
     switch (section) {
@@ -2335,6 +2432,44 @@ typedef enum FileAction {
             return cell;
         }
             break;
+        case kRoomInfoSectionNonDestructive:
+        {
+            NSArray *actions = [self getRoomNondestructiveActions];
+            NondestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kNondestructiveActionArchive:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:archiveConversationCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:archiveConversationCellIdentifier];
+                    }
+
+                    cell.textLabel.text = NSLocalizedString(@"Archive conversation", nil);
+                    cell.textLabel.numberOfLines = 0;
+                    UIImage *image = [[UIImage systemImageNamed:@"archivebox"] imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+                    [cell.imageView setImage:image];
+
+                    return cell;
+                }
+                    break;
+                case kNondestructiveActionUnarchive:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:unarchiveConversationCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:unarchiveConversationCellIdentifier];
+                    }
+
+                    cell.textLabel.text = NSLocalizedString(@"Unarchive conversation", nil);
+                    cell.textLabel.numberOfLines = 0;
+                    UIImage *image = [[UIImage systemImageNamed:@"eye"] imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+                    [cell.imageView setImage:image];
+
+                    return cell;
+                }
+                    break;
+            }
+        }
+            break;
         case kRoomInfoSectionDestructive:
         {
             NSArray *actions = [self getRoomDestructiveActions];
@@ -2482,6 +2617,22 @@ typedef enum FileAction {
         case kRoomInfoSectionParticipants:
         {
             [self showOptionsForParticipantAtIndexPath:indexPath];
+        }
+            break;
+        case kRoomInfoSectionNonDestructive:
+        {
+            NSArray *actions = [self getRoomNondestructiveActions];
+            NondestructiveAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            switch (action) {
+                case kNondestructiveActionArchive:
+                    [self archiveRoom];
+                    break;
+                case kNondestructiveActionUnarchive:
+                    [self unarchiveRoom];
+                    break;
+                default:
+                    break;
+            }
         }
             break;
         case kRoomInfoSectionDestructive:

@@ -33,7 +33,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 typedef enum RoomsFilter {
     kRoomsFilterAll = 0,
     kRoomsFilterUnread,
-    kRoomsFilterMentioned
+    kRoomsFilterMentioned,
+    kRoomsFilterArchived
 } RoomsFilter;
 
 typedef enum RoomsSections {
@@ -708,9 +709,11 @@ typedef enum RoomsSections {
         case kRoomsFilterUnread:
             return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"unreadMessages > 0"]];
         case kRoomsFilterMentioned:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES"]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES AND isArchived == NO"]];
+        case kRoomsFilterArchived:
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == YES"]];
         default:
-            return _allRooms;
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == NO OR hasUnreadMention == YES"]];
     }
 }
 
@@ -750,6 +753,10 @@ typedef enum RoomsSections {
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterUnread]];
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterMentioned]];
 
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversations]) {
+        [filters addObject:[NSNumber numberWithInt:kRoomsFilterArchived]];
+    }
+
     return [NSArray arrayWithArray:filters];
 }
 
@@ -762,6 +769,8 @@ typedef enum RoomsSections {
             return NSLocalizedString(@"Unread", @"'Unread' meaning 'Unread conversations'");
         case kRoomsFilterMentioned:
             return NSLocalizedString(@"Mentioned", @"'Mentioned' meaning 'Mentioned conversations'");
+        case kRoomsFilterArchived:
+            return NSLocalizedString(@"Archived", @"'Archived' meaning 'Archived conversations'");
         default:
             return @"";
     }
@@ -1061,6 +1070,32 @@ typedef enum RoomsSections {
     if (indexPath) {
         [[NCUserInterfaceController sharedInstance] presentShareLinkDialogForRoom:room inViewContoller:self forIndexPath:indexPath];
     }
+}
+
+- (void)archiveRoom:(NCRoom *)room
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    [[NCAPIController sharedInstance] archiveRoom:room.token forAccount:activeAccount completionBlock:^(BOOL success) {
+        if (!success) {
+            NSLog(@"Error archiving room");
+        }
+
+        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+    }];
+}
+
+- (void)unarchiveRoom:(NCRoom *)room
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    [[NCAPIController sharedInstance] unarchiveRoom:room.token forAccount:activeAccount completionBlock:^(BOOL success) {
+        if (!success) {
+            NSLog(@"Error unarchiving room");
+        }
+
+        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+    }];
 }
 
 - (void)markRoomAsRead:(NCRoom *)room
@@ -1603,6 +1638,23 @@ typedef enum RoomsSections {
         }];
 
         [actions addObject:notificationActions];
+    }
+
+    // Archive conversation
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversations]) {
+        if (room.isArchived) {
+            UIAction *unarchiveAction = [UIAction actionWithTitle:NSLocalizedString(@"Unarchive conversation", nil) image:[UIImage systemImageNamed:@"eye"] identifier:nil handler:^(UIAction *action) {
+                [weakSelf unarchiveRoom:room];
+            }];
+
+            [actions addObject:unarchiveAction];
+        } else {
+            UIAction *archiveAction = [UIAction actionWithTitle:NSLocalizedString(@"Archive conversation", nil) image:[UIImage systemImageNamed:@"archivebox"] identifier:nil handler:^(UIAction *action) {
+                [weakSelf archiveRoom:room];
+            }];
+
+            [actions addObject:archiveAction];
+        }
     }
 
     // Room info
