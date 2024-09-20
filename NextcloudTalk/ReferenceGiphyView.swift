@@ -4,8 +4,9 @@
 //
 
 import Foundation
+import SwiftyGif
 
-@objcMembers class ReferenceGiphyView: UIView {
+@objcMembers class ReferenceGiphyView: UIView, SwiftyGifDelegate {
 
     @IBOutlet var contentView: UIView!
     @IBOutlet weak var referenceThumbnailView: UIImageView!
@@ -65,7 +66,8 @@ import Foundation
         }
 
         if let proxiedUrlString = reference["proxied_url"] as? String, let proxiedUrl = URL(string: proxiedUrlString) {
-            referenceThumbnailView.setGifFromURL(proxiedUrl)
+            referenceThumbnailView.delegate = self
+            referenceThumbnailView.setGifFromURL(proxiedUrl, showLoader: false)
         } else {
             setPlaceholderThumbnail()
         }
@@ -73,5 +75,14 @@ import Foundation
 
     func setPlaceholderThumbnail() {
         referenceThumbnailView.image = UIImage(systemName: "safari")?.withTintColor(UIColor.secondarySystemFill, renderingMode: .alwaysOriginal)
+    }
+
+    func gifURLDidFail(sender: UIImageView, url: URL, error: (any Error)?) {
+        // In case we were unable to load or process the gif, fall back to the normal thumbnail
+        if let request = NCAPIController.sharedInstance().createReferenceThumbnailRequest(forUrl: url.absoluteString) {
+            referenceThumbnailView.setImageWith(request, placeholderImage: nil, success: nil) { _, _, _ in
+                self.setPlaceholderThumbnail()
+            }
+        }
     }
 }
