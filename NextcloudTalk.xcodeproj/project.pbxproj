@@ -261,6 +261,8 @@
 		1FD6F83E2B87B712004048AB /* NCUserStatusExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */; };
 		1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */; };
 		1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9182828C55A73009092AB /* BGTaskHelper.swift */; };
+		1FDB47F62C9C71CE00D6F423 /* TalkAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDB47F52C9C71CE00D6F423 /* TalkAccount.swift */; };
+		1FDB47F82C9C7E3F00D6F423 /* NCDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDB47F72C9C7E3F00D6F423 /* NCDatabaseManager.swift */; };
 		1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
 		1FDCC3E329EC787400DEB39B /* AvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */; };
 		1FDCC3ED29EC7E6700DEB39B /* AvatarImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */; };
@@ -793,6 +795,8 @@
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRoomTest.swift; sourceTree = "<group>"; };
 		1FD9182828C55A73009092AB /* BGTaskHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGTaskHelper.swift; sourceTree = "<group>"; };
+		1FDB47F52C9C71CE00D6F423 /* TalkAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TalkAccount.swift; sourceTree = "<group>"; };
+		1FDB47F72C9C7E3F00D6F423 /* NCDatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCDatabaseManager.swift; sourceTree = "<group>"; };
 		1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvatarImageView.swift; sourceTree = "<group>"; };
 		1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header-Extensions.h"; sourceTree = "<group>"; };
 		1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvatarButton.swift; sourceTree = "<group>"; };
@@ -1636,8 +1640,10 @@
 			children = (
 				2C40281322832EED0000DDFC /* NCDatabaseManager.h */,
 				2C40281422832EED0000DDFC /* NCDatabaseManager.m */,
+				1FDB47F72C9C7E3F00D6F423 /* NCDatabaseManager.swift */,
 				2C4446D12658147900DF1DBC /* TalkAccount.h */,
 				2C4446D22658147900DF1DBC /* TalkAccount.m */,
+				1FDB47F52C9C71CE00D6F423 /* TalkAccount.swift */,
 				1F1B50452B90CDE600B0F2F4 /* TalkCapabilities.h */,
 				1F1B50462B90CDF800B0F2F4 /* TalkCapabilities.m */,
 				2C4446D6265814D100DF1DBC /* ServerCapabilities.h */,
@@ -2942,6 +2948,7 @@
 				2C444706265E59B100DF1DBC /* ShareConfirmationCollectionViewCell.m in Sources */,
 				1FCE3D552C9C189D009C68A9 /* NCChatFileControllerWrapper.swift in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
+				1FDB47F82C9C7E3F00D6F423 /* NCDatabaseManager.swift in Sources */,
 				2CB304202264775E0053078A /* UIResponder+SLKAdditions.m in Sources */,
 				2C8E2A1B232174C20022BFC9 /* MessageSeparatorTableViewCell.m in Sources */,
 				1FAB2EEE2AD1BC1B001214EB /* UIControlExtensions.swift in Sources */,
@@ -2975,6 +2982,7 @@
 				1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */,
 				1F77A6222AB9EB06007B6037 /* SocketConnection.m in Sources */,
 				1FF136152BFB74C3006A6101 /* NCChatMessage.swift in Sources */,
+				1FDB47F62C9C71CE00D6F423 /* TalkAccount.swift in Sources */,
 				2CC1C38829C0945700C8436B /* DRCellSlideActionView.m in Sources */,
 				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
