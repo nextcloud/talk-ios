@@ -17,7 +17,8 @@ typedef NS_ENUM(NSInteger, ChatMessageDeliveryState) {
     ChatMessageDeliveryStateRead,
     ChatMessageDeliveryStateSending,
     ChatMessageDeliveryStateDeleting,
-    ChatMessageDeliveryStateFailed
+    ChatMessageDeliveryStateFailed,
+    ChatMessageDeliveryStateSilent
 };
 
 @protocol ChatTableViewCellDelegate <NSObject>

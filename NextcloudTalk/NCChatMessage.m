@@ -68,6 +68,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     message.lastEditActorType = [messageDict objectForKey:@"lastEditActorType"];
     message.lastEditActorDisplayName = [messageDict objectForKey:@"lastEditActorDisplayName"];
     message.lastEditTimestamp = [[messageDict objectForKey:@"lastEditTimestamp"] integerValue];
+    message.isSilent = [[messageDict objectForKey:@"silent"] boolValue];
 
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {

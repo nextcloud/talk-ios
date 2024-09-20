@@ -207,6 +207,8 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             } else {
                 self.setDeliveryState(to: .sent)
             }
+        } else if message.isSilent {
+            self.setDeliveryState(to: .silent)
         }
 
         let reactionsArray = message.reactionsArray()
@@ -308,6 +310,17 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             errorView.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(errorView)
+
+        } else if deliveryState == .silent {
+            let silentView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
+            var silentImage = UIImage(systemName: "bell.slash")?.withTintColor(.systemGray2).withRenderingMode(.alwaysOriginal)
+            silentImage = silentImage?.withConfiguration(UIImage.SymbolConfiguration(textStyle: .subheadline))
+
+            silentView.image = silentImage
+            silentView.contentMode = .center
+            silentView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+            self.statusView.addArrangedSubview(silentView)
 
         } else if deliveryState == .sent || deliveryState == .read {
             var checkImageName = "check"

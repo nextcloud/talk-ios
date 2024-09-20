@@ -1498,6 +1498,9 @@
 /* No comment provided by engineer. */
 "Send/Accept" = "Send/Accept";
 
+/* A message has been sent silently */
+"Sent silently" = "Sent silently";
+
 /* No comment provided by engineer. */
 "Server" = "Server";
 
