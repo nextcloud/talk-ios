@@ -167,15 +167,16 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         self.titleLabel.attributedText = titleLabel
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        var shouldShowDeliveryStatus = false
+        var shouldShowReadStatus = false
 
-        guard let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: activeAccount.accountId)
-        else { return }
+        if let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: activeAccount.accountId) {
+            shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
 
-        let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
-
-        // In case we are not able to retrieve the capabilities of the room, we fall back to readPrivacy = true -> hiding the read status
-        let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
-        let shouldShowReadStatus = !(roomCapabilities?.readStatusPrivacy ?? true)
+            if let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room) {
+                shouldShowReadStatus = !(roomCapabilities.readStatusPrivacy)
+            }
+        }
 
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
         if let parent = message.parent {
