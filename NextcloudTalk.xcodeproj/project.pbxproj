@@ -345,6 +345,9 @@
 		1FF4DAAD2C0A114900C1B952 /* OcsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */; };
 		1FFF41622C70937B00162F4D /* ReferenceZammadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF41612C70937B00162F4D /* ReferenceZammadView.swift */; };
 		1FFF41642C70938700162F4D /* ReferenceZammadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FFF41632C70938700162F4D /* ReferenceZammadView.xib */; };
+		2C0424902CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04248F2CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift */; };
+		2C0424982CA335C4004772F6 /* AudioPlayerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0424962CA335C4004772F6 /* AudioPlayerView.xib */; };
+		2C04249B2CA33681004772F6 /* AudioPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0424992CA33681004772F6 /* AudioPlayerView.swift */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
@@ -511,7 +514,6 @@
 		2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCD51F1E664C002FE6A2 /* ContactsTableViewCell.xib */; };
 		2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */; };
 		2CA52ACD2670D07900619610 /* VoiceMessageRecordingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */; };
-		2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */; };
 		2CB052A12BF2297500191349 /* connecting.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2CB052A02BF2297500191349 /* connecting.mp3 */; };
 		2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039D2264775E0053078A /* SLKInputAccessoryView.m */; };
 		2CB3041A2264775E0053078A /* SLKTextInput+Implementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB3039E2264775E0053078A /* SLKTextInput+Implementation.m */; };
@@ -843,6 +845,9 @@
 		1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OcsResponse.swift; sourceTree = "<group>"; };
 		1FFF41612C70937B00162F4D /* ReferenceZammadView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceZammadView.swift; sourceTree = "<group>"; };
 		1FFF41632C70938700162F4D /* ReferenceZammadView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceZammadView.xib; sourceTree = "<group>"; };
+		2C04248F2CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+Audio.swift"; sourceTree = "<group>"; };
+		2C0424962CA335C4004772F6 /* AudioPlayerView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioPlayerView.xib; sourceTree = "<group>"; };
+		2C0424992CA33681004772F6 /* AudioPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerView.swift; sourceTree = "<group>"; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1077,8 +1082,6 @@
 		2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceMessageRecordingView.h; sourceTree = "<group>"; };
 		2CA52ACA2670D02800619610 /* VoiceMessageRecordingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageRecordingView.m; sourceTree = "<group>"; };
 		2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VoiceMessageRecordingView.xib; sourceTree = "<group>"; };
-		2CA52ACE267613CA00619610 /* VoiceMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceMessageTableViewCell.h; sourceTree = "<group>"; };
-		2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageTableViewCell.m; sourceTree = "<group>"; };
 		2CA80EDB256C1249006BA449 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2CA80EDC256C1249006BA449 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2CA80EDD256C1296006BA449 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1873,6 +1876,7 @@
 				1F1B503D2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift */,
 				1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */,
 				2C21446D2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift */,
+				2C04248F2CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift */,
 				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
 				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
 				1F35F9022AEEDEE800044BDA /* AutoCompletionTableViewCell.h */,
@@ -1881,8 +1885,6 @@
 				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
 				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
 				2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */,
-				2CA52ACE267613CA00619610 /* VoiceMessageTableViewCell.h */,
-				2CA52ACF267613CA00619610 /* VoiceMessageTableViewCell.m */,
 				2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */,
 				2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */,
 				1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */,
@@ -1917,6 +1919,8 @@
 				2CA52ACC2670D07900619610 /* VoiceMessageRecordingView.xib */,
 				1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */,
 				1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */,
+				2C0424992CA33681004772F6 /* AudioPlayerView.swift */,
+				2C0424962CA335C4004772F6 /* AudioPlayerView.xib */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -2476,6 +2480,7 @@
 				1F7625E72901B0E800834869 /* CallsFromOldAccountViewController.xib in Resources */,
 				2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 				1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */,
+				2C0424982CA335C4004772F6 /* AudioPlayerView.xib in Resources */,
 				2CC1FF4528147F11009F7288 /* RoomSharedItemsTableViewController.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */,
@@ -2837,10 +2842,10 @@
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
 				1F1B0F4C2BE18FF3003FD766 /* CustomPresentableNavigationController.swift in Sources */,
 				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
+				2C0424902CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,
 				2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */,
 				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
-				2CA52AD0267613CB00619610 /* VoiceMessageTableViewCell.m in Sources */,
 				1F1B50342B8E069800B0F2F4 /* BaseChatTableViewCell.swift in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
 				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
@@ -3044,6 +3049,7 @@
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				1FF4DA8C2C0263A200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
+				2C04249B2CA33681004772F6 /* AudioPlayerView.swift in Sources */,
 				1F1B0F462BE047CE003FD766 /* InteractionControlling.swift in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
 				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,

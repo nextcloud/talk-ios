@@ -73,9 +73,6 @@ extension BaseChatTableViewCell {
                 messageTextView.topAnchor.constraint(equalTo: filePreviewImageView.bottomAnchor, constant: 10),
                 messageTextView.bottomAnchor.constraint(equalTo: self.messageBodyView.bottomAnchor)
             ])
-
-            NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
         }
 
         guard let filePreviewImageView = self.filePreviewImageView,
@@ -304,70 +301,5 @@ extension BaseChatTableViewCell {
         let previewSize = self.getPreviewSize(from: imageSize, true)
 
         return ceil(previewSize.height)
-    }
-
-    // MARK: - File status / activity indicator
-
-    func clearFileStatusView() {
-            self.fileActivityIndicator?.stopAnimating()
-            self.fileActivityIndicator?.removeFromSuperview()
-            self.fileActivityIndicator = nil
-    }
-
-    func addActivityIndicator(with progress: Float) {
-        self.clearFileStatusView()
-
-        let fileActivityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
-        self.fileActivityIndicator = fileActivityIndicator
-
-        fileActivityIndicator.radius = 7
-        fileActivityIndicator.cycleColors = [.systemGray2]
-
-        if progress > 0 {
-            fileActivityIndicator.indicatorMode = .determinate
-            fileActivityIndicator.setProgress(progress, animated: false)
-        }
-
-        fileActivityIndicator.startAnimating()
-        fileActivityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        self.statusView.addArrangedSubview(fileActivityIndicator)
-    }
-
-    // MARK: - File notifications
-
-    @objc func didChangeIsDownloading(notification: Notification) {
-        DispatchQueue.main.async {
-            // Make sure this notification is really for this cell
-            guard let fileParameter = self.message?.file(),
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
-            else { return }
-
-            if receivedStatus.isDownloading, self.fileActivityIndicator == nil {
-                // Immediately show an indeterminate indicator as long as we don't have a progress value
-                self.addActivityIndicator(with: 0)
-            } else if !receivedStatus.isDownloading, self.fileActivityIndicator != nil {
-                self.clearFileStatusView()
-            }
-        }
-    }
-
-    @objc func didChangeDownloadProgress(notification: Notification) {
-        DispatchQueue.main.async {
-            // Make sure this notification is really for this cell
-            guard let fileParameter = self.message?.file(),
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
-            else { return }
-
-            if self.fileActivityIndicator != nil {
-                // Switch to determinate-mode and show progress
-                if receivedStatus.canReportProgress {
-                    self.fileActivityIndicator?.indicatorMode = .determinate
-                    self.fileActivityIndicator?.setProgress(Float(receivedStatus.downloadProgress), animated: true)
-                }
-            } else {
-                // Make sure we have an activity indicator added to this cell
-                self.addActivityIndicator(with: Float(receivedStatus.downloadProgress))
-            }
-        }
     }
 }

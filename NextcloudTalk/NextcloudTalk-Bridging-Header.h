@@ -58,7 +58,6 @@
 #import "NCMessageParameter.h"
 #import "QuotedMessageView.h"
 #import "ReplyMessageView.h"
-#import "VoiceMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
 
 #import "JDStatusBarNotificationPresenter.h"
