@@ -58,6 +58,9 @@ class AudioPlayerView: UIView {
             delegate?.audioPlayerProgressChanged(progress: CGFloat(slider.value))
         }
 
+        // Duration label
+        hideDurationLabel()
+
         backgroundColor = .secondarySystemBackground
         layer.cornerRadius = 8.0
         layer.masksToBounds = true
@@ -78,7 +81,7 @@ class AudioPlayerView: UIView {
         setPlayPauseButton(playing: false)
         slider.isEnabled = false
         slider.value = 0
-        durationLabel.isHidden = true
+        hideDurationLabel()
         slider.setNeedsLayout()
     }
 
@@ -115,6 +118,9 @@ class AudioPlayerView: UIView {
         playerTimeString.addAttributes(subAttributes, range: NSRange(location: 0, length: progressTime.count))
 
         durationLabel.attributedText = playerTimeString
-        durationLabel.isHidden = false
+    }
+
+    func hideDurationLabel() {
+        durationLabel.text = ""
     }
 }
