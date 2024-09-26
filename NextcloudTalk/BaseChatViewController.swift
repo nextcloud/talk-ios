@@ -3221,7 +3221,7 @@ import QuickLook
 
         if let voiceMessagesPlayer = self.voiceMessagesPlayer,
            let playerAudioFileStatus = self.playerAudioFileStatus,
-           voiceMessagesPlayer.isPlaying,
+           !voiceMessagesPlayer.isPlaying,
            fileParameter.parameterId == playerAudioFileStatus.fileId,
            fileParameter.path == playerAudioFileStatus.filePath {
 
