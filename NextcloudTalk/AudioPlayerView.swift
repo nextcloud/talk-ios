@@ -100,22 +100,11 @@ class AudioPlayerView: UIView {
         dateComponentsFormatter.allowedUnits = [.minute, .second]
         dateComponentsFormatter.zeroFormattingBehavior = []
 
-        let progressTime = dateComponentsFormatter.string(from: TimeInterval(progress)) ?? "00:00"
-        let durationTime = dateComponentsFormatter.string(from: TimeInterval(duration)) ?? "00:00"
+        let progressTime = dateComponentsFormatter.string(from: TimeInterval(progress)) ?? "0:00"
+        let durationTime = dateComponentsFormatter.string(from: TimeInterval(duration)) ?? "0:00"
 
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13),
-            .foregroundColor: UIColor.secondaryLabel
-        ]
-
-        let subAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13, weight: .medium),
-            .foregroundColor: UIColor.label
-        ]
-
-        let playerTime = "\(progressTime) / \(durationTime)"
-        let playerTimeString = NSMutableAttributedString(string: playerTime, attributes: attributes)
-        playerTimeString.addAttributes(subAttributes, range: NSRange(location: 0, length: progressTime.count))
+        let playerTimeString = "\(progressTime)".withTextColor(.label).withFont(.systemFont(ofSize: 13, weight: .medium))
+        playerTimeString.append(" / \(durationTime)".withTextColor(.secondaryLabel).withFont(.systemFont(ofSize: 13)))
 
         durationLabel.attributedText = playerTimeString
     }
