@@ -881,15 +881,26 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 
         [self adjustMoreButtonMenu];
 
-        if ([self->_room canModerate] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions]) {
+        if (([self->_room canModerate] || self->_room.type == kNCRoomTypeOneToOne) &&
+            [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPublishingPermissions]) {
             __weak typeof(self) weakSelf = self;
-            UIAction *hangupForAllAction = [UIAction actionWithTitle:NSLocalizedString(@"End call for everyone", @"") image:[UIImage systemImageNamed:@"phone.down.fill"] identifier:nil handler:^(UIAction *action) {
-                [weakSelf hangupForAll:YES];
-            }];
-
-            hangupForAllAction.attributes = UIMenuElementAttributesDestructive;
-
-            self.hangUpButton.menu = [UIMenu menuWithTitle:@"" children:@[hangupForAllAction]];
+            UIAction *alternativeHangUpAction = nil;
+            // One to one calls
+            if (self->_room.type == kNCRoomTypeOneToOne) {
+                alternativeHangUpAction = [UIAction actionWithTitle:NSLocalizedString(@"Leave call", @"") image:[UIImage systemImageNamed:@"phone.down.fill"] identifier:nil handler:^(UIAction *action) {
+                    [weakSelf hangupForAll:NO];
+                }];
+            // Moderators in group calls
+            } else if ([self->_room canModerate]) {
+                alternativeHangUpAction = [UIAction actionWithTitle:NSLocalizedString(@"End call for everyone", @"") image:[UIImage systemImageNamed:@"phone.down.fill"] identifier:nil handler:^(UIAction *action) {
+                    [weakSelf hangupForAll:YES];
+                }];
+            }
+            // Add alternative hang up button
+            if (alternativeHangUpAction) {
+                alternativeHangUpAction.attributes = UIMenuElementAttributesDestructive;
+                self.hangUpButton.menu = [UIMenu menuWithTitle:@"" children:@[alternativeHangUpAction]];
+            }
         }
     });
 }
@@ -897,7 +908,8 @@ typedef void (^UpdateCallParticipantViewCellBlock)(CallParticipantViewCell *cell
 - (void)setHangUpButtonWithTitle:(BOOL)title
 {
     if (title) {
-        [_hangUpButton setTitle:NSLocalizedString(@"End call", nil) forState:UIControlStateNormal];
+        NSString *buttonTitle = _room.type == kNCRoomTypeOneToOne ? NSLocalizedString(@"End call", @"") : NSLocalizedString(@"Leave call", @"");
+        [_hangUpButton setTitle:buttonTitle forState:UIControlStateNormal];
         [_hangUpButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
         [_hangUpButton setContentEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 24)];
         [_hangUpButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, -8)];
