@@ -1610,7 +1610,7 @@ import UIKit
 
         // Show silent send information
         if message.isSilent {
-            let silentInfo = UIAction(title: NSLocalizedString("Sent silently", comment: "A message has been sent silently"), attributes: [.disabled], handler: {_ in })
+            let silentInfo = UIAction(title: NSLocalizedString("Sent without notification", comment: "A message has been sent without notifications"), attributes: [.disabled], handler: {_ in })
             silentInfo.image = UIImage(systemName: "bell.slash")
 
             informationalActions.append(silentInfo)

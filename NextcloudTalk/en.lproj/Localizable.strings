@@ -1498,8 +1498,8 @@
 /* No comment provided by engineer. */
 "Send/Accept" = "Send/Accept";
 
-/* A message has been sent silently */
-"Sent silently" = "Sent silently";
+/* A message has been sent without notifications */
+"Sent without notification" = "Sent without notification";
 
 /* No comment provided by engineer. */
 "Server" = "Server";
