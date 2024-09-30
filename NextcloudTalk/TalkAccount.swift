@@ -26,7 +26,8 @@ import SwiftyAttributes
 
         if emojis.count < 4 {
             // Fill up to 4 emojis
-            emojis.append(contentsOf: defaultEmojis.prefix(4 - emojis.count))
+            let uniqueDefaultEmojis = defaultEmojis.filter { !emojis.contains($0) }
+            emojis.append(contentsOf: uniqueDefaultEmojis.prefix(4 - emojis.count))
         }
 
         return emojis
