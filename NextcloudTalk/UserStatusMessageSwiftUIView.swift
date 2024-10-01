@@ -12,7 +12,6 @@ struct UserStatusMessageSwiftUIView: View {
     @Binding var changed: Bool
     @State var showClearAtAlert: Bool = false
 
-    @State private var changedStatusFromPredefined: Bool = false
     @State private var customStatusSelected: Bool = false
     @State private var selectedPredifinedStatus: NKUserStatus?
     @State private var statusPredefinedStatuses: [NKUserStatus] = []
@@ -46,24 +45,18 @@ struct UserStatusMessageSwiftUIView: View {
                 List {
                     Section(header: Text(NSLocalizedString("What is your status?", comment: ""))) {
                         HStack(spacing: 10) {
-                            EmojiTextFieldWrapper(placeholder: "😀", text: $selectedIcon)
+                            SingleEmojiTextFieldWrapper(placeholder: "😀", text: $selectedIcon)
                                 .frame(maxWidth: 23)
                                 .opacity(selectedIcon.isEmpty ? 0.5 : 1.0)
-                                .onChange(of: selectedIcon) { newString in
-                                    changedSmth = true
-                                    customStatusSelected = !changedStatusFromPredefined
-                                    changedStatusFromPredefined = false
-                                    if newString.count > 1 {
-                                        selectedIcon = String(newString.first!)
-                                    }
+                                .onChange(of: selectedIcon) { _ in
+                                    customStatusSelected = true
                                 }
                                 .tint(.primary)
                                 .focused($textFieldIsFocused)
                             Divider()
                             TextField(NSLocalizedString("What is your status?", comment: ""), text: $selectedMessage)
                                 .onChange(of: selectedMessage) { _ in
-                                    customStatusSelected = !changedStatusFromPredefined
-                                    changedStatusFromPredefined = false
+                                    customStatusSelected = true
                                 }
                                 .tint(.primary)
                                 .focused($textFieldIsFocused)
@@ -72,7 +65,6 @@ struct UserStatusMessageSwiftUIView: View {
                     Section {
                         ForEach(statusPredefinedStatuses, id: \.id) { status in
                             Button(action: {
-                                changedStatusFromPredefined = true
                                 selectedPredifinedStatus = status
                                 customStatusSelected = false
                                 selectedIcon = selectedPredifinedStatus!.icon ?? "Empty"

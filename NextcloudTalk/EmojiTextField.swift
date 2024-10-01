@@ -7,7 +7,7 @@ import UIKit
 import SwiftUI
 import Dynamic
 
-struct EmojiTextFieldWrapper: UIViewRepresentable {
+struct SingleEmojiTextFieldWrapper: UIViewRepresentable {
     @State var placeholder: String
     @Binding var text: String
 
@@ -22,14 +22,14 @@ struct EmojiTextFieldWrapper: UIViewRepresentable {
         uiView.placeholder = placeholder
     }
 
-    func makeCoordinator() -> EmojiTextFieldWrapper.Coordinator {
+    func makeCoordinator() -> SingleEmojiTextFieldWrapper.Coordinator {
         Coordinator(parent: self)
     }
 
     class Coordinator: NSObject, UITextFieldDelegate {
-        var parent: EmojiTextFieldWrapper
+        var parent: SingleEmojiTextFieldWrapper
 
-        init(parent: EmojiTextFieldWrapper) {
+        init(parent: SingleEmojiTextFieldWrapper) {
             self.parent = parent
         }
 
