@@ -20,6 +20,8 @@ struct UserStatusMessageSwiftUIView: View {
     @State private var selectedClearAt: Double = 0
     @State private var selectedClearAtString: String = ""
 
+    @State private var userHasStatusSet: Bool = false
+
     @State private var isLoading: Bool = true
     @FocusState private var textFieldIsFocused: Bool
     @State private var showErrorAlert = false
@@ -107,7 +109,7 @@ struct UserStatusMessageSwiftUIView: View {
                                                                          comment: ""),
                                                 action: clearActiveUserStatus,
                                                 style: .tertiary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
+                                                disabled: Binding.constant(!userHasStatusSet))
                                 NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
                                                 action: setActiveUserStatus,
                                                 style: .primary, height: 40,
@@ -121,7 +123,7 @@ struct UserStatusMessageSwiftUIView: View {
                                                                          comment: ""),
                                                 action: clearActiveUserStatus,
                                                 style: .tertiary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
+                                                disabled: Binding.constant(!userHasStatusSet))
                                 .padding(.bottom, 16)
                                 NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
                                                 action: setActiveUserStatus,
@@ -182,6 +184,7 @@ struct UserStatusMessageSwiftUIView: View {
         NCAPIController.sharedInstance().setupNCCommunication(for: NCDatabaseManager.sharedInstance().activeAccount())
         NextcloudKit.shared.getUserStatus { _, clearAt, icon, message, messageId, _, _, _, _, _, error in
             if error.errorCode == 0 {
+                userHasStatusSet = !(icon?.isEmpty ?? true) || !(message?.isEmpty ?? true)
                 selectedIcon = icon ?? ""
                 selectedMessage = message ?? ""
                 selectedPredifinedStatusId = messageId
