@@ -65,11 +65,11 @@ struct UserStatusMessageSwiftUIView: View {
                     Section {
                         ForEach(statusPredefinedStatuses, id: \.id) { status in
                             Button(action: {
-                                selectedPredifinedStatus = status
                                 customStatusSelected = false
-                                selectedIcon = selectedPredifinedStatus!.icon ?? "Empty"
-                                selectedMessage = selectedPredifinedStatus!.message ?? "Empty"
-                                selectedClearAt = selectedPredifinedStatus!.clearAt?.timeIntervalSince1970 ?? 0
+                                selectedPredifinedStatus = status
+                                selectedIcon = status.icon ?? ""
+                                selectedMessage = status.message ?? ""
+                                selectedClearAt = status.clearAt?.timeIntervalSince1970 ?? 0
                                 selectedClearAtString = getPredefinedClearStatusText(clearAt: status.clearAt, clearAtTime: status.clearAtTime, clearAtType: status.clearAtType)
                                 setClearAt(clearAt: selectedClearAtString)
                             }) {
