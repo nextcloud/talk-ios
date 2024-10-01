@@ -12,8 +12,8 @@ struct UserStatusMessageSwiftUIView: View {
     @Binding var changed: Bool
     @State var showClearAtAlert: Bool = false
 
-    @State private var selectedPredifinedStatusId: String?
-    @State private var statusPredefinedStatuses: [NKUserStatus] = []
+    @State private var selectedPredefinedMessageId: String?
+    @State private var predefinedStatuses: [NKUserStatus] = []
 
     @State private var selectedIcon: String = ""
     @State private var selectedMessage: String = ""
@@ -50,23 +50,23 @@ struct UserStatusMessageSwiftUIView: View {
                                 .frame(maxWidth: 23)
                                 .opacity(selectedIcon.isEmpty ? 0.5 : 1.0)
                                 .onChange(of: selectedIcon) { _ in
-                                    selectedPredifinedStatusId = nil
+                                    selectedPredefinedMessageId = nil
                                 }
                                 .tint(.primary)
                                 .focused($textFieldIsFocused)
                             Divider()
                             TextField(NSLocalizedString("What is your status?", comment: ""), text: $selectedMessage)
                                 .onChange(of: selectedMessage) { _ in
-                                    selectedPredifinedStatusId = nil
+                                    selectedPredefinedMessageId = nil
                                 }
                                 .tint(.primary)
                                 .focused($textFieldIsFocused)
                         }
                     }
                     Section {
-                        ForEach(statusPredefinedStatuses, id: \.id) { status in
+                        ForEach(predefinedStatuses, id: \.id) { status in
                             Button(action: {
-                                selectedPredifinedStatusId = status.id
+                                selectedPredefinedMessageId = status.id
                                 selectedIcon = status.icon ?? ""
                                 selectedMessage = status.message ?? ""
                                 selectedClearAt = status.clearAt?.timeIntervalSince1970 ?? 0
@@ -187,14 +187,14 @@ struct UserStatusMessageSwiftUIView: View {
                 userHasStatusSet = !(icon?.isEmpty ?? true) || !(message?.isEmpty ?? true)
                 selectedIcon = icon ?? ""
                 selectedMessage = message ?? ""
-                selectedPredifinedStatusId = messageId
+                selectedPredefinedMessageId = messageId
                 selectedClearAt = clearAt?.timeIntervalSince1970 ?? 0
                 selectedClearAtString = getPredefinedClearStatusText(clearAt: clearAt, clearAtTime: nil, clearAtType: nil)
             }
         }
         NextcloudKit.shared.getUserStatusPredefinedStatuses { _, userStatuses, _, error in
             if error.errorCode == 0 {
-                statusPredefinedStatuses = userStatuses!
+                predefinedStatuses = userStatuses ?? []
                 withAnimation {
                     isLoading = false
                 }
@@ -203,8 +203,8 @@ struct UserStatusMessageSwiftUIView: View {
     }
 
     func setActiveUserStatus() {
-        if let selectedPredifinedStatusId {
-            NextcloudKit.shared.setCustomMessagePredefined(messageId: selectedPredifinedStatusId, clearAt: selectedClearAt) { _, error in
+        if let selectedPredefinedMessageId {
+            NextcloudKit.shared.setCustomMessagePredefined(messageId: selectedPredefinedMessageId, clearAt: selectedClearAt) { _, error in
                 if error.errorCode == 0 {
                     dismiss()
                     changed.toggle()
