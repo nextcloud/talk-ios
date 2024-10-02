@@ -26,8 +26,6 @@ import UIKit
     private var offlineMode = false
     private var hasStoredHistory = true
     private var hasStopped = false
-    private var viewWasShown = false
-    private var roomWasUpdated = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
 
@@ -189,23 +187,45 @@ import UIKit
         }
 
         if !self.offlineMode {
-            if self.room == nil {
-                fatalRoomError("Room should not be nil")
-            }
-
             if self.room.token == nil {
-                fatalRoomError("Room token should not be nil")
+                fatalTokenError()
             }
 
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
-
-        self.viewWasShown = true
     }
 
-    private func fatalRoomError(_ message: String) {
-        let errorMessage = "\(message): WasShown \(self.viewWasShown) | RoomWasUpdated \(self.roomWasUpdated)"
-        fatalError(errorMessage)
+    private func fatalTokenError() {
+        let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
+
+        switch capabilities.versionMajor {
+        case 19:
+            fatalError()
+        case 20:
+            fatalError()
+        case 21:
+            fatalError()
+        case 22:
+            fatalError()
+        case 23:
+            fatalError()
+        case 24:
+            fatalError()
+        case 25:
+            fatalError()
+        case 26:
+            fatalError()
+        case 27:
+            fatalError()
+        case 28:
+            fatalError()
+        case 29:
+            fatalError()
+        case 30:
+            fatalError()
+        default:
+            fatalError()
+        }
     }
 
     public override func viewWillDisappear(_ animated: Bool) {
@@ -249,6 +269,10 @@ import UIKit
         self.checkForNewStoredMessages()
 
         if !self.offlineMode {
+            if self.room.token == nil {
+                fatalTokenError()
+            }
+            
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
 
@@ -666,8 +690,6 @@ import UIKit
         if room.token != self.room.token {
             return
         }
-
-        self.roomWasUpdated = true
 
         self.room = room
         self.setTitleView()
