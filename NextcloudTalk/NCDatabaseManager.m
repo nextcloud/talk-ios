@@ -75,6 +75,7 @@ NSString * const kCapabilityChatReadLast            = @"chat-read-last";
 NSString * const kCapabilityBanV1                   = @"ban-v1";
 NSString * const kCapabilityMentionPermissions      = @"mention-permissions";
 NSString * const kCapabilityEditMessagesNoteToSelf  = @"edit-messages-note-to-self";
+NSString * const kCapabilityArchivedConversations   = @"archived-conversations";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 
