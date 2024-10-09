@@ -29,7 +29,6 @@ import QuickLook
                                                   AVAudioRecorderDelegate,
                                                   AVAudioPlayerDelegate,
                                                   SystemMessageTableViewCellDelegate,
-                                                  VoiceMessageTableViewCellDelegate,
                                                   ObjectShareMessageTableViewCellDelegate,
                                                   BaseChatTableViewCellDelegate,
                                                   UITableViewDataSourcePrefetching {
@@ -245,10 +244,11 @@ import QuickLook
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: locationMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: locationGroupedMessageCellIdentifier)
 
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceGroupedMessageCellIdentifier)
+
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: InvisibleSystemMessageCellIdentifier)
-        self.tableView?.register(VoiceMessageTableViewCell.self, forCellReuseIdentifier: VoiceMessageCellIdentifier)
-        self.tableView?.register(VoiceMessageTableViewCell.self, forCellReuseIdentifier: GroupedVoiceMessageCellIdentifier)
         self.tableView?.register(ObjectShareMessageTableViewCell.self, forCellReuseIdentifier: ObjectShareMessageCellIdentifier)
         self.tableView?.register(ObjectShareMessageTableViewCell.self, forCellReuseIdentifier: GroupedObjectShareMessageCellIdentifier)
         self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorCellIdentifier)
@@ -1728,16 +1728,16 @@ import QuickLook
                 let message = messages[indexPath.row]
 
                 if message.isVoiceMessage {
-                    guard let cell = tableView.cellForRow(at: indexPath) as? VoiceMessageTableViewCell,
+                    guard let cell = tableView.cellForRow(at: indexPath) as? BaseChatTableViewCell,
                           let file = message.file()
                     else { continue }
 
                     if file.parameterId == playerAudioFileStatus.fileId, file.path == playerAudioFileStatus.filePath {
-                        cell.setPlayerProgress(voiceMessagesPlayer.currentTime, isPlaying: voiceMessagesPlayer.isPlaying, maximumValue: voiceMessagesPlayer.duration)
+                        cell.audioPlayerView?.setPlayerProgress(voiceMessagesPlayer.currentTime, isPlaying: voiceMessagesPlayer.isPlaying, maximumValue: voiceMessagesPlayer.duration)
                         continue
                     }
 
-                    cell.resetPlayer()
+                    cell.audioPlayerView?.resetPlayer()
                 }
             }
         }
@@ -2575,9 +2575,9 @@ import QuickLook
         }
 
         if message.isVoiceMessage {
-            let cellIdentifier = message.isGroupMessage ? GroupedVoiceMessageCellIdentifier : VoiceMessageCellIdentifier
+            let cellIdentifier = message.isGroupMessage ? voiceGroupedMessageCellIdentifier : voiceMessageCellIdentifier
 
-            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? VoiceMessageTableViewCell {
+            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
                 cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
 
@@ -2585,12 +2585,12 @@ import QuickLook
                    let voiceMessagesPlayer = self.voiceMessagesPlayer {
 
                     if message.file().parameterId == playerAudioFileStatus.fileId, message.file().path == playerAudioFileStatus.filePath {
-                        cell.setPlayerProgress(voiceMessagesPlayer.currentTime, isPlaying: voiceMessagesPlayer.isPlaying, maximumValue: voiceMessagesPlayer.duration)
+                        cell.audioPlayerView?.setPlayerProgress(voiceMessagesPlayer.currentTime, isPlaying: voiceMessagesPlayer.isPlaying, maximumValue: voiceMessagesPlayer.duration)
                     } else {
-                        cell.resetPlayer()
+                        cell.audioPlayerView?.resetPlayer()
                     }
                 } else {
-                    cell.resetPlayer()
+                    cell.audioPlayerView?.resetPlayer()
                 }
 
                 return cell
@@ -2731,7 +2731,7 @@ import QuickLook
         // Voice message should be before message.file check since it contains a file
         if message.isVoiceMessage {
             height -= ceil(bodyBounds.height)
-            height += kVoiceMessageCellPlayerHeight + 10
+            height += voiceMessageCellPlayerHeight
 
         } else if let file = message.file() {
             if file.previewImageHeight > 0 {
@@ -3213,7 +3213,7 @@ import QuickLook
 
     // MARK: - VoiceMessageTableViewCellDelegate
 
-    public func cellWants(toPlayAudioFile fileParameter: NCMessageFileParameter!) {
+    public func cellWants(toPlayAudioFile fileParameter: NCMessageFileParameter) {
         if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
             print("File already downloading -> skipping new download")
             return
@@ -3221,7 +3221,7 @@ import QuickLook
 
         if let voiceMessagesPlayer = self.voiceMessagesPlayer,
            let playerAudioFileStatus = self.playerAudioFileStatus,
-           voiceMessagesPlayer.isPlaying,
+           !voiceMessagesPlayer.isPlaying,
            fileParameter.parameterId == playerAudioFileStatus.fileId,
            fileParameter.path == playerAudioFileStatus.filePath {
 
@@ -3235,7 +3235,7 @@ import QuickLook
         downloader.downloadFile(fromMessage: fileParameter)
     }
 
-    public func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter!) {
+    public func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter) {
         if let voiceMessagesPlayer = self.voiceMessagesPlayer,
            let playerAudioFileStatus = self.playerAudioFileStatus,
            voiceMessagesPlayer.isPlaying,
@@ -3246,7 +3246,7 @@ import QuickLook
         }
     }
 
-    public func cellWants(toChangeProgress progress: CGFloat, fromAudioFile fileParameter: NCMessageFileParameter!) {
+    public func cellWants(toChangeProgress progress: CGFloat, fromAudioFile fileParameter: NCMessageFileParameter) {
         if let playerAudioFileStatus = self.playerAudioFileStatus,
            fileParameter.parameterId == playerAudioFileStatus.fileId,
            fileParameter.path == playerAudioFileStatus.filePath {
