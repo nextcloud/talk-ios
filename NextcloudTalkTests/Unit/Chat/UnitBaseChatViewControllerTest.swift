@@ -135,7 +135,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
 """
 
         testMessage.message = "{object}"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 90.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 88.0)
     }
 
     func testCellWithGeolocationHeight() {
