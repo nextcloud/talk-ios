@@ -20,6 +20,8 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellWants(toPlayAudioFile fileParameter: NCMessageFileParameter)
     func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter)
     func cellWants(toChangeProgress progress: CGFloat, fromAudioFile fileParameter: NCMessageFileParameter)
+
+    func cellWants(toOpenPoll poll: NCMessageParameter)
 }
 
 // Common elements
@@ -53,6 +55,10 @@ public let locationMessageCellPreviewWidth = 240.0
 public let voiceMessageCellIdentifier = "voiceMessageCellIdentifier"
 public let voiceGroupedMessageCellIdentifier = "voiceGroupedMessageCellIdentifier"
 public let voiceMessageCellPlayerHeight = 52.0
+
+// Poll cell
+public let pollMessageCellIdentifier = "pollMessageCellIdentifier"
+public let pollGroupedMessageCellIdentifier = "pollGroupedMessageCellIdentifier"
 
 class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, ReactionsViewDelegate {
 
@@ -99,6 +105,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     // Audio cell
     internal var audioPlayerView: AudioPlayerView?
 
+    // Poll cell
+    internal var pollMessageView: PollMessageView?
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -139,6 +148,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.prepareForReuseFileCell()
         self.prepareForReuseLocationCell()
         self.prepareForReuseAudioCell()
+        self.prepareForReusePollCell()
 
         if let replyGestureRecognizer {
             self.removeGestureRecognizer(replyGestureRecognizer)
@@ -258,6 +268,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if message.isVoiceMessage {
             // Audio message
             self.setupForAudioCell(with: message)
+        } else if message.poll != nil {
+            // Poll message
+            self.setupForPollCell(with: message)
         } else if message.file() != nil {
             // File message
             self.setupForFileCell(with: message, with: activeAccount)
