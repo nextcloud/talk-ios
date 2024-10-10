@@ -5,7 +5,6 @@
 
 #import "CallParticipantViewCell.h"
 
-#import "CallViewController.h"
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 

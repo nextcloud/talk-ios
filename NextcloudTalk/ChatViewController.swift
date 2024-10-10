@@ -358,7 +358,7 @@ import UIKit
             // Disable call buttons
             self.videoCallButton.isEnabled = false
             self.voiceCallButton.isEnabled = false
-        } else if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room), (room.permissions & NCPermission.chat.rawValue) == 0 {
+        } else if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room), !room.permissions.contains(.chat) {
             // Hide text input
             self.setTextInputbarHidden(true, animated: isVisible)
         } else if self.isTextInputbarHidden {
@@ -1203,7 +1203,7 @@ import UIKit
 
         if let permissionsString = appUserDict["participantPermissions"],
            let permissions = Int(permissionsString),
-           permissions != self.room.permissions {
+           permissions != self.room.permissions.rawValue {
 
             // Need to update the room from the api because otherwise "canStartCall" is not updated correctly
             NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
@@ -1305,7 +1305,7 @@ import UIKit
         NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityConversationPermissions, for: room) ||
         NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityDirectMentionFlag, for: room)
 
-        if serverSupportsConversationPermissions, (self.room.permissions & NCPermission.canIgnoreLobby.rawValue) != 0 {
+        if serverSupportsConversationPermissions, self.room.permissions.contains(.canIgnoreLobby) {
             return false
         }
 
@@ -1502,7 +1502,7 @@ import UIKit
     }
 
     override func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
-        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || (self.room.permissions & NCPermission.chat.rawValue) != 0
+        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
 
         guard hasChatPermissions && self.isMessageReactable(message: message) else { return nil }
 
@@ -1618,7 +1618,7 @@ import UIKit
         var actions: [UIMenuElement] = []
         var informationalActions: [UIMenuElement] = []
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || (self.room.permissions & NCPermission.chat.rawValue) != 0
+        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
 
         // Show edit information
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {

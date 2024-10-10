@@ -421,7 +421,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     if (!_callViewController) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        _callViewController = [[CallViewController alloc] initCallInRoom:room asUser:activeAccount.userDisplayName audioOnly:!video];
+        _callViewController = [[CallViewController alloc] initFor:room asUser:activeAccount.userDisplayName audioOnly:!video];
         _callViewController.videoDisabledAtStart = !enabled;
         _callViewController.voiceChatModeAtStart = voiceChatMode;
         _callViewController.initiator = initiator;

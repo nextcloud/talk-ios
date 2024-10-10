@@ -86,5 +86,9 @@
 #import "NCNotification.h"
 
 #import "MessageBodyTextView.h"
+#import "NCAudioController.h"
+#import "NCCallController.h"
+#import "CallConstants.h"
+#import "AvatarBackgroundImageView.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */
