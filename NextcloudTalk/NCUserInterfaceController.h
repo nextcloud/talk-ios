@@ -6,14 +6,15 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "CallViewController.h"
 #import "NCNotificationController.h"
 #import "NCNavigationController.h"
 #import "NCPushNotification.h"
 #import "RoomsTableViewController.h"
+#import "NCRoom.h"
 
 @class NCSplitViewController;
 @class ChatViewController;
+@class CallViewController;
 
 typedef void (^PresentCallControllerCompletionBlock)(void);
 

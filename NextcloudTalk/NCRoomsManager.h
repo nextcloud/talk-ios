@@ -8,7 +8,6 @@
 #import "NCAPIController.h"
 #import "NCRoom.h"
 #import "NCChatController.h"
-#import "CallViewController.h"
 
 // Room
 extern NSString * const NCRoomsManagerDidJoinRoomNotification;
@@ -23,6 +22,7 @@ typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 typedef void (^SendOfflineMessagesCompletionBlock)(void);
 
 @class ChatViewController;
+@class CallViewController;
 
 @interface NCRoomController : NSObject
 
