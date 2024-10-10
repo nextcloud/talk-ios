@@ -16,6 +16,12 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage)
 
     func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject)
+
+    func cellWants(toPlayAudioFile fileParameter: NCMessageFileParameter)
+    func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter)
+    func cellWants(toChangeProgress progress: CGFloat, fromAudioFile fileParameter: NCMessageFileParameter)
+
+    func cellWants(toOpenPoll poll: NCMessageParameter)
 }
 
 // Common elements
@@ -45,7 +51,16 @@ public let locationMessageCellMinimumHeight = 50.0
 public let locationMessageCellPreviewHeight = 120.0
 public let locationMessageCellPreviewWidth = 240.0
 
-class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
+// Voice message cell
+public let voiceMessageCellIdentifier = "voiceMessageCellIdentifier"
+public let voiceGroupedMessageCellIdentifier = "voiceGroupedMessageCellIdentifier"
+public let voiceMessageCellPlayerHeight = 52.0
+
+// Poll cell
+public let pollMessageCellIdentifier = "pollMessageCellIdentifier"
+public let pollGroupedMessageCellIdentifier = "pollGroupedMessageCellIdentifier"
+
+class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, ReactionsViewDelegate {
 
     public weak var delegate: BaseChatTableViewCellDelegate?
 
@@ -87,6 +102,12 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
     internal var locationPreviewImageViewHeightConstraint: NSLayoutConstraint?
     internal var locationPreviewImageViewWidthConstraint: NSLayoutConstraint?
 
+    // Audio cell
+    internal var audioPlayerView: AudioPlayerView?
+
+    // Poll cell
+    internal var pollMessageView: PollMessageView?
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -126,6 +147,8 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
         self.prepareForReuseMessageCell()
         self.prepareForReuseFileCell()
         self.prepareForReuseLocationCell()
+        self.prepareForReuseAudioCell()
+        self.prepareForReusePollCell()
 
         if let replyGestureRecognizer {
             self.removeGestureRecognizer(replyGestureRecognizer)
@@ -242,7 +265,13 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             self.addSlideToReplyGestureRecognizer(for: message)
         }
 
-        if message.file() != nil {
+        if message.isVoiceMessage {
+            // Audio message
+            self.setupForAudioCell(with: message)
+        } else if message.poll != nil {
+            // Poll message
+            self.setupForPollCell(with: message)
+        } else if message.file() != nil {
             // File message
             self.setupForFileCell(with: message, with: activeAccount)
         } else if message.geoLocation() != nil {
@@ -257,6 +286,9 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             self.statusView.isHidden = true
             self.messageTextView?.textColor = .tertiaryLabel
         }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
     }
 
     func addSlideToReplyGestureRecognizer(for message: NCChatMessage) {
@@ -505,6 +537,71 @@ class BaseChatTableViewCell: UITableViewCell, ReactionsViewDelegate {
             }
 
             completionBlock(menuItems)
+        }
+    }
+
+    // MARK: - File status / activity indicator
+
+    func clearFileStatusView() {
+            self.fileActivityIndicator?.stopAnimating()
+            self.fileActivityIndicator?.removeFromSuperview()
+            self.fileActivityIndicator = nil
+    }
+
+    func addActivityIndicator(with progress: Float) {
+        self.clearFileStatusView()
+
+        let fileActivityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
+        self.fileActivityIndicator = fileActivityIndicator
+
+        fileActivityIndicator.radius = 7
+        fileActivityIndicator.cycleColors = [.systemGray2]
+
+        if progress > 0 {
+            fileActivityIndicator.indicatorMode = .determinate
+            fileActivityIndicator.setProgress(progress, animated: false)
+        }
+
+        fileActivityIndicator.startAnimating()
+        fileActivityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        self.statusView.addArrangedSubview(fileActivityIndicator)
+    }
+
+    // MARK: - File notifications
+
+    @objc func didChangeIsDownloading(notification: Notification) {
+        DispatchQueue.main.async {
+            // Make sure this notification is really for this cell
+            guard let fileParameter = self.message?.file(),
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
+            else { return }
+
+            if receivedStatus.isDownloading, self.fileActivityIndicator == nil {
+                // Immediately show an indeterminate indicator as long as we don't have a progress value
+                self.addActivityIndicator(with: 0)
+            } else if !receivedStatus.isDownloading, self.fileActivityIndicator != nil {
+                self.clearFileStatusView()
+            }
+        }
+    }
+
+    @objc func didChangeDownloadProgress(notification: Notification) {
+        DispatchQueue.main.async {
+            // Make sure this notification is really for this cell
+            guard let fileParameter = self.message?.file(),
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
+            else { return }
+
+            if self.fileActivityIndicator != nil {
+                // Switch to determinate-mode and show progress
+                if receivedStatus.canReportProgress {
+                    self.fileActivityIndicator?.indicatorMode = .determinate
+                    self.fileActivityIndicator?.setProgress(Float(receivedStatus.downloadProgress), animated: true)
+                }
+            } else {
+                // Make sure we have an activity indicator added to this cell
+                self.addActivityIndicator(with: Float(receivedStatus.downloadProgress))
+            }
         }
     }
 }

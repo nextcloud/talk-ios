@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AudioPlayerView" customModule="NextcloudTalk" customModuleProvider="target">
+            <connections>
+                <outlet property="contentView" destination="iN0-l3-epB" id="WHP-2s-6Il"/>
+                <outlet property="durationLabel" destination="7vy-DL-v2I" id="gLr-z8-lYD"/>
+                <outlet property="playPauseButton" destination="weF-VJ-kQg" id="6O8-WK-cv9"/>
+                <outlet property="slider" destination="Cgz-Rx-FyJ" id="TME-tZ-DL1"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="441" height="52"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weF-VJ-kQg">
+                    <rect key="frame" x="8" y="4" width="44" height="44"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="44" id="TwB-9N-gEK"/>
+                        <constraint firstAttribute="height" constant="44" id="XIa-Qd-GZD"/>
+                    </constraints>
+                    <color key="tintColor" systemColor="labelColor"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="plain" image="play.fill" catalog="system"/>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="0:00 / 0:02" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7vy-DL-v2I">
+                    <rect key="frame" x="366" y="0.0" width="67" height="52"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Cgz-Rx-FyJ">
+                    <rect key="frame" x="58" y="11" width="302" height="31"/>
+                </slider>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <constraints>
+                <constraint firstItem="Cgz-Rx-FyJ" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="0pD-pS-YhM"/>
+                <constraint firstAttribute="bottom" secondItem="7vy-DL-v2I" secondAttribute="bottom" id="1PB-ja-hxc"/>
+                <constraint firstItem="Cgz-Rx-FyJ" firstAttribute="leading" secondItem="weF-VJ-kQg" secondAttribute="trailing" constant="8" symbolic="YES" id="H3b-Y3-6vI"/>
+                <constraint firstItem="weF-VJ-kQg" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="4" id="MAo-xn-Ott"/>
+                <constraint firstAttribute="bottom" secondItem="weF-VJ-kQg" secondAttribute="bottom" constant="4" id="Ms8-VQ-WhR"/>
+                <constraint firstItem="weF-VJ-kQg" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="8" id="QBV-dj-HsA"/>
+                <constraint firstItem="7vy-DL-v2I" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="QFI-XE-9Fd"/>
+                <constraint firstAttribute="trailing" secondItem="7vy-DL-v2I" secondAttribute="trailing" constant="8" id="VnI-wM-6MZ"/>
+                <constraint firstItem="7vy-DL-v2I" firstAttribute="leading" secondItem="Cgz-Rx-FyJ" secondAttribute="trailing" constant="8" id="nHt-Db-jET"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="130.53435114503816" y="-233.09859154929578"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="play.fill" catalog="system" width="120" height="128"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

@@ -135,7 +135,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
 """
 
         testMessage.message = "{object}"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 90.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 88.0)
     }
 
     func testCellWithGeolocationHeight() {
@@ -205,7 +205,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
     func testCellWithVoiceMessageHeight() {
         testMessage.message = "abc"
         testMessage.messageType = "voice-message"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 104.0)
+        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 102.0)
     }
 
     func testCellWithQuoteHeight() throws {

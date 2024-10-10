@@ -52,13 +52,11 @@
 
 #import "GeoLocationRichObject.h"
 #import "MessageSeparatorTableViewCell.h"
-#import "ObjectShareMessageTableViewCell.h"
 #import "NCChatMessage.h"
 #import "NCChatTitleView.h"
 #import "NCMessageParameter.h"
 #import "QuotedMessageView.h"
 #import "ReplyMessageView.h"
-#import "VoiceMessageTableViewCell.h"
 #import "SystemMessageTableViewCell.h"
 
 #import "JDStatusBarNotificationPresenter.h"
