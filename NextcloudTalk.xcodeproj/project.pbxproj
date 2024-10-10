@@ -420,6 +420,9 @@
 		2C444707265E59B500DF1DBC /* ShareConfirmationCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8425769E7D00AEDFB6 /* ShareConfirmationCollectionViewCell.xib */; };
 		2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABD8225769E7D00AEDFB6 /* ShareItemController.m */; };
 		2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */; };
+		2C4747E22CB58FD2002828F2 /* PollMessageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C4747E12CB58FD2002828F2 /* PollMessageView.xib */; };
+		2C4747E62CB6711F002828F2 /* BaseChatTableViewCell+Poll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4747E52CB6710F002828F2 /* BaseChatTableViewCell+Poll.swift */; };
+		2C4747E92CB67177002828F2 /* PollMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4747E82CB67177002828F2 /* PollMessageView.swift */; };
 		2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 2C477C1828B79D980044DEB4 /* Localizable.stringsdict */; };
 		2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4987BC21E640E20060AC27 /* CallKitManager.m */; };
 		2C4CDCCD269618240023F403 /* RoomDescriptionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C4CDCCB269618230023F403 /* RoomDescriptionTableViewCell.xib */; };
@@ -435,7 +438,6 @@
 		2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
 		2C57CD8428C2255000B22E03 /* PollCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C57CD8328C2255000B22E03 /* PollCreationViewController.swift */; };
 		2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */; };
-		2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */; };
 		2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEE288A947800E75118 /* PollVotingView.swift */; };
 		2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
 		2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
@@ -928,6 +930,9 @@
 		2C444701265D641300DF1DBC /* NCUserDefaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserDefaults.h; sourceTree = "<group>"; };
 		2C444702265D641300DF1DBC /* NCUserDefaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserDefaults.m; sourceTree = "<group>"; };
 		2C44B4D027FF05A000AD1C86 /* ReactionsSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsSummaryView.swift; sourceTree = "<group>"; };
+		2C4747E12CB58FD2002828F2 /* PollMessageView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PollMessageView.xib; sourceTree = "<group>"; };
+		2C4747E52CB6710F002828F2 /* BaseChatTableViewCell+Poll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+Poll.swift"; sourceTree = "<group>"; };
+		2C4747E82CB67177002828F2 /* PollMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollMessageView.swift; sourceTree = "<group>"; };
 		2C477C1728B79D980044DEB4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C4987BB21E640E20060AC27 /* CallKitManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CallKitManager.h; sourceTree = "<group>"; };
 		2C4987BC21E640E20060AC27 /* CallKitManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CallKitManager.m; sourceTree = "<group>"; };
@@ -953,8 +958,6 @@
 		2C57CD8328C2255000B22E03 /* PollCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollCreationViewController.swift; sourceTree = "<group>"; };
 		2C57CD8528CB3FAF00B22E03 /* eu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = eu; path = eu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCUnifiedSearchController.swift; sourceTree = "<group>"; };
-		2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectShareMessageTableViewCell.h; sourceTree = "<group>"; };
-		2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectShareMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C5BFBEE288A947800E75118 /* PollVotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollVotingView.swift; sourceTree = "<group>"; };
 		2C5BFBF0288A97D800E75118 /* NCPoll.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCPoll.h; sourceTree = "<group>"; };
 		2C5BFBF1288A97D800E75118 /* NCPoll.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCPoll.m; sourceTree = "<group>"; };
@@ -1336,13 +1339,15 @@
 		1F46CE2628E05AC100E7D88E /* Polls */ = {
 			isa = PBXGroup;
 			children = (
-				2C5BFBEE288A947800E75118 /* PollVotingView.swift */,
+				2C57CD8328C2255000B22E03 /* PollCreationViewController.swift */,
 				2C5BFBF528902E0300E75118 /* PollFooterView.swift */,
 				2C5BFBF728902E3700E75118 /* PollFooterView.xib */,
+				2C4747E82CB67177002828F2 /* PollMessageView.swift */,
+				2C4747E12CB58FD2002828F2 /* PollMessageView.xib */,
+				2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */,
 				2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */,
 				2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */,
-				2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */,
-				2C57CD8328C2255000B22E03 /* PollCreationViewController.swift */,
+				2C5BFBEE288A947800E75118 /* PollVotingView.swift */,
 			);
 			name = Polls;
 			sourceTree = "<group>";
@@ -1877,6 +1882,7 @@
 				1F1B50392B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift */,
 				2C21446D2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift */,
 				2C04248F2CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift */,
+				2C4747E52CB6710F002828F2 /* BaseChatTableViewCell+Poll.swift */,
 				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
 				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
 				1F35F9022AEEDEE800044BDA /* AutoCompletionTableViewCell.h */,
@@ -1885,8 +1891,6 @@
 				2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */,
 				2C8E2A19232174C20022BFC9 /* MessageSeparatorTableViewCell.h */,
 				2C8E2A1A232174C20022BFC9 /* MessageSeparatorTableViewCell.m */,
-				2C5BFBEB28895E6A00E75118 /* ObjectShareMessageTableViewCell.h */,
-				2C5BFBEC28895E6B00E75118 /* ObjectShareMessageTableViewCell.m */,
 				1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */,
 				1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */,
 			);
@@ -2487,6 +2491,7 @@
 				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
 				2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */,
 				1FB7B99C2BF0DF360093CE98 /* BannedActorCell.xib in Resources */,
+				2C4747E22CB58FD2002828F2 /* PollMessageView.xib in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
@@ -2826,6 +2831,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				2C4747E92CB67177002828F2 /* PollMessageView.swift in Sources */,
 				2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */,
 				1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */,
 				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
@@ -2995,7 +3001,6 @@
 				2C78EFA01F828C41008AFA74 /* CallViewController.m in Sources */,
 				1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
-				2C5BFBED28895E6B00E75118 /* ObjectShareMessageTableViewCell.m in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
 				DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */,
 				1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */,
@@ -3058,6 +3063,7 @@
 				80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */,
 				1FF4DA822C025DB900C1B952 /* NCAPISessionManager.swift in Sources */,
 				1F1DF83C2C5C17AF00E5EA86 /* TalkActor.swift in Sources */,
+				2C4747E62CB6711F002828F2 /* BaseChatTableViewCell+Poll.swift in Sources */,
 				2C444708265E59BC00DF1DBC /* ShareItemController.m in Sources */,
 				2CA1CC951F014EF9002FE6A2 /* NCSettingsController.m in Sources */,
 				2C440D1120EA4A770005F9BB /* RoomInfoTableViewController.m in Sources */,
