@@ -54,14 +54,14 @@ class PollMessageView: UIView {
         let pollImageWidth = pollImageAttributedString().boundingRect(
             with: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude),
             options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).width
-        let width = width - (pollImageWidth + 30) // 3 * padding (10)
+        let titleTextViewMaxWidth = ceil(width - (pollImageWidth + 30)) // 3 * padding (10)
 
         let titleTextView = UITextView(frame: .zero)
         configureTitleTextView(with: titleTextView)
         titleTextView.text = title
 
-        let titleTextViewSize = titleTextView.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
+        let titleTextViewHeight = ceil(titleTextView.sizeThatFits(CGSize(width: titleTextViewMaxWidth, height: CGFloat.greatestFiniteMagnitude)).height)
 
-        return titleTextViewSize.height + 20 // 2 * padding (10)
+        return titleTextViewHeight + 20 // 2 * padding (10)
     }
 }
