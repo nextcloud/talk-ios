@@ -8,7 +8,7 @@ extension BaseChatTableViewCell {
     func setupForPollCell(with message: NCChatMessage) {
         if self.pollMessageView == nil {
             // Poll message view
-            let pollMessageView = PollMessageView(frame: CGRect(x: 0, y: 0, width: 0, height: voiceMessageCellPlayerHeight))
+            let pollMessageView = PollMessageView(frame: .zero)
             self.pollMessageView = pollMessageView
 
             pollMessageView.translatesAutoresizingMaskIntoConstraints = false
