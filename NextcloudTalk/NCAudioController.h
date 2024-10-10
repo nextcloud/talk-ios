@@ -12,6 +12,8 @@ extern NSString * const AudioSessionDidChangeRouteNotification;
 extern NSString * const AudioSessionWasActivatedByProviderNotification;
 extern NSString * const AudioSessionDidChangeRoutingInformationNotification;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface NCAudioController : NSObject <RTCAudioSessionDelegate>
 
 @property (nonatomic, strong) RTCAudioSession *rtcAudioSession;
@@ -28,3 +30,5 @@ extern NSString * const AudioSessionDidChangeRoutingInformationNotification;
 - (BOOL)isAudioRouteChangeable;
 
 @end
+
+NS_ASSUME_NONNULL_END

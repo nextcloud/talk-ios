@@ -24,10 +24,10 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)callControllerDidEndCall:(NCCallController *)callController;
 - (void)callController:(NCCallController *)callController peerJoined:(NCPeerConnection *)peer;
 - (void)callController:(NCCallController *)callController peerLeft:(NCPeerConnection *)peer;
-- (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack *)audioTrack;
-- (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack *)videoTrack;
+- (void)callController:(NCCallController *)callController didCreateLocalAudioTrack:(RTCAudioTrack * _Nullable)audioTrack;
+- (void)callController:(NCCallController *)callController didCreateLocalVideoTrack:(RTCVideoTrack * _Nullable)videoTrack;
 - (void)callController:(NCCallController *)callController didCreateCameraController:(NCCameraController *)cameraController;
-- (void)callController:(NCCallController *)callController userPermissionsChanged:(NSInteger)permissions;
+- (void)callController:(NCCallController *)callController userPermissionsChanged:(NCPermission)permissions;
 - (void)callController:(NCCallController *)callController didAddStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer;
 - (void)callController:(NCCallController *)callController didRemoveStream:(RTCMediaStream *)remoteStream ofPeer:(NCPeerConnection *)remotePeer;
 - (void)callController:(NCCallController *)callController iceStatusChanged:(RTCIceConnectionState)state ofPeer:(NCPeerConnection *)peer;
@@ -59,7 +59,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 @property (nonatomic, assign) BOOL screensharingActive;
 
 
-- (instancetype)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;
+- (instancetype _Nonnull)initWithDelegate:(id<NCCallControllerDelegate>)delegate inRoom:(NCRoom *)room forAudioOnlyCall:(BOOL)audioOnly withSessionId:(NSString *)sessionId andVoiceChatMode:(BOOL)voiceChatMode;
 - (void)startCall;
 - (void)leaveCallForAll:(BOOL)allParticipants;
 - (void)getVideoEnabledStateWithCompletionBlock:(GetVideoEnabledStateCompletionBlock)block;

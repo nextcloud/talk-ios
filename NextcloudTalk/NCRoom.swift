@@ -151,7 +151,7 @@ import Realm
     public var callRecordingIsInActiveState: Bool {
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1) {
             // Starting states and running states are considered active
-            if self.callRecording != NCCallRecordingState.stopped.rawValue && self.callRecording != NCCallRecordingState.failed.rawValue {
+            if self.callRecording != .stopped && self.callRecording != .failed {
                 return true
             }
         }
