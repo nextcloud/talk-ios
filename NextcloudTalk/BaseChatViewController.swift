@@ -1613,6 +1613,13 @@ import QuickLook
                         NSLog("Failed to check or create attachment folder")
                     }
                 })
+            } else if error.errorCode == 507 {
+                let alert = UIAlertController(title: NSLocalizedString("Upload failed", comment: ""),
+                                              message: error.errorDescription,
+                                              preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+                self.present(alert, animated: true)
+                NSLog("Failed to upload voice message due to missing user storage quota")
             } else {
                 NSLog("Failed upload voice message")
             }
