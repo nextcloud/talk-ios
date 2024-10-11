@@ -52,7 +52,6 @@
 
 #import "GeoLocationRichObject.h"
 #import "MessageSeparatorTableViewCell.h"
-#import "ObjectShareMessageTableViewCell.h"
 #import "NCChatMessage.h"
 #import "NCChatTitleView.h"
 #import "NCMessageParameter.h"

@@ -29,7 +29,6 @@ import QuickLook
                                                   AVAudioRecorderDelegate,
                                                   AVAudioPlayerDelegate,
                                                   SystemMessageTableViewCellDelegate,
-                                                  ObjectShareMessageTableViewCellDelegate,
                                                   BaseChatTableViewCellDelegate,
                                                   UITableViewDataSourcePrefetching {
 
@@ -247,10 +246,11 @@ import QuickLook
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceGroupedMessageCellIdentifier)
 
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceGroupedMessageCellIdentifier)
+
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: InvisibleSystemMessageCellIdentifier)
-        self.tableView?.register(ObjectShareMessageTableViewCell.self, forCellReuseIdentifier: ObjectShareMessageCellIdentifier)
-        self.tableView?.register(ObjectShareMessageTableViewCell.self, forCellReuseIdentifier: GroupedObjectShareMessageCellIdentifier)
         self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorCellIdentifier)
 
         let newMessagesButtonText = NSLocalizedString("↓ New messages", comment: "")
@@ -2620,9 +2620,9 @@ import QuickLook
         }
 
         if message.poll != nil {
-            let cellIdentifier = message.isGroupMessage ? GroupedObjectShareMessageCellIdentifier : ObjectShareMessageCellIdentifier
+            let cellIdentifier = message.isGroupMessage ? pollGroupedMessageCellIdentifier : pollMessageCellIdentifier
 
-            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? ObjectShareMessageTableViewCell {
+            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
                 cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
 
@@ -2687,19 +2687,18 @@ import QuickLook
         }
 
         // Chat messages
-        var messageString = message.parsedMarkdownForChat() ?? NSMutableAttributedString()
+        let messageString = message.parsedMarkdownForChat() ?? NSMutableAttributedString()
         var width = originalWidth
         width -= message.isSystemMessage ? 80.0 : 30.0 // *right(10) + dateLabel(40) : 3*right(10)
-
-        if message.poll != nil {
-            messageString = messageString.withFont(.preferredFont(forTextStyle: .body))
-            width -= kObjectShareMessageCellObjectTypeImageSize + 25 // 2*right(10) + left(5)
-        }
 
         self.textViewForSizing.attributedText = messageString
 
         let bodyBounds = self.textViewForSizing.sizeThatFits(CGSize(width: width, height: CGFLOAT_MAX))
         var height = ceil(bodyBounds.height)
+
+        if message.poll != nil {
+            height = PollMessageView().pollMessageBodyHeight(with: messageString.string, width: width)
+        }
 
         if (message.isGroupMessage && message.parent == nil) || message.isSystemMessage {
             height += 10 // 2*left(5)
@@ -2756,10 +2755,6 @@ import QuickLook
 
         if message.geoLocation() != nil {
             height += locationMessageCellPreviewHeight + 10 // right(10)
-        }
-
-        if message.poll != nil {
-            height += 20 // 2*right(10)
         }
 
         return height
@@ -3265,7 +3260,7 @@ import QuickLook
 
     // MARK: - ObjectShareMessageTableViewCell
 
-    public func cellWants(toOpenPoll poll: NCMessageParameter!) {
+    public func cellWants(toOpenPoll poll: NCMessageParameter) {
         let pollVC = PollVotingView(style: .insetGrouped)
         pollVC.room = self.room
         self.presentWithNavigation(pollVC, animated: true)
