@@ -17,12 +17,12 @@ class PollResultTableViewCell: UITableViewCell {
     }
 
     override func prepareForReuse() {
-        optionLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        resultLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        optionLabel.font = .preferredFont(for: .body, weight: .regular)
+        resultLabel.font = .preferredFont(for: .body, weight: .regular)
     }
 
     func highlightResult() {
-        optionLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        resultLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        optionLabel.font = .preferredFont(for: .body, weight: .bold)
+        resultLabel.font = .preferredFont(for: .body, weight: .bold)
     }
 }

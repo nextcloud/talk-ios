@@ -30,7 +30,7 @@ import UIKit
     required init?(coder aDecoder: NSCoder) {
         self.poll = NCPoll()
         self.room = NCRoom()
-        
+
         super.init(coder: aDecoder)
         self.setupPollResultsDetailsView()
     }

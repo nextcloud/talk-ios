@@ -238,17 +238,16 @@ import UIKit
         case PollSection.kPollSectionQuestion.rawValue:
             cell = UITableViewCell(style: .default, reuseIdentifier: pollQuestionCellIdentifier)
             cell.textLabel?.text = poll?.question
-            cell.textLabel?.numberOfLines = 4
+            cell.textLabel?.numberOfLines = 0
             cell.textLabel?.lineBreakMode = .byWordWrapping
             cell.textLabel?.sizeToFit()
-            cell.imageView?.image = UIImage(systemName: "chart.bar")
             cell.imageView?.tintColor = UIColor.label
 
         case PollSection.kPollSectionOptions.rawValue:
             if !showPollResults || showIntermediateResults {
                 cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)
                 cell.textLabel?.text = poll?.options[indexPath.row] as? String
-                cell.textLabel?.numberOfLines = 4
+                cell.textLabel?.numberOfLines = 0
                 cell.textLabel?.lineBreakMode = .byWordWrapping
                 cell.textLabel?.sizeToFit()
                 var checkboxImageView = UIImageView(image: UIImage(systemName: "circle"))
