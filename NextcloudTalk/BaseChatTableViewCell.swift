@@ -76,7 +76,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var referencePart: UIView!
 
     public var message: NCChatMessage?
-    public var messageId: Int = 0
     public var room: NCRoom?
 
     internal var quotedMessageView: QuotedMessageView?
@@ -160,7 +159,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     // swiftlint:disable:next cyclomatic_complexity
     public func setup(for message: NCChatMessage, inRoom room: NCRoom) {
         self.message = message
-        self.messageId = message.messageId
         self.room = room
 
         self.avatarButton.setActorAvatar(forMessage: message)
