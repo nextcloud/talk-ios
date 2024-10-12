@@ -2586,7 +2586,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
+                cell.setup(for: message, inRoom: self.room)
 
                 if let playerAudioFileStatus = self.playerAudioFileStatus,
                    let voiceMessagesPlayer = self.voiceMessagesPlayer {
@@ -2609,7 +2609,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
+                cell.setup(for: message, inRoom: self.room)
 
                 return cell
             }
@@ -2620,7 +2620,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
+                cell.setup(for: message, inRoom: self.room)
 
                 return cell
             }
@@ -2631,7 +2631,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
+                cell.setup(for: message, inRoom: self.room)
 
                 return cell
             }
@@ -2647,7 +2647,7 @@ import QuickLook
 
         if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
             cell.delegate = self
-            cell.setup(for: message, withLastCommonReadMessage: self.room.lastCommonReadMessage)
+            cell.setup(for: message, inRoom: self.room)
 
             return cell
         }

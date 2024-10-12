@@ -77,6 +77,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     public var message: NCChatMessage?
     public var messageId: Int = 0
+    public var room: NCRoom?
 
     internal var quotedMessageView: QuotedMessageView?
     internal var reactionView: ReactionsView?
@@ -157,9 +158,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    public func setup(for message: NCChatMessage, withLastCommonReadMessage lastCommonRead: Int) {
+    public func setup(for message: NCChatMessage, inRoom room: NCRoom) {
         self.message = message
         self.messageId = message.messageId
+        self.room = room
 
         self.avatarButton.setActorAvatar(forMessage: message)
         self.avatarButton.menu = self.getDeferredUserMenu()
@@ -190,15 +192,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.titleLabel.attributedText = titleLabel
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        var shouldShowDeliveryStatus = false
+        let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
         var shouldShowReadStatus = false
 
-        if let room = NCDatabaseManager.sharedInstance().room(withToken: message.token, forAccountId: activeAccount.accountId) {
-            shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
-
-            if let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room) {
-                shouldShowReadStatus = !(roomCapabilities.readStatusPrivacy)
-            }
+        if let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room) {
+            shouldShowReadStatus = !(roomCapabilities.readStatusPrivacy)
         }
 
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
@@ -226,7 +224,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         } else if message.isTemporary {
             self.setDeliveryState(to: .sending)
         } else if message.isMessage(from: activeAccount.userId), shouldShowDeliveryStatus {
-            if lastCommonRead >= message.messageId, shouldShowReadStatus {
+            if room.lastCommonReadMessage >= message.messageId, shouldShowReadStatus {
                 self.setDeliveryState(to: .read)
             } else {
                 self.setDeliveryState(to: .sent)
