@@ -108,11 +108,11 @@ struct UserStatusMessageSwiftUIView: View {
                                 NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
                                                                          comment: ""),
                                                 action: clearActiveUserStatus,
-                                                style: .tertiary, height: 40,
+                                                style: .tertiary,
                                                 disabled: Binding.constant(!userHasStatusSet))
                                 NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
                                                 action: setActiveUserStatus,
-                                                style: .primary, height: 40,
+                                                style: .primary,
                                                 disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
                                 .padding(.bottom, 16)
                             }
@@ -122,12 +122,12 @@ struct UserStatusMessageSwiftUIView: View {
                                 NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
                                                                          comment: ""),
                                                 action: clearActiveUserStatus,
-                                                style: .tertiary, height: 40,
+                                                style: .tertiary,
                                                 disabled: Binding.constant(!userHasStatusSet))
                                 .padding(.bottom, 16)
                                 NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
                                                 action: setActiveUserStatus,
-                                                style: .primary, height: 40,
+                                                style: .primary,
                                                 disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
                                 .padding(.bottom, 16)
                                 Spacer()

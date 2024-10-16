@@ -7,11 +7,14 @@ import Foundation
 import UIKit
 import SwiftUI
 
+let NCButtonHorizontalPadding: CGFloat = 16
+let NCButtonVerticalPadding: CGFloat = 8
+let NCButtonCornerRadius: CGFloat = 8
+
 struct NCButtonSwiftUI: View {
     @State var title: String
     @State var action: () -> Void
     @State var style: NCButtonStyle
-    @State var height: CGFloat
     @Binding var disabled: Bool
 
     enum NCButtonStyle: Int {
@@ -26,18 +29,17 @@ struct NCButtonSwiftUI: View {
                 Text(title)
                     .bold()
                     .foregroundColor(titleColorForStyle(style: style).opacity(disabled ? 0.5 : 1))
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 40)
-                    .frame(height: height)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, NCButtonVerticalPadding)
+                    .padding(.horizontal, NCButtonHorizontalPadding)
                     .background(backgroundColorForStyle(style: style).opacity(disabled ? 0.5 : 1))
-                    .cornerRadius(height / 2)
+                    .cornerRadius(NCButtonCornerRadius)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: NCButtonCornerRadius)
                             .stroke(borderColorForStyle(style: style).opacity(disabled ? 0.5 : 1), lineWidth: borderWidthForStyle(style: style))
                     )
         })
         .disabled(disabled)
-
     }
 
     func backgroundColorForStyle(style: NCButtonStyle) -> Color {
