@@ -105,8 +105,7 @@ struct UserStatusMessageSwiftUIView: View {
                 }
                 if !UIDevice.current.orientation.isLandscape {
                     VStack(spacing: 10) {
-                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
-                                                                 comment: ""),
+                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message", comment: ""),
                                         action: clearActiveUserStatus,
                                         style: .tertiary,
                                         disabled: Binding.constant(!userHasStatusSet))
@@ -119,8 +118,7 @@ struct UserStatusMessageSwiftUIView: View {
                 } else {
                     HStack(spacing: 10) {
                         Spacer()
-                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
-                                                                 comment: ""),
+                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message", comment: ""),
                                         action: clearActiveUserStatus,
                                         style: .tertiary,
                                         disabled: Binding.constant(!userHasStatusSet))
@@ -334,12 +332,5 @@ struct UserStatusMessageSwiftUIView: View {
         }
 
         return NSLocalizedString("Don't clear", comment: "")
-    }
-
-}
-
-struct UserStatusMessageSwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserStatusMessageSwiftUIView(changed: Binding.constant(false))
     }
 }
