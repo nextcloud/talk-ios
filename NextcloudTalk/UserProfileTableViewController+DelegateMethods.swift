@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import libPhoneNumber
 
 extension UserProfileTableViewController: UINavigationControllerDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, AvatarEditViewDelegate {
 
@@ -113,8 +114,8 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField.tag == kPhoneTextFieldTag {
             let inputPhoneNumber = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-            let phoneNumber = try? phoneUtil.parse(inputPhoneNumber, defaultRegion: nil)
-            setPhoneAction.isEnabled = phoneUtil.isValidNumber(phoneNumber) && account.phone != inputPhoneNumber
+            let phoneNumber = try? NBPhoneNumberUtil.sharedInstance().parse(inputPhoneNumber, defaultRegion: nil)
+            setPhoneAction.isEnabled = NBPhoneNumberUtil.sharedInstance().isValidNumber(phoneNumber) && account.phone != inputPhoneNumber
         }
         return true
     }

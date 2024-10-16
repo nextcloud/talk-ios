@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import libPhoneNumber
 
 extension UserProfileTableViewController {
 
@@ -58,16 +59,16 @@ extension UserProfileTableViewController {
         let hasPhone = !account.phone.isEmpty
         setPhoneNumberDialog.addTextField { [self] textField in
             let regionCode = NSLocale.current.regionCode
-            let countryCode = phoneUtil.getCountryCode(forRegion: regionCode)
+            let countryCode = NBPhoneNumberUtil.sharedInstance().getCountryCode(forRegion: regionCode)
             if let countryCode = countryCode {
                 textField.text = "+\(countryCode)"
             }
             if hasPhone {
                 textField.text = self.account.phone
             }
-            let exampleNumber = try? self.phoneUtil.getExampleNumber(regionCode ?? "")
+            let exampleNumber = try? NBPhoneNumberUtil.sharedInstance().getExampleNumber(regionCode ?? "")
             if let exampleNumber = exampleNumber {
-                textField.placeholder = try? self.phoneUtil.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
+                textField.placeholder = try? NBPhoneNumberUtil.sharedInstance().format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
                 textField.keyboardType = .phonePad
                 textField.delegate = self
                 textField.tag = self.kPhoneTextFieldTag

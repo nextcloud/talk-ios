@@ -25,7 +25,6 @@
 #import "ShareConfirmationCollectionViewCell.h"
 #import "ShareItem.h"
 #import "ShareItemController.h"
-#import "MBProgressHUD.h"
 
 #import "NCUserDefaults.h"
 #import "NCIntentController.h"

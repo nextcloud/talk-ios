@@ -254,6 +254,14 @@
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
 		1FC18FC02CB7EA300058F621 /* AVRoutePickerViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC18FBF2CB7EA300058F621 /* AVRoutePickerViewExtension.swift */; };
 		1FC18FC22CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC18FC12CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift */; };
+		1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */; };
+		1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3242CC054BC00D28138 /* UICKeyChainStore */; };
+		1FC4B3272CC0562600D28138 /* UICKeyChainStore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3262CC0562600D28138 /* UICKeyChainStore */; };
+		1FC4B3292CC0562E00D28138 /* UICKeyChainStore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3282CC0562E00D28138 /* UICKeyChainStore */; };
+		1FC4B32B2CC0564100D28138 /* UICKeyChainStore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B32A2CC0564100D28138 /* UICKeyChainStore */; };
+		1FC4B3312CC057B700D28138 /* MBProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3302CC057B700D28138 /* MBProgressHUD */; };
+		1FC4B3332CC057DD00D28138 /* MBProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3322CC057DD00D28138 /* MBProgressHUD */; };
+		1FC4B3362CC0586A00D28138 /* libPhoneNumber in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3352CC0586A00D28138 /* libPhoneNumber */; };
 		1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1FCE3D532C9B5918009C68A9 /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 1FCE3D522C9B5918009C68A9 /* SwiftyGif */; };
@@ -1239,6 +1247,7 @@
 				1F759C322B63CBA5000534AB /* Realm in Frameworks */,
 				1F77A6002AB9A50D007B6037 /* NextcloudKit in Frameworks */,
 				1F77A60C2AB9A5BE007B6037 /* CDMarkdownKit in Frameworks */,
+				1FC4B32B2CC0564100D28138 /* UICKeyChainStore in Frameworks */,
 				1FF2FD5D2AB99CCB000C9905 /* ReplayKit.framework in Frameworks */,
 				1F77A5EF2AB9A41E007B6037 /* SDWebImage in Frameworks */,
 				1FF1361A2BFBC841006A6101 /* SwiftyAttributes in Frameworks */,
@@ -1259,15 +1268,19 @@
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */,
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
+				1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
+				1FC4B3362CC0586A00D28138 /* libPhoneNumber in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
 				1F759C2C2B63CB93000534AB /* Realm in Frameworks */,
 				1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */,
+				1FC4B3332CC057DD00D28138 /* MBProgressHUD in Frameworks */,
+				1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */,
 				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
 				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
 				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
@@ -1284,6 +1297,8 @@
 				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
 				1F759C302B63CBA0000534AB /* Realm in Frameworks */,
+				1FC4B3292CC0562E00D28138 /* UICKeyChainStore in Frameworks */,
+				1FC4B3312CC057B700D28138 /* MBProgressHUD in Frameworks */,
 				1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */,
 				1F8848122A75B68D00063860 /* IntentsUI.framework in Frameworks */,
 				1F35F8FD2AEEDCCB00044BDA /* AudioToolbox.framework in Frameworks */,
@@ -1299,6 +1314,7 @@
 				1F759C2E2B63CB9A000534AB /* Realm in Frameworks */,
 				1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */,
+				1FC4B3272CC0562600D28138 /* UICKeyChainStore in Frameworks */,
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
 				1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */,
 				1FF1361C2BFBC86A006A6101 /* SwiftyAttributes in Frameworks */,
@@ -2233,6 +2249,7 @@
 				1F77A60B2AB9A5BE007B6037 /* CDMarkdownKit */,
 				1F759C312B63CBA5000534AB /* Realm */,
 				1FF136192BFBC841006A6101 /* SwiftyAttributes */,
+				1FC4B32A2CC0564100D28138 /* UICKeyChainStore */,
 			);
 			productName = BroadcastUploadExtension;
 			productReference = 1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */;
@@ -2274,6 +2291,10 @@
 				80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */,
 				1F759C2B2B63CB93000534AB /* Realm */,
 				1FCE3D522C9B5918009C68A9 /* SwiftyGif */,
+				1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */,
+				1FC4B3242CC054BC00D28138 /* UICKeyChainStore */,
+				1FC4B3322CC057DD00D28138 /* MBProgressHUD */,
+				1FC4B3352CC0586A00D28138 /* libPhoneNumber */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -2301,6 +2322,8 @@
 				1FAB2E7E2AC99367001214EB /* TOCropViewController */,
 				1F35F8F42AEEDA9800044BDA /* SwiftyAttributes */,
 				1F759C2F2B63CBA0000534AB /* Realm */,
+				1FC4B3282CC0562E00D28138 /* UICKeyChainStore */,
+				1FC4B3302CC057B700D28138 /* MBProgressHUD */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -2327,6 +2350,7 @@
 				1F0ECBF62A68277000921E90 /* CDMarkdownKit */,
 				1F759C2D2B63CB9A000534AB /* Realm */,
 				1FF1361B2BFBC86A006A6101 /* SwiftyAttributes */,
+				1FC4B3262CC0562600D28138 /* UICKeyChainStore */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -2432,6 +2456,10 @@
 				80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */,
 				1FCE3D512C9B5918009C68A9 /* XCRemoteSwiftPackageReference "SwiftyGif" */,
+				1FC4B3202CC0538B00D28138 /* XCRemoteSwiftPackageReference "JDStatusBarNotification" */,
+				1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */,
+				1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */,
+				1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */,
 			);
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
@@ -4290,6 +4318,38 @@
 				revision = 5f15c82f4b02072c1595980580eade9325e1819f;
 			};
 		};
+		1FC4B3202CC0538B00D28138 /* XCRemoteSwiftPackageReference "JDStatusBarNotification" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/calimarkus/JDStatusBarNotification.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.0.9;
+			};
+		};
+		1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/UICKeyChainStore";
+			requirement = {
+				kind = exactVersion;
+				version = 2.2.1;
+			};
+		};
+		1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/matej/MBProgressHUD";
+			requirement = {
+				kind = exactVersion;
+				version = 1.2.0;
+			};
+		};
+		1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/iziz/libPhoneNumber-iOS";
+			requirement = {
+				kind = exactVersion;
+				version = 1.2.0;
+			};
+		};
 		1FCE3D512C9B5918009C68A9 /* XCRemoteSwiftPackageReference "SwiftyGif" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/alexiscreuzot/SwiftyGif";
@@ -4506,6 +4566,46 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */;
 			productName = WebRTC;
+		};
+		1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B3202CC0538B00D28138 /* XCRemoteSwiftPackageReference "JDStatusBarNotification" */;
+			productName = JDStatusBarNotification;
+		};
+		1FC4B3242CC054BC00D28138 /* UICKeyChainStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */;
+			productName = UICKeyChainStore;
+		};
+		1FC4B3262CC0562600D28138 /* UICKeyChainStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */;
+			productName = UICKeyChainStore;
+		};
+		1FC4B3282CC0562E00D28138 /* UICKeyChainStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */;
+			productName = UICKeyChainStore;
+		};
+		1FC4B32A2CC0564100D28138 /* UICKeyChainStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */;
+			productName = UICKeyChainStore;
+		};
+		1FC4B3302CC057B700D28138 /* MBProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */;
+			productName = MBProgressHUD;
+		};
+		1FC4B3322CC057DD00D28138 /* MBProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */;
+			productName = MBProgressHUD;
+		};
+		1FC4B3352CC0586A00D28138 /* libPhoneNumber */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */;
+			productName = libPhoneNumber;
 		};
 		1FCE3D522C9B5918009C68A9 /* SwiftyGif */ = {
 			isa = XCSwiftPackageProductDependency;

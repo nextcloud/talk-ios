@@ -12,9 +12,6 @@
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
 #import "HeaderWithButton.h"
-#import "NBPhoneNumber.h"
-#import "NBPhoneNumberDefines.h"
-#import "NBPhoneNumberUtil.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCConnectionController.h"
@@ -75,7 +72,6 @@
 #import "AutoCompletionTableViewCell.h"
 #import "NCKeyChainController.h"
 #import "NCIntentController.h"
-#import "MBProgressHUD.h"
 #import "CCCertificate.h"
 
 #import "ScreenCapturer.h"

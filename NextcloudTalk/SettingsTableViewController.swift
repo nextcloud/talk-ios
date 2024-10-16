@@ -9,6 +9,7 @@ import SafariServices
 import SwiftUI
 import ReplayKit
 import SDWebImage
+import libPhoneNumber
 
 enum SettingsSection: Int {
     case kSettingsSectionUser = 0
@@ -56,7 +57,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     var typingIndicatorSwitch = UISwitch()
     var contactSyncSwitch = UISwitch()
     var setPhoneAction: UIAlertAction?
-    var phoneUtil = NBPhoneNumberUtil()
     var includeInRecentsSwitch = UISwitch()
 
     var totalImageCacheSize = 0
@@ -349,12 +349,12 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         setPhoneNumberDialog.addTextField { [self] textField in
             let location = NSLocale.current.regionCode
-            let countryCode = phoneUtil.getCountryCode(forRegion: location)
+            let countryCode = NBPhoneNumberUtil.sharedInstance().getCountryCode(forRegion: location)
             if let countryCode = countryCode {
                 textField.text = "+\(countryCode)"
             }
-            if let exampleNumber = try? phoneUtil.getExampleNumber(location) {
-                textField.placeholder = try? phoneUtil.format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
+            if let exampleNumber = try? NBPhoneNumberUtil.sharedInstance().getExampleNumber(location) {
+                textField.placeholder = try? NBPhoneNumberUtil.sharedInstance().format(exampleNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL)
             }
             textField.keyboardType = .phonePad
             textField.delegate = self
@@ -389,8 +389,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     func presentPhoneNumberErrorDialog(phoneNumber: String) {
         let alertTitle = NSLocalizedString("Could not set phone number", comment: "")
         var alertMessage = NSLocalizedString("An error occurred while setting phone number", comment: "")
-        let failedPhoneNumber = try? phoneUtil.parse(phoneNumber, defaultRegion: nil)
-        if let formattedPhoneNumber = try? phoneUtil.format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
+        let failedPhoneNumber = try? NBPhoneNumberUtil.sharedInstance().parse(phoneNumber, defaultRegion: nil)
+        if let formattedPhoneNumber = try? NBPhoneNumberUtil.sharedInstance().format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
             alertMessage = NSLocalizedString("An error occurred while setting \(formattedPhoneNumber) as phone number", comment: "")
         }
 
@@ -415,8 +415,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField.tag == kPhoneTextFieldTag {
             let inputPhoneNumber = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-            let phoneNumber = try? phoneUtil.parse(inputPhoneNumber, defaultRegion: nil)
-            setPhoneAction?.isEnabled = phoneUtil.isValidNumber(phoneNumber)
+            let phoneNumber = try? NBPhoneNumberUtil.sharedInstance().parse(inputPhoneNumber, defaultRegion: nil)
+            setPhoneAction?.isEnabled = NBPhoneNumberUtil.sharedInstance().isValidNumber(phoneNumber)
         }
         return true
     }

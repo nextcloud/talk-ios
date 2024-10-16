@@ -8,8 +8,9 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "NCAppBranding.h"
-
 #import "NextcloudTalk-Swift.h"
+
+@import UICKeyChainStore;
 
 @implementation NCKeyChainController
 

@@ -9,6 +9,7 @@ import QuickLook
 import SwiftyAttributes
 import TOCropViewController
 import AVFoundation
+import MBProgressHUD
 
 @objc public protocol ShareConfirmationViewControllerDelegate {
     @objc func shareConfirmationViewControllerDidFailed(_ viewController: ShareConfirmationViewController)
