@@ -15,5 +15,12 @@ typedef NS_ENUM(NSInteger, CallFlag) {
     CallFlagWithPhone = 8
 };
 
+typedef NS_ENUM(NSInteger, CallState) {
+    CallStateJoining,
+    CallStateWaitingParticipants,
+    CallStateReconnecting,
+    CallStateInCall,
+    CallStateSwitchingToAnotherRoom
+};
 
 #endif /* CallConstants_h */

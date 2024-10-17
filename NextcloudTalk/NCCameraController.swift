@@ -8,6 +8,7 @@
 import Foundation
 import Vision
 import CoreImage.CIFilterBuiltins
+import MetalKit
 
 @objc protocol NCCameraControllerDelegate {
     @objc func didDrawFirstFrameOnLocalView()
