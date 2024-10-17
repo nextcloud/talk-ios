@@ -691,11 +691,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? UserSettingsTableViewCell else { return UITableViewCell() }
-            cell.userDisplayNameLabel.text = activeAccount.userDisplayName
-            let accountServer = activeAccount.server
-            cell.serverAddressLabel.text = accountServer.replacingOccurrences(of: "https://", with: "")
-            cell.userImageView.image = self.getProfilePicture(for: activeAccount)
+            cell = UITableViewCell(style: .subtitle, reuseIdentifier: "UserProfileCellIdentifier")
+            cell.textLabel?.text = activeAccount.userDisplayName
+            cell.textLabel?.numberOfLines = 0
+            cell.textLabel?.font = .preferredFont(for: .title2, weight: .medium)
+            cell.detailTextLabel?.text = activeAccount.server.replacingOccurrences(of: "https://", with: "")
+            cell.detailTextLabel?.numberOfLines = 0
+            cell.detailTextLabel?.textColor = .secondaryLabel
+            cell.imageView?.image = self.getProfilePicture(for: activeAccount)?.cropToCircle(withSize: CGSize(width: 60, height: 60))
             cell.accessoryType = .disclosureIndicator
             return cell
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
