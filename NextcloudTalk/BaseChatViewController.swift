@@ -246,8 +246,8 @@ import QuickLook
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceGroupedMessageCellIdentifier)
 
-        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceMessageCellIdentifier)
-        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: voiceGroupedMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: pollMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: pollGroupedMessageCellIdentifier)
 
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: InvisibleSystemMessageCellIdentifier)
