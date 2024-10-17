@@ -489,7 +489,6 @@
 		2C78EFA11F828C41008AFA74 /* CallViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C78EF9F1F828C41008AFA74 /* CallViewController.xib */; };
 		2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */; };
 		2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C78EFA41F86FF4A008AFA74 /* CallParticipantViewCell.xib */; };
-		2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */; };
 		2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
 		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
 		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
@@ -606,7 +605,6 @@
 		DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift */; };
 		DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */; };
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
-		DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */; };
 		DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */; };
 		DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */; };
 /* End PBXBuildFile section */
@@ -1029,7 +1027,6 @@
 		2C78EFA21F86FF4A008AFA74 /* CallParticipantViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallParticipantViewCell.h; sourceTree = "<group>"; };
 		2C78EFA31F86FF4A008AFA74 /* CallParticipantViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallParticipantViewCell.m; sourceTree = "<group>"; };
 		2C78EFA41F86FF4A008AFA74 /* CallParticipantViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallParticipantViewCell.xib; sourceTree = "<group>"; };
-		2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserSettingsTableViewCell.xib; sourceTree = "<group>"; };
 		2C7A123F2017872600864818 /* AddParticipantsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddParticipantsTableViewController.h; sourceTree = "<group>"; };
 		2C7A12402017872600864818 /* AddParticipantsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddParticipantsTableViewController.m; sourceTree = "<group>"; };
 		2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddParticipantsTableViewController.xib; sourceTree = "<group>"; };
@@ -1208,7 +1205,6 @@
 		DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+Actions.swift"; sourceTree = "<group>"; };
 		DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+Utils.swift"; sourceTree = "<group>"; };
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
-		DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsTableViewCell.swift; sourceTree = "<group>"; };
 		DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1834,8 +1830,6 @@
 				1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */,
 				1F7625E42901B0DB00834869 /* CallsFromOldAccountViewController.swift */,
 				1F7625E62901B0E800834869 /* CallsFromOldAccountViewController.xib */,
-				2C7A1235200E0A5700864818 /* UserSettingsTableViewCell.xib */,
-				DA755810278EF3EF00A48A1B /* UserSettingsTableViewCell.swift */,
 				2C78E9E125120DE500E3D4CA /* NCUserStatus.h */,
 				2C78E9E225120DE500E3D4CA /* NCUserStatus.m */,
 				1FD6F83D2B87B712004048AB /* NCUserStatusExtensions.swift */,
@@ -2528,7 +2522,6 @@
 				2CC1FF4528147F11009F7288 /* RoomSharedItemsTableViewController.xib in Resources */,
 				2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */,
 				2C440D1220EA4A770005F9BB /* RoomInfoTableViewController.xib in Resources */,
-				2C7A1237200E0A5700864818 /* UserSettingsTableViewCell.xib in Resources */,
 				2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */,
 				1FB7B99C2BF0DF360093CE98 /* BannedActorCell.xib in Resources */,
 				2C4747E22CB58FD2002828F2 /* PollMessageView.xib in Resources */,
@@ -2895,7 +2888,6 @@
 				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				1F1B50342B8E069800B0F2F4 /* BaseChatTableViewCell.swift in Sources */,
 				2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */,
-				DA755811278EF3EF00A48A1B /* UserSettingsTableViewCell.swift in Sources */,
 				1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				2C44B4D127FF05A000AD1C86 /* ReactionsSummaryView.swift in Sources */,
 				2CD4F6B72C11C80600ED594F /* ContactsSearchResultTableViewContoller.swift in Sources */,
