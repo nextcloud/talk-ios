@@ -4,6 +4,7 @@
 //
 
 import UIKit
+import libPhoneNumber
 
 enum ProfileSection: Int {
     case kProfileSectionName = 0
@@ -46,7 +47,6 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
     var modifyingProfileView = UIActivityIndicatorView()
     var imagePicker: UIImagePickerController?
     var setPhoneAction = UIAlertAction()
-    var phoneUtil = NBPhoneNumberUtil()
     var editableFields = NSArray()
     var showScopes = Bool()
 
@@ -171,8 +171,8 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
             return textInputCellWith(text: account.email, tag: kEmailTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileEmail),
                                      keyBoardType: .emailAddress, autocapitalizationType: nil, placeHolder: NSLocalizedString("Your email address", comment: ""))
         case ProfileSection.kProfileSectionPhoneNumber.rawValue:
-            let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
-            let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
+            let phoneNumber = try? NBPhoneNumberUtil.sharedInstance().parse(account.phone, defaultRegion: nil)
+            let text = (phoneNumber != nil) ? try? NBPhoneNumberUtil.sharedInstance().format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
             return textInputCellWith(text: text, tag: kPhoneTextFieldTag, interactionEnabled: false,
                                      keyBoardType: .phonePad, autocapitalizationType: nil, placeHolder: NSLocalizedString("Your phone number", comment: ""))
         case ProfileSection.kProfileSectionAddress.rawValue:
@@ -297,8 +297,8 @@ extension UserProfileTableViewController {
             summaryCell.textLabel?.text = account.email
             summaryCell.imageView?.image = UIImage(systemName: "envelope")?.applyingSymbolConfiguration(iconConfiguration)
         case SummaryRow.kSummaryRowPhoneNumber.rawValue:
-            let phoneNumber = try? phoneUtil.parse(account.phone, defaultRegion: nil)
-            let text = (phoneNumber != nil) ? try? phoneUtil.format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
+            let phoneNumber = try? NBPhoneNumberUtil.sharedInstance().parse(account.phone, defaultRegion: nil)
+            let text = (phoneNumber != nil) ? try? NBPhoneNumberUtil.sharedInstance().format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
             summaryCell.textLabel?.text = text
             summaryCell.imageView?.image = UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration)
         case SummaryRow.kSummaryRowAddress.rawValue:

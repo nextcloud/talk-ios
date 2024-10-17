@@ -4,9 +4,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "UICKeyChainStore.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class UICKeyChainStore;
 
 extern NSString * const kNCNormalPushTokenKey;
 extern NSString * const kNCPushKitTokenKey;

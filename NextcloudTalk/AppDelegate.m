@@ -29,6 +29,8 @@
 
 #import "NextcloudTalk-Swift.h"
 
+@import UICKeyChainStore;
+
 @interface AppDelegate ()
 
 @property (nonatomic, strong) NSTimer *keepAliveTimer;

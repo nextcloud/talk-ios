@@ -3,21 +3,17 @@ platform :ios, '15.0'
 
 def common_dependencies
   pod 'AFNetworking', '3.2.0'
-  pod 'UICKeyChainStore'
 end
 
 def common_dependencies_ext
   common_dependencies
-  pod 'MBProgressHUD', '~> 1.2.0'
 end
 
 def main_dependencies
   common_dependencies_ext
   pod 'DateTools'
-  pod 'JDStatusBarNotification', '~> 2.0.0'
   pod 'MaterialComponents/ActivityIndicator'
   pod 'Toast', '~> 4.0.0'
-  pod 'libPhoneNumber-iOS', '~> 0.9.15'
   pod 'MZTimerLabel'
   pod 'MobileVLCKit', '~> 3.5.0'
 end
