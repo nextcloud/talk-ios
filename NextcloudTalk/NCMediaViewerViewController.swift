@@ -67,9 +67,15 @@ import UIKit
         initialViewController.delegate = self
         self.pageController.setViewControllers([initialViewController], direction: .forward, animated: false)
 
-        self.navigationItem.title = initialViewController.navigationItem.title
+        let timestamp = Date(timeIntervalSince1970: TimeInterval(self.initialMessage.timestamp))
+        let dayTimeFormatter = DateFormatter()
+        dayTimeFormatter.dateStyle = DateFormatter.Style.medium
+        dayTimeFormatter.timeStyle = DateFormatter.Style.medium
+        dayTimeFormatter.timeZone = .current
+        let localDate = dayTimeFormatter.string(from: timestamp)
+        self.navigationItem.titleView = setTitle(title: self.initialMessage.actorId, titleColor: UIColor.black, titleSize: 14, subtitle: localDate, subtitleSize: 12, view: self.view)
     }
-
+    
     func setupNavigationBar() {
         let closeButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
         closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
@@ -184,3 +190,28 @@ import UIKit
         }
     }
 }
+
+    func setTitle(title: String, titleColor: UIColor, titleSize: Int, subtitle: String, subtitleSize: Int, view: UIView) -> UIView {
+       let titleLabel = UILabel(frame: CGRect(x: 40, y: -5, width: view.frame.width - 140, height: 20))
+
+       titleLabel.backgroundColor = UIColor.clear
+       titleLabel.textColor = titleColor
+       titleLabel.adjustsFontSizeToFitWidth = false
+       titleLabel.font = UIFont.boldSystemFont(ofSize: CGFloat(titleSize))
+       titleLabel.lineBreakMode = .byTruncatingTail
+       titleLabel.textAlignment = .center
+       titleLabel.text = title
+       let subtitleLabel = UILabel(frame: CGRect(x: 40, y: 18, width: view.frame.width - 140, height: 10))
+       subtitleLabel.backgroundColor = UIColor.clear
+       subtitleLabel.textColor = titleColor
+       subtitleLabel.adjustsFontSizeToFitWidth = false
+       subtitleLabel.lineBreakMode = .byTruncatingTail
+       subtitleLabel.textAlignment = .center
+       subtitleLabel.font = UIFont.systemFont(ofSize: CGFloat(subtitleSize))
+       subtitleLabel.text = subtitle
+       let titleView = UIView(frame: CGRect(x: 40, y: 0, width: view.frame.width - 30, height: 30))
+       titleView.addSubview(titleLabel)
+       titleView.addSubview(subtitleLabel)
+
+       return titleView
+   }
