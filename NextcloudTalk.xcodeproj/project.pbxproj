@@ -573,6 +573,8 @@
 		2CC1FF4828183958009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
 		2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
 		2CC1FF4A2818395F009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
+		2CC3166A2CC26194007CBE16 /* UITableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC316692CC26186007CBE16 /* UITableViewExtension.swift */; };
+		2CC3166C2CC2A850007CBE16 /* SettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC3166B2CC2A849007CBE16 /* SettingsTableViewCell.swift */; };
 		2CC32E8D27F4540E00BB8C39 /* ReactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */; };
 		2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */; };
 		2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */; };
@@ -1161,6 +1163,8 @@
 		2CC1FF4328147F10009F7288 /* RoomSharedItemsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomSharedItemsTableViewController.xib; sourceTree = "<group>"; };
 		2CC1FF4628183958009F7288 /* NCDeckCardParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCDeckCardParameter.h; sourceTree = "<group>"; };
 		2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDeckCardParameter.m; sourceTree = "<group>"; };
+		2CC316692CC26186007CBE16 /* UITableViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewExtension.swift; sourceTree = "<group>"; };
+		2CC3166B2CC2A849007CBE16 /* SettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewCell.swift; sourceTree = "<group>"; };
 		2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsView.swift; sourceTree = "<group>"; };
 		2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsViewCell.swift; sourceTree = "<group>"; };
 		2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReactionsViewCell.xib; sourceTree = "<group>"; };
@@ -1517,6 +1521,7 @@
 				2CBD0D592C8770A40013C089 /* UIImageExtension.swift */,
 				1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */,
 				1F1B0F312BDC57E3003FD766 /* UIPageViewControllerExtension.swift */,
+				2CC316692CC26186007CBE16 /* UITableViewExtension.swift */,
 				1FC18FBF2CB7EA300058F621 /* AVRoutePickerViewExtension.swift */,
 				1FC18FC12CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift */,
 			);
@@ -1821,6 +1826,7 @@
 		2C55216A1F7D48850077E587 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				2CC3166B2CC2A849007CBE16 /* SettingsTableViewCell.swift */,
 				2C2A788C2359CC8800EEB797 /* NCAppBranding.h */,
 				2C2A788D2359CC8800EEB797 /* NCAppBranding.m */,
 				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
@@ -2868,6 +2874,7 @@
 				2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */,
 				1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */,
 				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
+				2CC3166C2CC2A850007CBE16 /* SettingsTableViewCell.swift in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C4446DD2658158000DF1DBC /* NCChatBlock.m in Sources */,
@@ -3013,6 +3020,7 @@
 				2C4230F72B207AB00013E1FA /* ContextChatViewController.swift in Sources */,
 				2CBD0D5A2C8770A40013C089 /* UIImageExtension.swift in Sources */,
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
+				2CC3166A2CC26194007CBE16 /* UITableViewExtension.swift in Sources */,
 				1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
