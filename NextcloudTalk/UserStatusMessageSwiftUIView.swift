@@ -103,36 +103,34 @@ struct UserStatusMessageSwiftUIView: View {
                         }
                     }
                 }
-                        if !UIDevice.current.orientation.isLandscape {
-                            VStack(spacing: 10) {
-                                NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
-                                                                         comment: ""),
-                                                action: clearActiveUserStatus,
-                                                style: .tertiary, height: 40,
-                                                disabled: Binding.constant(!userHasStatusSet))
-                                NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
-                                                action: setActiveUserStatus,
-                                                style: .primary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
-                                .padding(.bottom, 16)
-                            }
-                        } else {
-                            HStack(spacing: 10) {
-                                Spacer()
-                                NCButtonSwiftUI(title: NSLocalizedString("Clear status message",
-                                                                         comment: ""),
-                                                action: clearActiveUserStatus,
-                                                style: .tertiary, height: 40,
-                                                disabled: Binding.constant(!userHasStatusSet))
-                                .padding(.bottom, 16)
-                                NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
-                                                action: setActiveUserStatus,
-                                                style: .primary, height: 40,
-                                                disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
-                                .padding(.bottom, 16)
-                                Spacer()
-                            }
-                        }
+                if !UIDevice.current.orientation.isLandscape {
+                    VStack(spacing: 10) {
+                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message", comment: ""),
+                                        action: clearActiveUserStatus,
+                                        style: .tertiary,
+                                        disabled: Binding.constant(!userHasStatusSet))
+                        NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
+                                        action: setActiveUserStatus,
+                                        style: .primary,
+                                        disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
+                        .padding(.bottom, 16)
+                    }
+                } else {
+                    HStack(spacing: 10) {
+                        Spacer()
+                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message", comment: ""),
+                                        action: clearActiveUserStatus,
+                                        style: .tertiary,
+                                        disabled: Binding.constant(!userHasStatusSet))
+                        .padding(.bottom, 16)
+                        NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
+                                        action: setActiveUserStatus,
+                                        style: .primary,
+                                        disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
+                        .padding(.bottom, 16)
+                        Spacer()
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -334,12 +332,5 @@ struct UserStatusMessageSwiftUIView: View {
         }
 
         return NSLocalizedString("Don't clear", comment: "")
-    }
-
-}
-
-struct UserStatusMessageSwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserStatusMessageSwiftUIView(changed: Binding.constant(false))
     }
 }
