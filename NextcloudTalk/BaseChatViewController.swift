@@ -964,6 +964,18 @@ import QuickLook
         NotificationPresenter.shared().present(text: NSLocalizedString("Message copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
+    func didPressCopyLink(for message: NCChatMessage) {
+        guard let link = room.linkURL else {
+            return
+        }
+
+        let url = "\(link)#message_\(message.messageId)"
+        let pasteboard = UIPasteboard.general
+        pasteboard.string = url
+
+        NotificationPresenter.shared().present(text: NSLocalizedString("Message Link copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+    }
+
     func didPressTranslate(for message: NCChatMessage) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: activeAccount.accountId))
@@ -2821,10 +2833,19 @@ import QuickLook
             return nil
         }
 
+        var actions: [UIMenuElement] = []
+
         // Copy option
-        let menu = UIMenu(children: [UIAction(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "square.on.square")) { _ in
+        actions.append(UIAction(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "square.on.square")) { _ in
             self.didPressCopy(for: message)
-        }])
+        })
+
+        // Copy Link
+        actions.append(UIAction(title: NSLocalizedString("Copy Message Link", comment: ""), image: .init(systemName: "link")) { _ in
+            self.didPressCopyLink(for: message)
+        })
+
+        let menu = UIMenu(children: actions)
 
         let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) {
             return nil
