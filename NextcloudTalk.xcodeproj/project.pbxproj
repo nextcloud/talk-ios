@@ -575,6 +575,7 @@
 		2CC1FF4A2818395F009F7288 /* NCDeckCardParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */; };
 		2CC3166A2CC26194007CBE16 /* UITableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC316692CC26186007CBE16 /* UITableViewExtension.swift */; };
 		2CC3166C2CC2A850007CBE16 /* SettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC3166B2CC2A849007CBE16 /* SettingsTableViewCell.swift */; };
+		2CC3166E2CC698E1007CBE16 /* TextFieldTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC3166D2CC698E1007CBE16 /* TextFieldTableViewCell.swift */; };
 		2CC32E8D27F4540E00BB8C39 /* ReactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */; };
 		2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */; };
 		2CC32E9327F45AE000BB8C39 /* ReactionsViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */; };
@@ -591,7 +592,6 @@
 		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
 		2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */; };
 		2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */; };
-		2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
 		4890175925A0D7FC2EC76CC0 /* libPods-NextcloudTalkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7005E22D6C2896927FC3AEEC /* libPods-NextcloudTalkTests.a */; };
 		807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */; };
@@ -608,7 +608,6 @@
 		DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */; };
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
 		DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */; };
-		DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1165,6 +1164,7 @@
 		2CC1FF4728183958009F7288 /* NCDeckCardParameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCDeckCardParameter.m; sourceTree = "<group>"; };
 		2CC316692CC26186007CBE16 /* UITableViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewExtension.swift; sourceTree = "<group>"; };
 		2CC3166B2CC2A849007CBE16 /* SettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewCell.swift; sourceTree = "<group>"; };
+		2CC3166D2CC698E1007CBE16 /* TextFieldTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTableViewCell.swift; sourceTree = "<group>"; };
 		2CC32E8C27F4540E00BB8C39 /* ReactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsView.swift; sourceTree = "<group>"; };
 		2CC32E9027F45AE000BB8C39 /* ReactionsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsViewCell.swift; sourceTree = "<group>"; };
 		2CC32E9127F45AE000BB8C39 /* ReactionsViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReactionsViewCell.xib; sourceTree = "<group>"; };
@@ -1184,7 +1184,6 @@
 		2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+Extensions.swift"; sourceTree = "<group>"; };
 		2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTranslationViewController.swift; sourceTree = "<group>"; };
 		2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageTranslationViewController.xib; sourceTree = "<group>"; };
-		2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextInputTableViewCell.xib; sourceTree = "<group>"; };
 		342600BABD1AD1FCA48B5E59 /* Pods-NextcloudTalkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.debug.xcconfig"; sourceTree = "<group>"; };
 		4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalk.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk.release.xcconfig"; sourceTree = "<group>"; };
@@ -1210,7 +1209,6 @@
 		DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+Utils.swift"; sourceTree = "<group>"; };
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTableViewController.swift; sourceTree = "<group>"; };
-		DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1654,6 +1652,7 @@
 				2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */,
 				1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */,
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
+				2CC3166D2CC698E1007CBE16 /* TextFieldTableViewCell.swift */,
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
 				1F371A362A7B921A006CBFB3 /* DatePickerTextField.swift */,
 				2C16A82B28E7284D00EDE523 /* NCButton.swift */,
@@ -1847,8 +1846,6 @@
 				DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */,
 				DA66582E27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift */,
 				DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */,
-				DA8801A327AC52AC009EF248 /* TextInputTableViewCell.swift */,
-				2CF9CBFB26025F64002246EF /* TextInputTableViewCell.xib */,
 				2C4446EA265D25BA00DF1DBC /* NCKeyChainController.h */,
 				2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */,
 				2C444701265D641300DF1DBC /* NCUserDefaults.h */,
@@ -2522,7 +2519,6 @@
 				2C78EFA61F86FF4A008AFA74 /* CallParticipantViewCell.xib in Resources */,
 				2C98F77D216231D3001A6A73 /* RoomTableViewCell.xib in Resources */,
 				1F7625E72901B0E800834869 /* CallsFromOldAccountViewController.xib in Resources */,
-				2CF9CBFF26025F65002246EF /* TextInputTableViewCell.xib in Resources */,
 				1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */,
 				2C0424982CA335C4004772F6 /* AudioPlayerView.xib in Resources */,
 				2CC1FF4528147F11009F7288 /* RoomSharedItemsTableViewController.xib in Resources */,
@@ -2983,6 +2979,7 @@
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
+				2CC3166E2CC698E1007CBE16 /* TextFieldTableViewCell.swift in Sources */,
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
 				2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
@@ -3084,7 +3081,6 @@
 				2C4446EC265D25BA00DF1DBC /* NCKeyChainController.m in Sources */,
 				1FD6F83C2B825069004048AB /* NCRoomsManagerExtensions.swift in Sources */,
 				1FF4DA802C023FF300C1B952 /* NCChatFileStatus.swift in Sources */,
-				DA8801A427AC52AC009EF248 /* TextInputTableViewCell.swift in Sources */,
 				2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */,
 				1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */,
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,

@@ -70,7 +70,7 @@ import UIKit
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        if let questionCell = self.tableView.cellForRow(at: IndexPath(row: 0, section: PollCreationSection.kPollCreationSectionQuestion.rawValue)) as? TextInputTableViewCell {
+        if let questionCell = self.tableView.cellForRow(at: IndexPath(row: 0, section: PollCreationSection.kPollCreationSectionQuestion.rawValue)) as? TextFieldTableViewCell {
             questionCell.textField.becomeFirstResponder()
         }
     }
@@ -119,7 +119,7 @@ import UIKit
         self.tableView.dataSource = self
         self.tableView.delegate = self
         self.tableView.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
-        self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
     }
 
     // MARK: - Table view data source
@@ -150,7 +150,7 @@ import UIKit
                 tableView.beginUpdates()
                 tableView.insertRows(at: [indexPath], with: .automatic)
                 tableView.endUpdates()
-                if let optionCell = self.tableView.cellForRow(at: indexPath) as? TextInputTableViewCell {
+                if let optionCell = self.tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell {
                     optionCell.textField.becomeFirstResponder()
                 }
             } else {
@@ -192,8 +192,8 @@ import UIKit
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
-        TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
+        let textInputCell = tableView.dequeueReusableCell(withIdentifier: textFieldCellIdentifier) as? TextFieldTableViewCell ??
+        TextFieldTableViewCell(style: .default, reuseIdentifier: textFieldCellIdentifier)
         textInputCell.textField.delegate = self
         textInputCell.textField.autocapitalizationType = .sentences
         let actionCell = tableView.dequeueReusableCell(withIdentifier: "PollSettingCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "PollSettingCellIdentifier")
