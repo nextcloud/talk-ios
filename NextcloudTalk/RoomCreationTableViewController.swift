@@ -90,7 +90,7 @@ enum RoomVisibilityOption: Int {
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
 
-        self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
         self.tableView.register(UINib(nibName: RoomDescriptionTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomDescriptionTableViewCell.identifier)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
         self.tableView.tableHeaderView = self.headerView
@@ -426,8 +426,8 @@ enum RoomVisibilityOption: Int {
         let roomCreationSection = sections[indexPath.section]
 
         if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
-            let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
-            TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
+            let textInputCell = tableView.dequeueReusableCell(withIdentifier: textFieldCellIdentifier) as? TextFieldTableViewCell ??
+            TextFieldTableViewCell(style: .default, reuseIdentifier: textFieldCellIdentifier)
             textInputCell.textField.autocapitalizationType = .sentences
             textInputCell.textField.tag = kRoomNameTextFieldTag
             textInputCell.textField.delegate = self
