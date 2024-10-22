@@ -59,6 +59,8 @@ import Foundation
             messageParameter.type = "guest"
         } else if self.source == "groups" {
             messageParameter.type = "user-group"
+        } else if self.source == "emails" {
+            messageParameter.type = "email"
         }
 
         return messageParameter

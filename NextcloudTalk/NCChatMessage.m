@@ -317,7 +317,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             NSString *replaceString = messageParameter.name;
             // Format user and call mentions
             if ([messageParameter.type isEqualToString:@"user"] || [messageParameter.type isEqualToString:@"guest"] ||
-                [messageParameter.type isEqualToString:@"user-group"] || [messageParameter.type isEqualToString:@"call"]) {
+                [messageParameter.type isEqualToString:@"user-group"] || [messageParameter.type isEqualToString:@"call"] ||
+                [messageParameter.type isEqualToString:@"email"]) {
+                
                 replaceString = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
             }
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];
@@ -349,7 +351,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions
         if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] ||
-            [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"]) {
+            [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"] ||
+            [param.type isEqualToString:@"email"]) {
 
             if (param.shouldBeHighlighted) {
                 if (!highlightedColor) {
