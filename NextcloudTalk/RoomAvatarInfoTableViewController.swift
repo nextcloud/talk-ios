@@ -17,7 +17,7 @@ enum RoomAvatarInfoSection: Int {
                                                       UITextFieldDelegate,
                                                       AvatarEditViewDelegate,
                                                       EmojiAvatarPickerViewControllerDelegate,
-                                                      RoomDescriptionTableViewCellDelegate,
+                                                      TextViewTableViewCellDelegate,
                                                       TOCropViewControllerDelegate {
 
     var room: NCRoom
@@ -70,7 +70,7 @@ enum RoomAvatarInfoSection: Int {
         self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
-        self.tableView.register(UINib(nibName: RoomDescriptionTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomDescriptionTableViewCell.identifier)
+        self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)
         self.tableView.tableHeaderView = self.headerView
 
         self.modifyingView.color = NCAppBranding.themeTextColor()
@@ -136,10 +136,10 @@ enum RoomAvatarInfoSection: Int {
             textInputCell.selectionStyle = .none
             return textInputCell
         } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: RoomDescriptionTableViewCell.identifier) as? RoomDescriptionTableViewCell ??
-            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: RoomDescriptionTableViewCell.identifier)
-            descriptionCell.textView?.text = self.room.roomDescription
-            descriptionCell.textView?.isEditable = true
+            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: TextViewTableViewCell.identifier) as? TextViewTableViewCell ??
+            TextViewTableViewCell(style: .default, reuseIdentifier: TextViewTableViewCell.identifier)
+            descriptionCell.textView.text = self.room.roomDescription
+            descriptionCell.textView.isEditable = true
             descriptionCell.delegate = self
             descriptionCell.characterLimit = 500
             descriptionCell.selectionStyle = .none
@@ -274,19 +274,19 @@ enum RoomAvatarInfoSection: Int {
         self.dismiss(animated: true, completion: nil)
     }
 
-    // MARK: - RoomDescriptionTableViewCellDelegate
+    // MARK: - TextViewTableViewCellDelegate
 
-    func roomDescriptionCellTextViewDidChange(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellTextViewDidChange(_ cell: TextViewTableViewCell) {
         DispatchQueue.main.async {
             self.tableView?.beginUpdates()
             self.tableView?.endUpdates()
 
-            self.currentDescription = cell.textView?.text ?? ""
+            self.currentDescription = cell.textView.text ?? ""
             self.descriptionHeaderView.button.isHidden = self.currentDescription == self.room.roomDescription
         }
     }
 
-    func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellDidExceedCharacterLimit(_ cell: TextViewTableViewCell) {
         NotificationPresenter.shared().present(
             text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
             dismissAfterDelay: 3.0,
