@@ -26,7 +26,7 @@ enum RoomVisibilityOption: Int {
                                                     AvatarEditViewDelegate,
                                                     AddParticipantsTableViewControllerDelegate,
                                                     EmojiAvatarPickerViewControllerDelegate,
-                                                    RoomDescriptionTableViewCellDelegate,
+                                                    TextViewTableViewCellDelegate,
                                                     TOCropViewControllerDelegate {
 
     var account: TalkAccount
@@ -91,7 +91,7 @@ enum RoomVisibilityOption: Int {
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
 
         self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
-        self.tableView.register(UINib(nibName: RoomDescriptionTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomDescriptionTableViewCell.identifier)
+        self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
         self.tableView.tableHeaderView = self.headerView
         self.tableView.keyboardDismissMode = .onDrag
@@ -436,10 +436,10 @@ enum RoomVisibilityOption: Int {
             textInputCell.selectionStyle = .none
             return textInputCell
         } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: RoomDescriptionTableViewCell.identifier) as? RoomDescriptionTableViewCell ??
-            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: RoomDescriptionTableViewCell.identifier)
-            descriptionCell.textView?.text = self.roomDescription
-            descriptionCell.textView?.isEditable = true
+            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: TextViewTableViewCell.identifier) as? TextViewTableViewCell ??
+            TextViewTableViewCell(style: .default, reuseIdentifier: TextViewTableViewCell.identifier)
+            descriptionCell.textView.text = self.roomDescription
+            descriptionCell.textView.isEditable = true
             descriptionCell.delegate = self
             descriptionCell.characterLimit = 500
             descriptionCell.selectionStyle = .none
@@ -633,21 +633,21 @@ enum RoomVisibilityOption: Int {
         self.dismiss(animated: true, completion: nil)
     }
 
-    // MARK: - RoomDescriptionTableViewCellDelegate
+    // MARK: - TextViewTableViewCellDelegate
 
-    func roomDescriptionCellTextViewDidChange(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellTextViewDidChange(_ cell: TextViewTableViewCell) {
         DispatchQueue.main.async {
             self.tableView?.beginUpdates()
             self.tableView?.endUpdates()
-            self.roomDescription = cell.textView?.text ?? ""
+            self.roomDescription = cell.textView.text ?? ""
         }
     }
 
-    func roomDescriptionCellDidEndEditing(_ cell: RoomDescriptionTableViewCell) {
-        self.roomDescription = cell.textView?.text ?? ""
+    func textViewCellDidEndEditing(_ cell: TextViewTableViewCell) {
+        self.roomDescription = cell.textView.text ?? ""
     }
 
-    func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellDidExceedCharacterLimit(_ cell: TextViewTableViewCell) {
         NotificationPresenter.shared().present(
             text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
             dismissAfterDelay: 3.0,

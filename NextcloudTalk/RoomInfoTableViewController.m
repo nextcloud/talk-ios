@@ -228,7 +228,7 @@ typedef enum FileAction {
     
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:RoomNameTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomNameTableViewCell.identifier];
-    [self.tableView registerNib:[UINib nibWithNibName:RoomDescriptionTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomDescriptionTableViewCell.identifier];
+    [self.tableView registerClass:TextViewTableViewCell.class forCellReuseIdentifier:TextViewTableViewCell.identifier];
 
     if (!_chatViewController || [self.navigationController.viewControllers count] == 1) {
         UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
@@ -1809,9 +1809,9 @@ typedef enum FileAction {
             break;
         case kRoomInfoSectionDescription:
         {
-            RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomDescriptionTableViewCell.identifier];
+            TextViewTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TextViewTableViewCell.identifier];
             if (!cell) {
-                cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomDescriptionTableViewCell.identifier];
+                cell = [[TextViewTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:TextViewTableViewCell.identifier];
             }
             
             cell.textView.text = _room.roomDescription;
@@ -2204,9 +2204,9 @@ typedef enum FileAction {
             switch (indexPath.row) {
                 case kSIPActionSIPInfo:
                 {
-                    RoomDescriptionTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomDescriptionTableViewCell.identifier];
+                    TextViewTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TextViewTableViewCell.identifier];
                     if (!cell) {
-                        cell = [[RoomDescriptionTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomDescriptionTableViewCell.identifier];
+                        cell = [[TextViewTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:TextViewTableViewCell.identifier];
                     }
                     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
                     SignalingSettings *activeAccountSignalingConfig = [[[NCSettingsController sharedInstance] signalingConfigurations] objectForKey:activeAccount.accountId];
