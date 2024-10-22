@@ -44,7 +44,7 @@ enum AboutSection: Int {
     case kAboutSectionSourceCode
 }
 
-class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate {
+class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate, CallsFromOldAccountViewControllerDelegate {
     let kPhoneTextFieldTag = 99
 
     let iconConfiguration = UIImage.SymbolConfiguration(pointSize: 18)
@@ -588,8 +588,13 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     func callsFromOldAccountPressed() {
         let vc = CallsFromOldAccountViewController()
+        vc.delegate = self
 
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+
+    func callsFromOldAccountWarningAcknowledged() {
+        self.tableView.reloadData()
     }
 
     // MARK: - Table view data source
