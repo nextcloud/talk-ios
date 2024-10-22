@@ -43,7 +43,7 @@ enum AboutSection: Int {
     case kAboutSectionSourceCode
 }
 
-class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate {
+class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate, CallsFromOldAccountViewControllerDelegate {
     let kPhoneTextFieldTag = 99
     let kUserSettingsCellIdentifier = "UserSettingsCellIdentifier"
     let kUserSettingsTableCellNibName = "UserSettingsTableViewCell"
@@ -593,8 +593,13 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     func callsFromOldAccountPressed() {
         let vc = CallsFromOldAccountViewController()
+        vc.delegate = self
 
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+
+    func callsFromOldAccountWarningAcknowledged() {
+        self.tableView.reloadData()
     }
 
     // MARK: - Table view data source

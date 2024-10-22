@@ -5,7 +5,13 @@
 
 import UIKit
 
+@objc protocol CallsFromOldAccountViewControllerDelegate: AnyObject {
+    func callsFromOldAccountWarningAcknowledged()
+}
+
 class CallsFromOldAccountViewController: UIViewController {
+
+    weak var delegate: CallsFromOldAccountViewControllerDelegate?
 
     @IBOutlet weak var warningTextLabel: UILabel!
     @IBOutlet weak var acknowledgeWarningButton: NCButton!
@@ -45,6 +51,7 @@ class CallsFromOldAccountViewController: UIViewController {
     @IBAction func acknowledgeWarningButtonPressed(_ sender: Any) {
         NCSettingsController.sharedInstance().setDidReceiveCallsFromOldAccount(false)
         self.navigationController?.popViewController(animated: true)
+        self.delegate?.callsFromOldAccountWarningAcknowledged()
     }
 
 }
