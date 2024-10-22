@@ -46,9 +46,6 @@ enum AboutSection: Int {
 
 class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate {
     let kPhoneTextFieldTag = 99
-    let kUserSettingsCellIdentifier = "UserSettingsCellIdentifier"
-    let kUserSettingsTableCellNibName = "UserSettingsTableViewCell"
-    let kAccountCellIdentifier: String = "AccountCellIdentifier"
 
     let iconConfiguration = UIImage.SymbolConfiguration(pointSize: 18)
 
@@ -117,8 +114,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.navigationItem.standardAppearance = appearance
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
-
-        tableView.register(UINib(nibName: kUserSettingsTableCellNibName, bundle: nil), forCellReuseIdentifier: kUserSettingsCellIdentifier)
 
         NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsHaveBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsUpdated, object: nil)
@@ -688,21 +683,21 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = UITableViewCell()
         let sections = getSettingsSections()
         let settingsSection = sections[indexPath.section]
 
         switch settingsSection {
         case SettingsSection.kSettingsSectionUser.rawValue:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: kUserSettingsCellIdentifier, for: indexPath) as? UserSettingsTableViewCell else { return UITableViewCell() }
-            cell.userDisplayNameLabel.text = activeAccount.userDisplayName
-            let accountServer = activeAccount.server
-            cell.serverAddressLabel.text = accountServer.replacingOccurrences(of: "https://", with: "")
-            cell.userImageView.image = self.getProfilePicture(for: activeAccount)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: "UserProfileCellIdentifier", style: .subtitle)
+            cell.textLabel?.text = activeAccount.userDisplayName
+            cell.textLabel?.font = .preferredFont(for: .title2, weight: .medium)
+            cell.detailTextLabel?.text = activeAccount.server.replacingOccurrences(of: "https://", with: "")
+            cell.imageView?.image = self.getProfilePicture(for: activeAccount)?.cropToCircle(withSize: CGSize(width: 60, height: 60))
             cell.accessoryType = .disclosureIndicator
             return cell
+
         case SettingsSection.kSettingsSectionUserStatus.rawValue:
-            cell = UITableViewCell(style: .subtitle, reuseIdentifier: "UserStatusCellIdentifier")
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: "UserStatusCellIdentifier", style: .subtitle)
             if activeUserStatus != nil {
                 cell.textLabel?.text = activeUserStatus!.readableUserStatus()
                 let statusMessage = activeUserStatus!.readableUserStatusMessage()
@@ -711,8 +706,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
                 }
                 if activeUserStatus!.status == kUserStatusDND {
                     cell.detailTextLabel?.text = NSLocalizedString("All notifications are muted", comment: "")
-                    cell.detailTextLabel?.numberOfLines = 0
-                    cell.detailTextLabel?.textColor = .secondaryLabel
                 }
                 let statusImage = activeUserStatus!.getSFUserStatusIcon()
                 cell.imageView?.image = statusImage
@@ -720,20 +713,25 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
                 cell.textLabel?.text = NSLocalizedString("Fetching status …", comment: "")
             }
             return cell
+
         case SettingsSection.kSettingsSectionAccountSettings.rawValue:
-            cell = userSettingsCell(for: indexPath)
+            return userSettingsCell(for: indexPath)
+
         case SettingsSection.kSettingsSectionOtherAccounts.rawValue:
-            cell = userAccountsCell(for: indexPath)
+            return userAccountsCell(for: indexPath)
+
         case SettingsSection.kSettingsSectionConfiguration.rawValue:
-            cell = sectionConfigurationCell(for: indexPath)
+            return sectionConfigurationCell(for: indexPath)
+
         case SettingsSection.kSettingsSectionAdvanced.rawValue:
-            cell = advancedCell(for: indexPath)
+            return advancedCell(for: indexPath)
+
         case SettingsSection.kSettingsSectionAbout.rawValue:
-            cell = sectionAboutCell(for: indexPath)
+            return sectionAboutCell(for: indexPath)
+
         default:
-            break
+            return UITableViewCell()
         }
-        return cell
     }
 
     func didSelectOtherAccountSectionCell(for indexPath: IndexPath) {
@@ -830,88 +828,66 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 }
 
-private extension UITableViewCell {
-    func setSettingsImage(image: UIImage?, renderingMode: UIImage.RenderingMode = .alwaysTemplate) {
-        // Render all images to a size of 20x20 so all cells have the same width for the imageView
-        self.imageView?.image = NCUtils.renderAspectImage(image: image, ofSize: .init(width: 20, height: 20), centerImage: true)?.withRenderingMode(renderingMode)
-        self.imageView?.tintColor = .secondaryLabel
-        self.imageView?.contentMode = .scaleAspectFit
-    }
-}
-
 extension SettingsTableViewController {
 
-    // Cell configuration for every section
     func userSettingsCell(for indexPath: IndexPath) -> UITableViewCell {
-        let readStatusCellIdentifier = "ReadStatusCellIdentifier"
-        let typingIndicatorCellIdentifier = "TypingIndicatorCellIdentifier"
-        let contactsSyncCellIdentifier = "ContactsSyncCellIdentifier"
+        let userSettingsCellIdentifier = "UserSettingsCellIdentifier"
 
         let options = getAccountSettingsSectionOptions()
         let option = options[indexPath.row]
-        var cell = UITableViewCell()
 
         switch option {
         case AccountSettingsOptions.kAccountSettingsReadStatusPrivacy.rawValue:
-            cell = tableView.dequeueReusableCell(withIdentifier: readStatusCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: readStatusCellIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: userSettingsCellIdentifier, style: .subtitle)
             cell.textLabel?.text = NSLocalizedString("Read status", comment: "")
-            cell.selectionStyle = .none
             cell.setSettingsImage(image: UIImage(named: "check-all"))
             cell.accessoryView = readStatusSwitch
             readStatusSwitch.isOn = !(serverCapabilities?.readStatusPrivacy ?? true)
+            cell.selectionStyle = .none
+            return cell
 
         case AccountSettingsOptions.kAccountSettingsTypingPrivacy.rawValue:
-            cell = tableView.dequeueReusableCell(withIdentifier: typingIndicatorCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: typingIndicatorCellIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: userSettingsCellIdentifier, style: .subtitle)
             cell.textLabel?.text = NSLocalizedString("Typing indicator", comment: "")
-            cell.selectionStyle = .none
             cell.setSettingsImage(image: UIImage(systemName: "rectangle.and.pencil.and.ellipsis")?.applyingSymbolConfiguration(iconConfiguration))
-
             cell.accessoryView = typingIndicatorSwitch
             typingIndicatorSwitch.isOn = !(serverCapabilities?.typingPrivacy ?? true)
+            cell.selectionStyle = .none
 
             let externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId)
-            let externalSignalingServerUsed = externalSignalingController != nil
-
-            if !externalSignalingServerUsed {
-                cell.detailTextLabel?.text = NSLocalizedString("Typing indicators are only available when using a high performance backend (HPB)", comment: "")
-            } else {
-                cell.detailTextLabel?.text = nil
+            if externalSignalingController == nil {
+                cell.detailTextLabel?.text = NSLocalizedString("Typing indicators are only available when using a high performance backend (HPB)",
+                                                               comment: "")
             }
 
+            return cell
+
         case AccountSettingsOptions.kAccountSettingsContactsSync.rawValue:
-            cell = tableView.dequeueReusableCell(withIdentifier: contactsSyncCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: contactsSyncCellIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: userSettingsCellIdentifier, style: .subtitle)
             cell.textLabel?.text = NSLocalizedString("Phone number integration", comment: "")
             cell.detailTextLabel?.text = NSLocalizedString("Match system contacts", comment: "")
-            cell.selectionStyle = contactSyncSwitch.isOn ? .default : .none
             cell.setSettingsImage(image: UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration))
-
             cell.accessoryView = contactSyncSwitch
             contactSyncSwitch.isOn = NCSettingsController.sharedInstance().isContactSyncEnabled()
+            cell.selectionStyle = .none
+            return cell
+
         default:
-            break
+            return UITableViewCell()
         }
-        cell.textLabel?.numberOfLines = 0
-        cell.detailTextLabel?.numberOfLines = 0
-        cell.detailTextLabel?.textColor = .secondaryLabel
-        return cell
     }
 
     func userAccountsCell(for indexPath: IndexPath) -> UITableViewCell {
         guard let account = inactiveAccounts[indexPath.row] as? TalkAccount else { return UITableViewCell() }
 
-        let accountServer = account.server.replacingOccurrences(of: "https://", with: "")
-
-        let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier) ?? UITableViewCell(style: .subtitle, reuseIdentifier: kAccountCellIdentifier)
+        let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: "AccountCellIdentifier", style: .subtitle)
         cell.textLabel?.text = account.userDisplayName
-        cell.detailTextLabel?.text = accountServer
-        cell.detailTextLabel?.textColor = .secondaryLabel
+        cell.detailTextLabel?.text = account.server.replacingOccurrences(of: "https://", with: "")
 
-        cell.imageView?.image = nil
         if let accountImage = self.getProfilePicture(for: account) {
             cell.setSettingsImage(image: NCUtils.roundedImage(fromImage: accountImage), renderingMode: .alwaysOriginal)
         }
 
-        cell.accessoryView = nil
         if account.unreadBadgeNumber > 0 {
             let badgeView = RoundedNumberView()
             badgeView.highlightType = .important
@@ -923,13 +899,14 @@ extension SettingsTableViewController {
     }
 
     func sectionConfigurationCell(for indexPath: IndexPath) -> UITableViewCell {
-        let videoConfigurationCellIdentifier = "VideoConfigurationCellIdentifier"
+        let configurationCellIdentifier = "ConfigurationCellIdentifier"
+
         let options = getConfigurationSectionOptions()
         let option = options[indexPath.row]
-        var cell = UITableViewCell()
+
         switch option {
         case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: configurationCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Video quality", comment: "")
             cell.setSettingsImage(image: UIImage(systemName: "video")?.applyingSymbolConfiguration(iconConfiguration))
 
@@ -940,51 +917,50 @@ extension SettingsTableViewController {
             resolutionLabel.sizeToFit()
             cell.accessoryView = resolutionLabel
 
+            return cell
+
         case ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: videoConfigurationCellIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: configurationCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Include calls in call history", comment: "")
             cell.setSettingsImage(image: UIImage(systemName: "clock.arrow.circlepath")?.applyingSymbolConfiguration(iconConfiguration))
             cell.selectionStyle = .none
             cell.accessoryView = includeInRecentsSwitch
             includeInRecentsSwitch.isOn = NCUserDefaults.includeCallsInRecents()
+            return cell
 
         default:
-            break
+            return UITableViewCell()
         }
-        cell.textLabel?.numberOfLines = 0
-        return cell
     }
 
     func advancedCell(for indexPath: IndexPath) -> UITableViewCell {
-        let advancedCellDisclosureIdentifier = "AdvancedCellDisclosureIdentifier"
-        let advancedCellValue1Identifier = "AdvancedCellType1Identifier"
+        let advancedCellIdentifier = "AdvancedCellIdentifier"
 
         let options = getAdvancedSectionOptions()
         let option = options[indexPath.row]
-        var cell = UITableViewCell()
+
         switch option {
         case AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: advancedCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
-            cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "gear")?.applyingSymbolConfiguration(iconConfiguration))
             cell.accessoryType = .disclosureIndicator
+            return cell
 
         case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
-            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellDisclosureIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: advancedCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Calls from old accounts", comment: "")
-            cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "exclamationmark.triangle.fill")?.applyingSymbolConfiguration(iconConfiguration))
             cell.accessoryType = .disclosureIndicator
+            return cell
 
         case AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue:
             let byteFormatter = ByteCountFormatter()
             byteFormatter.allowedUnits = [.useMB]
             byteFormatter.countStyle = .file
 
-            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: advancedCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Cached images", comment: "")
-            cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "photo")?.applyingSymbolConfiguration(iconConfiguration))
 
             let byteCounterLabel = UILabel()
@@ -993,14 +969,15 @@ extension SettingsTableViewController {
             byteCounterLabel.sizeToFit()
             cell.accessoryView = byteCounterLabel
 
+            return cell
+
         case AdvancedSectionOption.kAdvancedSectionOptionCachedFiles.rawValue:
             let byteFormatter = ByteCountFormatter()
             byteFormatter.allowedUnits = [.useMB]
             byteFormatter.countStyle = .file
 
-            cell = UITableViewCell(style: .default, reuseIdentifier: advancedCellValue1Identifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: advancedCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Cached files", comment: "")
-            cell.textLabel?.numberOfLines = 0
             cell.setSettingsImage(image: UIImage(systemName: "doc")?.applyingSymbolConfiguration(iconConfiguration))
 
             let byteCounterLabel = UILabel()
@@ -1009,36 +986,35 @@ extension SettingsTableViewController {
             byteCounterLabel.sizeToFit()
             cell.accessoryView = byteCounterLabel
 
-        default:
-            break
-        }
+            return cell
 
-        return cell
+        default:
+            return UITableViewCell()
+        }
     }
 
     func sectionAboutCell(for indexPath: IndexPath) -> UITableViewCell {
-        let privacyCellIdentifier = "PrivacyCellIdentifier"
-        let sourceCodeCellIdentifier = "SourceCodeCellIdentifier"
+        let aboutCellIdentifier = "AboutCellIdentifier"
+
         let options = getAboutSectionOptions()
         let option = options[indexPath.row]
-        var cell = UITableViewCell()
+
         switch option {
         case AboutSection.kAboutSectionPrivacy.rawValue:
-            cell =
-            UITableViewCell(style: .default, reuseIdentifier: privacyCellIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: aboutCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Privacy", comment: "")
             cell.setSettingsImage(image: UIImage(systemName: "lock.shield")?.applyingSymbolConfiguration(iconConfiguration))
+            return cell
 
         case AboutSection.kAboutSectionSourceCode.rawValue:
-            cell =
-            UITableViewCell(style: .default, reuseIdentifier: sourceCodeCellIdentifier)
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: aboutCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Get source code", comment: "")
             cell.setSettingsImage(image: UIImage(named: "github"))
+            return cell
+
         default:
-            break
+            return UITableViewCell()
         }
-        cell.textLabel?.numberOfLines = 0
-        return cell
     }
 
     // UIImage should be optional because userProfileImage (objC) can return a nil value
