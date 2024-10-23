@@ -125,18 +125,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         NotificationCenter.default.addObserver(self, selector: #selector(contactsAccessHasBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsAccessUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
 
-        let imageCacheSize = NCImageSessionManager.shared.cache.currentDiskUsage
-        let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
-        self.totalImageCacheSize = imageCacheSize + Int(sdImageCacheSize)
-
-        let fileController = NCChatFileController()
-        let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
-
-        if let talkAccounts = talkAccounts as? [TalkAccount] {
-            for account in talkAccounts {
-                self.totalFileCacheSize += Int(fileController.getDiskUsage(for: account))
-            }
-        }
+        self.updateTotalImageCacheSize()
+        self.updateTotalFileCacheSize()
 
         self.adaptInterfaceForAppState(appState: NCConnectionController.sharedInstance().appState)
     }
@@ -561,9 +551,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             NCImageSessionManager.shared.cache.removeAllCachedResponses()
 
             SDImageCache.shared.clearMemory()
-            SDImageCache.shared.clearDisk()
-
-            self.tableView.reloadData()
+            SDImageCache.shared.clearDisk {
+                self.updateTotalImageCacheSize()
+                self.tableView.reloadData()
+            }
         }
         clearCacheDialog.addAction(clearAction)
 
@@ -589,6 +580,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
                 }
             }
 
+            self.updateTotalFileCacheSize()
             self.tableView.reloadData()
         }
         clearCacheDialog.addAction(clearAction)
@@ -1048,5 +1040,24 @@ extension SettingsTableViewController {
         }
 
         return NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle)
+    }
+
+    func updateTotalImageCacheSize() {
+        let imageCacheSize = NCImageSessionManager.shared.cache.currentDiskUsage
+        let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
+        self.totalImageCacheSize = imageCacheSize + Int(sdImageCacheSize)
+    }
+
+    func updateTotalFileCacheSize() {
+        self.totalFileCacheSize = 0
+
+        let fileController = NCChatFileController()
+        let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
+
+        if let talkAccounts = talkAccounts as? [TalkAccount] {
+            for account in talkAccounts {
+                self.totalFileCacheSize += Int(fileController.getDiskUsage(for: account))
+            }
+        }
     }
 }
