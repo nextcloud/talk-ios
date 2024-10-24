@@ -11,7 +11,7 @@ class SimpleTableViewController: UITableViewController {
         self.options = options
         self.navigationTitle = title
 
-        super.init(style: .grouped)
+        super.init(style: .insetGrouped)
     }
 
     required init?(coder: NSCoder) {
