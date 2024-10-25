@@ -488,6 +488,9 @@
 "Copy" = "Copy";
 
 /* No comment provided by engineer. */
+"Copy message link" = "Copy message link";
+
+/* No comment provided by engineer. */
 "Could not access camera" = "Could not access camera";
 
 /* No comment provided by engineer. */
@@ -1095,6 +1098,9 @@
 
 /* No comment provided by engineer. */
 "Message expiration time" = "Message expiration time";
+
+/* No comment provided by engineer. */
+"Message link copied" = "Message link copied";
 
 /* No comment provided by engineer. */
 "Messages" = "Messages";
