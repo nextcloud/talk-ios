@@ -973,7 +973,7 @@ import QuickLook
         let pasteboard = UIPasteboard.general
         pasteboard.string = url
 
-        NotificationPresenter.shared().present(text: NSLocalizedString("Message Link copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+        NotificationPresenter.shared().present(text: NSLocalizedString("Message link copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
     func didPressTranslate(for message: NCChatMessage) {
@@ -2841,7 +2841,7 @@ import QuickLook
         })
 
         // Copy Link
-        actions.append(UIAction(title: NSLocalizedString("Copy Message Link", comment: ""), image: .init(systemName: "link")) { _ in
+        actions.append(UIAction(title: NSLocalizedString("Copy message link", comment: ""), image: .init(systemName: "link")) { _ in
             self.didPressCopyLink(for: message)
         })
 
