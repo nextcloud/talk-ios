@@ -590,8 +590,6 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action
 {
-    [action fulfill];
-    
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
         [NCUtils log:[NSString stringWithFormat:@"CallKit provider end call action for token %@", call.token]];
@@ -610,6 +608,8 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
                                                               userInfo:userInfo];
         }
     }
+
+    [action fulfill];
 }
 
 - (void)provider:(CXProvider *)provider performSetMutedCallAction:(CXSetMutedCallAction *)action
