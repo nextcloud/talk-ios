@@ -170,6 +170,25 @@ import Foundation
         }
     }
 
+    public func setPassword(_ password: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?, _ errorDescription: String?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/password", for: account)
+        let parameters: [String: String] = ["password": password]
+
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            // When password does not match the password-policy, we receive a 400
+            if ocsError?.responseStatusCode == 400 {
+                // message is already translated server-side
+                completionBlock(ocsError?.error, ocsError?.errorMessage)
+            } else {
+                completionBlock(ocsError?.error, nil)
+            }
+        }
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {

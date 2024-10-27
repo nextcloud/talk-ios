@@ -832,7 +832,7 @@ typedef enum FileAction {
         NSString *password = [[passwordDialog textFields][0] text];
         NSString *trimmedPassword = [password stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [self setModifyingRoomUI];
-        [[NCAPIController sharedInstance] setPassword:trimmedPassword toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSString *errorDescription) {
+        [[NCAPIController sharedInstance] setPassword:trimmedPassword forRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error, NSString *errorDescription) {
             if (!error) {
                 [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
             } else {
@@ -848,7 +848,7 @@ typedef enum FileAction {
     if (_room.hasPassword) {
         UIAlertAction *removePasswordAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove password", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
             [self setModifyingRoomUI];
-            [[NCAPIController sharedInstance] setPassword:@"" toRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error, NSString *errorDescription) {
+            [[NCAPIController sharedInstance] setPassword:@"" forRoom:self->_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error, NSString *errorDescription) {
                 if (!error) {
                     [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
                 } else {

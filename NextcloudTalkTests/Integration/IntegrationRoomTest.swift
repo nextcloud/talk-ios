@@ -36,7 +36,7 @@ final class IntegrationRoomTest: TestBase {
             XCTAssertNil(error)
 
             self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
-                
+
                 // Delete the room again
                 NCAPIController.sharedInstance().deleteRoom(room!.token, forAccount: activeAccount) { error in
                     XCTAssertNil(error)
@@ -171,6 +171,48 @@ final class IntegrationRoomTest: TestBase {
                 XCTAssert(room?.type == .group)
 
                 exp.fulfill()
+            }
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+    }
+
+    func testRoomPassword() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let roomName = "Password Test Room " + UUID().uuidString
+
+        var exp = expectation(description: "\(#function)\(#line)")
+        var roomToken = ""
+
+        // Create a room
+        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
+            XCTAssertNil(error)
+
+            roomToken = room?.token ?? ""
+
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+
+        // Set a password
+        exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().setPassword("1234", forRoom: roomToken, forAccount: activeAccount) { error, _  in
+            XCTAssertNil(error)
+
+            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                XCTAssertTrue(room?.hasPassword ?? false)
+
+                // Remove password again
+                NCAPIController.sharedInstance().setPassword("", forRoom: roomToken, forAccount: activeAccount) { error, _ in
+                    XCTAssertNil(error)
+
+                    self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                        XCTAssertFalse(room?.hasPassword ?? true)
+
+                        exp.fulfill()
+                    }
+                }
             }
         }
 
