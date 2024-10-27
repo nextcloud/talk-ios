@@ -1083,7 +1083,7 @@ typedef enum RoomsSections {
 
 - (void)addRoomToFavorites:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
         }
@@ -1093,7 +1093,7 @@ typedef enum RoomsSections {
 
 - (void)removeRoomFromFavorites:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
         }

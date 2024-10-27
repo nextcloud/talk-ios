@@ -218,4 +218,46 @@ final class IntegrationRoomTest: TestBase {
 
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
+
+    func testRoomFavorite() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let roomName = "Favorite Test Room " + UUID().uuidString
+
+        var exp = expectation(description: "\(#function)\(#line)")
+        var roomToken = ""
+
+        // Create a room
+        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
+            XCTAssertNil(error)
+
+            roomToken = room?.token ?? ""
+
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+
+        // Set as favorite
+        exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().addRoomToFavorites(roomToken, forAccount: activeAccount) { error  in
+            XCTAssertNil(error)
+
+            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                XCTAssertTrue(room?.isFavorite ?? false)
+
+                // Remove from favorite
+                NCAPIController.sharedInstance().removeRoomFromFavorites(roomToken, forAccount: activeAccount) { error in
+                    XCTAssertNil(error)
+
+                    self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                        XCTAssertFalse(room?.isFavorite ?? true)
+
+                        exp.fulfill()
+                    }
+                }
+            }
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+    }
 }
