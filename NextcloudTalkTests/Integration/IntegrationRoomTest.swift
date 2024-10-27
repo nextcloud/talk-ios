@@ -25,7 +25,7 @@ final class IntegrationRoomTest: TestBase {
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func testRoomCreation() throws {
+    func testRoomCreationAndDeletion() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Integration Test Room " + UUID().uuidString
 
@@ -34,12 +34,21 @@ final class IntegrationRoomTest: TestBase {
         // Create a room
         NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { _, error in
             XCTAssertNil(error)
-            exp.fulfill()
+
+            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                
+                // Delete the room again
+                NCAPIController.sharedInstance().deleteRoom(room!.token, forAccount: activeAccount) { error in
+                    XCTAssertNil(error)
+
+                    self.checkRoomNotExists(roomName: roomName, withAccount: activeAccount) {
+                        exp.fulfill()
+                    }
+                }
+            }
         }
 
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
-        self.checkRoomExists(roomName: roomName, withAccount: activeAccount)
     }
 
     func testRoomDescription() throws {
@@ -67,14 +76,14 @@ final class IntegrationRoomTest: TestBase {
         // Set a description
         NCAPIController.sharedInstance().setRoomDescription(roomDescription, forRoom: roomToken, forAccount: activeAccount) { error in
             XCTAssertNil(error)
-            expDescription.fulfill()
+
+            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                XCTAssertEqual(room?.roomDescription, roomDescription)
+                expDescription.fulfill()
+            }
         }
 
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
-        self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
-            XCTAssertEqual(room?.roomDescription, roomDescription)
-        }
     }
 
     func testRoomRename() throws {
@@ -102,14 +111,14 @@ final class IntegrationRoomTest: TestBase {
         // Set a new name
         NCAPIController.sharedInstance().renameRoom(roomToken, forAccount: activeAccount, withName: roomNameNew) { error in
             XCTAssertNil(error)
-            expNewName.fulfill()
+
+            self.checkRoomExists(roomName: roomNameNew, withAccount: activeAccount) { room in
+                XCTAssertEqual(room?.displayName, roomNameNew)
+                expNewName.fulfill()
+            }
         }
 
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
-        self.checkRoomExists(roomName: roomNameNew, withAccount: activeAccount) { room in
-            XCTAssertEqual(room?.displayName, roomNameNew)
-        }
     }
 
     func testRoomPublicPrivate() throws {

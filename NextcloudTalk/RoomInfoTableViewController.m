@@ -1117,7 +1117,7 @@ typedef enum FileAction {
 
 - (void)deleteRoom
 {
-    [[NCAPIController sharedInstance] deleteRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] deleteRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (!error) {
             if (self->_chatViewController) {
                 [self->_chatViewController leaveChat];

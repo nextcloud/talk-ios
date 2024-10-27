@@ -158,6 +158,18 @@ import Foundation
         }
     }
 
+    public func deleteRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, error in
+            completionBlock(error)
+        }
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
