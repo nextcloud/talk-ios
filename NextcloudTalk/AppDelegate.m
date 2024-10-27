@@ -67,6 +67,8 @@
     NSLog(@"Configure App Settings");
     [NCSettingsController sharedInstance];
 
+    [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString]]];
+
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
     
@@ -328,6 +330,8 @@
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion
 {
+    [NCUtils log:@"Received PushKit notification"];
+
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
