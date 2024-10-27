@@ -13,8 +13,7 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        var urlString = self.getRequestURL(forEndpoint: "room", withAPIVersion: apiVersion, for: account)
+        var urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
 
         let parameters: [String: Any] = [
@@ -40,8 +39,7 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, error in
             completionBlock(ocs?.dataDict, error)
@@ -52,8 +50,7 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/note-to-self", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/note-to-self", for: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, error in
             completionBlock(ocs?.dataDict, error)
@@ -64,8 +61,7 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "listed-room", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "listed-room", for: account)
         var parameters: [String: Any] = [:]
 
         if let searchTerm, !searchTerm.isEmpty {
@@ -82,8 +78,7 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
         var parameters: [String: Any] = ["roomType": roomType.rawValue]
 
         if let invite, !invite.isEmpty {
@@ -105,8 +100,7 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
         let parameters: [String: String] = ["roomName": roomName]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
@@ -119,8 +113,7 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/description", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/description", for: account)
         let parameters: [String: String] = ["description": description ?? ""]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
@@ -133,8 +126,7 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/mention-permissions", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/mention-permissions", for: account)
         let parameters: [String: Int] = ["mentionPermissions": permissions.rawValue]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
@@ -206,8 +198,7 @@ import Foundation
             return
         }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/capabilities", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/capabilities", for: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             if let data = ocs?.dataDict,

@@ -222,6 +222,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return [NSString stringWithFormat:@"%@/files/%@", kDavEndpoint, account.userId];
 }
 
+- (NSString *)getRequestURLForConversationEndpoint:(NSString *)endpoint forAccount:(TalkAccount *)account
+{
+    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    return [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
+}
+
 - (NSString *)getRequestURLForEndpoint:(NSString *)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *)account
 {
     return [NSString stringWithFormat:@"%@%@%@%ld/%@", account.server, kNCOCSAPIVersion, kNCSpreedAPIVersionBase, (long)apiVersion, endpoint];

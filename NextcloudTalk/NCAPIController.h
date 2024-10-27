@@ -304,6 +304,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getReminderForMessage:(NCChatMessage *)message withCompletionBlock:(GetReminderForMessage)block;
 
 // Internal method exposed for swift extension
+- (NSString * _Nonnull)getRequestURLForConversationEndpoint:(NSString *_Nonnull)endpoint forAccount:(TalkAccount *_Nonnull)account;
 - (NSString * _Nonnull)getRequestURLForEndpoint:(NSString *_Nonnull)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *_Nonnull)account;
 - (NSDictionary * _Nullable)getResponseHeaders:(NSURLResponse *_Nonnull)response;
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;
