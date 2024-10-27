@@ -111,4 +111,60 @@ final class IntegrationRoomTest: TestBase {
             XCTAssertEqual(room?.displayName, roomNameNew)
         }
     }
+
+    func testRoomPublicPrivate() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let roomName = "PublicPrivate Test Room " + UUID().uuidString
+
+        var exp = expectation(description: "\(#function)\(#line)")
+        var roomToken = ""
+
+        // Create a room
+        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .group, andName: roomName) { room, error in
+            XCTAssertNil(error)
+
+            roomToken = room?.token ?? ""
+            XCTAssert(room?.type == .group)
+
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+
+        // Make room public
+        exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().makeRoomPublic(roomToken, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
+                XCTAssertNil(error)
+
+                let room = NCRoom(dictionary: roomDict)
+                XCTAssertNotNil(room)
+                XCTAssert(room?.type == .public)
+
+                exp.fulfill()
+            }
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+
+        // Make room private again
+        exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().makeRoomPrivate(roomToken, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
+                XCTAssertNil(error)
+
+                let room = NCRoom(dictionary: roomDict)
+                XCTAssertNotNil(room)
+                XCTAssert(room?.type == .group)
+
+                exp.fulfill()
+            }
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+    }
 }

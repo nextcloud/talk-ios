@@ -907,7 +907,7 @@ typedef enum FileAction {
 - (void)makeRoomPublic
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] makeRoomPublic:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] makeRoomPublic:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (!error) {
             NSIndexPath *indexPath = [self getIndexPathForGuestAction:kGuestActionPublicToggle];
             [self shareRoomLinkFromIndexPath:indexPath];
@@ -924,7 +924,7 @@ typedef enum FileAction {
 - (void)makeRoomPrivate
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] makeRoomPrivate:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] makeRoomPrivate:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {

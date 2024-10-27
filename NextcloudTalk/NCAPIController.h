@@ -25,8 +25,6 @@ typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
 typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error);
 typedef void (^RenameRoomCompletionBlock)(NSError *error);
 typedef void (^SetDescriptionCompletionBlock)(NSError *error);
-typedef void (^MakeRoomPublicCompletionBlock)(NSError *error);
-typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error);
 typedef void (^DeleteRoomCompletionBlock)(NSError *error);
 typedef void (^SetPasswordCompletionBlock)(NSError *error, NSString *errorDescription);
 typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode, NSString * _Nullable statusReason);
@@ -157,8 +155,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 
 // Rooms Controller
-- (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
-- (NSURLSessionDataTask *)makeRoomPrivate:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
 - (NSURLSessionDataTask *)deleteRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DeleteRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)setPassword:(NSString *)password toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetPasswordCompletionBlock)block;
 - (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block;
