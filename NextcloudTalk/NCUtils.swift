@@ -483,7 +483,7 @@ import AVFoundation
         return logDir
     }
 
-    private static func removeOldLogfiles() {
+    public static func removeOldLogfiles() {
         guard let logPathURL = self.getLogfilePath()
         else { return }
 
@@ -513,10 +513,6 @@ import AVFoundation
 
     public static func log(_ message: String) {
         do {
-            DispatchQueue.global(qos: .background).async {
-                self.removeOldLogfiles()
-            }
-
             guard let logPath = self.getLogfilePath()
             else { return }
 

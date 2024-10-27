@@ -65,6 +65,11 @@
     NSLog(@"Configure App Settings");
     [NCSettingsController sharedInstance];
 
+    // Perform logfile cleanup only once in app lifecycle
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [NCUtils removeOldLogfiles];
+    });
+
     [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString]]];
 
     //Init rooms manager to start receiving NSNotificationCenter notifications
