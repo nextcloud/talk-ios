@@ -27,10 +27,10 @@ import Foundation
             urlString = urlString.appending("?includeStatus=true")
         }
 
-        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             // TODO: Move away from generic dictionary return type
             // let rooms = ocs?.dataArrayDict.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
-            completionBlock(ocs?.dataArrayDict, error)
+            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
         }
     }
 
@@ -41,8 +41,8 @@ import Foundation
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
 
-        apiSessionManager.getOcs(urlString, account: account) { ocs, error in
-            completionBlock(ocs?.dataDict, error)
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError?.error)
         }
     }
 
@@ -52,8 +52,8 @@ import Foundation
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/note-to-self", for: account)
 
-        apiSessionManager.getOcs(urlString, account: account) { ocs, error in
-            completionBlock(ocs?.dataDict, error)
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError?.error)
         }
     }
 
@@ -68,9 +68,9 @@ import Foundation
             parameters["searchTerm"] = searchTerm
         }
 
-        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
-            let rooms = ocs?.dataArrayDict?.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
-            completionBlock(rooms, error)
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            let rooms = ocsResponse?.dataArrayDict?.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
+            completionBlock(rooms, ocsError?.error)
         }
     }
 
@@ -89,9 +89,9 @@ import Foundation
             parameters["roomName"] = roomName
         }
 
-        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocs, error in
-            let room = NCRoom(dictionary: ocs?.dataDict, andAccountId: account.accountId)
-            completionBlock(room, error)
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
+            completionBlock(room, ocsError?.error)
         }
     }
 
@@ -103,8 +103,8 @@ import Foundation
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
         let parameters: [String: String] = ["roomName": roomName]
 
-        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
-            completionBlock(error)
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -116,8 +116,8 @@ import Foundation
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/description", for: account)
         let parameters: [String: String] = ["description": description ?? ""]
 
-        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
-            completionBlock(error)
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -129,8 +129,8 @@ import Foundation
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/mention-permissions", for: account)
         let parameters: [String: Int] = ["mentionPermissions": permissions.rawValue]
 
-        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
-            completionBlock(error)
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -141,8 +141,8 @@ import Foundation
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", for: account)
 
-        apiSessionManager.postOcs(urlString, account: account) { _, error in
-            completionBlock(error)
+        apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -153,8 +153,8 @@ import Foundation
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", for: account)
 
-        apiSessionManager.deleteOcs(urlString, account: account) { _, error in
-            completionBlock(error)
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -165,8 +165,8 @@ import Foundation
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
 
-        apiSessionManager.deleteOcs(urlString, account: account) { _, error in
-            completionBlock(error)
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -275,8 +275,8 @@ import Foundation
             ]
         }
 
-        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
-            completionBlock(SignalingSettings(dictionary: ocs?.dataDict), error)
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            completionBlock(SignalingSettings(dictionary: ocsResponse?.dataDict), ocsError?.error)
         }
     }
 
