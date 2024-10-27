@@ -20,13 +20,7 @@
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
 typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);
 
-typedef void (^GetRoomsCompletionBlock)(NSArray *rooms, NSError *error, NSInteger statusCode);
 typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
-typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error);
-typedef void (^RenameRoomCompletionBlock)(NSError *error);
-typedef void (^SetDescriptionCompletionBlock)(NSError *error);
-typedef void (^DeleteRoomCompletionBlock)(NSError *error);
-typedef void (^SetPasswordCompletionBlock)(NSError *error, NSString *errorDescription);
 typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode, NSString * _Nullable statusReason);
 typedef void (^ExitRoomCompletionBlock)(NSError *error);
 typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
