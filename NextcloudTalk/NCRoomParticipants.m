@@ -61,7 +61,13 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
     if ([statusMessage isKindOfClass:[NSString class]]) {
         participant.statusMessage = statusMessage;
     }
-    
+
+    // Optional attributed for email guests
+    id invitedActorId = [participantDict objectForKey:@"invitedActorId"];
+    if ([invitedActorId isKindOfClass:[NSString class]]) {
+        participant.invitedActorId = invitedActorId;
+    }
+
     return participant;
 }
 
