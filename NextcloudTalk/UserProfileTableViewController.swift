@@ -262,9 +262,7 @@ extension UserProfileTableViewController {
     // MARK: Setup cells
 
     func textInputCellWith(text: String?, tag: Int?, interactionEnabled: Bool?, keyBoardType: UIKeyboardType?, autocapitalizationType: UITextAutocapitalizationType?, placeHolder: String?) -> TextFieldTableViewCell {
-        let textInputCell = tableView.dequeueReusableCell(withIdentifier: textFieldCellIdentifier) as? TextFieldTableViewCell ??
-        TextFieldTableViewCell(style: .default, reuseIdentifier: textFieldCellIdentifier)
-
+        let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
         textInputCell.textField.delegate = self
 
         if let text = text {
