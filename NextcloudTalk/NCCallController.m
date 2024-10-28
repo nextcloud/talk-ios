@@ -1689,6 +1689,10 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     if (newState == RTCIceConnectionStateConnected) {
         [self startSendingCurrentState];
 
+        if (self.externalSignalingController && peerConnection.isMCUPublisherPeer) {
+            [NCUtils log:@"Publisher peer changed to connected"];
+        }
+
         if (self.externalSignalingController && self.screensharingActive) {
             if (peerConnection.isMCUPublisherPeer) {
                 // This is our screensharing publisher peer which connected just now, so ask everyone to request our peer now

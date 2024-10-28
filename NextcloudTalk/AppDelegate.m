@@ -164,6 +164,19 @@
     [[NCNotificationController sharedInstance] removeAllNotificationsForAccountId:[[NCDatabaseManager sharedInstance] activeAccount].accountId];
 }
 
+- (void)applicationProtectedDataDidBecomeAvailable:(UIApplication *)application
+{
+    if ([[CallKitManager sharedInstance].calls count] > 0) {
+        [NCUtils log:@"Protected data did become available"];
+    }
+}
+
+- (void)applicationProtectedDataWillBecomeUnavailable:(UIApplication *)application
+{
+    if ([[CallKitManager sharedInstance].calls count] > 0) {
+        [NCUtils log:@"Protected data did become unavailable"];
+    }
+}
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
