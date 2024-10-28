@@ -76,7 +76,7 @@ import SDWebImage
             if actorType == "bots" {
                 return getBotsAvatar(forId: actorId, withStyle: style, completionBlock: completionBlock)
             } else if actorType == "guests" {
-                return getGuestsAvatar(withDisplayName: actorDisplayName ?? "", completionBlock: completionBlock)
+                return getGuestsAvatar(withDisplayName: actorDisplayName ?? "", withStyle: style, completionBlock: completionBlock)
             } else if actorType == "users" {
                 return getUserAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             } else if actorType == "federated_users" {
@@ -112,9 +112,15 @@ import SDWebImage
         return nil
     }
 
-    private func getGuestsAvatar(withDisplayName actorDisplayName: String, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        let name = actorDisplayName.isEmpty ? "?" : actorDisplayName
-        let image = NCUtils.getImage(withString: name, withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
+    private func getGuestsAvatar(withDisplayName actorDisplayName: String, withStyle style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+        if actorDisplayName.isEmpty {
+            let traitCollection = UITraitCollection(userInterfaceStyle: style)
+            completionBlock(UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection))
+
+            return nil
+        }
+
+        let image = NCUtils.getImage(withString: actorDisplayName, withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
 
         completionBlock(image)
 
