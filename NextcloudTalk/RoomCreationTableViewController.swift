@@ -426,8 +426,7 @@ enum RoomVisibilityOption: Int {
         let roomCreationSection = sections[indexPath.section]
 
         if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
-            let textInputCell = tableView.dequeueReusableCell(withIdentifier: textFieldCellIdentifier) as? TextFieldTableViewCell ??
-            TextFieldTableViewCell(style: .default, reuseIdentifier: textFieldCellIdentifier)
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
             textInputCell.textField.autocapitalizationType = .sentences
             textInputCell.textField.tag = kRoomNameTextFieldTag
             textInputCell.textField.delegate = self
@@ -436,8 +435,7 @@ enum RoomVisibilityOption: Int {
             textInputCell.selectionStyle = .none
             return textInputCell
         } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: TextViewTableViewCell.identifier) as? TextViewTableViewCell ??
-            TextViewTableViewCell(style: .default, reuseIdentifier: TextViewTableViewCell.identifier)
+            let descriptionCell: TextViewTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextViewTableViewCell.identifier)
             descriptionCell.textView.text = self.roomDescription
             descriptionCell.textView.isEditable = true
             descriptionCell.delegate = self
@@ -446,7 +444,7 @@ enum RoomVisibilityOption: Int {
             return descriptionCell
         } else if roomCreationSection == RoomCreationSection.kRoomParticipantsSection.rawValue {
             if self.roomParticipants.isEmpty {
-                let addParticipantCell = tableView.dequeueReusableCell(withIdentifier: "AddParticipantCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "AllowGuestsCellIdentifier")
+                let addParticipantCell = tableView.dequeueOrCreateCell(withIdentifier: "AddParticipantCellIdentifier")
                 addParticipantCell.textLabel?.text = NSLocalizedString("Add participants", comment: "")
                 addParticipantCell.imageView?.image = UIImage(systemName: "person.badge.plus")
                 addParticipantCell.imageView?.tintColor = .secondaryLabel
@@ -454,8 +452,7 @@ enum RoomVisibilityOption: Int {
                 return addParticipantCell
             } else {
                 let participant = self.roomParticipants[indexPath.row]
-                let participantCell = tableView.dequeueReusableCell(withIdentifier: kContactCellIdentifier) as? ContactsTableViewCell ??
-                ContactsTableViewCell(style: .default, reuseIdentifier: kContactCellIdentifier)
+                let participantCell: ContactsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: kContactCellIdentifier)
 
                 participantCell.labelTitle.text = participant.name
 
@@ -470,7 +467,7 @@ enum RoomVisibilityOption: Int {
             var roomVisibilityOptionCell = UITableViewCell()
             switch option {
             case RoomVisibilityOption.kAllowGuestsOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "AllowGuestsCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "AllowGuestsCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "AllowGuestsCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Allow guests", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isPublic
@@ -478,11 +475,11 @@ enum RoomVisibilityOption: Int {
                 roomVisibilityOptionCell.accessoryView = optionSwicth
                 roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "link")
             case RoomVisibilityOption.kPasswordProtectionOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "SetPasswordCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "SetPasswordCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "SetPasswordCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = self.roomPassword.isEmpty ? NSLocalizedString("Set password", comment: "") : NSLocalizedString("Change password", comment: "")
                 roomVisibilityOptionCell.imageView?.image = self.roomPassword.isEmpty ? UIImage(systemName: "lock.open") : UIImage(systemName: "lock")
             case RoomVisibilityOption.kOpenConversationOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "OpenConversationCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "OpenConversationCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "OpenConversationCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Open conversation to registered users", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isOpenConversation
@@ -490,7 +487,7 @@ enum RoomVisibilityOption: Int {
                 roomVisibilityOptionCell.accessoryView = optionSwicth
                 roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "list.bullet")
             case RoomVisibilityOption.kOpenConversationGuestsOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "OpenConversationGuestsCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "OpenConversationGuestsCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "OpenConversationGuestsCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Also open to guest app users", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isOpenForGuests

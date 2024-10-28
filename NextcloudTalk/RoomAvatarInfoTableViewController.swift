@@ -126,18 +126,15 @@ enum RoomAvatarInfoSection: Int {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let textInputCell = tableView.dequeueReusableCell(withIdentifier: textFieldCellIdentifier) as? TextFieldTableViewCell ??
-        TextFieldTableViewCell(style: .default, reuseIdentifier: textFieldCellIdentifier)
-
         if indexPath.section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.room.displayName
             textInputCell.textField.autocapitalizationType = .sentences
             textInputCell.selectionStyle = .none
             return textInputCell
         } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: TextViewTableViewCell.identifier) as? TextViewTableViewCell ??
-            TextViewTableViewCell(style: .default, reuseIdentifier: TextViewTableViewCell.identifier)
+            let descriptionCell: TextViewTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextViewTableViewCell.identifier)
             descriptionCell.textView.text = self.room.roomDescription
             descriptionCell.textView.isEditable = true
             descriptionCell.delegate = self
@@ -146,7 +143,7 @@ enum RoomAvatarInfoSection: Int {
             return descriptionCell
         }
 
-        return textInputCell
+        return UITableViewCell()
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
