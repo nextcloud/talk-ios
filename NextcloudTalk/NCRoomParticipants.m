@@ -133,8 +133,11 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
 - (NSString *)detailedName
 {
     NSString *detailedNameString = _displayName;
+
+    BOOL defaultGuestNameUsed = false;
     if ([_displayName isEqualToString:@""]) {
         if (self.isGuest) {
+            defaultGuestNameUsed = true;
             detailedNameString = NSLocalizedString(@"Guest", nil);
         } else {
             detailedNameString = NSLocalizedString(@"[Unknown username]", nil);
@@ -151,7 +154,7 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
         detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, botString];
     }
     // Guest label
-    if (self.isGuest) {
+    if (self.isGuest && !defaultGuestNameUsed) {
         NSString *guestString = NSLocalizedString(@"guest", nil);
         detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, guestString];
     }

@@ -31,11 +31,16 @@ import SwiftyAttributes
     /// Takes deleted users and guests into account and returns it as `secondaryLabel`
     /// This also appends a potential `cloudId` as `tertiaryLabel` in parentheses
     public var attributedDisplayName: NSMutableAttributedString {
+        let displayName = self.displayName
         let titleLabel = displayName.withTextColor(.secondaryLabel)
 
         if let remoteServer = cloudId {
             let remoteServerString = " (\(String(remoteServer)))"
             titleLabel.append(remoteServerString.withTextColor(.tertiaryLabel))
+        } else if isGuest, !rawDisplayName.isEmpty {
+            // Show guest indication only when we did not use the default "Guest" name
+            let guestString = " (\(NSLocalizedString("guest", comment: "")))"
+            titleLabel.append(guestString.withTextColor(.tertiaryLabel))
         }
 
         return titleLabel
@@ -53,6 +58,10 @@ import SwiftyAttributes
 
     public var isFederated: Bool {
         return type == "federated_users"
+    }
+
+    public var isGuest: Bool {
+        return type == "guests" || type == "emails"
     }
 
     public var cloudId: String? {
