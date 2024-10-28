@@ -146,7 +146,13 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 - (void)reportIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
 {
-    [NCUtils log:[NSString stringWithFormat:@"Report incoming call for token %@ for account %@", token, accountId]];
+    NSString *protectedDataAvailable = @"available";
+
+    if (!UIApplication.sharedApplication.isProtectedDataAvailable) {
+        protectedDataAvailable = @"unavailable";
+    }
+
+    [NCUtils log:[NSString stringWithFormat:@"Report incoming call for token %@ for account %@. Protected data is %@", token, accountId, protectedDataAvailable]];
 
     BOOL ongoingCalls = _calls.count > 0;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
