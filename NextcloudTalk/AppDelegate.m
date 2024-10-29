@@ -65,6 +65,13 @@
     NSLog(@"Configure App Settings");
     [NCSettingsController sharedInstance];
 
+    // Perform logfile cleanup only once in app lifecycle
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [NCUtils removeOldLogfiles];
+    });
+
+    [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString]]];
+
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
     
@@ -155,6 +162,19 @@
     [[NCNotificationController sharedInstance] removeAllNotificationsForAccountId:[[NCDatabaseManager sharedInstance] activeAccount].accountId];
 }
 
+- (void)applicationProtectedDataDidBecomeAvailable:(UIApplication *)application
+{
+    if ([[CallKitManager sharedInstance].calls count] > 0) {
+        [NCUtils log:@"Protected data did become available"];
+    }
+}
+
+- (void)applicationProtectedDataWillBecomeUnavailable:(UIApplication *)application
+{
+    if ([[CallKitManager sharedInstance].calls count] > 0) {
+        [NCUtils log:@"Protected data did become unavailable"];
+    }
+}
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
@@ -326,6 +346,8 @@
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion
 {
+    [NCUtils log:@"Received PushKit notification"];
+
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
