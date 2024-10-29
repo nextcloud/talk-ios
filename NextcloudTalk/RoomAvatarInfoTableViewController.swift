@@ -130,8 +130,6 @@ enum RoomAvatarInfoSection: Int {
             let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.room.displayName
-            textInputCell.textField.autocapitalizationType = .sentences
-            textInputCell.selectionStyle = .none
             return textInputCell
         } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
             let descriptionCell: TextViewTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextViewTableViewCell.identifier)

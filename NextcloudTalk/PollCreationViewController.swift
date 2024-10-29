@@ -195,7 +195,6 @@ import UIKit
         if indexPath.section == PollCreationSection.kPollCreationSectionQuestion.rawValue {
             let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
             textInputCell.textField.delegate = self
-            textInputCell.textField.autocapitalizationType = .sentences
             textInputCell.textField.placeholder = NSLocalizedString("Ask a question", comment: "")
             textInputCell.textField.tag = kQuestionTextFieldTag
             textInputCell.textField.text = question
@@ -207,6 +206,7 @@ import UIKit
                 return actionCell
             } else if indexPath.row < options.count {
                 let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
+                textInputCell.textField.delegate = self
                 textInputCell.textField.placeholder = NSLocalizedString("Answer", comment: "") + " " + String(indexPath.row + 1)
                 textInputCell.textField.tag = indexPath.row
                 textInputCell.textField.text = options[indexPath.row]
@@ -224,7 +224,6 @@ import UIKit
                 actionCell.accessoryView = multipleSwitch
                 return actionCell
             }
-            return UITableViewCell()
         }
         return UITableViewCell()
     }

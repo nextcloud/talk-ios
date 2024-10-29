@@ -11,16 +11,25 @@ class TextFieldTableViewCell: UITableViewCell {
 
     let textField: UITextField = {
         let textField = UITextField()
+
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.font = UIFont.preferredFont(forTextStyle: .body)
         textField.adjustsFontForContentSizeCategory = true
+
+        textField.font = UIFont.preferredFont(forTextStyle: .body)
+
         textField.clearButtonMode = .whileEditing
         textField.returnKeyType = .done
+        textField.keyboardType = .default
+        textField.autocorrectionType = .default
+        textField.autocapitalizationType = .sentences
+
         return textField
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+        selectionStyle = .none
 
         contentView.addSubview(textField)
 
@@ -39,10 +48,15 @@ class TextFieldTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
+        selectionStyle = .none
+
         textField.text = ""
         textField.placeholder = nil
+
+        textField.clearButtonMode = .whileEditing
+        textField.returnKeyType = .done
         textField.keyboardType = .default
-        textField.autocorrectionType = .no
-        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .default
+        textField.autocapitalizationType = .sentences
     }
 }
