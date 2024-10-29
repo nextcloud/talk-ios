@@ -5,9 +5,9 @@
 
 import UIKit
 
-let textFieldCellIdentifier = "textFieldCellIdentifier"
-
 class TextFieldTableViewCell: UITableViewCell {
+
+    static let identifier = "textFieldCellIdentifier"
 
     let textField: UITextField = {
         let textField = UITextField()

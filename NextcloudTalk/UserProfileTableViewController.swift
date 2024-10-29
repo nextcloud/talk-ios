@@ -76,7 +76,7 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         modifyingProfileView = UIActivityIndicatorView()
         modifyingProfileView.color = NCAppBranding.themeTextColor()
         tableView.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
-        tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
+        tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
         NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
 
         if navigationController?.viewControllers.first == self {
@@ -277,7 +277,7 @@ extension UserProfileTableViewController {
     // MARK: Setup cells
 
     func textInputCellWith(text: String?, tag: Int, interactionEnabled: Bool, keyBoardType: UIKeyboardType = .default, autocapitalizationType: UITextAutocapitalizationType = .sentences, placeHolder: String = "") -> TextFieldTableViewCell {
-        let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
+        let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
 
         textInputCell.textField.delegate = self
         textInputCell.textField.text = text

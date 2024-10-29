@@ -69,7 +69,7 @@ enum RoomAvatarInfoSection: Int {
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
 
-        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
         self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)
         self.tableView.tableHeaderView = self.headerView
 
@@ -127,7 +127,7 @@ enum RoomAvatarInfoSection: Int {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
-            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.room.displayName
             return textInputCell
