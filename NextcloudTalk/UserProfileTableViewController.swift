@@ -165,25 +165,44 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         let section = self.getProfileSections()[indexPath.section]
         switch section {
         case ProfileSection.kProfileSectionName.rawValue:
-            return textInputCellWith(text: account.userDisplayName, tag: kNameTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileDisplayName),
-                                     keyBoardType: nil, autocapitalizationType: .sentences, placeHolder: nil)
+            return textInputCellWith(text: account.userDisplayName,
+                                     tag: kNameTextFieldTag,
+                                     interactionEnabled: editableFields.contains(kUserProfileDisplayName))
         case ProfileSection.kProfileSectionEmail.rawValue:
-            return textInputCellWith(text: account.email, tag: kEmailTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileEmail),
-                                     keyBoardType: .emailAddress, autocapitalizationType: nil, placeHolder: NSLocalizedString("Your email address", comment: ""))
+            return textInputCellWith(text: account.email,
+                                     tag: kEmailTextFieldTag,
+                                     interactionEnabled: editableFields.contains(kUserProfileEmail),
+                                     keyBoardType: .emailAddress,
+                                     autocapitalizationType: .none,
+                                     placeHolder: NSLocalizedString("Your email address", comment: ""))
         case ProfileSection.kProfileSectionPhoneNumber.rawValue:
             let phoneNumber = try? NBPhoneNumberUtil.sharedInstance().parse(account.phone, defaultRegion: nil)
             let text = (phoneNumber != nil) ? try? NBPhoneNumberUtil.sharedInstance().format(phoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) : nil
-            return textInputCellWith(text: text, tag: kPhoneTextFieldTag, interactionEnabled: false,
-                                     keyBoardType: .phonePad, autocapitalizationType: nil, placeHolder: NSLocalizedString("Your phone number", comment: ""))
+            return textInputCellWith(text: text,
+                                     tag: kPhoneTextFieldTag,
+                                     interactionEnabled: false,
+                                     keyBoardType: .phonePad,
+                                     autocapitalizationType: .none,
+                                     placeHolder: NSLocalizedString("Your phone number", comment: ""))
         case ProfileSection.kProfileSectionAddress.rawValue:
-            return textInputCellWith(text: account.address, tag: kAddressTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileAddress),
-                                     keyBoardType: nil, autocapitalizationType: .sentences, placeHolder: NSLocalizedString("Your postal address", comment: ""))
+            return textInputCellWith(text: account.address,
+                                     tag: kAddressTextFieldTag,
+                                     interactionEnabled: editableFields.contains(kUserProfileAddress),
+                                     placeHolder: NSLocalizedString("Your postal address", comment: ""))
         case ProfileSection.kProfileSectionWebsite.rawValue:
-            return textInputCellWith(text: account.website, tag: kWebsiteTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileWebsite),
-                                     keyBoardType: .URL, autocapitalizationType: nil, placeHolder: NSLocalizedString("Link https://…", comment: ""))
+            return textInputCellWith(text: account.website,
+                                     tag: kWebsiteTextFieldTag,
+                                     interactionEnabled: editableFields.contains(kUserProfileWebsite),
+                                     keyBoardType: .URL,
+                                     autocapitalizationType: .none,
+                                     placeHolder: NSLocalizedString("Link https://…", comment: ""))
         case ProfileSection.kProfileSectionTwitter.rawValue:
-            return textInputCellWith(text: account.twitter, tag: kTwitterTextFieldTag, interactionEnabled: editableFields.contains(kUserProfileTwitter),
-                                     keyBoardType: .emailAddress, autocapitalizationType: nil, placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))
+            return textInputCellWith(text: account.twitter,
+                                     tag: kTwitterTextFieldTag,
+                                     interactionEnabled: editableFields.contains(kUserProfileTwitter),
+                                     keyBoardType: .emailAddress,
+                                     autocapitalizationType: .none,
+                                     placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))
         case ProfileSection.kProfileSectionSummary.rawValue:
             return summaryCellForRow(row: indexPath.row)
         case ProfileSection.kProfileSectionRemoveAccount.rawValue:
@@ -261,28 +280,16 @@ extension UserProfileTableViewController {
 
     // MARK: Setup cells
 
-    func textInputCellWith(text: String?, tag: Int?, interactionEnabled: Bool?, keyBoardType: UIKeyboardType?, autocapitalizationType: UITextAutocapitalizationType?, placeHolder: String?) -> TextFieldTableViewCell {
+    func textInputCellWith(text: String?, tag: Int, interactionEnabled: Bool, keyBoardType: UIKeyboardType = .default, autocapitalizationType: UITextAutocapitalizationType = .sentences, placeHolder: String = "") -> TextFieldTableViewCell {
         let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
-        textInputCell.textField.delegate = self
 
-        if let text = text {
-            textInputCell.textField.text = text
-        }
-        if let tag = tag {
-            textInputCell.textField.tag = tag
-        }
-        if let interactionEnabled = interactionEnabled {
-            textInputCell.textField.isUserInteractionEnabled = interactionEnabled
-        }
-        if let keyBoardType = keyBoardType {
-            textInputCell.textField.keyboardType = keyBoardType
-        }
-        if let autocapitalizationType = autocapitalizationType {
-            textInputCell.textField.autocapitalizationType = autocapitalizationType
-        }
-        if let placeHolder = placeHolder {
-            textInputCell.textField.placeholder = placeHolder
-        }
+        textInputCell.textField.delegate = self
+        textInputCell.textField.text = text
+        textInputCell.textField.tag = tag
+        textInputCell.textField.isUserInteractionEnabled = interactionEnabled
+        textInputCell.textField.keyboardType = keyBoardType
+        textInputCell.textField.autocapitalizationType = autocapitalizationType
+        textInputCell.textField.placeholder = placeHolder
 
         return textInputCell
     }

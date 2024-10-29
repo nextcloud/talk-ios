@@ -20,14 +20,18 @@ import UIKit
 
     let textView: UITextView = {
         let textView = UITextView()
+
         textView.translatesAutoresizingMaskIntoConstraints = false
+
         textView.font = UIFont.preferredFont(forTextStyle: .body)
+
         textView.isScrollEnabled = false
         textView.isEditable = false
         textView.backgroundColor = .clear
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.dataDetectorTypes = .all
+
         return textView
     }()
 

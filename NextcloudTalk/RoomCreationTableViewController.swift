@@ -427,12 +427,10 @@ enum RoomVisibilityOption: Int {
 
         if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
             let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
-            textInputCell.textField.autocapitalizationType = .sentences
             textInputCell.textField.tag = kRoomNameTextFieldTag
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.roomName
             textInputCell.textField.becomeFirstResponder()
-            textInputCell.selectionStyle = .none
             return textInputCell
         } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
             let descriptionCell: TextViewTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextViewTableViewCell.identifier)
