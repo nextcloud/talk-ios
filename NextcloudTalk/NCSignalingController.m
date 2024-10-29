@@ -90,6 +90,8 @@
 
 - (void)startPullingSignalingMessages
 {
+    [NCUtils log:[NSString stringWithFormat:@"Start pulling internal signaling messages for token %@", _room.token]];
+
     _shouldStopPullingMessages = NO;
     [self pullSignalingMessages];
 }

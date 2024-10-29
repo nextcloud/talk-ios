@@ -467,7 +467,7 @@ import AVFoundation
 
     // MARK: - Logging
 
-    private static func getLogfilePath() -> URL? {
+    private static var logfilePath: URL? = {
         guard let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         else { return nil }
 
@@ -481,13 +481,12 @@ import AVFoundation
         }
 
         return logDir
-    }
+    }()
 
-    private static func removeOldLogfiles() {
-        guard let logPathURL = self.getLogfilePath()
-        else { return }
+    public static func removeOldLogfiles() {
+        guard let logfilePath else { return }
 
-        let logPath = logPathURL.path
+        let logPath = logfilePath.path
         let fileManager = FileManager.default
 
         var dayComponent = DateComponents()
@@ -498,7 +497,7 @@ import AVFoundation
         else { return }
 
         while let file = enumerator.nextObject() as? String {
-            let filePathURL = logPathURL.appendingPathComponent(file)
+            let filePathURL = logfilePath.appendingPathComponent(file)
             let filePath = filePathURL.path
 
             guard let creationDate = (try? FileManager.default.attributesOfItem(atPath: filePath))?[.creationDate] as? Date
@@ -513,12 +512,7 @@ import AVFoundation
 
     public static func log(_ message: String) {
         do {
-            DispatchQueue.global(qos: .background).async {
-                self.removeOldLogfiles()
-            }
-
-            guard let logPath = self.getLogfilePath()
-            else { return }
+            guard let logfilePath else { return }
 
             let currentQueueName = Thread.current.queueName
             let dateFormatter = DateFormatter()
@@ -530,7 +524,7 @@ import AVFoundation
             dateFormatter.dateFormat = "yyyy-MM-dd"
             let dateString = dateFormatter.string(from: Date())
             let logFileName = "debug-\(dateString).log"
-            let fullPath = logPath.appendingPathComponent(logFileName).path
+            let fullPath = logfilePath.appendingPathComponent(logFileName).path
 
             if let fileHandle = FileHandle(forWritingAtPath: fullPath) {
                 fileHandle.seekToEndOfFile()
