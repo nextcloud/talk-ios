@@ -119,7 +119,7 @@ import UIKit
         self.tableView.dataSource = self
         self.tableView.delegate = self
         self.tableView.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
-        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
     }
 
     // MARK: - Table view data source
@@ -193,7 +193,7 @@ import UIKit
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == PollCreationSection.kPollCreationSectionQuestion.rawValue {
-            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
             textInputCell.textField.delegate = self
             textInputCell.textField.placeholder = NSLocalizedString("Ask a question", comment: "")
             textInputCell.textField.tag = kQuestionTextFieldTag
@@ -205,7 +205,7 @@ import UIKit
                 actionCell.textLabel?.text = NSLocalizedString("Add answer", comment: "")
                 return actionCell
             } else if indexPath.row < options.count {
-                let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
+                let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
                 textInputCell.textField.delegate = self
                 textInputCell.textField.placeholder = NSLocalizedString("Answer", comment: "") + " " + String(indexPath.row + 1)
                 textInputCell.textField.tag = indexPath.row

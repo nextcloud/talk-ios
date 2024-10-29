@@ -90,7 +90,7 @@ enum RoomVisibilityOption: Int {
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
 
-        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: textFieldCellIdentifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
         self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
         self.tableView.tableHeaderView = self.headerView
@@ -426,7 +426,7 @@ enum RoomVisibilityOption: Int {
         let roomCreationSection = sections[indexPath.section]
 
         if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
-            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: textFieldCellIdentifier)
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
             textInputCell.textField.tag = kRoomNameTextFieldTag
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.roomName
