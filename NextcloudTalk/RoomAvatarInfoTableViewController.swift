@@ -17,7 +17,7 @@ enum RoomAvatarInfoSection: Int {
                                                       UITextFieldDelegate,
                                                       AvatarEditViewDelegate,
                                                       EmojiAvatarPickerViewControllerDelegate,
-                                                      RoomDescriptionTableViewCellDelegate,
+                                                      TextViewTableViewCellDelegate,
                                                       TOCropViewControllerDelegate {
 
     var room: NCRoom
@@ -69,8 +69,8 @@ enum RoomAvatarInfoSection: Int {
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
 
-        self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
-        self.tableView.register(UINib(nibName: RoomDescriptionTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomDescriptionTableViewCell.identifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
+        self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)
         self.tableView.tableHeaderView = self.headerView
 
         self.modifyingView.color = NCAppBranding.themeTextColor()
@@ -126,27 +126,22 @@ enum RoomAvatarInfoSection: Int {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
-        TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
-
         if indexPath.section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.room.displayName
-            textInputCell.textField.autocapitalizationType = .sentences
-            textInputCell.selectionStyle = .none
             return textInputCell
         } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: RoomDescriptionTableViewCell.identifier) as? RoomDescriptionTableViewCell ??
-            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: RoomDescriptionTableViewCell.identifier)
-            descriptionCell.textView?.text = self.room.roomDescription
-            descriptionCell.textView?.isEditable = true
+            let descriptionCell: TextViewTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextViewTableViewCell.identifier)
+            descriptionCell.textView.text = self.room.roomDescription
+            descriptionCell.textView.isEditable = true
             descriptionCell.delegate = self
             descriptionCell.characterLimit = 500
             descriptionCell.selectionStyle = .none
             return descriptionCell
         }
 
-        return textInputCell
+        return UITableViewCell()
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -274,19 +269,19 @@ enum RoomAvatarInfoSection: Int {
         self.dismiss(animated: true, completion: nil)
     }
 
-    // MARK: - RoomDescriptionTableViewCellDelegate
+    // MARK: - TextViewTableViewCellDelegate
 
-    func roomDescriptionCellTextViewDidChange(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellTextViewDidChange(_ cell: TextViewTableViewCell) {
         DispatchQueue.main.async {
             self.tableView?.beginUpdates()
             self.tableView?.endUpdates()
 
-            self.currentDescription = cell.textView?.text ?? ""
+            self.currentDescription = cell.textView.text ?? ""
             self.descriptionHeaderView.button.isHidden = self.currentDescription == self.room.roomDescription
         }
     }
 
-    func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellDidExceedCharacterLimit(_ cell: TextViewTableViewCell) {
         NotificationPresenter.shared().present(
             text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
             dismissAfterDelay: 3.0,

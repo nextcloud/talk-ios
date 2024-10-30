@@ -26,7 +26,7 @@ enum RoomVisibilityOption: Int {
                                                     AvatarEditViewDelegate,
                                                     AddParticipantsTableViewControllerDelegate,
                                                     EmojiAvatarPickerViewControllerDelegate,
-                                                    RoomDescriptionTableViewCellDelegate,
+                                                    TextViewTableViewCellDelegate,
                                                     TOCropViewControllerDelegate {
 
     var account: TalkAccount
@@ -90,8 +90,8 @@ enum RoomVisibilityOption: Int {
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
 
-        self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
-        self.tableView.register(UINib(nibName: RoomDescriptionTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomDescriptionTableViewCell.identifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
+        self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
         self.tableView.tableHeaderView = self.headerView
         self.tableView.keyboardDismissMode = .onDrag
@@ -426,27 +426,23 @@ enum RoomVisibilityOption: Int {
         let roomCreationSection = sections[indexPath.section]
 
         if roomCreationSection == RoomCreationSection.kRoomNameSection.rawValue {
-            let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
-            TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
-            textInputCell.textField.autocapitalizationType = .sentences
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
             textInputCell.textField.tag = kRoomNameTextFieldTag
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.roomName
             textInputCell.textField.becomeFirstResponder()
-            textInputCell.selectionStyle = .none
             return textInputCell
         } else if roomCreationSection == RoomCreationSection.kRoomDescriptionSection.rawValue {
-            let descriptionCell = tableView.dequeueReusableCell(withIdentifier: RoomDescriptionTableViewCell.identifier) as? RoomDescriptionTableViewCell ??
-            RoomDescriptionTableViewCell(style: .default, reuseIdentifier: RoomDescriptionTableViewCell.identifier)
-            descriptionCell.textView?.text = self.roomDescription
-            descriptionCell.textView?.isEditable = true
+            let descriptionCell: TextViewTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextViewTableViewCell.identifier)
+            descriptionCell.textView.text = self.roomDescription
+            descriptionCell.textView.isEditable = true
             descriptionCell.delegate = self
             descriptionCell.characterLimit = 500
             descriptionCell.selectionStyle = .none
             return descriptionCell
         } else if roomCreationSection == RoomCreationSection.kRoomParticipantsSection.rawValue {
             if self.roomParticipants.isEmpty {
-                let addParticipantCell = tableView.dequeueReusableCell(withIdentifier: "AddParticipantCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "AllowGuestsCellIdentifier")
+                let addParticipantCell = tableView.dequeueOrCreateCell(withIdentifier: "AddParticipantCellIdentifier")
                 addParticipantCell.textLabel?.text = NSLocalizedString("Add participants", comment: "")
                 addParticipantCell.imageView?.image = UIImage(systemName: "person.badge.plus")
                 addParticipantCell.imageView?.tintColor = .secondaryLabel
@@ -454,8 +450,7 @@ enum RoomVisibilityOption: Int {
                 return addParticipantCell
             } else {
                 let participant = self.roomParticipants[indexPath.row]
-                let participantCell = tableView.dequeueReusableCell(withIdentifier: kContactCellIdentifier) as? ContactsTableViewCell ??
-                ContactsTableViewCell(style: .default, reuseIdentifier: kContactCellIdentifier)
+                let participantCell: ContactsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: kContactCellIdentifier)
 
                 participantCell.labelTitle.text = participant.name
 
@@ -470,7 +465,7 @@ enum RoomVisibilityOption: Int {
             var roomVisibilityOptionCell = UITableViewCell()
             switch option {
             case RoomVisibilityOption.kAllowGuestsOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "AllowGuestsCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "AllowGuestsCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "AllowGuestsCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Allow guests", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isPublic
@@ -478,11 +473,11 @@ enum RoomVisibilityOption: Int {
                 roomVisibilityOptionCell.accessoryView = optionSwicth
                 roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "link")
             case RoomVisibilityOption.kPasswordProtectionOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "SetPasswordCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "SetPasswordCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "SetPasswordCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = self.roomPassword.isEmpty ? NSLocalizedString("Set password", comment: "") : NSLocalizedString("Change password", comment: "")
                 roomVisibilityOptionCell.imageView?.image = self.roomPassword.isEmpty ? UIImage(systemName: "lock.open") : UIImage(systemName: "lock")
             case RoomVisibilityOption.kOpenConversationOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "OpenConversationCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "OpenConversationCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "OpenConversationCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Open conversation to registered users", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isOpenConversation
@@ -490,7 +485,7 @@ enum RoomVisibilityOption: Int {
                 roomVisibilityOptionCell.accessoryView = optionSwicth
                 roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "list.bullet")
             case RoomVisibilityOption.kOpenConversationGuestsOption.rawValue:
-                roomVisibilityOptionCell = tableView.dequeueReusableCell(withIdentifier: "OpenConversationGuestsCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "OpenConversationGuestsCellIdentifier")
+                roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "OpenConversationGuestsCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Also open to guest app users", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isOpenForGuests
@@ -633,21 +628,21 @@ enum RoomVisibilityOption: Int {
         self.dismiss(animated: true, completion: nil)
     }
 
-    // MARK: - RoomDescriptionTableViewCellDelegate
+    // MARK: - TextViewTableViewCellDelegate
 
-    func roomDescriptionCellTextViewDidChange(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellTextViewDidChange(_ cell: TextViewTableViewCell) {
         DispatchQueue.main.async {
             self.tableView?.beginUpdates()
             self.tableView?.endUpdates()
-            self.roomDescription = cell.textView?.text ?? ""
+            self.roomDescription = cell.textView.text ?? ""
         }
     }
 
-    func roomDescriptionCellDidEndEditing(_ cell: RoomDescriptionTableViewCell) {
-        self.roomDescription = cell.textView?.text ?? ""
+    func textViewCellDidEndEditing(_ cell: TextViewTableViewCell) {
+        self.roomDescription = cell.textView.text ?? ""
     }
 
-    func roomDescriptionCellDidExceedLimit(_ cell: RoomDescriptionTableViewCell) {
+    func textViewCellDidExceedCharacterLimit(_ cell: TextViewTableViewCell) {
         NotificationPresenter.shared().present(
             text: NSLocalizedString("Description cannot be longer than 500 characters", comment: ""),
             dismissAfterDelay: 3.0,

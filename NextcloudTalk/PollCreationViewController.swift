@@ -70,7 +70,7 @@ import UIKit
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        if let questionCell = self.tableView.cellForRow(at: IndexPath(row: 0, section: PollCreationSection.kPollCreationSectionQuestion.rawValue)) as? TextInputTableViewCell {
+        if let questionCell = self.tableView.cellForRow(at: IndexPath(row: 0, section: PollCreationSection.kPollCreationSectionQuestion.rawValue)) as? TextFieldTableViewCell {
             questionCell.textField.becomeFirstResponder()
         }
     }
@@ -119,7 +119,7 @@ import UIKit
         self.tableView.dataSource = self
         self.tableView.delegate = self
         self.tableView.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
-        self.tableView.register(UINib(nibName: kTextInputTableViewCellNibName, bundle: nil), forCellReuseIdentifier: kTextInputCellIdentifier)
+        self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
     }
 
     // MARK: - Table view data source
@@ -150,7 +150,7 @@ import UIKit
                 tableView.beginUpdates()
                 tableView.insertRows(at: [indexPath], with: .automatic)
                 tableView.endUpdates()
-                if let optionCell = self.tableView.cellForRow(at: indexPath) as? TextInputTableViewCell {
+                if let optionCell = self.tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell {
                     optionCell.textField.becomeFirstResponder()
                 }
             } else {
@@ -192,22 +192,21 @@ import UIKit
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let textInputCell = tableView.dequeueReusableCell(withIdentifier: kTextInputCellIdentifier) as? TextInputTableViewCell ??
-        TextInputTableViewCell(style: .default, reuseIdentifier: kTextInputCellIdentifier)
-        textInputCell.textField.delegate = self
-        textInputCell.textField.autocapitalizationType = .sentences
-        let actionCell = tableView.dequeueReusableCell(withIdentifier: "PollSettingCellIdentifier") ?? UITableViewCell(style: .default, reuseIdentifier: "PollSettingCellIdentifier")
-
         if indexPath.section == PollCreationSection.kPollCreationSectionQuestion.rawValue {
+            let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
+            textInputCell.textField.delegate = self
             textInputCell.textField.placeholder = NSLocalizedString("Ask a question", comment: "")
             textInputCell.textField.tag = kQuestionTextFieldTag
             textInputCell.textField.text = question
             return textInputCell
         } else if indexPath.section == PollCreationSection.kPollCreationSectionOptions.rawValue {
             if indexPath.row == options.count {
+                let actionCell = tableView.dequeueOrCreateCell(withIdentifier: "PollSettingCellIdentifier")
                 actionCell.textLabel?.text = NSLocalizedString("Add answer", comment: "")
                 return actionCell
             } else if indexPath.row < options.count {
+                let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
+                textInputCell.textField.delegate = self
                 textInputCell.textField.placeholder = NSLocalizedString("Answer", comment: "") + " " + String(indexPath.row + 1)
                 textInputCell.textField.tag = indexPath.row
                 textInputCell.textField.text = options[indexPath.row]
@@ -215,18 +214,18 @@ import UIKit
             }
         } else if indexPath.section == PollCreationSection.kPollCreationSectionSettings.rawValue {
             if indexPath.row == PollSetting.kPollSettingPrivate.rawValue {
+                let actionCell = tableView.dequeueOrCreateCell(withIdentifier: "PollSettingCellIdentifier")
                 actionCell.textLabel?.text = NSLocalizedString("Private poll", comment: "")
                 actionCell.accessoryView = privateSwitch
                 return actionCell
             } else if indexPath.row == PollSetting.kPollSettingMultiple.rawValue {
+                let actionCell = tableView.dequeueOrCreateCell(withIdentifier: "PollSettingCellIdentifier")
                 actionCell.textLabel?.text = NSLocalizedString("Multiple answers", comment: "")
                 actionCell.accessoryView = multipleSwitch
                 return actionCell
             }
-            return actionCell
         }
-
-        return actionCell
+        return UITableViewCell()
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
