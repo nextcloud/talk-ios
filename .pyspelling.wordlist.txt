@@ -17,3 +17,4 @@ CallKit
 Unban
 unban
 Zammad
+Strikethrough

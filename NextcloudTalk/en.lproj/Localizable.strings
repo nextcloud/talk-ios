@@ -337,6 +337,9 @@
 /* No comment provided by engineer. */
 "Banned users and guests" = "Banned users and guests";
 
+/* Bold text */
+"Bold" = "Bold";
+
 /* No comment provided by engineer. */
 "bot" = "bot";
 
@@ -438,6 +441,9 @@
 
 /* No comment provided by engineer. */
 "Close" = "Close";
+
+/* Code block */
+"Code" = "Code";
 
 /* No comment provided by engineer. */
 "Configuration" = "Configuration";
@@ -975,6 +981,9 @@
 
 /* No comment provided by engineer. */
 "It seems that there is no internet connection." = "It seems that there is no internet connection.";
+
+/* Italic text */
+"Italic" = "Italic";
 
 /* No comment provided by engineer. */
 "Join a conversation or start a new one" = "Join a conversation or start a new one";
@@ -1632,6 +1641,9 @@
 
 /* No comment provided by engineer. */
 "Stop screensharing" = "Stop screensharing";
+
+/* Strikethrough text */
+"Strikethrough" = "Strikethrough";
 
 /* No comment provided by engineer. */
 "STUN servers" = "STUN servers";
