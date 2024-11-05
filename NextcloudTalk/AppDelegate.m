@@ -70,7 +70,8 @@
         [NCUtils removeOldLogfiles];
     });
 
-    [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString]]];
+    UIDevice *currentDevice = [UIDevice currentDevice];
+    [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@, %@ %@, model %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString], currentDevice.systemName, currentDevice.systemVersion, currentDevice.model]];
 
     //Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
