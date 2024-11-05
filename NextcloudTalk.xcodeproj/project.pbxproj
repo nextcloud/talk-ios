@@ -600,6 +600,7 @@
 		847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
+		C65D252D2C7581A200157A89 /* ExpandedVoiceMessageRecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65D252C2C7581A200157A89 /* ExpandedVoiceMessageRecordingView.swift */; };
 		DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */; };
 		DA66582B27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */; };
 		DA66582D27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */; };
@@ -1198,6 +1199,7 @@
 		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8F95DE6635ABC1E64CA8E4A /* Pods-BroadcastUploadExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BroadcastUploadExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-BroadcastUploadExtension/Pods-BroadcastUploadExtension.release.xcconfig"; sourceTree = "<group>"; };
 		B7874918820589BF8FD69BED /* Pods-NextcloudTalkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.release.xcconfig"; sourceTree = "<group>"; };
+		C65D252C2C7581A200157A89 /* ExpandedVoiceMessageRecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandedVoiceMessageRecordingView.swift; sourceTree = "<group>"; };
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		DA1AEFC2270F1FA90088E519 /* DateLabelCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateLabelCustom.swift; sourceTree = "<group>"; };
@@ -1947,6 +1949,7 @@
 				1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */,
 				2C0424992CA33681004772F6 /* AudioPlayerView.swift */,
 				2C0424962CA335C4004772F6 /* AudioPlayerView.xib */,
+				C65D252C2C7581A200157A89 /* ExpandedVoiceMessageRecordingView.swift */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -3008,6 +3011,7 @@
 				1F8D8BE82C35D7C800A6BF2B /* CallViewController.swift in Sources */,
 				2CA1CCCD1F181741002FE6A2 /* NCUser.m in Sources */,
 				1F77A6162AB9B161007B6037 /* ScreenCaptureController.m in Sources */,
+				C65D252D2C7581A200157A89 /* ExpandedVoiceMessageRecordingView.swift in Sources */,
 				2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */,
 				2C21446E2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift in Sources */,
 				2C4230F72B207AB00013E1FA /* ContextChatViewController.swift in Sources */,

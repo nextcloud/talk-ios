@@ -10,6 +10,7 @@ import UIKit
 import Realm
 import ContactsUI
 import QuickLook
+import SwiftUI
 
 @objcMembers public class BaseChatViewController: InputbarViewController,
                                                   UITextFieldDelegate,
@@ -80,6 +81,8 @@ import QuickLook
     private var sendButtonTagMessage = 99
     private var sendButtonTagVoice = 98
 
+    private var isVoiceRecordingLocked = false
+
     private var actionTypeTranscribeVoiceMessage = "transcribe-voice-message"
 
     private var imagePicker: UIImagePickerController?
@@ -89,6 +92,7 @@ import QuickLook
     private var voiceMessageLongPressGesture: UILongPressGestureRecognizer?
     private var recorder: AVAudioRecorder?
     private var voiceMessageRecordingView: VoiceMessageRecordingView?
+    private var expandedUIHostingController: UIHostingController<ExpandedVoiceMessageRecordingView>?
     private var longPressStartingPoint: CGPoint?
     private var cancelHintLabelInitialPositionX: CGFloat?
     private var recordCancelled: Bool = false
@@ -163,6 +167,22 @@ import QuickLook
         button.alpha = 0
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
+
+        self.view.addSubview(button)
+
+        return button
+    }()
+
+    private lazy var voiceRecordingLockButton: UIButton = {
+        let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
+
+        button.backgroundColor = .secondarySystemBackground
+        button.tintColor = .systemBlue
+        button.layer.cornerRadius = button.frame.size.height / 2
+        button.clipsToBounds = true
+        button.alpha = 0
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "lock.open"), for: .normal)
 
         self.view.addSubview(button)
 
@@ -264,7 +284,8 @@ import QuickLook
             "unreadMessageButton": self.unreadMessageButton,
             "textInputbar": self.textInputbar,
             "scrollToBottomButton": self.scrollToBottomButton,
-            "autoCompletionView": self.autoCompletionView
+            "autoCompletionView": self.autoCompletionView,
+            "voiceRecordingLockButton": self.voiceRecordingLockButton
         ]
 
         let metrics = [
@@ -281,7 +302,11 @@ import QuickLook
         self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:[scrollToBottomButton(44)]-10-[autoCompletionView]", metrics: metrics, views: views))
         self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-(>=0)-[scrollToBottomButton(44)]-(>=0)-|", metrics: metrics, views: views))
 
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:[voiceRecordingLockButton(44)]-64-[autoCompletionView]", metrics: metrics, views: views))
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-(>=0)-[voiceRecordingLockButton(44)]-(>=0)-|", metrics: metrics, views: views))
+
         self.scrollToBottomButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        self.voiceRecordingLockButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
 
         self.addMenuToLeftButton()
 
@@ -1504,6 +1529,72 @@ import QuickLook
         self.voiceMessageRecordingView?.isHidden = true
     }
 
+    // MARK: - Expanded voice message recording
+
+    func showExpandedVoiceMessageRecordingView(offset: Int) {
+        let expandedView = ExpandedVoiceMessageRecordingView(
+            deleteFunc: handleDelete, sendFunc: handleSend, recordFunc: handleRecord(isRecording:), timeElapsed: offset
+        )
+
+        let hostingController = UIHostingController(rootView: expandedView)
+        guard let expandedVoiceMessageRecordingView = hostingController.view else { return }
+
+        self.expandedUIHostingController = hostingController
+        self.view.addSubview(expandedVoiceMessageRecordingView)
+
+        expandedVoiceMessageRecordingView.translatesAutoresizingMaskIntoConstraints = false
+
+        let views = [
+            "expandedVoiceMessageRecordingView": expandedVoiceMessageRecordingView
+        ]
+
+        expandedVoiceMessageRecordingView.bottomAnchor.constraint(equalTo: self.textInputbar.bottomAnchor).isActive = true
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[expandedVoiceMessageRecordingView]|", metrics: nil, views: views))
+    }
+
+    func handleDelete() {
+        self.recordCancelled = true
+        self.stopRecordingVoiceMessage()
+        handleCollapseVoiceRecording()
+    }
+
+    func handleSend() {
+        if let recorder = self.recorder, recorder.isRecording {
+            self.recordCancelled = false
+            self.stopRecordingVoiceMessage()
+        } else {
+            self.hideVoiceMessageRecordingView()
+            self.shareVoiceMessage()
+        }
+        handleCollapseVoiceRecording()
+    }
+
+    func handleRecord(isRecording: Bool) {
+        if isRecording {
+            if let recorder = self.recorder, !recorder.isRecording {
+                let session = AVAudioSession.sharedInstance()
+                try? session.setActive(true)
+                recorder.record()
+                print("Recording Restarted")
+            }
+        } else {
+            recordCancelled = true
+            if let recorder = self.recorder, recorder.isRecording {
+                recorder.stop()
+                let session = AVAudioSession.sharedInstance()
+                try? session.setActive(false)
+                print("Recording Stopped")
+            }
+        }
+    }
+
+    func handleCollapseVoiceRecording() {
+        self.isVoiceRecordingLocked = false
+        self.expandedUIHostingController?.removeFromParent()
+        self.expandedUIHostingController?.view.isHidden = true
+        self.textInputbar.bringSubviewToFront(self.textInputbar)
+    }
+
     func setupAudioRecorder() {
         guard let userDocumentDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last,
               let outputFileURL = NSURL.fileURL(withPathComponents: [userDocumentDirectory, "voice-message-recording.m4a"])
@@ -1554,6 +1645,7 @@ import QuickLook
             let session = AVAudioSession.sharedInstance()
             try? session.setActive(true)
             recorder.record()
+            print("Recording started")
         }
     }
 
@@ -1563,6 +1655,7 @@ import QuickLook
             recorder.stop()
             let session = AVAudioSession.sharedInstance()
             try? session.setActive(false)
+            print("Recording Stopped")
         }
     }
 
@@ -1807,14 +1900,19 @@ import QuickLook
             self.recordCancelled = false
             self.longPressStartingPoint = point
             self.cancelHintLabelInitialPositionX = voiceMessageRecordingView?.slideToCancelHintLabel?.frame.origin.x
+            self.voiceRecordingLockButton.alpha = 1
         } else if gestureRecognizer.state == .ended {
-            print("Stop recording audio message")
             self.shouldLockInterfaceOrientation(lock: false)
-            if let recordingTime = self.recorder?.currentTime {
-                // Mark record as cancelled if audio message is no longer than one second
-                self.recordCancelled = recordingTime < 1
+            self.resetVoiceRecordingLockButton()
+
+            if !isVoiceRecordingLocked {
+                if let recordingTime = self.recorder?.currentTime {
+                    // Mark record as cancelled if audio message is no longer than one second
+                    self.recordCancelled = recordingTime < 1
+                }
+                self.stopRecordingVoiceMessage()
+                print("Stop recording audio message")
             }
-            self.stopRecordingVoiceMessage()
         } else if gestureRecognizer.state == .changed {
             guard let longPressStartingPoint,
                   let cancelHintLabelInitialPositionX,
@@ -1823,6 +1921,7 @@ import QuickLook
             else { return }
 
             let slideX = longPressStartingPoint.x - point.x
+            let slideY = longPressStartingPoint.y - point.y
 
             // Only slide view to the left
             if slideX > 0 {
@@ -1834,19 +1933,35 @@ import QuickLook
                 slideToCancelHintLabel.alpha = (maxSlideX - slideX) / 100
 
                 // Cancel recording if slided more than maxSlideX
-                if slideX > maxSlideX, !self.recordCancelled {
+                if slideX > maxSlideX, !self.recordCancelled, !isVoiceRecordingLocked {
                     print("Cancel recording audio message")
 
                     // 'Cancelled' feedback (three sequential weak booms)
                     AudioServicesPlaySystemSound(1521)
                     self.recordCancelled = true
                     self.stopRecordingVoiceMessage()
+                    self.resetVoiceRecordingLockButton()
+                }
+            }
+
+            if slideY > 0 {
+                let maxSlideY = 64.0
+                if slideY > maxSlideY, !self.recordCancelled {
+                    if !isVoiceRecordingLocked {
+                        self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock"), for: .normal)
+                        let offset = self.voiceMessageRecordingView?.recordingTimeLabel?.getTimeCounted()
+                        let intOffset = Int(offset!.magnitude)
+                        showExpandedVoiceMessageRecordingView(offset: intOffset)
+                        print("LOCKED")
+                        isVoiceRecordingLocked = true
+                    }
                 }
             }
         } else if gestureRecognizer.state == .cancelled || gestureRecognizer.state == .failed {
             print("Gesture cancelled or failed -> Cancel recording audio message")
             self.shouldLockInterfaceOrientation(lock: false)
             self.recordCancelled = false
+            self.resetVoiceRecordingLockButton()
             self.stopRecordingVoiceMessage()
         }
     }
@@ -1855,6 +1970,11 @@ import QuickLook
         if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
             appDelegate.shouldLockInterfaceOrientation = lock
         }
+    }
+
+    func resetVoiceRecordingLockButton() {
+        self.voiceRecordingLockButton.alpha = 0
+        self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock.open"), for: .normal)
     }
 
     // MARK: - UIScrollViewDelegate methods
@@ -2541,7 +2661,7 @@ import QuickLook
             guard let message = self.message(for: indexPath) else { continue }
 
             DispatchQueue.global(qos: .userInitiated).async {
-                guard message.messageId != kUnreadMessagesSeparatorIdentifier, 
+                guard message.messageId != kUnreadMessagesSeparatorIdentifier,
                       message.messageId != kChatBlockSeparatorIdentifier
                 else { return }
 
