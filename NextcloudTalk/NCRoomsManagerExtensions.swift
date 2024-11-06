@@ -24,8 +24,10 @@ import Foundation
 
         // Check if we try to join a room, we're still trying to leave
         if self.isLeavingRoom(withToken: token) {
-            self.leavingRoomToken = nil
             self.leaveRoomTask?.cancel()
+
+            self.leaveRoomTask = nil
+            self.leavingRoomToken = nil
         }
 
         self.joinRoomHelper(token, forCall: call)
