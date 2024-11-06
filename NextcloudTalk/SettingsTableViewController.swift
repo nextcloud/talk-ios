@@ -689,6 +689,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             cell.textLabel?.text = activeAccount.userDisplayName
             cell.textLabel?.font = .preferredFont(for: .title2, weight: .medium)
             cell.detailTextLabel?.text = activeAccount.server.replacingOccurrences(of: "https://", with: "")
+            cell.detailTextLabel?.lineBreakMode = .byCharWrapping
             cell.imageView?.image = self.getProfilePicture(for: activeAccount)?.cropToCircle(withSize: CGSize(width: 60, height: 60))
             cell.accessoryType = .disclosureIndicator
             return cell
@@ -880,6 +881,7 @@ extension SettingsTableViewController {
         let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: "AccountCellIdentifier", style: .subtitle)
         cell.textLabel?.text = account.userDisplayName
         cell.detailTextLabel?.text = account.server.replacingOccurrences(of: "https://", with: "")
+        cell.detailTextLabel?.lineBreakMode = .byCharWrapping
 
         if let accountImage = self.getProfilePicture(for: account) {
             cell.setSettingsImage(image: NCUtils.roundedImage(fromImage: accountImage), renderingMode: .alwaysOriginal)
