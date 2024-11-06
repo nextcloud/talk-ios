@@ -67,10 +67,9 @@
     }
 
     override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
-        self.internalExecuteAfterTransition {
-            if !viewControllerToPresent.isBeingPresented {
-                super.present(viewControllerToPresent, animated: flag, completion: completion)
-            }
+        // Don't use internalExecuteAfterTransition here as that might interfere with presenting the CallViewController from CallKit/Background
+        if !viewControllerToPresent.isBeingPresented {
+            super.present(viewControllerToPresent, animated: flag, completion: completion)
         }
     }
 
