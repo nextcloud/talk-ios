@@ -80,12 +80,14 @@ typedef enum RoomsSections {
     }];
     
     [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
-    [self.tableView registerNib:[UINib nibWithNibName:RoomInvitationViewCell.NibName bundle:nil] forCellReuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+    [self.tableView registerClass:InfoLabelTableViewCell.class forCellReuseIdentifier:InfoLabelTableViewCell.identifier];
 
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
     self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
 
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = 100;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     _resultTableViewController = [[RoomSearchTableViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
@@ -1307,14 +1309,14 @@ typedef enum RoomsSections {
     return _rooms.count;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        return RoomInvitationViewCell.CellHeight;
-    }
-
-    return RoomTableViewCell.cellHeight;
-}
+//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
+//        return InfoLabelTableViewCell.CellHeight;
+//    }
+//
+//    return RoomTableViewCell.cellHeight;
+//}
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -1405,9 +1407,9 @@ typedef enum RoomsSections {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        RoomInvitationViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+        InfoLabelTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:InfoLabelTableViewCell.identifier];
         if (!cell) {
-            cell = [[RoomInvitationViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+            cell = [[InfoLabelTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:InfoLabelTableViewCell.identifier];
         }
 
         // Pending federation invitations
@@ -1427,7 +1429,7 @@ typedef enum RoomsSections {
         NSRange range = NSMakeRange(0, [resultString length]);
         [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
 
-        cell.detailsLabel.attributedText = resultString;
+        cell.label.attributedText = resultString;
         cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;

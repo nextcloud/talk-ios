@@ -296,8 +296,7 @@
 		1FE029BA2CE289A400C0C633 /* MessageSeparatorTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE029B92CE289A200C0C633 /* MessageSeparatorTableViewCell.swift */; };
 		1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */; };
 		1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */; };
-		1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */; };
-		1FE7DE322BB459B10040EE12 /* RoomInvitationViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */; };
+		1FE7DE302BB4598F0040EE12 /* InfoLabelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE7DE2F2BB4598F0040EE12 /* InfoLabelTableViewCell.swift */; };
 		1FE7DE332BBC8FA00040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FE7DE342BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
@@ -815,8 +814,7 @@
 		1FE029B92CE289A200C0C633 /* MessageSeparatorTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSeparatorTableViewCell.swift; sourceTree = "<group>"; };
 		1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceTalkView.xib; sourceTree = "<group>"; };
 		1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceTalkView.swift; sourceTree = "<group>"; };
-		1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomInvitationViewCell.swift; sourceTree = "<group>"; };
-		1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoomInvitationViewCell.xib; sourceTree = "<group>"; };
+		1FE7DE2F2BB4598F0040EE12 /* InfoLabelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoLabelTableViewCell.swift; sourceTree = "<group>"; };
 		1FE94733293CE55600D6584C /* NCCameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCameraController.swift; sourceTree = "<group>"; };
 		1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubPermalinkView.xib; sourceTree = "<group>"; };
 		1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubPermalinkView.swift; sourceTree = "<group>"; };
@@ -1671,6 +1669,7 @@
 				2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */,
 				1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */,
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
+				1FE7DE2F2BB4598F0040EE12 /* InfoLabelTableViewCell.swift */,
 				2CC3166D2CC698E1007CBE16 /* TextFieldTableViewCell.swift */,
 				2CC316712CC79898007CBE16 /* TextViewTableViewCell.swift */,
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
@@ -1741,8 +1740,6 @@
 			isa = PBXGroup;
 			children = (
 				1FB7B9932BF0DE4A0093CE98 /* Banned Actors */,
-				1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */,
-				1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */,
 				2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */,
 				2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */,
 				2CA1CCC11F166CC5002FE6A2 /* NCRoom.h */,
@@ -2547,7 +2544,7 @@
 				1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
-				1FE7DE322BB459B10040EE12 /* RoomInvitationViewCell.xib in Resources */,
+				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */,
@@ -3017,7 +3014,7 @@
 				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
 				1F1B0F482BE047CE003FD766 /* CustomPresentable.swift in Sources */,
 				1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */,
-				1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */,
+				1FE7DE302BB4598F0040EE12 /* InfoLabelTableViewCell.swift in Sources */,
 				1F77A6222AB9EB06007B6037 /* SocketConnection.m in Sources */,
 				1FF136152BFB74C3006A6101 /* NCChatMessage.swift in Sources */,
 				1FDB47F62C9C71CE00D6F423 /* TalkAccount.swift in Sources */,
