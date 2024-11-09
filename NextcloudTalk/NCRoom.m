@@ -23,8 +23,8 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
     NCRoom *room = [[self alloc] init];
     room.accountId = accountId;
-    room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];
     room.token = [roomDict objectForKey:@"token"];
+    room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];
     room.type = (NCRoomType)[[roomDict objectForKey:@"type"] integerValue];
     room.roomDescription = [roomDict objectForKey:@"description"];
     room.hasPassword = [[roomDict objectForKey:@"hasPassword"] boolValue];
