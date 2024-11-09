@@ -831,7 +831,8 @@ class CallViewController: UIViewController,
         // Connect to new call
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCRoomsManager.sharedInstance().updateRoom(token) { roomDict, error in
-            guard error == nil else {
+            guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
+            else {
                 print("Error getting room to switch")
                 return
             }
@@ -842,7 +843,7 @@ class CallViewController: UIViewController,
                 self.delegate?.callViewController(self, wantsToSwitchFromCall: self.room.token, toRoom: token)
 
                 // Assign new room as current room
-                self.room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
+                self.room = newRoom
 
                 // Save current audio and video state
                 self.audioDisabledAtStart = !audioEnabled
