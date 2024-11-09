@@ -259,13 +259,12 @@ class CallViewController: UIViewController,
             self.userDisabledSpeaker = true
         }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
         // as a workaround.
 
         let serverSupportsConversationPermissions =
-        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationPermissions, forAccountId: activeAccount.accountId) ||
-        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag, forAccountId: activeAccount.accountId)
+        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationPermissions, forAccountId: room.accountId) ||
+        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag, forAccountId: room.accountId)
 
         if serverSupportsConversationPermissions {
             self.setAudioMuteButtonEnabled(room.permissions.contains(.canPublishAudio))
@@ -278,7 +277,7 @@ class CallViewController: UIViewController,
         NotificationCenter.default.addObserver(self, selector: #selector(sensorStateChange(notification:)), name: UIDevice.proximityStateDidChangeNotification, object: nil)
 
         // callStartTime is only available if we have the "recording-v1" capability
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1, forAccountId: activeAccount.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1, forAccountId: room.accountId) {
             self.callDurationTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(callDurationTimerUpdate), userInfo: nil, repeats: true)
         }
     }
@@ -829,9 +828,8 @@ class CallViewController: UIViewController,
         }
 
         // Connect to new call
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCRoomsManager.sharedInstance().updateRoom(token) { roomDict, error in
-            guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
+            guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: self.room.accountId)
             else {
                 print("Error getting room to switch")
                 return
@@ -1297,8 +1295,7 @@ class CallViewController: UIViewController,
         }
 
         // Send a reaction
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: room.accountId)
 
         // Disable swiftlint -> not supported on Realm object
         // swiftlint:disable:next empty_count
@@ -1308,7 +1305,10 @@ class CallViewController: UIViewController,
             for reaction in callReactions {
                 reactionItems.append(UIAction(title: String(reaction), handler: { [unowned self] _ in
                     callController.sendReaction(reaction)
-                    self.addReaction(reaction, fromUser: activeAccount.userDisplayName)
+
+                    if let account = room.account {
+                        self.addReaction(reaction, fromUser: account.userDisplayName)
+                    }
                 }))
             }
 
@@ -1906,9 +1906,7 @@ class CallViewController: UIViewController,
 
     func showChat() {
         if chatNavigationController == nil {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-            guard let room = NCDatabaseManager.sharedInstance().room(withToken: room.token, forAccountId: activeAccount.accountId),
+            guard let room = NCDatabaseManager.sharedInstance().room(withToken: room.token, forAccountId: room.accountId),
                   let chatViewController = ChatViewController(for: room)
             else { return }
 
