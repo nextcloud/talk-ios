@@ -189,7 +189,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.titleLabel.attributedText = titleLabel
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account
+        else { return }
+
         let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
         var shouldShowReadStatus = false
 
@@ -221,7 +223,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.setDeliveryState(to: .failed)
         } else if message.isTemporary {
             self.setDeliveryState(to: .sending)
-        } else if message.isMessage(from: activeAccount.userId), shouldShowDeliveryStatus {
+        } else if message.isMessage(from: account.userId), shouldShowDeliveryStatus {
             if room.lastCommonReadMessage >= message.messageId, shouldShowReadStatus {
                 self.setDeliveryState(to: .read)
             } else {
