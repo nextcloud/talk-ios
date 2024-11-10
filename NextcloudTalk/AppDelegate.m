@@ -104,6 +104,9 @@
         self.debugLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
             [weakSelf.debugLabel setText:[AllocationTracker shared].description];
         }];
+
+        // Increase animation speed when we are doing UI tests
+        application.windows.firstObject.layer.speed = 100;
     }
 
     // Comment out the following code to log the number of open socket file descriptors
