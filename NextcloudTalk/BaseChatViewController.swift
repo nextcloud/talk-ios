@@ -465,7 +465,7 @@ import QuickLook
 
     // MARK: - Temporary messages
 
-    internal func createTemporaryMessage(message: String, replyTo parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) -> NCChatMessage {
+    internal func createTemporaryMessage(message: String, replyTo parentMessage: NCChatMessage?, messageParameters: String, silently: Bool, isVoiceMessage: Bool) -> NCChatMessage? {
         let temporaryMessage = NCChatMessage()
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
@@ -475,14 +475,41 @@ import QuickLook
         temporaryMessage.actorType = "users"
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
-        temporaryMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: message, parameters: messageParameters)
 
         let referenceId = "temp-\(Date().timeIntervalSince1970 * 1000)"
         temporaryMessage.referenceId = NCUtils.sha1(fromString: referenceId)
         temporaryMessage.internalId = referenceId
         temporaryMessage.isTemporary = true
         temporaryMessage.parentId = parentMessage?.internalId
-        temporaryMessage.messageParametersJSONString = messageParameters
+
+        if isVoiceMessage {
+            var messageParametersDict = [String: Any]()
+            let parameterId = UUID().uuidString
+
+            temporaryMessage.message = message
+            temporaryMessage.messageType = kMessageTypeVoiceMessage
+
+            let fileParameterDict: [String: Any] = [
+                "id": parameterId,
+                "type": "file",
+                "name": message,
+                "path": messageParameters,
+                "fileId": parameterId,
+                "fileName": message,
+                "filePath": messageParameters,
+                "fileLocalPath": messageParameters
+            ]
+
+            messageParametersDict["file"] = fileParameterDict
+
+            if let jsonData = try? JSONSerialization.data(withJSONObject: messageParametersDict, options: []) {
+                let messageParametersJSONString = String(data: jsonData, encoding: .utf8) ?? ""
+                temporaryMessage.messageParametersJSONString = messageParametersJSONString
+            }
+        } else {
+            temporaryMessage.messageParametersJSONString = messageParameters
+            temporaryMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: message, parameters: messageParameters)
+        }
         temporaryMessage.isSilent = silently
         temporaryMessage.isMarkdownMessage = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityMarkdownMessages, for: self.room)
 
@@ -954,8 +981,25 @@ import QuickLook
         self.removeUnreadMessagesSeparator()
 
         self.removePermanentlyTemporaryMessage(temporaryMessage: message)
-        let originalMessage = self.replaceMessageMentionsKeysWithMentionsDisplayNames(message: message.message, parameters: message.messageParametersJSONString ?? "")
-        self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
+        guard var originalMessage = message.message else { return }
+        if message.messageType != kMessageTypeVoiceMessage {
+            originalMessage = self.replaceMessageMentionsKeysWithMentionsDisplayNames(message: message.message, parameters: message.messageParametersJSONString ?? "")
+            self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
+        } else {
+            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
+                self.appendTemporaryMessage(temporaryMessage: message)
+            }
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+                if let fileServerURL, let fileServerPath {
+                    let talkMetaData: [String: String] = ["messageType": "voice-message"]
+
+                    self.uploadFileAtPath(localPath: message.file().fileStatus!.fileLocalPath!, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: message)
+                } else {
+                    NSLog("Could not find unique name for voice message file.")
+                }
+            })
+        }
     }
 
     func didPressCopy(for message: NCChatMessage) {
@@ -1461,7 +1505,7 @@ import QuickLook
 
             NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: activeAccount) { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
-                    self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil)
+                    self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil, temporaryMessage: nil)
                 } else {
                     print("Could not find unique name for contact file")
                 }
@@ -1567,6 +1611,7 @@ import QuickLook
     }
 
     func shareVoiceMessage() {
+        guard let recorder = self.recorder else { return }
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
         let dateString = dateFormatter.string(from: Date())
@@ -1590,52 +1635,78 @@ import QuickLook
         audioFileName += ".mp3"
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
-            if let fileServerURL, let fileServerPath, let recorder = self.recorder {
-                let talkMetaData: [String: String] = ["messageType": "voice-message"]
-                self.uploadFileAtPath(localPath: recorder.url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData)
-            } else {
-                NSLog("Could not find unique name for voice message file.")
+        let chatFileController = NCChatFileController()
+        chatFileController.initDownloadDirectory(for: activeAccount)
+
+        let tempDirectoryURL = URL(fileURLWithPath: chatFileController.tempDirectoryPath)
+        let destinationFilePath = tempDirectoryURL.appendingPathComponent(audioFileName).path
+
+        if let temporaryMessage = self.createTemporaryMessage(
+            message: audioFileName,
+            replyTo: nil,
+            messageParameters: "\(destinationFilePath)",
+            silently: false,
+            isVoiceMessage: true
+        ) {
+            let movedFileToTemporaryDirectory = chatFileController.moveFileToTemporaryDirectory(
+                fromSourcePath: recorder.url.path,
+                destinationPath: destinationFilePath
+            )
+
+            if !movedFileToTemporaryDirectory {
+                print("Failed to move voice-message to temporary directory.")
+                return
             }
-        })
+
+            if movedFileToTemporaryDirectory, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
+                self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
+            }
+
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+                if let fileServerURL, let fileServerPath {
+                    let talkMetaData: [String: String] = ["messageType": "voice-message"]
+
+                    self.uploadFileAtPath(localPath: destinationFilePath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: temporaryMessage)
+                } else {
+                    NSLog("Could not find unique name for voice message file.")
+                }
+            })
+        } else {
+            print("Temporary message could not be created")
+        }
     }
 
-    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: String]?) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setupNCCommunication(for: activeAccount)
+    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: String]?, temporaryMessage: NCChatMessage?) {
 
-        NextcloudKit.shared.upload(serverUrlFileName: fileServerURL, fileNameLocalPath: localPath, taskHandler: { _ in
-            NSLog("Upload task")
-        }, progressHandler: { progress in
-            NSLog("Progress:%f", progress.fractionCompleted)
-        }, completionHandler: { _, _, _, _, _, _, _, error in
-            NSLog("Upload completed with error code: %ld", error.errorCode)
-
-            if error.errorCode == 0 {
-                NCAPIController.sharedInstance().shareFileOrFolder(for: activeAccount, atPath: fileServerPath, toRoom: self.room.token, talkMetaData: talkMetaData, withCompletionBlock: { error in
-                    if error != nil {
-                        NSLog("Failed to share voice message")
-                    }
-                })
-            } else if error.errorCode == 404 || error.errorCode == 409 {
-                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: activeAccount, withCompletionBlock: { created, _ in
-                    if created {
-                        self.uploadFileAtPath(localPath: localPath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData)
-                    } else {
-                        NSLog("Failed to check or create attachment folder")
-                    }
-                })
-            } else if error.errorCode == 507 {
-                let alert = UIAlertController(title: NSLocalizedString("Upload failed", comment: ""),
-                                              message: error.errorDescription,
-                                              preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-                self.present(alert, animated: true)
-                NSLog("Failed to upload voice message due to missing user storage quota")
-            } else {
-                NSLog("Failed upload voice message")
+        ChatFileUploader.uploadFile(localPath: localPath,
+                                    fileServerURL: fileServerURL,
+                                    fileServerPath: fileServerPath,
+                                    talkMetaData: talkMetaData,
+                                    temporaryMessage: temporaryMessage,
+                                    room: self.room) { statusCode, errorMessage in
+            DispatchQueue.main.async {
+                switch statusCode {
+                case 200:
+                    NSLog("Successfully uploaded and shared voice message")
+                case 401:
+                    NSLog("No active account found")
+                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("No active account found", comment: ""))
+                case 403:
+                    NSLog("Failed to share voice message")
+                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("Failed to share recording", comment: ""))
+                case 404, 409:
+                    NSLog("Failed to check or create attachment folder")
+                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("Failed to check or create attachment folder", comment: ""))
+                case 507:
+                    NSLog("User storage quota exceeded")
+                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""),
+                                                  withMessage: NSLocalizedString("User storage quota exceeded", comment: ""))
+                default:
+                    NSLog("Failed upload voice message with error code \(statusCode)")
+                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("Unknown error occurred", comment: ""))
+                }
             }
-        })
+        }
     }
 
     // MARK: - AVAudioRecorder Delegate
@@ -3236,9 +3307,19 @@ import QuickLook
 
     // MARK: - VoiceMessageTableViewCellDelegate
 
-    public func cellWants(toPlayAudioFile fileParameter: NCMessageFileParameter) {
+    public func cellWants(toPlayAudioFile message: NCChatMessage) {
+        guard let fileParameter = message.file() else {
+            print("No file for message found")
+            return
+        }
+
         if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
             print("File already downloading -> skipping new download")
+            return
+        }
+
+        if let fileStatus = fileParameter.fileStatus, fileStatus.fileLocalPath != nil && FileManager.default.fileExists(atPath: fileParameter.fileStatus?.fileLocalPath ?? "") {
+            self.setupVoiceMessagePlayer(with: fileParameter.fileStatus!)
             return
         }
 

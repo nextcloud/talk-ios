@@ -20,7 +20,6 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 @interface NCChatFileController ()
 
 @property (nonatomic, strong) NCChatFileStatus *fileStatus;
-@property (nonatomic, strong) NSString *tempDirectoryPath;
 
 @end
 
@@ -146,7 +145,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 
 - (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter
 {
-    _fileStatus = [[NCChatFileStatus alloc] initWithFileId:fileParameter.parameterId fileName:fileParameter.name filePath:fileParameter.path];
+    _fileStatus = [[NCChatFileStatus alloc] initWithFileId:fileParameter.parameterId fileName:fileParameter.name filePath:fileParameter.path fileLocalPath: nil];
     fileParameter.fileStatus = _fileStatus;
     
     [self startDownload];
@@ -163,13 +162,38 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
             
             NSString *filePath = [NSString stringWithFormat:@"%@%@", directoryPath, file.fileName];
             
-            self->_fileStatus = [[NCChatFileStatus alloc] initWithFileId:file.fileId fileName:file.fileName filePath:filePath];
+            self->_fileStatus = [[NCChatFileStatus alloc] initWithFileId:file.fileId fileName:file.fileName filePath:filePath fileLocalPath:nil];
             [self startDownload];
         } else {
             NSLog(@"An error occurred while getting file with fileId %@: %@", fileId, errorDescription);
             [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
         }
     }];
+}
+
+- (bool)moveFileToTemporaryDirectoryFromSourcePath:(NSString *)sourcePath destinationPath:(NSString *)destinationPath {
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [self initDownloadDirectoryForAccount:activeAccount];
+
+    if (!sourcePath || !destinationPath) {
+        NSLog(@"Missing file information. File could not be moved.");
+        return false;
+    }
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:destinationPath]) {
+        NSLog(@"File is already in temporary directory: %@", destinationPath);
+        return false;
+    }
+
+    NSError *error = nil;
+    if ([[NSFileManager defaultManager] moveItemAtPath:sourcePath toPath:destinationPath error:&error]) {
+        NSLog(@"File successfully moved to: %@", destinationPath);
+        return true;
+    } else {
+        NSLog(@"Error while moving file to temporary directory: %@", error.localizedDescription);
+    }
+
+    return false;
 }
 
 - (void)startDownload

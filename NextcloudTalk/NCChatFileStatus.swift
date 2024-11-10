@@ -15,10 +15,11 @@ import Foundation
     public var canReportProgress: Bool = false
     public var downloadProgress: Float = 0
 
-    init(fileId: String, fileName: String, filePath: String) {
+    init(fileId: String, fileName: String, filePath: String, fileLocalPath: String? = nil) {
         self.fileId = fileId
         self.fileName = fileName
         self.filePath = filePath
+        self.fileLocalPath = fileLocalPath
     }
 
     public func isStatus(for messageFileParameter: NCMessageFileParameter) -> Bool {

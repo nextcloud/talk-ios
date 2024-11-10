@@ -845,6 +845,9 @@
 "Failed to accept invitation" = "Failed to accept invitation";
 
 /* No comment provided by engineer. */
+"Failed to check or create attachment folder" = "Failed to check or create attachment folder";
+
+/* No comment provided by engineer. */
 "Failed to clear reminder" = "Failed to clear reminder";
 
 /* No comment provided by engineer. */
@@ -1182,6 +1185,9 @@
 
 /* No comment provided by engineer. */
 "No actions available" = "No actions available";
+
+/* No comment provided by engineer. */
+"No active account found" = "No active account found";
 
 /* No comment provided by engineer. */
 "No banned users or guests" = "No banned users or guests";
@@ -1806,6 +1812,9 @@
 
 /* No comment provided by engineer. */
 "User status supported?" = "User status supported?";
+
+/* No comment provided by engineer. */
+"User storage quota exceeded" = "User storage quota exceeded";
 
 /* No comment provided by engineer. */
 "Users" = "Users";

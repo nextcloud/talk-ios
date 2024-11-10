@@ -30,11 +30,11 @@ extension BaseChatTableViewCell {
     }
 
     func audioPlayerPlayButtonPressed() {
-        guard let audioFileParameter = message?.file() else {
+        guard let audioFile = message else {
             return
         }
 
-        self.delegate?.cellWants(toPlayAudioFile: audioFileParameter)
+        self.delegate?.cellWants(toPlayAudioFile: audioFile)
     }
 
     func audioPlayerPauseButtonPressed() {
