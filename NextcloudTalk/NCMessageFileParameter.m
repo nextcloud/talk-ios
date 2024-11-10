@@ -20,6 +20,18 @@
         self.previewImageHeight = [[parameterDict objectForKey:@"preview-image-height"] intValue];
         self.width = [[parameterDict objectForKey:@"width"] intValue];
         self.height = [[parameterDict objectForKey:@"height"] intValue];
+
+        // NCChatFileStatus parameters
+        NSString *fileId = [parameterDict objectForKey:@"fileId"];
+        NSString *fileName = [parameterDict objectForKey:@"fileName"];
+        NSString *filePath = [parameterDict objectForKey:@"filePath"];
+        NSString *fileLocalPath = [parameterDict objectForKey:@"fileLocalPath"];
+
+        if (fileId && fileName && filePath && fileLocalPath) {
+            self.fileStatus = [[NCChatFileStatus alloc] initWithFileId:fileId fileName:fileName filePath:filePath fileLocalPath:fileLocalPath];
+        } else {
+            self.fileStatus = nil;
+        }
     }
     
     return self;
