@@ -12,8 +12,9 @@ import AVFoundation
 import MBProgressHUD
 
 @objc public protocol ShareConfirmationViewControllerDelegate {
-    @objc func shareConfirmationViewControllerDidFailed(_ viewController: ShareConfirmationViewController)
+    @objc func shareConfirmationViewControllerDidFail(_ viewController: ShareConfirmationViewController)
     @objc func shareConfirmationViewControllerDidFinish(_ viewController: ShareConfirmationViewController)
+    @objc func shareConfirmationViewControllerDidCancel(_ viewController: ShareConfirmationViewController)
 }
 
 @objcMembers public class ShareConfirmationViewController: InputbarViewController,
@@ -420,7 +421,7 @@ import MBProgressHUD
     }
 
     func cancelButtonPressed() {
-        self.delegate?.shareConfirmationViewControllerDidFinish(self)
+        self.delegate?.shareConfirmationViewControllerDidCancel(self)
     }
 
     func sendButtonPressed() {
@@ -516,7 +517,7 @@ import MBProgressHUD
         NCAPIController.sharedInstance().sendChatMessage(self.shareTextView.text, toRoom: self.room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
             if let error {
                 NCUtils.log(String(format: "Failed to share text. Error: %@", error.localizedDescription))
-                self.delegate?.shareConfirmationViewControllerDidFailed(self)
+                self.delegate?.shareConfirmationViewControllerDidFail(self)
             } else {
                 NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
@@ -530,7 +531,7 @@ import MBProgressHUD
         NCAPIController.sharedInstance().shareRichObject(self.objectShareMessage?.richObjectFromObjectShare, inRoom: self.room.token, for: self.account) { error in
             if let error {
                 NCUtils.log(String(format: "Failed to share rich object. Error: %@", error.localizedDescription))
-                self.delegate?.shareConfirmationViewControllerDidFailed(self)
+                self.delegate?.shareConfirmationViewControllerDidFail(self)
             } else {
                 NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
