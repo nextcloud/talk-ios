@@ -29,7 +29,6 @@
 #import "NotificationCenterNotifications.h"
 #import "MapViewController.h"
 #import "PlaceholderView.h"
-#import "RoundedNumberView.h"
 #import "RoomsTableViewController.h"
 #import "ShareTableViewCell.h"
 #import "UIView+Toast.h"

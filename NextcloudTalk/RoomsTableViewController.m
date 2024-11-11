@@ -1309,15 +1309,6 @@ typedef enum RoomsSections {
     return _rooms.count;
 }
 
-//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
-//        return InfoLabelTableViewCell.CellHeight;
-//    }
-//
-//    return RoomTableViewCell.cellHeight;
-//}
-
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {

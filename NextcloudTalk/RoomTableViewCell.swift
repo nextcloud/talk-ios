@@ -10,17 +10,15 @@ import Foundation
     @IBOutlet weak var roomImage: AvatarImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
-    @IBOutlet weak var unreadMessagesView: UIView!
+    @IBOutlet weak var unreadMessagesView: BadgeView!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var favoriteImage: UIImageView!
     @IBOutlet weak var userStatusImageView: UIImageView!
     @IBOutlet weak var userStatusLabel: UILabel!
-    @IBOutlet weak var unreadMessageViewWidth: NSLayoutConstraint!
     @IBOutlet weak var titleLabelTopConstraint: NSLayoutConstraint!
 
     public static var identifier = "RoomCellIdentifier"
     public static var nibName = "RoomTableViewCell"
-    public static var cellHeight = 74.0
 
     public var roomToken: String?
     public var titleOnly = false {
@@ -28,10 +26,6 @@ import Foundation
             self.titleLabelTopConstraint.constant = titleOnly ? titleOnlyOriginY : titleOriginY
         }
     }
-
-    internal var unreadMessagesBadge: RoundedNumberView?
-    internal var unreadMessages: Int = 0
-    internal var highlightType: HighlightType = .none
 
     private let titleOriginY = 12.0
     private let titleOnlyOriginY = 26.0
@@ -43,7 +37,6 @@ import Foundation
         self.roomImage.layer.masksToBounds = true
         self.roomImage.backgroundColor = NCAppBranding.placeholderColor()
 
-        self.unreadMessagesView.isHidden = true
         self.favoriteImage.contentMode = .center
 
         if UIView.userInterfaceLayoutDirection(for: self.dateLabel.semanticContentAttribute) == .rightToLeft {
@@ -70,28 +63,9 @@ import Foundation
 
         self.userStatusLabel.isHidden = true
 
+        self.unreadMessagesView.setBadgeNumber(0)
+
         self.titleLabelTopConstraint.constant = titleOriginY
-
-        self.unreadMessagesView.isHidden = true
-        self.unreadMessagesBadge = nil
-
-        self.unreadMessagesView.subviews.forEach { $0.removeFromSuperview() }
-    }
-
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-
-        // TODO: Should this be in layoutSubviews?
-        if self.unreadMessagesBadge == nil {
-            let badge = RoundedNumberView()
-            self.unreadMessagesBadge = badge
-
-            badge.highlightType = self.highlightType
-            badge.number = self.unreadMessages
-
-            self.unreadMessageViewWidth.constant = self.unreadMessages > 0 ? badge.frame.size.width : 0
-            self.unreadMessagesView.addSubview(badge)
-        }
     }
 
     public override func setSelected(_ selected: Bool, animated: Bool) {
@@ -105,28 +79,27 @@ import Foundation
     }
 
     public func setUnread(messages number: Int, mentioned: Bool, groupMentioned: Bool) {
-        self.unreadMessages = number
+        self.unreadMessagesView.badgeColor = NCAppBranding.themeColor()
+        self.unreadMessagesView.badgeTextColor = NCAppBranding.themeTextColor()
+        self.unreadMessagesView.setBadgeNumber(number)
+        self.unreadMessagesView.badgeHighlightStyle = .none
+
+        if groupMentioned {
+            self.unreadMessagesView.badgeHighlightStyle = .border
+        }
+
+        if mentioned {
+            self.unreadMessagesView.badgeHighlightStyle = .important
+        }
 
         if number > 0 {
             self.titleLabel.font = UIFont.preferredFont(for: .headline, weight: .bold)
             self.subtitleLabel.font = UIFont.preferredFont(for: .callout, weight: .bold)
             self.dateLabel.font = UIFont.preferredFont(for: .footnote, weight: .semibold)
-            self.unreadMessagesView.isHidden = false
         } else {
             self.titleLabel.font = UIFont.preferredFont(forTextStyle: .headline)
             self.subtitleLabel.font = UIFont.preferredFont(forTextStyle: .callout)
             self.dateLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
-            self.unreadMessagesView.isHidden = true
-        }
-
-        self.highlightType = .none
-
-        if groupMentioned {
-            self.highlightType = .border
-        }
-
-        if mentioned {
-            self.highlightType = .important
         }
     }
 
