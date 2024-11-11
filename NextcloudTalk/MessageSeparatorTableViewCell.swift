@@ -6,9 +6,11 @@
 class MessageSeparatorTableViewCell: ChatTableViewCell {
 
     public static let identifier = "MessageSeparatorCellIdentifier"
-    public static let cellHeight = 24.0
+
     public static let unreadMessagesSeparatorId = -99
+    public static let unreadMessagesSeparatorText = NSLocalizedString("Unread messages", comment: "")
     public static let chatBlockSeparatorId = -98
+    public static let chatBlockSeparatorText = NSLocalizedString("Some messages not shown, will be downloaded when online", comment: "")
 
     public lazy var separatorLabel = {
         let label = UILabel()
@@ -17,8 +19,7 @@ class MessageSeparatorTableViewCell: ChatTableViewCell {
         label.backgroundColor = .clear
         label.isUserInteractionEnabled = false
         label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 12)
-        label.text = NSLocalizedString("Unread messages", comment: "")
+        label.font = .preferredFont(forTextStyle: .body)
         label.textColor = .secondaryLabel
 
         self.contentView.addSubview(label)
@@ -28,7 +29,7 @@ class MessageSeparatorTableViewCell: ChatTableViewCell {
             label.rightAnchor.constraint(equalTo: self.contentView.safeAreaLayoutGuide.rightAnchor, constant: -10),
             label.topAnchor.constraint(equalTo: self.contentView.safeAreaLayoutGuide.topAnchor, constant: 5),
             label.bottomAnchor.constraint(equalTo: self.contentView.safeAreaLayoutGuide.bottomAnchor, constant: -5),
-            label.heightAnchor.constraint(equalToConstant: 14),
+            label.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
             label.widthAnchor.constraint(greaterThanOrEqualToConstant: 0)
         ])
 

@@ -2719,7 +2719,7 @@ import SwiftUI
            let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
             cell.messageId = message.messageId
-            cell.separatorLabel.text = NSLocalizedString("Unread messages", comment: "")
+            cell.separatorLabel.text = MessageSeparatorTableViewCell.unreadMessagesSeparatorText
             return cell
         }
 
@@ -2727,7 +2727,7 @@ import SwiftUI
            let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
             cell.messageId = message.messageId
-            cell.separatorLabel.text = NSLocalizedString("Some messages not shown, will be downloaded when online", comment: "")
+            cell.separatorLabel.text = MessageSeparatorTableViewCell.chatBlockSeparatorText
             return cell
         }
 
@@ -2849,7 +2849,17 @@ import SwiftUI
         // Chat separators
         if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
             message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
-            return MessageSeparatorTableViewCell.cellHeight
+
+            var cellText = MessageSeparatorTableViewCell.unreadMessagesSeparatorText
+
+            if message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
+                cellText = MessageSeparatorTableViewCell.chatBlockSeparatorText
+            }
+
+            self.textViewForSizing.text = cellText
+            let bodyBounds = self.textViewForSizing.sizeThatFits(CGSize(width: originalWidth, height: CGFLOAT_MAX))
+
+            return ceil(bodyBounds.height) + 10 // top(5) + bottom(5)
         }
 
         // Update messages (the ones that notify about an update in one message, they should not be displayed)
