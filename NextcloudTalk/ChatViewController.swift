@@ -31,7 +31,7 @@ import UIKit
 
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
-        message.messageId = kUnreadMessagesSeparatorIdentifier
+        message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
         return message
     }()
 
@@ -1617,7 +1617,7 @@ import UIKit
               let account = message.account
         else { return nil }
 
-        if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
+        if message.isSystemMessage || message.isDeletedMessage || message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId {
             return nil
         }
 

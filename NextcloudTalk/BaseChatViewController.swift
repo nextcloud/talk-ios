@@ -271,7 +271,7 @@ import SwiftUI
 
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: InvisibleSystemMessageCellIdentifier)
-        self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorCellIdentifier)
+        self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorTableViewCell.identifier)
 
         let newMessagesButtonText = NSLocalizedString("↓ New messages", comment: "")
 
@@ -2086,7 +2086,7 @@ import SwiftUI
         if shouldAddBlockSeparator {
             // Chat block separator
             let blockSeparatorMessage = NCChatMessage()
-            blockSeparatorMessage.messageId = kChatBlockSeparatorIdentifier
+            blockSeparatorMessage.messageId = MessageSeparatorTableViewCell.chatBlockSeparatorId
             historyMessagesForSection?.append(blockSeparatorMessage)
         }
 
@@ -2693,8 +2693,8 @@ import SwiftUI
             guard let message = self.message(for: indexPath) else { continue }
 
             DispatchQueue.global(qos: .userInitiated).async {
-                guard message.messageId != kUnreadMessagesSeparatorIdentifier,
-                      message.messageId != kChatBlockSeparatorIdentifier
+                guard message.messageId != MessageSeparatorTableViewCell.unreadMessagesSeparatorId,
+                      message.messageId != MessageSeparatorTableViewCell.chatBlockSeparatorId
                 else { return }
 
                 if message.containsURL() {
@@ -2715,16 +2715,16 @@ import SwiftUI
 
     // swiftlint:disable:next cyclomatic_complexity
     func getCell(for message: NCChatMessage) -> UITableViewCell {
-        if message.messageId == kUnreadMessagesSeparatorIdentifier,
-           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorCellIdentifier) as? MessageSeparatorTableViewCell {
+        if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId,
+           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
             cell.messageId = message.messageId
             cell.separatorLabel.text = NSLocalizedString("Unread messages", comment: "")
             return cell
         }
 
-        if message.messageId == kChatBlockSeparatorIdentifier,
-           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorCellIdentifier) as? MessageSeparatorTableViewCell {
+        if message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId,
+           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
             cell.messageId = message.messageId
             cell.separatorLabel.text = NSLocalizedString("Some messages not shown, will be downloaded when online", comment: "")
@@ -2847,9 +2847,9 @@ import SwiftUI
     // swiftlint:disable:next cyclomatic_complexity
     func getCellHeight(for message: NCChatMessage, with originalWidth: CGFloat) -> CGFloat {
         // Chat separators
-        if message.messageId == kUnreadMessagesSeparatorIdentifier ||
-            message.messageId == kChatBlockSeparatorIdentifier {
-            return kMessageSeparatorCellHeight
+        if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
+            return MessageSeparatorTableViewCell.cellHeight
         }
 
         // Update messages (the ones that notify about an update in one message, they should not be displayed)
@@ -2981,7 +2981,7 @@ import SwiftUI
 
         guard let message = self.message(for: indexPath) else { return nil }
 
-        if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
+        if message.isSystemMessage || message.isDeletedMessage || message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId {
             return nil
         }
 
@@ -3250,7 +3250,7 @@ import SwiftUI
     }
 
     internal func indexPathForUnreadMessageSeparator() -> IndexPath? {
-        return self.indexPathAndMessageFromEnd(with: { $0.messageId == kUnreadMessagesSeparatorIdentifier })?.indexPath
+        return self.indexPathAndMessageFromEnd(with: { $0.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId })?.indexPath
     }
 
     internal func getLastNonUpdateMessage() -> (indexPath: IndexPath, message: NCChatMessage)? {
