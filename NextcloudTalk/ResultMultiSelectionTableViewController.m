@@ -103,8 +103,12 @@
     
     cell.labelTitle.text = contact.name;
     
-    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:_room.token];
-
+    if ([contact.source isEqualToString:NCAttendeeTypeEmail]) {
+        // Only when adding new (email) participants we show the mail avatar
+        [cell.contactImage setMailAvatar];
+    } else {
+        [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:_room.token];
+    }
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];
     for (NCUser *user in _selectedParticipants) {

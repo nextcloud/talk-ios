@@ -2300,6 +2300,11 @@ typedef enum FileAction {
                 [cell setUserStatusIconWithImage:publicRoomImage];
             }
 
+            // Email guests
+            if (participant.invitedActorId && ![participant.invitedActorId isEqualToString:@""]) {
+                [cell setUserStatusMessage:participant.invitedActorId withIcon:nil];
+            }
+
             // Online status
             if (participant.isOffline) {
                 cell.contactImage.alpha = 0.5;
