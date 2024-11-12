@@ -7,15 +7,16 @@ import UIKit
 import Foundation
 import SwiftyAttributes
 
-@objcMembers class GithubPermalinkViewController: UIViewController, UITextViewDelegate {
+@objcMembers class GithubPermalinkViewController: UIViewController, UIScrollViewDelegate {
 
     @IBOutlet public weak var sourceWithNumbersTextView: UITextView!
+    @IBOutlet public weak var sourceWithNumbersScrollView: UIScrollView!
     @IBOutlet public weak var sourceWithoutNumbersTextView: UITextView!
+    @IBOutlet public weak var sourceWithoutNumbersScrollView: UIScrollView!
     @IBOutlet public weak var ownerLabel: UILabel!
     @IBOutlet public weak var repoLabel: UILabel!
     @IBOutlet public weak var fileLabel: UILabel!
-    @IBOutlet public weak var sourceCodeLeftConstraint: NSLayoutConstraint!
-    @IBOutlet public weak var lineNumbersRightConstraint: NSLayoutConstraint!
+    @IBOutlet public weak var scrollViewLeftConstraint: NSLayoutConstraint!
 
     private var url: String?
     private var sourceWithLineNumbers = NSAttributedString()
@@ -82,8 +83,11 @@ import SwiftyAttributes
         self.sourceWithNumbersTextView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
         self.sourceWithoutNumbersTextView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
 
-        self.sourceWithNumbersTextView.layer.cornerRadius = 8
-        self.sourceWithoutNumbersTextView.layer.cornerRadius = 8
+        self.sourceWithNumbersScrollView.layer.cornerRadius = 8
+        self.sourceWithoutNumbersScrollView.layer.cornerRadius = 8
+
+        self.sourceWithNumbersScrollView.layer.masksToBounds = true
+        self.sourceWithoutNumbersScrollView.layer.masksToBounds = true
 
         self.sourceWithNumbersTextView.textContainer.lineFragmentPadding = 0
         self.sourceWithoutNumbersTextView.textContainer.lineFragmentPadding = 0
@@ -92,11 +96,11 @@ import SwiftyAttributes
         self.sourceWithoutNumbersTextView.attributedText = sourceWithoutLineNumbers
 
         // Set the delgate to synchronize scrolling
-        self.sourceWithoutNumbersTextView.delegate = self
+        self.sourceWithoutNumbersScrollView.delegate = self
 
         // We have to reduce the size of our overlaying view depending on how big the line numbers are
         // Take safe-area padding of 10 into account here
-        self.sourceCodeLeftConstraint.constant = self.lineNumberWidth + 10
+        self.scrollViewLeftConstraint.constant = self.lineNumberWidth + 10
 
         var formattedOwner = NSLocalizedString("Owner", comment: "Owner of a repository").attributedString + ": ".attributedString
         formattedOwner = formattedOwner.withFont(fontSemibold).withTextColor(.secondaryLabel)
@@ -125,6 +129,6 @@ import SwiftyAttributes
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        self.sourceWithNumbersTextView.contentOffset = self.sourceWithoutNumbersTextView.contentOffset
+        self.sourceWithNumbersTextView.contentOffset = CGPoint(x: 0, y: self.sourceWithoutNumbersScrollView.contentOffset.y)
     }
 }
