@@ -649,6 +649,10 @@ import UIKit
         self.messageExpirationTimer?.invalidate()
         self.chatController.stop()
 
+        // Dismiss possible notifications
+        // swiftlint:disable:next notification_center_detachment
+        NotificationCenter.default.removeObserver(self)
+
         // In case we're typing when we leave the chat, make sure we notify everyone
         // The 'stopTyping' method makes sure to only send signaling messages when we were typing before
         self.stopTyping(force: false)
