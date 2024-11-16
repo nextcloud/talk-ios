@@ -413,4 +413,79 @@ import Foundation
             completionBlock(false)
         }
     }
+
+    // MARK: - AI
+
+    @nonobjc
+    public func summarizeChat(forAccountId accountId: String, inRoom roomToken: String, fromMessageId messageId: Int, completionBlock: @escaping (_ taskId: Int?, _ nextOffset: Int?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil, nil)
+            return
+        }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/summarize", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: Int] = [
+            "fromMessageId": messageId
+        ]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            //            if ocsError?.responseStatusCode == 400 {
+            guard let dict = ocsResponse?.dataDict as? [String: Int] else {
+                completionBlock(nil, nil)
+                return
+            }
+
+            completionBlock(dict["taskId"], dict["nextOffset"])
+        }
+    }
+
+    public enum AiTaskStatus: Int {
+        case unknown = 0
+        case scheduled = 1
+        case running = 2
+        case successful = 3
+        case failed = 4
+        case cancelled = 5
+
+        init(stringResponse: String) {
+            switch stringResponse {
+            case "STATUS_SCHEDULED": self = .scheduled
+            case "STATUS_RUNNING": self = .running
+            case "STATUS_SUCCESSFUL": self = .successful
+            case "STATUS_FAILED": self = .failed
+            case "STATUS_CANCELLED": self = .cancelled
+            default: self = .unknown
+            }
+        }
+    }
+
+    @nonobjc
+    public func getAiTaskById(for accountId: String, withTaskId taskId: Int, completionBlock: @escaping (_ status: AiTaskStatus, _ output: String?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(.failed, nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/taskprocessing/task/\(taskId)"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            guard ocsError == nil,
+                  let taskDict = ocsResponse?.dataDict?["task"] as? [String: Any],
+                  let status = taskDict["status"] as? String
+            else {
+                completionBlock(.failed, nil)
+                return
+            }
+
+            let outputDict = taskDict["output"] as? [String: Any]
+            completionBlock(AiTaskStatus(stringResponse: status), outputDict?["output"] as? String)
+        }
+    }
 }

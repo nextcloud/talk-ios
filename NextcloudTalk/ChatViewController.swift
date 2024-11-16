@@ -28,10 +28,14 @@ import UIKit
     private var hasStopped = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
+    private var generateSummaryTimer: Timer?
+    private var generateSummaryTaskId: Int?
+    private var generateSummaryNextOffset: Int?
 
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
+
         return message
     }()
 
@@ -646,8 +650,10 @@ import UIKit
     }
 
     public func leaveChat() {
+        self.hasStopped = true
         self.lobbyCheckTimer?.invalidate()
         self.messageExpirationTimer?.invalidate()
+        self.generateSummaryTimer?.invalidate()
         self.chatController.stop()
 
         // Dismiss possible notifications
@@ -1393,6 +1399,61 @@ import UIKit
         self.addOrRemoveReaction(reaction: reaction, in: message)
     }
 
+    // MARK: - MessageSeparatorTableViewCellDelegate
+
+    override func generateSummaryButtonPressed() {
+        guard self.indexPathForUnreadMessageSeparator() != nil else { return }
+
+        self.generateSummary(fromMessageId: self.room.lastReadMessage)
+
+        NotificationPresenter.shared().present(title: NSLocalizedString("Generating summary of unread messages", comment: ""), subtitle: NSLocalizedString("This might take a moment", comment: ""), includedStyle: .dark)
+        NotificationPresenter.shared().displayActivityIndicator(true)
+    }
+
+    func generateSummary(fromMessageId messageId: Int) {
+        NCAPIController.sharedInstance().summarizeChat(forAccountId: self.room.accountId, inRoom: self.room.token, fromMessageId: messageId) { taskId, nextOffset in
+            guard let taskId else { return }
+
+            self.generateSummaryTaskId = taskId
+            self.generateSummaryNextOffset = nextOffset
+            self.scheduleSummaryTaskCheck()
+
+            print("Scheduled summary task with taskId \(taskId) and nextOffset \(String(describing: nextOffset))")
+        }
+    }
+
+    func scheduleSummaryTaskCheck() {
+        self.generateSummaryTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false, block: { [weak self] _ in
+            guard let self, let taskId = self.generateSummaryTaskId else { return }
+
+            NCAPIController.sharedInstance().getAiTaskById(for: self.room.accountId, withTaskId: taskId) { [weak self] status, output in
+                guard let self else { return }
+
+                if status == .successful {
+                    NotificationPresenter.shared().dismiss()
+
+                    // TODO: Check a potential nextOffset
+
+                    let summaryVC = AiSummaryViewController(summaryText: output ?? "")
+                    let navController = UINavigationController(rootViewController: summaryVC)
+                    self.present(navController, animated: true)
+
+                    return
+                } else if status == .failed {
+                    NotificationPresenter.shared().dismiss()
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Generating summary of unread messages failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+
+                    return
+                } else if status == .cancelled {
+                    NotificationPresenter.shared().dismiss()
+                    return
+                }
+
+                self.scheduleSummaryTaskCheck()
+            }
+        })
+    }
+
     // MARK: - ContextMenu (Long press on message)
 
     func isMessageReplyable(message: NCChatMessage) -> Bool {
@@ -1617,7 +1678,10 @@ import UIKit
               let account = message.account
         else { return nil }
 
-        if message.isSystemMessage || message.isDeletedMessage || message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId {
+        if message.isSystemMessage || message.isDeletedMessage ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
+
             return nil
         }
 
