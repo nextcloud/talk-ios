@@ -18,6 +18,7 @@
         self.size = [[parameterDict objectForKey:@"size"] integerValue];
         self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
         self.previewImageHeight = [[parameterDict objectForKey:@"preview-image-height"] intValue];
+        self.previewImageWidth = [[parameterDict objectForKey:@"preview-image-width"] intValue];
         self.width = [[parameterDict objectForKey:@"width"] intValue];
         self.height = [[parameterDict objectForKey:@"height"] intValue];
         self.blurhash = [parameterDict objectForKey:@"blurhash"];

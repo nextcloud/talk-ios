@@ -2900,9 +2900,9 @@ import SwiftUI
         } else if let file = message.file() {
             if file.previewImageHeight > 0 {
                 height += CGFloat(file.previewImageHeight)
-            } else if case let estimatedHeight = BaseChatTableViewCell.getEstimatedPreviewSize(for: message), estimatedHeight > 0 {
-                height += estimatedHeight
-                message.setPreviewImageHeight(estimatedHeight)
+            } else if case let estimatedSize = BaseChatTableViewCell.getEstimatedPreviewSize(for: message), estimatedSize.height > 0 {
+                height += estimatedSize.height
+                message.setPreviewImageSize(estimatedSize)
             } else {
                 height += fileMessageCellFileMaxPreviewHeight
             }
@@ -3374,14 +3374,14 @@ import SwiftUI
         downloader.downloadFile(fromMessage: fileParameter)
     }
 
-    public func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage) {
-        if message.file().previewImageHeight == Int(height) {
+    public func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage) {
+        if message.file().previewImageHeight == Int(size.height) {
             return
         }
 
         let isAtBottom = self.shouldScrollOnNewMessages()
 
-        message.setPreviewImageHeight(height)
+        message.setPreviewImageSize(size)
 
         CATransaction.begin()
         CATransaction.setCompletionBlock {

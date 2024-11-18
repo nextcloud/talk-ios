@@ -123,29 +123,30 @@ extension BaseChatTableViewCell {
             return
         }
 
-        let isVideoFile = NCUtils.isVideo(fileType: message.file().mimetype)
-        let isMediaFile = isVideoFile || NCUtils.isImage(fileType: message.file().mimetype)
-
         var placeholderImage: UIImage?
         var previewImageHeight: CGFloat?
+        var previewImageWidth: CGFloat?
 
         // In case we can determine the height before requesting the preview, adjust the imageView constraints accordingly
-        if file.previewImageHeight > 0 {
+        if file.previewImageHeight > 0 && file.previewImageWidth > 0 {
             previewImageHeight = CGFloat(file.previewImageHeight)
+            previewImageWidth = CGFloat(file.previewImageWidth)
         } else {
-            let estimatedPreviewHeight = BaseChatTableViewCell.getEstimatedPreviewSize(for: message)
+            let estimatedPreviewSize = BaseChatTableViewCell.getEstimatedPreviewSize(for: message)
 
-            if estimatedPreviewHeight > 0 {
-                previewImageHeight = estimatedPreviewHeight
+            if estimatedPreviewSize.height > 0 && estimatedPreviewSize.width > 0 {
+                previewImageHeight = estimatedPreviewSize.height
+                previewImageWidth = estimatedPreviewSize.width
             }
         }
 
-        if let previewImageHeight {
+        if let previewImageHeight, let previewImageWidth {
             self.filePreviewImageViewHeightConstraint?.constant = previewImageHeight
+            self.filePreviewImageViewWidthConstraint?.constant = previewImageWidth
 
-            if let blurhash = message.file()?.blurhash {
-                // TODO: Need to determine width as well, we currently only store the height in some cases
-                placeholderImage = .init(blurHash: blurhash, size: .init(width: 250, height: previewImageHeight))
+            if !message.isAnimatableGif, let blurhash = message.file()?.blurhash {
+                let aspectRatio = previewImageHeight / previewImageWidth
+                placeholderImage = .init(blurHash: blurhash, size: .init(width: 20, height: 20 * aspectRatio))
             }
         }
 
@@ -155,7 +156,7 @@ extension BaseChatTableViewCell {
         if message.isAnimatableGif {
             self.requestGifPreview(for: message, with: account)
         } else {
-            self.requestDefaultPreview(for: message, with: account)
+            self.requestDefaultPreview(for: message, withPlaceholderImage: placeholderImage, with: account)
         }
     }
 
@@ -177,7 +178,7 @@ extension BaseChatTableViewCell {
                   let gifImage = try? UIImage(gifData: data), let baseImage = UIImage(data: data) else {
 
                 // No gif, try to request a normal preview
-                self.requestDefaultPreview(for: message, with: account)
+                self.requestDefaultPreview(for: message, withPlaceholderImage: nil, with: account)
                 return
             }
 
@@ -186,7 +187,7 @@ extension BaseChatTableViewCell {
         }
     }
 
-    func requestDefaultPreview(for message: NCChatMessage, with account: TalkAccount) {
+    func requestDefaultPreview(for message: NCChatMessage, withPlaceholderImage placeholderImage: UIImage?, with account: TalkAccount) {
         guard let file = message.file() else { return }
 
         let requestedHeight = Int(3 * fileMessageCellFileMaxPreviewHeight)
@@ -233,7 +234,7 @@ extension BaseChatTableViewCell {
             self.filePreviewPlayIconImageView?.center = CGPoint(x: previewSize.width / 2.0, y: previewSize.height / 2.0)
         }
 
-        self.delegate?.cellHasDownloadedImagePreview(withHeight: ceil(previewSize.height), for: message)
+        self.delegate?.cellHasDownloadedImagePreview(withSize: .init(width: ceil(previewSize.width), height: ceil(previewSize.height)), for: message)
     }
 
     func showFallbackIcon(for message: NCChatMessage) {
@@ -299,22 +300,22 @@ extension BaseChatTableViewCell {
         return CGSize(width: width, height: height)
     }
 
-    static func getEstimatedPreviewSize(for message: NCChatMessage?) -> CGFloat {
-        guard let message, let fileParameter = message.file() else { return 0 }
+    static func getEstimatedPreviewSize(for message: NCChatMessage?) -> CGSize {
+        guard let message, let fileParameter = message.file() else { return .zero }
 
         // We don't have any information about the image to display
         if fileParameter.width == 0 && fileParameter.height == 0 {
-            return 0
+            return .zero
         }
 
         // We can only estimate the height for images and videos
         if !NCUtils.isVideo(fileType: fileParameter.mimetype), !NCUtils.isImage(fileType: fileParameter.mimetype) {
-            return 0
+            return .zero
         }
 
         let imageSize = CGSize(width: CGFloat(fileParameter.width), height: CGFloat(fileParameter.height))
         let previewSize = self.getPreviewSize(from: imageSize, true)
 
-        return ceil(previewSize.height)
+        return .init(width: ceil(previewSize.width), height: ceil(previewSize.height))
     }
 }
