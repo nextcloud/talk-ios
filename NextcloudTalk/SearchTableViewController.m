@@ -102,8 +102,12 @@
     
     cell.labelTitle.text = contact.name;
     
-    [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:nil];
-    
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    if (activeAccount) {
+        [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:nil using:activeAccount];
+    }
+
     return cell;
 }
 

@@ -220,8 +220,7 @@ import UIKit
     func showSuggestions(for string: String) {
         self.autocompletionUsers = []
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getMentionSuggestions(for: activeAccount.accountId, in: self.room.token, with: string) { mentions in
+        NCAPIController.sharedInstance().getMentionSuggestions(for: self.room.accountId, in: self.room.token, with: string) { mentions in
             guard let mentions else { return }
 
             self.autocompletionUsers = mentions
@@ -310,7 +309,9 @@ import UIKit
         if suggestion.id == "all" {
             cell.avatarButton.setAvatar(for: self.room)
         } else {
-            cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token)
+            if let account = room.account {
+                cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token, using: account)
+            }
         }
 
         cell.accessibilityIdentifier = AutoCompletionCellIdentifier

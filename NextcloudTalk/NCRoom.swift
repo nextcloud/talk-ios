@@ -268,4 +268,8 @@ import Realm
         return "\(account.server)\(indexString)/call/\(token)"
     }
 
+    public var account: TalkAccount? {
+        return NCDatabaseManager.sharedInstance().talkAccount(forAccountId: self.accountId)
+    }
+
 }

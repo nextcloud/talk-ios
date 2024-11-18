@@ -527,7 +527,8 @@ import UIKit
 
     override func sendChatMessage(message: String, withParentMessage parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) {
         // Create temporary message
-        let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: parentMessage, messageParameters: messageParameters, silently: silently)
+        guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: parentMessage, messageParameters: messageParameters, silently: silently)
+        else { return }
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
             self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
@@ -1016,8 +1017,10 @@ import UIKit
                     }
 
                 } completion: { _ in
+                    guard let account = self.room.account else { return }
+
                     // Remove unread messages separator when user writes a message
-                    if messages.containsUserMessage() {
+                    if messages.containsMessage(forUserId: account.userId) {
                         self.removeUnreadMessagesSeparator()
                     }
 
@@ -1025,7 +1028,7 @@ import UIKit
                     // Otherwise we would scroll whenever a unread message separator is available
                     if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
                         tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
-                    } else if (shouldScrollOnNewMessages || messages.containsUserMessage()), let lastIndexPath = self.getLastRealMessage()?.indexPath {
+                    } else if (shouldScrollOnNewMessages || messages.containsMessage(forUserId: account.userId)), let lastIndexPath = self.getLastRealMessage()?.indexPath {
                         tableView.scrollToRow(at: lastIndexPath, at: .none, animated: true)
                     } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
                         // This check is needed since several calls to receiveMessages API might be needed
@@ -1196,11 +1199,10 @@ import UIKit
 
         guard serverSupportsConversationPermissions else { return }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
         // Retrieve the information about ourselves
-        guard let userDict = notification.userInfo?["users"] as? [[String: String]],
-              let appUserDict = userDict.first(where: { $0["userId"] == activeAccount.userId })
+        guard let account = room.account,
+              let userDict = notification.userInfo?["users"] as? [[String: String]],
+              let appUserDict = userDict.first(where: { $0["userId"] == account.userId })
         else { return }
 
         // Check if we still have the same permissions
@@ -1226,15 +1228,15 @@ import UIKit
         // Don't show a typing indicator for ourselves or if typing indicator setting is disabled
         // Workaround: TypingPrivacy should be checked locally, not from the remote server, use serverCapabilities for now
         // TODO: Remove workaround for federated typing indicators.
-        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
+        guard let account = room.account,
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
         else { return }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let userId = notification.userInfo?["userId"] as? String
         let isFederated = notification.userInfo?["isFederated"] as? Bool ?? false
 
         // Since our own userId can exist on other servers, only suppress the notification if it's not federated
-        if (userId == activeAccount.userId && !isFederated) || serverCapabilities.typingPrivacy {
+        if (userId == account.userId && !isFederated) || serverCapabilities.typingPrivacy {
             return
         }
 
@@ -1362,14 +1364,12 @@ import UIKit
     // MARK: - Editing support
 
     public override func didCommitTextEditing(_ sender: Any) {
-        if let editingMessage {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
+        if let editingMessage, let account = self.room.account {
             let messageParametersJSONString = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
 
-            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: activeAccount) { messageDict, error, _ in
+            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: account) { messageDict, error, _ in
                 if error != nil {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred while editing a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                     return
@@ -1377,7 +1377,7 @@ import UIKit
 
                 guard let messageDict,
                       let parent = messageDict["parent"] as? [AnyHashable: Any],
-                      let updatedMessage = NCChatMessage(dictionary: parent, andAccountId: activeAccount.accountId)
+                      let updatedMessage = NCChatMessage(dictionary: parent, andAccountId: account.accountId)
                 else { return }
 
                 self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage)
@@ -1613,7 +1613,9 @@ import UIKit
             }
         }
 
-        guard let message = self.message(for: indexPath) else { return nil }
+        guard let message = self.message(for: indexPath),
+              let account = message.account
+        else { return nil }
 
         if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
             return nil
@@ -1621,7 +1623,6 @@ import UIKit
 
         var actions: [UIMenuElement] = []
         var informationalActions: [UIMenuElement] = []
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
 
         // Show edit information
@@ -1661,7 +1662,7 @@ import UIKit
         }
 
         // Reply-privately option (only to other users and not in one-to-one)
-        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
+        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != account.userId {
             actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
                 self.didPressReplyPrivately(for: message)
             })
@@ -1736,7 +1737,7 @@ import UIKit
         })
 
         // Translate
-        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: activeAccount.accountId) {
+        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: account.accountId) {
             actions.append(UIAction(title: NSLocalizedString("Translate", comment: ""), image: .init(systemName: "character.book.closed")) { _ in
                 self.didPressTranslate(for: message)
             })
@@ -1761,14 +1762,14 @@ import UIKit
         var destructiveMenuActions: [UIMenuElement] = []
 
         // Edit option
-        if message.isEditable(for: activeAccount, in: self.room) && hasChatPermissions {
+        if message.isEditable(for: account, in: self.room) && hasChatPermissions {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Edit", comment: "Edit a message or room participants"), image: .init(systemName: "pencil")) { _ in
                 self.didPressEdit(for: message)
             })
         }
 
         // Delete option
-        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: activeAccount, in: self.room) && hasChatPermissions) {
+        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: account, in: self.room) && hasChatPermissions) {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
                 self.didPressDelete(for: message)
             })

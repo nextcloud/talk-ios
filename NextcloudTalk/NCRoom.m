@@ -14,14 +14,17 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
 @implementation NCRoom
 
-+ (instancetype)roomWithDictionary:(NSDictionary *)roomDict
++ (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId
 {
+
     if (!roomDict) {
         return nil;
     }
-    
+
     NCRoom *room = [[self alloc] init];
+    room.accountId = accountId;
     room.token = [roomDict objectForKey:@"token"];
+    room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];
     room.type = (NCRoomType)[[roomDict objectForKey:@"type"] integerValue];
     room.roomDescription = [roomDict objectForKey:@"description"];
     room.hasPassword = [[roomDict objectForKey:@"hasPassword"] boolValue];
@@ -126,17 +129,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
         }
     }
 
-    return room;
-}
-
-+ (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId
-{
-    NCRoom *room = [self roomWithDictionary:roomDict];
-    if (room) {
-        room.accountId = accountId;
-        room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];
-    }
-    
     return room;
 }
 

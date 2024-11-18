@@ -94,8 +94,10 @@ import UIKit
 
     // MARK: - PageViewController delegate
 
-    func getAllFileMessages() -> RLMResults<AnyObject> {
-        let query = NSPredicate(format: "accountId = %@ AND token = %@ AND messageParametersJSONString contains[cd] %@", self.initialMessage.accountId, self.initialMessage.token, "\"file\":")
+    func getAllFileMessages() -> RLMResults<AnyObject>? {
+        guard let accountId = self.initialMessage.accountId else { return nil }
+
+        let query = NSPredicate(format: "accountId = %@ AND token = %@ AND messageParametersJSONString contains[cd] %@", accountId, self.initialMessage.token, "\"file\":")
         let messages = NCChatMessage.objects(with: query).sortedResults(usingKeyPath: "messageId", ascending: true)
 
         return messages
@@ -103,7 +105,9 @@ import UIKit
 
     func getPreviousFileMessage(from message: NCChatMessage) -> NCChatMessage? {
         let prevQuery = NSPredicate(format: "messageId < %ld", message.messageId)
-        let messageObject = self.getAllFileMessages().objects(with: prevQuery).lastObject()
+
+        guard let queriedObjects = self.getAllFileMessages()?.objects(with: prevQuery) else { return nil }
+        let messageObject = queriedObjects.lastObject()
 
         if let message = messageObject as? NCChatMessage {
             if NCUtils.isImage(fileType: message.file().mimetype) {
@@ -119,7 +123,8 @@ import UIKit
 
     func getNextFileMessage(from message: NCChatMessage) -> NCChatMessage? {
         let prevQuery = NSPredicate(format: "messageId > %ld", message.messageId)
-        let messageObject = self.getAllFileMessages().objects(with: prevQuery).firstObject()
+
+        guard let messageObject = self.getAllFileMessages()?.objects(with: prevQuery).firstObject() else { return nil }
 
         if let message = messageObject as? NCChatMessage {
             if NCUtils.isImage(fileType: message.file().mimetype) {
