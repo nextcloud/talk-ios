@@ -40,7 +40,7 @@ class FederationInvitationTableViewController: UITableViewController, Federation
         barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
             self.dismiss(animated: true)
         })
-        self.navigationItem.rightBarButtonItems = [barButtonItem]
+        self.navigationItem.leftBarButtonItems = [barButtonItem]
 
         self.tableView.register(UINib(nibName: federationInvitationCellIdentifier, bundle: nil), forCellReuseIdentifier: federationInvitationCellIdentifier)
         self.tableView.backgroundView = backgroundView
@@ -84,12 +84,12 @@ class FederationInvitationTableViewController: UITableViewController, Federation
 
     func showActivityIndicator() {
         self.modifyingViewIndicator.startAnimating()
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: modifyingViewIndicator)
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: modifyingViewIndicator)
     }
 
     func hideActivityIndicator() {
         self.modifyingViewIndicator.stopAnimating()
-        self.navigationItem.leftBarButtonItem = nil
+        self.navigationItem.rightBarButtonItem = nil
     }
 
     // MARK: - Table view data source
