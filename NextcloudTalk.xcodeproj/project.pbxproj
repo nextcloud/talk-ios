@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1158,14 +1158,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		1F2058712CEBE4E200AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		1F2058712CEBE4E200AAA673 /* Exceptions for "NotificationServiceExtension" folder in "NotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				NotificationService.m,
 			);
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 		};
-		1F20589A2CEBE4E700AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		1F20589A2CEBE4E700AAA673 /* Exceptions for "ShareExtension" folder in "NextcloudTalk" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -1173,21 +1173,21 @@
 			);
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
 		};
-		1F20589B2CEBE4E700AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		1F20589B2CEBE4E700AAA673 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = 2C62AFA224C08845007E460A /* ShareExtension */;
 		};
-		1F2058AB2CEBE4EA00AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		1F2058AB2CEBE4EA00AAA673 /* Exceptions for "BroadcastUploadExtension" folder in "NextcloudTalk" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DarwinNotificationCenter.swift,
 			);
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
 		};
-		1F2058AC2CEBE4EA00AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		1F2058AC2CEBE4EA00AAA673 /* Exceptions for "BroadcastUploadExtension" folder in "BroadcastUploadExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -1197,9 +1197,32 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		1F20586F2CEBE4E200AAA673 /* NotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (1F2058712CEBE4E200AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = NotificationServiceExtension; sourceTree = "<group>"; };
-		1F2058832CEBE4E700AAA673 /* ShareExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (1F20589A2CEBE4E700AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 1F20589B2CEBE4E700AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ShareExtension; sourceTree = "<group>"; };
-		1F2058A32CEBE4EA00AAA673 /* BroadcastUploadExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (1F2058AB2CEBE4EA00AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 1F2058AC2CEBE4EA00AAA673 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BroadcastUploadExtension; sourceTree = "<group>"; };
+		1F20586F2CEBE4E200AAA673 /* NotificationServiceExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1F2058712CEBE4E200AAA673 /* Exceptions for "NotificationServiceExtension" folder in "NotificationServiceExtension" target */,
+			);
+			path = NotificationServiceExtension;
+			sourceTree = "<group>";
+		};
+		1F2058832CEBE4E700AAA673 /* ShareExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1F20589A2CEBE4E700AAA673 /* Exceptions for "ShareExtension" folder in "NextcloudTalk" target */,
+				1F20589B2CEBE4E700AAA673 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		1F2058A32CEBE4EA00AAA673 /* BroadcastUploadExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1F2058AB2CEBE4EA00AAA673 /* Exceptions for "BroadcastUploadExtension" folder in "NextcloudTalk" target */,
+				1F2058AC2CEBE4EA00AAA673 /* Exceptions for "BroadcastUploadExtension" folder in "BroadcastUploadExtension" target */,
+			);
+			path = BroadcastUploadExtension;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2358,7 +2381,6 @@
 				};
 			};
 			buildConfigurationList = 2C0574781EDD9E8E00D9E7F2 /* Build configuration list for PBXProject "NextcloudTalk" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -2409,6 +2431,7 @@
 				1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */,
 				1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */,
 			);
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
