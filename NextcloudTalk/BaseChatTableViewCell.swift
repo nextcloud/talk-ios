@@ -13,7 +13,7 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage)
 
     func cellWants(toDownloadFile fileParameter: NCMessageFileParameter, for message: NCChatMessage)
-    func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage)
+    func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage)
 
     func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject)
 

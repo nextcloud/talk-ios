@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL previewAvailable;
 @property (nonatomic, strong, nullable) NCChatFileStatus *fileStatus;
 @property (nonatomic, assign) int previewImageHeight;
+@property (nonatomic, assign) int previewImageWidth;
 @property (nonatomic, assign) int width;
 @property (nonatomic, assign) int height;
 @property (nonatomic, strong, nullable) NSString *blurhash;
