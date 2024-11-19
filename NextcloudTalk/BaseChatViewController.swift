@@ -311,6 +311,8 @@ import SwiftUI
         self.addMenuToLeftButton()
 
         self.replyMessageView?.addObserver(self, forKeyPath: "visible", options: .new, context: nil)
+
+        self.textView.pastableMediaTypes = .images
     }
 
     // swiftlint:disable:next block_based_kvo
@@ -1314,7 +1316,7 @@ import SwiftUI
 
     // MARK: - ShareConfirmationViewController delegate & helper
 
-    public func shareConfirmationViewControllerDidFailed(_ viewController: ShareConfirmationViewController) {
+    public func shareConfirmationViewControllerDidFail(_ viewController: ShareConfirmationViewController) {
         self.dismiss(animated: true) {
             if viewController.forwardingMessage {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Failed to forward message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
@@ -1333,6 +1335,11 @@ import SwiftUI
         }
     }
 
+    public func shareConfirmationViewControllerDidCancel(_ viewController: ShareConfirmationViewController) {
+        self.setChatMessage(viewController.textView.text)
+        self.dismiss(animated: true)
+    }
+
     internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController)? {
         guard let account = room.account else { return nil }
 
@@ -1349,6 +1356,22 @@ import SwiftUI
 
     public func shareViewControllerDidCancel(_ viewController: ShareViewController) {
         self.dismiss(animated: true)
+    }
+
+    // MARK: - TextView paste support
+
+    public override func didPasteMediaContent(_ userInfo: [AnyHashable: Any]) {
+        guard let data = userInfo[SLKTextViewPastedItemData] as? Data,
+              let image = UIImage(data: data),
+              let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        else { return }
+
+        shareConfirmationVC.setChatMessage(self.textView.text)
+        self.setChatMessage("")
+
+        self.present(navigationController, animated: true) {
+            shareConfirmationVC.shareItemController.addItem(with: image)
+        }
     }
 
     // MARK: - PHPhotoPicker Delegate

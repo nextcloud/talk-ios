@@ -505,7 +505,7 @@
 
 #pragma mark - ShareConfirmationViewController Delegate
 
-- (void)shareConfirmationViewControllerDidFailed:(ShareConfirmationViewController *)viewController
+- (void)shareConfirmationViewControllerDidFail:(ShareConfirmationViewController *)viewController
 {
     [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
@@ -515,6 +515,10 @@
     [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
 }
 
+- (void)shareConfirmationViewControllerDidCancel:(ShareConfirmationViewController *)viewController
+{
+    [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];
+}
 
 #pragma mark - Table view data source
 
