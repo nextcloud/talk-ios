@@ -148,7 +148,7 @@ final class IntegrationRoomTest: TestBase {
             NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
                 XCTAssertNil(error)
 
-                let room = NCRoom(dictionary: roomDict)
+                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
                 XCTAssertNotNil(room)
                 XCTAssert(room?.type == .public)
 
@@ -166,7 +166,7 @@ final class IntegrationRoomTest: TestBase {
             NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
                 XCTAssertNil(error)
 
-                let room = NCRoom(dictionary: roomDict)
+                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
                 XCTAssertNotNil(room)
                 XCTAssert(room?.type == .group)
 

@@ -37,7 +37,7 @@ extension XCTestCase {
         NCAPIController.sharedInstance().getRooms(forAccount: account, updateStatus: false, modifiedSince: 0) { roomsDict, error in
             XCTAssertNil(error)
 
-            let rooms = self.getRoomDict(from: roomsDict!)
+            let rooms = self.getRoomDict(from: roomsDict!, for: account)
             let room = rooms.first(where: { $0.displayName == roomName })
             XCTAssertNil(room)
 
