@@ -51,9 +51,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pods-
 
+    - name: Setup Cocoapods
+      uses: maxim-lobanov/setup-cocoapods@v1.4.0
+      with:
+        version: latest      
+
     - name: Set up dependencies talk-ios
       run: |
-        pod install    
+        pod install
 
     - name: Build NextcloudTalk iOS for testing
       run: |
