@@ -1,5 +1,5 @@
 ---
-name: Feature request
+name: 🚀 Feature request specifically for Nextcloud Talk iOS
 about: Suggest an idea for Nextcloud Talk iOS
 title: ''
 labels: 0. Needs triage, enhancement
