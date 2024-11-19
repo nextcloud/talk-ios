@@ -298,7 +298,7 @@ enum RoomVisibilityOption: Int {
         // Room password
         if !self.roomPassword.isEmpty {
             self.roomCreationGroup.enter()
-            NCAPIController.sharedInstance().setPassword(self.roomPassword, toRoom: token, for: self.account) { error, _ in
+            NCAPIController.sharedInstance().setPassword(self.roomPassword, forRoom: token, forAccount: self.account) { error, _ in
                 if let error {
                     NCUtils.log(String(format: "Failed to set room password. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)

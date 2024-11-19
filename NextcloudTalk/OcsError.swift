@@ -5,13 +5,17 @@
 
 import Foundation
 
-@objcMembers public class OcsResponse: NSObject {
+@objcMembers public class OcsError: NSObject {
 
-    let data: Any?
+    let error: NSError
     let task: URLSessionDataTask?
 
     lazy var responseDict: [String: AnyObject]? = {
-        return data as? [String: AnyObject]
+        guard let errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey] as? Data,
+              let errorDict = try? JSONSerialization.jsonObject(with: errorData) as? [AnyHashable: Any]
+        else { return nil }
+
+        return errorDict as? [String: AnyObject]
     }()
 
     lazy var responseStatusCode: Int = {
@@ -30,12 +34,12 @@ import Foundation
         return ocsDict?["data"] as? [String: AnyObject]
     }()
 
-    lazy var dataArrayDict: [[String: AnyObject]]? = {
-        return ocsDict?["data"] as? [[String: AnyObject]]
+    lazy var errorMessage: String? = {
+        return dataDict?["message"] as? String
     }()
 
-    init(withData data: Any?, withTask task: URLSessionDataTask?) {
-        self.data = data
+    init(withError error: NSError, withTask task: URLSessionDataTask?) {
+        self.error = error
         self.task = task
     }
 }

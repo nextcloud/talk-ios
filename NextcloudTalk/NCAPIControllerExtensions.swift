@@ -13,8 +13,7 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        var urlString = self.getRequestURL(forEndpoint: "room", withAPIVersion: apiVersion, for: account)
+        var urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
 
         let parameters: [String: Any] = [
@@ -28,10 +27,10 @@ import Foundation
             urlString = urlString.appending("?includeStatus=true")
         }
 
-        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             // TODO: Move away from generic dictionary return type
             // let rooms = ocs?.dataArrayDict.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
-            completionBlock(ocs?.dataArrayDict, error)
+            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
         }
     }
 
@@ -40,11 +39,10 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
 
-        apiSessionManager.getOcs(urlString, account: account) { ocs, error in
-            completionBlock(ocs?.dataDict, error)
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError?.error)
         }
     }
 
@@ -52,11 +50,10 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/note-to-self", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/note-to-self", for: account)
 
-        apiSessionManager.getOcs(urlString, account: account) { ocs, error in
-            completionBlock(ocs?.dataDict, error)
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError?.error)
         }
     }
 
@@ -64,17 +61,16 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "listed-room", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "listed-room", for: account)
         var parameters: [String: Any] = [:]
 
         if let searchTerm, !searchTerm.isEmpty {
             parameters["searchTerm"] = searchTerm
         }
 
-        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
-            let rooms = ocs?.dataArrayDict?.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
-            completionBlock(rooms, error)
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            let rooms = ocsResponse?.dataArrayDict?.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
+            completionBlock(rooms, ocsError?.error)
         }
     }
 
@@ -82,8 +78,7 @@ import Foundation
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
         var parameters: [String: Any] = ["roomType": roomType.rawValue]
 
         if let invite, !invite.isEmpty {
@@ -94,9 +89,9 @@ import Foundation
             parameters["roomName"] = roomName
         }
 
-        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocs, error in
-            let room = NCRoom(dictionary: ocs?.dataDict, andAccountId: account.accountId)
-            completionBlock(room, error)
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
+            completionBlock(room, ocsError?.error)
         }
     }
 
@@ -105,12 +100,11 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
         let parameters: [String: String] = ["roomName": roomName]
 
-        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
-            completionBlock(error)
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -119,12 +113,11 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/description", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/description", for: account)
         let parameters: [String: String] = ["description": description ?? ""]
 
-        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
-            completionBlock(error)
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -133,12 +126,90 @@ import Foundation
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/mention-permissions", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/mention-permissions", for: account)
         let parameters: [String: Int] = ["mentionPermissions": permissions.rawValue]
 
-        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, error in
-            completionBlock(error)
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func makeRoomPublic(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", for: account)
+
+        apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func makeRoomPrivate(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func deleteRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func setPassword(_ password: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?, _ errorDescription: String?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/password", for: account)
+        let parameters: [String: String] = ["password": password]
+
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            // When password does not match the password-policy, we receive a 400
+            if ocsError?.responseStatusCode == 400 {
+                // message is already translated server-side
+                completionBlock(ocsError?.error, ocsError?.errorMessage)
+            } else {
+                completionBlock(ocsError?.error, nil)
+            }
+        }
+    }
+
+    public func addRoomToFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", for: account)
+
+        apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func removeRoomFromFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
         }
     }
 
@@ -206,8 +277,7 @@ import Foundation
             return
         }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/capabilities", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/capabilities", for: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             if let data = ocs?.dataDict,
@@ -248,8 +318,8 @@ import Foundation
             ]
         }
 
-        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, error in
-            completionBlock(SignalingSettings(dictionary: ocs?.dataDict), error)
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            completionBlock(SignalingSettings(dictionary: ocsResponse?.dataDict), ocsError?.error)
         }
     }
 
