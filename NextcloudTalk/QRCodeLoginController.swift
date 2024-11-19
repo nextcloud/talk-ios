@@ -72,7 +72,7 @@ import QRCodeReader
                     }
                 }))
 
-                alert.addAction(UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil))
+                alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
             default:
                 alert = UIAlertController(
                     title: NSLocalizedString("Not supported", comment: ""),

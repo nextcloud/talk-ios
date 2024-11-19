@@ -389,7 +389,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         }
         failedPhoneNumberDialog.addAction(retryAction)
 
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .default, handler: nil)
+        let cancelAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)
         failedPhoneNumberDialog.addAction(cancelAction)
 
         self.present(failedPhoneNumberDialog, animated: true, completion: nil)
