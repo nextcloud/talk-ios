@@ -2415,7 +2415,7 @@
 			packageReferences = (
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
-				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
+				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */,
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
 				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
@@ -2653,15 +2653,12 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources.sh",
-				"${PODS_ROOT}/DateTools/DateTools/DateTools/DateTools.bundle",
-				"${PODS_ROOT}/MaterialComponents/components/ActivityIndicator/src/MaterialActivityIndicator.bundle",
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DateTools.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MaterialActivityIndicator.bundle",
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2673,13 +2670,12 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/MobileVLCKit/MobileVLCKit.framework/MobileVLCKit",
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileVLCKit.framework",
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4214,7 +4210,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
+		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
 			requirement = {
@@ -4378,7 +4374,7 @@
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */;
 			productName = QRCodeReader;
 		};
 		1F66B72E29FABD01003FB168 /* SwiftyAttributes */ = {
@@ -4408,7 +4404,7 @@
 		};
 		1F759C132B63B9D9000534AB /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */;
 			productName = QRCodeReader;
 		};
 		1F759C152B63B9D9000534AB /* NextcloudKit */ = {
