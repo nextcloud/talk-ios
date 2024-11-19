@@ -71,7 +71,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     return sortedBlocks;
 }
 
-- (NSArray *)getBatchOfMessagesInBlock:(NCChatBlock *)chatBlock fromMessageId:(NSInteger)messageId included:(BOOL)included
+- (NSArray *)getBatchOfMessagesInBlock:(NCChatBlock *)chatBlock fromMessageId:(NSInteger)messageId included:(BOOL)included enforceLimit:(BOOL)enforceLimit
 {
     NSInteger fromMessageId = messageId > 0 ? messageId : chatBlock.newestMessageId;
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId >= %ld AND messageId < %ld", _account.accountId, _room.token, (long)chatBlock.oldestMessageId, (long)fromMessageId];
@@ -82,7 +82,12 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     RLMResults *managedSortedMessages = [managedMessages sortedResultsUsingKeyPath:@"messageId" ascending:YES];
     // Create an unmanaged copy of the messages
     NSMutableArray *sortedMessages = [NSMutableArray new];
-    NSInteger startingIndex = managedSortedMessages.count - kReceivedChatMessagesLimit;
+    NSInteger startingIndex = 0;
+
+    if (enforceLimit) {
+        startingIndex = managedSortedMessages.count - kReceivedChatMessagesLimit;
+    }
+
     startingIndex = (startingIndex < 0) ? 0 : startingIndex;
     for (NSInteger i = startingIndex; i < managedSortedMessages.count; i++) {
         NCChatMessage *sortedMessage = [[NCChatMessage alloc] initWithValue:managedSortedMessages[i]];
@@ -470,8 +475,8 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     }
     
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-    if (lastChatBlock.newestMessageId > 0 && lastChatBlock.newestMessageId >= lastReadMessageId) {
-        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES];
+    if (lastChatBlock.newestMessageId > 0 && lastReadMessageId >= lastChatBlock.oldestMessageId && lastChatBlock.newestMessageId >= lastReadMessageId) {
+        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES enforceLimit:NO];
         [userInfo setObject:storedMessages forKey:@"messages"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
@@ -504,7 +509,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 if (messages.count > 0) {
                     [self storeMessages:messages];
                     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessageId included:YES];
+                    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessageId included:YES enforceLimit:NO];
                     [userInfo setObject:storedMessages forKey:@"messages"];
                 }
             }
@@ -523,7 +528,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     [userInfo setObject:_room.token forKey:@"room"];
     
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES];
+    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES enforceLimit:NO];
     [userInfo setObject:storedMessages forKey:@"messages"];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryOfflineNotification
                                                         object:self
@@ -537,7 +542,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
     if (lastChatBlock && lastChatBlock.oldestMessageId < messageId) {
-        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO];
+        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO enforceLimit:YES];
         [userInfo setObject:storedMessages forKey:@"messages"];
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                             object:self
@@ -563,7 +568,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 if (messages.count > 0) {
                     [self storeMessages:messages];
                     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                    NSArray *historyBatch = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO];
+                    NSArray *historyBatch = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO enforceLimit:YES];
                     [userInfo setObject:historyBatch forKey:@"messages"];
                 }
             }
@@ -586,7 +591,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             NCChatBlock *currentBlock = chatBlocks[i];
             BOOL noMoreMessagesToRetrieveInBlock = NO;
             if (currentBlock.oldestMessageId < messageId) {
-                NSArray *storedMessages = [self getBatchOfMessagesInBlock:currentBlock fromMessageId:messageId included:NO];
+                NSArray *storedMessages = [self getBatchOfMessagesInBlock:currentBlock fromMessageId:messageId included:NO enforceLimit:YES];
                 historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
                 if (storedMessages.count > 0) {
                     break;
@@ -598,7 +603,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             }
             if (i > 0 && (currentBlock.oldestMessageId == messageId || noMoreMessagesToRetrieveInBlock)) {
                 NCChatBlock *previousBlock = chatBlocks[i - 1];
-                NSArray *storedMessages = [self getBatchOfMessagesInBlock:previousBlock fromMessageId:previousBlock.newestMessageId included:YES];
+                NSArray *storedMessages = [self getBatchOfMessagesInBlock:previousBlock fromMessageId:previousBlock.newestMessageId included:YES enforceLimit:YES];
                 historyBatch = [[NSMutableArray alloc] initWithArray:storedMessages];
                 [userInfo setObject:@(YES) forKey:@"shouldAddBlockSeparator"];
                 break;
