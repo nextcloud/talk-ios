@@ -2703,6 +2703,7 @@ import SwiftUI
 
             DispatchQueue.global(qos: .userInitiated).async {
                 guard message.messageId != MessageSeparatorTableViewCell.unreadMessagesSeparatorId,
+                      message.messageId != MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId,
                       message.messageId != MessageSeparatorTableViewCell.chatBlockSeparatorId
                 else { return }
 
@@ -2724,17 +2725,14 @@ import SwiftUI
 
     // swiftlint:disable:next cyclomatic_complexity
     func getCell(for message: NCChatMessage) -> UITableViewCell {
-        if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId,
+        if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId || message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId,
            let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
             cell.messageId = message.messageId
             cell.separatorLabel.text = MessageSeparatorTableViewCell.unreadMessagesSeparatorText
             cell.delegate = self
 
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatSummary, forAccountId: room.accountId),
-               let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
-               serverCapabilities.summaryThreshold <= self.room.unreadMessages {
-
+            if message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId {
                 cell.setSummaryButtonVisibilty(isHidden: false)
             } else {
                 cell.setSummaryButtonVisibilty(isHidden: true)
@@ -2868,6 +2866,7 @@ import SwiftUI
     func getCellHeight(for message: NCChatMessage, with originalWidth: CGFloat) -> CGFloat {
         // Chat separators
         if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
             message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
 
             let cell = self.getCell(for: message)
@@ -3006,6 +3005,7 @@ import SwiftUI
 
         if message.isSystemMessage || message.isDeletedMessage ||
             message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
             message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
 
             return nil
@@ -3276,7 +3276,9 @@ import SwiftUI
     }
 
     internal func indexPathForUnreadMessageSeparator() -> IndexPath? {
-        return self.indexPathAndMessageFromEnd(with: { $0.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId })?.indexPath
+        return self.indexPathAndMessageFromEnd(with: {
+            $0.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId || $0.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId
+        })?.indexPath
     }
 
     internal func getLastNonUpdateMessage() -> (indexPath: IndexPath, message: NCChatMessage)? {

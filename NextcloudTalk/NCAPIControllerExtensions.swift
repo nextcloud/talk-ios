@@ -416,13 +416,20 @@ import Foundation
 
     // MARK: - AI
 
+    public enum SummarizeChatStatus: Int {
+        case success = 0
+        case noMessagesFound
+        case noAiProvider
+        case failed
+    }
+
     @nonobjc
-    public func summarizeChat(forAccountId accountId: String, inRoom roomToken: String, fromMessageId messageId: Int, completionBlock: @escaping (_ taskId: Int?, _ nextOffset: Int?) -> Void) {
+    public func summarizeChat(forAccountId accountId: String, inRoom roomToken: String, fromMessageId messageId: Int, completionBlock: @escaping (_ status: SummarizeChatStatus, _ taskId: Int?, _ nextOffset: Int?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
-            completionBlock(nil, nil)
+            completionBlock(.failed, nil, nil)
             return
         }
 
@@ -434,13 +441,21 @@ import Foundation
         ]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            //            if ocsError?.responseStatusCode == 400 {
-            guard let dict = ocsResponse?.dataDict as? [String: Int] else {
-                completionBlock(nil, nil)
+            if ocsResponse?.responseStatusCode == 204 {
+                completionBlock(.noMessagesFound, nil, nil)
                 return
             }
 
-            completionBlock(dict["taskId"], dict["nextOffset"])
+            if ocsError?.responseStatusCode == 500, let error = ocsError?.dataDict?["error"] as? String, error == "ai-no-provider" {
+                completionBlock(.noAiProvider, nil, nil)
+            }
+
+            guard let dict = ocsResponse?.dataDict as? [String: Int] else {
+                completionBlock(.failed, nil, nil)
+                return
+            }
+
+            completionBlock(.success, dict["taskId"], dict["nextOffset"])
         }
     }
 

@@ -14,9 +14,10 @@ class MessageSeparatorTableViewCell: ChatTableViewCell {
     public static let identifier = "MessageSeparatorCellIdentifier"
 
     public static let unreadMessagesSeparatorId = -99
+    public static let unreadMessagesWithSummarySeparatorId = -98
     public static let unreadMessagesSeparatorText = NSLocalizedString("Unread messages", comment: "")
 
-    public static let chatBlockSeparatorId = -98
+    public static let chatBlockSeparatorId = -97
     public static let chatBlockSeparatorText = NSLocalizedString("Some messages not shown, will be downloaded when online", comment: "")
 
     public lazy var separatorLabel = {

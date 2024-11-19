@@ -28,13 +28,23 @@ import UIKit
     private var hasStopped = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
+    private var generateSummaryFromMessageId: Int?
     private var generateSummaryTimer: Timer?
     private var generateSummaryTaskId: Int?
     private var generateSummaryNextOffset: Int?
 
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
+
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
+
+        // We decide at this point if the unread marker should be with/without summary button, so it doesn't get changed when the room is updated
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatSummary, forAccountId: self.room.accountId),
+           let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
+           0 <= self.room.unreadMessages {
+
+            message.messageId = MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId
+        }
 
         return message
     }()
@@ -830,6 +840,8 @@ import UIKit
                                 continue
                             }
 
+                            // Store the messageId separately from self.lastReadMessage as that might change during a room update
+                            self.generateSummaryFromMessageId = message.messageId
                             messages.insert(self.unreadMessagesSeparator, at: messageIndex + 1)
                             self.messages[dateSection] = messages
                             indexPathUnreadMessageSeparator = IndexPath(row: messageIndex + 1, section: sectionIndex)
@@ -966,9 +978,11 @@ import UIKit
                 var addedUnreadMessageSeparator = false
 
                 // Check if unread messages separator should be added (only if it's not already shown)
-                if firstNewMessagesAfterHistory, self.getLastRealMessage() != nil, self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
+                if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
                    let lastDateSection = self.dateSections.last, var messagesBeforeUpdate = self.messages[lastDateSection] {
 
+                    // Store the messageId separately from self.lastReadMessage as that might change during a room update
+                    self.generateSummaryFromMessageId = lastRealMessage.message.messageId
                     messagesBeforeUpdate.append(self.unreadMessagesSeparator)
                     self.messages[lastDateSection] = messagesBeforeUpdate
                     insertIndexPaths.insert(IndexPath(row: messagesBeforeUpdate.count - 1, section: self.dateSections.count - 1))
@@ -1411,8 +1425,21 @@ import UIKit
     }
 
     func generateSummary(fromMessageId messageId: Int) {
-        NCAPIController.sharedInstance().summarizeChat(forAccountId: self.room.accountId, inRoom: self.room.token, fromMessageId: messageId) { taskId, nextOffset in
-            guard let taskId else { return }
+        NCAPIController.sharedInstance().summarizeChat(forAccountId: self.room.accountId, inRoom: self.room.token, fromMessageId: messageId) { status, taskId, nextOffset in
+            if status == .noAiProvider {
+                NotificationPresenter.shared().present(text: NSLocalizedString("No AI provider available or summarizing failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                return
+            }
+
+            if status == .noMessagesFound {
+                NotificationPresenter.shared().present(text: NSLocalizedString("No messages found to summarize", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                return
+            }
+
+            guard let taskId, status != .failed else {
+                NotificationPresenter.shared().present(text: NSLocalizedString("Generating summary of unread messages failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                return
+            }
 
             self.generateSummaryTaskId = taskId
             self.generateSummaryNextOffset = nextOffset
@@ -1680,6 +1707,7 @@ import UIKit
 
         if message.isSystemMessage || message.isDeletedMessage ||
             message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
             message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
 
             return nil
