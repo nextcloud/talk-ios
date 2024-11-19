@@ -128,8 +128,8 @@ final class UIRoomTest: XCTestCase {
         textView.typeText("M")
         textView.typeText("e")
 
-        let predicate = NSPredicate(format: "label CONTAINS[c] %@", newConversationName)
-        let autoCompleteCell = app.tables.cells["AutoCompletionCellIdentifier"].staticTexts.containing(predicate).firstMatch
+        let predicateLabel = NSPredicate(format: "label CONTAINS[c] %@", newConversationName)
+        let autoCompleteCell = app.tables.cells["AutoCompletionCellIdentifier"].staticTexts.containing(predicateLabel).firstMatch
         XCTAssert(autoCompleteCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
         autoCompleteCell.tap()
@@ -142,6 +142,28 @@ final class UIRoomTest: XCTestCase {
 
         // Check if the input field is now empty
         XCTAssertEqual(textView.value as? String ?? "", "")
+
+        // Try to send a mention and check if it's rendered
+        textView.tap()
+        textView.typeText("@")
+        textView.typeText("M")
+        textView.typeText("e")
+
+        XCTAssert(autoCompleteCell.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        autoCompleteCell.tap()
+
+        // Check if the mention was correctly inserted in the textView
+        XCTAssertEqual(textView.value as? String ?? "", "@\(newConversationName) ")
+
+        let sendMessageButton = toolbar.buttons["Send message"]
+        sendMessageButton.tap()
+
+        // Wait for temporary message to be replaced
+        XCTAssert(app.images["MessageSent"].waitForExistence(timeout: TestConstants.timeoutShort))
+
+        let tables = app.tables
+        XCTAssert(tables.textViews["@" + newConversationName].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
     func testLobbyView() {
