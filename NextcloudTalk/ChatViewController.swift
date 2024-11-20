@@ -30,8 +30,8 @@ import UIKit
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
     private var generateSummaryFromMessageId: Int?
     private var generateSummaryTimer: Timer?
-    private var generateSummaryTaskId: Int?
-    private var generateSummaryNextOffset: Int?
+    private var generateSummaryTaskIds = [Int]()
+    private var generateSummaryOutputs = [String]()
 
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
@@ -41,7 +41,7 @@ import UIKit
         // We decide at this point if the unread marker should be with/without summary button, so it doesn't get changed when the room is updated
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatSummary, forAccountId: self.room.accountId),
            let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
-           0 <= self.room.unreadMessages {
+           serverCapabilities.summaryThreshold <= self.room.unreadMessages {
 
             message.messageId = MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId
         }
@@ -1416,9 +1416,9 @@ import UIKit
     // MARK: - MessageSeparatorTableViewCellDelegate
 
     override func generateSummaryButtonPressed() {
-        guard self.indexPathForUnreadMessageSeparator() != nil else { return }
+        guard self.indexPathForUnreadMessageSeparator() != nil, let generateSummaryFromMessageId else { return }
 
-        self.generateSummary(fromMessageId: self.room.lastReadMessage)
+        self.generateSummary(fromMessageId: generateSummaryFromMessageId)
 
         NotificationPresenter.shared().present(title: NSLocalizedString("Generating summary of unread messages", comment: ""), subtitle: NSLocalizedString("This might take a moment", comment: ""), includedStyle: .dark)
         NotificationPresenter.shared().displayActivityIndicator(true)
@@ -1441,31 +1441,44 @@ import UIKit
                 return
             }
 
-            self.generateSummaryTaskId = taskId
-            self.generateSummaryNextOffset = nextOffset
-            self.scheduleSummaryTaskCheck()
-
+            self.generateSummaryTaskIds.append(taskId)
             print("Scheduled summary task with taskId \(taskId) and nextOffset \(String(describing: nextOffset))")
+
+            // Add a safe-guard to make sure there's really a nextOffset. Otherwise we might end up requesting the same task over and over again
+            if let nextOffset, nextOffset > messageId {
+                // We were not able to get a summary of all messages at once, so we need to create another summary task
+                self.generateSummary(fromMessageId: nextOffset)
+            } else {
+                // There's no offset anymore (or there never was one) so we start checking the task states
+                self.scheduleSummaryTaskCheck()
+            }
         }
     }
 
     func scheduleSummaryTaskCheck() {
         self.generateSummaryTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false, block: { [weak self] _ in
-            guard let self, let taskId = self.generateSummaryTaskId else { return }
+            guard let self, let firstTaskId = self.generateSummaryTaskIds.first else { return }
 
-            NCAPIController.sharedInstance().getAiTaskById(for: self.room.accountId, withTaskId: taskId) { [weak self] status, output in
+            NCAPIController.sharedInstance().getAiTaskById(for: self.room.accountId, withTaskId: firstTaskId) { [weak self] status, output in
                 guard let self else { return }
 
                 if status == .successful {
-                    NotificationPresenter.shared().dismiss()
 
-                    // TODO: Check a potential nextOffset
 
-                    let summaryVC = AiSummaryViewController(summaryText: output ?? "")
-                    let navController = UINavigationController(rootViewController: summaryVC)
-                    self.present(navController, animated: true)
+                    self.generateSummaryOutputs.append(output ?? NSLocalizedString("Empty summary response", comment: ""))
+                    self.generateSummaryTaskIds.removeAll(where: { $0 == firstTaskId })
 
-                    return
+                    if self.generateSummaryTaskIds.isEmpty {
+                        // No more taskIds to check -> show the summary
+                        NotificationPresenter.shared().dismiss()
+
+                        let summaryVC = AiSummaryViewController(summaryText: self.generateSummaryOutputs.joined(separator: "\n\n---\n\n"))
+                        let navController = UINavigationController(rootViewController: summaryVC)
+                        self.present(navController, animated: true)
+
+                        return
+                    }
+
                 } else if status == .failed {
                     NotificationPresenter.shared().dismiss()
                     NotificationPresenter.shared().present(text: NSLocalizedString("Generating summary of unread messages failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
