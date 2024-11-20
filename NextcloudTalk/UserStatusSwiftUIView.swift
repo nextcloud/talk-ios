@@ -54,7 +54,7 @@ struct UserStatusSwiftUIView: View {
                     Button(action: {
                                 dismiss()
                             }) {
-                                Text("Cancel")
+                                Text("Close")
                                     .foregroundColor(Color(NCAppBranding.themeTextColor()))
                             }
                 }

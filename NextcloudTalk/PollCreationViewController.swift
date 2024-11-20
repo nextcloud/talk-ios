@@ -87,7 +87,7 @@ import UIKit
         let alert = UIAlertController(title: NSLocalizedString("Creating poll failed", comment: ""),
                                       message: NSLocalizedString("An error occurred while creating the poll", comment: ""),
                                       preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
         self.present(alert, animated: true)
         footerView.primaryButton.setButtonEnabled(enabled: true)
     }
