@@ -92,7 +92,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (NSArray<NCChatReaction *> * _Nonnull)reactionsArray;
 - (BOOL)containsURL;
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock _Nullable)block;
-- (void)setPreviewImageHeight:(CGFloat)height;
+- (void)setPreviewImageSize:(CGSize)size;
 
 // Public for swift extension
 - (NSMutableArray * _Nonnull)temporaryReactions;
