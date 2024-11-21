@@ -803,10 +803,10 @@
 "edited" = "edited";
 
 /* A message was edited by ... */
-"Edited by" = "Edited by";
+"edited by" = "edited by";
 
 /* A message was edited by ... */
-"edited by" = "edited by";
+"Edited by" = "Edited by";
 
 /* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
@@ -909,6 +909,12 @@
 
 /* No comment provided by engineer. */
 "Generate summary" = "Generate summary";
+
+/* No comment provided by engineer. */
+"Generating summary of unread messages" = "Generating summary of unread messages";
+
+/* No comment provided by engineer. */
+"Generating summary of unread messages failed" = "Generating summary of unread messages failed";
 
 /* No comment provided by engineer. */
 "Get source code" = "Get source code";
@@ -1199,6 +1205,9 @@
 "No actions available" = "No actions available";
 
 /* No comment provided by engineer. */
+"No AI provider available or summarizing failed" = "No AI provider available or summarizing failed";
+
+/* No comment provided by engineer. */
 "No banned users or guests" = "No banned users or guests";
 
 /* No comment provided by engineer. */
@@ -1206,6 +1215,9 @@
 
 /* No comment provided by engineer. */
 "No files in here" = "No files in here";
+
+/* No comment provided by engineer. */
+"No messages found to summarize" = "No messages found to summarize";
 
 /* No comment provided by engineer. */
 "No messages yet, start the conversation!" = "No messages yet, start the conversation!";
@@ -1487,6 +1499,9 @@
 "Save" = "Save";
 
 /* No comment provided by engineer. */
+"Save to 'Note to self'" = "Save to 'Note to self'";
+
+/* No comment provided by engineer. */
 "Say hi to your friends and colleagues!" = "Say hi to your friends and colleagues!";
 
 /* No comment provided by engineer. */
@@ -1701,6 +1716,12 @@
 
 /* The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00) */
 "This meeting is scheduled for" = "This meeting is scheduled for";
+
+/* No comment provided by engineer. */
+"This might take a moment" = "This might take a moment";
+
+/* No comment provided by engineer. */
+"This summary is AI generated and may contain mistakes." = "This summary is AI generated and may contain mistakes.";
 
 /* No comment provided by engineer. */
 "This usually indicates that this device was previously used for an account, which was not properly removed from the server." = "This usually indicates that this device was previously used for an account, which was not properly removed from the server.";
