@@ -60,6 +60,7 @@
 		1F1DF8462C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
 		1F20582A2CEA404F00AAA673 /* AiSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */; };
 		1F20582C2CEA405700AAA673 /* AiSummaryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */; };
+		1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
 		1F35F8E22AEEBAF900044BDA /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
@@ -679,6 +680,7 @@
 		1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingParticipant.swift; sourceTree = "<group>"; };
 		1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AiSummaryViewController.swift; sourceTree = "<group>"; };
 		1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AiSummaryViewController.xib; sourceTree = "<group>"; };
+		1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiSummaryController.swift; sourceTree = "<group>"; };
 		1F21A0622C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		1F21A0632C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		1F21A0642C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "nb-NO"; path = "nb-NO.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -2126,6 +2128,7 @@
 				1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */,
 				1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */,
 				1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */,
+				1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -2425,7 +2428,7 @@
 			packageReferences = (
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
-				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */,
+				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
 				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
@@ -2897,6 +2900,7 @@
 				1FB7B9952BF0DF1C0093CE98 /* BannedActorTableViewController.swift in Sources */,
 				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
 				2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */,
+				1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
@@ -3145,7 +3149,6 @@
 				2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				1FF4DA8E2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */,
-				1FDDB0D92AF440DD00FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
 				1FC4B3442CCE671800D28138 /* OcsError.swift in Sources */,
 				2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */,
 				1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
@@ -4227,7 +4230,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */ = {
+		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
 			requirement = {
@@ -4391,7 +4394,7 @@
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
 			productName = QRCodeReader;
 		};
 		1F66B72E29FABD01003FB168 /* SwiftyAttributes */ = {
@@ -4421,7 +4424,7 @@
 		};
 		1F759C132B63B9D9000534AB /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader.swift" */;
+			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
 			productName = QRCodeReader;
 		};
 		1F759C152B63B9D9000534AB /* NextcloudKit */ = {

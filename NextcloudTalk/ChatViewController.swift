@@ -30,8 +30,6 @@ import UIKit
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
     private var generateSummaryFromMessageId: Int?
     private var generateSummaryTimer: Timer?
-    private var generateSummaryTaskIds = [Int]()
-    private var generateSummaryOutputs = [String]()
 
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
@@ -206,6 +204,12 @@ import UIKit
             }
 
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
+        }
+
+        // Check if there are summary tasks still running, but not yet finished
+        if !AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).isEmpty {
+            self.showGeneratingSummaryNotification()
+            self.scheduleSummaryTaskCheck()
         }
     }
 
@@ -1419,7 +1423,10 @@ import UIKit
         guard self.indexPathForUnreadMessageSeparator() != nil, let generateSummaryFromMessageId else { return }
 
         self.generateSummary(fromMessageId: generateSummaryFromMessageId)
+        self.showGeneratingSummaryNotification()
+    }
 
+    func showGeneratingSummaryNotification() {
         NotificationPresenter.shared().present(title: NSLocalizedString("Generating summary of unread messages", comment: ""), subtitle: NSLocalizedString("This might take a moment", comment: ""), includedStyle: .dark)
         NotificationPresenter.shared().displayActivityIndicator(true)
     }
@@ -1441,7 +1448,8 @@ import UIKit
                 return
             }
 
-            self.generateSummaryTaskIds.append(taskId)
+            AiSummaryController.shared.addSummaryTaskId(forRoomInternalId: self.room.internalId, withTaskId: taskId)
+
             print("Scheduled summary task with taskId \(taskId) and nextOffset \(String(describing: nextOffset))")
 
             // Add a safe-guard to make sure there's really a nextOffset. Otherwise we might end up requesting the same task over and over again
@@ -1457,22 +1465,24 @@ import UIKit
 
     func scheduleSummaryTaskCheck() {
         self.generateSummaryTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false, block: { [weak self] _ in
-            guard let self, let firstTaskId = self.generateSummaryTaskIds.first else { return }
+            guard
+                let self,
+                let firstTaskId = AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).first
+            else { return }
 
             NCAPIController.sharedInstance().getAiTaskById(for: self.room.accountId, withTaskId: firstTaskId) { [weak self] status, output in
                 guard let self else { return }
 
                 if status == .successful {
+                    let resultOutput = output ?? NSLocalizedString("Empty summary response", comment: "")
+                    AiSummaryController.shared.markSummaryTaskAsDone(forRoomInternalId: self.room.internalId, withTaskId: firstTaskId, withOutput: resultOutput)
 
-
-                    self.generateSummaryOutputs.append(output ?? NSLocalizedString("Empty summary response", comment: ""))
-                    self.generateSummaryTaskIds.removeAll(where: { $0 == firstTaskId })
-
-                    if self.generateSummaryTaskIds.isEmpty {
+                    if AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).isEmpty {
                         // No more taskIds to check -> show the summary
                         NotificationPresenter.shared().dismiss()
 
-                        let summaryVC = AiSummaryViewController(summaryText: self.generateSummaryOutputs.joined(separator: "\n\n---\n\n"))
+                        let outputs = AiSummaryController.shared.finalizeSummaryTask(forRoomInternalId: self.room.internalId)
+                        let summaryVC = AiSummaryViewController(summaryText: outputs.joined(separator: "\n\n---\n\n"))
                         let navController = UINavigationController(rootViewController: summaryVC)
                         self.present(navController, animated: true)
 
