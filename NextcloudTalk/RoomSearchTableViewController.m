@@ -192,11 +192,11 @@ typedef enum RoomSearchSection {
     NSString *actorId = [messageEntry.attributes objectForKey:@"actorId"];
     NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
     if (thumbnailURL && thumbnailURL.absoluteString.length > 0) {
-        [cell.roomImage setImageWithURL:thumbnailURL placeholderImage:nil];
-        cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+        [cell.avatarView.avatarImageView setImageWithURL:thumbnailURL placeholderImage:nil];
+        cell.avatarView.avatarImageView.contentMode = UIViewContentModeScaleToFill;
     } else {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-        [cell.roomImage setActorAvatarForId:actorId withType:actorType withDisplayName:@"" withRoomToken:nil using:activeAccount];
+        [cell.avatarView setActorAvatarForId:actorId withType:actorType withDisplayName:@"" withRoomToken:nil using:activeAccount];
     }
     
     // Clear possible content not removed by cell reuse
@@ -238,7 +238,7 @@ typedef enum RoomSearchSection {
     cell.titleLabel.text = user.name;
     cell.titleOnly = YES;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [cell.roomImage setActorAvatarForId:user.userId withType:user.source withDisplayName:user.name withRoomToken:nil using:activeAccount];
+    [cell.avatarView setActorAvatarForId:user.userId withType:user.source withDisplayName:user.name withRoomToken:nil using:activeAccount];
 
     return cell;
 }
@@ -326,15 +326,15 @@ typedef enum RoomSearchSection {
         [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
-    [cell.roomImage setAvatarFor:room];
+    [cell.avatarView setAvatarFor:room];
 
     // Set favorite or call image
     if (room.hasCall) {
-        [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"video.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemRedColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"video.fill"]];
     } else if (room.isFavorite) {
-        [cell.favoriteImage setTintColor:[UIColor systemYellowColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemYellowColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
     
     return cell;

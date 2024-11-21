@@ -1456,15 +1456,15 @@ typedef enum RoomsSections {
         [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
-    [cell.roomImage setAvatarFor:room];
+    [cell.avatarView setAvatarFor:room];
 
     // Set favorite or call image
     if (room.hasCall) {
-        [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"video.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemRedColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"video.fill"]];
     } else if (room.isFavorite) {
-        [cell.favoriteImage setTintColor:[UIColor systemYellowColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemYellowColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
 
     cell.roomToken = room.token;
@@ -1481,26 +1481,8 @@ typedef enum RoomsSections {
     RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
-    //Show User Status
-    if (room.type == kNCRoomTypeOneToOne && [room.status length] != 0) {
-        if (![room.status isEqualToString:@"dnd"] && [room.statusIcon length] != 0) {
-            [cell setUserStatusIcon:room.statusIcon];
-        } else {
-            [cell setUserStatus:room.status];
-        }
-    } else if (room.isPublic) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:12];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"link"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    } else if (room.isFederated) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:14];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"globe"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    }
+    UIColor *backgroundColor = cell.backgroundConfiguration.backgroundColor ? cell.backgroundConfiguration.backgroundColor : cell.backgroundColor;
+    [cell.avatarView setStatusFor:room with:backgroundColor];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

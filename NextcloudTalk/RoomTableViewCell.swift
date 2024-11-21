@@ -7,14 +7,11 @@ import Foundation
 
 @objcMembers public class RoomTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var roomImage: AvatarImageView!
+    @IBOutlet weak var avatarView: AvatarView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
     @IBOutlet weak var unreadMessagesView: BadgeView!
     @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet weak var favoriteImage: UIImageView!
-    @IBOutlet weak var userStatusImageView: UIImageView!
-    @IBOutlet weak var userStatusLabel: UILabel!
     @IBOutlet weak var titleLabelTopConstraint: NSLayoutConstraint!
 
     public static var identifier = "RoomCellIdentifier"
@@ -33,12 +30,6 @@ import Foundation
     public override func awakeFromNib() {
         super.awakeFromNib()
 
-        self.roomImage.layer.cornerRadius = 24.0
-        self.roomImage.layer.masksToBounds = true
-        self.roomImage.backgroundColor = NCAppBranding.placeholderColor()
-
-        self.favoriteImage.contentMode = .center
-
         if UIView.userInterfaceLayoutDirection(for: self.dateLabel.semanticContentAttribute) == .rightToLeft {
             self.dateLabel.textAlignment = .left
         } else {
@@ -49,19 +40,10 @@ import Foundation
     public override func prepareForReuse() {
         super.prepareForReuse()
 
-        // Fix problem of rendering downloaded image in a reused cell
-        self.roomImage.cancelCurrentRequest()
+        self.avatarView.prepareForReuse()
 
-        self.roomImage.image = nil
-        self.favoriteImage.image = nil
-        self.favoriteImage.tintColor = .clear
         self.subtitleLabel.text = ""
         self.dateLabel.text = ""
-
-        self.userStatusImageView.image = nil
-        self.userStatusImageView.backgroundColor = .clear
-
-        self.userStatusLabel.isHidden = true
 
         self.unreadMessagesView.setBadgeNumber(0)
 
@@ -100,37 +82,6 @@ import Foundation
             self.titleLabel.font = UIFont.preferredFont(forTextStyle: .headline)
             self.subtitleLabel.font = UIFont.preferredFont(forTextStyle: .callout)
             self.dateLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
-        }
-    }
-
-    public func setUserStatusIcon(_ userStatusIcon: String) {
-        self.userStatusLabel.text = userStatusIcon
-        self.userStatusLabel.isHidden = false
-    }
-
-    public func setUserStatusIconWithImage(_ image: UIImage) {
-        self.userStatusImageView.image = image
-        self.userStatusImageView.contentMode = .center
-        self.userStatusImageView.layer.cornerRadius = 10
-        self.userStatusImageView.clipsToBounds = true
-
-        // When a background color is set directly to the cell it seems that there is no background configuration.
-        self.userStatusImageView.backgroundColor = self.backgroundConfiguration?.backgroundColor ?? self.backgroundColor
-    }
-
-    public func setUserStatus(_ userStatus: String) {
-        var statusImage: UIImage?
-
-        if userStatus == "online" {
-            statusImage = UIImage(named: "user-status-online")
-        } else if userStatus == "away" {
-            statusImage = UIImage(named: "user-status-away")
-        } else if userStatus == "dnd" {
-            statusImage = UIImage(named: "user-status-dnd")
-        }
-
-        if let statusImage {
-            self.setUserStatusIconWithImage(statusImage)
         }
     }
 }
