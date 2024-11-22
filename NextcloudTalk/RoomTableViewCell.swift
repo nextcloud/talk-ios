@@ -12,7 +12,6 @@ import Foundation
     @IBOutlet weak var subtitleLabel: UILabel!
     @IBOutlet weak var unreadMessagesView: BadgeView!
     @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet weak var titleLabelTopConstraint: NSLayoutConstraint!
 
     public static var identifier = "RoomCellIdentifier"
     public static var nibName = "RoomTableViewCell"
@@ -20,12 +19,9 @@ import Foundation
     public var roomToken: String?
     public var titleOnly = false {
         didSet {
-            self.titleLabelTopConstraint.constant = titleOnly ? titleOnlyOriginY : titleOriginY
+            self.subtitleLabel.isHidden = self.titleOnly
         }
     }
-
-    private let titleOriginY = 12.0
-    private let titleOnlyOriginY = 26.0
 
     public override func awakeFromNib() {
         super.awakeFromNib()
@@ -46,8 +42,6 @@ import Foundation
         self.dateLabel.text = ""
 
         self.unreadMessagesView.setBadgeNumber(0)
-
-        self.titleLabelTopConstraint.constant = titleOriginY
     }
 
     public override func setSelected(_ selected: Bool, animated: Bool) {

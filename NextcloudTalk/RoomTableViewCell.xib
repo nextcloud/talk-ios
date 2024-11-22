@@ -26,43 +26,58 @@
                             <constraint firstAttribute="width" constant="48" id="jyi-6z-FTf"/>
                         </constraints>
                     </view>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4oj-Ge-nSq">
-                        <rect key="frame" x="72" y="12" width="225" height="20.5"/>
-                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                        <nil key="textColor"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tc2-b5-oRl">
-                        <rect key="frame" x="72" y="36.5" width="56" height="23.5"/>
-                        <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
-                        <color key="textColor" systemColor="secondaryLabelColor"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <view contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xb6-vq-E0C" customClass="BadgeView" customModule="NextcloudTalk" customModuleProvider="target">
-                        <rect key="frame" x="132" y="36.5" width="227" height="23.5"/>
-                    </view>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="Yesterday" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DEV-Kr-Vlw">
-                        <rect key="frame" x="299" y="10" width="60" height="16"/>
-                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                        <color key="textColor" systemColor="secondaryLabelColor"/>
-                        <nil key="highlightedColor"/>
-                    </label>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="Lqk-NC-ZkP">
+                        <rect key="frame" x="72" y="10" width="287" height="52"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="zrV-ZF-Sc4">
+                                <rect key="frame" x="0.0" y="0.0" width="287" height="20.5"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4oj-Ge-nSq">
+                                        <rect key="frame" x="0.0" y="0.0" width="223" height="20.5"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" text="Yesterday" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DEV-Kr-Vlw">
+                                        <rect key="frame" x="227" y="2.5" width="60" height="16"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                        <color key="textColor" systemColor="secondaryLabelColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="ZXf-fc-Ylf">
+                                <rect key="frame" x="0.0" y="26.5" width="287" height="25.5"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tc2-b5-oRl">
+                                        <rect key="frame" x="0.0" y="0.0" width="56" height="25.5"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                        <color key="textColor" systemColor="secondaryLabelColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <view contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="Xb6-vq-E0C" customClass="BadgeView" customModule="NextcloudTalk" customModuleProvider="target">
+                                        <rect key="frame" x="60" y="0.0" width="227" height="25.5"/>
+                                    </view>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="zrV-ZF-Sc4" firstAttribute="leading" secondItem="Lqk-NC-ZkP" secondAttribute="leading" id="0Cs-qf-uze"/>
+                            <constraint firstAttribute="trailing" secondItem="ZXf-fc-Ylf" secondAttribute="trailing" id="1bb-Ds-9zv"/>
+                            <constraint firstItem="ZXf-fc-Ylf" firstAttribute="leading" secondItem="Lqk-NC-ZkP" secondAttribute="leading" id="fRo-zz-n2x"/>
+                            <constraint firstAttribute="trailing" secondItem="zrV-ZF-Sc4" secondAttribute="trailing" id="iZk-TF-0O2"/>
+                        </constraints>
+                    </stackView>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="hTO-u0-vdH"/>
                 <constraints>
-                    <constraint firstItem="Xb6-vq-E0C" firstAttribute="leading" secondItem="Tc2-b5-oRl" secondAttribute="trailing" constant="4" id="2GI-x9-HFH"/>
-                    <constraint firstItem="DEV-Kr-Vlw" firstAttribute="leading" secondItem="4oj-Ge-nSq" secondAttribute="trailing" constant="2" id="33H-xh-7ow"/>
-                    <constraint firstItem="DEV-Kr-Vlw" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="10" id="7oV-CM-9Gt"/>
-                    <constraint firstItem="DEV-Kr-Vlw" firstAttribute="trailing" secondItem="hTO-u0-vdH" secondAttribute="trailing" constant="-16" id="FrT-LG-M0H"/>
-                    <constraint firstItem="Tc2-b5-oRl" firstAttribute="top" secondItem="4oj-Ge-nSq" secondAttribute="bottom" constant="4" id="J8O-Vc-Fdv"/>
-                    <constraint firstItem="Xb6-vq-E0C" firstAttribute="centerY" secondItem="Tc2-b5-oRl" secondAttribute="centerY" id="X1F-a1-FRV"/>
-                    <constraint firstItem="Xb6-vq-E0C" firstAttribute="trailing" secondItem="hTO-u0-vdH" secondAttribute="trailing" constant="-16" id="iFT-1s-vDX"/>
-                    <constraint firstItem="Tc2-b5-oRl" firstAttribute="bottom" secondItem="hTO-u0-vdH" secondAttribute="bottom" constant="-12" id="j15-Xe-J8f"/>
-                    <constraint firstItem="4oj-Ge-nSq" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="72" id="k3r-2g-iB6"/>
+                    <constraint firstItem="hTO-u0-vdH" firstAttribute="trailing" secondItem="Lqk-NC-ZkP" secondAttribute="trailing" constant="16" id="KP2-fw-gKC"/>
+                    <constraint firstItem="Lqk-NC-ZkP" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="10" id="TmT-mM-jYp"/>
+                    <constraint firstItem="Lqk-NC-ZkP" firstAttribute="leading" secondItem="xcw-pC-kPV" secondAttribute="trailing" constant="8" symbolic="YES" id="VtA-t2-m3Y"/>
                     <constraint firstItem="xcw-pC-kPV" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="16" id="mPn-Ei-3FV"/>
-                    <constraint firstItem="4oj-Ge-nSq" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="12" id="mha-g7-USc"/>
+                    <constraint firstItem="hTO-u0-vdH" firstAttribute="bottom" secondItem="Lqk-NC-ZkP" secondAttribute="bottom" constant="10" id="pYN-iB-dun"/>
                     <constraint firstItem="xcw-pC-kPV" firstAttribute="centerY" secondItem="eba-Du-dTo" secondAttribute="centerY" id="qbT-jS-yhG"/>
-                    <constraint firstItem="Tc2-b5-oRl" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="72" id="xj3-Nb-jdA"/>
+                    <constraint firstItem="Lqk-NC-ZkP" firstAttribute="centerY" secondItem="eba-Du-dTo" secondAttribute="centerY" id="vKy-Cr-gbL"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
@@ -70,7 +85,6 @@
                 <outlet property="dateLabel" destination="DEV-Kr-Vlw" id="2t1-ib-Gfb"/>
                 <outlet property="subtitleLabel" destination="Tc2-b5-oRl" id="1mD-EQ-Jhs"/>
                 <outlet property="titleLabel" destination="4oj-Ge-nSq" id="SPq-KL-y2z"/>
-                <outlet property="titleLabelTopConstraint" destination="mha-g7-USc" id="0fY-Qe-pU5"/>
                 <outlet property="unreadMessagesView" destination="Xb6-vq-E0C" id="wXP-Vy-8sF"/>
             </connections>
             <point key="canvasLocation" x="-71.200000000000003" y="-44.977511244377816"/>
