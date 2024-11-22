@@ -503,4 +503,26 @@ import Foundation
             completionBlock(AiTaskStatus(stringResponse: status), outputDict?["output"] as? String)
         }
     }
+
+    // MARK: - Out-of-office
+
+    public func getUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ absenceData: UserAbsence?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, _ in
+            guard let dataDict = ocsResponse?.dataDict else {
+                completionBlock(nil)
+                return
+            }
+            completionBlock(UserAbsence(dictionary: dataDict))
+        }
+    }
 }

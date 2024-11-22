@@ -1,6 +1,9 @@
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
 
+/* '%@' is the name of a user */
+"%@ is out of office" = "%@ is out of office";
+
 /* {app name} is not installed */
 "%@ not installed" = "%@ not installed";
 
@@ -941,6 +944,9 @@
 "Hang up" = "Hang up";
 
 /* No comment provided by engineer. */
+"Hide" = "Hide";
+
+/* No comment provided by engineer. */
 "hours" = "hours";
 
 /* No comment provided by engineer. */
@@ -1471,6 +1477,9 @@
 /* No comment provided by engineer. */
 "Remove team and members" = "Remove team and members";
 
+/* Replacement in case of out of office */
+"Replacement" = "Replacement";
+
 /* No comment provided by engineer. */
 "Reply" = "Reply";
 
@@ -1683,6 +1692,9 @@
 
 /* No comment provided by engineer. */
 "Talk" = "Talk";
+
+/* Talk to a user */
+"Talk to" = "Talk to";
 
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message" = "Tap and hold to record a voice message";

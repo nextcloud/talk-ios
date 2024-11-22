@@ -7,6 +7,7 @@ import Foundation
 import NextcloudKit
 import PhotosUI
 import UIKit
+import SwiftyAttributes
 
 @objcMembers public class ChatViewController: BaseChatViewController {
 
@@ -26,6 +27,7 @@ import UIKit
     private var offlineMode = false
     private var hasStoredHistory = true
     private var hasStopped = false
+    private var hasCheckedOutOfOfficeStatus = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
     private var generateSummaryFromMessageId: Int?
@@ -187,6 +189,7 @@ import UIKit
 
         self.checkLobbyState()
         self.checkRoomControlsAvailability()
+        self.checkOutOfOfficeAbsence()
 
         self.startObservingExpiredMessages()
 
@@ -486,6 +489,38 @@ import UIKit
         self.chatController.stopReceivingNewChatMessages()
         self.disableRoomControls()
         self.checkRoomControlsAvailability()
+    }
+
+    let outOfOfficeView: OutOfOfficeView? = nil
+
+    func checkOutOfOfficeAbsence() {
+        // Only check once, and only for 1:1 on DND right now
+        guard self.hasCheckedOutOfOfficeStatus == false,
+              self.room.type == .oneToOne,
+              self.room.status == kUserStatusDND
+        else { return }
+
+        self.hasCheckedOutOfOfficeStatus = true
+
+        NCAPIController.sharedInstance().getUserAbsence(forAccountId: self.room.accountId, forUserId: self.room.name) { absenceData in
+            guard let absenceData else { return }
+
+            let oooView = OutOfOfficeView()
+            oooView.setupAbsence(withData: absenceData, inRoom: self.room)
+            oooView.alpha = 0
+
+            self.view.addSubview(oooView)
+
+            NSLayoutConstraint.activate([
+                oooView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+                oooView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+                oooView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor)
+            ])
+
+            UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+                oooView.alpha = 1.0
+            }
+        }
     }
 
     // MARK: - Message expiration
