@@ -20,7 +20,6 @@
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xcw-pC-kPV" customClass="AvatarView" customModule="NextcloudTalk" customModuleProvider="target">
                         <rect key="frame" x="16" y="12" width="48" height="48"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="48" id="BFT-jl-6Wp"/>
                             <constraint firstAttribute="width" constant="48" id="jyi-6z-FTf"/>
@@ -71,7 +70,9 @@
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="hTO-u0-vdH"/>
                 <constraints>
+                    <constraint firstItem="xcw-pC-kPV" firstAttribute="top" relation="greaterThanOrEqual" secondItem="hTO-u0-vdH" secondAttribute="top" constant="4" id="561-Ji-QHz"/>
                     <constraint firstItem="hTO-u0-vdH" firstAttribute="trailing" secondItem="Lqk-NC-ZkP" secondAttribute="trailing" constant="16" id="KP2-fw-gKC"/>
+                    <constraint firstItem="hTO-u0-vdH" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="xcw-pC-kPV" secondAttribute="bottom" constant="4" id="KmV-iR-o25"/>
                     <constraint firstItem="Lqk-NC-ZkP" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="10" id="TmT-mM-jYp"/>
                     <constraint firstItem="Lqk-NC-ZkP" firstAttribute="leading" secondItem="xcw-pC-kPV" secondAttribute="trailing" constant="8" symbolic="YES" id="VtA-t2-m3Y"/>
                     <constraint firstItem="xcw-pC-kPV" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="16" id="mPn-Ei-3FV"/>
@@ -93,9 +94,6 @@
     <resources>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>
