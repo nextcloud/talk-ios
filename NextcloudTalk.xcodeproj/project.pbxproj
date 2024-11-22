@@ -61,6 +61,12 @@
 		1F20582A2CEA404F00AAA673 /* AiSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */; };
 		1F20582C2CEA405700AAA673 /* AiSummaryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */; };
 		1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */; };
+		1F205C502CEF903000AAA673 /* UserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C4F2CEF903000AAA673 /* UserAbsence.swift */; };
+		1F205C512CEF91C500AAA673 /* UserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C4F2CEF903000AAA673 /* UserAbsence.swift */; };
+		1F205C522CEF91C500AAA673 /* UserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C4F2CEF903000AAA673 /* UserAbsence.swift */; };
+		1F205C532CEF91C500AAA673 /* UserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C4F2CEF903000AAA673 /* UserAbsence.swift */; };
+		1F205C552CEFA01200AAA673 /* OutOfOfficeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F205C542CEFA01200AAA673 /* OutOfOfficeView.xib */; };
+		1F205C572CEFA01900AAA673 /* OutOfOfficeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C562CEFA01900AAA673 /* OutOfOfficeView.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
 		1F35F8E22AEEBAF900044BDA /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
@@ -681,6 +687,9 @@
 		1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AiSummaryViewController.swift; sourceTree = "<group>"; };
 		1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AiSummaryViewController.xib; sourceTree = "<group>"; };
 		1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiSummaryController.swift; sourceTree = "<group>"; };
+		1F205C4F2CEF903000AAA673 /* UserAbsence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAbsence.swift; sourceTree = "<group>"; };
+		1F205C542CEFA01200AAA673 /* OutOfOfficeView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OutOfOfficeView.xib; sourceTree = "<group>"; };
+		1F205C562CEFA01900AAA673 /* OutOfOfficeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfOfficeView.swift; sourceTree = "<group>"; };
 		1F21A0622C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		1F21A0632C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		1F21A0642C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "nb-NO"; path = "nb-NO.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -1859,6 +1868,7 @@
 				2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */,
 				2C444701265D641300DF1DBC /* NCUserDefaults.h */,
 				2C444702265D641300DF1DBC /* NCUserDefaults.m */,
+				1F205C4F2CEF903000AAA673 /* UserAbsence.swift */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -1936,6 +1946,8 @@
 				2C0424992CA33681004772F6 /* AudioPlayerView.swift */,
 				2C0424962CA335C4004772F6 /* AudioPlayerView.xib */,
 				C65D252C2C7581A200157A89 /* ExpandedVoiceMessageRecordingView.swift */,
+				1F205C562CEFA01900AAA673 /* OutOfOfficeView.swift */,
+				1F205C542CEFA01200AAA673 /* OutOfOfficeView.xib */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -2495,6 +2507,7 @@
 				1FCE3D592C9C4D21009C68A9 /* ReferenceGiphyView.xib in Resources */,
 				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
 				2CB997C62A052449003C41AC /* EmojiAvatarPickerViewController.xib in Resources */,
+				1F205C552CEFA01200AAA673 /* OutOfOfficeView.xib in Resources */,
 				2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */,
 				1F46CE2B28E05B3C00E7D88E /* ReferenceDefaultView.xib in Resources */,
 				1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */,
@@ -2811,6 +2824,7 @@
 				1FF136132BFB6FCD006A6101 /* RLMSupport.swift in Sources */,
 				1F77A5ED2AB9A408007B6037 /* NCChatMessage.m in Sources */,
 				1F77A5EB2AB9A3EE007B6037 /* BGTaskHelper.swift in Sources */,
+				1F205C532CEF91C500AAA673 /* UserAbsence.swift in Sources */,
 				1FF136182BFB74D0006A6101 /* NCChatMessage.swift in Sources */,
 				1F77A5FC2AB9A4ED007B6037 /* NCRoom.m in Sources */,
 				1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */,
@@ -2918,6 +2932,7 @@
 				2C2145682BF6B8E900470C0C /* NewRoomTableViewController.swift in Sources */,
 				1F1B503E2B8FB12100B0F2F4 /* BaseChatTableViewCell+Message.swift in Sources */,
 				DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */,
+				1F205C572CEFA01900AAA673 /* OutOfOfficeView.swift in Sources */,
 				1F1B0F422BE047CE003FD766 /* UIViewController+Transitions.swift in Sources */,
 				1F90EFBC25FE39F800F3FA55 /* NCIntentController.m in Sources */,
 				2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */,
@@ -2992,6 +3007,7 @@
 				1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
+				1F205C502CEF903000AAA673 /* UserAbsence.swift in Sources */,
 				1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */,
 				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */,
@@ -3162,6 +3178,7 @@
 				1F35F8F32AEEC29A00044BDA /* AvatarButton.swift in Sources */,
 				2C4446DF2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				1FF4DAAC2C0A114900C1B952 /* OcsResponse.swift in Sources */,
+				1F205C522CEF91C500AAA673 /* UserAbsence.swift in Sources */,
 				1F1B504C2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				1FB78E282B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
 				2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */,
@@ -3226,6 +3243,7 @@
 				2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */,
 				1FB78E292B6AE8CA00B0D69D /* FederationInvitation.swift in Sources */,
 				2C444704265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				1F205C512CEF91C500AAA673 /* UserAbsence.swift in Sources */,
 				2CC001B724A37A9A00A20167 /* NCUser.m in Sources */,
 				2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */,
 				2CC32E9927F5DADA00BB8C39 /* NCChatReaction.m in Sources */,
