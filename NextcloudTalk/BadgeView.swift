@@ -13,7 +13,7 @@ class BadgeView: UIView {
 
     private let badgeNumberLimit = 9999
 
-    private let defaultBadgeColor: UIColor = .secondarySystemFill
+    private let defaultBadgeColor: UIColor = .systemGray3
     private let defaultBadgeTextColor: UIColor = .label
 
     private let horizontalPadding: CGFloat = 8
