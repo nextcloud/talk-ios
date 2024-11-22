@@ -10,7 +10,7 @@ final class UnitNCChatMessageTest: TestBaseRealm {
 
     func testUnreadMessageSeparatorUrlCheck() throws {
         let message = NCChatMessage()
-        message.messageId = kUnreadMessagesSeparatorIdentifier
+        message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
 
         updateCapabilities { cap in
             cap.referenceApiSupported = true

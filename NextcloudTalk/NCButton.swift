@@ -118,14 +118,11 @@ struct NCButtonSwiftUI: View {
     }
 
     func commonInit() {
-        self.layer.cornerRadius = self.frame.height / 2
+        self.configuration = UIButton.Configuration.plain()
+        self.configuration?.contentInsets = .init(top: NCButtonVerticalPadding, leading: NCButtonHorizontalPadding, bottom: NCButtonVerticalPadding, trailing: NCButtonHorizontalPadding)
+        self.layer.cornerRadius = NCButtonCornerRadius
         self.layer.masksToBounds = true
         self.setButtonStyle(style: .primary)
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        self.layer.cornerRadius = self.frame.height / 2
     }
 
     func backgroundColorForStyle(style: NCButtonStyle) -> UIColor {

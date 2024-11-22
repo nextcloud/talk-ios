@@ -48,7 +48,6 @@
 #import "CallKitManager.h"
 
 #import "GeoLocationRichObject.h"
-#import "MessageSeparatorTableViewCell.h"
 #import "NCChatMessage.h"
 #import "NCChatTitleView.h"
 #import "NCMessageParameter.h"
