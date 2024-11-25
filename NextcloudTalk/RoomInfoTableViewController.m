@@ -2032,7 +2032,7 @@ typedef enum FileAction {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:allowGuestsCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Allow guests", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Allow guests to join this conversation via link", nil);
                     cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwitch;

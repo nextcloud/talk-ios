@@ -467,7 +467,7 @@ enum RoomVisibilityOption: Int {
             switch option {
             case RoomVisibilityOption.kAllowGuestsOption.rawValue:
                 roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "AllowGuestsCellIdentifier")
-                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Allow guests", comment: "")
+                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Allow guests to join this conversation via link", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isPublic
                 optionSwicth.addTarget(self, action: #selector(allowGuestValueChanged(_:)), for: .valueChanged)
