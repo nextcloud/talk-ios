@@ -126,8 +126,13 @@ import SDWebImage
                 setUserStatus(roomStatus, with: backgroundColor)
             }
         } else if room.isPublic {
-            if let statusImage = statusImageWith(name: "link", color: .label, padding: 4) {
-                setUserStatusImage(statusImage, with: backgroundColor)
+            if let statusImage = UIImage(named: "link") {
+                let diameter = statusImageSize(padding: 2)
+                let size = CGSize(width: diameter, height: diameter)
+                if let configuredImage = NCUtils.renderAspectImage(image: statusImage, ofSize: size, centerImage: true)?.withRenderingMode(.alwaysTemplate) {
+                    setUserStatusImage(configuredImage, with: backgroundColor)
+                    userStatusImageView.tintColor = .label
+                }
             }
         } else if room.isFederated {
             if let statusImage = statusImageWith(name: "globe", color: .label, padding: 3) {
@@ -173,8 +178,7 @@ import SDWebImage
     }
 
     private func statusImageWith(name: String, color: UIColor, secondaryColor: UIColor? = nil, padding: CGFloat) -> UIImage? {
-        let userStatusSize = self.frame.size.height * userStatusSizePercentage - padding * 2
-        let sizeConfiguration = UIImage.SymbolConfiguration(pointSize: userStatusSize)
+        let sizeConfiguration = UIImage.SymbolConfiguration(pointSize: statusImageSize(padding: padding))
 
         // Multicolor image
         if let secondaryColor {
@@ -194,5 +198,9 @@ import SDWebImage
         }
 
         return nil
+    }
+
+    private func statusImageSize(padding: CGFloat) -> CGFloat {
+        return self.frame.size.height * userStatusSizePercentage - padding * 2
     }
 }
