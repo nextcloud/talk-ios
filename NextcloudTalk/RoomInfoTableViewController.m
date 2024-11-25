@@ -2037,7 +2037,7 @@ typedef enum FileAction {
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwitch;
                     _publicSwitch.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
-                    [cell.imageView setImage:[UIImage systemImageNamed:@"link"]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"link"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;

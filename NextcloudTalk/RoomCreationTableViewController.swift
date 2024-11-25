@@ -472,7 +472,7 @@ enum RoomVisibilityOption: Int {
                 optionSwicth.isOn = self.isPublic
                 optionSwicth.addTarget(self, action: #selector(allowGuestValueChanged(_:)), for: .valueChanged)
                 roomVisibilityOptionCell.accessoryView = optionSwicth
-                roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "link")
+                roomVisibilityOptionCell.imageView?.image = UIImage(named: "link")?.withRenderingMode(.alwaysTemplate)
             case RoomVisibilityOption.kPasswordProtectionOption.rawValue:
                 roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "SetPasswordCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = self.roomPassword.isEmpty ? NSLocalizedString("Set password", comment: "") : NSLocalizedString("Change password", comment: "")
