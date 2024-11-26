@@ -1232,6 +1232,16 @@ typedef enum RoomsSections {
     return nil;
 }
 
+- (NSArray *)archivedRooms
+{
+    return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == YES"]];
+}
+
+- (BOOL)areArchivedRoomsWithUnreadMentions
+{
+    return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES AND isArchived == YES"]].count > 0;
+}
+
 - (void)showLeaveRoomLastModeratorErrorForRoom:(NCRoom *)room
 {
     UIAlertController *leaveRoomFailedDialog =
@@ -1330,8 +1340,7 @@ typedef enum RoomsSections {
     }
 
     if (section == kRoomsSectionArchivedConversations) {
-        NSArray *archivedRooms = [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == YES"]];
-        return archivedRooms.count > 0 || _showingArchivedRooms ? 1 : 0;
+        return [self archivedRooms].count > 0 || _showingArchivedRooms ? 1 : 0;
     }
 
     return _rooms.count;
@@ -1476,6 +1485,15 @@ typedef enum RoomsSections {
 
         NSRange range = NSMakeRange(0, [resultString length]);
         [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
+
+        if (!_showingArchivedRooms && [self areArchivedRoomsWithUnreadMentions]) {
+            NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
+            attachment.image = [[UIImage systemImageNamed:@"circle.fill"] imageWithTintColor:[NCAppBranding elementColor] renderingMode:UIImageRenderingModeAlwaysTemplate];
+            attachment.bounds = CGRectMake(0, roundf(resultFont.capHeight - 20) / 2, 20, 20);
+
+            [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:@"  "]];
+            [resultString appendAttributedString:[[NSAttributedString alloc] initWithAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]]];
+        }
 
         cell.label.attributedText = resultString;
         cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
