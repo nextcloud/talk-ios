@@ -916,7 +916,7 @@ typedef enum RoomsSections {
     for (int i = (int)lastVisibleRowIndexPath.row; i <= (int)_lastRoomWithMentionIndexPath.row && i < [_rooms count]; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
         if (room.hasUnreadMention) {
-            _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:1];
+            _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:kRoomsSectionRoomList];
             break;
         }
     }
@@ -942,7 +942,7 @@ typedef enum RoomsSections {
     for (int i = 0; i < _rooms.count; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
         if (room.hasUnreadMention) {
-            _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:1];
+            _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:kRoomsSectionRoomList];
         }
     }
 }
@@ -1226,7 +1226,7 @@ typedef enum RoomsSections {
     }];
 
     if (idx != NSNotFound) {
-        return [NSIndexPath indexPathForRow:idx inSection:1];
+        return [NSIndexPath indexPathForRow:idx inSection:kRoomsSectionRoomList];
     }
 
     return nil;
@@ -1808,7 +1808,7 @@ typedef enum RoomsSections {
         }];
         
         if (idx != NSNotFound) {
-            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:idx inSection:1];
+            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:idx inSection:kRoomsSectionRoomList];
             [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
     } else {
