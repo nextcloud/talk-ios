@@ -332,7 +332,7 @@ typedef enum FileAction {
     // Participants section
     [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionParticipants]];
 
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversations]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversationsV2]) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionNonDestructive]];
     }
 
@@ -502,7 +502,7 @@ typedef enum FileAction {
 {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
 
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversations]) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversationsV2]) {
         if (_room.isArchived) {
             [actions addObject:[NSNumber numberWithInt:kNondestructiveActionUnarchive]];
         } else {
@@ -1776,7 +1776,7 @@ typedef enum FileAction {
     switch (infoSection) {
         case kRoomInfoSectionNonDestructive:
             if (!_room.isArchived) {
-                return NSLocalizedString(@"Once a conversation is archived, it will be hidden by default. Select the filter 'Archived' to view archived conversations. Direct mentions will still be received.", nil);
+                return NSLocalizedString(@"Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.", nil);
             } else {
                 return NSLocalizedString(@"Once a conversation is unarchived, it will be shown by default again.", nil);
             }
@@ -2461,7 +2461,7 @@ typedef enum FileAction {
 
                     cell.textLabel.text = NSLocalizedString(@"Unarchive conversation", nil);
                     cell.textLabel.numberOfLines = 0;
-                    UIImage *image = [[UIImage systemImageNamed:@"eye"] imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+                    UIImage *image = [[UIImage systemImageNamed:@"arrow.up.bin"] imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
                     [cell.imageView setImage:image];
 
                     return cell;
