@@ -310,8 +310,11 @@
 /* No comment provided by engineer. */
 "Archive conversation" = "Archive conversation";
 
-/* 'Archived' meaning 'Archived conversations' */
-"Archived" = "Archived";
+/* No comment provided by engineer. */
+"Archived conversations" = "Archived conversations";
+
+/* No comment provided by engineer. */
+"Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list." = "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.";
 
 /* Alice and Bob are typing… */
 "are typing…" = "are typing…";
@@ -330,6 +333,9 @@
 
 /* No comment provided by engineer. */
 "Away" = "Away";
+
+/* No comment provided by engineer. */
+"Back to conversations" = "Back to conversations";
 
 /* Ban a user/guest */
 "Ban" = "Ban";
@@ -1290,9 +1296,6 @@
 
 /* Will be used as the caller name when a VoIP notification can't be decrypted */
 "Old account" = "Old account";
-
-/* No comment provided by engineer. */
-"Once a conversation is archived, it will be hidden by default. Select the filter 'Archived' to view archived conversations. Direct mentions will still be received." = "Once a conversation is archived, it will be hidden by default. Select the filter 'Archived' to view archived conversations. Direct mentions will still be received.";
 
 /* No comment provided by engineer. */
 "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time." = "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.";
