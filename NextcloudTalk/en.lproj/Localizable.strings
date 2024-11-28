@@ -307,6 +307,15 @@
 /* No comment provided by engineer. */
 "Appear offline" = "Appear offline";
 
+/* No comment provided by engineer. */
+"Archive conversation" = "Archive conversation";
+
+/* No comment provided by engineer. */
+"Archived conversations" = "Archived conversations";
+
+/* No comment provided by engineer. */
+"Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list." = "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.";
+
 /* Alice and Bob are typing… */
 "are typing…" = "are typing…";
 
@@ -324,6 +333,9 @@
 
 /* No comment provided by engineer. */
 "Away" = "Away";
+
+/* No comment provided by engineer. */
+"Back to conversations" = "Back to conversations";
 
 /* Ban a user/guest */
 "Ban" = "Ban";
@@ -515,6 +527,9 @@
 "Could not add participant" = "Could not add participant";
 
 /* No comment provided by engineer. */
+"Could not archive conversation" = "Could not archive conversation";
+
+/* No comment provided by engineer. */
 "Could not ban participant" = "Could not ban participant";
 
 /* No comment provided by engineer. */
@@ -603,6 +618,9 @@
 
 /* No comment provided by engineer. */
 "Could not share file" = "Could not share file";
+
+/* No comment provided by engineer. */
+"Could not unarchive conversation" = "Could not unarchive conversation";
 
 /* No comment provided by engineer. */
 "Create" = "Create";
@@ -1283,6 +1301,9 @@
 "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time." = "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.";
 
 /* No comment provided by engineer. */
+"Once a conversation is unarchived, it will be shown by default again." = "Once a conversation is unarchived, it will be shown by default again.";
+
+/* No comment provided by engineer. */
 "Online" = "Online";
 
 /* No comment provided by engineer. */
@@ -1803,6 +1824,9 @@
 
 /* No comment provided by engineer. */
 "Unable to open file" = "Unable to open file";
+
+/* No comment provided by engineer. */
+"Unarchive conversation" = "Unarchive conversation";
 
 /* No comment provided by engineer. */
 "Unavailable" = "Unavailable";

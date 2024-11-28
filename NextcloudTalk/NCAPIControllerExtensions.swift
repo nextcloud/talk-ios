@@ -525,4 +525,38 @@ import Foundation
             completionBlock(UserAbsence(dictionary: dataDict))
         }
     }
+
+    // MARK: - Archived conversations
+
+    public func archiveRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.postOcs(urlString, account: account) { _, error in
+            completionBlock(error == nil)
+        }
+    }
+
+    public func unarchiveRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let apiVersion = self.conversationAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, error in
+            completionBlock(error == nil)
+        }
+    }
 }
