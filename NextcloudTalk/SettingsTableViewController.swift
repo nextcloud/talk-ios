@@ -888,9 +888,10 @@ extension SettingsTableViewController {
         }
 
         if account.unreadBadgeNumber > 0 {
-            let badgeView = RoundedNumberView()
-            badgeView.highlightType = .important
-            badgeView.number = account.unreadBadgeNumber
+            let badgeView = BadgeView(frame: .zero)
+            badgeView.badgeColor = NCAppBranding.themeColor()
+            badgeView.badgeTextColor = NCAppBranding.themeTextColor()
+            badgeView.setBadgeNumber(account.unreadBadgeNumber)
             cell.accessoryView = badgeView
         }
 

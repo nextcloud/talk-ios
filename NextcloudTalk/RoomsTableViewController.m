@@ -80,12 +80,14 @@ typedef enum RoomsSections {
     }];
     
     [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
-    [self.tableView registerNib:[UINib nibWithNibName:RoomInvitationViewCell.NibName bundle:nil] forCellReuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+    [self.tableView registerClass:InfoLabelTableViewCell.class forCellReuseIdentifier:InfoLabelTableViewCell.identifier];
 
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
     self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
 
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     _resultTableViewController = [[RoomSearchTableViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
@@ -1307,15 +1309,6 @@ typedef enum RoomsSections {
     return _rooms.count;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        return RoomInvitationViewCell.CellHeight;
-    }
-
-    return RoomTableViewCell.cellHeight;
-}
-
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
@@ -1405,9 +1398,9 @@ typedef enum RoomsSections {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        RoomInvitationViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+        InfoLabelTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:InfoLabelTableViewCell.identifier];
         if (!cell) {
-            cell = [[RoomInvitationViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+            cell = [[InfoLabelTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:InfoLabelTableViewCell.identifier];
         }
 
         // Pending federation invitations
@@ -1427,7 +1420,7 @@ typedef enum RoomsSections {
         NSRange range = NSMakeRange(0, [resultString length]);
         [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
 
-        cell.detailsLabel.attributedText = resultString;
+        cell.label.attributedText = resultString;
         cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;
@@ -1463,15 +1456,15 @@ typedef enum RoomsSections {
         [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
-    [cell.roomImage setAvatarFor:room];
+    [cell.avatarView setAvatarFor:room];
 
     // Set favorite or call image
     if (room.hasCall) {
-        [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"video.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemRedColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"video.fill"]];
     } else if (room.isFavorite) {
-        [cell.favoriteImage setTintColor:[UIColor systemYellowColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemYellowColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
 
     cell.roomToken = room.token;
@@ -1488,26 +1481,8 @@ typedef enum RoomsSections {
     RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
-    //Show User Status
-    if (room.type == kNCRoomTypeOneToOne && [room.status length] != 0) {
-        if (![room.status isEqualToString:@"dnd"] && [room.statusIcon length] != 0) {
-            [cell setUserStatusIcon:room.statusIcon];
-        } else {
-            [cell setUserStatus:room.status];
-        }
-    } else if (room.isPublic) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:12];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"link"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    } else if (room.isFederated) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:14];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"globe"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    }
+    UIColor *backgroundColor = cell.backgroundConfiguration.backgroundColor ? cell.backgroundConfiguration.backgroundColor : cell.backgroundColor;
+    [cell.avatarView setStatusFor:room with:backgroundColor];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

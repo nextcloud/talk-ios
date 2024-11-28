@@ -296,8 +296,7 @@
 		1FE029BA2CE289A400C0C633 /* MessageSeparatorTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE029B92CE289A200C0C633 /* MessageSeparatorTableViewCell.swift */; };
 		1FE0C56C2A0531200083576A /* ReferenceTalkView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */; };
 		1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */; };
-		1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */; };
-		1FE7DE322BB459B10040EE12 /* RoomInvitationViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */; };
+		1FE7DE302BB4598F0040EE12 /* InfoLabelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE7DE2F2BB4598F0040EE12 /* InfoLabelTableViewCell.swift */; };
 		1FE7DE332BBC8FA00040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FE7DE342BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
@@ -371,7 +370,6 @@
 		2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
 		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
-		2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */; };
 		2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C16A82B28E7284D00EDE523 /* NCButton.swift */; };
 		2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
 		2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
@@ -467,6 +465,7 @@
 		2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
+		2C6F0D6C2CDE26B0005E0812 /* BadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6F0D6B2CDE26B0005E0812 /* BadgeView.swift */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
 		2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C738157210613A200CDB8DB /* NCChatTitleView.xib */; };
 		2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
@@ -576,6 +575,8 @@
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
 		2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */; };
 		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
+		2CF338E12CED388B0029CACC /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF338E02CED388B0029CACC /* AvatarView.swift */; };
+		2CF338E22CED388B0029CACC /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF338E02CED388B0029CACC /* AvatarView.swift */; };
 		2CF8AD3F2A0010FB00A4D3E6 /* MessageTranslationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */; };
 		2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
@@ -815,8 +816,7 @@
 		1FE029B92CE289A200C0C633 /* MessageSeparatorTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSeparatorTableViewCell.swift; sourceTree = "<group>"; };
 		1FE0C56B2A0531200083576A /* ReferenceTalkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceTalkView.xib; sourceTree = "<group>"; };
 		1FE0C56D2A0531270083576A /* ReferenceTalkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceTalkView.swift; sourceTree = "<group>"; };
-		1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomInvitationViewCell.swift; sourceTree = "<group>"; };
-		1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoomInvitationViewCell.xib; sourceTree = "<group>"; };
+		1FE7DE2F2BB4598F0040EE12 /* InfoLabelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoLabelTableViewCell.swift; sourceTree = "<group>"; };
 		1FE94733293CE55600D6584C /* NCCameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCameraController.swift; sourceTree = "<group>"; };
 		1FEC459B2A02BCAE00A636AA /* ReferenceGithubPermalinkView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubPermalinkView.xib; sourceTree = "<group>"; };
 		1FEC459D2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubPermalinkView.swift; sourceTree = "<group>"; };
@@ -863,8 +863,6 @@
 		2C06BF6320AC64370031EB46 /* DateHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DateHeaderView.xib; sourceTree = "<group>"; };
 		2C06BF6520AC647A0031EB46 /* DateHeaderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateHeaderView.h; sourceTree = "<group>"; };
 		2C06BF6620AC647A0031EB46 /* DateHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateHeaderView.m; sourceTree = "<group>"; };
-		2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedNumberView.m; sourceTree = "<group>"; };
-		2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedNumberView.h; sourceTree = "<group>"; };
 		2C16A82B28E7284D00EDE523 /* NCButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCButton.swift; sourceTree = "<group>"; };
 		2C1ABDC4257A7CF000AEDFB6 /* NCContactsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCContactsManager.h; sourceTree = "<group>"; };
 		2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCContactsManager.m; sourceTree = "<group>"; };
@@ -982,6 +980,7 @@
 		2C6E74452386D33200AE396C /* ReplyMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReplyMessageView.m; sourceTree = "<group>"; };
 		2C6E7447238C1A0800AE396C /* QuotedMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuotedMessageView.h; sourceTree = "<group>"; };
 		2C6E7448238C1A0800AE396C /* QuotedMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuotedMessageView.m; sourceTree = "<group>"; };
+		2C6F0D6B2CDE26B0005E0812 /* BadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeView.swift; sourceTree = "<group>"; };
 		2C7381542106136000CDB8DB /* NCChatTitleView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatTitleView.h; sourceTree = "<group>"; };
 		2C7381552106136000CDB8DB /* NCChatTitleView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatTitleView.m; sourceTree = "<group>"; };
 		2C738157210613A200CDB8DB /* NCChatTitleView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NCChatTitleView.xib; sourceTree = "<group>"; };
@@ -1146,6 +1145,7 @@
 		2CEA990828B8B5780029216A /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header.h"; sourceTree = "<group>"; };
 		2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+Extensions.swift"; sourceTree = "<group>"; };
+		2CF338E02CED388B0029CACC /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
 		2CF8AD3D2A0010FB00A4D3E6 /* MessageTranslationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTranslationViewController.swift; sourceTree = "<group>"; };
 		2CF8AD3E2A0010FB00A4D3E6 /* MessageTranslationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageTranslationViewController.xib; sourceTree = "<group>"; };
 		342600BABD1AD1FCA48B5E59 /* Pods-NextcloudTalkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1671,10 +1671,12 @@
 				2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */,
 				1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */,
 				1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */,
+				1FE7DE2F2BB4598F0040EE12 /* InfoLabelTableViewCell.swift */,
 				2CC3166D2CC698E1007CBE16 /* TextFieldTableViewCell.swift */,
 				2CC316712CC79898007CBE16 /* TextViewTableViewCell.swift */,
 				1F468E7728DCC7310099597B /* EmojiTextField.swift */,
 				1F371A362A7B921A006CBFB3 /* DatePickerTextField.swift */,
+				2C6F0D6B2CDE26B0005E0812 /* BadgeView.swift */,
 				2C16A82B28E7284D00EDE523 /* NCButton.swift */,
 				1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */,
 				1F8995B22970644C00CABA33 /* ColorGenerator.swift */,
@@ -1682,6 +1684,7 @@
 				1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */,
 				1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */,
 				1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */,
+				2CF338E02CED388B0029CACC /* AvatarView.swift */,
 				1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */,
 				1F3C41A229EDF05700F58435 /* AvatarEditView.swift */,
 				1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */,
@@ -1741,10 +1744,6 @@
 			isa = PBXGroup;
 			children = (
 				1FB7B9932BF0DE4A0093CE98 /* Banned Actors */,
-				1FE7DE312BB459B10040EE12 /* RoomInvitationViewCell.xib */,
-				1FE7DE2F2BB4598F0040EE12 /* RoomInvitationViewCell.swift */,
-				2C06BF6B20AEB0030031EB46 /* RoundedNumberView.h */,
-				2C06BF6A20AEB0030031EB46 /* RoundedNumberView.m */,
 				2CA1CCC11F166CC5002FE6A2 /* NCRoom.h */,
 				2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */,
 				1FF1360E2BFB4F8C006A6101 /* NCRoom.swift */,
@@ -2547,7 +2546,7 @@
 				1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
-				1FE7DE322BB459B10040EE12 /* RoomInvitationViewCell.xib in Resources */,
+				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */,
@@ -3017,14 +3016,14 @@
 				1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */,
 				1F1B0F482BE047CE003FD766 /* CustomPresentable.swift in Sources */,
 				1FE0C56E2A0531270083576A /* ReferenceTalkView.swift in Sources */,
-				1FE7DE302BB4598F0040EE12 /* RoomInvitationViewCell.swift in Sources */,
+				1FE7DE302BB4598F0040EE12 /* InfoLabelTableViewCell.swift in Sources */,
 				1F77A6222AB9EB06007B6037 /* SocketConnection.m in Sources */,
 				1FF136152BFB74C3006A6101 /* NCChatMessage.swift in Sources */,
 				1FDB47F62C9C71CE00D6F423 /* TalkAccount.swift in Sources */,
 				2CC1C38829C0945700C8436B /* DRCellSlideActionView.m in Sources */,
 				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
-				2C06BF6C20AEB0030031EB46 /* RoundedNumberView.m in Sources */,
+				1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
 				DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */,
@@ -3076,10 +3075,12 @@
 				1FF4DA912C02677C00C1B952 /* NCImageSessionManager.swift in Sources */,
 				1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
+				2C6F0D6C2CDE26B0005E0812 /* BadgeView.swift in Sources */,
 				1FF4DA8C2C0263A200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
 				2C04249B2CA33681004772F6 /* AudioPlayerView.swift in Sources */,
 				1F1B0F462BE047CE003FD766 /* InteractionControlling.swift in Sources */,
+				2CF338E12CED388B0029CACC /* AvatarView.swift in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
 				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,
 				1FDFC94D2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
@@ -3116,6 +3117,7 @@
 				2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */,
 				1F35F8EC2AEEBC1400044BDA /* UIScrollView+SLKAdditions.m in Sources */,
 				1FF136172BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
+				2CF338E22CED388B0029CACC /* AvatarView.swift in Sources */,
 				1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
 				1F8AAC3E2C519689004DA20A /* StunServer.swift in Sources */,
