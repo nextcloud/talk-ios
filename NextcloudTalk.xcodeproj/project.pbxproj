@@ -2546,7 +2546,6 @@
 				1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
-				2C4CDCD226A84E550023F403 /* ShareTableViewCell.xib in Resources */,
 				1FEC45A52A02F92B00A636AA /* GithubPermalinkViewController.xib in Resources */,
 				2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */,
 				1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */,
@@ -3023,7 +3022,6 @@
 				2CC1C38829C0945700C8436B /* DRCellSlideActionView.m in Sources */,
 				1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */,
 				2C78EF951F7E70EB008AFA74 /* NCPeerConnection.m in Sources */,
-				1FDDB0DB2AF440E100FBAFB7 /* BoundsChangedFlowLayout.swift in Sources */,
 				DA1AEFC3270F1FA90088E519 /* DateLabelCustom.swift in Sources */,
 				2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */,
 				DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */,
@@ -3765,7 +3763,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 20.0.1;
+				MARKETING_VERSION = 20.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3811,7 +3809,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 20.0.1;
+				MARKETING_VERSION = 20.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3898,7 +3896,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICKeyChainStore\"",
 					"\"${PODS_ROOT}/Realm/core\"",
 				);
-				MARKETING_VERSION = 20.0.1;
+				MARKETING_VERSION = 20.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
@@ -3991,7 +3989,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICKeyChainStore\"",
 					"\"${PODS_ROOT}/Realm/core\"",
 				);
-				MARKETING_VERSION = 20.0.1;
+				MARKETING_VERSION = 20.1.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
 				PRODUCT_NAME = ShareExtension;
@@ -4063,7 +4061,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 20.0.1;
+				MARKETING_VERSION = 20.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
@@ -4136,7 +4134,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 20.0.1;
+				MARKETING_VERSION = 20.1.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
