@@ -2032,12 +2032,12 @@ typedef enum FileAction {
                         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:allowGuestsCellIdentifier];
                     }
                     
-                    cell.textLabel.text = NSLocalizedString(@"Allow guests", nil);
+                    cell.textLabel.text = NSLocalizedString(@"Allow guests to join this conversation via link", nil);
                     cell.textLabel.numberOfLines = 0;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     cell.accessoryView = _publicSwitch;
                     _publicSwitch.on = (_room.type == kNCRoomTypePublic) ? YES : NO;
-                    [cell.imageView setImage:[UIImage systemImageNamed:@"link"]];
+                    [cell.imageView setImage:[[UIImage imageNamed:@"link"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
                     return cell;

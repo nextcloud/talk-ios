@@ -128,7 +128,7 @@
 "All notifications are muted" = "All notifications are muted";
 
 /* No comment provided by engineer. */
-"Allow guests" = "Allow guests";
+"Allow guests to join this conversation via link" = "Allow guests to join this conversation via link";
 
 /* '@all' should not be translated */
 "Allow participants to mention @all" = "Allow participants to mention @all";
