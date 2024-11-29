@@ -13,6 +13,8 @@
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
+        selectionStyle = .none
+
         label.numberOfLines = 0
         label.textAlignment = .center
         label.layer.cornerRadius = 8
@@ -52,5 +54,13 @@
 
         label.text = ""
         label.attributedText = nil
+    }
+
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+
+        UIView.animate(withDuration: 0.2) {
+            self.label.alpha = highlighted ? 0.5 : 1.0
+        }
     }
 }
