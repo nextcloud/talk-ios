@@ -515,7 +515,7 @@ import Foundation
             return
         }
 
-        let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)"
+        let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)/now"
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, _ in
             guard let dataDict = ocsResponse?.dataDict else {
