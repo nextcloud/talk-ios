@@ -57,16 +57,16 @@ import Foundation
     public func setUnread(messages number: Int, mentioned: Bool, groupMentioned: Bool) {
         self.unreadMessagesView.badgeColor = NCAppBranding.themeColor()
         self.unreadMessagesView.badgeTextColor = NCAppBranding.themeTextColor()
-        self.unreadMessagesView.setBadgeNumber(number)
-        self.unreadMessagesView.badgeHighlightStyle = .none
-
-        if groupMentioned {
-            self.unreadMessagesView.badgeHighlightStyle = .border
-        }
 
         if mentioned {
             self.unreadMessagesView.badgeHighlightStyle = .important
+        } else if groupMentioned {
+            self.unreadMessagesView.badgeHighlightStyle = .border
+        } else if number > 0 {
+            self.unreadMessagesView.badgeHighlightStyle = .none
         }
+
+        self.unreadMessagesView.setBadgeNumber(number)
 
         if number > 0 {
             self.titleLabel.font = UIFont.preferredFont(for: .headline, weight: .bold)
