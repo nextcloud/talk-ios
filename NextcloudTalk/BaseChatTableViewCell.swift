@@ -131,24 +131,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotedMessageView?.avatarView.cancelCurrentRequest()
         self.quotedMessageView?.avatarView.image = nil
 
-        self.titleLabel.text = ""
-        self.dateLabel.text = ""
-
-        self.headerPart.isHidden = false
-        self.quotePart.isHidden = true
-        self.referencePart.isHidden = true
-        self.reactionPart.isHidden = true
-
-        self.statusView.isHidden = false
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
-
         self.referenceView?.prepareForReuse()
 
-        self.prepareForReuseMessageCell()
         self.prepareForReuseFileCell()
         self.prepareForReuseLocationCell()
         self.prepareForReuseAudioCell()
-        self.prepareForReusePollCell()
 
         if let replyGestureRecognizer {
             self.removeGestureRecognizer(replyGestureRecognizer)
@@ -208,13 +195,15 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
+        } else {
+            self.hideQuotePart()
         }
 
         if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
         }
 
-        // When `setDeliveryState` is not called, we still need to make sure the placeholder view is removed
+        // Make sure the status view is empty, when no delivery state should be set
         self.statusView.subviews.forEach { $0.removeFromSuperview() }
 
         if message.isDeleting {
@@ -238,6 +227,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if !reactionsArray.isEmpty {
             self.showReactionsPart()
             self.reactionView?.updateReactions(reactions: reactionsArray)
+        } else {
+            self.hideReactionsPart()
         }
 
         if message.containsURL() {
@@ -257,6 +248,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                     self.referenceView?.update(for: referenceData, and: url)
                 }
             }
+        } else {
+            self.hideReferencePart()
         }
 
         if message.isReplyable, !message.isDeleting {
@@ -283,6 +276,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if message.isDeletedMessage {
             self.statusView.isHidden = true
             self.messageTextView?.textColor = .tertiaryLabel
+        } else {
+            self.statusView.isHidden = false
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
@@ -320,8 +315,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func setDeliveryState(to deliveryState: ChatMessageDeliveryState) {
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
-
         if deliveryState == .sending || deliveryState == .deleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
@@ -398,6 +391,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
     }
 
+    func hideQuotePart() {
+        self.quotePart.isHidden = true
+    }
+
     @objc func quoteTapped(_ sender: UITapGestureRecognizer?) {
         if let parent = self.message?.parent {
             self.delegate?.cellWantsToScroll(to: parent)
@@ -426,6 +423,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
     }
 
+    func hideReferencePart() {
+        self.referencePart.isHidden = true
+    }
+
     // MARK: - ReactionsPart
 
     func showReactionsPart() {
@@ -450,6 +451,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                 reactionView.bottomAnchor.constraint(equalTo: self.reactionPart.bottomAnchor, constant: -10)
             ])
         }
+    }
+
+    func hideReactionsPart() {
+        self.reactionPart.isHidden = true
     }
 
     // MARK: - ReactionsView Delegate
