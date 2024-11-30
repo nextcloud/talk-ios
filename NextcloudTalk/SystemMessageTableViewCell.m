@@ -27,10 +27,6 @@
 
 - (void)configureSubviews
 {
-    if ([self.reuseIdentifier isEqualToString:InvisibleSystemMessageCellIdentifier]) {
-        return;
-    }
-
     [self.contentView addSubview:self.dateLabel];
     [self.contentView addSubview:self.bodyTextView];
     [self.contentView addSubview:self.collapseButton];
@@ -58,7 +54,7 @@
     [super prepareForReuse];
 
     if (!self.didCreateSubviews) {
-        [self configureSubviews];
+        return;
     }
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;

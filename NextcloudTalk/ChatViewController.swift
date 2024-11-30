@@ -1031,6 +1031,18 @@ import SwiftyAttributes
                 self.appendMessages(messages: messages)
 
                 for newMessage in messages {
+                    // Update messages might trigger an reload of another cell, but are not part of the tableView itself
+                    if newMessage.isUpdateMessage {
+                        if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
+                            if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
+                                // We received an update message to a message which is already part of our current data, therefore we need to reload it
+                                reloadIndexPaths.insert(parentPath)
+                            }
+                        }
+
+                        continue
+                    }
+
                     // If we don't get an indexPath here, something is wrong with our appendMessages function
                     let indexPath = self.indexPath(for: newMessage)!
 
@@ -1045,13 +1057,6 @@ import SwiftyAttributes
                     } else {
                         // New indexPath -> insert it
                         insertIndexPaths.insert(indexPath)
-                    }
-
-                    if newMessage.isUpdateMessage, let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
-                        if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
-                            // We received an update message to a message which is already part of our current data, therefore we need to reload it
-                            reloadIndexPaths.insert(parentPath)
-                        }
                     }
 
                     if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage) {

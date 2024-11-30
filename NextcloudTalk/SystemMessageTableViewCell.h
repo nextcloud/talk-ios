@@ -12,7 +12,6 @@
 static CGFloat kSystemMessageCellMinimumHeight  = 30.0;
 
 static NSString *SystemMessageCellIdentifier            = @"SystemMessageCellIdentifier";
-static NSString *InvisibleSystemMessageCellIdentifier   = @"InvisibleSystemMessageCellIdentifier";
 
 @protocol SystemMessageTableViewCellDelegate <ChatTableViewCellDelegate>
 

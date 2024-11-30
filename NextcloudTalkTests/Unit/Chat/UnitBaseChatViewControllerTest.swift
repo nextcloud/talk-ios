@@ -42,17 +42,6 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         testMessage = NCChatMessage(dictionary: [:], andAccountId: UnitBaseChatViewControllerTest.fakeAccountId)
     }
 
-    func testInvisibleCellHeight() throws {
-        // Empty message should have a height of 0
-        testMessage.message = ""
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 0.0)
-
-        // Test update message
-        testMessage.message = "System Message"
-        testMessage.systemMessage = "message_deleted"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 0.0)
-    }
-
     func testSystemMessageCellHeight() throws {
         testMessage.message = "System Message"
         testMessage.systemMessage = "test_system_message"

@@ -271,7 +271,6 @@ import SwiftUI
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: pollGroupedMessageCellIdentifier)
 
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
-        self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: InvisibleSystemMessageCellIdentifier)
         self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorTableViewCell.identifier)
 
         let newMessagesButtonText = NSLocalizedString("↓ New messages", comment: "")
@@ -2171,6 +2170,10 @@ import SwiftUI
 
     private func internalAppendMessages(messages: [NCChatMessage], inDictionary dictionary: inout [Date: [NCChatMessage]]) {
         for newMessage in messages {
+            // Skip any update message, as that would still trigger some operations on the UITableView.
+            // Processing of update messages still happens when receiving new messages, so safe to skip here
+            guard !newMessage.isUpdateMessage else { continue }
+
             let newMessageDate = Date(timeIntervalSince1970: TimeInterval(newMessage.timestamp))
             let keyDate = self.getKeyForDate(date: newMessageDate, inDictionary: dictionary)
 
@@ -2749,12 +2752,6 @@ import SwiftUI
             return cell
         }
 
-        if message.isUpdateMessage,
-           let cell = self.tableView?.dequeueReusableCell(withIdentifier: InvisibleSystemMessageCellIdentifier) as? SystemMessageTableViewCell {
-
-            return cell
-        }
-
         if message.isSystemMessage,
            let cell = self.tableView?.dequeueReusableCell(withIdentifier: SystemMessageCellIdentifier) as? SystemMessageTableViewCell {
 
@@ -2874,8 +2871,8 @@ import SwiftUI
             return size.height
         }
 
-        // Update messages (the ones that notify about an update in one message, they should not be displayed)
-        if message.message.isEmpty || message.isUpdateMessage || (message.isCollapsed && message.collapsedBy != nil) {
+        // Empty or collapsed system messages should not be displayed
+        if message.message.isEmpty || (message.isCollapsed && message.collapsedBy != nil) {
             return 0.0
         }
 
