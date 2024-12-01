@@ -297,7 +297,12 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
 
-    NSRegularExpression *parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+    static NSRegularExpression *parameterRegex;
+
+    if (!parameterRegex) {
+        parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+    }
+
     NSArray *matches = [parameterRegex matchesInString:originalMessage
                                                options:0
                                                  range:NSMakeRange(0, [originalMessage length])];
