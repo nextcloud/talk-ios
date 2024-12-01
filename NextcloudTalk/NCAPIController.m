@@ -33,6 +33,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 @interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate, NKCommonDelegate>
 
 @property (nonatomic, strong) NCAPISessionManager *defaultAPISessionManager;
+@property (nonatomic, strong) NSCache<NSString *, NSString *> *authTokenCache;
+@property (nonatomic, strong) NSCache<NSString *, SDWebImageDownloaderRequestModifier *> *requestModifierCache;
 
 @end
 
@@ -52,6 +54,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     self = [super init];
     if (self) {
+        self.authTokenCache = [[NSCache alloc] init];
+        self.requestModifierCache = [[NSCache alloc] init];
+        
         [self initSessionManagers];
         [self initImageDownloaders];
     }
@@ -75,6 +80,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account
 {
+    // Make sure there are no old entries in our caches when we create APISessionManagers
+    [self.authTokenCache removeObjectForKey:account.accountId];
+    [self.requestModifierCache removeObjectForKey:account.accountId];
+
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
     configuration.HTTPCookieStorage = cookieStorage;
@@ -91,6 +100,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     apiSessionManager = [[NCAPISessionManager alloc] initWithConfiguration:configuration];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     [_longPollingApiSessionManagers setObject:apiSessionManager forKey:account.accountId];
+}
+
+- (void)removeAPISessionManagerForAccount:(TalkAccount *)account
+{
+    [self.authTokenCache removeObjectForKey:account.accountId];
+    [self.requestModifierCache removeObjectForKey:account.accountId];
+    [self.apiSessionManagers removeObjectForKey:account.accountId];
+    [self.longPollingApiSessionManagers removeObjectForKey:account.accountId];
 }
 
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account
@@ -141,19 +158,37 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
 {
+    NSString *cachedHeader = [self.authTokenCache objectForKey:account.accountId];
+
+    if (cachedHeader) {
+        return cachedHeader;
+    }
+
     NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]];
     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
-    
-    return [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
+
+    NSString *authHeader = [[NSString alloc] initWithFormat:@"Basic %@",base64Encoded];
+    [self.authTokenCache setObject:authHeader forKey:account.accountId];
+
+    return authHeader;
 }
 
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account
 {
+    SDWebImageDownloaderRequestModifier *cachedModifier = [self.requestModifierCache objectForKey:account.accountId];
+
+    if (cachedModifier) {
+        return cachedModifier;
+    }
+
     NSMutableDictionary *headerDictionary = [[NSMutableDictionary alloc] init];
     [headerDictionary setObject:[self authHeaderForAccount:account] forKey:@"Authorization"];
 
-    return [[SDWebImageDownloaderRequestModifier alloc] initWithHeaders:headerDictionary];
+    SDWebImageDownloaderRequestModifier *requestModifier = [[SDWebImageDownloaderRequestModifier alloc] initWithHeaders:headerDictionary];
+    [self.requestModifierCache setObject:requestModifier forKey:account.accountId];
+
+    return requestModifier;
 }
 
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account
