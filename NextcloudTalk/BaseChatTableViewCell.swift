@@ -200,6 +200,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
+        } else {
+            self.headerPart.isHidden = false
         }
 
         // Make sure the status view is empty, when no delivery state should be set
