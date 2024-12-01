@@ -67,6 +67,8 @@
 		1F205C532CEF91C500AAA673 /* UserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C4F2CEF903000AAA673 /* UserAbsence.swift */; };
 		1F205C552CEFA01200AAA673 /* OutOfOfficeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F205C542CEFA01200AAA673 /* OutOfOfficeView.xib */; };
 		1F205C572CEFA01900AAA673 /* OutOfOfficeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C562CEFA01900AAA673 /* OutOfOfficeView.swift */; };
+		1F205D412CFC6DD300AAA673 /* AvatarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205D402CFC6DCF00AAA673 /* AvatarProtocol.swift */; };
+		1F205D442CFC70AD00AAA673 /* AvatarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205D402CFC6DCF00AAA673 /* AvatarProtocol.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
 		1F35F8E22AEEBAF900044BDA /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
@@ -691,6 +693,7 @@
 		1F205C4F2CEF903000AAA673 /* UserAbsence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAbsence.swift; sourceTree = "<group>"; };
 		1F205C542CEFA01200AAA673 /* OutOfOfficeView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OutOfOfficeView.xib; sourceTree = "<group>"; };
 		1F205C562CEFA01900AAA673 /* OutOfOfficeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfOfficeView.swift; sourceTree = "<group>"; };
+		1F205D402CFC6DCF00AAA673 /* AvatarProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarProtocol.swift; sourceTree = "<group>"; };
 		1F21A0622C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		1F21A0632C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		1F21A0642C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "nb-NO"; path = "nb-NO.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -1683,9 +1686,10 @@
 				1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */,
 				1F1C0D8629AFB88800D17C6D /* VLCKitVideoViewController.xib */,
 				1F90DA0329E9A28E00E81E3D /* AvatarManager.swift */,
+				1F205D402CFC6DCF00AAA673 /* AvatarProtocol.swift */,
+				1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */,
 				1FDCC3D329EBF6E700DEB39B /* AvatarImageView.swift */,
 				2CF338E02CED388B0029CACC /* AvatarView.swift */,
-				1FDCC3EF29ECB4CE00DEB39B /* AvatarButton.swift */,
 				1F3C41A229EDF05700F58435 /* AvatarEditView.swift */,
 				1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */,
 				2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */,
@@ -2860,6 +2864,7 @@
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
 				1FEDE3CE257D43AB00853F79 /* NCMessageFileParameter.m in Sources */,
 				2C4446DD2658158000DF1DBC /* NCChatBlock.m in Sources */,
+				1F205D412CFC6DD300AAA673 /* AvatarProtocol.swift in Sources */,
 				1FDCC3F029ECB4CE00DEB39B /* AvatarButton.swift in Sources */,
 				2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */,
 				2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
@@ -3144,6 +3149,7 @@
 				2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				1F35F8ED2AEEBC1600044BDA /* UIView+SLKAdditions.m in Sources */,
 				1FDFC94F2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
+				1F205D442CFC70AD00AAA673 /* AvatarProtocol.swift in Sources */,
 				1F35F8EA2AEEBC0E00044BDA /* SLKTextViewController.m in Sources */,
 				2C6955132B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
 				1F8AAC342C518B8A004DA20A /* SignalingSettings.swift in Sources */,
