@@ -312,9 +312,7 @@ import UIKit
         if suggestion.id == "all" {
             cell.avatarButton.setAvatar(for: self.room)
         } else {
-            if let account = room.account {
-                cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token, using: account)
-            }
+            cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token, using: self.account)
         }
 
         cell.accessibilityIdentifier = AutoCompletionCellIdentifier

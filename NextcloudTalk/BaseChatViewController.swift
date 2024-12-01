@@ -501,13 +501,11 @@ import SwiftUI
     // MARK: - Temporary messages
 
     internal func createTemporaryMessage(message: String, replyTo parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) -> NCChatMessage? {
-        guard let account = self.room.account else { return nil }
-
         let temporaryMessage = NCChatMessage()
 
-        temporaryMessage.accountId = account.accountId
-        temporaryMessage.actorDisplayName = account.userDisplayName
-        temporaryMessage.actorId = account.userId
+        temporaryMessage.accountId = self.account.accountId
+        temporaryMessage.actorDisplayName = self.account.userDisplayName
+        temporaryMessage.actorId = self.account.userId
         temporaryMessage.actorType = "users"
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
@@ -879,14 +877,12 @@ import SwiftUI
     }
 
     func showReplyView(for message: NCChatMessage) {
-        guard let account = message.account else { return }
-
         let isAtBottom = self.shouldScrollOnNewMessages()
 
         if let replyProxyView = self.replyProxyView as? ReplyMessageView {
             self.replyMessageView = replyProxyView
 
-            replyProxyView.presentReply(with: message, withUserId: account.userId)
+            replyProxyView.presentReply(with: message, withUserId: self.account.userId)
             self.presentKeyboard(true)
 
             // Make sure we're really at the bottom after showing the replyMessageView
@@ -958,13 +954,11 @@ import SwiftUI
     }
 
     func didPressNoteToSelf(for message: NCChatMessage) {
-        guard let account = message.account else { return }
-
-        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: account) { roomDict, error in
-            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: account.accountId) {
+        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: self.account) { roomDict, error in
+            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: self.account.accountId) {
 
                 if message.isObjectShare {
-                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: account) { error in
+                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -972,7 +966,7 @@ import SwiftUI
                         }
                     }
                 } else {
-                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: account) { error in
+                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -1108,9 +1102,7 @@ import SwiftUI
             self.updateMessage(withMessageId: deletingMessage.messageId, updatedMessage: deletingMessage)
         }
 
-        guard let account = message.account else { return }
-
-        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: account) { messageDict, error, statusCode in
+        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: self.account) { messageDict, error, statusCode in
             if error == nil,
                let messageDict,
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
@@ -1121,7 +1113,7 @@ import SwiftUI
                     NotificationPresenter.shared().present(text: NSLocalizedString("Message deleted successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
 
-                if let deleteMessage = NCChatMessage(dictionary: parent, andAccountId: account.accountId) {
+                if let deleteMessage = NCChatMessage(dictionary: parent, andAccountId: self.account.accountId) {
                     self.updateMessage(withMessageId: deleteMessage.messageId, updatedMessage: deleteMessage)
                 }
             } else if error != nil {
@@ -1349,10 +1341,8 @@ import SwiftUI
     }
 
     internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController)? {
-        guard let account = room.account else { return nil }
-
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: account, serverCapabilities: serverCapabilities!)!
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.account.accountId)
+        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: self.account, serverCapabilities: serverCapabilities!)!
         shareConfirmationVC.delegate = self
         shareConfirmationVC.isModal = true
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)
@@ -1482,11 +1472,9 @@ import SwiftUI
     // MARK: - ShareLocationViewController Delegate
 
     public func shareLocationViewController(_ viewController: ShareLocationViewController, didSelectLocationWithLatitude latitude: Double, longitude: Double, andName name: String) {
-        guard let account = room.account else { return }
-
         let richObject = GeoLocationRichObject(latitude: latitude, longitude: longitude, name: name)
 
-        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: account) { error in
+        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: self.account) { error in
             if let error {
                 print("Error sharing rich object: \(error)")
             }
@@ -1498,8 +1486,7 @@ import SwiftUI
     // MARK: - CNContactPickerViewController Delegate
 
     public func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
-        guard let account = room.account,
-              let vCardData = try? CNContactVCardSerialization.data(with: [contact])
+        guard let vCardData = try? CNContactVCardSerialization.data(with: [contact])
         else { return }
 
         var vcString = String(data: vCardData, encoding: .utf8)
@@ -1519,7 +1506,7 @@ import SwiftUI
             let url = URL(fileURLWithPath: filePath)
             let contactFileName = "\(contact.identifier).vcf"
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: account) { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: self.account) { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil)
                 } else {
@@ -1695,8 +1682,6 @@ import SwiftUI
     }
 
     func shareVoiceMessage() {
-        guard let account = room.account else { return }
-
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
         let dateString = dateFormatter.string(from: Date())
@@ -1719,7 +1704,7 @@ import SwiftUI
 
         audioFileName += ".mp3"
 
-        NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: account, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+        NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: self.account, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
             if let fileServerURL, let fileServerPath, let recorder = self.recorder {
                 let talkMetaData: [String: String] = ["messageType": "voice-message"]
                 self.uploadFileAtPath(localPath: recorder.url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData)
@@ -1730,9 +1715,7 @@ import SwiftUI
     }
 
     func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: String]?) {
-        guard let account = room.account else { return }
-
-        NCAPIController.sharedInstance().setupNCCommunication(for: account)
+        NCAPIController.sharedInstance().setupNCCommunication(for: self.account)
 
         NextcloudKit.shared.upload(serverUrlFileName: fileServerURL, fileNameLocalPath: localPath, taskHandler: { _ in
             NSLog("Upload task")
@@ -1742,13 +1725,13 @@ import SwiftUI
             NSLog("Upload completed with error code: %ld", error.errorCode)
 
             if error.errorCode == 0 {
-                NCAPIController.sharedInstance().shareFileOrFolder(for: account, atPath: fileServerPath, toRoom: self.room.token, talkMetaData: talkMetaData, withCompletionBlock: { error in
+                NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: fileServerPath, toRoom: self.room.token, talkMetaData: talkMetaData, withCompletionBlock: { error in
                     if error != nil {
                         NSLog("Failed to share voice message")
                     }
                 })
             } else if error.errorCode == 404 || error.errorCode == 409 {
-                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: account, withCompletionBlock: { created, _ in
+                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: self.account, withCompletionBlock: { created, _ in
                     if created {
                         self.uploadFileAtPath(localPath: localPath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData)
                     } else {
@@ -2307,21 +2290,19 @@ import SwiftUI
         collapseByMessage.collapsedMessages.add(newMessage.messageId as NSNumber)
         collapseByMessage.isCollapsed = true
 
-        guard let account = room.account else { return }
-
         var isUser0Self = false
         var isUser1Self = false
 
         if let userDict = collapseByMessage.messageParameters["user"] as? [String: Any] {
-            isUser0Self = userDict["id"] as? String == account.userId && userDict["type"] as? String == "user"
+            isUser0Self = userDict["id"] as? String == self.account.userId && userDict["type"] as? String == "user"
         }
 
         if let userDict = newMessage.messageParameters["user"] as? [String: Any] {
-            isUser1Self = userDict["id"] as? String == account.userId && userDict["type"] as? String == "user"
+            isUser1Self = userDict["id"] as? String == self.account.userId && userDict["type"] as? String == "user"
         }
 
-        let isActor0Self = collapseByMessage.actorId == account.userId && collapseByMessage.actorType == "users"
-        let isActor1Self = newMessage.actorId == account.userId && newMessage.actorType == "users"
+        let isActor0Self = collapseByMessage.actorId == self.account.userId && collapseByMessage.actorType == "users"
+        let isActor1Self = newMessage.actorId == self.account.userId && newMessage.actorType == "users"
         let isActor0Admin = collapseByMessage.actorId == "cli" && collapseByMessage.actorType == "guests"
 
         collapseByMessage.collapsedIncludesUserSelf = isUser0Self || isUser1Self
@@ -2530,18 +2511,16 @@ import SwiftUI
     // MARK: - Reactions
 
     func addReaction(reaction: String, to message: NCChatMessage) {
-        if message.reactionsArray().contains(where: {$0.reaction == reaction && $0.userReacted }) {
+        if message.reactionsArray().contains(where: { $0.reaction == reaction && $0.userReacted }) {
             // We can't add reaction twice
             return
         }
 
-        guard let account = message.account else { return }
-
         self.setTemporaryReaction(reaction: reaction, withState: .adding, toMessage: message)
 
-        NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: account.accountId)
+        NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: self.account.accountId)
 
-        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: account) { _, error, _ in
+        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2550,11 +2529,9 @@ import SwiftUI
     }
 
     func removeReaction(reaction: String, from message: NCChatMessage) {
-        guard let account = message.account else { return }
-
         self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
-        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: account) { _, error, _ in
+        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2621,9 +2598,7 @@ import SwiftUI
         reactionsVC.room = self.room
         self.presentWithNavigation(reactionsVC, animated: true)
 
-        guard let account = message.account else { return }
-
-        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: account) { reactionsDict, error, _ in
+        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { reactionsDict, error, _ in
             if error == nil,
                let reactions = reactionsDict as? [String: [[String: AnyObject]]] {
 
@@ -3470,9 +3445,9 @@ import SwiftUI
         pollVC.room = self.room
         self.presentWithNavigation(pollVC, animated: true)
 
-        guard let pollId = Int(poll.parameterId), let account = room.account else { return }
+        guard let pollId = Int(poll.parameterId) else { return }
 
-        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: account) { poll, error, _ in
+        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: self.account) { poll, error, _ in
             if error == nil, let poll {
                 pollVC.updatePoll(poll: poll)
             }
@@ -3482,9 +3457,7 @@ import SwiftUI
     // MARK: - PollCreationViewControllerDelegate
 
     func pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: PollCreationViewController, question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int) {
-        guard let account = room.account else { return }
-
-        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: self.room.token, for: account) { _, error, _ in
+        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: self.room.token, for: self.account) { _, error, _ in
             if error != nil {
                 pollCreationViewController.showCreationError()
             } else {
