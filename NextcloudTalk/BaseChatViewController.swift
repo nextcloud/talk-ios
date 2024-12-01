@@ -192,8 +192,8 @@ import SwiftUI
 
     // MARK: - Init/Deinit
 
-    public init?(for room: NCRoom) {
-        super.init(for: room, tableViewStyle: .plain)
+    public init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
+        super.init(forRoom: room, withAccount: account, tableViewStyle: .plain)
 
         self.hidesBottomBarWhenPushed = true
         self.tableView?.estimatedRowHeight = 0
@@ -209,8 +209,8 @@ import SwiftUI
 
     // Not using an optional here, because it is not available from ObjC
     // Pass "0" as highlightMessageId to not highlight a message
-    public convenience init?(for room: NCRoom, withMessage messages: [NCChatMessage], withHighlightId highlightMessageId: Int) {
-        self.init(for: room)
+    public convenience init?(forRoom room: NCRoom, withAccount account: TalkAccount, withMessage messages: [NCChatMessage], withHighlightId highlightMessageId: Int) {
+        self.init(forRoom: room, withAccount: account)
 
         // When we pass in a fixed number of messages, we hide the inputbar by default
         self.textInputbar.isHidden = true
@@ -2765,7 +2765,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 if let playerAudioFileStatus = self.playerAudioFileStatus,
                    let voiceMessagesPlayer = self.voiceMessagesPlayer {
@@ -2788,7 +2788,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 return cell
             }
@@ -2799,7 +2799,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 return cell
             }
@@ -2810,7 +2810,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 return cell
             }
@@ -2826,7 +2826,7 @@ import SwiftUI
 
         if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
             cell.delegate = self
-            cell.setup(for: message, inRoom: self.room)
+            cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
             return cell
         }

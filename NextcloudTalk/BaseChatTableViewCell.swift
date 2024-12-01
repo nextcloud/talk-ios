@@ -77,6 +77,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     public var message: NCChatMessage?
     public var room: NCRoom?
+    public var account: TalkAccount?
 
     internal var quotedMessageView: QuotedMessageView?
     internal var reactionView: ReactionsView?
@@ -144,11 +145,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    public func setup(for message: NCChatMessage, inRoom room: NCRoom) {
+    public func setup(for message: NCChatMessage, inRoom room: NCRoom, withAccount account: TalkAccount) {
         self.message = message
         self.room = room
+        self.account = account
 
-        self.avatarButton.setActorAvatar(forMessage: message)
+        self.avatarButton.setActorAvatar(forMessage: message, withAccount: account)
         self.avatarButton.menu = self.getDeferredUserMenu()
         self.avatarButton.showsMenuAsPrimaryAction = true
 
@@ -176,9 +178,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.titleLabel.attributedText = titleLabel
 
-        guard let account = message.account
-        else { return }
-
         let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
         var shouldShowReadStatus = false
 
@@ -194,7 +193,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.messageLabel.text = quoteString
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
-            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
+            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent, withAccount: account)
         } else {
             self.hideQuotePart()
         }

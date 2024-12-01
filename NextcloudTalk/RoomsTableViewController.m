@@ -1283,7 +1283,13 @@ typedef enum RoomsSections {
 
 - (void)presentContextChatInRoom:(NCRoom *)room forMessageId:(NSInteger)messageId
 {
-    ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initFor:room withMessage:@[] withHighlightId:0];
+    TalkAccount *account = room.account;
+
+    if (!account) {
+        return;
+    }
+
+    ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initForRoom:room withAccount:account withMessage:@[] withHighlightId:0];
     contextChatViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeContextChat)];
 
     NCChatController *chatController = [[NCChatController alloc] initForRoom:room];

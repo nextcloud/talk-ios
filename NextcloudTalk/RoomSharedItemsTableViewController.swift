@@ -405,7 +405,7 @@ import QuickLook
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: {
 
             // Init the BaseChatViewController without message to directly show a preview
-            if let chatViewController = ContextChatViewController(for: self.room, withMessage: [], withHighlightId: 0) {
+            if let account = self.room.account, let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0) {
                 self.previewChatViewController = chatViewController
 
                 // Fetch the context of the message and update the BaseChatViewController

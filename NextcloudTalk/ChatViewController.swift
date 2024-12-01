@@ -120,10 +120,10 @@ import SwiftyAttributes
 
     private var messageExpirationTimer: Timer?
 
-    public override init?(for room: NCRoom) {
+    public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
         self.chatController = NCChatController(for: room)
 
-        super.init(for: room)
+        super.init(forRoom: room, withAccount: account)
 
         NotificationCenter.default.addObserver(self, selector: #selector(didUpdateRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidUpdateRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidJoinRoom, object: nil)
