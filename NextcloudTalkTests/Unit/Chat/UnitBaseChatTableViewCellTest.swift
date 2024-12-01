@@ -59,10 +59,10 @@ final class UnitBaseChatTableViewCellTest: TestBaseRealm {
         }
 
         let deckCell: BaseChatTableViewCell = .fromNib()
-        deckCell.setup(for: deckMessage, inRoom: room)
+        deckCell.setup(for: deckMessage, inRoom: room, withAccount: activeAccount)
 
         let quoteCell: BaseChatTableViewCell = .fromNib()
-        quoteCell.setup(for: quoteMessage, inRoom: room)
+        quoteCell.setup(for: quoteMessage, inRoom: room, withAccount: activeAccount)
     }
 
 }

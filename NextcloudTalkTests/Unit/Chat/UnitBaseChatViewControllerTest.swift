@@ -38,8 +38,9 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
     override func setUpWithError() throws {
         try super.setUpWithError()
 
-        baseController = BaseChatViewController(for: NCRoom())!
-        testMessage = NCChatMessage(dictionary: [:], andAccountId: UnitBaseChatViewControllerTest.fakeAccountId)
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        baseController = BaseChatViewController(forRoom: NCRoom(), withAccount: activeAccount)!
+        testMessage = NCChatMessage(dictionary: [:], andAccountId: activeAccount.accountId)
     }
 
     func testSystemMessageCellHeight() throws {
