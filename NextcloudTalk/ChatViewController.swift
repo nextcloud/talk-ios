@@ -1525,11 +1525,13 @@ import SwiftyAttributes
                     }
 
                 } else if status == .failed {
+                    AiSummaryController.shared.finalizeSummaryTask(forRoomInternalId: self.room.internalId)
                     NotificationPresenter.shared().dismiss()
                     NotificationPresenter.shared().present(text: NSLocalizedString("Generating summary of unread messages failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
 
                     return
                 } else if status == .cancelled {
+                    AiSummaryController.shared.finalizeSummaryTask(forRoomInternalId: self.room.internalId)
                     NotificationPresenter.shared().dismiss()
                     return
                 }
