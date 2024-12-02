@@ -39,7 +39,7 @@ import SwiftyAttributes
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
 
         // We decide at this point if the unread marker should be with/without summary button, so it doesn't get changed when the room is updated
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatSummary, forAccountId: self.room.accountId),
+        if !self.room.isFederated, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatSummary, forAccountId: self.room.accountId),
            let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
            serverCapabilities.summaryThreshold <= self.room.unreadMessages {
 
