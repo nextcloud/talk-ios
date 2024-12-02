@@ -16,6 +16,7 @@ import SwiftyAttributes
     @IBOutlet weak var stackView: UIStackView!
 
     @IBOutlet weak var title: UILabel!
+    @IBOutlet weak var dates: UILabel!
     @IBOutlet weak var replacement: UILabel!
     @IBOutlet weak var subtitle: UITextView!
 
@@ -80,6 +81,29 @@ import SwiftyAttributes
         }
 
         var menuActions = [dismissAction]
+
+        if let startDateTimestamp = absenceData.startDate, let endDateTimestamp = absenceData.endDate {
+            let startDate = Date(timeIntervalSince1970: TimeInterval(startDateTimestamp))
+            let endDate = Date(timeIntervalSince1970: TimeInterval(endDateTimestamp))
+
+            let isSameDay = Calendar.current.isDate(startDate, inSameDayAs: endDate)
+            if isSameDay {
+                title.text = String.localizedStringWithFormat(NSLocalizedString("%@ is out of office today", comment: "'%@' is the name of a user"), room.displayName)
+                dates.isHidden = true
+            } else {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateStyle = .medium
+                dateFormatter.timeStyle = .none
+                dateFormatter.locale = Locale.current
+
+                let startDateString = dateFormatter.string(from: startDate)
+                let endDateString = dateFormatter.string(from: endDate)
+
+                dates.text = "\(startDateString) - \(endDateString)"
+            }
+        } else {
+            dates.isHidden = true
+        }
 
         if let replacementUserId = absenceData.replacementUserId, let replacementUserDisplayname = absenceData.replacementUserDisplayName {
             let replacementString = NSLocalizedString("Replacement", comment: "Replacement in case of out of office").withFont(.preferredFont(forTextStyle: .body))
