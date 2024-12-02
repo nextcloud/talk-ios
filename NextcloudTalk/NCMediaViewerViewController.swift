@@ -16,14 +16,20 @@ import UIKit
 
     private lazy var shareButton = {
         let shareButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
-
         shareButton.isEnabled = false
         shareButton.primaryAction = UIAction(title: "", image: .init(systemName: "square.and.arrow.up"), handler: { [unowned self, unowned shareButton] _ in
-            guard let mediaPageViewController = self.getCurrentPageViewController(),
-                  let image = mediaPageViewController.currentImage
-            else { return }
+            guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
 
-            let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+            var itemsToShare: [Any] = []
+
+            if let image = mediaPageViewController.currentImage {
+                itemsToShare.append(image)
+            } else if let videoURL = mediaPageViewController.currentVideoURL {
+                itemsToShare.append(videoURL)
+            } else {
+                return
+            }
+            let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
             activityViewController.popoverPresentationController?.barButtonItem = shareButton
 
             self.present(activityViewController, animated: true)
@@ -110,11 +116,18 @@ import UIKit
         let messageObject = queriedObjects.lastObject()
 
         if let message = messageObject as? NCChatMessage {
-            if NCUtils.isImage(fileType: message.file().mimetype) {
+            guard let filePath = message.file().path else {
+                return self.getPreviousFileMessage(from: message)
+            }
+
+            let fileType = message.file().mimetype
+            let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
+            let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
+
+            if isSupportedMedia && !isUnsupportedExtension {
                 return message
             }
 
-            // The current message contains a file, but not an image -> try to find another message
             return self.getPreviousFileMessage(from: message)
         }
 
@@ -127,11 +140,18 @@ import UIKit
         guard let messageObject = self.getAllFileMessages()?.objects(with: prevQuery).firstObject() else { return nil }
 
         if let message = messageObject as? NCChatMessage {
-            if NCUtils.isImage(fileType: message.file().mimetype) {
+            guard let filePath = message.file().path else {
+                return self.getNextFileMessage(from: message)
+            }
+
+            let fileType = message.file().mimetype
+            let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
+            let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
+
+            if isSupportedMedia && !isUnsupportedExtension {
                 return message
             }
 
-            // The current message contains a file, but not an image -> try to find another message
             return self.getNextFileMessage(from: message)
         }
 
@@ -163,7 +183,7 @@ import UIKit
         guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
         self.navigationItem.title = mediaPageViewController.navigationItem.title
 
-        self.shareButton.isEnabled = (mediaPageViewController.currentImage != nil)
+        self.shareButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
     }
 
     // MARK: - NCMediaViewerPageViewController delegate
@@ -183,7 +203,7 @@ import UIKit
         }
     }
 
-    func mediaViewerPageImageDidLoad(_ controller: NCMediaViewerPageViewController) {
+    func mediaViewerPageMediaDidLoad(_ controller: NCMediaViewerPageViewController) {
         if let mediaPageViewController = self.getCurrentPageViewController(), mediaPageViewController.isEqual(controller) {
             self.shareButton.isEnabled = true
         }

@@ -3378,6 +3378,20 @@ import SwiftUI
             return
         }
 
+        let filePath = fileParameter.path ?? ""
+        let fileExtension = URL(fileURLWithPath: filePath).pathExtension.lowercased()
+
+        if NCUtils.isVideo(fileType: fileParameter.mimetype) {
+            // Skip unsupported formats here ("webm" and "mkv") and use VLC later
+            if !fileExtension.isEmpty, !VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
+                let mediaViewController = NCMediaViewerViewController(initialMessage: message)
+                let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
+
+                self.present(navController, interactiveDismissalType: .standard)
+                return
+            }
+        }
+
         if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
             print("File already downloading -> skipping new download")
             return
