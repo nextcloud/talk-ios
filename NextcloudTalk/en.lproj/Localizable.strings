@@ -4,6 +4,9 @@
 /* '%@' is the name of a user */
 "%@ is out of office" = "%@ is out of office";
 
+/* '%@' is the name of a user */
+"%@ is out of office today" = "%@ is out of office today";
+
 /* {app name} is not installed */
 "%@ not installed" = "%@ not installed";
 
