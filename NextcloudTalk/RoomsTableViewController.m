@@ -1585,7 +1585,9 @@ typedef enum RoomsSections {
 
     if (tableView == self.tableView && indexPath.section == kRoomsSectionArchivedConversations) {
         _showingArchivedRooms = !_showingArchivedRooms;
-        [self filterRooms];
+        [UIView transitionWithView:self.tableView duration:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            [self filterRooms];
+        } completion:nil];
         return;
     }
 
