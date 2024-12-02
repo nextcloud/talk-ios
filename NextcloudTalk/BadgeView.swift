@@ -21,37 +21,9 @@ class BadgeView: UIView {
 
     private let label = UILabel()
 
-    var badgeColor: UIColor = .red {
-        didSet {
-            backgroundColor = badgeColor
-        }
-    }
-
-    var badgeTextColor: UIColor = .white {
-        didSet {
-            label.textColor = badgeTextColor
-        }
-    }
-
-    var badgeHighlightStyle: BadgeHighlightStyle = .important {
-        didSet {
-            switch badgeHighlightStyle {
-            case .none:
-                layer.borderWidth = 0
-                backgroundColor = defaultBadgeColor
-                label.textColor = defaultBadgeTextColor
-            case .border:
-                layer.borderWidth = 2
-                layer.borderColor = badgeColor.cgColor
-                backgroundColor = .clear
-                label.textColor = badgeColor
-            case .important:
-                layer.borderWidth = 0
-                backgroundColor = badgeColor
-                label.textColor = badgeTextColor
-            }
-        }
-    }
+    var badgeColor: UIColor = .red
+    var badgeTextColor: UIColor = .white
+    var badgeHighlightStyle: BadgeHighlightStyle = .important
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -90,13 +62,36 @@ class BadgeView: UIView {
         let height = label.intrinsicContentSize.height + verticalPadding * 2
         let finalWidth = width < height ? height : width
 
-        self.layer.cornerRadius = height / 2
-        self.frame.size = CGSize(width: finalWidth, height: height)
+        // Perform badge view resizing and setting badge color without animations
+        UIView.performWithoutAnimation {
+            layer.cornerRadius = height / 2
+            frame.size = CGSize(width: finalWidth, height: height)
 
-        label.frame.size = CGSize(width: finalWidth, height: height)
-        label.center = CGPoint(x: finalWidth / 2, y: height / 2)
+            label.frame.size = CGSize(width: finalWidth, height: height)
+            label.center = CGPoint(x: finalWidth / 2, y: height / 2)
+
+            setBadgeColor(style: badgeHighlightStyle)
+        }
 
         invalidateIntrinsicContentSize()
+    }
+
+    func setBadgeColor(style: BadgeHighlightStyle) {
+        switch style {
+        case .none:
+            layer.borderWidth = 0
+            backgroundColor = defaultBadgeColor
+            label.textColor = defaultBadgeTextColor
+        case .border:
+            layer.borderWidth = 2
+            layer.borderColor = badgeColor.cgColor
+            backgroundColor = .clear
+            label.textColor = badgeColor
+        case .important:
+            layer.borderWidth = 0
+            backgroundColor = badgeColor
+            label.textColor = badgeTextColor
+        }
     }
 
     override var intrinsicContentSize: CGSize {
