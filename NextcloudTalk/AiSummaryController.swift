@@ -32,6 +32,7 @@ public class AiSummaryController {
         task.outputs.append(output)
     }
 
+    @discardableResult
     public func finalizeSummaryTask(forRoomInternalId internalId: String) -> [String] {
         let result = generateSummaryTasks[internalId]?.outputs ?? []
         generateSummaryTasks.removeValue(forKey: internalId)
