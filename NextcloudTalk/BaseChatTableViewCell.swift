@@ -132,6 +132,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotedMessageView?.avatarView.cancelCurrentRequest()
         self.quotedMessageView?.avatarView.image = nil
 
+        self.headerPart.isHidden = false
+        self.quotePart.isHidden = true
+        self.referencePart.isHidden = true
+        self.reactionPart.isHidden = true
+
         self.referenceView?.prepareForReuse()
 
         self.prepareForReuseFileCell()
@@ -194,14 +199,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent, withAccount: account)
-        } else {
-            self.hideQuotePart()
         }
 
         if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
-        } else {
-            self.headerPart.isHidden = false
         }
 
         // Make sure the status view is empty, when no delivery state should be set
@@ -228,8 +229,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if !reactionsArray.isEmpty {
             self.showReactionsPart()
             self.reactionView?.updateReactions(reactions: reactionsArray)
-        } else {
-            self.hideReactionsPart()
         }
 
         if message.containsURL() {
@@ -249,8 +248,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                     self.referenceView?.update(for: referenceData, and: url)
                 }
             }
-        } else {
-            self.hideReferencePart()
         }
 
         if message.isReplyable, !message.isDeleting {
@@ -392,10 +389,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
     }
 
-    func hideQuotePart() {
-        self.quotePart.isHidden = true
-    }
-
     @objc func quoteTapped(_ sender: UITapGestureRecognizer?) {
         if let parent = self.message?.parent {
             self.delegate?.cellWantsToScroll(to: parent)
@@ -424,10 +417,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
     }
 
-    func hideReferencePart() {
-        self.referencePart.isHidden = true
-    }
-
     // MARK: - ReactionsPart
 
     func showReactionsPart() {
@@ -452,10 +441,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                 reactionView.bottomAnchor.constraint(equalTo: self.reactionPart.bottomAnchor, constant: -10)
             ])
         }
-    }
-
-    func hideReactionsPart() {
-        self.reactionPart.isHidden = true
     }
 
     // MARK: - ReactionsView Delegate
