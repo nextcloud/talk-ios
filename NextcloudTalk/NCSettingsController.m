@@ -358,10 +358,8 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
 
     if (!account) {
-        if (block) {
-            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-            block(error);
-        }
+        NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+        block(error);
 
         return;
     }
@@ -378,6 +376,13 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
             NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
             TalkAccount *managedActiveAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+
+            if (!managedActiveAccount) {
+                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+                block(error);
+
+                return;
+            }
 
             managedActiveAccount.userId = [userProfile objectForKey:kUserProfileUserId];
             // "display-name" is returned by /cloud/user endpoint
@@ -400,15 +405,11 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
             TalkAccount *unmanagedUpdatedAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
             [[NCAPIController sharedInstance] saveProfileImageForAccount:unmanagedUpdatedAccount];
-            
-            if (block) {
-                block(nil);
-            }
+
+            block(nil);
         } else {
             NSLog(@"Error while getting the user profile");
-            if (block) {
-                block(error);
-            }
+            block(error);
         }
     }];
 }
