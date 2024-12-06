@@ -30,7 +30,6 @@ import MBProgressHUD
 
     // MARK: - Public var
 
-    public var account: TalkAccount
     public var isModal: Bool = false
     public var forwardingMessage: Bool = false
 
@@ -220,10 +219,9 @@ import MBProgressHUD
     // MARK: - Init.
 
     public init?(room: NCRoom, account: TalkAccount, serverCapabilities: ServerCapabilities) {
-        self.account = account
         self.serverCapabilities = serverCapabilities
 
-        super.init(for: room, withView: self.shareContentView)
+        super.init(forRoom: room, withAccount: account, withView: self.shareContentView)
 
         self.shareContentView.addSubview(self.toLabelView)
         NSLayoutConstraint.activate([

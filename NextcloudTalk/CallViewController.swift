@@ -1907,7 +1907,8 @@ class CallViewController: UIViewController,
     func showChat() {
         if chatNavigationController == nil {
             guard let room = NCDatabaseManager.sharedInstance().room(withToken: room.token, forAccountId: room.accountId),
-                  let chatViewController = ChatViewController(for: room)
+                  let account = room.account,
+                  let chatViewController = ChatViewController(forRoom: room, withAccount: account)
             else { return }
 
             chatViewController.presentedInCall = true

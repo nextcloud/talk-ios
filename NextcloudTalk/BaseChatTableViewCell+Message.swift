@@ -26,8 +26,4 @@ extension BaseChatTableViewCell {
 
         messageTextView.attributedText = message.parsedMarkdownForChat()
     }
-
-    func prepareForReuseMessageCell() {
-        self.messageTextView?.text = ""
-    }
 }

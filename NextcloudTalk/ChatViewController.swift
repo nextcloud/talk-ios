@@ -120,10 +120,10 @@ import SwiftyAttributes
 
     private var messageExpirationTimer: Timer?
 
-    public override init?(for room: NCRoom) {
+    public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
         self.chatController = NCChatController(for: room)
 
-        super.init(for: room)
+        super.init(forRoom: room, withAccount: account)
 
         NotificationCenter.default.addObserver(self, selector: #selector(didUpdateRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidUpdateRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidJoinRoom, object: nil)
@@ -1031,6 +1031,18 @@ import SwiftyAttributes
                 self.appendMessages(messages: messages)
 
                 for newMessage in messages {
+                    // Update messages might trigger an reload of another cell, but are not part of the tableView itself
+                    if newMessage.isUpdateMessage {
+                        if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
+                            if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
+                                // We received an update message to a message which is already part of our current data, therefore we need to reload it
+                                reloadIndexPaths.insert(parentPath)
+                            }
+                        }
+
+                        continue
+                    }
+
                     // If we don't get an indexPath here, something is wrong with our appendMessages function
                     let indexPath = self.indexPath(for: newMessage)!
 
@@ -1045,13 +1057,6 @@ import SwiftyAttributes
                     } else {
                         // New indexPath -> insert it
                         insertIndexPaths.insert(indexPath)
-                    }
-
-                    if newMessage.isUpdateMessage, let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
-                        if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
-                            // We received an update message to a message which is already part of our current data, therefore we need to reload it
-                            reloadIndexPaths.insert(parentPath)
-                        }
                     }
 
                     if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage) {
@@ -1076,10 +1081,8 @@ import SwiftyAttributes
                     }
 
                 } completion: { _ in
-                    guard let account = self.room.account else { return }
-
                     // Remove unread messages separator when user writes a message
-                    if messages.containsMessage(forUserId: account.userId) {
+                    if messages.containsMessage(forUserId: self.account.userId) {
                         self.removeUnreadMessagesSeparator()
                     }
 
@@ -1087,7 +1090,7 @@ import SwiftyAttributes
                     // Otherwise we would scroll whenever a unread message separator is available
                     if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
                         tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
-                    } else if (shouldScrollOnNewMessages || messages.containsMessage(forUserId: account.userId)), let lastIndexPath = self.getLastRealMessage()?.indexPath {
+                    } else if (shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId)), let lastIndexPath = self.getLastRealMessage()?.indexPath {
                         tableView.scrollToRow(at: lastIndexPath, at: .none, animated: true)
                     } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
                         // This check is needed since several calls to receiveMessages API might be needed
@@ -1259,9 +1262,8 @@ import SwiftyAttributes
         guard serverSupportsConversationPermissions else { return }
 
         // Retrieve the information about ourselves
-        guard let account = room.account,
-              let userDict = notification.userInfo?["users"] as? [[String: String]],
-              let appUserDict = userDict.first(where: { $0["userId"] == account.userId })
+        guard let userDict = notification.userInfo?["users"] as? [[String: String]],
+              let appUserDict = userDict.first(where: { $0["userId"] == self.account.userId })
         else { return }
 
         // Check if we still have the same permissions
@@ -1287,15 +1289,14 @@ import SwiftyAttributes
         // Don't show a typing indicator for ourselves or if typing indicator setting is disabled
         // Workaround: TypingPrivacy should be checked locally, not from the remote server, use serverCapabilities for now
         // TODO: Remove workaround for federated typing indicators.
-        guard let account = room.account,
-              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
         else { return }
 
         let userId = notification.userInfo?["userId"] as? String
         let isFederated = notification.userInfo?["isFederated"] as? Bool ?? false
 
         // Since our own userId can exist on other servers, only suppress the notification if it's not federated
-        if (userId == account.userId && !isFederated) || serverCapabilities.typingPrivacy {
+        if (userId == self.account.userId && !isFederated) || serverCapabilities.typingPrivacy {
             return
         }
 
@@ -1423,7 +1424,7 @@ import SwiftyAttributes
     // MARK: - Editing support
 
     public override func didCommitTextEditing(_ sender: Any) {
-        if let editingMessage, let account = self.room.account {
+        if let editingMessage {
             let messageParametersJSONString = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
@@ -1436,7 +1437,7 @@ import SwiftyAttributes
 
                 guard let messageDict,
                       let parent = messageDict["parent"] as? [AnyHashable: Any],
-                      let updatedMessage = NCChatMessage(dictionary: parent, andAccountId: account.accountId)
+                      let updatedMessage = NCChatMessage(dictionary: parent, andAccountId: self.account.accountId)
                 else { return }
 
                 self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage)
@@ -1761,8 +1762,7 @@ import SwiftyAttributes
             }
         }
 
-        guard let message = self.message(for: indexPath),
-              let account = message.account
+        guard let message = self.message(for: indexPath)
         else { return nil }
 
         if message.isSystemMessage || message.isDeletedMessage ||
@@ -1814,7 +1814,7 @@ import SwiftyAttributes
         }
 
         // Reply-privately option (only to other users and not in one-to-one)
-        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != account.userId {
+        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != self.account.userId {
             actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
                 self.didPressReplyPrivately(for: message)
             })
@@ -1889,7 +1889,7 @@ import SwiftyAttributes
         })
 
         // Translate
-        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: account.accountId) {
+        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: self.account.accountId) {
             actions.append(UIAction(title: NSLocalizedString("Translate", comment: ""), image: .init(systemName: "character.book.closed")) { _ in
                 self.didPressTranslate(for: message)
             })
@@ -1914,14 +1914,14 @@ import SwiftyAttributes
         var destructiveMenuActions: [UIMenuElement] = []
 
         // Edit option
-        if message.isEditable(for: account, in: self.room) && hasChatPermissions {
+        if message.isEditable(for: self.account, in: self.room) && hasChatPermissions {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Edit", comment: "Edit a message or room participants"), image: .init(systemName: "pencil")) { _ in
                 self.didPressEdit(for: message)
             })
         }
 
         // Delete option
-        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: account, in: self.room) && hasChatPermissions) {
+        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: self.account, in: self.room) && hasChatPermissions) {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
                 self.didPressDelete(for: message)
             })

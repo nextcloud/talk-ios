@@ -6,7 +6,7 @@
 import UIKit
 import SDWebImage
 
-@objcMembers class AvatarImageView: UIImageView {
+@objcMembers class AvatarImageView: UIImageView, AvatarProtocol {
 
     private var currentRequest: SDWebImageCombinedOperation?
 
@@ -60,8 +60,7 @@ import SDWebImage
 
     // MARK: - User avatars
 
-    public func setActorAvatar(forMessage message: NCChatMessage) {
-        guard let account = message.account else { return }
+    public func setActorAvatar(forMessage message: NCChatMessage, withAccount account: TalkAccount) {
         self.setActorAvatar(forId: message.actorId, withType: message.actorType, withDisplayName: message.actorDisplayName, withRoomToken: message.token, using: account)
     }
 

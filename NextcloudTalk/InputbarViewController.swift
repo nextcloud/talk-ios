@@ -12,6 +12,7 @@ import UIKit
 
     // MARK: - Public var
     public var room: NCRoom
+    public var account: TalkAccount
 
     // MARK: - Internal var
     internal var titleView: NCChatTitleView?
@@ -19,16 +20,18 @@ import UIKit
     internal var mentionsDict: [String: NCMessageParameter] = [:]
     internal var contentView: UIView?
 
-    public init?(for room: NCRoom, tableViewStyle style: UITableView.Style) {
+    public init?(forRoom room: NCRoom, withAccount account: TalkAccount, tableViewStyle style: UITableView.Style) {
         self.room = room
+        self.account = account
 
         super.init(tableViewStyle: style)
 
         self.commonInit()
     }
 
-    public init?(for room: NCRoom, withView view: UIView) {
+    public init?(forRoom room: NCRoom, withAccount account: TalkAccount, withView view: UIView) {
         self.room = room
+        self.account = account
         self.contentView = view
 
         super.init(tableViewStyle: .plain)
@@ -309,9 +312,7 @@ import UIKit
         if suggestion.id == "all" {
             cell.avatarButton.setAvatar(for: self.room)
         } else {
-            if let account = room.account {
-                cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token, using: account)
-            }
+            cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token, using: self.account)
         }
 
         cell.accessibilityIdentifier = AutoCompletionCellIdentifier

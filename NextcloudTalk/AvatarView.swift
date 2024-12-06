@@ -6,7 +6,7 @@
 import UIKit
 import SDWebImage
 
-@objcMembers class AvatarView: UIView {
+@objcMembers class AvatarView: UIView, AvatarProtocol {
 
     private let userStatusSizePercentage = 0.38
 
@@ -92,6 +92,10 @@ import SDWebImage
         userStatusLabel.text = nil
     }
 
+    func cancelCurrentRequest() {
+        self.avatarImageView.cancelCurrentRequest()
+    }
+
     // MARK: - Conversation avatars
 
     public func setAvatar(for room: NCRoom) {
@@ -108,8 +112,8 @@ import SDWebImage
 
     // MARK: - User avatars
 
-    public func setActorAvatar(forMessage message: NCChatMessage) {
-        self.avatarImageView.setActorAvatar(forMessage: message)
+    public func setActorAvatar(forMessage message: NCChatMessage, withAccount account: TalkAccount) {
+        self.avatarImageView.setActorAvatar(forMessage: message, withAccount: account)
     }
 
     public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, using account: TalkAccount) {

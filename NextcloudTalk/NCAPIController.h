@@ -128,6 +128,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 + (instancetype)sharedInstance;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
+- (void)removeAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)callAPIVersionForAccount:(TalkAccount *)account;

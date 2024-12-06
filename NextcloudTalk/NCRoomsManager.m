@@ -352,11 +352,11 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         NSLog(@"Not starting chat due to in a call.");
         return;
     }
-    
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     NCRoomController *roomController = [_activeRooms objectForKey:room.token];
     if (!roomController) {
         // Workaround until external signaling supports multi-room
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         NCExternalSignalingController *extSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:activeAccount.accountId];
         if (extSignalingController) {
             NSString *currentRoom = extSignalingController.currentRoom;
@@ -374,7 +374,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         //[[NCRoomsManager sharedInstance].chatViewController leaveChat];
 
         NSLog(@"Creating new chat view controller.");
-        _chatViewController = [[ChatViewController alloc] initFor:room];
+        _chatViewController = [[ChatViewController alloc] initForRoom:room withAccount:activeAccount];
         if (_highlightMessageDict && [[_highlightMessageDict objectForKey:@"token"] isEqualToString:room.token]) {
             _chatViewController.highlightMessageId = [[_highlightMessageDict objectForKey:@"messageId"] integerValue];
             _highlightMessageDict = nil;

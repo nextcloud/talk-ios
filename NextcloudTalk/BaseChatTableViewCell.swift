@@ -77,6 +77,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     public var message: NCChatMessage?
     public var room: NCRoom?
+    public var account: TalkAccount?
 
     internal var quotedMessageView: QuotedMessageView?
     internal var reactionView: ReactionsView?
@@ -131,24 +132,16 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotedMessageView?.avatarView.cancelCurrentRequest()
         self.quotedMessageView?.avatarView.image = nil
 
-        self.titleLabel.text = ""
-        self.dateLabel.text = ""
-
         self.headerPart.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
 
-        self.statusView.isHidden = false
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
-
         self.referenceView?.prepareForReuse()
 
-        self.prepareForReuseMessageCell()
         self.prepareForReuseFileCell()
         self.prepareForReuseLocationCell()
         self.prepareForReuseAudioCell()
-        self.prepareForReusePollCell()
 
         if let replyGestureRecognizer {
             self.removeGestureRecognizer(replyGestureRecognizer)
@@ -157,11 +150,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    public func setup(for message: NCChatMessage, inRoom room: NCRoom) {
+    public func setup(for message: NCChatMessage, inRoom room: NCRoom, withAccount account: TalkAccount) {
         self.message = message
         self.room = room
+        self.account = account
 
-        self.avatarButton.setActorAvatar(forMessage: message)
+        self.avatarButton.setActorAvatar(forMessage: message, withAccount: account)
         self.avatarButton.menu = self.getDeferredUserMenu()
         self.avatarButton.showsMenuAsPrimaryAction = true
 
@@ -189,9 +183,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.titleLabel.attributedText = titleLabel
 
-        guard let account = message.account
-        else { return }
-
         let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
         var shouldShowReadStatus = false
 
@@ -207,14 +198,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.messageLabel.text = quoteString
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
-            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
+            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent, withAccount: account)
         }
 
         if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
         }
 
-        // When `setDeliveryState` is not called, we still need to make sure the placeholder view is removed
+        // Make sure the status view is empty, when no delivery state should be set
         self.statusView.subviews.forEach { $0.removeFromSuperview() }
 
         if message.isDeleting {
@@ -283,6 +274,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if message.isDeletedMessage {
             self.statusView.isHidden = true
             self.messageTextView?.textColor = .tertiaryLabel
+        } else {
+            self.statusView.isHidden = false
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
@@ -320,8 +313,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func setDeliveryState(to deliveryState: ChatMessageDeliveryState) {
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
-
         if deliveryState == .sending || deliveryState == .deleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 

@@ -39,6 +39,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     NSString *_urlDetected;
     BOOL _referenceDataDone;
     NSDictionary *_referenceData;
+    NSMutableAttributedString *_parsedMarkdownForChat;
 }
 
 @end
@@ -296,7 +297,12 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
 
-    NSRegularExpression *parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+    static NSRegularExpression *parameterRegex;
+
+    if (!parameterRegex) {
+        parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+    }
+
     NSArray *matches = [parameterRegex matchesInString:originalMessage
                                                options:0
                                                  range:NSMakeRange(0, [originalMessage length])];
@@ -398,6 +404,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
 - (NSMutableAttributedString *)parsedMarkdownForChat
 {
+    if (_parsedMarkdownForChat) {
+        return _parsedMarkdownForChat;
+    }
+
     // In some circumstances we want/need to hide the message in the chat, but still want to show it in other parts like the conversation list
     if ([self getDeckCardUrlForReferenceProvider]) {
         return nil;
@@ -413,7 +423,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         return parsedMessage;
     }
 
-    return [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
+    _parsedMarkdownForChat = [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
+
+    return _parsedMarkdownForChat;
 }
 
 - (NSMutableArray *)temporaryReactions

@@ -436,6 +436,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     NCExternalSignalingController *extSignalingController = [self externalSignalingControllerForAccountId:removingAccount.accountId];
     [extSignalingController disconnect];
     [[NCAPIController sharedInstance] removeProfileImageForAccount:removingAccount];
+    [[NCAPIController sharedInstance] removeAPISessionManagerForAccount:removingAccount];
     [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     [[[NCChatFileController alloc] init] deleteDownloadDirectoryForAccount:removingAccount];
     [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];

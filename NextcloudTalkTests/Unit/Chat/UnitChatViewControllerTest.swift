@@ -51,7 +51,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
 
         XCTAssertEqual(NCChatMessage.allObjects().count, 2)
 
-        let chatViewController = ChatViewController(for: room)!
+        let chatViewController = ChatViewController(forRoom: room, withAccount: activeAccount)!
         let messageArray = [expMessage1, expMessage2].map { NCChatMessage(value: $0) }
 
         chatViewController.appendMessages(messages: messageArray)
