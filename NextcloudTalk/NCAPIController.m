@@ -333,6 +333,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NCRoom *room = nil;
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms forAccountId:account.accountId]) {
             room = [NCRoom roomWithDictionary:dataDictionary andAccountId:account.accountId];
+
+            // Don't return a room object, if the token does not match
+            if (!room.token || ![room.token isEqualToString:token]) {
+                room = nil;
+            }
         }
 
         if (block) {

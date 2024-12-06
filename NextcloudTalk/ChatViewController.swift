@@ -785,7 +785,7 @@ import SwiftyAttributes
             return
         }
 
-        if let room = notification.userInfo?["room"] as? NCRoom {
+        if let room = notification.userInfo?["room"] as? NCRoom, room.token == self.room.token {
             self.room = room
         }
 
