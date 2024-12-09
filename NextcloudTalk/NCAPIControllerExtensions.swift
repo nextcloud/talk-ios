@@ -526,6 +526,40 @@ import Foundation
         }
     }
 
+    // MARK: - Notifications
+
+    // Needs to be of type Int to be usable from objc
+    @objc public enum CallNotificationState: Int {
+        case unknown, stillCurrent, roomNotFound, missedCall, participantJoined
+    }
+
+    @discardableResult
+    public func getCallNotificationState(for account: TalkAccount, forRoom roomToken: String, completionBlock: @escaping (_ callNotificationState: CallNotificationState) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(.unknown)
+            return nil
+        }
+
+        let apiVersion = self.callAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)/notification-state", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            if ocsResponse?.responseStatusCode == 200 {
+                completionBlock(.stillCurrent)
+            } else if ocsResponse?.responseStatusCode == 201 {
+                completionBlock(.missedCall)
+            } else if ocsError?.responseStatusCode == 403 {
+                completionBlock(.roomNotFound)
+            } else if ocsError?.responseStatusCode == 404 {
+                completionBlock(.participantJoined)
+            } else {
+                completionBlock(.unknown)
+            }
+        }
+    }
+
     // MARK: - Archived conversations
 
     public func archiveRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ success: Bool) -> Void) {
