@@ -79,6 +79,8 @@ class DiagnosticsTableViewController: UITableViewController {
     var serverReachable: Bool?
     var serverReachableIndicator = UIActivityIndicatorView(frame: .init(x: 0, y: 0, width: 24, height: 24))
 
+    var testingPushNotificationsIndicator = UIActivityIndicatorView(frame: .init(x: 0, y: 0, width: 24, height: 24))
+
     var notificationSettings: UNNotificationSettings?
     var notificationSettingsIndicator = UIActivityIndicatorView(frame: .init(x: 0, y: 0, width: 24, height: 24))
 
@@ -648,6 +650,7 @@ class DiagnosticsTableViewController: UITableViewController {
     // MARK: Test push notifications
 
     func testPushNotifications() {
+        self.showPushNotificationTestRunningIndicator()
         NCAPIController.sharedInstance().testPushnotifications(forAccount: account) { result, _ in
             let alert = UIAlertController(title: NSLocalizedString("Test results", comment: ""),
                                           message: result,
@@ -659,6 +662,34 @@ class DiagnosticsTableViewController: UITableViewController {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Test results copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
             })
             NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+            self.hidePushNotificationTestRunningIndicator()
+        }
+    }
+
+    func testPushNotificationsCell() -> UITableViewCell? {
+        if let index = accountSections().firstIndex(of: AccountSections.testPushNotifications),
+           let testPushCell = tableView.cellForRow(at: IndexPath(row: index, section: DiagnosticsSections.kDiagnosticsSectionAccount.rawValue)) {
+            return testPushCell
+        }
+
+        return nil
+    }
+
+    func showPushNotificationTestRunningIndicator() {
+        if let testPushNotificationsCell = testPushNotificationsCell() {
+            testPushNotificationsCell.isUserInteractionEnabled = false
+            testPushNotificationsCell.textLabel?.textColor = UIColor.systemBlue.withAlphaComponent(0.5)
+            testingPushNotificationsIndicator.startAnimating()
+            testPushNotificationsCell.accessoryView = testingPushNotificationsIndicator
+        }
+    }
+
+    func hidePushNotificationTestRunningIndicator() {
+        if let testPushNotificationsCell = testPushNotificationsCell() {
+            testPushNotificationsCell.isUserInteractionEnabled = true
+            testPushNotificationsCell.textLabel?.textColor = UIColor.systemBlue
+            testingPushNotificationsIndicator.stopAnimating()
+            testPushNotificationsCell.accessoryView = nil
         }
     }
 
