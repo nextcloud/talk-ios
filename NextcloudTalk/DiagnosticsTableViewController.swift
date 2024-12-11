@@ -651,16 +651,21 @@ class DiagnosticsTableViewController: UITableViewController {
 
     func testPushNotifications() {
         self.showPushNotificationTestRunningIndicator()
-        NCAPIController.sharedInstance().testPushnotifications(forAccount: account) { result, _ in
-            let alert = UIAlertController(title: NSLocalizedString("Test results", comment: ""),
-                                          message: result,
+        NCAPIController.sharedInstance().testPushnotifications(forAccount: account) { result in
+            let isEmptyResult = result?.isEmpty ?? true
+            let title = isEmptyResult ? NSLocalizedString("Test failed", comment: "") : NSLocalizedString("Test results", comment: "")
+            let message = isEmptyResult ? NSLocalizedString("An error occurred while testing push notifications", comment: "") : result
+            let alert = UIAlertController(title: title,
+                                          message: message,
                                           preferredStyle: .alert)
 
             alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-            alert.addAction(UIAlertAction(title: NSLocalizedString("Copy", comment: ""), style: .default) { _ in
-                UIPasteboard.general.string = result
-                NotificationPresenter.shared().present(text: NSLocalizedString("Test results copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
-            })
+            if !isEmptyResult {
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Copy", comment: ""), style: .default) { _ in
+                    UIPasteboard.general.string = result
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Test results copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+                })
+            }
             NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
             self.hidePushNotificationTestRunningIndicator()
         }

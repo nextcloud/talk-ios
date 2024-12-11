@@ -562,10 +562,10 @@ import Foundation
 
     // MARK: - Push notification test
 
-    public func testPushnotifications(forAccount account: TalkAccount, completionBlock: @escaping (_ result: String?, _ error: Error?) -> Void) {
+    public func testPushnotifications(forAccount account: TalkAccount, completionBlock: @escaping (_ result: String?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {
-            completionBlock(nil, nil)
+            completionBlock(nil)
             return
         }
 
@@ -573,7 +573,7 @@ import Foundation
 
         apiSessionManager.postOcs(urlString, account: account) { ocsResponse, ocsError in
             let message = ocsResponse?.dataDict?["message"] as? String
-            completionBlock(message, ocsError?.error)
+            completionBlock(message)
         }
     }
 }
