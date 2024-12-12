@@ -559,4 +559,21 @@ import Foundation
             completionBlock(error == nil)
         }
     }
+
+    // MARK: - Push notification test
+
+    public func testPushnotifications(forAccount account: TalkAccount, completionBlock: @escaping (_ result: String?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v3/test/self"
+
+        apiSessionManager.postOcs(urlString, account: account) { ocsResponse, ocsError in
+            let message = ocsResponse?.dataDict?["message"] as? String
+            completionBlock(message)
+        }
+    }
 }

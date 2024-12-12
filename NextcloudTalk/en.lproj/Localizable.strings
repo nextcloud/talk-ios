@@ -284,6 +284,9 @@
 "An error occurred while sharing the file" = "An error occurred while sharing the file";
 
 /* No comment provided by engineer. */
+"An error occurred while testing push notifications" = "An error occurred while testing push notifications";
+
+/* No comment provided by engineer. */
 "an hour" = "an hour";
 
 /* Alice and Bob */
@@ -1725,6 +1728,18 @@
 
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message, release the button to send it." = "Tap and hold to record a voice message, release the button to send it.";
+
+/* No comment provided by engineer. */
+"Test failed" = "Test failed";
+
+/* No comment provided by engineer. */
+"Test push notifications" = "Test push notifications";
+
+/* No comment provided by engineer. */
+"Test results" = "Test results";
+
+/* No comment provided by engineer. */
+"Test results copied" = "Test results copied";
 
 /* No comment provided by engineer. */
 "The app is too old and no longer supported by this server." = "The app is too old and no longer supported by this server.";

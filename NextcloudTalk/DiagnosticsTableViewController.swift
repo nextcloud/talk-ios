@@ -34,10 +34,10 @@ class DiagnosticsTableViewController: UITableViewController {
     }
 
     enum AccountSections: Int {
-        case kAccountSectionServer = 0
-        case kAccountSectionUser
-        case kAccountPushSubscribed
-        case kAccountSectionCount
+        case server = 0
+        case user
+        case pushSubscribed
+        case testPushNotifications
     }
 
     enum ServerSections: Int {
@@ -79,6 +79,8 @@ class DiagnosticsTableViewController: UITableViewController {
     var serverReachable: Bool?
     var serverReachableIndicator = UIActivityIndicatorView(frame: .init(x: 0, y: 0, width: 24, height: 24))
 
+    var testingPushNotificationsIndicator = UIActivityIndicatorView(frame: .init(x: 0, y: 0, width: 24, height: 24))
+
     var notificationSettings: UNNotificationSettings?
     var notificationSettingsIndicator = UIActivityIndicatorView(frame: .init(x: 0, y: 0, width: 24, height: 24))
 
@@ -87,7 +89,7 @@ class DiagnosticsTableViewController: UITableViewController {
     let notRequestedString = NSLocalizedString("Not requested", comment: "'{Microphone, Camera, ...} access was not requested'")
     let deniedFunctionalityString = NSLocalizedString("This will impact the functionality of this app. Please review your settings.", comment: "")
 
-    let cellIdentifierOpenAppSettings = "cellIdentifierOpenAppSettings"
+    let cellIdentifierAction = "cellIdentifierAction"
     let cellIdentifierSubtitle = "cellIdentifierSubtitle"
     let cellIdentifierSubtitleAccessory = "cellIdentifierSubtitleAccessory"
 
@@ -133,12 +135,24 @@ class DiagnosticsTableViewController: UITableViewController {
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
 
-        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifierOpenAppSettings)
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifierAction)
         self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: cellIdentifierSubtitle)
         self.tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: cellIdentifierSubtitleAccessory)
 
         runChecks()
     }
+
+    // MARK: - Account section options
+
+    func accountSections() -> [AccountSections] {
+        var sections: [AccountSections] = [.server, .user, .pushSubscribed]
+        if NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(kNotificationsCapabilityTestPush, forAccountId: account.accountId) {
+            sections.append(.testPushNotifications)
+        }
+
+        return sections
+    }
+
 
     // MARK: Async. checks
 
@@ -191,7 +205,7 @@ class DiagnosticsTableViewController: UITableViewController {
             return AppSections.kAppSectionCount.rawValue
 
         case DiagnosticsSections.kDiagnosticsSectionAccount.rawValue:
-            return AccountSections.kAccountSectionCount.rawValue
+            return accountSections().count
 
         case DiagnosticsSections.kDiagnosticsSectionServer.rawValue:
             return ServerSections.kServerSectionCount.rawValue
@@ -259,6 +273,11 @@ class DiagnosticsTableViewController: UITableViewController {
 
             UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
 
+        } else if indexPath.section == DiagnosticsSections.kDiagnosticsSectionAccount.rawValue,
+                  accountSections()[indexPath.row] == .testPushNotifications {
+
+            testPushNotifications()
+
         } else if indexPath.section == DiagnosticsSections.kDiagnosticsSectionTalk.rawValue,
                   indexPath.row == TalkSections.kTalkSectionVersion.rawValue {
 
@@ -307,7 +326,7 @@ class DiagnosticsTableViewController: UITableViewController {
             return appPhotoLibraryAccessCell(for: indexPath)
 
         case AppSections.kAppSectionOpenSettings.rawValue:
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierOpenAppSettings, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierAction, for: indexPath)
 
             cell.textLabel?.text = NSLocalizedString("Open app settings", comment: "")
             cell.textLabel?.textAlignment = .center
@@ -452,17 +471,18 @@ class DiagnosticsTableViewController: UITableViewController {
 
     func accountCell(for indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitle, for: indexPath)
+        let row: AccountSections = accountSections()[indexPath.row]
 
-        switch indexPath.row {
-        case AccountSections.kAccountSectionServer.rawValue:
+        switch row {
+        case .server:
             cell.textLabel?.text = NSLocalizedString("Server", comment: "")
             cell.detailTextLabel?.text = account.server
 
-        case AccountSections.kAccountSectionUser.rawValue:
+        case .user:
             cell.textLabel?.text = NSLocalizedString("User", comment: "")
             cell.detailTextLabel?.text = account.user
 
-        case AccountSections.kAccountPushSubscribed.rawValue:
+        case .pushSubscribed:
             cell.textLabel?.text = NSLocalizedString("Push notifications", comment: "")
             if account.lastPushSubscription > 0 {
                 let lastSubsctiptionString = NSLocalizedString("Last subscription", comment: "Last subscription to the push notification server")
@@ -472,8 +492,12 @@ class DiagnosticsTableViewController: UITableViewController {
                 cell.detailTextLabel?.text = NSLocalizedString("Never subscribed", comment: "Never subscribed to the push notification server")
             }
 
-        default:
-            break
+        case .testPushNotifications:
+            let actionCell = self.tableView.dequeueReusableCell(withIdentifier: self.cellIdentifierAction, for: indexPath)
+            actionCell.textLabel?.text = NSLocalizedString("Test push notifications", comment: "")
+            actionCell.textLabel?.textAlignment = .center
+            actionCell.textLabel?.textColor = UIColor.systemBlue
+            return actionCell
         }
 
         return cell
@@ -621,6 +645,57 @@ class DiagnosticsTableViewController: UITableViewController {
         }
 
         return cell
+    }
+
+    // MARK: Test push notifications
+
+    func testPushNotifications() {
+        self.showPushNotificationTestRunningIndicator()
+        NCAPIController.sharedInstance().testPushnotifications(forAccount: account) { result in
+            let isEmptyResult = result?.isEmpty ?? true
+            let title = isEmptyResult ? NSLocalizedString("Test failed", comment: "") : NSLocalizedString("Test results", comment: "")
+            let message = isEmptyResult ? NSLocalizedString("An error occurred while testing push notifications", comment: "") : result
+            let alert = UIAlertController(title: title,
+                                          message: message,
+                                          preferredStyle: .alert)
+
+            alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+            if !isEmptyResult {
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Copy", comment: ""), style: .default) { _ in
+                    UIPasteboard.general.string = result
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Test results copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+                })
+            }
+            NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+            self.hidePushNotificationTestRunningIndicator()
+        }
+    }
+
+    func testPushNotificationsCell() -> UITableViewCell? {
+        if let index = accountSections().firstIndex(of: AccountSections.testPushNotifications),
+           let testPushCell = tableView.cellForRow(at: IndexPath(row: index, section: DiagnosticsSections.kDiagnosticsSectionAccount.rawValue)) {
+            return testPushCell
+        }
+
+        return nil
+    }
+
+    func showPushNotificationTestRunningIndicator() {
+        if let testPushNotificationsCell = testPushNotificationsCell() {
+            testPushNotificationsCell.isUserInteractionEnabled = false
+            testPushNotificationsCell.textLabel?.textColor = UIColor.systemBlue.withAlphaComponent(0.5)
+            testingPushNotificationsIndicator.startAnimating()
+            testPushNotificationsCell.accessoryView = testingPushNotificationsIndicator
+        }
+    }
+
+    func hidePushNotificationTestRunningIndicator() {
+        if let testPushNotificationsCell = testPushNotificationsCell() {
+            testPushNotificationsCell.isUserInteractionEnabled = true
+            testPushNotificationsCell.textLabel?.textColor = UIColor.systemBlue
+            testingPushNotificationsIndicator.stopAnimating()
+            testPushNotificationsCell.accessoryView = nil
+        }
     }
 
     // MARK: Capabilities details

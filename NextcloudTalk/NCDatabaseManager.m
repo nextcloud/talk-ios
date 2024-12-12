@@ -79,6 +79,7 @@ NSString * const kCapabilityChatSummary             = @"chat-summary-api";
 NSString * const kCapabilityArchivedConversationsV2 = @"archived-conversations-v2";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
+NSString * const kNotificationsCapabilityTestPush   = @"test-push";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
