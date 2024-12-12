@@ -300,7 +300,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     static NSRegularExpression *parameterRegex;
 
     if (!parameterRegex) {
-        parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+        parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([a-z\\-_.0-9]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
     }
 
     NSArray *matches = [parameterRegex matchesInString:originalMessage

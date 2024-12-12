@@ -19,4 +19,35 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         XCTAssertFalse(message.containsURL())
     }
 
+    func testMentionRendering() throws {
+        let mentionParameters = """
+        {
+            "mention-user1": {
+                "type": "user",
+                "id": "username@nextcloud.invalid",
+                "name": "Username with space",
+                "server": "https://nextcloud.invalid"
+            }
+        }
+        """
+
+        let mentionMessage = NCChatMessage()
+        mentionMessage.messageParametersJSONString = mentionParameters
+
+        mentionMessage.message = "{mention-user1}"
+        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "@Username with space")
+
+        mentionMessage.message = "{\n{mention-user1}"
+        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "{\n@Username with space")
+
+        mentionMessage.message = "@{mention-user1}"
+        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "@@Username with space")
+
+        mentionMessage.message = " abc{mention-user1}abc "
+        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, " abc@Username with spaceabc ")
+
+        mentionMessage.message = "{mention-user1}{mention-user2}"
+        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "@Username with space{mention-user2}")
+    }
+
 }
