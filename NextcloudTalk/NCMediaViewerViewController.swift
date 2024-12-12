@@ -11,6 +11,7 @@ import UIKit
                                                 UIPageViewControllerDataSource,
                                                 NCMediaViewerPageViewControllerDelegate {
 
+    private let room: NCRoom
     private let pageController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var initialMessage: NCChatMessage
 
@@ -38,7 +39,34 @@ import UIKit
         return shareButton
     }()
 
-    init(initialMessage: NCChatMessage) {
+    private lazy var showMessageButton = {
+        let showMessageButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+        showMessageButton.isEnabled = false
+        showMessageButton.primaryAction = UIAction(title: "", image: .init(systemName: "text.magnifyingglass"), handler: { [unowned self, unowned showMessageButton] _ in
+            guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
+
+            let message = mediaPageViewController.message
+
+            if let account = message.account, let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0) {
+
+                // Fetch the context of the message and update the BaseChatViewController
+                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 10) { messages in
+                    guard let messages else { return }
+
+                    chatViewController.appendMessages(messages: messages)
+                    chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
+                }
+
+                self.present(chatViewController, animated: true)
+            }
+
+        })
+
+        return showMessageButton
+    }()
+
+    init(initialMessage: NCChatMessage, room: NCRoom) {
+        self.room = room
         self.initialMessage = initialMessage
 
         super.init(nibName: nil, bundle: nil)
@@ -91,7 +119,7 @@ import UIKit
         self.navigationController?.toolbar.compactAppearance = appearance
         self.navigationController?.toolbar.scrollEdgeAppearance = appearance
 
-        self.toolbarItems = [shareButton]
+        self.toolbarItems = [shareButton, showMessageButton]
     }
 
     func getCurrentPageViewController() -> NCMediaViewerPageViewController? {
@@ -184,6 +212,7 @@ import UIKit
         self.navigationItem.title = mediaPageViewController.navigationItem.title
 
         self.shareButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
+        self.showMessageButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil) // TODO include check if msg was loaded
     }
 
     // MARK: - NCMediaViewerPageViewController delegate
