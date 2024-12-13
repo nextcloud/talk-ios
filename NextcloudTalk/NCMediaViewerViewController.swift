@@ -50,14 +50,16 @@ import UIKit
             if let account = message.account, let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0) {
 
                 // Fetch the context of the message and update the BaseChatViewController
-                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 10) { messages in
+                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 50) { messages in
                     guard let messages else { return }
 
                     chatViewController.appendMessages(messages: messages)
                     chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
+
                 }
 
-                self.present(chatViewController, animated: true)
+                let navController = NCNavigationController(rootViewController: chatViewController)
+                self.present(navController, animated: true)
             }
 
         })
@@ -115,11 +117,14 @@ import UIKit
 
         let appearance = UIToolbarAppearance()
         appearance.backgroundColor = .secondarySystemBackground
+
         self.navigationController?.toolbar.standardAppearance = appearance
         self.navigationController?.toolbar.compactAppearance = appearance
         self.navigationController?.toolbar.scrollEdgeAppearance = appearance
 
-        self.toolbarItems = [shareButton, showMessageButton]
+        let fixedSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        fixedSpace.width = 20
+        self.toolbarItems = [shareButton, fixedSpace, showMessageButton]
     }
 
     func getCurrentPageViewController() -> NCMediaViewerPageViewController? {
@@ -212,7 +217,7 @@ import UIKit
         self.navigationItem.title = mediaPageViewController.navigationItem.title
 
         self.shareButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
-        self.showMessageButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil) // TODO include check if msg was loaded
+        self.showMessageButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
     }
 
     // MARK: - NCMediaViewerPageViewController delegate
@@ -235,6 +240,7 @@ import UIKit
     func mediaViewerPageMediaDidLoad(_ controller: NCMediaViewerPageViewController) {
         if let mediaPageViewController = self.getCurrentPageViewController(), mediaPageViewController.isEqual(controller) {
             self.shareButton.isEnabled = true
+            self.showMessageButton.isEnabled = true
         }
     }
 }
