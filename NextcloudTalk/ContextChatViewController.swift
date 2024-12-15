@@ -7,8 +7,8 @@ import Foundation
 
 @objcMembers public class ContextChatViewController: BaseChatViewController {
 
-    public override func viewDidLoad() {
-        super.viewDidLoad()
+    override func setTitleView() {
+        super.setTitleView()
 
         self.titleView?.longPressGestureRecognizer.isEnabled = false
     }
