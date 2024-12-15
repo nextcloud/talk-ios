@@ -179,14 +179,8 @@ import UIKit
             self.textView.layer.borderColor = UIColor.systemGray4.cgColor
             self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
         }
-    }
 
-    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-
-        coordinator.animate(alongsideTransition: nil) { _ in
-            self.setTitleView()
-        }
+        self.setTitleView()
     }
 
     // MARK: - Configuration
