@@ -57,6 +57,10 @@ import UIKit
                     chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
                 }
 
+                chatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Close", comment: ""), primaryAction: UIAction { [weak chatViewController] _ in
+                    chatViewController?.dismiss(animated: true)
+                })
+
                 let navController = NCNavigationController(rootViewController: chatViewController)
                 self.present(navController, animated: true)
             }
