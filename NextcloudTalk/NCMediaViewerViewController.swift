@@ -42,7 +42,7 @@ import UIKit
     private lazy var showMessageButton = {
         let showMessageButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
         showMessageButton.isEnabled = false
-        showMessageButton.primaryAction = UIAction(title: "", image: .init(systemName: "text.magnifyingglass"), handler: { [unowned self, unowned showMessageButton] _ in
+        showMessageButton.primaryAction = UIAction(title: "", image: .init(systemName: "text.magnifyingglass"), handler: { [unowned self] _ in
             guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
 
             let message = mediaPageViewController.message
@@ -55,7 +55,6 @@ import UIKit
 
                     chatViewController.appendMessages(messages: messages)
                     chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
-
                 }
 
                 let navController = NCNavigationController(rootViewController: chatViewController)
