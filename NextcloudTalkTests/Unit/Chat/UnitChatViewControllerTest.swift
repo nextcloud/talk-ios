@@ -83,7 +83,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
             realm.add(room)
         }
 
-        let chatViewController = ChatViewController(for: room)!
+        let chatViewController = ChatViewController(forRoom: room, withAccount: activeAccount)!
 
         expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
             XCTAssertNil(notification.userInfo?["error"])
