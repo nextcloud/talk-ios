@@ -108,6 +108,10 @@ import UIKit
         }
 #endif
 
+        if #available(iOS 18.0, *) {
+            self.textView.supportsAdaptiveImageGlyph = false
+        }
+
         self.textInputbar.editorTitle.textColor = .darkGray
         self.textInputbar.editorLeftButton.tintColor = .systemBlue
         self.textInputbar.editorRightButton.tintColor = .systemBlue
