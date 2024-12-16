@@ -7,6 +7,7 @@ import Foundation
 
 @objc extension NCRoomsManager {
 
+    public static let statusCodeNoSessionId = 996
     public static let statusCodeFailedToJoinExternal = 997
     public static let statusCodeShouldIgnoreAttemptButJoinedSuccessfully = 998
     public static let statusCodeIgnoreJoinAttempt = 999
@@ -154,6 +155,13 @@ import Foundation
             // Failed to join room in NC
             if let error {
                 completionBlock(nil, nil, error, statusCode, statusReason)
+                return
+            }
+
+            // While we received a successful http status code, we did not receive a sessionId -> treat it as an error
+            guard let sessionId else {
+                let error = NSError(domain: NSCocoaErrorDomain, code: NCRoomsManager.statusCodeNoSessionId)
+                completionBlock(nil, nil, error, NCRoomsManager.statusCodeNoSessionId, nil)
                 return
             }
 

@@ -202,10 +202,6 @@ import SwiftyAttributes
         }
 
         if !self.offlineMode {
-            if self.room.token == nil {
-                fatalTokenError()
-            }
-
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
 
@@ -213,39 +209,6 @@ import SwiftyAttributes
         if !AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).isEmpty {
             self.showGeneratingSummaryNotification()
             self.scheduleSummaryTaskCheck()
-        }
-    }
-
-    private func fatalTokenError() {
-        let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
-
-        switch capabilities.versionMajor {
-        case 19:
-            fatalError()
-        case 20:
-            fatalError()
-        case 21:
-            fatalError()
-        case 22:
-            fatalError()
-        case 23:
-            fatalError()
-        case 24:
-            fatalError()
-        case 25:
-            fatalError()
-        case 26:
-            fatalError()
-        case 27:
-            fatalError()
-        case 28:
-            fatalError()
-        case 29:
-            fatalError()
-        case 30:
-            fatalError()
-        default:
-            fatalError()
         }
     }
 
@@ -289,11 +252,7 @@ import SwiftyAttributes
         // Check if new messages were added while the app was inactive (eg. via background-refresh)
         self.checkForNewStoredMessages()
 
-        if !self.offlineMode {
-            if self.room.token == nil {
-                fatalTokenError()
-            }
-            
+        if !self.offlineMode {            
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
 
@@ -785,7 +744,7 @@ import SwiftyAttributes
             return
         }
 
-        if let room = notification.userInfo?["room"] as? NCRoom {
+        if let room = notification.userInfo?["room"] as? NCRoom, room.token == self.room.token {
             self.room = room
         }
 

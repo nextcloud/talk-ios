@@ -8,7 +8,7 @@ import XCTest
 
 final class UnitChatViewControllerTest: TestBaseRealm {
 
-    func testLocalMention() throws {
+    func testExpireMessages() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Expire Messages Test Room"
         let roomToken = "expToken"
@@ -67,6 +67,50 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
 
         XCTAssertEqual(NCChatMessage.allObjects().count, 0)
+    }
+
+    func testJoinRoomWithEmptyRoomObject() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let roomName = "EmptyRoomObject"
+        let roomToken = "emptyRoomObject"
+
+        let room = NCRoom()
+        room.token = roomToken
+        room.name = roomName
+        room.accountId = activeAccount.accountId
+
+        try? realm.transaction {
+            realm.add(room)
+        }
+
+        let chatViewController = ChatViewController(forRoom: room, withAccount: activeAccount)!
+
+        expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
+            XCTAssertNil(notification.userInfo?["error"])
+
+            // swiftlint:disable:next force_cast
+            XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
+
+            return true
+        }
+
+        let userInfo: [String: Any] = [
+            "token": roomToken,
+            "room": NCRoom()
+        ]
+
+        NotificationCenter.default.post(name: .NCRoomsManagerDidJoinRoom, object: self, userInfo: userInfo)
+
+        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        DispatchQueue.main.async {
+            XCTAssertNotNil(chatViewController.room.token)
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
     }
 
     func testFrequentlyEmojis() throws {
