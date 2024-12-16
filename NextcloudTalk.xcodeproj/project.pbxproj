@@ -69,6 +69,7 @@
 		1F205C572CEFA01900AAA673 /* OutOfOfficeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205C562CEFA01900AAA673 /* OutOfOfficeView.swift */; };
 		1F205D412CFC6DD300AAA673 /* AvatarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205D402CFC6DCF00AAA673 /* AvatarProtocol.swift */; };
 		1F205D442CFC70AD00AAA673 /* AvatarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205D402CFC6DCF00AAA673 /* AvatarProtocol.swift */; };
+		1F21A0502C747FC500ED8C0C /* BlurHashDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F21A04F2C747FC500ED8C0C /* BlurHashDecode.swift */; };
 		1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F24B5A128E0648600654457 /* ReferenceGithubView.swift */; };
 		1F24B5A428E0649200654457 /* ReferenceGithubView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F24B5A328E0649200654457 /* ReferenceGithubView.xib */; };
 		1F35F8E22AEEBAF900044BDA /* InputbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A24322ADA77DA009939FE /* InputbarViewController.swift */; };
@@ -706,6 +707,7 @@
 		1F21A06B2C77869600ED8C0C /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1F21A06C2C77869600ED8C0C /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1F21A06D2C77869600ED8C0C /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sr; path = sr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		1F21A04F2C747FC500ED8C0C /* BlurHashDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlurHashDecode.swift; sourceTree = "<group>"; };
 		1F24B5A128E0648600654457 /* ReferenceGithubView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceGithubView.swift; sourceTree = "<group>"; };
 		1F24B5A328E0649200654457 /* ReferenceGithubView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceGithubView.xib; sourceTree = "<group>"; };
 		1F35F8FA2AEEDBC600044BDA /* ChatViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewControllerExtension.swift; sourceTree = "<group>"; };
@@ -1695,6 +1697,7 @@
 				2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */,
 				2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */,
 				1F1B0F352BDD8B9C003FD766 /* NCActivityIndicator.swift */,
+				1F21A04F2C747FC500ED8C0C /* BlurHashDecode.swift */,
 			);
 			name = "User Interface";
 			sourceTree = "<group>";
@@ -2875,6 +2878,7 @@
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
 				2C4987BD21E640E20060AC27 /* CallKitManager.m in Sources */,
 				1F1B0F4C2BE18FF3003FD766 /* CustomPresentableNavigationController.swift in Sources */,
+				1F21A0502C747FC500ED8C0C /* BlurHashDecode.swift in Sources */,
 				2C4446F3265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				2C0424902CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift in Sources */,
 				2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */,

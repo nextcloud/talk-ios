@@ -141,6 +141,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 + (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage
 {
     int previewImageHeight = 0;
+    int previewImageWidth = 0;
 
     // Try to keep our locally saved previewImageHeight when updating this messages with the server message
     // This happens when updating the last message of a room for example
@@ -148,6 +149,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         // Only do this, if the new message does not include a height, to prevent an infinite recursion
         if (managedChatMessage.file.previewImageHeight > 0 && chatMessage.file.previewImageHeight == 0) {
             previewImageHeight = managedChatMessage.file.previewImageHeight;
+        }
+
+        if (managedChatMessage.file.previewImageWidth > 0 && chatMessage.file.previewImageWidth == 0) {
+            previewImageWidth = managedChatMessage.file.previewImageWidth;
         }
     }
 
@@ -176,8 +181,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         managedChatMessage.parentId = chatMessage.parentId;
     }
 
-    if (previewImageHeight > 0) {
-        [managedChatMessage setPreviewImageHeight:previewImageHeight];
+    if (previewImageHeight > 0 && previewImageWidth > 0) {
+        [managedChatMessage setPreviewImageSize:CGSizeMake(previewImageWidth, previewImageHeight)];
     }
 }
 
@@ -623,7 +628,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 }
 
-- (void)setPreviewImageHeight:(CGFloat)height
+- (void)setPreviewImageSize:(CGSize)size
 {
     // Since the messageParameters property is a non-mutable dictionary, we create a mutable copy
     NSMutableDictionary *messageParameterDict = [[NSMutableDictionary alloc] initWithDictionary:self.messageParameters];
@@ -634,7 +639,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 
     [messageParameterDict setObject:fileParameterDict forKey:@"file"];
-    [fileParameterDict setObject:@(height) forKey:@"preview-image-height"];
+    [fileParameterDict setObject:@(size.height) forKey:@"preview-image-height"];
+    [fileParameterDict setObject:@(size.width) forKey:@"preview-image-width"];
 
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messageParameterDict
                                                        options:0
@@ -648,7 +654,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
         // Since we previously accessed the 'file' property, it would not be created from the JSON String again
         // Manually set it for the lifetime of this message
-        self.file.previewImageHeight = height;
+        self.file.previewImageHeight = size.height;
+        self.file.previewImageWidth = size.width;
 
         // Save our changes to the database
         RLMRealm *realm = [RLMRealm defaultRealm];
