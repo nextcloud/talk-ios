@@ -119,7 +119,9 @@ import UIKit
         cell.titleLabel.text = detail.actorDisplayName
 
         // Actor avatar
-        cell.avatarImageView.setActorAvatar(forId: detail.actorId, withType: detail.actorType, withDisplayName: detail.actorDisplayName, withRoomToken: self.room.token)
+        if let account = room.account {
+            cell.avatarImageView.setActorAvatar(forId: detail.actorId, withType: detail.actorType, withDisplayName: detail.actorDisplayName, withRoomToken: self.room.token, using: account)
+        }
 
         return cell
     }

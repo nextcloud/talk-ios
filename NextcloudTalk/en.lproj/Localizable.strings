@@ -1,6 +1,12 @@
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
 
+/* '%@' is the name of a user */
+"%@ is out of office" = "%@ is out of office";
+
+/* '%@' is the name of a user */
+"%@ is out of office today" = "%@ is out of office today";
+
 /* {app name} is not installed */
 "%@ not installed" = "%@ not installed";
 
@@ -125,7 +131,7 @@
 "All notifications are muted" = "All notifications are muted";
 
 /* No comment provided by engineer. */
-"Allow guests" = "Allow guests";
+"Allow guests to join this conversation via link" = "Allow guests to join this conversation via link";
 
 /* '@all' should not be translated */
 "Allow participants to mention @all" = "Allow participants to mention @all";
@@ -278,6 +284,9 @@
 "An error occurred while sharing the file" = "An error occurred while sharing the file";
 
 /* No comment provided by engineer. */
+"An error occurred while testing push notifications" = "An error occurred while testing push notifications";
+
+/* No comment provided by engineer. */
 "an hour" = "an hour";
 
 /* Alice and Bob */
@@ -304,6 +313,15 @@
 /* No comment provided by engineer. */
 "Appear offline" = "Appear offline";
 
+/* No comment provided by engineer. */
+"Archive conversation" = "Archive conversation";
+
+/* No comment provided by engineer. */
+"Archived conversations" = "Archived conversations";
+
+/* No comment provided by engineer. */
+"Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list." = "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.";
+
 /* Alice and Bob are typing… */
 "are typing…" = "are typing…";
 
@@ -322,6 +340,9 @@
 /* No comment provided by engineer. */
 "Away" = "Away";
 
+/* No comment provided by engineer. */
+"Back to conversations" = "Back to conversations";
+
 /* Ban a user/guest */
 "Ban" = "Ban";
 
@@ -336,6 +357,9 @@
 
 /* No comment provided by engineer. */
 "Banned users and guests" = "Banned users and guests";
+
+/* Bold text */
+"Bold" = "Bold";
 
 /* No comment provided by engineer. */
 "bot" = "bot";
@@ -439,6 +463,9 @@
 /* No comment provided by engineer. */
 "Close" = "Close";
 
+/* Code block */
+"Code" = "Code";
+
 /* No comment provided by engineer. */
 "Configuration" = "Configuration";
 
@@ -504,6 +531,9 @@
 
 /* No comment provided by engineer. */
 "Could not add participant" = "Could not add participant";
+
+/* No comment provided by engineer. */
+"Could not archive conversation" = "Could not archive conversation";
 
 /* No comment provided by engineer. */
 "Could not ban participant" = "Could not ban participant";
@@ -594,6 +624,9 @@
 
 /* No comment provided by engineer. */
 "Could not share file" = "Could not share file";
+
+/* No comment provided by engineer. */
+"Could not unarchive conversation" = "Could not unarchive conversation";
 
 /* No comment provided by engineer. */
 "Create" = "Create";
@@ -797,10 +830,10 @@
 "edited" = "edited";
 
 /* A message was edited by ... */
-"Edited by" = "Edited by";
+"edited by" = "edited by";
 
 /* A message was edited by ... */
-"edited by" = "edited by";
+"Edited by" = "Edited by";
 
 /* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
@@ -810,6 +843,9 @@
 
 /* No comment provided by engineer. */
 "Email" = "Email";
+
+/* No comment provided by engineer. */
+"Empty summary response" = "Empty summary response";
 
 /* No comment provided by engineer. */
 "Enable" = "Enable";
@@ -902,6 +938,15 @@
 "Full name" = "Full name";
 
 /* No comment provided by engineer. */
+"Generate summary" = "Generate summary";
+
+/* No comment provided by engineer. */
+"Generating summary of unread messages" = "Generating summary of unread messages";
+
+/* No comment provided by engineer. */
+"Generating summary of unread messages failed" = "Generating summary of unread messages failed";
+
+/* No comment provided by engineer. */
 "Get source code" = "Get source code";
 
 /* No comment provided by engineer. */
@@ -924,6 +969,9 @@
 
 /* No comment provided by engineer. */
 "Hang up" = "Hang up";
+
+/* No comment provided by engineer. */
+"Hide" = "Hide";
 
 /* No comment provided by engineer. */
 "hours" = "hours";
@@ -978,6 +1026,9 @@
 
 /* No comment provided by engineer. */
 "It seems that there is no internet connection." = "It seems that there is no internet connection.";
+
+/* Italic text */
+"Italic" = "Italic";
 
 /* No comment provided by engineer. */
 "Join a conversation or start a new one" = "Join a conversation or start a new one";
@@ -1190,6 +1241,9 @@
 "No active account found" = "No active account found";
 
 /* No comment provided by engineer. */
+"No AI provider available or summarizing failed" = "No AI provider available or summarizing failed";
+
+/* No comment provided by engineer. */
 "No banned users or guests" = "No banned users or guests";
 
 /* No comment provided by engineer. */
@@ -1197,6 +1251,9 @@
 
 /* No comment provided by engineer. */
 "No files in here" = "No files in here";
+
+/* No comment provided by engineer. */
+"No messages found to summarize" = "No messages found to summarize";
 
 /* No comment provided by engineer. */
 "No messages yet, start the conversation!" = "No messages yet, start the conversation!";
@@ -1254,6 +1311,9 @@
 
 /* No comment provided by engineer. */
 "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time." = "Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.";
+
+/* No comment provided by engineer. */
+"Once a conversation is unarchived, it will be shown by default again." = "Once a conversation is unarchived, it will be shown by default again.";
 
 /* No comment provided by engineer. */
 "Online" = "Online";
@@ -1450,6 +1510,9 @@
 /* No comment provided by engineer. */
 "Remove team and members" = "Remove team and members";
 
+/* Replacement in case of out of office */
+"Replacement" = "Replacement";
+
 /* No comment provided by engineer. */
 "Reply" = "Reply";
 
@@ -1476,6 +1539,9 @@
 
 /* Save conversation description */
 "Save" = "Save";
+
+/* No comment provided by engineer. */
+"Save to 'Note to self'" = "Save to 'Note to self'";
 
 /* No comment provided by engineer. */
 "Say hi to your friends and colleagues!" = "Say hi to your friends and colleagues!";
@@ -1639,6 +1705,9 @@
 /* No comment provided by engineer. */
 "Stop screensharing" = "Stop screensharing";
 
+/* Strikethrough text */
+"Strikethrough" = "Strikethrough";
+
 /* No comment provided by engineer. */
 "STUN servers" = "STUN servers";
 
@@ -1657,11 +1726,26 @@
 /* No comment provided by engineer. */
 "Talk" = "Talk";
 
+/* Talk to a user */
+"Talk to" = "Talk to";
+
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message" = "Tap and hold to record a voice message";
 
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message, release the button to send it." = "Tap and hold to record a voice message, release the button to send it.";
+
+/* No comment provided by engineer. */
+"Test failed" = "Test failed";
+
+/* No comment provided by engineer. */
+"Test push notifications" = "Test push notifications";
+
+/* No comment provided by engineer. */
+"Test results" = "Test results";
+
+/* No comment provided by engineer. */
+"Test results copied" = "Test results copied";
 
 /* No comment provided by engineer. */
 "The app is too old and no longer supported by this server." = "The app is too old and no longer supported by this server.";
@@ -1689,6 +1773,12 @@
 
 /* The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00) */
 "This meeting is scheduled for" = "This meeting is scheduled for";
+
+/* No comment provided by engineer. */
+"This might take a moment" = "This might take a moment";
+
+/* No comment provided by engineer. */
+"This summary is AI generated and may contain mistakes." = "This summary is AI generated and may contain mistakes.";
 
 /* No comment provided by engineer. */
 "This usually indicates that this device was previously used for an account, which was not properly removed from the server." = "This usually indicates that this device was previously used for an account, which was not properly removed from the server.";
@@ -1758,6 +1848,9 @@
 
 /* No comment provided by engineer. */
 "Unable to open file" = "Unable to open file";
+
+/* No comment provided by engineer. */
+"Unarchive conversation" = "Unarchive conversation";
 
 /* No comment provided by engineer. */
 "Unavailable" = "Unavailable";

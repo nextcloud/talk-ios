@@ -12,6 +12,7 @@ import UIKit
 
     // MARK: - Public var
     public var room: NCRoom
+    public var account: TalkAccount
 
     // MARK: - Internal var
     internal var titleView: NCChatTitleView?
@@ -19,16 +20,18 @@ import UIKit
     internal var mentionsDict: [String: NCMessageParameter] = [:]
     internal var contentView: UIView?
 
-    public init?(for room: NCRoom, tableViewStyle style: UITableView.Style) {
+    public init?(forRoom room: NCRoom, withAccount account: TalkAccount, tableViewStyle style: UITableView.Style) {
         self.room = room
+        self.account = account
 
         super.init(tableViewStyle: style)
 
         self.commonInit()
     }
 
-    public init?(for room: NCRoom, withView view: UIView) {
+    public init?(forRoom room: NCRoom, withAccount account: TalkAccount, withView view: UIView) {
         self.room = room
+        self.account = account
         self.contentView = view
 
         super.init(tableViewStyle: .plain)
@@ -154,6 +157,14 @@ import UIKit
         // We can't use UIColor with systemBlueColor directly, because it will switch to indigo. So make sure we actually get a blue tint here
         self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
 
+        // Markdown formatting options
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMarkdownMessages) {
+            self.textView.registerMarkdownFormattingSymbol("**", withTitle: NSLocalizedString("Bold", comment: "Bold text"))
+            self.textView.registerMarkdownFormattingSymbol("_", withTitle: NSLocalizedString("Italic", comment: "Italic text"))
+            self.textView.registerMarkdownFormattingSymbol("~~", withTitle: NSLocalizedString("Strikethrough", comment: "Strikethrough text"))
+            self.textView.registerMarkdownFormattingSymbol("`", withTitle: NSLocalizedString("Code", comment: "Code block"))
+        }
+
         self.restorePendingMessage()
 
         self.rightButton.setTitle("", for: .normal)
@@ -168,14 +179,8 @@ import UIKit
             self.textView.layer.borderColor = UIColor.systemGray4.cgColor
             self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
         }
-    }
 
-    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-
-        coordinator.animate(alongsideTransition: nil) { _ in
-            self.setTitleView()
-        }
+        self.setTitleView()
     }
 
     // MARK: - Configuration
@@ -212,8 +217,7 @@ import UIKit
     func showSuggestions(for string: String) {
         self.autocompletionUsers = []
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getMentionSuggestions(for: activeAccount.accountId, in: self.room.token, with: string) { mentions in
+        NCAPIController.sharedInstance().getMentionSuggestions(for: self.room.accountId, in: self.room.token, with: string) { mentions in
             guard let mentions else { return }
 
             self.autocompletionUsers = mentions
@@ -302,7 +306,7 @@ import UIKit
         if suggestion.id == "all" {
             cell.avatarButton.setAvatar(for: self.room)
         } else {
-            cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token)
+            cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token, using: self.account)
         }
 
         cell.accessibilityIdentifier = AutoCompletionCellIdentifier

@@ -61,7 +61,13 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
     if ([statusMessage isKindOfClass:[NSString class]]) {
         participant.statusMessage = statusMessage;
     }
-    
+
+    // Optional attributed for email guests
+    id invitedActorId = [participantDict objectForKey:@"invitedActorId"];
+    if ([invitedActorId isKindOfClass:[NSString class]]) {
+        participant.invitedActorId = invitedActorId;
+    }
+
     return participant;
 }
 
@@ -127,8 +133,11 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
 - (NSString *)detailedName
 {
     NSString *detailedNameString = _displayName;
+
+    BOOL defaultGuestNameUsed = false;
     if ([_displayName isEqualToString:@""]) {
         if (self.isGuest) {
+            defaultGuestNameUsed = true;
             detailedNameString = NSLocalizedString(@"Guest", nil);
         } else {
             detailedNameString = NSLocalizedString(@"[Unknown username]", nil);
@@ -145,7 +154,7 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
         detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, botString];
     }
     // Guest label
-    if (self.isGuest) {
+    if (self.isGuest && !defaultGuestNameUsed) {
         NSString *guestString = NSLocalizedString(@"guest", nil);
         detailedNameString = [NSString stringWithFormat:@"%@ (%@)", detailedNameString, guestString];
     }

@@ -39,6 +39,7 @@ extern NSString * const NCAttendeeBridgeBotId;
 @property (nonatomic, copy) NSString *statusIcon;
 @property (nonatomic, copy) NSString *statusMessage;
 @property (nonatomic, copy) NSString *callIconImageName;
+@property (nonatomic, copy) NSString *invitedActorId;
 
 + (instancetype)participantWithDictionary:(NSDictionary *)userDict;
 - (BOOL)canModerate;

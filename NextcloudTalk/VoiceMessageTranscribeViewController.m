@@ -172,7 +172,7 @@
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
     }];
     [alert addAction:settingsButton];
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil)
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                               style:UIAlertActionStyleCancel
                                             handler:^(UIAlertAction * _Nonnull action) {
         [self closeViewController];

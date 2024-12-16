@@ -59,6 +59,11 @@ import SwiftyAttributes
                 return
             }
 
+            // In case of a single line reference, we don't receive a lineEnd property
+            if self.lineEnd < self.lineBegin {
+                self.lineEnd = self.lineBegin
+            }
+
             // Calculate the size/width of the line numbers at the front of each line
             let sizeOfLineNumbersAndTab = ("\(self.lineEnd):  " as NSString).size(withAttributes: [NSAttributedString.Key.font: font])
 
@@ -72,11 +77,6 @@ import SwiftyAttributes
             var sourceWithoutNumbers = NSAttributedString()
 
             var lineCounter = self.lineBegin
-
-            // In case of a single line reference, we don't receive a lineEnd property
-            if self.lineEnd < self.lineBegin {
-                self.lineEnd = self.lineBegin
-            }
 
             // Remove any global indentation (preview only does it for the first 3 lines)
             var tempLines = removeIndentation(for: " ", in: allLines)

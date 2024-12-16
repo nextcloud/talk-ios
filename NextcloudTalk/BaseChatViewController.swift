@@ -10,6 +10,7 @@ import UIKit
 import Realm
 import ContactsUI
 import QuickLook
+import SwiftUI
 
 @objcMembers public class BaseChatViewController: InputbarViewController,
                                                   UITextFieldDelegate,
@@ -30,7 +31,8 @@ import QuickLook
                                                   AVAudioPlayerDelegate,
                                                   SystemMessageTableViewCellDelegate,
                                                   BaseChatTableViewCellDelegate,
-                                                  UITableViewDataSourcePrefetching {
+                                                  UITableViewDataSourcePrefetching,
+                                                  MessageSeparatorTableViewCellDelegate {
 
     // MARK: - Internal var
     internal var messages: [Date: [NCChatMessage]] = [:]
@@ -80,6 +82,8 @@ import QuickLook
     private var sendButtonTagMessage = 99
     private var sendButtonTagVoice = 98
 
+    private var isVoiceRecordingLocked = false
+
     private var actionTypeTranscribeVoiceMessage = "transcribe-voice-message"
 
     private var imagePicker: UIImagePickerController?
@@ -89,6 +93,7 @@ import QuickLook
     private var voiceMessageLongPressGesture: UILongPressGestureRecognizer?
     private var recorder: AVAudioRecorder?
     private var voiceMessageRecordingView: VoiceMessageRecordingView?
+    private var expandedUIHostingController: UIHostingController<ExpandedVoiceMessageRecordingView>?
     private var longPressStartingPoint: CGPoint?
     private var cancelHintLabelInitialPositionX: CGFloat?
     private var recordCancelled: Bool = false
@@ -169,10 +174,26 @@ import QuickLook
         return button
     }()
 
+    private lazy var voiceRecordingLockButton: UIButton = {
+        let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
+
+        button.backgroundColor = .secondarySystemBackground
+        button.tintColor = .systemBlue
+        button.layer.cornerRadius = button.frame.size.height / 2
+        button.clipsToBounds = true
+        button.alpha = 0
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "lock.open"), for: .normal)
+
+        self.view.addSubview(button)
+
+        return button
+    }()
+
     // MARK: - Init/Deinit
 
-    public init?(for room: NCRoom) {
-        super.init(for: room, tableViewStyle: .plain)
+    public init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
+        super.init(forRoom: room, withAccount: account, tableViewStyle: .plain)
 
         self.hidesBottomBarWhenPushed = true
         self.tableView?.estimatedRowHeight = 0
@@ -188,8 +209,8 @@ import QuickLook
 
     // Not using an optional here, because it is not available from ObjC
     // Pass "0" as highlightMessageId to not highlight a message
-    public convenience init?(for room: NCRoom, withMessage messages: [NCChatMessage], withHighlightId highlightMessageId: Int) {
-        self.init(for: room)
+    public convenience init?(forRoom room: NCRoom, withAccount account: TalkAccount, withMessage messages: [NCChatMessage], withHighlightId highlightMessageId: Int) {
+        self.init(forRoom: room, withAccount: account)
 
         // When we pass in a fixed number of messages, we hide the inputbar by default
         self.textInputbar.isHidden = true
@@ -250,8 +271,7 @@ import QuickLook
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: pollGroupedMessageCellIdentifier)
 
         self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
-        self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: InvisibleSystemMessageCellIdentifier)
-        self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorCellIdentifier)
+        self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorTableViewCell.identifier)
 
         let newMessagesButtonText = NSLocalizedString("↓ New messages", comment: "")
 
@@ -264,7 +284,8 @@ import QuickLook
             "unreadMessageButton": self.unreadMessageButton,
             "textInputbar": self.textInputbar,
             "scrollToBottomButton": self.scrollToBottomButton,
-            "autoCompletionView": self.autoCompletionView
+            "autoCompletionView": self.autoCompletionView,
+            "voiceRecordingLockButton": self.voiceRecordingLockButton
         ]
 
         let metrics = [
@@ -281,11 +302,17 @@ import QuickLook
         self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:[scrollToBottomButton(44)]-10-[autoCompletionView]", metrics: metrics, views: views))
         self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-(>=0)-[scrollToBottomButton(44)]-(>=0)-|", metrics: metrics, views: views))
 
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:[voiceRecordingLockButton(44)]-64-[autoCompletionView]", metrics: metrics, views: views))
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-(>=0)-[voiceRecordingLockButton(44)]-(>=0)-|", metrics: metrics, views: views))
+
         self.scrollToBottomButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        self.voiceRecordingLockButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
 
         self.addMenuToLeftButton()
 
         self.replyMessageView?.addObserver(self, forKeyPath: "visible", options: .new, context: nil)
+
+        self.textView.pastableMediaTypes = .images
     }
 
     // swiftlint:disable:next block_based_kvo
@@ -395,6 +422,14 @@ import QuickLook
         if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
             self.updateToolbar(animated: true)
         }
+
+        if self.traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass,
+           let indexPath = self.indexPathForUnreadMessageSeparator() {
+
+            DispatchQueue.main.async {
+                self.tableView?.reloadRows(at: [indexPath], with: .none)
+            }
+        }
     }
 
     // MARK: - Keyboard notifications
@@ -467,11 +502,10 @@ import QuickLook
 
     internal func createTemporaryMessage(message: String, replyTo parentMessage: NCChatMessage?, messageParameters: String, silently: Bool, isVoiceMessage: Bool) -> NCChatMessage? {
         let temporaryMessage = NCChatMessage()
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        temporaryMessage.accountId = activeAccount.accountId
-        temporaryMessage.actorDisplayName = activeAccount.userDisplayName
-        temporaryMessage.actorId = activeAccount.userId
+        temporaryMessage.accountId = self.account.accountId
+        temporaryMessage.actorDisplayName = self.account.userDisplayName
+        temporaryMessage.actorId = self.account.userId
         temporaryMessage.actorType = "users"
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
@@ -871,12 +905,11 @@ import QuickLook
 
     func showReplyView(for message: NCChatMessage) {
         let isAtBottom = self.shouldScrollOnNewMessages()
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if let replyProxyView = self.replyProxyView as? ReplyMessageView {
             self.replyMessageView = replyProxyView
 
-            replyProxyView.presentReply(with: message, withUserId: activeAccount.userId)
+            replyProxyView.presentReply(with: message, withUserId: self.account.userId)
             self.presentKeyboard(true)
 
             // Make sure we're really at the bottom after showing the replyMessageView
@@ -948,13 +981,11 @@ import QuickLook
     }
 
     func didPressNoteToSelf(for message: NCChatMessage) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: activeAccount) { roomDict, error in
-            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: self.account) { roomDict, error in
+            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: self.account.accountId) {
 
                 if message.isObjectShare {
-                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: activeAccount) { error in
+                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -962,7 +993,7 @@ import QuickLook
                         }
                     }
                 } else {
-                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: activeAccount) { error in
+                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -1021,8 +1052,7 @@ import QuickLook
     }
 
     func didPressTranslate(for message: NCChatMessage) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: activeAccount.accountId))
+        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: self.room.accountId))
         self.presentWithNavigation(translateMessageVC, animated: true)
     }
 
@@ -1116,9 +1146,7 @@ import QuickLook
             self.updateMessage(withMessageId: deletingMessage.messageId, updatedMessage: deletingMessage)
         }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: activeAccount) { messageDict, error, statusCode in
+        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: self.account) { messageDict, error, statusCode in
             if error == nil,
                let messageDict,
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
@@ -1129,7 +1157,7 @@ import QuickLook
                     NotificationPresenter.shared().present(text: NSLocalizedString("Message deleted successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
 
-                if let deleteMessage = NCChatMessage(dictionary: parent, andAccountId: activeAccount.accountId) {
+                if let deleteMessage = NCChatMessage(dictionary: parent, andAccountId: self.account.accountId) {
                     self.updateMessage(withMessageId: deleteMessage.messageId, updatedMessage: deleteMessage)
                 }
             } else if error != nil {
@@ -1332,7 +1360,7 @@ import QuickLook
 
     // MARK: - ShareConfirmationViewController delegate & helper
 
-    public func shareConfirmationViewControllerDidFailed(_ viewController: ShareConfirmationViewController) {
+    public func shareConfirmationViewControllerDidFail(_ viewController: ShareConfirmationViewController) {
         self.dismiss(animated: true) {
             if viewController.forwardingMessage {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Failed to forward message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
@@ -1351,10 +1379,14 @@ import QuickLook
         }
     }
 
-    internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: activeAccount, serverCapabilities: serverCapabilities!)!
+    public func shareConfirmationViewControllerDidCancel(_ viewController: ShareConfirmationViewController) {
+        self.setChatMessage(viewController.textView.text)
+        self.dismiss(animated: true)
+    }
+
+    internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController)? {
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.account.accountId)
+        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: self.account, serverCapabilities: serverCapabilities!)!
         shareConfirmationVC.delegate = self
         shareConfirmationVC.isModal = true
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)
@@ -1368,6 +1400,22 @@ import QuickLook
         self.dismiss(animated: true)
     }
 
+    // MARK: - TextView paste support
+
+    public override func didPasteMediaContent(_ userInfo: [AnyHashable: Any]) {
+        guard let data = userInfo[SLKTextViewPastedItemData] as? Data,
+              let image = UIImage(data: data),
+              let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        else { return }
+
+        shareConfirmationVC.setChatMessage(self.textView.text)
+        self.setChatMessage("")
+
+        self.present(navigationController, animated: true) {
+            shareConfirmationVC.shareItemController.addItem(with: image)
+        }
+    }
+
     // MARK: - PHPhotoPicker Delegate
 
     public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
@@ -1376,7 +1424,7 @@ import QuickLook
             return
         }
 
-        let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController() else { return }
 
         picker.dismiss(animated: true) {
             self.present(navigationController, animated: true) {
@@ -1419,9 +1467,9 @@ import QuickLook
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         self.saveImagePickerSettings(picker)
 
-        let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
-
-        guard let mediaType = info[.mediaType] as? String else { return }
+        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController(),
+              let mediaType = info[.mediaType] as? String
+        else { return }
 
         if mediaType == "public.image" {
             guard let image = info[.originalImage] as? UIImage else { return }
@@ -1456,7 +1504,7 @@ import QuickLook
     // MARK: - UIDocumentPickerViewController Delegate
 
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController() else { return }
 
         self.present(navigationController, animated: true) {
             for url in urls {
@@ -1469,9 +1517,8 @@ import QuickLook
 
     public func shareLocationViewController(_ viewController: ShareLocationViewController, didSelectLocationWithLatitude latitude: Double, longitude: Double, andName name: String) {
         let richObject = GeoLocationRichObject(latitude: latitude, longitude: longitude, name: name)
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: activeAccount) { error in
+        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: self.account) { error in
             if let error {
                 print("Error sharing rich object: \(error)")
             }
@@ -1483,7 +1530,8 @@ import QuickLook
     // MARK: - CNContactPickerViewController Delegate
 
     public func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
-        guard let vCardData = try? CNContactVCardSerialization.data(with: [contact]) else { return }
+        guard let vCardData = try? CNContactVCardSerialization.data(with: [contact])
+        else { return }
 
         var vcString = String(data: vCardData, encoding: .utf8)
 
@@ -1501,9 +1549,8 @@ import QuickLook
             try vcString?.write(toFile: filePath, atomically: true, encoding: .utf8)
             let url = URL(fileURLWithPath: filePath)
             let contactFileName = "\(contact.identifier).vcf"
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: activeAccount) { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: self.account) { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil, temporaryMessage: nil)
                 } else {
@@ -1546,6 +1593,72 @@ import QuickLook
 
     func hideVoiceMessageRecordingView() {
         self.voiceMessageRecordingView?.isHidden = true
+    }
+
+    // MARK: - Expanded voice message recording
+
+    func showExpandedVoiceMessageRecordingView(offset: Int) {
+        let expandedView = ExpandedVoiceMessageRecordingView(
+            deleteFunc: handleDelete, sendFunc: handleSend, recordFunc: handleRecord(isRecording:), timeElapsed: offset
+        )
+
+        let hostingController = UIHostingController(rootView: expandedView)
+        guard let expandedVoiceMessageRecordingView = hostingController.view else { return }
+
+        self.expandedUIHostingController = hostingController
+        self.view.addSubview(expandedVoiceMessageRecordingView)
+
+        expandedVoiceMessageRecordingView.translatesAutoresizingMaskIntoConstraints = false
+
+        let views = [
+            "expandedVoiceMessageRecordingView": expandedVoiceMessageRecordingView
+        ]
+
+        expandedVoiceMessageRecordingView.bottomAnchor.constraint(equalTo: self.textInputbar.bottomAnchor).isActive = true
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[expandedVoiceMessageRecordingView]|", metrics: nil, views: views))
+    }
+
+    func handleDelete() {
+        self.recordCancelled = true
+        self.stopRecordingVoiceMessage()
+        handleCollapseVoiceRecording()
+    }
+
+    func handleSend() {
+        if let recorder = self.recorder, recorder.isRecording {
+            self.recordCancelled = false
+            self.stopRecordingVoiceMessage()
+        } else {
+            self.hideVoiceMessageRecordingView()
+            self.shareVoiceMessage()
+        }
+        handleCollapseVoiceRecording()
+    }
+
+    func handleRecord(isRecording: Bool) {
+        if isRecording {
+            if let recorder = self.recorder, !recorder.isRecording {
+                let session = AVAudioSession.sharedInstance()
+                try? session.setActive(true)
+                recorder.record()
+                print("Recording Restarted")
+            }
+        } else {
+            recordCancelled = true
+            if let recorder = self.recorder, recorder.isRecording {
+                recorder.stop()
+                let session = AVAudioSession.sharedInstance()
+                try? session.setActive(false)
+                print("Recording Stopped")
+            }
+        }
+    }
+
+    func handleCollapseVoiceRecording() {
+        self.isVoiceRecordingLocked = false
+        self.expandedUIHostingController?.removeFromParent()
+        self.expandedUIHostingController?.view.isHidden = true
+        self.textInputbar.bringSubviewToFront(self.textInputbar)
     }
 
     func setupAudioRecorder() {
@@ -1598,6 +1711,7 @@ import QuickLook
             let session = AVAudioSession.sharedInstance()
             try? session.setActive(true)
             recorder.record()
+            print("Recording started")
         }
     }
 
@@ -1607,6 +1721,7 @@ import QuickLook
             recorder.stop()
             let session = AVAudioSession.sharedInstance()
             try? session.setActive(false)
+            print("Recording Stopped")
         }
     }
 
@@ -1878,14 +1993,19 @@ import QuickLook
             self.recordCancelled = false
             self.longPressStartingPoint = point
             self.cancelHintLabelInitialPositionX = voiceMessageRecordingView?.slideToCancelHintLabel?.frame.origin.x
+            self.voiceRecordingLockButton.alpha = 1
         } else if gestureRecognizer.state == .ended {
-            print("Stop recording audio message")
             self.shouldLockInterfaceOrientation(lock: false)
-            if let recordingTime = self.recorder?.currentTime {
-                // Mark record as cancelled if audio message is no longer than one second
-                self.recordCancelled = recordingTime < 1
+            self.resetVoiceRecordingLockButton()
+
+            if !isVoiceRecordingLocked {
+                if let recordingTime = self.recorder?.currentTime {
+                    // Mark record as cancelled if audio message is no longer than one second
+                    self.recordCancelled = recordingTime < 1
+                }
+                self.stopRecordingVoiceMessage()
+                print("Stop recording audio message")
             }
-            self.stopRecordingVoiceMessage()
         } else if gestureRecognizer.state == .changed {
             guard let longPressStartingPoint,
                   let cancelHintLabelInitialPositionX,
@@ -1894,6 +2014,7 @@ import QuickLook
             else { return }
 
             let slideX = longPressStartingPoint.x - point.x
+            let slideY = longPressStartingPoint.y - point.y
 
             // Only slide view to the left
             if slideX > 0 {
@@ -1905,19 +2026,35 @@ import QuickLook
                 slideToCancelHintLabel.alpha = (maxSlideX - slideX) / 100
 
                 // Cancel recording if slided more than maxSlideX
-                if slideX > maxSlideX, !self.recordCancelled {
+                if slideX > maxSlideX, !self.recordCancelled, !isVoiceRecordingLocked {
                     print("Cancel recording audio message")
 
                     // 'Cancelled' feedback (three sequential weak booms)
                     AudioServicesPlaySystemSound(1521)
                     self.recordCancelled = true
                     self.stopRecordingVoiceMessage()
+                    self.resetVoiceRecordingLockButton()
+                }
+            }
+
+            if slideY > 0 {
+                let maxSlideY = 64.0
+                if slideY > maxSlideY, !self.recordCancelled {
+                    if !isVoiceRecordingLocked {
+                        self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock"), for: .normal)
+                        let offset = self.voiceMessageRecordingView?.recordingTimeLabel?.getTimeCounted()
+                        let intOffset = Int(offset!.magnitude)
+                        showExpandedVoiceMessageRecordingView(offset: intOffset)
+                        print("LOCKED")
+                        isVoiceRecordingLocked = true
+                    }
                 }
             }
         } else if gestureRecognizer.state == .cancelled || gestureRecognizer.state == .failed {
             print("Gesture cancelled or failed -> Cancel recording audio message")
             self.shouldLockInterfaceOrientation(lock: false)
             self.recordCancelled = false
+            self.resetVoiceRecordingLockButton()
             self.stopRecordingVoiceMessage()
         }
     }
@@ -1926,6 +2063,11 @@ import QuickLook
         if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
             appDelegate.shouldLockInterfaceOrientation = lock
         }
+    }
+
+    func resetVoiceRecordingLockButton() {
+        self.voiceRecordingLockButton.alpha = 0
+        self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock.open"), for: .normal)
     }
 
     // MARK: - UIScrollViewDelegate methods
@@ -2008,7 +2150,7 @@ import QuickLook
         if shouldAddBlockSeparator {
             // Chat block separator
             let blockSeparatorMessage = NCChatMessage()
-            blockSeparatorMessage.messageId = kChatBlockSeparatorIdentifier
+            blockSeparatorMessage.messageId = MessageSeparatorTableViewCell.chatBlockSeparatorId
             historyMessagesForSection?.append(blockSeparatorMessage)
         }
 
@@ -2084,6 +2226,10 @@ import QuickLook
 
     private func internalAppendMessages(messages: [NCChatMessage], inDictionary dictionary: inout [Date: [NCChatMessage]]) {
         for newMessage in messages {
+            // Skip any update message, as that would still trigger some operations on the UITableView.
+            // Processing of update messages still happens when receiving new messages, so safe to skip here
+            guard !newMessage.isUpdateMessage else { continue }
+
             let newMessageDate = Date(timeIntervalSince1970: TimeInterval(newMessage.timestamp))
             let keyDate = self.getKeyForDate(date: newMessageDate, inDictionary: dictionary)
 
@@ -2217,21 +2363,19 @@ import QuickLook
         collapseByMessage.collapsedMessages.add(newMessage.messageId as NSNumber)
         collapseByMessage.isCollapsed = true
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
         var isUser0Self = false
         var isUser1Self = false
 
         if let userDict = collapseByMessage.messageParameters["user"] as? [String: Any] {
-            isUser0Self = userDict["id"] as? String == activeAccount.userId && userDict["type"] as? String == "user"
+            isUser0Self = userDict["id"] as? String == self.account.userId && userDict["type"] as? String == "user"
         }
 
         if let userDict = newMessage.messageParameters["user"] as? [String: Any] {
-            isUser1Self = userDict["id"] as? String == activeAccount.userId && userDict["type"] as? String == "user"
+            isUser1Self = userDict["id"] as? String == self.account.userId && userDict["type"] as? String == "user"
         }
 
-        let isActor0Self = collapseByMessage.actorId == activeAccount.userId && collapseByMessage.actorType == "users"
-        let isActor1Self = newMessage.actorId == activeAccount.userId && newMessage.actorType == "users"
+        let isActor0Self = collapseByMessage.actorId == self.account.userId && collapseByMessage.actorType == "users"
+        let isActor1Self = newMessage.actorId == self.account.userId && newMessage.actorType == "users"
         let isActor0Admin = collapseByMessage.actorId == "cli" && collapseByMessage.actorType == "guests"
 
         collapseByMessage.collapsedIncludesUserSelf = isUser0Self || isUser1Self
@@ -2440,17 +2584,16 @@ import QuickLook
     // MARK: - Reactions
 
     func addReaction(reaction: String, to message: NCChatMessage) {
-        if message.reactionsArray().contains(where: {$0.reaction == reaction && $0.userReacted }) {
+        if message.reactionsArray().contains(where: { $0.reaction == reaction && $0.userReacted }) {
             // We can't add reaction twice
             return
         }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         self.setTemporaryReaction(reaction: reaction, withState: .adding, toMessage: message)
 
-        NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: activeAccount.accountId)
+        NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: self.account.accountId)
 
-        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
+        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2459,10 +2602,9 @@ import QuickLook
     }
 
     func removeReaction(reaction: String, from message: NCChatMessage) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
-        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { _, error, _ in
+        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2529,8 +2671,7 @@ import QuickLook
         reactionsVC.room = self.room
         self.presentWithNavigation(reactionsVC, animated: true)
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: activeAccount) { reactionsDict, error, _ in
+        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { reactionsDict, error, _ in
             if error == nil,
                let reactions = reactionsDict as? [String: [[String: AnyObject]]] {
 
@@ -2612,8 +2753,9 @@ import QuickLook
             guard let message = self.message(for: indexPath) else { continue }
 
             DispatchQueue.global(qos: .userInitiated).async {
-                guard message.messageId != kUnreadMessagesSeparatorIdentifier, 
-                      message.messageId != kChatBlockSeparatorIdentifier
+                guard message.messageId != MessageSeparatorTableViewCell.unreadMessagesSeparatorId,
+                      message.messageId != MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId,
+                      message.messageId != MessageSeparatorTableViewCell.chatBlockSeparatorId
                 else { return }
 
                 if message.containsURL() {
@@ -2634,25 +2776,27 @@ import QuickLook
 
     // swiftlint:disable:next cyclomatic_complexity
     func getCell(for message: NCChatMessage) -> UITableViewCell {
-        if message.messageId == kUnreadMessagesSeparatorIdentifier,
-           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorCellIdentifier) as? MessageSeparatorTableViewCell {
+        if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId || message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId,
+           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
             cell.messageId = message.messageId
-            cell.separatorLabel.text = NSLocalizedString("Unread messages", comment: "")
+            cell.separatorLabel.text = MessageSeparatorTableViewCell.unreadMessagesSeparatorText
+            cell.delegate = self
+
+            if message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId {
+                cell.setSummaryButtonVisibilty(isHidden: false)
+            } else {
+                cell.setSummaryButtonVisibilty(isHidden: true)
+            }
+
             return cell
         }
 
-        if message.messageId == kChatBlockSeparatorIdentifier,
-           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorCellIdentifier) as? MessageSeparatorTableViewCell {
+        if message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId,
+           let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
             cell.messageId = message.messageId
-            cell.separatorLabel.text = NSLocalizedString("Some messages not shown, will be downloaded when online", comment: "")
-            return cell
-        }
-
-        if message.isUpdateMessage,
-           let cell = self.tableView?.dequeueReusableCell(withIdentifier: InvisibleSystemMessageCellIdentifier) as? SystemMessageTableViewCell {
-
+            cell.separatorLabel.text = MessageSeparatorTableViewCell.chatBlockSeparatorText
             return cell
         }
 
@@ -2669,7 +2813,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 if let playerAudioFileStatus = self.playerAudioFileStatus,
                    let voiceMessagesPlayer = self.voiceMessagesPlayer {
@@ -2692,7 +2836,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 return cell
             }
@@ -2703,7 +2847,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 return cell
             }
@@ -2714,7 +2858,7 @@ import QuickLook
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room)
+                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
                 return cell
             }
@@ -2730,7 +2874,7 @@ import QuickLook
 
         if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
             cell.delegate = self
-            cell.setup(for: message, inRoom: self.room)
+            cell.setup(for: message, inRoom: self.room, withAccount: self.account)
 
             return cell
         }
@@ -2766,13 +2910,17 @@ import QuickLook
     // swiftlint:disable:next cyclomatic_complexity
     func getCellHeight(for message: NCChatMessage, with originalWidth: CGFloat) -> CGFloat {
         // Chat separators
-        if message.messageId == kUnreadMessagesSeparatorIdentifier ||
-            message.messageId == kChatBlockSeparatorIdentifier {
-            return kMessageSeparatorCellHeight
+        if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
+
+            let cell = self.getCell(for: message)
+            let size = cell.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+            return size.height
         }
 
-        // Update messages (the ones that notify about an update in one message, they should not be displayed)
-        if message.message.isEmpty || message.isUpdateMessage || (message.isCollapsed && message.collapsedBy != nil) {
+        // Empty or collapsed system messages should not be displayed
+        if message.message.isEmpty || (message.isCollapsed && message.collapsedBy != nil) {
             return 0.0
         }
 
@@ -2825,9 +2973,9 @@ import QuickLook
         } else if let file = message.file() {
             if file.previewImageHeight > 0 {
                 height += CGFloat(file.previewImageHeight)
-            } else if case let estimatedHeight = BaseChatTableViewCell.getEstimatedPreviewSize(for: message), estimatedHeight > 0 {
-                height += estimatedHeight
-                message.setPreviewImageHeight(estimatedHeight)
+            } else if case let estimatedSize = BaseChatTableViewCell.getEstimatedPreviewSize(for: message), estimatedSize.height > 0 {
+                height += estimatedSize.height
+                message.setPreviewImageSize(estimatedSize)
             } else {
                 height += fileMessageCellFileMaxPreviewHeight
             }
@@ -2900,7 +3048,11 @@ import QuickLook
 
         guard let message = self.message(for: indexPath) else { return nil }
 
-        if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
+        if message.isSystemMessage || message.isDeletedMessage ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
+
             return nil
         }
 
@@ -3169,7 +3321,9 @@ import QuickLook
     }
 
     internal func indexPathForUnreadMessageSeparator() -> IndexPath? {
-        return self.indexPathAndMessageFromEnd(with: { $0.messageId == kUnreadMessagesSeparatorIdentifier })?.indexPath
+        return self.indexPathAndMessageFromEnd(with: {
+            $0.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId || $0.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId
+        })?.indexPath
     }
 
     internal func getLastNonUpdateMessage() -> (indexPath: IndexPath, message: NCChatMessage)? {
@@ -3261,12 +3415,26 @@ import QuickLook
 
     public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter, for message: NCChatMessage) {
         if NCUtils.isImage(fileType: fileParameter.mimetype) {
-            let mediaViewController = NCMediaViewerViewController(initialMessage: message)
+            let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)
             let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
             self.present(navController, interactiveDismissalType: .standard)
 
             return
+        }
+
+        let filePath = fileParameter.path ?? ""
+        let fileExtension = URL(fileURLWithPath: filePath).pathExtension.lowercased()
+
+        if NCUtils.isVideo(fileType: fileParameter.mimetype) {
+            // Skip unsupported formats here ("webm" and "mkv") and use VLC later
+            if !fileExtension.isEmpty, !VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
+                let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)
+                let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
+
+                self.present(navController, interactiveDismissalType: .standard)
+                return
+            }
         }
 
         if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
@@ -3279,14 +3447,14 @@ import QuickLook
         downloader.downloadFile(fromMessage: fileParameter)
     }
 
-    public func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage) {
-        if message.file().previewImageHeight == Int(height) {
+    public func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage) {
+        if message.file().previewImageHeight == Int(size.height) {
             return
         }
 
         let isAtBottom = self.shouldScrollOnNewMessages()
 
-        message.setPreviewImageHeight(height)
+        message.setPreviewImageSize(size)
 
         CATransaction.begin()
         CATransaction.setCompletionBlock {
@@ -3374,12 +3542,11 @@ import QuickLook
         pollVC.room = self.room
         self.presentWithNavigation(pollVC, animated: true)
 
-        if let pollId = Int(poll.parameterId) {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: activeAccount) { poll, error, _ in
-                if error == nil, let poll {
-                    pollVC.updatePoll(poll: poll)
-                }
+        guard let pollId = Int(poll.parameterId) else { return }
+
+        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: self.account) { poll, error, _ in
+            if error == nil, let poll {
+                pollVC.updatePoll(poll: poll)
             }
         }
     }
@@ -3387,8 +3554,7 @@ import QuickLook
     // MARK: - PollCreationViewControllerDelegate
 
     func pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: PollCreationViewController, question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: self.room.token, for: activeAccount) { _, error, _ in
+        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: self.room.token, for: self.account) { _, error, _ in
             if error != nil {
                 pollCreationViewController.showCreationError()
             } else {
@@ -3444,6 +3610,12 @@ import QuickLook
         }
 
         self.didPressReply(for: message)
+    }
+
+    // MARK: - MessageSeparatorTableViewCellDelegate
+
+    func generateSummaryButtonPressed() {
+        // Do nothing -> override in subclass
     }
 
     // MARK: - NCChatFileControllerDelegate
@@ -3559,9 +3731,8 @@ import QuickLook
 
 extension Sequence where Iterator.Element == NCChatMessage {
 
-    func containsUserMessage() -> Bool {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        return self.contains(where: { !$0.isSystemMessage && $0.actorId == activeAccount.userId })
+    func containsMessage(forUserId userId: String) -> Bool {
+        return self.contains(where: { !$0.isSystemMessage && $0.actorId == userId })
     }
 
     func containsVisibleMessages() -> Bool {

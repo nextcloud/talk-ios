@@ -39,6 +39,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     NSString *_urlDetected;
     BOOL _referenceDataDone;
     NSDictionary *_referenceData;
+    NSMutableAttributedString *_parsedMarkdownForChat;
 }
 
 @end
@@ -140,6 +141,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 + (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage
 {
     int previewImageHeight = 0;
+    int previewImageWidth = 0;
 
     // Try to keep our locally saved previewImageHeight when updating this messages with the server message
     // This happens when updating the last message of a room for example
@@ -147,6 +149,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         // Only do this, if the new message does not include a height, to prevent an infinite recursion
         if (managedChatMessage.file.previewImageHeight > 0 && chatMessage.file.previewImageHeight == 0) {
             previewImageHeight = managedChatMessage.file.previewImageHeight;
+        }
+
+        if (managedChatMessage.file.previewImageWidth > 0 && chatMessage.file.previewImageWidth == 0) {
+            previewImageWidth = managedChatMessage.file.previewImageWidth;
         }
     }
 
@@ -175,8 +181,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         managedChatMessage.parentId = chatMessage.parentId;
     }
 
-    if (previewImageHeight > 0) {
-        [managedChatMessage setPreviewImageHeight:previewImageHeight];
+    if (previewImageHeight > 0 && previewImageWidth > 0) {
+        [managedChatMessage setPreviewImageSize:CGSizeMake(previewImageWidth, previewImageHeight)];
     }
 }
 
@@ -296,7 +302,12 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     NSString *parsedMessage = originalMessage;
     NSError *error = nil;
 
-    NSRegularExpression *parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^}]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+    static NSRegularExpression *parameterRegex;
+
+    if (!parameterRegex) {
+        parameterRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{([a-z\\-_.0-9]+)\\}" options:NSRegularExpressionCaseInsensitive error:&error];
+    }
+
     NSArray *matches = [parameterRegex matchesInString:originalMessage
                                                options:0
                                                  range:NSMakeRange(0, [originalMessage length])];
@@ -317,7 +328,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             NSString *replaceString = messageParameter.name;
             // Format user and call mentions
             if ([messageParameter.type isEqualToString:@"user"] || [messageParameter.type isEqualToString:@"guest"] ||
-                [messageParameter.type isEqualToString:@"user-group"] || [messageParameter.type isEqualToString:@"call"]) {
+                [messageParameter.type isEqualToString:@"user-group"] || [messageParameter.type isEqualToString:@"call"] ||
+                [messageParameter.type isEqualToString:@"email"]) {
+                
                 replaceString = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
             }
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];
@@ -349,7 +362,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions
         if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] ||
-            [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"]) {
+            [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"] ||
+            [param.type isEqualToString:@"email"]) {
 
             if (param.shouldBeHighlighted) {
                 if (!highlightedColor) {
@@ -395,6 +409,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
 - (NSMutableAttributedString *)parsedMarkdownForChat
 {
+    if (_parsedMarkdownForChat) {
+        return _parsedMarkdownForChat;
+    }
+
     // In some circumstances we want/need to hide the message in the chat, but still want to show it in other parts like the conversation list
     if ([self getDeckCardUrlForReferenceProvider]) {
         return nil;
@@ -410,7 +428,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         return parsedMessage;
     }
 
-    return [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
+    _parsedMarkdownForChat = [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:parsedMessage];
+
+    return _parsedMarkdownForChat;
 }
 
 - (NSMutableArray *)temporaryReactions
@@ -608,7 +628,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 }
 
-- (void)setPreviewImageHeight:(CGFloat)height
+- (void)setPreviewImageSize:(CGSize)size
 {
     // Since the messageParameters property is a non-mutable dictionary, we create a mutable copy
     NSMutableDictionary *messageParameterDict = [[NSMutableDictionary alloc] initWithDictionary:self.messageParameters];
@@ -619,7 +639,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     }
 
     [messageParameterDict setObject:fileParameterDict forKey:@"file"];
-    [fileParameterDict setObject:@(height) forKey:@"preview-image-height"];
+    [fileParameterDict setObject:@(size.height) forKey:@"preview-image-height"];
+    [fileParameterDict setObject:@(size.width) forKey:@"preview-image-width"];
 
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messageParameterDict
                                                        options:0
@@ -633,7 +654,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
         // Since we previously accessed the 'file' property, it would not be created from the JSON String again
         // Manually set it for the lifetime of this message
-        self.file.previewImageHeight = height;
+        self.file.previewImageHeight = size.height;
+        self.file.previewImageWidth = size.width;
 
         // Save our changes to the database
         RLMRealm *realm = [RLMRealm defaultRealm];

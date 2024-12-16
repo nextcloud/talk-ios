@@ -14,14 +14,17 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
 
 @implementation NCRoom
 
-+ (instancetype)roomWithDictionary:(NSDictionary *)roomDict
++ (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId
 {
+
     if (!roomDict) {
         return nil;
     }
-    
+
     NCRoom *room = [[self alloc] init];
+    room.accountId = accountId;
     room.token = [roomDict objectForKey:@"token"];
+    room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];
     room.type = (NCRoomType)[[roomDict objectForKey:@"type"] integerValue];
     room.roomDescription = [roomDict objectForKey:@"description"];
     room.hasPassword = [[roomDict objectForKey:@"hasPassword"] boolValue];
@@ -61,6 +64,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     room.remoteServer = [roomDict objectForKey:@"remoteServer"];
     room.remoteToken = [roomDict objectForKey:@"remoteToken"];
     room.mentionPermissions = [[roomDict objectForKey:@"mentionPermissions"] integerValue];
+    room.isArchived = [[roomDict objectForKey:@"isArchived"] boolValue];
 
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -80,7 +84,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     } else {
         room.displayName = [displayName stringValue];
     }
-    
+
     id participants = [roomDict objectForKey:@"participants"];
     if ([participants isKindOfClass:[NSDictionary class]]) {
         room.participants = (RLMArray<RLMString> *)[participants allKeys];
@@ -126,17 +130,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
         }
     }
 
-    return room;
-}
-
-+ (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId
-{
-    NCRoom *room = [self roomWithDictionary:roomDict];
-    if (room) {
-        room.accountId = accountId;
-        room.internalId = [NSString stringWithFormat:@"%@@%@", room.accountId, room.token];
-    }
-    
     return room;
 }
 
@@ -191,6 +184,7 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.remoteToken = room.remoteToken;
     managedRoom.remoteServer = room.remoteServer;
     managedRoom.mentionPermissions = room.mentionPermissions;
+    managedRoom.isArchived = room.isArchived;
 }
 
 + (NSString *)primaryKey {

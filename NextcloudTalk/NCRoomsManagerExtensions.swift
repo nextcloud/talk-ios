@@ -7,6 +7,7 @@ import Foundation
 
 @objc extension NCRoomsManager {
 
+    public static let statusCodeNoSessionId = 996
     public static let statusCodeFailedToJoinExternal = 997
     public static let statusCodeShouldIgnoreAttemptButJoinedSuccessfully = 998
     public static let statusCodeIgnoreJoinAttempt = 999
@@ -24,8 +25,10 @@ import Foundation
 
         // Check if we try to join a room, we're still trying to leave
         if self.isLeavingRoom(withToken: token) {
-            self.leavingRoomToken = nil
             self.leaveRoomTask?.cancel()
+
+            self.leaveRoomTask = nil
+            self.leavingRoomToken = nil
         }
 
         self.joinRoomHelper(token, forCall: call)
@@ -152,6 +155,13 @@ import Foundation
             // Failed to join room in NC
             if let error {
                 completionBlock(nil, nil, error, statusCode, statusReason)
+                return
+            }
+
+            // While we received a successful http status code, we did not receive a sessionId -> treat it as an error
+            guard let sessionId else {
+                let error = NSError(domain: NSCocoaErrorDomain, code: NCRoomsManager.statusCodeNoSessionId)
+                completionBlock(nil, nil, error, NCRoomsManager.statusCodeNoSessionId, nil)
                 return
             }
 
@@ -419,7 +429,8 @@ import Foundation
                 // Inform the chatViewController about this change
                 NotificationCenter.default.post(name: .NCChatControllerDidSendChatMessage, object: self, userInfo: userInfo)
             } else {
-                if let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: offlineMessage.accountId),
+                if let accountId = offlineMessage.accountId,
+                   let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: accountId),
                    let chatController = NCChatController(for: room) {
                     chatController.send(offlineMessage)
                 }

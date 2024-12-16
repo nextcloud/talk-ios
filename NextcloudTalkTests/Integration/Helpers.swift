@@ -10,11 +10,11 @@ import Foundation
 extension XCTestCase {
 
     // TODO: This should probably be part of APIController
-    func getRoomDict(from rawRoomDict: [Any]) -> [NCRoom] {
+    func getRoomDict(from rawRoomDict: [Any], for account: TalkAccount) -> [NCRoom] {
         var rooms: [NCRoom] = []
         for roomDict in rawRoomDict {
-            if let roomDict = roomDict as? [AnyHashable: Any] {
-                rooms.append(NCRoom(dictionary: roomDict))
+            if let roomDict = roomDict as? [AnyHashable: Any], let ncRooms = NCRoom(dictionary: roomDict, andAccountId: account.accountId) {
+                rooms.append(ncRooms)
             }
         }
 
@@ -22,20 +22,26 @@ extension XCTestCase {
     }
 
     func checkRoomExists(roomName: String, withAccount account: TalkAccount, completion: ((NCRoom?) -> Void)? = nil) {
-        let exp = expectation(description: "\(#function)\(#line)")
-
         NCAPIController.sharedInstance().getRooms(forAccount: account, updateStatus: false, modifiedSince: 0) { roomsDict, error in
             XCTAssertNil(error)
 
-            let rooms = self.getRoomDict(from: roomsDict!)
+            let rooms = self.getRoomDict(from: roomsDict!, for: account)
             let room = rooms.first(where: { $0.displayName == roomName })
             XCTAssertNotNil(room)
 
             completion?(room)
-
-            exp.fulfill()
         }
+    }
 
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+    func checkRoomNotExists(roomName: String, withAccount account: TalkAccount, completion: (() -> Void)? = nil) {
+        NCAPIController.sharedInstance().getRooms(forAccount: account, updateStatus: false, modifiedSince: 0) { roomsDict, error in
+            XCTAssertNil(error)
+
+            let rooms = self.getRoomDict(from: roomsDict!, for: account)
+            let room = rooms.first(where: { $0.displayName == roomName })
+            XCTAssertNil(room)
+
+            completion?()
+        }
     }
 }

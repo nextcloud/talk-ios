@@ -20,15 +20,7 @@
 typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
 typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);
 
-typedef void (^GetRoomsCompletionBlock)(NSArray *rooms, NSError *error, NSInteger statusCode);
 typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
-typedef void (^CreateRoomCompletionBlock)(NSString *token, NSError *error);
-typedef void (^RenameRoomCompletionBlock)(NSError *error);
-typedef void (^SetDescriptionCompletionBlock)(NSError *error);
-typedef void (^MakeRoomPublicCompletionBlock)(NSError *error);
-typedef void (^MakeRoomPrivateCompletionBlock)(NSError *error);
-typedef void (^DeleteRoomCompletionBlock)(NSError *error);
-typedef void (^SetPasswordCompletionBlock)(NSError *error, NSString *errorDescription);
 typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode, NSString * _Nullable statusReason);
 typedef void (^ExitRoomCompletionBlock)(NSError *error);
 typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
@@ -136,6 +128,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 + (instancetype)sharedInstance;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
+- (void)removeAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)callAPIVersionForAccount:(TalkAccount *)account;
@@ -157,14 +150,8 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 
 // Rooms Controller
-- (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPublicCompletionBlock)block;
-- (NSURLSessionDataTask *)makeRoomPrivate:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPrivateCompletionBlock)block;
-- (NSURLSessionDataTask *)deleteRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DeleteRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)setPassword:(NSString *)password toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetPasswordCompletionBlock)block;
 - (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)exitRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ExitRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)addRoomToFavorites:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(FavoriteRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)removeRoomFromFavorites:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(FavoriteRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)setNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(NotificationLevelCompletionBlock)block;
 - (NSURLSessionDataTask *)setCallNotificationEnabled:(BOOL)enabled forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(NotificationLevelCompletionBlock)block;
 - (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ReadOnlyCompletionBlock)block;
@@ -304,6 +291,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getReminderForMessage:(NCChatMessage *)message withCompletionBlock:(GetReminderForMessage)block;
 
 // Internal method exposed for swift extension
+- (NSString * _Nonnull)getRequestURLForConversationEndpoint:(NSString *_Nonnull)endpoint forAccount:(TalkAccount *_Nonnull)account;
 - (NSString * _Nonnull)getRequestURLForEndpoint:(NSString *_Nonnull)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *_Nonnull)account;
 - (NSDictionary * _Nullable)getResponseHeaders:(NSURLResponse *_Nonnull)response;
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;

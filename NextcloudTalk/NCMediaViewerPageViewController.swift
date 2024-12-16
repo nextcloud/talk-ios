@@ -3,13 +3,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import AVKit
+import AVFoundation
 import Foundation
 import UIKit
 import SwiftyGif
 
 @objc protocol NCMediaViewerPageViewControllerDelegate {
     @objc func mediaViewerPageZoomDidChange(_ controller: NCMediaViewerPageViewController, _ scale: Double)
-    @objc func mediaViewerPageImageDidLoad(_ controller: NCMediaViewerPageViewController)
+    @objc func mediaViewerPageMediaDidLoad(_ controller: NCMediaViewerPageViewController)
 }
 
 @objcMembers class NCMediaViewerPageViewController: UIViewController, NCChatFileControllerDelegate, NCZoomableViewDelegate {
@@ -72,6 +74,10 @@ import SwiftyGif
         return self.imageView.image
     }
 
+    public var currentVideoURL: URL?
+    
+    private var playerViewController: AVPlayerViewController?
+    
     private lazy var activityIndicator = {
         let indicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: 100, height: 100))
         indicator.translatesAutoresizingMaskIntoConstraints = false
@@ -121,6 +127,7 @@ import SwiftyGif
 
     func showErrorView() {
         self.imageView.image = nil
+        self.removePlayerViewControllerIfNeeded()
         self.view.addSubview(self.errorView)
 
         NSLayoutConstraint.activate([
@@ -136,24 +143,18 @@ import SwiftyGif
         self.activityIndicator.stopAnimating()
         self.activityIndicator.isHidden = true
 
-        guard let localPath = fileStatus.fileLocalPath, let image = UIImage(contentsOfFile: localPath) else {
+        guard let localPath = fileStatus.fileLocalPath else {
             self.showErrorView()
             return
         }
 
-        if let file = message.file(), message.isAnimatableGif,
-           let data = try? Data(contentsOf: URL(fileURLWithPath: localPath)), let gifImage = try? UIImage(gifData: data) {
-
-            self.imageView.setGifImage(gifImage)
+        if NCUtils.isImage(fileType: message.file().mimetype) {
+            displayImage(from: localPath)
+        } else if NCUtils.isVideo(fileType: message.file().mimetype) {
+            playVideo(from: localPath)
         } else {
-            self.imageView.image = image
+            self.showErrorView()
         }
-
-        // Adjust the view to the new image (use the non-gif version here for correct dimensions)
-        self.zoomableView.contentViewSize = image.size
-        self.zoomableView.resizeContentView()
-
-        self.delegate?.mediaViewerPageImageDidLoad(self)
     }
 
     func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withErrorDescription errorDescription: String) {
@@ -187,5 +188,70 @@ import SwiftyGif
 
     func contentViewZoomDidChange(_ view: NCZoomableView, _ scale: Double) {
         self.delegate?.mediaViewerPageZoomDidChange(self, scale)
+    }
+
+    private func displayImage(from localPath: String) {
+        guard let image = UIImage(contentsOfFile: localPath) else {
+            self.showErrorView()
+            return
+        }
+
+        if let file = message.file(), message.isAnimatableGif,
+           let data = try? Data(contentsOf: URL(fileURLWithPath: localPath)),
+           let gifImage = try? UIImage(gifData: data) {
+
+            self.imageView.setGifImage(gifImage)
+        } else {
+            self.imageView.image = image
+        }
+
+        // Adjust the view to the new image (use the non-gif version here for correct dimensions)
+        self.zoomableView.contentViewSize = image.size
+        self.zoomableView.resizeContentView()
+
+        self.zoomableView.isHidden = false
+        self.imageView.isHidden = false
+
+        removePlayerViewControllerIfNeeded()
+        self.delegate?.mediaViewerPageMediaDidLoad(self)
+    }
+
+    private func playVideo(from localPath: String) {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback, options: [])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to set audio session category: \(error)")
+        }
+
+        let videoURL = URL(fileURLWithPath: localPath)
+        self.currentVideoURL = videoURL
+        let player = AVPlayer(url: videoURL)
+        let playerViewController = AVPlayerViewController()
+        playerViewController.player = player
+        self.playerViewController = playerViewController
+
+        self.addChild(playerViewController)
+        self.view.addSubview(playerViewController.view)
+        playerViewController.view.frame = self.view.bounds
+        playerViewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        playerViewController.didMove(toParent: self)
+
+        self.zoomableView.contentViewSize = playerViewController.view.bounds.size
+        self.zoomableView.resizeContentView()
+        self.zoomableView.isHidden = false
+        self.imageView.isHidden = true
+
+        self.delegate?.mediaViewerPageMediaDidLoad(self)
+    }
+
+    private func removePlayerViewControllerIfNeeded() {
+        if let playerVC = self.playerViewController {
+            playerVC.willMove(toParent: nil)
+            playerVC.view.removeFromSuperview()
+            playerVC.removeFromParent()
+            self.playerViewController = nil
+            self.currentVideoURL = nil
+        }
     }
 }

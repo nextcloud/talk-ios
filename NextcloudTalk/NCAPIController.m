@@ -33,6 +33,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 @interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate, NKCommonDelegate>
 
 @property (nonatomic, strong) NCAPISessionManager *defaultAPISessionManager;
+@property (nonatomic, strong) NSCache<NSString *, NSString *> *authTokenCache;
+@property (nonatomic, strong) NSCache<NSString *, SDWebImageDownloaderRequestModifier *> *requestModifierCache;
 
 @end
 
@@ -52,6 +54,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     self = [super init];
     if (self) {
+        self.authTokenCache = [[NSCache alloc] init];
+        self.requestModifierCache = [[NSCache alloc] init];
+        
         [self initSessionManagers];
         [self initImageDownloaders];
     }
@@ -75,6 +80,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account
 {
+    // Make sure there are no old entries in our caches when we create APISessionManagers
+    [self.authTokenCache removeObjectForKey:account.accountId];
+    [self.requestModifierCache removeObjectForKey:account.accountId];
+
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
     configuration.HTTPCookieStorage = cookieStorage;
@@ -91,6 +100,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     apiSessionManager = [[NCAPISessionManager alloc] initWithConfiguration:configuration];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     [_longPollingApiSessionManagers setObject:apiSessionManager forKey:account.accountId];
+}
+
+- (void)removeAPISessionManagerForAccount:(TalkAccount *)account
+{
+    [self.authTokenCache removeObjectForKey:account.accountId];
+    [self.requestModifierCache removeObjectForKey:account.accountId];
+    [self.apiSessionManagers removeObjectForKey:account.accountId];
+    [self.longPollingApiSessionManagers removeObjectForKey:account.accountId];
 }
 
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account
@@ -141,19 +158,37 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
 {
+    NSString *cachedHeader = [self.authTokenCache objectForKey:account.accountId];
+
+    if (cachedHeader) {
+        return cachedHeader;
+    }
+
     NSString *userTokenString = [NSString stringWithFormat:@"%@:%@", account.user, [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]];
     NSData *data = [userTokenString dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
-    
-    return [[NSString alloc]initWithFormat:@"Basic %@",base64Encoded];
+
+    NSString *authHeader = [[NSString alloc] initWithFormat:@"Basic %@",base64Encoded];
+    [self.authTokenCache setObject:authHeader forKey:account.accountId];
+
+    return authHeader;
 }
 
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account
 {
+    SDWebImageDownloaderRequestModifier *cachedModifier = [self.requestModifierCache objectForKey:account.accountId];
+
+    if (cachedModifier) {
+        return cachedModifier;
+    }
+
     NSMutableDictionary *headerDictionary = [[NSMutableDictionary alloc] init];
     [headerDictionary setObject:[self authHeaderForAccount:account] forKey:@"Authorization"];
 
-    return [[SDWebImageDownloaderRequestModifier alloc] initWithHeaders:headerDictionary];
+    SDWebImageDownloaderRequestModifier *requestModifier = [[SDWebImageDownloaderRequestModifier alloc] initWithHeaders:headerDictionary];
+    [self.requestModifierCache setObject:requestModifier forKey:account.accountId];
+
+    return requestModifier;
 }
 
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account
@@ -220,6 +255,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSString *)filesPathForAccount:(TalkAccount *)account
 {
     return [NSString stringWithFormat:@"%@/files/%@", kDavEndpoint, account.userId];
+}
+
+- (NSString *)getRequestURLForConversationEndpoint:(NSString *)endpoint forAccount:(TalkAccount *)account
+{
+    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
+    return [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
 }
 
 - (NSString *)getRequestURLForEndpoint:(NSString *)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *)account
@@ -306,110 +347,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Rooms Controller
 
-- (NSURLSessionDataTask *)makeRoomPublic:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPublicCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@/public", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)makeRoomPrivate:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MakeRoomPrivateCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@/public", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)deleteRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DeleteRoomCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)setPassword:(NSString *)password toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetPasswordCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@/password", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    NSDictionary *parameters = @{@"password" : password};
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil, nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            if (statusCode == 400) {
-                NSData *errorData = (NSData *)error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
-                NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:errorData
-                                                                         options:0
-                                                                           error:&error];
-                
-                // message is already translated server-side
-                NSString *errorDescription = [[[jsonData objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"message"];
-                block(error, errorDescription);
-            } else {
-                block(error, nil);
-            }
-        }
-    }];
-    
-    return task;
-}
-
 - (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
@@ -431,6 +368,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NCRoom *room = nil;
         if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms forAccountId:account.accountId]) {
             room = [NCRoom roomWithDictionary:dataDictionary andAccountId:account.accountId];
+
+            // Don't return a room object, if the token does not match
+            if (!room.token || ![room.token isEqualToString:token]) {
+                room = nil;
+            }
         }
 
         if (block) {
@@ -460,52 +402,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"room/%@/participants/active", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager DELETE:URLString parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)addRoomToFavorites:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(FavoriteRoomCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@/favorite", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)removeRoomFromFavorites:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(FavoriteRoomCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@/favorite", encodedToken];
     NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
     

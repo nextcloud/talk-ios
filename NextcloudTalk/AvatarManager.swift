@@ -15,7 +15,7 @@ import SDWebImage
     // MARK: - Conversation avatars
 
     public func getAvatar(for room: NCRoom, with style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        if room.accountId != nil, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: room.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: room.accountId) {
             // Server supports conversation avatars -> try to get the avatar using this API
 
             return NCAPIController.sharedInstance().getAvatarFor(room, with: style) { image, _ in
@@ -50,7 +50,7 @@ import SDWebImage
         } else {
             switch room.type {
             case .oneToOne:
-                let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId)
+                guard let account = room.account else { return nil }
                 return self.getUserAvatar(forId: room.name, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             case .formerOneToOne:
                 completionBlock(UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection))
@@ -71,27 +71,25 @@ import SDWebImage
     // MARK: - Actor avatars
 
     // swiftlint:disable:next function_parameter_count
-    public func getActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
+    public func getActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         if let actorId {
             if actorType == "bots" {
                 return getBotsAvatar(forId: actorId, withStyle: style, completionBlock: completionBlock)
-            } else if actorType == "guests" {
-                return getGuestsAvatar(withDisplayName: actorDisplayName ?? "", completionBlock: completionBlock)
             } else if actorType == "users" {
                 return getUserAvatar(forId: actorId, withStyle: style, usingAccount: account, completionBlock: completionBlock)
             } else if actorType == "federated_users" {
                 return getFederatedUserAvatar(forId: actorId, withRoomToken: roomToken, withStyle: style, usingAccount: account, completionBlock: completionBlock)
-            } else if actorType == "deleted_users" {
-                return getDeletedUserAvatar(completionBlock: completionBlock)
             }
         }
 
         var image: UIImage?
 
-        if actorType == NCAttendeeTypeEmail {
-            image = self.getMailAvatar(with: style)
+        if actorType == NCAttendeeTypeEmail || actorType == NCAttendeeTypeGuest {
+            image = self.getGuestsAvatar(withDisplayName: actorDisplayName ?? "", withStyle: style)
         } else if actorType == NCAttendeeTypeGroup || actorType == NCAttendeeTypeCircle {
             image = self.getGroupAvatar(with: style)
+        } else if actorType == "deleted_users" {
+            image = self.getDeletedUserAvatar()
         } else {
             image = NCUtils.getImage(withString: "?", withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
         }
@@ -112,26 +110,20 @@ import SDWebImage
         return nil
     }
 
-    private func getGuestsAvatar(withDisplayName actorDisplayName: String, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        let name = actorDisplayName.isEmpty ? "?" : actorDisplayName
-        let image = NCUtils.getImage(withString: name, withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
+    private func getGuestsAvatar(withDisplayName actorDisplayName: String, withStyle style: UIUserInterfaceStyle) -> UIImage? {
+        if actorDisplayName.isEmpty {
+            let traitCollection = UITraitCollection(userInterfaceStyle: style)
+            return UIImage(named: "user-avatar", in: nil, compatibleWith: traitCollection)
+        }
 
-        completionBlock(image)
-
-        return nil
+        return NCUtils.getImage(withString: actorDisplayName, withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
     }
 
-    private func getDeletedUserAvatar(completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        let image = NCUtils.getImage(withString: "X", withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
-
-        completionBlock(image)
-
-        return nil
+    private func getDeletedUserAvatar() -> UIImage? {
+        return NCUtils.getImage(withString: "X", withBackgroundColor: .systemGray3, withBounds: self.avatarDefaultSize, isCircular: true)
     }
 
-    private func getUserAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        let account = account ?? NCDatabaseManager.sharedInstance().activeAccount()
-
+    private func getUserAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         return NCAPIController.sharedInstance().getUserAvatar(forUser: actorId, using: account, with: style) { image, _ in
             if image != nil {
                 completionBlock(image)
@@ -144,9 +136,7 @@ import SDWebImage
         }
     }
 
-    private func getFederatedUserAvatar(forId actorId: String, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount?, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        let account = account ?? NCDatabaseManager.sharedInstance().activeAccount()
-
+    private func getFederatedUserAvatar(forId actorId: String, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, inRoom: roomToken, using: account, with: style) { image, _ in
             if image != nil {
                 completionBlock(image)

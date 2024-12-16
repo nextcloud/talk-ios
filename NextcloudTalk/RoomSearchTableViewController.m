@@ -35,6 +35,8 @@ typedef enum RoomSearchSection {
 {
     [super viewDidLoad];
     [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
@@ -190,10 +192,11 @@ typedef enum RoomSearchSection {
     NSString *actorId = [messageEntry.attributes objectForKey:@"actorId"];
     NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
     if (thumbnailURL && thumbnailURL.absoluteString.length > 0) {
-        [cell.roomImage setImageWithURL:thumbnailURL placeholderImage:nil];
-        cell.roomImage.contentMode = UIViewContentModeScaleToFill;
+        [cell.avatarView.avatarImageView setImageWithURL:thumbnailURL placeholderImage:nil];
+        cell.avatarView.avatarImageView.contentMode = UIViewContentModeScaleToFill;
     } else {
-        [cell.roomImage setActorAvatarForId:actorId withType:actorType withDisplayName:@"" withRoomToken:nil];
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        [cell.avatarView setActorAvatarForId:actorId withType:actorType withDisplayName:@"" withRoomToken:nil using:activeAccount];
     }
     
     // Clear possible content not removed by cell reuse
@@ -234,7 +237,8 @@ typedef enum RoomSearchSection {
 
     cell.titleLabel.text = user.name;
     cell.titleOnly = YES;
-    [cell.roomImage setActorAvatarForId:user.userId withType:user.source withDisplayName:user.name withRoomToken:nil];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    [cell.avatarView setActorAvatarForId:user.userId withType:user.source withDisplayName:user.name withRoomToken:nil using:activeAccount];
 
     return cell;
 }
@@ -261,11 +265,6 @@ typedef enum RoomSearchSection {
         default:
             return 0;
     }
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return RoomTableViewCell.cellHeight;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -327,15 +326,15 @@ typedef enum RoomSearchSection {
         [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
-    [cell.roomImage setAvatarFor:room];
+    [cell.avatarView setAvatarFor:room];
 
     // Set favorite or call image
     if (room.hasCall) {
-        [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"video.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemRedColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"video.fill"]];
     } else if (room.isFavorite) {
-        [cell.favoriteImage setTintColor:[UIColor systemYellowColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemYellowColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
     
     return cell;

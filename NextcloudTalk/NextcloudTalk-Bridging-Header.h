@@ -29,7 +29,6 @@
 #import "NotificationCenterNotifications.h"
 #import "MapViewController.h"
 #import "PlaceholderView.h"
-#import "RoundedNumberView.h"
 #import "RoomsTableViewController.h"
 #import "ShareTableViewCell.h"
 #import "UIView+Toast.h"
@@ -48,7 +47,6 @@
 #import "CallKitManager.h"
 
 #import "GeoLocationRichObject.h"
-#import "MessageSeparatorTableViewCell.h"
 #import "NCChatMessage.h"
 #import "NCChatTitleView.h"
 #import "NCMessageParameter.h"

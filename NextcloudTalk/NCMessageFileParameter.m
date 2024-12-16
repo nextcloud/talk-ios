@@ -18,9 +18,10 @@
         self.size = [[parameterDict objectForKey:@"size"] integerValue];
         self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
         self.previewImageHeight = [[parameterDict objectForKey:@"preview-image-height"] intValue];
+        self.previewImageWidth = [[parameterDict objectForKey:@"preview-image-width"] intValue];
         self.width = [[parameterDict objectForKey:@"width"] intValue];
         self.height = [[parameterDict objectForKey:@"height"] intValue];
-
+        
         // NCChatFileStatus parameters
         NSString *fileId = [parameterDict objectForKey:@"fileId"];
         NSString *fileName = [parameterDict objectForKey:@"fileName"];
@@ -32,6 +33,8 @@
         } else {
             self.fileStatus = nil;
         }
+
+        self.blurhash = [parameterDict objectForKey:@"blurhash"];
     }
     
     return self;

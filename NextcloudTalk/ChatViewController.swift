@@ -7,6 +7,7 @@ import Foundation
 import NextcloudKit
 import PhotosUI
 import UIKit
+import SwiftyAttributes
 
 @objcMembers public class ChatViewController: BaseChatViewController {
 
@@ -26,12 +27,25 @@ import UIKit
     private var offlineMode = false
     private var hasStoredHistory = true
     private var hasStopped = false
+    private var hasCheckedOutOfOfficeStatus = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
+    private var generateSummaryFromMessageId: Int?
+    private var generateSummaryTimer: Timer?
 
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
-        message.messageId = kUnreadMessagesSeparatorIdentifier
+
+        message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
+
+        // We decide at this point if the unread marker should be with/without summary button, so it doesn't get changed when the room is updated
+        if !self.room.isFederated, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatSummary, forAccountId: self.room.accountId),
+           let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
+           serverCapabilities.summaryThreshold <= self.room.unreadMessages {
+
+            message.messageId = MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId
+        }
+
         return message
     }()
 
@@ -106,10 +120,10 @@ import UIKit
 
     private var messageExpirationTimer: Timer?
 
-    public override init?(for room: NCRoom) {
+    public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
         self.chatController = NCChatController(for: room)
 
-        super.init(for: room)
+        super.init(forRoom: room, withAccount: account)
 
         NotificationCenter.default.addObserver(self, selector: #selector(didUpdateRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidUpdateRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidJoinRoom, object: nil)
@@ -175,6 +189,7 @@ import UIKit
 
         self.checkLobbyState()
         self.checkRoomControlsAvailability()
+        self.checkOutOfOfficeAbsence()
 
         self.startObservingExpiredMessages()
 
@@ -187,44 +202,13 @@ import UIKit
         }
 
         if !self.offlineMode {
-            if self.room.token == nil {
-                fatalTokenError()
-            }
-
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
-    }
 
-    private func fatalTokenError() {
-        let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
-
-        switch capabilities.versionMajor {
-        case 19:
-            fatalError()
-        case 20:
-            fatalError()
-        case 21:
-            fatalError()
-        case 22:
-            fatalError()
-        case 23:
-            fatalError()
-        case 24:
-            fatalError()
-        case 25:
-            fatalError()
-        case 26:
-            fatalError()
-        case 27:
-            fatalError()
-        case 28:
-            fatalError()
-        case 29:
-            fatalError()
-        case 30:
-            fatalError()
-        default:
-            fatalError()
+        // Check if there are summary tasks still running, but not yet finished
+        if !AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).isEmpty {
+            self.showGeneratingSummaryNotification()
+            self.scheduleSummaryTaskCheck()
         }
     }
 
@@ -268,11 +252,7 @@ import UIKit
         // Check if new messages were added while the app was inactive (eg. via background-refresh)
         self.checkForNewStoredMessages()
 
-        if !self.offlineMode {
-            if self.room.token == nil {
-                fatalTokenError()
-            }
-            
+        if !self.offlineMode {            
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
 
@@ -470,6 +450,38 @@ import UIKit
         self.checkRoomControlsAvailability()
     }
 
+    let outOfOfficeView: OutOfOfficeView? = nil
+
+    func checkOutOfOfficeAbsence() {
+        // Only check once, and only for 1:1 on DND right now
+        guard self.hasCheckedOutOfOfficeStatus == false,
+              self.room.type == .oneToOne,
+              self.room.status == kUserStatusDND
+        else { return }
+
+        self.hasCheckedOutOfOfficeStatus = true
+
+        NCAPIController.sharedInstance().getUserAbsence(forAccountId: self.room.accountId, forUserId: self.room.name) { absenceData in
+            guard let absenceData else { return }
+
+            let oooView = OutOfOfficeView()
+            oooView.setupAbsence(withData: absenceData, inRoom: self.room)
+            oooView.alpha = 0
+
+            self.view.addSubview(oooView)
+
+            NSLayoutConstraint.activate([
+                oooView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+                oooView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+                oooView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor)
+            ])
+
+            UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+                oooView.alpha = 1.0
+            }
+        }
+    }
+
     // MARK: - Message expiration
 
     func startObservingExpiredMessages() {
@@ -645,9 +657,15 @@ import UIKit
     }
 
     public func leaveChat() {
+        self.hasStopped = true
         self.lobbyCheckTimer?.invalidate()
         self.messageExpirationTimer?.invalidate()
+        self.generateSummaryTimer?.invalidate()
         self.chatController.stop()
+
+        // Dismiss possible notifications
+        // swiftlint:disable:next notification_center_detachment
+        NotificationCenter.default.removeObserver(self)
 
         // In case we're typing when we leave the chat, make sure we notify everyone
         // The 'stopTyping' method makes sure to only send signaling messages when we were typing before
@@ -725,7 +743,7 @@ import UIKit
             return
         }
 
-        if let room = notification.userInfo?["room"] as? NCRoom {
+        if let room = notification.userInfo?["room"] as? NCRoom, room.token == self.room.token {
             self.room = room
         }
 
@@ -819,6 +837,8 @@ import UIKit
                                 continue
                             }
 
+                            // Store the messageId separately from self.lastReadMessage as that might change during a room update
+                            self.generateSummaryFromMessageId = message.messageId
                             messages.insert(self.unreadMessagesSeparator, at: messageIndex + 1)
                             self.messages[dateSection] = messages
                             indexPathUnreadMessageSeparator = IndexPath(row: messageIndex + 1, section: sectionIndex)
@@ -955,9 +975,11 @@ import UIKit
                 var addedUnreadMessageSeparator = false
 
                 // Check if unread messages separator should be added (only if it's not already shown)
-                if firstNewMessagesAfterHistory, self.getLastRealMessage() != nil, self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
+                if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
                    let lastDateSection = self.dateSections.last, var messagesBeforeUpdate = self.messages[lastDateSection] {
 
+                    // Store the messageId separately from self.lastReadMessage as that might change during a room update
+                    self.generateSummaryFromMessageId = lastRealMessage.message.messageId
                     messagesBeforeUpdate.append(self.unreadMessagesSeparator)
                     self.messages[lastDateSection] = messagesBeforeUpdate
                     insertIndexPaths.insert(IndexPath(row: messagesBeforeUpdate.count - 1, section: self.dateSections.count - 1))
@@ -967,6 +989,18 @@ import UIKit
                 self.appendMessages(messages: messages)
 
                 for newMessage in messages {
+                    // Update messages might trigger an reload of another cell, but are not part of the tableView itself
+                    if newMessage.isUpdateMessage {
+                        if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
+                            if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
+                                // We received an update message to a message which is already part of our current data, therefore we need to reload it
+                                reloadIndexPaths.insert(parentPath)
+                            }
+                        }
+
+                        continue
+                    }
+
                     // If we don't get an indexPath here, something is wrong with our appendMessages function
                     let indexPath = self.indexPath(for: newMessage)!
 
@@ -981,13 +1015,6 @@ import UIKit
                     } else {
                         // New indexPath -> insert it
                         insertIndexPaths.insert(indexPath)
-                    }
-
-                    if newMessage.isUpdateMessage, let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
-                        if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
-                            // We received an update message to a message which is already part of our current data, therefore we need to reload it
-                            reloadIndexPaths.insert(parentPath)
-                        }
                     }
 
                     if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage) {
@@ -1013,7 +1040,7 @@ import UIKit
 
                 } completion: { _ in
                     // Remove unread messages separator when user writes a message
-                    if messages.containsUserMessage() {
+                    if messages.containsMessage(forUserId: self.account.userId) {
                         self.removeUnreadMessagesSeparator()
                     }
 
@@ -1021,7 +1048,7 @@ import UIKit
                     // Otherwise we would scroll whenever a unread message separator is available
                     if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
                         tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
-                    } else if (shouldScrollOnNewMessages || messages.containsUserMessage()), let lastIndexPath = self.getLastRealMessage()?.indexPath {
+                    } else if (shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId)), let lastIndexPath = self.getLastRealMessage()?.indexPath {
                         tableView.scrollToRow(at: lastIndexPath, at: .none, animated: true)
                     } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
                         // This check is needed since several calls to receiveMessages API might be needed
@@ -1192,11 +1219,9 @@ import UIKit
 
         guard serverSupportsConversationPermissions else { return }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
         // Retrieve the information about ourselves
         guard let userDict = notification.userInfo?["users"] as? [[String: String]],
-              let appUserDict = userDict.first(where: { $0["userId"] == activeAccount.userId })
+              let appUserDict = userDict.first(where: { $0["userId"] == self.account.userId })
         else { return }
 
         // Check if we still have the same permissions
@@ -1225,12 +1250,11 @@ import UIKit
         guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
         else { return }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let userId = notification.userInfo?["userId"] as? String
         let isFederated = notification.userInfo?["isFederated"] as? Bool ?? false
 
         // Since our own userId can exist on other servers, only suppress the notification if it's not federated
-        if (userId == activeAccount.userId && !isFederated) || serverCapabilities.typingPrivacy {
+        if (userId == self.account.userId && !isFederated) || serverCapabilities.typingPrivacy {
             return
         }
 
@@ -1359,13 +1383,11 @@ import UIKit
 
     public override func didCommitTextEditing(_ sender: Any) {
         if let editingMessage {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
             let messageParametersJSONString = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
 
-            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: activeAccount) { messageDict, error, _ in
+            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: account) { messageDict, error, _ in
                 if error != nil {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred while editing a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                     return
@@ -1373,7 +1395,7 @@ import UIKit
 
                 guard let messageDict,
                       let parent = messageDict["parent"] as? [AnyHashable: Any],
-                      let updatedMessage = NCChatMessage(dictionary: parent, andAccountId: activeAccount.accountId)
+                      let updatedMessage = NCChatMessage(dictionary: parent, andAccountId: self.account.accountId)
                 else { return }
 
                 self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage)
@@ -1387,6 +1409,95 @@ import UIKit
 
     override public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage!) {
         self.addOrRemoveReaction(reaction: reaction, in: message)
+    }
+
+    // MARK: - MessageSeparatorTableViewCellDelegate
+
+    override func generateSummaryButtonPressed() {
+        guard self.indexPathForUnreadMessageSeparator() != nil, let generateSummaryFromMessageId else { return }
+
+        self.generateSummary(fromMessageId: generateSummaryFromMessageId)
+        self.showGeneratingSummaryNotification()
+    }
+
+    func showGeneratingSummaryNotification() {
+        NotificationPresenter.shared().present(title: NSLocalizedString("Generating summary of unread messages", comment: ""), subtitle: NSLocalizedString("This might take a moment", comment: ""), includedStyle: .dark)
+        NotificationPresenter.shared().displayActivityIndicator(true)
+    }
+
+    func generateSummary(fromMessageId messageId: Int) {
+        NCAPIController.sharedInstance().summarizeChat(forAccountId: self.room.accountId, inRoom: self.room.token, fromMessageId: messageId) { status, taskId, nextOffset in
+            if status == .noAiProvider {
+                NotificationPresenter.shared().present(text: NSLocalizedString("No AI provider available or summarizing failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                return
+            }
+
+            if status == .noMessagesFound {
+                NotificationPresenter.shared().present(text: NSLocalizedString("No messages found to summarize", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                return
+            }
+
+            guard let taskId, status != .failed else {
+                NotificationPresenter.shared().present(text: NSLocalizedString("Generating summary of unread messages failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                return
+            }
+
+            AiSummaryController.shared.addSummaryTaskId(forRoomInternalId: self.room.internalId, withTaskId: taskId)
+
+            print("Scheduled summary task with taskId \(taskId) and nextOffset \(String(describing: nextOffset))")
+
+            // Add a safe-guard to make sure there's really a nextOffset. Otherwise we might end up requesting the same task over and over again
+            if let nextOffset, nextOffset > messageId {
+                // We were not able to get a summary of all messages at once, so we need to create another summary task
+                self.generateSummary(fromMessageId: nextOffset)
+            } else {
+                // There's no offset anymore (or there never was one) so we start checking the task states
+                self.scheduleSummaryTaskCheck()
+            }
+        }
+    }
+
+    func scheduleSummaryTaskCheck() {
+        self.generateSummaryTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false, block: { [weak self] _ in
+            guard
+                let self,
+                let firstTaskId = AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).first
+            else { return }
+
+            NCAPIController.sharedInstance().getAiTaskById(for: self.room.accountId, withTaskId: firstTaskId) { [weak self] status, output in
+                guard let self else { return }
+
+                if status == .successful {
+                    let resultOutput = output ?? NSLocalizedString("Empty summary response", comment: "")
+                    AiSummaryController.shared.markSummaryTaskAsDone(forRoomInternalId: self.room.internalId, withTaskId: firstTaskId, withOutput: resultOutput)
+
+                    if AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).isEmpty {
+                        // No more taskIds to check -> show the summary
+                        NotificationPresenter.shared().dismiss()
+
+                        let outputs = AiSummaryController.shared.finalizeSummaryTask(forRoomInternalId: self.room.internalId)
+                        let summaryVC = AiSummaryViewController(summaryText: outputs.joined(separator: "\n\n---\n\n"))
+                        let navController = UINavigationController(rootViewController: summaryVC)
+                        self.present(navController, animated: true)
+
+                        return
+                    }
+
+                } else if status == .failed {
+                    AiSummaryController.shared.finalizeSummaryTask(forRoomInternalId: self.room.internalId)
+                    NotificationPresenter.shared().dismiss()
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Generating summary of unread messages failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+
+                    return
+                } else if status == .cancelled {
+                    AiSummaryController.shared.finalizeSummaryTask(forRoomInternalId: self.room.internalId)
+                    NotificationPresenter.shared().dismiss()
+                    return
+                }
+
+                self.scheduleSummaryTaskCheck()
+            }
+        })
     }
 
     // MARK: - ContextMenu (Long press on message)
@@ -1609,15 +1720,19 @@ import UIKit
             }
         }
 
-        guard let message = self.message(for: indexPath) else { return nil }
+        guard let message = self.message(for: indexPath)
+        else { return nil }
 
-        if message.isSystemMessage || message.isDeletedMessage || message.messageId == kUnreadMessagesSeparatorIdentifier {
+        if message.isSystemMessage || message.isDeletedMessage ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
+            message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
+
             return nil
         }
 
         var actions: [UIMenuElement] = []
         var informationalActions: [UIMenuElement] = []
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
 
         // Show edit information
@@ -1657,7 +1772,7 @@ import UIKit
         }
 
         // Reply-privately option (only to other users and not in one-to-one)
-        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != activeAccount.userId {
+        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != self.account.userId {
             actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
                 self.didPressReplyPrivately(for: message)
             })
@@ -1732,7 +1847,7 @@ import UIKit
         })
 
         // Translate
-        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: activeAccount.accountId) {
+        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: self.account.accountId) {
             actions.append(UIAction(title: NSLocalizedString("Translate", comment: ""), image: .init(systemName: "character.book.closed")) { _ in
                 self.didPressTranslate(for: message)
             })
@@ -1757,14 +1872,14 @@ import UIKit
         var destructiveMenuActions: [UIMenuElement] = []
 
         // Edit option
-        if message.isEditable(for: activeAccount, in: self.room) && hasChatPermissions {
+        if message.isEditable(for: self.account, in: self.room) && hasChatPermissions {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Edit", comment: "Edit a message or room participants"), image: .init(systemName: "pencil")) { _ in
                 self.didPressEdit(for: message)
             })
         }
 
         // Delete option
-        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: activeAccount, in: self.room) && hasChatPermissions) {
+        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: self.account, in: self.room) && hasChatPermissions) {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
                 self.didPressDelete(for: message)
             })

@@ -13,7 +13,6 @@ import QuickLook
                                                         VLCKitVideoViewControllerDelegate {
 
     let room: NCRoom
-    let account: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
     let itemsOverviewLimit: Int = 1
     let itemLimit: Int = 100
     var sharedItemsOverview: [String: [NCChatMessage]] = [:]
@@ -72,7 +71,10 @@ import QuickLook
     }
 
     func getItemsForItemType(itemType: String) {
+        guard let account = room.account else { return }
+
         showFetchingItemsPlaceholderView()
+
         NCAPIController.sharedInstance()
             .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, withLimit: itemLimit,
                             inRoom: room.token, for: account) { items, lastItemId, error, _ in
@@ -109,7 +111,10 @@ import QuickLook
     }
 
     func getItemsOverview() {
+        guard let account = room.account else { return }
+
         showFetchingItemsPlaceholderView()
+
         NCAPIController.sharedInstance()
             .getSharedItemsOverview(inRoom: room.token, withLimit: itemsOverviewLimit, for: account) { itemsOverview, error, _ in
                 if error == nil {
@@ -400,7 +405,7 @@ import QuickLook
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: {
 
             // Init the BaseChatViewController without message to directly show a preview
-            if let chatViewController = ContextChatViewController(for: self.room, withMessage: [], withHighlightId: 0) {
+            if let account = self.room.account, let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0) {
                 self.previewChatViewController = chatViewController
 
                 // Fetch the context of the message and update the BaseChatViewController
@@ -441,7 +446,7 @@ import QuickLook
 
         self.present(previewNavigationChatViewController, animated: false)
 
-        previewChatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { [weak previewChatViewController] _ in
+        previewChatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Close", comment: ""), primaryAction: UIAction { [weak previewChatViewController] _ in
             previewChatViewController?.dismiss(animated: true)
         })
     }

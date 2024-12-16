@@ -37,10 +37,6 @@ extension BaseChatTableViewCell {
         pollMessageView.pollTitleTextView.text = message.parsedMessage().string
     }
 
-    func prepareForReusePollCell() {
-        self.pollMessageView?.pollTitleTextView.text = ""
-    }
-
     @objc func pollViewTapped() {
         guard let poll = message?.poll else {
             return

@@ -55,7 +55,7 @@ typedef NS_ENUM(NSInteger, NCPreferredFileSorting) {
 + (instancetype)sharedInstance;
 - (void)addNewAccountForUser:(NSString *)user withToken:(NSString *)token inServer:(NSString *)server;
 - (void)setActiveAccountWithAccountId:(NSString *)accountId;
-- (void)getUserProfileForAccountId:(NSString *)accountId withCompletionBlock:(UpdatedProfileCompletionBlock)block;
+- (void)getUserProfileForAccountId:(NSString *)accountId withCompletionBlock:(UpdatedProfileCompletionBlock _Nonnull)block;
 - (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block;
 - (void)getCapabilitiesForAccountId:(NSString *)accountId withCompletionBlock:(GetCapabilitiesCompletionBlock)block;
 - (void)updateSignalingConfigurationForAccountId:(NSString * _Nonnull)accountId withCompletionBlock:(UpdateSignalingConfigCompletionBlock _Nonnull)block;

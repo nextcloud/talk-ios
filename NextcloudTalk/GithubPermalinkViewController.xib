@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -12,11 +12,12 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="GithubPermalinkViewController" customModule="NextcloudTalk" customModuleProvider="target">
             <connections>
                 <outlet property="fileLabel" destination="9UF-D7-Tqr" id="zOw-f9-R5b"/>
-                <outlet property="lineNumbersRightConstraint" destination="Vck-wj-b4F" id="eI6-DJ-jA6"/>
                 <outlet property="ownerLabel" destination="UZ2-BJ-3Ns" id="ppO-JJ-sDG"/>
                 <outlet property="repoLabel" destination="dNK-Th-G1H" id="QgG-aP-RB7"/>
-                <outlet property="sourceCodeLeftConstraint" destination="Rq4-3K-az6" id="571-OM-5qv"/>
+                <outlet property="scrollViewLeftConstraint" destination="fMe-CN-6iG" id="bNl-rU-8Vc"/>
+                <outlet property="sourceWithNumbersScrollView" destination="Bpq-uH-yYp" id="s2W-GL-gQ4"/>
                 <outlet property="sourceWithNumbersTextView" destination="5Ss-Dk-nhq" id="vVo-r6-4Yo"/>
+                <outlet property="sourceWithoutNumbersScrollView" destination="hhk-F7-xi3" id="6Tj-zQ-GUE"/>
                 <outlet property="sourceWithoutNumbersTextView" destination="cBP-KD-G41" id="i1n-9c-Aw9"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -26,35 +27,65 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" editable="NO" usesAttributedText="YES" selectable="NO" layoutManager="textKit1" translatesAutoresizingMaskIntoConstraints="NO" id="5Ss-Dk-nhq" userLabel="SourceWithLineNumbers">
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" bouncesZoom="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bpq-uH-yYp">
                     <rect key="frame" x="10" y="201" width="394" height="651"/>
+                    <subviews>
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" usesAttributedText="YES" selectable="NO" layoutManager="textKit1" translatesAutoresizingMaskIntoConstraints="NO" id="5Ss-Dk-nhq" userLabel="SourceWithLineNumbers">
+                            <rect key="frame" x="0.0" y="0.0" width="3372" height="33"/>
+                            <constraints>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="cW1-0y-8wh"/>
+                            </constraints>
+                            <attributedString key="attributedText">
+                                <fragment>
+                                    <string key="content">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                    <attributes>
+                                        <color key="NSColor" systemColor="labelColor"/>
+                                        <font key="NSFont" metaFont="system" size="14"/>
+                                    </attributes>
+                                </fragment>
+                            </attributedString>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        </textView>
+                    </subviews>
                     <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
-                    <attributedString key="attributedText">
-                        <fragment>
-                            <string key="content">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
-                            <attributes>
-                                <color key="NSColor" systemColor="labelColor"/>
-                                <font key="NSFont" metaFont="system" size="14"/>
-                            </attributes>
-                        </fragment>
-                    </attributedString>
-                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                </textView>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" usesAttributedText="YES" layoutManager="textKit1" translatesAutoresizingMaskIntoConstraints="NO" id="cBP-KD-G41" userLabel="SourceWithoutLineNumbers">
-                    <rect key="frame" x="40" y="201" width="364" height="651"/>
+                    <constraints>
+                        <constraint firstItem="EnO-xX-62I" firstAttribute="trailing" secondItem="5Ss-Dk-nhq" secondAttribute="trailing" id="DjM-kn-sgQ"/>
+                        <constraint firstItem="5Ss-Dk-nhq" firstAttribute="top" secondItem="EnO-xX-62I" secondAttribute="top" id="T7P-xc-BaI"/>
+                        <constraint firstItem="EnO-xX-62I" firstAttribute="bottom" secondItem="5Ss-Dk-nhq" secondAttribute="bottom" id="UTB-6c-Yk4"/>
+                        <constraint firstItem="5Ss-Dk-nhq" firstAttribute="leading" secondItem="EnO-xX-62I" secondAttribute="leading" id="bAq-b6-dId"/>
+                    </constraints>
+                    <viewLayoutGuide key="contentLayoutGuide" id="EnO-xX-62I"/>
+                    <viewLayoutGuide key="frameLayoutGuide" id="WZm-VO-UKq"/>
+                </scrollView>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bouncesZoom="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhk-F7-xi3">
+                    <rect key="frame" x="20" y="201" width="384" height="651"/>
+                    <subviews>
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" usesAttributedText="YES" layoutManager="textKit1" translatesAutoresizingMaskIntoConstraints="NO" id="cBP-KD-G41" userLabel="SourceWithoutLineNumbers">
+                            <rect key="frame" x="0.0" y="0.0" width="3372" height="33"/>
+                            <attributedString key="attributedText">
+                                <fragment>
+                                    <string key="content">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                    <attributes>
+                                        <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <font key="NSFont" metaFont="system" size="14"/>
+                                        <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                    </attributes>
+                                </fragment>
+                            </attributedString>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        </textView>
+                    </subviews>
                     <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
-                    <attributedString key="attributedText">
-                        <fragment>
-                            <mutableString key="content">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</mutableString>
-                            <attributes>
-                                <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <font key="NSFont" metaFont="system" size="14"/>
-                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                            </attributes>
-                        </fragment>
-                    </attributedString>
-                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                </textView>
+                    <constraints>
+                        <constraint firstItem="sGT-Qg-xg3" firstAttribute="trailing" secondItem="cBP-KD-G41" secondAttribute="trailing" id="4wt-zD-iO4"/>
+                        <constraint firstItem="cBP-KD-G41" firstAttribute="top" secondItem="sGT-Qg-xg3" secondAttribute="top" id="BBW-0p-pDp"/>
+                        <constraint firstItem="sGT-Qg-xg3" firstAttribute="bottom" secondItem="cBP-KD-G41" secondAttribute="bottom" id="Dva-el-Mad"/>
+                        <constraint firstItem="cBP-KD-G41" firstAttribute="leading" secondItem="sGT-Qg-xg3" secondAttribute="leading" id="HHl-1w-H3q"/>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" id="J7B-5h-qr9"/>
+                    </constraints>
+                    <viewLayoutGuide key="contentLayoutGuide" id="sGT-Qg-xg3"/>
+                    <viewLayoutGuide key="frameLayoutGuide" id="EL4-CE-Cnv"/>
+                </scrollView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UZ2-BJ-3Ns" userLabel="Owner">
                     <rect key="frame" x="10" y="102" width="394" height="21"/>
                     <attributedString key="attributedText">
@@ -94,21 +125,21 @@
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="dNK-Th-G1H" firstAttribute="top" secondItem="UZ2-BJ-3Ns" secondAttribute="bottom" constant="8" id="1nn-lo-cb7"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="hhk-F7-xi3" secondAttribute="trailing" constant="10" id="BDK-76-YEu"/>
                 <constraint firstAttribute="trailing" secondItem="dNK-Th-G1H" secondAttribute="trailing" constant="10" id="Cn4-fc-ZAR"/>
                 <constraint firstItem="9UF-D7-Tqr" firstAttribute="top" secondItem="dNK-Th-G1H" secondAttribute="bottom" constant="8" id="Gjj-nv-e3K"/>
-                <constraint firstItem="5Ss-Dk-nhq" firstAttribute="top" secondItem="9UF-D7-Tqr" secondAttribute="bottom" constant="20" id="NyC-Oj-UNy"/>
-                <constraint firstItem="cBP-KD-G41" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="40" id="Rq4-3K-az6"/>
-                <constraint firstItem="5Ss-Dk-nhq" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="10" id="VYD-S3-tgh"/>
-                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="5Ss-Dk-nhq" secondAttribute="trailing" constant="10" id="Vck-wj-b4F"/>
-                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="cBP-KD-G41" secondAttribute="trailing" constant="10" id="aYy-GC-ZHV"/>
+                <constraint firstItem="hhk-F7-xi3" firstAttribute="top" secondItem="9UF-D7-Tqr" secondAttribute="bottom" constant="20" id="Hfj-hF-U1u"/>
+                <constraint firstItem="Bpq-uH-yYp" firstAttribute="top" secondItem="9UF-D7-Tqr" secondAttribute="bottom" constant="20" id="QRU-Kc-gbE"/>
+                <constraint firstItem="Bpq-uH-yYp" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="10" id="VUc-IW-Apw"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="hhk-F7-xi3" secondAttribute="bottom" constant="10" id="VwV-ab-HiX"/>
                 <constraint firstItem="UZ2-BJ-3Ns" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="10" id="caM-Bk-lvz"/>
-                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="cBP-KD-G41" secondAttribute="bottom" constant="10" id="jAT-Fm-cLF"/>
+                <constraint firstItem="hhk-F7-xi3" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="fMe-CN-6iG"/>
                 <constraint firstItem="9UF-D7-Tqr" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="10" id="jKL-0f-ijS"/>
-                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="5Ss-Dk-nhq" secondAttribute="bottom" constant="10" id="jar-aE-T6V"/>
                 <constraint firstItem="9UF-D7-Tqr" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" constant="10" id="lIc-7I-KpD"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="UZ2-BJ-3Ns" secondAttribute="trailing" constant="10" id="oQo-Xq-4dd"/>
-                <constraint firstItem="cBP-KD-G41" firstAttribute="top" secondItem="9UF-D7-Tqr" secondAttribute="bottom" constant="20" id="olZ-na-obN"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="Bpq-uH-yYp" secondAttribute="bottom" constant="10" id="qzR-aL-T83"/>
                 <constraint firstItem="dNK-Th-G1H" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="10" id="uDF-1e-uTS"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="Bpq-uH-yYp" secondAttribute="trailing" constant="10" id="vYR-D0-wTW"/>
                 <constraint firstItem="UZ2-BJ-3Ns" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="10" id="zbq-eb-A78"/>
             </constraints>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
@@ -117,10 +148,10 @@
     </objects>
     <resources>
         <systemColor name="labelColor">
-            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

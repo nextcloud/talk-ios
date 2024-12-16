@@ -38,6 +38,7 @@ typedef enum RoomsFilter {
 
 typedef enum RoomsSections {
     kRoomsSectionPendingFederationInvitation = 0,
+    kRoomsSectionArchivedConversations,
     kRoomsSectionRoomList
 } RoomsSections;
 
@@ -46,6 +47,7 @@ typedef enum RoomsSections {
     RLMNotificationToken *_rlmNotificationToken;
     NSMutableArray *_rooms;
     NSMutableArray *_allRooms;
+    BOOL _showingArchivedRooms;
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
     UISearchController *_searchController;
@@ -80,12 +82,14 @@ typedef enum RoomsSections {
     }];
     
     [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
-    [self.tableView registerNib:[UINib nibWithNibName:RoomInvitationViewCell.NibName bundle:nil] forCellReuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+    [self.tableView registerClass:InfoLabelTableViewCell.class forCellReuseIdentifier:InfoLabelTableViewCell.identifier];
 
     // Align header's title to ContactsTableViewCell's label
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
     self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
 
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     _resultTableViewController = [[RoomSearchTableViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
@@ -704,11 +708,11 @@ typedef enum RoomsSections {
 {
     switch (filter) {
         case kRoomsFilterUnread:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"unreadMessages > 0"]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"unreadMessages > 0 AND isArchived == %@", @(_showingArchivedRooms)]];
         case kRoomsFilterMentioned:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES"]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES AND isArchived == %@", @(_showingArchivedRooms)]];
         default:
-            return _allRooms;
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == %@", @(_showingArchivedRooms)]];
     }
 }
 
@@ -912,7 +916,7 @@ typedef enum RoomsSections {
     for (int i = (int)lastVisibleRowIndexPath.row; i <= (int)_lastRoomWithMentionIndexPath.row && i < [_rooms count]; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
         if (room.hasUnreadMention) {
-            _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:1];
+            _nextRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:kRoomsSectionRoomList];
             break;
         }
     }
@@ -938,7 +942,7 @@ typedef enum RoomsSections {
     for (int i = 0; i < _rooms.count; i++) {
         NCRoom *room = [_rooms objectAtIndex:i];
         if (room.hasUnreadMention) {
-            _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:1];
+            _lastRoomWithMentionIndexPath = [NSIndexPath indexPathForRow:i inSection:kRoomsSectionRoomList];
         }
     }
 }
@@ -1061,6 +1065,32 @@ typedef enum RoomsSections {
     }
 }
 
+- (void)archiveRoom:(NCRoom *)room
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    [[NCAPIController sharedInstance] archiveRoom:room.token forAccount:activeAccount completionBlock:^(BOOL success) {
+        if (!success) {
+            NSLog(@"Error archiving room");
+        }
+
+        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+    }];
+}
+
+- (void)unarchiveRoom:(NCRoom *)room
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+    [[NCAPIController sharedInstance] unarchiveRoom:room.token forAccount:activeAccount completionBlock:^(BOOL success) {
+        if (!success) {
+            NSLog(@"Error unarchiving room");
+        }
+
+        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+    }];
+}
+
 - (void)markRoomAsRead:(NCRoom *)room
 {
     [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
@@ -1083,7 +1113,7 @@ typedef enum RoomsSections {
 
 - (void)addRoomToFavorites:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
         }
@@ -1093,7 +1123,7 @@ typedef enum RoomsSections {
 
 - (void)removeRoomFromFavorites:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
         }
@@ -1155,7 +1185,7 @@ typedef enum RoomsSections {
             [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
 
-        [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
             if (error) {
                 NSLog(@"Error deleting room: %@", error.description);
             }
@@ -1196,10 +1226,20 @@ typedef enum RoomsSections {
     }];
 
     if (idx != NSNotFound) {
-        return [NSIndexPath indexPathForRow:idx inSection:1];
+        return [NSIndexPath indexPathForRow:idx inSection:kRoomsSectionRoomList];
     }
 
     return nil;
+}
+
+- (NSArray *)archivedRooms
+{
+    return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == YES"]];
+}
+
+- (BOOL)areArchivedRoomsWithUnreadMentions
+{
+    return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES AND isArchived == YES"]].count > 0;
 }
 
 - (void)showLeaveRoomLastModeratorErrorForRoom:(NCRoom *)room
@@ -1243,7 +1283,13 @@ typedef enum RoomsSections {
 
 - (void)presentContextChatInRoom:(NCRoom *)room forMessageId:(NSInteger)messageId
 {
-    ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initFor:room withMessage:@[] withHighlightId:0];
+    TalkAccount *account = room.account;
+
+    if (!account) {
+        return;
+    }
+
+    ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initForRoom:room withAccount:account withMessage:@[] withHighlightId:0];
     contextChatViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeContextChat)];
 
     NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
@@ -1289,37 +1335,28 @@ typedef enum RoomsSections {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 2;
+    return 3;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (section == kRoomsSectionPendingFederationInvitation) {
         TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+        return account.pendingFederationInvitations > 0 ? 1 : 0;
+    }
 
-        if (account.pendingFederationInvitations > 0) {
-            return 1;
-        }
-
-        return 0;
+    if (section == kRoomsSectionArchivedConversations) {
+        return [self archivedRooms].count > 0 || _showingArchivedRooms ? 1 : 0;
     }
 
     return _rooms.count;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        return RoomInvitationViewCell.CellHeight;
-    }
-
-    return RoomTableViewCell.cellHeight;
-}
-
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        // No swipe action for pending invitations
+    if (tableView == self.tableView &&
+        (indexPath.section == kRoomsSectionPendingFederationInvitation || indexPath.section == kRoomsSectionArchivedConversations)) {
+        // No swipe action for pending invitations or archived conversations
         return nil;
     }
 
@@ -1351,8 +1388,9 @@ typedef enum RoomsSections {
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
-    if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        // No swipe action for pending invitations
+    if (tableView == self.tableView &&
+        (indexPath.section == kRoomsSectionPendingFederationInvitation || indexPath.section == kRoomsSectionArchivedConversations)) {
+        // No swipe action for pending invitations or archived conversations
         return nil;
     }
 
@@ -1405,9 +1443,9 @@ typedef enum RoomsSections {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section == kRoomsSectionPendingFederationInvitation) {
-        RoomInvitationViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+        InfoLabelTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:InfoLabelTableViewCell.identifier];
         if (!cell) {
-            cell = [[RoomInvitationViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomInvitationViewCell.ReuseIdentifier];
+            cell = [[InfoLabelTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:InfoLabelTableViewCell.identifier];
         }
 
         // Pending federation invitations
@@ -1427,7 +1465,43 @@ typedef enum RoomsSections {
         NSRange range = NSMakeRange(0, [resultString length]);
         [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
 
-        cell.detailsLabel.attributedText = resultString;
+        cell.label.attributedText = resultString;
+        cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
+
+        return cell;
+    }
+
+    if (indexPath.section == kRoomsSectionArchivedConversations) {
+        InfoLabelTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:InfoLabelTableViewCell.identifier];
+        if (!cell) {
+            cell = [[InfoLabelTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:InfoLabelTableViewCell.identifier];
+        }
+
+        NSString *actionString = _showingArchivedRooms ? NSLocalizedString(@"Back to conversations", nil) : NSLocalizedString(@"Archived conversations", nil);
+        NSString *iconName = _showingArchivedRooms ? @"arrow.left" : @"archivebox";
+        UIFont *resultFont = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
+
+        NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
+        attachment.image = [[UIImage systemImageNamed:iconName] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        attachment.bounds = CGRectMake(0, roundf(resultFont.capHeight - 20) / 2, 24, 20);
+
+        NSMutableAttributedString *resultString = [[NSMutableAttributedString alloc] initWithAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
+        [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:@"  "]];
+        [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:actionString]];
+
+        NSRange range = NSMakeRange(0, [resultString length]);
+        [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
+
+        if (!_showingArchivedRooms && [self areArchivedRoomsWithUnreadMentions]) {
+            NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
+            attachment.image = [[UIImage systemImageNamed:@"circle.fill"] imageWithTintColor:[NCAppBranding elementColor] renderingMode:UIImageRenderingModeAlwaysTemplate];
+            attachment.bounds = CGRectMake(0, roundf(resultFont.capHeight - 20) / 2, 20, 20);
+
+            [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:@"  "]];
+            [resultString appendAttributedString:[[NSAttributedString alloc] initWithAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]]];
+        }
+
+        cell.label.attributedText = resultString;
         cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;
@@ -1463,15 +1537,15 @@ typedef enum RoomsSections {
         [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
     }
 
-    [cell.roomImage setAvatarFor:room];
+    [cell.avatarView setAvatarFor:room];
 
     // Set favorite or call image
     if (room.hasCall) {
-        [cell.favoriteImage setTintColor:[UIColor systemRedColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"video.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemRedColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"video.fill"]];
     } else if (room.isFavorite) {
-        [cell.favoriteImage setTintColor:[UIColor systemYellowColor]];
-        [cell.favoriteImage setImage:[UIImage systemImageNamed:@"star.fill"]];
+        [cell.avatarView.favoriteImageView setTintColor:[UIColor systemYellowColor]];
+        [cell.avatarView.favoriteImageView setImage:[UIImage systemImageNamed:@"star.fill"]];
     }
 
     cell.roomToken = room.token;
@@ -1481,33 +1555,17 @@ typedef enum RoomsSections {
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)rcell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == kRoomsSectionPendingFederationInvitation || tableView != self.tableView) {
+    if (tableView != self.tableView ||
+        indexPath.section == kRoomsSectionPendingFederationInvitation ||
+        indexPath.section == kRoomsSectionArchivedConversations) {
         return;
     }
 
     RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
-    //Show User Status
-    if (room.type == kNCRoomTypeOneToOne && [room.status length] != 0) {
-        if (![room.status isEqualToString:@"dnd"] && [room.statusIcon length] != 0) {
-            [cell setUserStatusIcon:room.statusIcon];
-        } else {
-            [cell setUserStatus:room.status];
-        }
-    } else if (room.isPublic) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:12];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"link"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    } else if (room.isFederated) {
-        UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPointSize:14];
-        UIImage *publicRoomImage = [UIImage systemImageNamed:@"globe"];
-        publicRoomImage = [publicRoomImage imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        publicRoomImage = [publicRoomImage imageByApplyingSymbolConfiguration:conf];
-        [cell setUserStatusIconWithImage:publicRoomImage];
-    }
+    UIColor *backgroundColor = cell.backgroundConfiguration.backgroundColor ? cell.backgroundConfiguration.backgroundColor : cell.backgroundColor;
+    [cell.avatarView setStatusFor:room with:backgroundColor];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1528,6 +1586,14 @@ typedef enum RoomsSections {
         NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:federationInvitationVC];
         [self presentViewController:navigationController animated:YES completion:nil];
         
+        return;
+    }
+
+    if (tableView == self.tableView && indexPath.section == kRoomsSectionArchivedConversations) {
+        _showingArchivedRooms = !_showingArchivedRooms;
+        [UIView transitionWithView:self.tableView duration:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            [self filterRooms];
+        } completion:nil];
         return;
     }
 
@@ -1553,7 +1619,9 @@ typedef enum RoomsSections {
 
 - (UIContextMenuConfiguration *)tableView:(UITableView *)tableView contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath point:(CGPoint)point
 {
-    if (![tableView isEqual:self.tableView]) {
+    if (tableView != self.tableView ||
+        indexPath.section == kRoomsSectionPendingFederationInvitation ||
+        indexPath.section == kRoomsSectionArchivedConversations) {
         return nil;
     }
 
@@ -1628,6 +1696,23 @@ typedef enum RoomsSections {
         }];
 
         [actions addObject:notificationActions];
+    }
+
+    // Archive conversation
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityArchivedConversationsV2]) {
+        if (room.isArchived) {
+            UIAction *unarchiveAction = [UIAction actionWithTitle:NSLocalizedString(@"Unarchive conversation", nil) image:[UIImage systemImageNamed:@"arrow.up.bin"] identifier:nil handler:^(UIAction *action) {
+                [weakSelf unarchiveRoom:room];
+            }];
+
+            [actions addObject:unarchiveAction];
+        } else {
+            UIAction *archiveAction = [UIAction actionWithTitle:NSLocalizedString(@"Archive conversation", nil) image:[UIImage systemImageNamed:@"archivebox"] identifier:nil handler:^(UIAction *action) {
+                [weakSelf archiveRoom:room];
+            }];
+
+            [actions addObject:archiveAction];
+        }
     }
 
     // Room info
@@ -1731,7 +1816,7 @@ typedef enum RoomsSections {
         }];
         
         if (idx != NSNotFound) {
-            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:idx inSection:1];
+            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:idx inSection:kRoomsSectionRoomList];
             [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
     } else {

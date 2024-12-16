@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 69;
+uint64_t const kTalkDatabaseSchemaVersion           = 71;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -75,8 +75,12 @@ NSString * const kCapabilityChatReadLast            = @"chat-read-last";
 NSString * const kCapabilityBanV1                   = @"ban-v1";
 NSString * const kCapabilityMentionPermissions      = @"mention-permissions";
 NSString * const kCapabilityEditMessagesNoteToSelf  = @"edit-messages-note-to-self";
+NSString * const kCapabilityChatSummary             = @"chat-summary-api";
+NSString * const kCapabilityArchivedConversationsV2 = @"archived-conversations-v2";
+NSString * const kCapabilityCallNotificationState   = @"call-notification-state-api";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
+NSString * const kNotificationsCapabilityTestPush   = @"test-push";
 
 NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
 
@@ -411,6 +415,12 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.typingPrivacy = [[chatConfig objectForKey:@"typing-privacy"] boolValue];
     } else {
         capabilities.typingPrivacy = YES;
+    }
+
+    if ([chatConfigKeys containsObject:@"summary-threshold"]) {
+        capabilities.summaryThreshold = [[chatConfig objectForKey:@"summary-threshold"] intValue];
+    } else {
+        capabilities.summaryThreshold = 0;
     }
 
     // Translations

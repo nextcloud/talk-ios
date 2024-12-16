@@ -13,7 +13,7 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage)
 
     func cellWants(toDownloadFile fileParameter: NCMessageFileParameter, for message: NCChatMessage)
-    func cellHasDownloadedImagePreview(withHeight height: CGFloat, for message: NCChatMessage)
+    func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage)
 
     func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject)
 
@@ -77,6 +77,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     public var message: NCChatMessage?
     public var room: NCRoom?
+    public var account: TalkAccount?
 
     internal var quotedMessageView: QuotedMessageView?
     internal var reactionView: ReactionsView?
@@ -131,24 +132,16 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotedMessageView?.avatarView.cancelCurrentRequest()
         self.quotedMessageView?.avatarView.image = nil
 
-        self.titleLabel.text = ""
-        self.dateLabel.text = ""
-
         self.headerPart.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
 
-        self.statusView.isHidden = false
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
-
         self.referenceView?.prepareForReuse()
 
-        self.prepareForReuseMessageCell()
         self.prepareForReuseFileCell()
         self.prepareForReuseLocationCell()
         self.prepareForReuseAudioCell()
-        self.prepareForReusePollCell()
 
         if let replyGestureRecognizer {
             self.removeGestureRecognizer(replyGestureRecognizer)
@@ -157,11 +150,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    public func setup(for message: NCChatMessage, inRoom room: NCRoom) {
+    public func setup(for message: NCChatMessage, inRoom room: NCRoom, withAccount account: TalkAccount) {
         self.message = message
         self.room = room
+        self.account = account
 
-        self.avatarButton.setActorAvatar(forMessage: message)
+        self.avatarButton.setActorAvatar(forMessage: message, withAccount: account)
         self.avatarButton.menu = self.getDeferredUserMenu()
         self.avatarButton.showsMenuAsPrimaryAction = true
 
@@ -189,7 +183,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.titleLabel.attributedText = titleLabel
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
         var shouldShowReadStatus = false
 
@@ -204,15 +197,15 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
             self.quotedMessageView?.messageLabel.text = quoteString
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
-            self.quotedMessageView?.highlighted = parent.isMessage(from: activeAccount.userId)
-            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent)
+            self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
+            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent, withAccount: account)
         }
 
         if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
         }
 
-        // When `setDeliveryState` is not called, we still need to make sure the placeholder view is removed
+        // Make sure the status view is empty, when no delivery state should be set
         self.statusView.subviews.forEach { $0.removeFromSuperview() }
 
         if message.isDeleting {
@@ -221,7 +214,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.setDeliveryState(to: .failed)
         } else if message.isTemporary {
             self.setDeliveryState(to: .sending)
-        } else if message.isMessage(from: activeAccount.userId), shouldShowDeliveryStatus {
+        } else if message.isMessage(from: account.userId), shouldShowDeliveryStatus {
             if room.lastCommonReadMessage >= message.messageId, shouldShowReadStatus {
                 self.setDeliveryState(to: .read)
             } else {
@@ -269,7 +262,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.setupForPollCell(with: message)
         } else if message.file() != nil {
             // File message
-            self.setupForFileCell(with: message, with: activeAccount)
+            self.setupForFileCell(with: message, with: account)
         } else if message.geoLocation() != nil {
             // Location message
             self.setupForLocationCell(with: message)
@@ -281,6 +274,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if message.isDeletedMessage {
             self.statusView.isHidden = true
             self.messageTextView?.textColor = .tertiaryLabel
+        } else {
+            self.statusView.isHidden = false
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
@@ -318,8 +313,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func setDeliveryState(to deliveryState: ChatMessageDeliveryState) {
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
-
         if deliveryState == .sending || deliveryState == .deleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
@@ -461,11 +454,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     // MARK: - Avatar User Menu
 
     func getDeferredUserMenu() -> UIMenu? {
-        guard let message = self.message else { return nil }
+        guard let message = self.message, let account = message.account
+        else { return nil }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        if message.actorType != "users" || message.actorId == activeAccount.userId {
+        if message.actorType != "users" || message.actorId == account.userId {
             return nil
         }
 
@@ -480,9 +472,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func getMenuUserAction(for message: NCChatMessage, completionBlock: @escaping ([UIMenuElement]) -> Void) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = message.account else { return }
 
-        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, using: activeAccount) { userActionsRaw, error in
+        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, using: account) { userActionsRaw, error in
             guard error == nil,
                   let userActionsDict = userActionsRaw as? [String: AnyObject],
                   let userActions = userActionsDict["actions"] as? [[String: String]],

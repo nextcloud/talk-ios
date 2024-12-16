@@ -25,7 +25,7 @@ permissions:
 jobs:
   check-localizable:
     name: Check for localizable changes
-    runs-on: macOS-12
+    runs-on: macOS-15
 
     steps:
     - name: Checkout app
@@ -43,11 +43,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip3 install pyspelling
+        brew install aspell pyspelling
 
     - name: Spell check
       run: |
-        python3 -m pyspelling
+        pyspelling
 
     - name: Verify Changed files
       uses: tj-actions/verify-changed-files@v20

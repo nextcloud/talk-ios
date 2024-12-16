@@ -17,3 +17,7 @@ CallKit
 Unban
 unban
 Zammad
+Strikethrough
+Unarchive
+unarchive
+unarchived

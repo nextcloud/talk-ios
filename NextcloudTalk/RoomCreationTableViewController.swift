@@ -298,7 +298,7 @@ enum RoomVisibilityOption: Int {
         // Room password
         if !self.roomPassword.isEmpty {
             self.roomCreationGroup.enter()
-            NCAPIController.sharedInstance().setPassword(self.roomPassword, toRoom: token, for: self.account) { error, _ in
+            NCAPIController.sharedInstance().setPassword(self.roomPassword, forRoom: token, forAccount: self.account) { error, _ in
                 if let error {
                     NCUtils.log(String(format: "Failed to set room password. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
@@ -455,7 +455,8 @@ enum RoomVisibilityOption: Int {
                 participantCell.labelTitle.text = participant.name
 
                 let participantType = participant.source as String
-                participantCell.contactImage.setActorAvatar(forId: participant.userId, withType: participantType, withDisplayName: participant.name, withRoomToken: nil)
+                let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+                participantCell.contactImage.setActorAvatar(forId: participant.userId, withType: participantType, withDisplayName: participant.name, withRoomToken: nil, using: activeAccount)
 
                 return participantCell
             }
@@ -466,12 +467,12 @@ enum RoomVisibilityOption: Int {
             switch option {
             case RoomVisibilityOption.kAllowGuestsOption.rawValue:
                 roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "AllowGuestsCellIdentifier")
-                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Allow guests", comment: "")
+                roomVisibilityOptionCell.textLabel?.text = NSLocalizedString("Allow guests to join this conversation via link", comment: "")
                 let optionSwicth = UISwitch()
                 optionSwicth.isOn = self.isPublic
                 optionSwicth.addTarget(self, action: #selector(allowGuestValueChanged(_:)), for: .valueChanged)
                 roomVisibilityOptionCell.accessoryView = optionSwicth
-                roomVisibilityOptionCell.imageView?.image = UIImage(systemName: "link")
+                roomVisibilityOptionCell.imageView?.image = UIImage(named: "link")?.withRenderingMode(.alwaysTemplate)
             case RoomVisibilityOption.kPasswordProtectionOption.rawValue:
                 roomVisibilityOptionCell = tableView.dequeueOrCreateCell(withIdentifier: "SetPasswordCellIdentifier")
                 roomVisibilityOptionCell.textLabel?.text = self.roomPassword.isEmpty ? NSLocalizedString("Set password", comment: "") : NSLocalizedString("Change password", comment: "")

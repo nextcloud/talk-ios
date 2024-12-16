@@ -88,8 +88,8 @@ extern NSString * const NCRoomObjectTypeRoom;
 
 @interface NCRoom : RLMObject
 
-@property (nonatomic, copy) NSString *internalId; // accountId@token
-@property (nonatomic, copy) NSString *accountId;
+@property (nonatomic, copy, nonnull) NSString *internalId; // accountId@token
+@property (nonatomic, copy, nonnull) NSString *accountId;
 @property (nonatomic, copy) NSString *token;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *displayName;
@@ -126,9 +126,9 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, copy) NSString *pendingMessage;
 @property (nonatomic, assign) BOOL canLeaveConversation;
 @property (nonatomic, assign) BOOL canDeleteConversation;
-@property (nonatomic, copy) NSString *status;
-@property (nonatomic, copy) NSString *statusIcon;
-@property (nonatomic, copy) NSString *statusMessage;
+@property (nonatomic, copy, nullable) NSString *status;
+@property (nonatomic, copy, nullable) NSString *statusIcon;
+@property (nonatomic, copy, nullable) NSString *statusMessage;
 @property (nonatomic, assign) NSInteger participantFlags;
 @property (nonatomic, assign) NCPermission permissions;
 @property (nonatomic, assign) NSInteger attendeePermissions;
@@ -142,9 +142,9 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, copy) NSString *remoteToken;
 @property (nonatomic, copy) NSString *lastReceivedProxyHash;
 @property (nonatomic, assign) NSInteger mentionPermissions;
+@property (nonatomic, assign) BOOL isArchived;
 
-+ (instancetype)roomWithDictionary:(NSDictionary *)roomDict;
-+ (instancetype)roomWithDictionary:(NSDictionary *)roomDict andAccountId:(NSString *)accountId;
-+ (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room;
++ (instancetype _Nullable)roomWithDictionary:(NSDictionary * _Nullable)roomDict andAccountId:(NSString * _Nullable)accountId;
++ (void)updateRoom:(NCRoom * _Nonnull)managedRoom withRoom:(NCRoom * _Nonnull)room;
 
 @end

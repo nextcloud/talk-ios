@@ -11,19 +11,26 @@ import UIKit
                                                 UIPageViewControllerDataSource,
                                                 NCMediaViewerPageViewControllerDelegate {
 
+    private let room: NCRoom
     private let pageController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var initialMessage: NCChatMessage
 
     private lazy var shareButton = {
         let shareButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
-
         shareButton.isEnabled = false
         shareButton.primaryAction = UIAction(title: "", image: .init(systemName: "square.and.arrow.up"), handler: { [unowned self, unowned shareButton] _ in
-            guard let mediaPageViewController = self.getCurrentPageViewController(),
-                  let image = mediaPageViewController.currentImage
-            else { return }
+            guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
 
-            let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+            var itemsToShare: [Any] = []
+
+            if let image = mediaPageViewController.currentImage {
+                itemsToShare.append(image)
+            } else if let videoURL = mediaPageViewController.currentVideoURL {
+                itemsToShare.append(videoURL)
+            } else {
+                return
+            }
+            let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
             activityViewController.popoverPresentationController?.barButtonItem = shareButton
 
             self.present(activityViewController, animated: true)
@@ -32,7 +39,39 @@ import UIKit
         return shareButton
     }()
 
-    init(initialMessage: NCChatMessage) {
+    private lazy var showMessageButton = {
+        let showMessageButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+        showMessageButton.isEnabled = false
+        showMessageButton.primaryAction = UIAction(title: "", image: .init(systemName: "text.magnifyingglass"), handler: { [unowned self] _ in
+            guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
+
+            let message = mediaPageViewController.message
+
+            if let account = message.account, let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0) {
+
+                // Fetch the context of the message and update the BaseChatViewController
+                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 50) { messages in
+                    guard let messages else { return }
+
+                    chatViewController.appendMessages(messages: messages)
+                    chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
+                }
+
+                chatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Close", comment: ""), primaryAction: UIAction { [weak chatViewController] _ in
+                    chatViewController?.dismiss(animated: true)
+                })
+
+                let navController = NCNavigationController(rootViewController: chatViewController)
+                self.present(navController, animated: true)
+            }
+
+        })
+
+        return showMessageButton
+    }()
+
+    init(initialMessage: NCChatMessage, room: NCRoom) {
+        self.room = room
         self.initialMessage = initialMessage
 
         super.init(nibName: nil, bundle: nil)
@@ -81,11 +120,14 @@ import UIKit
 
         let appearance = UIToolbarAppearance()
         appearance.backgroundColor = .secondarySystemBackground
+
         self.navigationController?.toolbar.standardAppearance = appearance
         self.navigationController?.toolbar.compactAppearance = appearance
         self.navigationController?.toolbar.scrollEdgeAppearance = appearance
 
-        self.toolbarItems = [shareButton]
+        let fixedSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        fixedSpace.width = 20
+        self.toolbarItems = [shareButton, fixedSpace, showMessageButton]
     }
 
     func getCurrentPageViewController() -> NCMediaViewerPageViewController? {
@@ -94,8 +136,10 @@ import UIKit
 
     // MARK: - PageViewController delegate
 
-    func getAllFileMessages() -> RLMResults<AnyObject> {
-        let query = NSPredicate(format: "accountId = %@ AND token = %@ AND messageParametersJSONString contains[cd] %@", self.initialMessage.accountId, self.initialMessage.token, "\"file\":")
+    func getAllFileMessages() -> RLMResults<AnyObject>? {
+        guard let accountId = self.initialMessage.accountId else { return nil }
+
+        let query = NSPredicate(format: "accountId = %@ AND token = %@ AND messageParametersJSONString contains[cd] %@", accountId, self.initialMessage.token, "\"file\":")
         let messages = NCChatMessage.objects(with: query).sortedResults(usingKeyPath: "messageId", ascending: true)
 
         return messages
@@ -103,14 +147,23 @@ import UIKit
 
     func getPreviousFileMessage(from message: NCChatMessage) -> NCChatMessage? {
         let prevQuery = NSPredicate(format: "messageId < %ld", message.messageId)
-        let messageObject = self.getAllFileMessages().objects(with: prevQuery).lastObject()
+
+        guard let queriedObjects = self.getAllFileMessages()?.objects(with: prevQuery) else { return nil }
+        let messageObject = queriedObjects.lastObject()
 
         if let message = messageObject as? NCChatMessage {
-            if NCUtils.isImage(fileType: message.file().mimetype) {
+            guard let filePath = message.file().path else {
+                return self.getPreviousFileMessage(from: message)
+            }
+
+            let fileType = message.file().mimetype
+            let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
+            let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
+
+            if isSupportedMedia && !isUnsupportedExtension {
                 return message
             }
 
-            // The current message contains a file, but not an image -> try to find another message
             return self.getPreviousFileMessage(from: message)
         }
 
@@ -119,14 +172,22 @@ import UIKit
 
     func getNextFileMessage(from message: NCChatMessage) -> NCChatMessage? {
         let prevQuery = NSPredicate(format: "messageId > %ld", message.messageId)
-        let messageObject = self.getAllFileMessages().objects(with: prevQuery).firstObject()
+
+        guard let messageObject = self.getAllFileMessages()?.objects(with: prevQuery).firstObject() else { return nil }
 
         if let message = messageObject as? NCChatMessage {
-            if NCUtils.isImage(fileType: message.file().mimetype) {
+            guard let filePath = message.file().path else {
+                return self.getNextFileMessage(from: message)
+            }
+
+            let fileType = message.file().mimetype
+            let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
+            let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
+
+            if isSupportedMedia && !isUnsupportedExtension {
                 return message
             }
 
-            // The current message contains a file, but not an image -> try to find another message
             return self.getNextFileMessage(from: message)
         }
 
@@ -158,7 +219,8 @@ import UIKit
         guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
         self.navigationItem.title = mediaPageViewController.navigationItem.title
 
-        self.shareButton.isEnabled = (mediaPageViewController.currentImage != nil)
+        self.shareButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
+        self.showMessageButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
     }
 
     // MARK: - NCMediaViewerPageViewController delegate
@@ -178,9 +240,10 @@ import UIKit
         }
     }
 
-    func mediaViewerPageImageDidLoad(_ controller: NCMediaViewerPageViewController) {
+    func mediaViewerPageMediaDidLoad(_ controller: NCMediaViewerPageViewController) {
         if let mediaPageViewController = self.getCurrentPageViewController(), mediaPageViewController.isEqual(controller) {
             self.shareButton.isEnabled = true
+            self.showMessageButton.isEnabled = true
         }
     }
 }
