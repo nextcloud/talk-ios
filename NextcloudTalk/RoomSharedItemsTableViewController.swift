@@ -446,7 +446,7 @@ import QuickLook
 
         self.present(previewNavigationChatViewController, animated: false)
 
-        previewChatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { [weak previewChatViewController] _ in
+        previewChatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Close", comment: ""), primaryAction: UIAction { [weak previewChatViewController] _ in
             previewChatViewController?.dismiss(animated: true)
         })
     }
