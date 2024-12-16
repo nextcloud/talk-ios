@@ -203,7 +203,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
             [weakSelf.hangUpTimers setObject:hangUpTimer forKey:callUUID];
             
             // Add callStateTimer to timers array
-            NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForCall:) userInfo:call repeats:NO];
+            NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForTimer:) userInfo:call repeats:NO];
             [weakSelf.callStateTimers setObject:callStateTimer forKey:callUUID];
    
             // Get call info from server
@@ -358,14 +358,57 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }
 }
 
-- (void)checkCallStateForCall:(NSTimer *)timer
+- (void)checkCallStateForTimer:(NSTimer *)timer
 {
     CallKitCall *call = [timer userInfo];
     if (!call) {
         return;
     }
 
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityCallNotificationState forAccountId:call.accountId]) {
+        [self checkCallStateWithStateApiForCall:call];
+    } else {
+        [self checkCallStateWithPeersForCall:call];
+    }
+}
+
+- (void)checkCallStateWithStateApiForCall:(CallKitCall *)call
+{
     __weak CallKitManager *weakSelf = self;
+
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
+    [[NCAPIController sharedInstance] getCallNotificationStateFor:account forRoom:call.token completionBlock:^(enum CallNotificationState state) {
+        // Make sure call is still ringing at this point to avoid a race-condition between answering the call on this device and the API callback
+        if (!call.isRinging) {
+            return;
+        }
+
+        if (state == CallNotificationStateRoomNotFound) {
+            // The conversation was not found for this participant
+            // Mostlikely the conversation was removed while an incoming call was ongoing
+            [self endCallWithUUID:call.uuid];
+            return;
+        } else if (state == CallNotificationStateMissedCall) {
+            // No one is in the call, we can hang up and show missed call notification
+            [self presentMissedCallNotificationForCall:call];
+            [self endCallWithUUID:call.uuid];
+            return;
+        } else if (state == CallNotificationStateParticipantJoined) {
+            // Account is already in a call (answered the call on a different device) -> no need to keep ringing
+            [self endCallWithUUID:call.uuid];
+            return;
+        }
+
+        // Reschedule next check
+        NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForTimer:) userInfo:call repeats:NO];
+        [weakSelf.callStateTimers setObject:callStateTimer forKey:call.uuid];
+    }];
+}
+
+- (void)checkCallStateWithPeersForCall:(CallKitCall *)call
+{
+    __weak CallKitManager *weakSelf = self;
+
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
     [[NCAPIController sharedInstance] getPeersForCall:call.token forAccount:account withCompletionBlock:^(NSMutableArray *peers, NSError *error, NSInteger statusCode) {
         // Make sure call is still ringing at this point to avoid a race-condition between answering the call on this device and the API callback
@@ -386,7 +429,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
             [self endCallWithUUID:call.uuid];
             return;
         }
-        
+
         NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:account];
         for (NSMutableDictionary *user in peers) {
             NSString *userId = [user objectForKey:@"userId"];
@@ -401,9 +444,9 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
                 return;
             }
         }
-        
+
         // Reschedule next check
-        NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForCall:) userInfo:call repeats:NO];
+        NSTimer *callStateTimer = [NSTimer scheduledTimerWithTimeInterval:kCallKitManagerCheckCallStateEverySeconds target:self selector:@selector(checkCallStateForTimer:) userInfo:call repeats:NO];
         [weakSelf.callStateTimers setObject:callStateTimer forKey:call.uuid];
     }];
 }

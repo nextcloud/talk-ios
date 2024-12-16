@@ -76,6 +76,7 @@ extern NSString * const kCapabilityMentionPermissions;
 extern NSString * const kCapabilityEditMessagesNoteToSelf;
 extern NSString * const kCapabilityChatSummary;
 extern NSString * const kCapabilityArchivedConversationsV2;
+extern NSString * const kCapabilityCallNotificationState;
 
 extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kNotificationsCapabilityTestPush;
