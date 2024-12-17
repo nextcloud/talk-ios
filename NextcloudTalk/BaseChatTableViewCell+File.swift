@@ -106,7 +106,6 @@ extension BaseChatTableViewCell {
 
     func prepareForReuseFileCell() {
         self.filePreviewImageView?.cancelImageDownloadTask()
-        self.filePreviewImageView?.layer.borderWidth = 0
         self.filePreviewImageView?.image = nil
         self.filePreviewPlayIconImageView?.isHidden = true
 
@@ -219,9 +218,6 @@ extension BaseChatTableViewCell {
             self.showFallbackIcon(for: message)
             return
         }
-
-        imageView.layer.borderColor = UIColor.secondarySystemFill.cgColor
-        imageView.layer.borderWidth = 1
 
         self.filePreviewImageViewHeightConstraint?.constant = previewSize.height
         self.filePreviewImageViewWidthConstraint?.constant = previewSize.width
