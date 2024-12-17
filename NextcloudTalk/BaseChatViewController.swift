@@ -313,6 +313,12 @@ import SwiftUI
         self.replyMessageView?.addObserver(self, forKeyPath: "visible", options: .new, context: nil)
 
         self.textView.pastableMediaTypes = .images
+
+        // Allow pasting Memojis and Genmojis
+        self.textView.allowsEditingTextAttributes = true
+        if #available(iOS 18.0, *) {
+            self.textView.supportsAdaptiveImageGlyph = true
+        }
     }
 
     // swiftlint:disable:next block_based_kvo
@@ -1361,6 +1367,7 @@ import SwiftUI
     public override func didPasteMediaContent(_ userInfo: [AnyHashable: Any]) {
         guard let data = userInfo[SLKTextViewPastedItemData] as? Data,
               let image = UIImage(data: data),
+              let dataTypeRaw = userInfo[SLKTextViewPastedItemMediaType] as? UInt,
               let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
         else { return }
 
@@ -1368,7 +1375,13 @@ import SwiftUI
         self.setChatMessage("")
 
         self.present(navigationController, animated: true) {
-            shareConfirmationVC.shareItemController.addItem(with: image)
+            if SLKPastableMediaType(rawValue: dataTypeRaw).contains(.PNG), let pngData = image.pngData() {
+                // For PNG we provide the fileName, as otherwise we convert it to JPEG
+                var fileName = "IMG_\(String(Date().timeIntervalSince1970 * 1000)).png"
+                shareConfirmationVC.shareItemController.addItem(withImageDataAndName: pngData, withName: fileName)
+            } else {
+                shareConfirmationVC.shareItemController.addItem(with: image)
+            }
         }
     }
 
