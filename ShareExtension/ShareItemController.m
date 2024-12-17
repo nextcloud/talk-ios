@@ -131,13 +131,17 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 
 - (void)addItemWithImageAndName:(UIImage *)image withName:(NSString *)imageName
 {
-    NSURL *fileLocalURL = [self getFileLocalURL:imageName];
     NSData *jpegData = UIImageJPEGRepresentation(image, kShareItemControllerImageQuality);
-    
-    [jpegData writeToFile:fileLocalURL.path atomically:YES];
-        
+    [self addItemWithImageDataAndName:jpegData withName:imageName];
+}
+
+- (void)addItemWithImageDataAndName:(NSData *)data withName:(NSString *)imageName
+{
+    NSURL *fileLocalURL = [self getFileLocalURL:imageName];
+    [data writeToFile:fileLocalURL.path atomically:YES];
+
     NSLog(@"Adding shareItem with image: %@ %@", imageName, fileLocalURL);
-    
+
     ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:imageName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
 
     [self.internalShareItems addObject:item];
