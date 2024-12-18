@@ -772,9 +772,50 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     }];
 }
 
-- (void)sendChatMessage:(NCChatMessage *)message
-{
-    [self sendChatMessage:message.sendingMessage replyTo:message.parentMessageId referenceId:message.referenceId silently:message.isSilent];
+- (void)sendChatMessage:(NCChatMessage *)message {
+    if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
+        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+
+        [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:message.message
+                                                             originalName:YES
+                                                               forAccount:activeAccount
+                                                      withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
+            if (fileServerURL && fileServerPath) {
+                NSDictionary *talkMetaData = @{@"messageType": @"voice-message"};
+
+                [ChatFileUploader uploadFileWithLocalPath:message.file.fileStatus.fileLocalPath
+                                            fileServerURL:fileServerURL
+                                           fileServerPath:fileServerPath
+                                             talkMetaData:talkMetaData
+                                         temporaryMessage:message
+                                                     room:self.room
+                                               completion:^(NSInteger statusCode, NSString *errorMessage) {
+                    switch (statusCode) {
+                        case 200:
+                            NSLog(@"Successfully uploaded and shared voice message.");
+                            break;
+                        case 403:
+                            NSLog(@"Failed to share voice message.");
+                            break;
+                        case 404:
+                        case 409:
+                            NSLog(@"Failed to check or create attachment folder.");
+                            break;
+                        case 507:
+                            NSLog(@"User storage quota exceeded.");
+                            break;
+                        default:
+                            NSLog(@"Failed to upload voice message with error code: %d", statusCode);
+                            break;
+                    }
+                }];
+            } else {
+                NSLog(@"Could not find unique name for voice message file.");
+            }
+        }];
+    } else {
+        [self sendChatMessage:message.sendingMessage replyTo:message.parentMessageId referenceId:message.referenceId silently:message.isSilent];
+    }
 }
 
 - (void)checkLastCommonReadMessage:(NSInteger)lastCommonReadMessage

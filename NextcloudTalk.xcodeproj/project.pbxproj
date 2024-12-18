@@ -599,6 +599,10 @@
 		DA66583127B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */; };
 		DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */; };
 		DA8801A227A2DA00009EF248 /* UserProfileTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */; };
+		F644A2DD2CE287FA00E2ED81 /* ChatFileUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F644A2DC2CE287FA00E2ED81 /* ChatFileUploader.swift */; };
+		F644A2DF2CE28C8D00E2ED81 /* NCChatFileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */; };
+		F644A2E02CE28C9A00E2ED81 /* NCChatFileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */; };
+		F644A2E12CE28CA500E2ED81 /* NCChatFileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA7F2C023FF300C1B952 /* NCChatFileStatus.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1179,6 +1183,7 @@
 		DA66583027B6B24E00B46B11 /* UserProfileTableViewController+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProfileTableViewController+Utils.swift"; sourceTree = "<group>"; };
 		DA75580E278EEA1000A48A1B /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTableViewController.swift; sourceTree = "<group>"; };
+		F644A2DC2CE287FA00E2ED81 /* ChatFileUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatFileUploader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -2144,6 +2149,7 @@
 				1F35F8FA2AEEDBC600044BDA /* ChatViewControllerExtension.swift */,
 				2C4230F62B207AB00013E1FA /* ContextChatViewController.swift */,
 				1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */,
+				F644A2DC2CE287FA00E2ED81 /* ChatFileUploader.swift */,
 				1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */,
 				1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */,
 				1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */,
@@ -2801,6 +2807,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F644A2E12CE28CA500E2ED81 /* NCChatFileStatus.swift in Sources */,
 				1F1B504B2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				1F77A5F22AB9A436007B6037 /* EmojiUtils.swift in Sources */,
 				1F77A5FA2AB9A4DF007B6037 /* NCMessageLocationParameter.m in Sources */,
@@ -3087,6 +3094,7 @@
 				2CB6ACBC26385A3800D3D641 /* ShareLocationViewController.m in Sources */,
 				2C04249B2CA33681004772F6 /* AudioPlayerView.swift in Sources */,
 				1F1B0F462BE047CE003FD766 /* InteractionControlling.swift in Sources */,
+				F644A2DD2CE287FA00E2ED81 /* ChatFileUploader.swift in Sources */,
 				2CF338E12CED388B0029CACC /* AvatarView.swift in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
 				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,
@@ -3115,6 +3123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F644A2E02CE28C9A00E2ED81 /* NCChatFileStatus.swift in Sources */,
 				1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				1F35F8EB2AEEBC1100044BDA /* UIResponder+SLKAdditions.m in Sources */,
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
@@ -3202,6 +3211,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F644A2DF2CE28C8D00E2ED81 /* NCChatFileStatus.swift in Sources */,
 				2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */,
 				2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */,
 				2C4446D42658147900DF1DBC /* TalkAccount.m in Sources */,

@@ -28,7 +28,10 @@ extern NSString * const NCChatFileControllerDidChangeDownloadProgressNotificatio
 @property (nonatomic, weak) id<NCChatFileControllerDelegate> delegate;
 @property (nonatomic, strong) NSString *messageType;
 @property (nonatomic, strong) NSString *actionType;
+@property (nonatomic, strong, readonly) NSString *tempDirectoryPath;
 
+- (void)initDownloadDirectoryForAccount:(TalkAccount *)account;
+- (bool)moveFileToTemporaryDirectoryFromSourcePath:(NSString *)sourcePath destinationPath:(NSString *)destinationPath;
 - (void)downloadFileFromMessage:(NCMessageFileParameter *)fileParameter;
 - (void)downloadFileWithFileId:(NSString *)fileId;
 - (void)deleteDownloadDirectoryForAccount:(TalkAccount *)account;

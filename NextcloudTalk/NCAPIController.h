@@ -220,7 +220,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // DAV client
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
-- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
+- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData referenceId:(NSString *)referenceId withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
 - (void)getFileByFileId:(TalkAccount *)account fileId:(NSString *)fileId
     withCompletionBlock:(GetFileByFileIdCompletionBlock)block;
 - (void)uniqueNameForFileUploadWithName:(NSString *)fileName originalName:(BOOL)isOriginalName forAccount:(TalkAccount *)account withCompletionBlock:(GetFileUniqueNameCompletionBlock)block;

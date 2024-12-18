@@ -647,7 +647,7 @@ import MBProgressHUD
                     talkMetaData["silent"] = self.shareSilently
                 }
 
-                NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: filePath, toRoom: self.room.token, talkMetaData: talkMetaData) { error in
+                NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: filePath, toRoom: self.room.token, talkMetaData: talkMetaData, referenceId: nil) { error in
                     if let error {
                         NCUtils.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)

@@ -1800,7 +1800,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 }
 
-- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
+- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData referenceId:(NSString *)referenceId withCompletionBlock:(ShareFileOrFolderCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/apps/files_sharing/api/v1/shares", account.server];
     
@@ -1808,7 +1808,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [parameters setObject:path forKey:@"path"];
     [parameters setObject:@(10) forKey:@"shareType"];
     [parameters setObject:token forKey:@"shareWith"];
-    
+    if (referenceId) {
+        [parameters setObject:referenceId forKey:@"referenceId"];
+    }
+
     if (talkMetaData) {
         NSError *error = nil;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:talkMetaData
