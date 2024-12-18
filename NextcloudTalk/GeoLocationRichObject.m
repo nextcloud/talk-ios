@@ -27,8 +27,19 @@ NSString * const GeoLocationRichObjectType = @"geo-location";
     GeoLocationRichObject *richObject = [[self alloc] init];
     richObject.objectType = parameter.type;
     richObject.objectId = parameter.parameterId;
-    richObject.latitude = parameter.latitude;
-    richObject.longitude = parameter.longitude;
+
+    if ([parameter.latitude isKindOfClass:[NSNumber class]]) {
+        richObject.latitude = [(NSNumber *)parameter.latitude stringValue];
+    } else {
+        richObject.latitude = parameter.latitude;
+    }
+
+    if ([parameter.longitude isKindOfClass:[NSNumber class]]) {
+        richObject.longitude = [(NSNumber *)parameter.longitude stringValue];
+    } else {
+        richObject.longitude = parameter.longitude;
+    }
+
     richObject.name = parameter.name;
     return richObject;
 }
