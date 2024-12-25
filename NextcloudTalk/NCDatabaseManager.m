@@ -125,6 +125,10 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
         configuration.fileURL = databaseURL;
         configuration.schemaVersion = kTalkDatabaseSchemaVersion;
+        configuration.objectClasses = @[
+            TalkAccount.class, NCRoom.class, ServerCapabilities.class, FederatedCapabilities.class,
+            NCChatMessage.class, NCChatBlock.class, NCContact.class, ABContact.class
+        ];
         configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
             // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
         };
