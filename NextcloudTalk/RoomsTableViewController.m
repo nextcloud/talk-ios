@@ -461,6 +461,7 @@ typedef enum RoomsSections {
 {
     UIImage *logoImage = [UIImage imageNamed:[NCAppBranding navigationLogoImageName]];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
+    self.navigationItem.titleView.accessibilityLabel = talkAppName;
 }
 
 - (UIMenu *)getActiveAccountMenuOptions
