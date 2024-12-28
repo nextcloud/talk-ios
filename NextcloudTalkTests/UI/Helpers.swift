@@ -37,6 +37,7 @@ extension XCTestCase {
         return nil
     }
 
+    @discardableResult
     func launchAndLogin() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += ["-AppleLanguages", "(en-US)"]

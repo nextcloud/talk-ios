@@ -285,7 +285,9 @@ typedef enum RoomsSections {
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
 {
-    [self setProfileButton];
+    if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
+        [self setProfileButton];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -460,7 +462,6 @@ typedef enum RoomsSections {
     UIImage *logoImage = [UIImage imageNamed:[NCAppBranding navigationLogoImageName]];
     self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
     self.navigationItem.titleView.accessibilityLabel = talkAppName;
-    self.navigationItem.titleView.accessibilityHint = NSLocalizedString(@"Double tap to change accounts or add a new one", nil);
 }
 
 - (UIMenu *)getActiveAccountMenuOptions
@@ -558,7 +559,6 @@ typedef enum RoomsSections {
     // When no elements are returned by the deferred menu, the entries / inline-menu will be hidden
     [accountPickerMenu addObject:[self getActiveAccountMenuOptions]];
     [accountPickerMenu addObject:[self getInactiveAccountMenuOptions]];
-
 
     NSMutableArray *optionItems = [[NSMutableArray alloc] init];
 
