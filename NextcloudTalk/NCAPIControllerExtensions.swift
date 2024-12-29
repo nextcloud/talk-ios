@@ -448,6 +448,7 @@ import Foundation
 
             if ocsError?.responseStatusCode == 500, let error = ocsError?.dataDict?["error"] as? String, error == "ai-no-provider" {
                 completionBlock(.noAiProvider, nil, nil)
+                return
             }
 
             guard let dict = ocsResponse?.dataDict as? [String: Int] else {
