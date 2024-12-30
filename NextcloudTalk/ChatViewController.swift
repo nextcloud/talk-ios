@@ -1407,7 +1407,7 @@ import SwiftyAttributes
 
     // MARK: - ChatMessageTableViewCellDelegate delegate
 
-    override public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage!) {
+    override public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage) {
         self.addOrRemoveReaction(reaction: reaction, in: message)
     }
 
@@ -1432,19 +1432,25 @@ import SwiftyAttributes
                 return
             }
 
-            if status == .noMessagesFound {
-                NotificationPresenter.shared().present(text: NSLocalizedString("No messages found to summarize", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
-                return
-            }
-
             guard let taskId, status != .failed else {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Generating summary of unread messages failed", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
                 return
             }
 
-            AiSummaryController.shared.addSummaryTaskId(forRoomInternalId: self.room.internalId, withTaskId: taskId)
+            let hasRunningAiSummaryTasks = !AiSummaryController.shared.getSummaryTaskIds(forRoomInternalId: self.room.internalId).isEmpty
 
-            print("Scheduled summary task with taskId \(taskId) and nextOffset \(String(describing: nextOffset))")
+            // No messages to summarize found, no previous tasks running and no more messages -> Nothing we can do, stop here
+            if status == .noMessagesFound, !hasRunningAiSummaryTasks, nextOffset == nil {
+                NotificationPresenter.shared().present(text: NSLocalizedString("No messages found to summarize", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                return
+            }
+
+            // We might end up here with a status of "noMessagesFound". That can happen if we have previous running tasks, or got a nextOffset.
+            // Therefore we explictly check for "success" to only track tasks that were successfully submitted with messages
+            if status == .success {
+                AiSummaryController.shared.addSummaryTaskId(forRoomInternalId: self.room.internalId, withTaskId: taskId)
+                print("Scheduled summary task with taskId \(taskId) and nextOffset \(String(describing: nextOffset))")
+            }
 
             // Add a safe-guard to make sure there's really a nextOffset. Otherwise we might end up requesting the same task over and over again
             if let nextOffset, nextOffset > messageId {
