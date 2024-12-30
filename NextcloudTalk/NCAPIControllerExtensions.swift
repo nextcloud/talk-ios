@@ -354,6 +354,7 @@ import Foundation
 
     public func banActor(for accountId: String, in roomToken: String, with actorType: String, with actorId: String, with internalNote: String?, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {
             completionBlock(false)
@@ -361,7 +362,7 @@ import Foundation
         }
 
         let apiVersion = self.banAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, for: account)
 
         var parameters: [String: Any] = [
             "actorType": actorType,
@@ -381,6 +382,7 @@ import Foundation
 
     public func listBans(for accountId: String, in roomToken: String, completionBlock: @escaping (_ bannedActors: [BannedActor]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {
             completionBlock(nil)
@@ -388,7 +390,7 @@ import Foundation
         }
 
         let apiVersion = self.banAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, for: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             let actorBans = ocs?.dataArrayDict?.map { BannedActor(dictionary: $0) }
@@ -398,6 +400,7 @@ import Foundation
 
     public func unbanActor(for accountId: String, in roomToken: String, with banId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {
             completionBlock(false)
@@ -405,7 +408,7 @@ import Foundation
         }
 
         let apiVersion = self.banAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(roomToken)/\(banId)", withAPIVersion: apiVersion, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)/\(banId)", withAPIVersion: apiVersion, for: account)
 
         apiSessionManager.delete(urlString, parameters: nil) { _, _ in
             completionBlock(true)
