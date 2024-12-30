@@ -613,6 +613,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     NSDictionary *provisioningAPICaps = [serverCaps objectForKey:@"provisioning_api"];
     NSDictionary *guestsCaps = [serverCaps objectForKey:@"guests"];
     NSDictionary *notificationsCaps = [serverCaps objectForKey:@"notifications"];
+    NSDictionary *davCaps = [serverCaps objectForKey:@"dav"];
 
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -642,6 +643,8 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.guestsAppEnabled = [[guestsCaps objectForKey:@"enabled"] boolValue];
     capabilities.referenceApiSupported = [[coreCaps objectForKey:@"reference-api"] boolValue];
     capabilities.modRewriteWorking = [[coreCaps objectForKey:@"mod-rewrite-working"] boolValue];
+    capabilities.absenceSupported = [[davCaps objectForKey:@"absence-supported"] boolValue];
+    capabilities.absenceReplacementSupported = [[davCaps objectForKey:@"absence-replacement"] boolValue];
     capabilities.notificationsCapabilities = [notificationsCaps objectForKey:@"ocs-endpoints"];
 
     [self setTalkCapabilities:talkCaps onTalkCapabilitiesObject:capabilities];
