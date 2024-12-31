@@ -327,10 +327,16 @@
             if (decryptedMessage) {
                 NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                 [[NCNotificationController sharedInstance] processBackgroundPushNotification:pushNotification];
+
+                break;
             }
         }
     }
-    completionHandler(UIBackgroundFetchResultNewData);
+
+    // Check if the other notifications are still current and try to remove them otherwise
+    [[NCNotificationController sharedInstance] checkNotificationExistanceWithCompletionBlock:^(NSError *error) {
+        completionHandler(UIBackgroundFetchResultNewData);
+    }];
 }
 
 
