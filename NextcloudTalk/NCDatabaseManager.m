@@ -306,6 +306,10 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
 
 - (NSInteger)numberOfUnreadNotifications
 {
+    // Make sure that the data on this thread is up to date.
+    // Failing to do so might result in inaccurate badge numbers when they were updated on a different thread
+    [[RLMRealm defaultRealm] refresh];
+
     NSInteger unreadNotifications = 0;
     for (TalkAccount *account in [TalkAccount allObjects]) {
         unreadNotifications += account.unreadBadgeNumber;

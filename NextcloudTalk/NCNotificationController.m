@@ -73,17 +73,19 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
 - (void)processBackgroundPushNotification:(NCPushNotification *)pushNotification
 {
-    if (pushNotification) {
-        if (pushNotification.type == NCPushNotificationTypeDelete) {
-            NSNumber *notificationId = @(pushNotification.notificationId);
-            [self removeNotificationWithNotificationIds:@[notificationId] forAccountId:pushNotification.accountId];
-        } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
-            [self removeAllNotificationsForAccountId:pushNotification.accountId];
-        } else if (pushNotification.type == NCPushNotificationTypeDeleteMultiple) {
-            [self removeNotificationWithNotificationIds:pushNotification.notificationIds forAccountId:pushNotification.accountId];
-        } else {
-            NSLog(@"Push Notification of an unknown type received");
-        }
+    if (!pushNotification) {
+        return;
+    }
+
+    if (pushNotification.type == NCPushNotificationTypeDelete) {
+        NSNumber *notificationId = @(pushNotification.notificationId);
+        [self removeNotificationWithNotificationIds:@[notificationId] forAccountId:pushNotification.accountId];
+    } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
+        [self removeAllNotificationsForAccountId:pushNotification.accountId];
+    } else if (pushNotification.type == NCPushNotificationTypeDeleteMultiple) {
+        [self removeNotificationWithNotificationIds:pushNotification.notificationIds forAccountId:pushNotification.accountId];
+    } else {
+        NSLog(@"Push Notification of an unknown type received");
     }
 }
 
