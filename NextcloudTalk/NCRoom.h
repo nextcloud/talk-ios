@@ -102,7 +102,6 @@ extern NSString * const NCRoomObjectTypeRoom;
 @property (nonatomic, assign) NSInteger unreadMessages;
 @property (nonatomic, assign) BOOL unreadMention;
 @property (nonatomic, assign) BOOL unreadMentionDirect;
-@property (nonatomic, strong) RLMArray<RLMString> *participants;
 @property (nonatomic, assign) NSInteger lastActivity;
 @property (nonatomic, copy, nullable) NSString *lastMessageId;
 @property (nonatomic, copy) NSString *lastMessageProxiedJSONString;

@@ -193,7 +193,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account
 {
-    NSInteger conversationAPIVersion = APIv1;
+    NSInteger conversationAPIVersion = APIv2;
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadStatus forAccountId:account.accountId]) {
         conversationAPIVersion = APIv3;
     }
