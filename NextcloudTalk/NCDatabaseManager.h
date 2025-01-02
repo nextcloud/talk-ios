@@ -129,7 +129,7 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (TalkCapabilities * __nullable)roomTalkCapabilitiesForRoom:(NCRoom *)room;
 
 // ServerCapabilities
-- (ServerCapabilities *)serverCapabilities;
+- (ServerCapabilities * __nullable)serverCapabilities;
 - (ServerCapabilities * __nullable)serverCapabilitiesForAccountId:(NSString *)accountId;
 - (void)setServerCapabilities:(NSDictionary *)serverCapabilities forAccountId:(NSString *)accountId;
 - (BOOL)serverHasTalkCapability:(NSString *)capability;

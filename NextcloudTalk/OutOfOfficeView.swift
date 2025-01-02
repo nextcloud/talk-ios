@@ -72,7 +72,7 @@ import SwiftyAttributes
         return true
     }
 
-    public func setupAbsence(withData absenceData: UserAbsence, inRoom room: NCRoom) {
+    public func setupAbsence(withData absenceData: CurrentUserAbsence, inRoom room: NCRoom) {
         translatesAutoresizingMaskIntoConstraints = false
         title.text = String.localizedStringWithFormat(NSLocalizedString("%@ is out of office", comment: "'%@' is the name of a user"), room.displayName)
 

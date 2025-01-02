@@ -510,7 +510,7 @@ import Foundation
 
     // MARK: - Out-of-office
 
-    public func getUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ absenceData: UserAbsence?) -> Void) {
+    public func getCurrentUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ absenceData: CurrentUserAbsence?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -526,7 +526,62 @@ import Foundation
                 completionBlock(nil)
                 return
             }
+            completionBlock(CurrentUserAbsence(dictionary: dataDict))
+        }
+    }
+
+    @nonobjc
+    public func getUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ absenceData: UserAbsence?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, _ in
+            guard let dataDict = ocsResponse?.dataDict else {
+                completionBlock(nil)
+                return
+            }
             completionBlock(UserAbsence(dictionary: dataDict))
+        }
+    }
+
+    public func clearUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)"
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError == nil)
+        }
+    }
+
+    @nonobjc
+    public func setUserAbsence(forAccountId accountId: String, forUserId userId: String, withAbsence absenceData: UserAbsence, completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let absenceDictionary = absenceData.asDictionary()
+        else {
+            completionBlock(false)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)"
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: absenceDictionary) { _, ocsError in
+            completionBlock(ocsError == nil)
         }
     }
 

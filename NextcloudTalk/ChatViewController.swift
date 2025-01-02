@@ -463,7 +463,7 @@ import SwiftyAttributes
 
         self.hasCheckedOutOfOfficeStatus = true
 
-        NCAPIController.sharedInstance().getUserAbsence(forAccountId: self.room.accountId, forUserId: self.room.name) { absenceData in
+        NCAPIController.sharedInstance().getCurrentUserAbsence(forAccountId: self.room.accountId, forUserId: self.room.name) { absenceData in
             guard let absenceData else { return }
 
             let oooView = OutOfOfficeView()
