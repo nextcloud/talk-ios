@@ -1374,7 +1374,7 @@ typedef enum RoomsSections {
                                                                             }];
     deleteAction.image = [UIImage systemImageNamed:@"trash"];
 
-    if (room.isLeavable && room.type != kNCRoomTypeNoteToSelf) {
+    if (room.canLeaveConversation) {
         deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:nil
                                                              handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
                                                                  [self leaveRoom:room];
@@ -1722,27 +1722,35 @@ typedef enum RoomsSections {
 
     [actions addObject:roomInfoAction];
 
-    UIAction *deleteAction;
+    NSMutableArray *destructiveActions = [[NSMutableArray alloc] init];
 
-    if (room.isLeavable && room.type != kNCRoomTypeNoteToSelf) {
-        deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Leave conversation", nil) image:[UIImage systemImageNamed:@"arrow.right.square"] identifier:nil handler:^(UIAction *action) {
+    if (room.canLeaveConversation) {
+        UIAction *leaveAction = [UIAction actionWithTitle:NSLocalizedString(@"Leave conversation", nil) image:[UIImage systemImageNamed:@"arrow.right.square"] identifier:nil handler:^(UIAction *action) {
             [weakSelf leaveRoom:room];
         }];
-    } else {
-        deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete conversation", nil) image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(UIAction *action) {
-            [weakSelf deleteRoom:room];
-        }];
+
+        leaveAction.attributes = UIMenuElementAttributesDestructive;
+        [destructiveActions addObject:leaveAction];
     }
 
-    deleteAction.attributes = UIMenuElementAttributesDestructive;
+    if (room.canDeleteConversation) {
+        UIAction *deleteAction = [UIAction actionWithTitle:NSLocalizedString(@"Delete conversation", nil) image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(UIAction *action) {
+            [weakSelf deleteRoom:room];
+        }];
 
-    UIMenu *deleteMenu = [UIMenu menuWithTitle:@""
-                                         image:nil
-                                    identifier:nil
-                                       options:UIMenuOptionsDisplayInline
-                                      children:@[deleteAction]];
+        deleteAction.attributes = UIMenuElementAttributesDestructive;
+        [destructiveActions addObject:deleteAction];
+    }
 
-    [actions addObject:deleteMenu];
+    if (destructiveActions.count > 0) {
+        UIMenu *deleteMenu = [UIMenu menuWithTitle:@""
+                                             image:nil
+                                        identifier:nil
+                                           options:UIMenuOptionsDisplayInline
+                                          children:destructiveActions];
+        
+        [actions addObject:deleteMenu];
+    }
 
     UIMenu *menu = [UIMenu menuWithTitle:@"" children:actions];
 
