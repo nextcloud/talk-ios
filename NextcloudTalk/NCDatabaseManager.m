@@ -78,11 +78,12 @@ NSString * const kCapabilityEditMessagesNoteToSelf  = @"edit-messages-note-to-se
 NSString * const kCapabilityChatSummary             = @"chat-summary-api";
 NSString * const kCapabilityArchivedConversationsV2 = @"archived-conversations-v2";
 NSString * const kCapabilityCallNotificationState   = @"call-notification-state-api";
+NSString * const kCapabilityForceMute               = @"force-mute";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";
 
-NSString * const kMinimumRequiredTalkCapability     = kCapabilitySystemMessages; // Talk 4.0 is the minimum required version
+NSString * const kMinimumRequiredTalkCapability     = kCapabilityForceMute; // Talk 9.0 is the minimum required version
 
 NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDatabaseManagerPendingFederationInvitationsDidChange";
 NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCDatabaseManagerRoomCapabilitiesChangedNotification";
