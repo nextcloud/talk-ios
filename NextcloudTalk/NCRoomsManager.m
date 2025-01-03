@@ -683,9 +683,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:accountId withRealm:nil];
 
     for (NCRoom *room in accountRooms) {
-        NSArray *participantsInRoom = [room.participants valueForKey:@"self"];
-        
-        if (room.type == kNCRoomTypeOneToOne && [participantsInRoom containsObject:userId]) {
+        if (room.type == kNCRoomTypeOneToOne && [room.name isEqualToString:userId]) {
             // Room already exists -> join the room
             [self startChatWithRoomToken:room.token];
             
