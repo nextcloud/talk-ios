@@ -324,8 +324,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
         for (NSDictionary *user in responseContacts) {
             NCUser *ncUser = [NCUser userWithDictionary:user];
-            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-            if (ncUser && !([ncUser.userId isEqualToString:activeAccount.userId] && [ncUser.source isEqualToString:kParticipantTypeUser])) {
+            if (ncUser && !([ncUser.userId isEqualToString:account.userId] && [ncUser.source isEqualToString:kParticipantTypeUser])) {
                 [users addObject:ncUser];
             }
         }
