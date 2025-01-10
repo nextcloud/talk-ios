@@ -119,19 +119,6 @@ import Realm
         return lockedOneToOne || lockedOther
     }
 
-    public var isLeavable: Bool {
-        // Allow users to leave when there are no moderators in the room
-        // (No need to check room type because in one2one rooms users will always be moderators)
-        // or when in a group call and there are other participants.
-        // We can also check "canLeaveConversation" since v2
-
-        if self.type != .oneToOne && self.type != .formerOneToOne && self.participants.count > 1 {
-            return true
-        }
-
-        return self.canLeaveConversation || self.canModerate
-    }
-
     public var userCanStartCall: Bool {
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityStartCallFlag) && !self.canStartCall {
             return false
@@ -162,10 +149,8 @@ import Realm
     public var deletionMessage: String {
         var message = NSLocalizedString("Do you really want to delete this conversation?", comment: "")
 
-        if self.type == .oneToOne || self.type == .formerOneToOne {
+        if self.type == .oneToOne {
             message = String(format: NSLocalizedString("If you delete the conversation, it will also be deleted for %@", comment: ""), self.displayName)
-        } else if self.participants.count > 1 {
-            message = NSLocalizedString("If you delete the conversation, it will also be deleted for all other participants.", comment: "")
         }
 
         return message

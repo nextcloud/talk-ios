@@ -20,7 +20,6 @@
     NSMutableDictionary *_participants;
     NSArray *_indexes;
     NCRoom *_room;
-    NSArray *_participantsInRoom;
     UISearchController *_searchController;
     ResultMultiSelectionTableViewController *_resultTableViewController;
     NSMutableArray *_selectedParticipants;
@@ -43,7 +42,6 @@
     
     if (room) {
         _room = room;
-        _participantsInRoom = [room.participants valueForKey:@"self"];
     }
 
     _participants = [[NSMutableDictionary alloc] init];
@@ -286,19 +284,6 @@
 
 #pragma mark - Participants actions
 
-- (NSMutableArray *)filterContacts:(NSMutableArray *)contacts
-{
-    NSMutableArray *participants = [[NSMutableArray alloc] init];
-    for (NCUser *user in contacts) {
-        if (![_participantsInRoom containsObject:user.userId]) {
-            [participants addObject:user];
-        } else if (![user.source isEqualToString:kParticipantTypeUser]) {
-            [participants addObject:user];
-        }
-    }
-    return participants;
-}
-
 - (void)getPossibleParticipants
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -306,8 +291,7 @@
         if (!error) {
             NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:nil];
             NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
-            NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
-            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
+            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:combinedContactList];
             self->_participants = participants;
             self->_indexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
             [self->_participantsBackgroundView.loadingView stopAnimating];
@@ -328,8 +312,7 @@
         if (!error) {
             NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:searchString];
             NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
-            NSMutableArray *filteredParticipants = [self filterContacts:combinedContactList];
-            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:filteredParticipants];
+            NSMutableDictionary *participants = [NCUser indexedUsersFromUsersArray:combinedContactList];
             NSArray *sortedIndexes = [[participants allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
             [self->_resultTableViewController setSearchResultContacts:participants withIndexes:sortedIndexes];
         } else {

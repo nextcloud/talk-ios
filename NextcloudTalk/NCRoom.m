@@ -84,11 +84,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     } else {
         room.displayName = [displayName stringValue];
     }
-
-    id participants = [roomDict objectForKey:@"participants"];
-    if ([participants isKindOfClass:[NSDictionary class]]) {
-        room.participants = (RLMArray<RLMString> *)[participants allKeys];
-    }
     
     // Optional attribute
     id status = [roomDict objectForKey:@"status"];
@@ -146,7 +141,6 @@ NSString * const NCRoomObjectTypeRoom           = @"room";
     managedRoom.unreadMessages = room.unreadMessages;
     managedRoom.unreadMention = room.unreadMention;
     managedRoom.unreadMentionDirect = room.unreadMentionDirect;
-    managedRoom.participants = room.participants;
     managedRoom.lastActivity = room.lastActivity;
     managedRoom.lastMessageId = room.lastMessageId;
     managedRoom.lastMessageProxiedJSONString = room.lastMessageProxiedJSONString;
