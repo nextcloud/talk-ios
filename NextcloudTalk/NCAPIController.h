@@ -56,6 +56,7 @@ typedef void (^MessageTranslationCompletionBlock)(NSDictionary *translationDict,
 typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
 
 typedef void (^PollCompletionBlock)(NCPoll *poll, NSError *error, NSInteger statusCode);
+typedef void (^PollDraftsCompletionBlock)(NSArray *polls, NSError *error, NSInteger statusCode);
 
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
@@ -204,7 +205,8 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getReactions:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
 
 // Polls Controller
-- (NSURLSessionDataTask *)createPollWithQuestion:(NSString *)question options:(NSArray *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
+- (NSURLSessionDataTask *)createPollWithQuestion:(NSString *)question options:(NSArray *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes inRoom:(NSString *)token asDraft:(BOOL)asDraft forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
+- (NSURLSessionDataTask *)getPollDraftsInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollDraftsCompletionBlock)block;
 - (NSURLSessionDataTask *)getPollWithId:(NSInteger)pollId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
 - (NSURLSessionDataTask *)voteOnPollWithId:(NSInteger)pollId inRoom:(NSString *)token withOptions:(NSArray *)options forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
 - (NSURLSessionDataTask *)closePollWithId:(NSInteger)pollId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;

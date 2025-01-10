@@ -17,7 +17,6 @@ import SwiftUI
                                                   UIImagePickerControllerDelegate,
                                                   PHPickerViewControllerDelegate,
                                                   UINavigationControllerDelegate,
-                                                  PollCreationViewControllerDelegate,
                                                   ShareLocationViewControllerDelegate,
                                                   CNContactPickerDelegate,
                                                   UIDocumentPickerDelegate,
@@ -884,8 +883,7 @@ import SwiftUI
     }
 
     func presentPollCreation() {
-        let pollCreationVC = PollCreationViewController(style: .insetGrouped)
-        pollCreationVC.pollCreationDelegate = self
+        let pollCreationVC = PollCreationViewController(room: room)
         self.presentWithNavigation(pollCreationVC, animated: true)
     }
 
@@ -3560,18 +3558,6 @@ import SwiftUI
         NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: self.account) { poll, error, _ in
             if error == nil, let poll {
                 pollVC.updatePoll(poll: poll)
-            }
-        }
-    }
-
-    // MARK: - PollCreationViewControllerDelegate
-
-    func pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: PollCreationViewController, question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int) {
-        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: self.room.token, for: self.account) { _, error, _ in
-            if error != nil {
-                pollCreationViewController.showCreationError()
-            } else {
-                pollCreationViewController.close()
             }
         }
     }
