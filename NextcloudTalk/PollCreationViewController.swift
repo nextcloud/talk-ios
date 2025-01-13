@@ -5,7 +5,7 @@
 
 import UIKit
 
-@objcMembers class PollCreationViewController: UITableViewController, UITextFieldDelegate {
+@objcMembers class PollCreationViewController: UITableViewController, UITextFieldDelegate, PollDraftsViewControllerDelegate {
 
     enum PollCreationSection: Int {
         case kPollCreationSectionQuestion = 0
@@ -23,6 +23,7 @@ import UIKit
     let kQuestionTextFieldTag = 9999
 
     var room: NCRoom
+    var draftsAvailable: Bool = false
     var question: String = ""
     var options: [String] = ["", ""]
     var privateSwitch = UISwitch()
@@ -39,6 +40,7 @@ import UIKit
 
     init(room: NCRoom) {
         self.room = room
+        self.draftsAvailable = room.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPollsDrafts, forAccountId: room.accountId)
 
         super.init(style: .insetGrouped)
         self.initPollCreationView()
@@ -49,6 +51,20 @@ import UIKit
 
         self.creatingPollIndicatorView = UIActivityIndicatorView()
         self.creatingPollIndicatorView.color = NCAppBranding.themeTextColor()
+
+        if draftsAvailable {
+            let menuAction = UIAction(title: NSLocalizedString("Browse poll drafts", comment: ""), image: UIImage(systemName: "doc")) { _ in
+                self.presentPollDraftsView()
+            }
+
+            let menu = UIMenu(title: "", options: .displayInline, children: [menuAction])
+            let menuButton = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                menu: menu
+            )
+
+            navigationItem.rightBarButtonItem = menuButton
+        }
 
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
@@ -85,6 +101,26 @@ import UIKit
 
     func close() {
         self.dismiss(animated: true, completion: nil)
+    }
+
+    func presentPollDraftsView() {
+        let pollDraftsVC = PollDraftsViewController(room: room)
+        pollDraftsVC.delegate = self
+        let navController = UINavigationController(rootViewController: pollDraftsVC)
+        present(navController, animated: true, completion: nil)
+    }
+
+    func didSelectPollDraft(question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int) {
+        // End editing for any textfield
+        self.view.endEditing(true)
+
+        // Assign poll draft values
+        self.question = question
+        self.options = options
+        self.privateSwitch.isOn = resultMode == .hidden
+        self.multipleSwitch.isOn = maxVotes == 0
+        self.tableView.reloadData()
+        self.checkIfPollIsReadyToCreate()
     }
 
     func showCreationError() {
@@ -130,8 +166,7 @@ import UIKit
         footerView.frame = CGRect(x: 0, y: 0, width: 0, height: PollFooterView.heightForOption)
         footerView.secondaryButtonContainerView.isHidden = true
 
-        if room.canModerate,
-           NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPollsDrafts, forAccountId: room.accountId) {
+        if draftsAvailable {
             footerView.secondaryButton.setTitle(NSLocalizedString("Save as draft", comment: ""), for: .normal)
             footerView.secondaryButton.setButtonStyle(style: .secondary)
             footerView.secondaryButton.setButtonAction(target: self, selector: #selector(createPollDraftButtonPressed))
