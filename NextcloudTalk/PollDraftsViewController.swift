@@ -15,7 +15,7 @@ class PollDraftsViewController: UITableViewController {
 
     var room: NCRoom
     var drafts: [NCPoll] = []
-    let activityIndicator = UIActivityIndicatorView(style: .medium)
+    var pollDraftsBackgroundView: PlaceholderView = PlaceholderView(for: .grouped)
 
     init(room: NCRoom) {
         self.room = room
@@ -43,14 +43,18 @@ class PollDraftsViewController: UITableViewController {
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
 
-        setupActivityIndicator()
+        setupBackgroundView()
         getPollDrafts()
     }
 
-    // MARK: - Activity Indicator
-    private func setupActivityIndicator() {
-        tableView.backgroundView = activityIndicator
-        activityIndicator.startAnimating()
+    // MARK: - Backgroud view
+    private func setupBackgroundView() {
+        pollDraftsBackgroundView.placeholderView.isHidden = true
+        pollDraftsBackgroundView.loadingView.startAnimating()
+        pollDraftsBackgroundView.placeholderTextView.text = NSLocalizedString("No poll drafts saved yet", comment: "")
+        pollDraftsBackgroundView.setImage(UIImage(systemName: "chart.bar"))
+
+        tableView.backgroundView = pollDraftsBackgroundView
     }
 
     // MARK: - Poll drafts
@@ -68,7 +72,8 @@ class PollDraftsViewController: UITableViewController {
                 self.tableView.reloadData()
             }
 
-            self.activityIndicator.stopAnimating()
+            self.pollDraftsBackgroundView.placeholderView.isHidden = drafts?.count ?? 0 > 0
+            self.pollDraftsBackgroundView.loadingView.stopAnimating()
         }
     }
 
