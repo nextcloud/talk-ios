@@ -174,7 +174,7 @@ import UIKit
 
         if draftsAvailable {
             footerView.secondaryButton.setTitle(NSLocalizedString("Save as draft", comment: ""), for: .normal)
-            footerView.secondaryButton.setButtonStyle(style: .secondary)
+            footerView.secondaryButton.setButtonStyle(style: .tertiary)
             footerView.secondaryButton.setButtonAction(target: self, selector: #selector(createPollDraftButtonPressed))
 
             footerView.frame.size.height += PollFooterView.heightForOption
