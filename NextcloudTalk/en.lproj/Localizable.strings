@@ -22,6 +22,9 @@
 /* No comment provided by engineer. */
 "%d minutes ago" = "%d minutes ago";
 
+/* Number of options in a poll */
+"%d options" = "%d options";
+
 /* Votes in a poll */
 "%d votes" = "%d votes";
 
@@ -248,6 +251,9 @@
 "An error occurred while clearing status message" = "An error occurred while clearing status message";
 
 /* No comment provided by engineer. */
+"An error occurred while creating poll draft" = "An error occurred while creating poll draft";
+
+/* No comment provided by engineer. */
 "An error occurred while creating the poll" = "An error occurred while creating the poll";
 
 /* No comment provided by engineer. */
@@ -363,6 +369,9 @@
 
 /* No comment provided by engineer. */
 "bot" = "bot";
+
+/* No comment provided by engineer. */
+"Browse poll drafts" = "Browse poll drafts";
 
 /* No comment provided by engineer. */
 "Cached files" = "Cached files";
@@ -639,6 +648,9 @@
 
 /* No comment provided by engineer. */
 "Create poll" = "Create poll";
+
+/* No comment provided by engineer. */
+"Creating poll draft failed" = "Creating poll draft failed";
 
 /* No comment provided by engineer. */
 "Creating poll failed" = "Creating poll failed";
@@ -1259,6 +1271,9 @@
 "No permission to join this conversation" = "No permission to join this conversation";
 
 /* No comment provided by engineer. */
+"No poll drafts saved yet" = "No poll drafts saved yet";
+
+/* No comment provided by engineer. */
 "No response from server" = "No response from server";
 
 /* No comment provided by engineer. */
@@ -1397,6 +1412,15 @@
 "Poll" = "Poll";
 
 /* No comment provided by engineer. */
+"Poll draft" = "Poll draft";
+
+/* No comment provided by engineer. */
+"Poll draft has been saved" = "Poll draft has been saved";
+
+/* No comment provided by engineer. */
+"Poll drafts" = "Poll drafts";
+
+/* No comment provided by engineer. */
 "Poll results" = "Poll results";
 
 /* No comment provided by engineer. */
@@ -1533,6 +1557,9 @@
 
 /* Save conversation description */
 "Save" = "Save";
+
+/* No comment provided by engineer. */
+"Save as draft" = "Save as draft";
 
 /* No comment provided by engineer. */
 "Save to 'Note to self'" = "Save to 'Note to self'";
