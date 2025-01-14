@@ -14,7 +14,8 @@ import UIKit
     }
 
     var poll: NCPoll?
-    var room: NCRoom?
+    var room: NCRoom
+    var draftsAvailable: Bool = false
     var isPollOpen: Bool = false
     var isOwnPoll: Bool = false
     var canModeratePoll: Bool = false
@@ -28,12 +29,17 @@ import UIKit
     var userSelectedOptions: [Int] = []
 
     required init?(coder aDecoder: NSCoder) {
+        self.room = NCRoom()
+
         super.init(coder: aDecoder)
         self.initPollView()
     }
 
-    required override init(style: UITableView.Style) {
-        super.init(style: style)
+    init(room: NCRoom) {
+        self.room = room
+        self.draftsAvailable = room.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPollsDrafts, forAccountId: room.accountId)
+
+        super.init(style: .insetGrouped)
         self.initPollView()
     }
 
@@ -58,6 +64,20 @@ import UIKit
         pollBackgroundView.loadingView.startAnimating()
         self.tableView.backgroundView = pollBackgroundView
 
+        if draftsAvailable {
+            let menuAction = UIAction(title: NSLocalizedString("Save as draft", comment: ""), image: UIImage(systemName: "doc")) { _ in
+                self.createPollDraft()
+            }
+
+            let menu = UIMenu(title: "", options: .displayInline, children: [menuAction])
+            let menuButton = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                menu: menu
+            )
+
+            navigationItem.rightBarButtonItem = menuButton
+        }
+
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
     }
@@ -79,7 +99,7 @@ import UIKit
         let activeAccountUserId = NCDatabaseManager.sharedInstance().activeAccount().userId
         self.isPollOpen = poll.status == .open
         self.isOwnPoll = poll.actorId == activeAccountUserId && poll.actorType == "users"
-        self.canModeratePoll = self.isOwnPoll || room?.isUserOwnerOrModerator ?? false
+        self.canModeratePoll = self.isOwnPoll || room.isUserOwnerOrModerator
         self.userVoted = !poll.votedSelf.isEmpty
         self.userVotedOptions = poll.votedSelf as? [Int] ?? []
         self.userSelectedOptions = self.userVotedOptions
@@ -131,7 +151,7 @@ import UIKit
     }
 
     func voteButtonPressed() {
-        guard let poll, let room else {return}
+        guard let poll else {return}
 
         footerView.primaryButton.isEnabled = false
         NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions,
@@ -192,7 +212,7 @@ import UIKit
     }
 
     func closePoll() {
-        guard let poll, let room else {return}
+        guard let poll else {return}
 
         NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
             if let responsePoll = responsePoll, error == nil {
@@ -200,6 +220,20 @@ import UIKit
                 self.editingVote = false
             }
             self.setupPollView()
+        }
+    }
+
+    func showDraftCreationSuccess() {
+        NotificationPresenter.shared().present(text: NSLocalizedString("Poll draft has been saved", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+    }
+
+    func createPollDraft() {
+        guard let poll else {return}
+
+        NCAPIController.sharedInstance().createPoll(withQuestion: poll.question, options: poll.options, resultMode: poll.resultMode, maxVotes: poll.maxVotes, inRoom: room.token, asDraft: true, for: room.account) { _, error, _ in
+            if error == nil {
+                self.showDraftCreationSuccess()
+            }
         }
     }
 
@@ -294,7 +328,7 @@ import UIKit
             return
         }
 
-        guard let poll, let room else {return}
+        guard let poll else {return}
 
         if showPollResults {
             if poll.details.isEmpty {return}

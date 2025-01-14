@@ -331,8 +331,7 @@ import QuickLook
     // MARK: - Polls
 
     func presentPoll(pollId: Int) {
-        let pollViewController = PollVotingView(style: .insetGrouped)
-        pollViewController.room = room
+        let pollViewController = PollVotingView(room: room)
         let navigationViewController = NCNavigationController(rootViewController: pollViewController)
         self.present(navigationViewController, animated: true, completion: nil)
 

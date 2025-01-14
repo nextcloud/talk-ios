@@ -3549,8 +3549,7 @@ import SwiftUI
     // MARK: - ObjectShareMessageTableViewCell
 
     public func cellWants(toOpenPoll poll: NCMessageParameter) {
-        let pollVC = PollVotingView(style: .insetGrouped)
-        pollVC.room = self.room
+        let pollVC = PollVotingView(room: room)
         self.presentWithNavigation(pollVC, animated: true)
 
         guard let pollId = Int(poll.parameterId) else { return }
