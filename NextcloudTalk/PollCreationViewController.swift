@@ -52,19 +52,7 @@ import UIKit
         self.creatingPollIndicatorView = UIActivityIndicatorView()
         self.creatingPollIndicatorView.color = NCAppBranding.themeTextColor()
 
-        if draftsAvailable {
-            let menuAction = UIAction(title: NSLocalizedString("Browse poll drafts", comment: ""), image: UIImage(systemName: "doc")) { _ in
-                self.presentPollDraftsView()
-            }
-
-            let menu = UIMenu(title: "", options: .displayInline, children: [menuAction])
-            let menuButton = UIBarButtonItem(
-                image: UIImage(systemName: "ellipsis.circle"),
-                menu: menu
-            )
-
-            navigationItem.rightBarButtonItem = menuButton
-        }
+        self.setMoreOptionsButton()
 
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
@@ -146,7 +134,25 @@ import UIKit
     func removePollCreationUI() {
         enablePollCreationButtons()
         creatingPollIndicatorView.stopAnimating()
-        navigationItem.rightBarButtonItem = nil
+        setMoreOptionsButton()
+    }
+
+    func setMoreOptionsButton() {
+        if draftsAvailable {
+            let menuAction = UIAction(title: NSLocalizedString("Browse poll drafts", comment: ""), image: UIImage(systemName: "doc")) { _ in
+                self.presentPollDraftsView()
+            }
+
+            let menu = UIMenu(title: "", options: .displayInline, children: [menuAction])
+            let menuButton = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                menu: menu
+            )
+
+            navigationItem.rightBarButtonItem = menuButton
+        } else {
+            navigationItem.rightBarButtonItem = nil
+        }
     }
 
     func enablePollCreationButtons() {

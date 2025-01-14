@@ -27,6 +27,7 @@ import UIKit
     let footerView = PollFooterView(frame: CGRect.zero)
     var pollBackgroundView: PlaceholderView = PlaceholderView(for: .grouped)
     var userSelectedOptions: [Int] = []
+    var activityIndicatorView = UIActivityIndicatorView()
 
     required init?(coder aDecoder: NSCoder) {
         self.room = NCRoom()
@@ -46,6 +47,11 @@ import UIKit
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.activityIndicatorView = UIActivityIndicatorView()
+        self.activityIndicatorView.color = NCAppBranding.themeTextColor()
+
+        self.setMoreOptionsButton()
+
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
@@ -63,20 +69,6 @@ import UIKit
         pollBackgroundView.placeholderView.isHidden = true
         pollBackgroundView.loadingView.startAnimating()
         self.tableView.backgroundView = pollBackgroundView
-
-        if draftsAvailable {
-            let menuAction = UIAction(title: NSLocalizedString("Save as draft", comment: ""), image: UIImage(systemName: "doc")) { _ in
-                self.createPollDraft()
-            }
-
-            let menu = UIMenu(title: "", options: .displayInline, children: [menuAction])
-            let menuButton = UIBarButtonItem(
-                image: UIImage(systemName: "ellipsis.circle"),
-                menu: menu
-            )
-
-            navigationItem.rightBarButtonItem = menuButton
-        }
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
@@ -223,17 +215,59 @@ import UIKit
         }
     }
 
+    func showActivityIndicatorView() {
+        activityIndicatorView.startAnimating()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: activityIndicatorView)
+    }
+
+    func removeActivityIndicatorView() {
+        activityIndicatorView.stopAnimating()
+        setMoreOptionsButton()
+    }
+
+    func setMoreOptionsButton() {
+        if draftsAvailable {
+            let menuAction = UIAction(title: NSLocalizedString("Save as draft", comment: ""), image: UIImage(systemName: "doc")) { _ in
+                self.createPollDraft()
+            }
+
+            let menu = UIMenu(title: "", options: .displayInline, children: [menuAction])
+            let menuButton = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                menu: menu
+            )
+
+            navigationItem.rightBarButtonItem = menuButton
+        } else {
+            navigationItem.rightBarButtonItem = nil
+        }
+    }
+
     func showDraftCreationSuccess() {
         NotificationPresenter.shared().present(text: NSLocalizedString("Poll draft has been saved", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+    }
+
+    func showDraftCreationError() {
+        let alert = UIAlertController(title: NSLocalizedString("Creating poll draft failed", comment: ""),
+                                      message: NSLocalizedString("An error occurred while creating poll draft", comment: ""),
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
+        self.present(alert, animated: true)
     }
 
     func createPollDraft() {
         guard let poll else {return}
 
+        showActivityIndicatorView()
+
         NCAPIController.sharedInstance().createPoll(withQuestion: poll.question, options: poll.options, resultMode: poll.resultMode, maxVotes: poll.maxVotes, inRoom: room.token, asDraft: true, for: room.account) { _, error, _ in
             if error == nil {
                 self.showDraftCreationSuccess()
+            } else {
+                self.showDraftCreationError()
             }
+
+            self.removeActivityIndicatorView()
         }
     }
 
