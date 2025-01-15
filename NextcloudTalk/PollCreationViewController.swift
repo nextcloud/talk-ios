@@ -139,11 +139,12 @@ import UIKit
 
     func setMoreOptionsButton() {
         if draftsAvailable {
-            let menuAction = UIAction(title: NSLocalizedString("Browse poll drafts", comment: ""), image: UIImage(systemName: "doc")) { _ in
+            let menuAction = UIAction(
+                title: NSLocalizedString("Browse poll drafts", comment: ""),
+                image: UIImage(systemName: "doc")) { _ in
                 self.presentPollDraftsView()
             }
-
-            let menu = UIMenu(title: "", options: .displayInline, children: [menuAction])
+            let menu = UIMenu(children: [menuAction])
             let menuButton = UIBarButtonItem(
                 image: UIImage(systemName: "ellipsis.circle"),
                 menu: menu
