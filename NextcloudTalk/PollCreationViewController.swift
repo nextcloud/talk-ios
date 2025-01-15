@@ -26,8 +26,8 @@ import UIKit
     var draftsAvailable: Bool = false
     var question: String = ""
     var options: [String] = ["", ""]
-    var privateSwitch = UISwitch()
-    var multipleSwitch = UISwitch()
+    var anonymousPollSwitch = UISwitch()
+    var multipleAnswersSwitch = UISwitch()
     var creatingPollIndicatorView = UIActivityIndicatorView()
     let footerView = PollFooterView(frame: CGRect.zero)
 
@@ -105,8 +105,8 @@ import UIKit
         // Assign poll draft values
         self.question = question
         self.options = options
-        self.privateSwitch.isOn = resultMode == .hidden
-        self.multipleSwitch.isOn = maxVotes == 0
+        self.anonymousPollSwitch.isOn = resultMode == .hidden
+        self.multipleAnswersSwitch.isOn = maxVotes == 0
         self.tableView.reloadData()
         self.checkIfPollIsReadyToCreate()
     }
@@ -194,8 +194,8 @@ import UIKit
     }
 
     func createPoll(asDraft: Bool) {
-        let resultMode: NCPollResultMode = privateSwitch.isOn ? .hidden : .public
-        let maxVotes: Int = multipleSwitch.isOn ? 0 : 1
+        let resultMode: NCPollResultMode = anonymousPollSwitch.isOn ? .hidden : .public
+        let maxVotes: Int = multipleAnswersSwitch.isOn ? 0 : 1
 
         showPollCreationUI()
 
@@ -318,13 +318,13 @@ import UIKit
         } else if indexPath.section == PollCreationSection.kPollCreationSectionSettings.rawValue {
             if indexPath.row == PollSetting.kPollSettingPrivate.rawValue {
                 let actionCell = tableView.dequeueOrCreateCell(withIdentifier: "PollSettingCellIdentifier")
-                actionCell.textLabel?.text = NSLocalizedString("Private poll", comment: "")
-                actionCell.accessoryView = privateSwitch
+                actionCell.textLabel?.text = NSLocalizedString("Anonymous poll", comment: "")
+                actionCell.accessoryView = anonymousPollSwitch
                 return actionCell
             } else if indexPath.row == PollSetting.kPollSettingMultiple.rawValue {
                 let actionCell = tableView.dequeueOrCreateCell(withIdentifier: "PollSettingCellIdentifier")
                 actionCell.textLabel?.text = NSLocalizedString("Multiple answers", comment: "")
-                actionCell.accessoryView = multipleSwitch
+                actionCell.accessoryView = multipleAnswersSwitch
                 return actionCell
             }
         }

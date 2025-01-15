@@ -305,6 +305,9 @@
 "and 1 other is typing…" = "and 1 other is typing…";
 
 /* No comment provided by engineer. */
+"Anonymous poll" = "Anonymous poll";
+
+/* No comment provided by engineer. */
 "Answer" = "Answer";
 
 /* No comment provided by engineer. */
@@ -1434,9 +1437,6 @@
 
 /* No comment provided by engineer. */
 "Private" = "Private";
-
-/* No comment provided by engineer. */
-"Private poll" = "Private poll";
 
 /* No comment provided by engineer. */
 "Profile" = "Profile";
