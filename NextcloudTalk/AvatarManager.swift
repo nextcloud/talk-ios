@@ -99,7 +99,7 @@ import SDWebImage
     }
 
     private func getBotsAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        if actorId == "changelog" {
+        if actorId == "changelog" || actorId == "sample" {
             let traitCollection = UITraitCollection(userInterfaceStyle: style)
             completionBlock(UIImage(named: "changelog-avatar", in: nil, compatibleWith: traitCollection))
         } else {
