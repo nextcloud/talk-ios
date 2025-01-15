@@ -65,10 +65,6 @@ extension XCTestCase {
         loginButton.tap()
 
         let webViewsQuery = app.webViews.webViews.webViews
-        let main = webViewsQuery.otherElements["main"]
-
-        // Wait for the webview to be available
-        XCTAssert(main.waitForExistence(timeout: TestConstants.timeoutLong))
 
         // Wait for the login button to be available and to get enabled/hittable
         let loginButtonWeb = webViewsQuery.buttons["Log in"]
@@ -78,10 +74,8 @@ extension XCTestCase {
 
         loginButtonWeb.tap()
 
-        XCTAssert(main.waitForExistence(timeout: TestConstants.timeoutLong))
-
-        let usernameTextField = main.descendants(matching: .textField).firstMatch
-        let passwordTextField = main.descendants(matching: .secureTextField).firstMatch
+        let usernameTextField = webViewsQuery.descendants(matching: .textField).firstMatch
+        let passwordTextField = webViewsQuery.descendants(matching: .secureTextField).firstMatch
 
         XCTAssert(usernameTextField.waitForExistence(timeout: TestConstants.timeoutLong))
         XCTAssert(passwordTextField.waitForExistence(timeout: TestConstants.timeoutLong))
