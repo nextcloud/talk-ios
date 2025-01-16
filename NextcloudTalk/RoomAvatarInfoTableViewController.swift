@@ -25,7 +25,7 @@ enum RoomAvatarInfoSection: Int {
     var headerView: AvatarEditView
     var rightBarButton = UIBarButtonItem()
     var modifyingView = UIActivityIndicatorView()
-    var descriptionMaxLentgh = 500
+    var descriptionMaxLength = 500
     var descriptionHeaderView = HeaderWithButton()
     var currentDescription = ""
 
@@ -77,7 +77,7 @@ enum RoomAvatarInfoSection: Int {
         self.modifyingView.color = NCAppBranding.themeTextColor()
 
         if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId) {
-            self.descriptionMaxLentgh = serverCapabilities.descriptionLength
+            self.descriptionMaxLength = serverCapabilities.descriptionLength
         }
     }
 
@@ -137,7 +137,7 @@ enum RoomAvatarInfoSection: Int {
             descriptionCell.textView.text = self.room.roomDescription
             descriptionCell.textView.isEditable = true
             descriptionCell.delegate = self
-            descriptionCell.characterLimit = descriptionMaxLentgh
+            descriptionCell.characterLimit = descriptionMaxLength
             descriptionCell.selectionStyle = .none
             return descriptionCell
         }
