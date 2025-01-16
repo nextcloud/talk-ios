@@ -108,7 +108,6 @@ typedef enum ModificationError {
     kModificationErrorListable,
     kModificationErrorReadOnly,
     kModificationErrorMessageExpiration,
-    kModificationErrorRoomDescription,
     kModificationErrorBanActor,
     kModificationErrorMentionPermissions,
     kModificationErrorArchive,
@@ -643,10 +642,6 @@ typedef enum FileAction {
 
         case kModificationErrorMessageExpiration:
             errorDescription = NSLocalizedString(@"Could not set message expiration time", nil);
-            break;
-
-        case kModificationErrorRoomDescription:
-            errorDescription = NSLocalizedString(@"Could not set conversation description", nil);
             break;
 
         case kModificationErrorBanActor:
