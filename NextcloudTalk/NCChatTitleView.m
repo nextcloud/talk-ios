@@ -153,8 +153,9 @@
     [attributedTitle addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:rangeTitle];
 
     if (self.showSubtitle && subtitle != nil) {
-        NSMutableAttributedString *attributedSubtitle = [[NSMutableAttributedString alloc] initWithString:subtitle];
-        NSRange rangeSubtitle = NSMakeRange(0, [subtitle length]);
+        NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:subtitle];
+        NSMutableAttributedString *attributedSubtitle = [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:attributedString];
+        NSRange rangeSubtitle = NSMakeRange(0, [attributedSubtitle length]);
         [attributedSubtitle addAttribute:NSFontAttributeName value:self.subtitleFont range:rangeSubtitle];
         [attributedSubtitle addAttribute:NSForegroundColorAttributeName value:self.titleTextColor range:rangeSubtitle];
         [attributedSubtitle addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:rangeSubtitle];
