@@ -25,7 +25,7 @@ struct ExpandedVoiceMessageRecordingView: View {
 
     var body: some View {
         VStack {
-            Text("\(timeFormatted)")
+            Text(verbatim: "\(timeFormatted)")
                 .font(.largeTitle)
                 .bold()
                 .padding(.trailing, 10)
