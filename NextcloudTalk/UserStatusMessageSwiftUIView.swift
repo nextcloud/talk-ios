@@ -67,9 +67,11 @@ struct UserStatusMessageSwiftUIView: View {
                                 HStack(spacing: 20) {
                                     Text(verbatim: status.icon ?? " ")
                                     VStack(alignment: .leading) {
-                                        Text(status.message ?? "")
+                                        Text(verbatim: status.message ?? "")
                                             .foregroundColor(.primary)
-                                        Text(getPredefinedClearStatusText(clearAt: status.clearAt, clearAtTime: status.clearAtTime, clearAtType: status.clearAtType))
+
+                                        let displayedString = getPredefinedClearStatusText(clearAt: status.clearAt, clearAtTime: status.clearAtTime, clearAtType: status.clearAtType)
+                                        Text(verbatim: displayedString)
                                             .font(.subheadline)
                                             .foregroundColor(.secondary)
                                             .lineLimit(1)

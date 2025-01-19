@@ -5,6 +5,27 @@
 
 import UIKit
 import SDWebImage
+import SwiftUI
+
+struct AvatarImageViewWrapper: UIViewRepresentable {
+    @Binding var actorId: String?
+    @Binding var actorType: String?
+
+    func makeUIView(context: Context) -> AvatarImageView {
+        let imageView = AvatarImageView(frame: .zero)
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        return imageView
+    }
+
+    func updateUIView(_ uiView: AvatarImageView, context: Context) {
+        uiView.cancelCurrentRequest()
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        uiView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: nil, withRoomToken: nil, using: activeAccount)
+    }
+}
 
 @objcMembers class AvatarImageView: UIImageView, AvatarProtocol {
 

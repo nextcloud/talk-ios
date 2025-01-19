@@ -344,6 +344,41 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+// TODO: Can be combined with `getContactsForAccount` at some point
+- (NSURLSessionDataTask *)searchUsersForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(SearchUsersCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@%@/core/autocomplete/get", account.server, kNCOCSAPIVersion];
+    NSDictionary *parameters = @{@"format" : @"json",
+                                 @"search" : search ? search : @"",
+                                 @"limit" : @"20",
+    };
+
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSArray *responseContacts = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:responseContacts.count];
+        for (NSDictionary *user in responseContacts) {
+            NCUser *ncUser = [NCUser userWithDictionary:user];
+            if (ncUser && !([ncUser.userId isEqualToString:account.userId] && [ncUser.source isEqualToString:kParticipantTypeUser])) {
+                [users addObject:ncUser];
+            }
+        }
+        NSMutableDictionary *indexedContacts = [NCUser indexedUsersFromUsersArray:users];
+        NSArray *indexes = [[indexedContacts allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+        if (block) {
+            block(indexes, indexedContacts, users, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, nil, nil, error);
+        }
+    }];
+
+    return task;
+}
+
 #pragma mark - Rooms Controller
 
 - (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block

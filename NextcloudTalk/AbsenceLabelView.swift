@@ -8,6 +8,12 @@ import SwiftUI
 struct AbsenceLabelView: View {
     @Binding var absenceStatus: UserAbsence?
 
+    var replacement: AttributedString {
+        var result = AttributedString("Replacement")
+        result.font = .preferredFont(for: .body, weight: .bold)
+        return result
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             if let absenceStatus, absenceStatus.isValid {
@@ -19,10 +25,18 @@ struct AbsenceLabelView: View {
                         .foregroundColor(.primary)
                 }
 
+                if absenceStatus.hasReplacementSet {
+                    // Make genstrings happy
+                    let displayedString = NSLocalizedString("Replacement", comment: "Replacement in case of out of office") + ": " + absenceStatus.replacementName
+                    Text(verbatim: displayedString)
+                        .foregroundStyle(.primary)
+                }
+
                 Text(absenceStatus.messageOrStatus)
                     .foregroundColor(.secondary)
+                    .padding(.top, 8)
             } else {
-                Text(NSLocalizedString("Configure your next absence period", comment: ""))
+                Text("Configure your next absence period")
             }
         }
     }

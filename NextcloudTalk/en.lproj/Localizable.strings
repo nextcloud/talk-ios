@@ -260,6 +260,9 @@
 "An error occurred while deleting the message" = "An error occurred while deleting the message";
 
 /* No comment provided by engineer. */
+"An error occurred while disabling absence" = "An error occurred while disabling absence";
+
+/* No comment provided by engineer. */
 "An error occurred while opening the file %@" = "An error occurred while opening the file %@";
 
 /* No comment provided by engineer. */
@@ -273,6 +276,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while setting \(formattedPhoneNumber) as phone number" = "An error occurred while setting \(formattedPhoneNumber) as phone number";
+
+/* No comment provided by engineer. */
+"An error occurred while setting absence" = "An error occurred while setting absence";
 
 /* No comment provided by engineer. */
 "An error occurred while setting description" = "An error occurred while setting description";
@@ -587,6 +593,9 @@
 "Could not delete conversation" = "Could not delete conversation";
 
 /* No comment provided by engineer. */
+"Could not disable absence" = "Could not disable absence";
+
+/* No comment provided by engineer. */
 "Could not get available languages" = "Could not get available languages";
 
 /* No comment provided by engineer. */
@@ -615,6 +624,9 @@
 
 /* No comment provided by engineer. */
 "Could not send the message" = "Could not send the message";
+
+/* No comment provided by engineer. */
+"Could not set absence" = "Could not set absence";
 
 /* No comment provided by engineer. */
 "Could not set conversation name" = "Could not set conversation name";
@@ -695,6 +707,9 @@
 "Description cannot be longer than 500 characters" = "Description cannot be longer than 500 characters";
 
 /* No comment provided by engineer. */
+"Details" = "Details";
+
+/* No comment provided by engineer. */
 "detected" = "detected";
 
 /* No comment provided by engineer. */
@@ -702,6 +717,9 @@
 
 /* No comment provided by engineer. */
 "Diagnostics" = "Diagnostics";
+
+/* No comment provided by engineer. */
+"Disable absence" = "Disable absence";
 
 /* No comment provided by engineer. */
 "Disable blur" = "Disable blur";
@@ -1282,6 +1300,9 @@
 /* No comment provided by engineer. */
 "No shared items" = "No shared items";
 
+/* No comment provided by engineer. */
+"No user found" = "No user found";
+
 /* '{Microphone, Camera, ...} access was not requested' */
 "Not requested" = "Not requested";
 
@@ -1522,6 +1543,9 @@
 /* Replacement in case of out of office */
 "Replacement" = "Replacement";
 
+/* Replacement in case of out of office */
+"Replacement (optional)" = "Replacement (optional)";
+
 /* No comment provided by engineer. */
 "Reply" = "Reply";
 
@@ -1566,6 +1590,9 @@
 
 /* No comment provided by engineer. */
 "Search for places" = "Search for places";
+
+/* Replacement in case of out of office */
+"Select a replacement" = "Select a replacement";
 
 /* No comment provided by engineer. */
 "Select language" = "Select language";

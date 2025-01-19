@@ -122,6 +122,8 @@
 		1F54991C2D3468BE00E9AA9E /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991B2D3468BE00E9AA9E /* DateExtension.swift */; };
 		1F54991E2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991D2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift */; };
 		1F5499202D35B07700E9AA9E /* ButtonContainerSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991F2D35B07700E9AA9E /* ButtonContainerSwiftUI.swift */; };
+		1F549B662D3995C600E9AA9E /* UserSelectionSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F549B652D3995C600E9AA9E /* UserSelectionSwiftUIView.swift */; };
+		1F549B692D3A9AA500E9AA9E /* DebouncedOnChange in Frameworks */ = {isa = PBXBuildFile; productRef = 1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */; };
 		1F5683CF2BA7980C0023E151 /* FilePreviewImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */; };
 		1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */; };
 		1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */; };
@@ -739,6 +741,7 @@
 		1F54991B2D3468BE00E9AA9E /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		1F54991D2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusAbsenceSwiftUIView.swift; sourceTree = "<group>"; };
 		1F54991F2D35B07700E9AA9E /* ButtonContainerSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonContainerSwiftUI.swift; sourceTree = "<group>"; };
+		1F549B652D3995C600E9AA9E /* UserSelectionSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSelectionSwiftUIView.swift; sourceTree = "<group>"; };
 		1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreviewImageView.swift; sourceTree = "<group>"; };
 		1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
 		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
@@ -1333,6 +1336,7 @@
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
 				1F759C2C2B63CB93000534AB /* Realm in Frameworks */,
 				1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */,
+				1F549B692D3A9AA500E9AA9E /* DebouncedOnChange in Frameworks */,
 				1FC4B3332CC057DD00D28138 /* MBProgressHUD in Frameworks */,
 				1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */,
 				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
@@ -1885,6 +1889,7 @@
 				80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */,
 				80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */,
 				1F54991D2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift */,
+				1F549B652D3995C600E9AA9E /* UserSelectionSwiftUIView.swift */,
 				1F54991F2D35B07700E9AA9E /* ButtonContainerSwiftUI.swift */,
 				1FBEA1172D31B41C00C0968C /* AbsenceLabelView.swift */,
 				DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */,
@@ -2318,6 +2323,7 @@
 				1FC4B3242CC054BC00D28138 /* UICKeyChainStore */,
 				1FC4B3322CC057DD00D28138 /* MBProgressHUD */,
 				1FC4B3352CC0586A00D28138 /* libPhoneNumber */,
+				1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -2485,6 +2491,7 @@
 				1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */,
 				1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */,
 				1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */,
+				1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -2950,6 +2957,7 @@
 				1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
+				1F549B662D3995C600E9AA9E /* UserSelectionSwiftUIView.swift in Sources */,
 				1FBEA1132D31853800C0968C /* CurrentUserAbsence.swift in Sources */,
 				1F54991C2D3468BE00E9AA9E /* DateExtension.swift in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
@@ -4294,6 +4302,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Tunous/DebouncedOnChange";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
@@ -4455,6 +4471,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
 			productName = Dynamic;
+		};
+		1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */;
+			productName = DebouncedOnChange;
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -25,6 +25,15 @@ public struct UserAbsence {
         !message.isEmpty && !status.isEmpty
     }
 
+    public var hasReplacementSet: Bool {
+        guard let replacementUserId else { return false }
+        return !replacementUserId.isEmpty
+    }
+
+    public var replacementName: String {
+        replacementUserDisplayName ?? replacementUserId ?? ""
+    }
+
     init(dictionary: [String: Any]) {
         self.id = dictionary["id"] as? Int ?? 0
         self.userId = dictionary["userId"] as? String

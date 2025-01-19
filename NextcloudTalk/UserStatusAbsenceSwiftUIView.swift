@@ -29,6 +29,35 @@ struct UserStatusAbsenceSwiftUIView: View {
                     .tint(Color(NCAppBranding.themeColor()))
                 }
 
+                if replacementSupported {
+                    Section(header: Text("Replacement (optional)", comment: "Replacement in case of out of office")) {
+                        NavigationLink(destination: {
+                            UserSelectionSwiftUIView(selectedUserId: $absenceStatus.replacementUserId, selectedUserDisplayName: $absenceStatus.replacementUserDisplayName)
+                        }, label: {
+                            HStack {
+                                if absenceStatus.hasReplacementSet {
+                                    AvatarImageViewWrapper(actorId: $absenceStatus.replacementUserId, actorType: Binding.constant("users"))
+                                        .frame(width: 28, height: 28)
+                                        .clipShape(Capsule())
+
+                                    Text(absenceStatus.replacementName)
+                                } else {
+                                    Text("Select a replacement", comment: "Replacement in case of out of office")
+                                        .foregroundStyle(.primary)
+                                }
+                            }
+                        })
+
+                        if absenceStatus.hasReplacementSet {
+                            Button("Reset replacement") {
+                                absenceStatus.replacementUserId = nil
+                                absenceStatus.replacementUserDisplayName = nil
+                            }
+                            .tint(.primary)
+                        }
+                    }
+                }
+
                 Section(header: Text("Short absence status")) {
                     TextField("Status", text: $absenceStatus.status)
                 }
@@ -37,6 +66,7 @@ struct UserStatusAbsenceSwiftUIView: View {
                     if #available(iOS 16.0, *) {
                         TextField("Message", text: $absenceStatus.message, axis: .vertical)
                     } else {
+                        // Work around for auto-expanding TextField in iOS < 16
                         ZStack {
                             TextEditor(text: $absenceStatus.message)
                             Text(absenceStatus.message).opacity(0).padding(.all, 8)
@@ -57,7 +87,6 @@ struct UserStatusAbsenceSwiftUIView: View {
                                 disabled: Binding.constant(!absenceStatus.isValid))
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationBarTitle(Text("Absence"), displayMode: .inline)
         .navigationBarHidden(false)

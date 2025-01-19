@@ -118,11 +118,7 @@ struct UserStatusSwiftUIView: View {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCAPIController.sharedInstance().getUserAbsence(forAccountId: activeAccount.accountId, forUserId: activeAccount.userId) { absenceData in
             guard let absenceData else {
-                // Only set default value, when there's non to not break the preview
-                if absenceStatus == nil {
-                    absenceStatus = UserAbsence(dictionary: [:])
-                }
-
+                absenceStatus = UserAbsence(dictionary: [:])
                 return
             }
 
@@ -138,6 +134,7 @@ extension UserStatusSwiftUIView {
     }
 }
 
+/*
 struct UserStatusSwiftUIViewPreview: PreviewProvider {
     static var previews: some View {
         let absenceData: [String: Any] = [
@@ -156,6 +153,7 @@ struct UserStatusSwiftUIViewPreview: PreviewProvider {
         return UserStatusSwiftUIView(userStatus: userStatus, absenceStatus: absence)
     }
 }
+*/
 
 @objc class UserStatusSwiftUIViewFactory: NSObject {
 
