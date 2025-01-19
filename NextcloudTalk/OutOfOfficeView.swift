@@ -105,7 +105,9 @@ import SwiftyAttributes
             dates.isHidden = true
         }
 
-        if let replacementUserId = absenceData.replacementUserId, let replacementUserDisplayname = absenceData.replacementUserDisplayName {
+        if let replacementUserId = absenceData.replacementUserId, let replacementUserDisplayname = absenceData.replacementUserDisplayName,
+           !replacementUserId.isEmpty, !replacementUserDisplayname.isEmpty {
+
             let replacementString = NSLocalizedString("Replacement", comment: "Replacement in case of out of office").withFont(.preferredFont(forTextStyle: .body))
             let separatorString = ": ".withFont(.preferredFont(forTextStyle: .body))
             let usernameString = replacementUserDisplayname.withFont(.preferredFont(for: .body, weight: .bold))
