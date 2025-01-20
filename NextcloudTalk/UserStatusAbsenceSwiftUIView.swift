@@ -21,13 +21,12 @@ struct UserStatusAbsenceSwiftUIView: View {
                     DatePicker(selection: $absenceStatus.firstDay, displayedComponents: .date) {
                         Text("First day")
                     }
-                    .tint(Color(NCAppBranding.themeColor()))
 
                     DatePicker(selection: $absenceStatus.lastDay, in: absenceStatus.firstDay..., displayedComponents: .date) {
                         Text("Last day (inclusive)")
                     }
-                    .tint(Color(NCAppBranding.themeColor()))
                 }
+                .tint(Color(NCAppBranding.themeColor()))
 
                 if replacementSupported {
                     Section(header: Text("Replacement (optional)", comment: "Replacement in case of out of office")) {

@@ -14,7 +14,6 @@ struct UserSelectionSwiftUIView: View {
     @Binding var selectedUserId: String?
     @Binding var selectedUserDisplayName: String?
 
-    @State private var debouncer = Debouncer()
     @State private var searchQuery = ""
     @State private var searchTask: URLSessionDataTask?
     @State private var isSearching: Bool = false
@@ -25,18 +24,18 @@ struct UserSelectionSwiftUIView: View {
     var searchInput: some View {
         TextField("Search for a user", text: $searchQuery)
             .autocorrectionDisabled()
-            .padding(.vertical, 10)
-            .padding(.horizontal)
-            .background(Color(.secondarySystemGroupedBackground))
-            .tint(.secondary)
-            .cornerRadius(10)
-            .padding(20)
-            .padding(.vertical)
             .focused($textFieldIsFocused)
+            .onChange(of: searchQuery, debounceTime: 0.5) { _ in
+                self.searchUsers()
+            }
     }
 
     var userList: some View {
         List {
+            Section {
+                searchInput
+            }
+
             ForEach(userData, id: \.self) { user in
                 Button(action: {
                     self.selectedUserId = user.userId
@@ -71,30 +70,12 @@ struct UserSelectionSwiftUIView: View {
 
     var body: some View {
         VStack {
-            if #available(iOS 17.0, *) {
-                searchInput
-                    .onChange(of: searchQuery, debounceTime: .seconds(0.5), debouncer: $debouncer) {
-                        self.searchUsers()
-                    }
-                    .onKeyPress(.return) {
-                        debouncer.cancel()
-                        self.searchUsers()
-                        return .handled
-                    }
-
+            if #available(iOS 16.0, *) {
                 userList
                     .scrollContentBackground(.hidden)
-                    .contentMargins(.top, 0)
-
             } else {
-                searchInput
-                    .onChange(of: searchQuery, debounceTime: 0.5, debouncer: $debouncer) { _ in
-                        self.searchUsers()
-                    }
-
                 userList
             }
-            Spacer()
         }
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationBarTitle(Text("Absence"), displayMode: .inline)
