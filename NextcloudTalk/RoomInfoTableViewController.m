@@ -1911,8 +1911,13 @@ typedef enum FileAction {
             if (!cell) {
                 cell = [[TextViewTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:TextViewTableViewCell.identifier];
             }
-            
-            cell.textView.text = _room.roomDescription;
+
+            NSMutableAttributedString *attributedDescription = [[NSMutableAttributedString alloc] initWithString:_room.roomDescription];
+            NSRange range = NSMakeRange(0, [attributedDescription length]);
+            [attributedDescription addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleBody] range:range];
+            [attributedDescription addAttribute:NSForegroundColorAttributeName value:[UIColor labelColor] range:range];
+
+            cell.textView.attributedText = [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:attributedDescription];
             cell.selectionStyle = UITableViewCellSelectionStyleDefault;
             return cell;
         }
