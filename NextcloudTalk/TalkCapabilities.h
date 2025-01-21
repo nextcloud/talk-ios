@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL federationOnlyTrustedServers;
 @property NSInteger maxGifSize;
 @property NSInteger summaryThreshold;
+@property NSInteger descriptionLength;
 
 @end
 

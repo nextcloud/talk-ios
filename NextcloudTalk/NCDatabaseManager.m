@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 72;
+uint64_t const kTalkDatabaseSchemaVersion           = 73;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -403,14 +403,20 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.callReactions = (RLMArray<RLMString> *)@[];
     }
 
-    // Conversation capabilities
-    NSDictionary *conversationConfig = [talkConfig objectForKey:@"conversation"];
-    NSArray *conversationConfigKeys = [conversationConfig allKeys];
+    // Conversations capabilities
+    NSDictionary *conversationsConfig = [talkConfig objectForKey:@"conversations"];
+    NSArray *conversationsConfigKeys = [conversationsConfig allKeys];
 
-    if ([conversationConfigKeys containsObject:@"can-create"]) {
-        capabilities.canCreate = [[conversationConfig objectForKey:@"can-create"] boolValue];
+    if ([conversationsConfigKeys containsObject:@"can-create"]) {
+        capabilities.canCreate = [[conversationsConfig objectForKey:@"can-create"] boolValue];
     } else {
         capabilities.canCreate = YES;
+    }
+
+    if ([conversationsConfigKeys containsObject:@"description-length"]) {
+        capabilities.descriptionLength = [[conversationsConfig objectForKey:@"description-length"] integerValue];
+    } else {
+        capabilities.descriptionLength = 500;
     }
 
     // Chat capabilities
