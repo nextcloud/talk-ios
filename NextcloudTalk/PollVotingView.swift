@@ -14,7 +14,8 @@ import UIKit
     }
 
     var poll: NCPoll?
-    var room: NCRoom?
+    var room: NCRoom
+    var draftsAvailable: Bool = false
     var isPollOpen: Bool = false
     var isOwnPoll: Bool = false
     var canModeratePoll: Bool = false
@@ -26,19 +27,30 @@ import UIKit
     let footerView = PollFooterView(frame: CGRect.zero)
     var pollBackgroundView: PlaceholderView = PlaceholderView(for: .grouped)
     var userSelectedOptions: [Int] = []
+    var activityIndicatorView = UIActivityIndicatorView()
 
     required init?(coder aDecoder: NSCoder) {
+        self.room = NCRoom()
+
         super.init(coder: aDecoder)
         self.initPollView()
     }
 
-    required override init(style: UITableView.Style) {
-        super.init(style: style)
+    init(room: NCRoom) {
+        self.room = room
+        self.draftsAvailable = room.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPollsDrafts, forAccountId: room.accountId)
+
+        super.init(style: .insetGrouped)
         self.initPollView()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.activityIndicatorView = UIActivityIndicatorView()
+        self.activityIndicatorView.color = NCAppBranding.themeTextColor()
+
+        self.setMoreOptionsButton()
 
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
@@ -79,7 +91,7 @@ import UIKit
         let activeAccountUserId = NCDatabaseManager.sharedInstance().activeAccount().userId
         self.isPollOpen = poll.status == .open
         self.isOwnPoll = poll.actorId == activeAccountUserId && poll.actorType == "users"
-        self.canModeratePoll = self.isOwnPoll || room?.isUserOwnerOrModerator ?? false
+        self.canModeratePoll = self.isOwnPoll || room.isUserOwnerOrModerator
         self.userVoted = !poll.votedSelf.isEmpty
         self.userVotedOptions = poll.votedSelf as? [Int] ?? []
         self.userSelectedOptions = self.userVotedOptions
@@ -131,7 +143,7 @@ import UIKit
     }
 
     func voteButtonPressed() {
-        guard let poll, let room else {return}
+        guard let poll else {return}
 
         footerView.primaryButton.isEnabled = false
         NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions,
@@ -192,7 +204,7 @@ import UIKit
     }
 
     func closePoll() {
-        guard let poll, let room else {return}
+        guard let poll else {return}
 
         NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, for: NCDatabaseManager.sharedInstance().activeAccount()) { responsePoll, error, _ in
             if let responsePoll = responsePoll, error == nil {
@@ -200,6 +212,63 @@ import UIKit
                 self.editingVote = false
             }
             self.setupPollView()
+        }
+    }
+
+    func showActivityIndicatorView() {
+        activityIndicatorView.startAnimating()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: activityIndicatorView)
+    }
+
+    func removeActivityIndicatorView() {
+        activityIndicatorView.stopAnimating()
+        setMoreOptionsButton()
+    }
+
+    func setMoreOptionsButton() {
+        if draftsAvailable {
+            let menuAction = UIAction(
+                title: NSLocalizedString("Save as draft", comment: ""),
+                image: UIImage(systemName: "doc")) { _ in
+                self.createPollDraft()
+            }
+            let menu = UIMenu(children: [menuAction])
+            let menuButton = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                menu: menu
+            )
+
+            navigationItem.rightBarButtonItem = menuButton
+        } else {
+            navigationItem.rightBarButtonItem = nil
+        }
+    }
+
+    func showDraftCreationSuccess() {
+        NotificationPresenter.shared().present(text: NSLocalizedString("Poll draft has been saved", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+    }
+
+    func showDraftCreationError() {
+        let alert = UIAlertController(title: NSLocalizedString("Creating poll draft failed", comment: ""),
+                                      message: NSLocalizedString("An error occurred while creating poll draft", comment: ""),
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+
+    func createPollDraft() {
+        guard let poll else {return}
+
+        showActivityIndicatorView()
+
+        NCAPIController.sharedInstance().createPoll(withQuestion: poll.question, options: poll.options, resultMode: poll.resultMode, maxVotes: poll.maxVotes, inRoom: room.token, asDraft: true, for: room.account) { _, error, _ in
+            if error == nil {
+                self.showDraftCreationSuccess()
+            } else {
+                self.showDraftCreationError()
+            }
+
+            self.removeActivityIndicatorView()
         }
     }
 
@@ -294,7 +363,7 @@ import UIKit
             return
         }
 
-        guard let poll, let room else {return}
+        guard let poll else {return}
 
         if showPollResults {
             if poll.details.isEmpty {return}

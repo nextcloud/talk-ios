@@ -481,6 +481,7 @@
 		2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7A12402017872600864818 /* AddParticipantsTableViewController.m */; };
 		2C7A12432017872600864818 /* AddParticipantsTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */; };
 		2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
+		2C8001D92D3529AF00DDBADC /* PollDraftsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8001D82D3529AF00DDBADC /* PollDraftsViewController.swift */; };
 		2C84BCCC29EEB9C6001BA6DA /* CallReactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */; };
 		2C84BCCE29EEDCE8001BA6DA /* CallReactionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */; };
 		2C8A2BC9221F094F00DE6D2C /* DirectoryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8A2BC8221F094F00DE6D2C /* DirectoryTableViewController.m */; };
@@ -1009,6 +1010,7 @@
 		2C7A12402017872600864818 /* AddParticipantsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddParticipantsTableViewController.m; sourceTree = "<group>"; };
 		2C7A12412017872600864818 /* AddParticipantsTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddParticipantsTableViewController.xib; sourceTree = "<group>"; };
 		2C7F47AB20289B9600081CC7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2C8001D82D3529AF00DDBADC /* PollDraftsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollDraftsViewController.swift; sourceTree = "<group>"; };
 		2C84BCCB29EEB9C6001BA6DA /* CallReactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallReactionView.swift; sourceTree = "<group>"; };
 		2C84BCCD29EEDCE8001BA6DA /* CallReactionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CallReactionView.xib; sourceTree = "<group>"; };
 		2C8A2BC7221F094F00DE6D2C /* DirectoryTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirectoryTableViewController.h; sourceTree = "<group>"; };
@@ -1408,6 +1410,7 @@
 				2C5BFBF92891598900E75118 /* PollResultTableViewCell.swift */,
 				2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */,
 				2C5BFBEE288A947800E75118 /* PollVotingView.swift */,
+				2C8001D82D3529AF00DDBADC /* PollDraftsViewController.swift */,
 			);
 			name = Polls;
 			sourceTree = "<group>";
@@ -2904,6 +2907,7 @@
 				2CB6ACCA26401D5200D3D641 /* GeoLocationRichObject.m in Sources */,
 				2C78EF9C1F826B22008AFA74 /* NCCallController.m in Sources */,
 				1F1B50442B9095D100B0F2F4 /* FederatedCapabilities.m in Sources */,
+				2C8001D92D3529AF00DDBADC /* PollDraftsViewController.swift in Sources */,
 				2C5BFBF628902E0300E75118 /* PollFooterView.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				1FF4DA7E2C0237D000C1B952 /* DirectoryTableViewCell.swift in Sources */,

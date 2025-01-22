@@ -120,5 +120,22 @@
             <string>You have %ld pending invitations</string>
         </dict>
     </dict>
+
+    <key>%d options</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@options@</string>
+        <key>options</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d option</string>
+            <key>other</key>
+            <string>%d options</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

@@ -5,11 +5,7 @@
 
 import UIKit
 
-@objc protocol PollCreationViewControllerDelegate {
-    func pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: PollCreationViewController, question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int)
-}
-
-@objcMembers class PollCreationViewController: UITableViewController, UITextFieldDelegate {
+@objcMembers class PollCreationViewController: UITableViewController, UITextFieldDelegate, PollDraftsViewControllerDelegate {
 
     enum PollCreationSection: Int {
         case kPollCreationSectionQuestion = 0
@@ -26,25 +22,37 @@ import UIKit
 
     let kQuestionTextFieldTag = 9999
 
-    public weak var pollCreationDelegate: PollCreationViewControllerDelegate?
+    var room: NCRoom
+    var draftsAvailable: Bool = false
     var question: String = ""
     var options: [String] = ["", ""]
-    var privateSwitch = UISwitch()
-    var multipleSwitch = UISwitch()
+    var anonymousPollSwitch = UISwitch()
+    var multipleAnswersSwitch = UISwitch()
+    var creatingPollIndicatorView = UIActivityIndicatorView()
     let footerView = PollFooterView(frame: CGRect.zero)
 
     required init?(coder aDecoder: NSCoder) {
+        self.room = NCRoom()
+
         super.init(coder: aDecoder)
         self.initPollCreationView()
     }
 
-    required override init(style: UITableView.Style) {
-        super.init(style: style)
+    init(room: NCRoom) {
+        self.room = room
+        self.draftsAvailable = room.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPollsDrafts, forAccountId: room.accountId)
+
+        super.init(style: .insetGrouped)
         self.initPollCreationView()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.creatingPollIndicatorView = UIActivityIndicatorView()
+        self.creatingPollIndicatorView.color = NCAppBranding.themeTextColor()
+
+        self.setMoreOptionsButton()
 
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
@@ -83,35 +91,131 @@ import UIKit
         self.dismiss(animated: true, completion: nil)
     }
 
+    func presentPollDraftsView() {
+        let pollDraftsVC = PollDraftsViewController(room: room)
+        pollDraftsVC.delegate = self
+        let navController = UINavigationController(rootViewController: pollDraftsVC)
+        present(navController, animated: true, completion: nil)
+    }
+
+    func didSelectPollDraft(question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int) {
+        // End editing for any textfield
+        self.view.endEditing(true)
+
+        // Assign poll draft values
+        self.question = question
+        self.options = options
+        self.anonymousPollSwitch.isOn = resultMode == .hidden
+        self.multipleAnswersSwitch.isOn = maxVotes == 0
+        self.tableView.reloadData()
+        self.checkIfPollIsReadyToCreate()
+    }
+
     func showCreationError() {
         let alert = UIAlertController(title: NSLocalizedString("Creating poll failed", comment: ""),
                                       message: NSLocalizedString("An error occurred while creating the poll", comment: ""),
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
         self.present(alert, animated: true)
+        removePollCreationUI()
+    }
+
+    func showDraftCreationSuccess() {
+        NotificationPresenter.shared().present(text: NSLocalizedString("Poll draft has been saved", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+        removePollCreationUI()
+    }
+
+    func showPollCreationUI() {
+        disablePollCreationButtons()
+        creatingPollIndicatorView.startAnimating()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: creatingPollIndicatorView)
+    }
+
+    func removePollCreationUI() {
+        enablePollCreationButtons()
+        creatingPollIndicatorView.stopAnimating()
+        setMoreOptionsButton()
+    }
+
+    func setMoreOptionsButton() {
+        if draftsAvailable {
+            let menuAction = UIAction(
+                title: NSLocalizedString("Browse poll drafts", comment: ""),
+                image: UIImage(systemName: "doc")) { _ in
+                self.presentPollDraftsView()
+            }
+            let menu = UIMenu(children: [menuAction])
+            let menuButton = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                menu: menu
+            )
+
+            navigationItem.rightBarButtonItem = menuButton
+        } else {
+            navigationItem.rightBarButtonItem = nil
+        }
+    }
+
+    func enablePollCreationButtons() {
         footerView.primaryButton.setButtonEnabled(enabled: true)
+        footerView.secondaryButton.setButtonEnabled(enabled: true)
+    }
+
+    func disablePollCreationButtons() {
+        footerView.primaryButton.setButtonEnabled(enabled: false)
+        footerView.secondaryButton.setButtonEnabled(enabled: false)
     }
 
     func pollFooterView() -> UIView {
         footerView.primaryButton.setTitle(NSLocalizedString("Create poll", comment: ""), for: .normal)
         footerView.primaryButton.setButtonAction(target: self, selector: #selector(createPollButtonPressed))
+
         footerView.frame = CGRect(x: 0, y: 0, width: 0, height: PollFooterView.heightForOption)
         footerView.secondaryButtonContainerView.isHidden = true
+
+        if draftsAvailable {
+            footerView.secondaryButton.setTitle(NSLocalizedString("Save as draft", comment: ""), for: .normal)
+            footerView.secondaryButton.setButtonStyle(style: .tertiary)
+            footerView.secondaryButton.setButtonAction(target: self, selector: #selector(createPollDraftButtonPressed))
+
+            footerView.frame.size.height += PollFooterView.heightForOption
+            footerView.secondaryButtonContainerView.isHidden = false
+        }
+
         checkIfPollIsReadyToCreate()
         return footerView
     }
 
     func createPollButtonPressed() {
-        let resultMode: NCPollResultMode = privateSwitch.isOn ? .hidden : .public
-        let maxVotes: Int = multipleSwitch.isOn ? 0 : 1
-        footerView.primaryButton.setButtonEnabled(enabled: false)
-        self.pollCreationDelegate?.pollCreationViewControllerWantsToCreatePoll(pollCreationViewController: self, question: question, options: options, resultMode: resultMode, maxVotes: maxVotes)
+        createPoll(asDraft: false)
+    }
+
+    func createPollDraftButtonPressed() {
+        createPoll(asDraft: true)
+    }
+
+    func createPoll(asDraft: Bool) {
+        let resultMode: NCPollResultMode = anonymousPollSwitch.isOn ? .hidden : .public
+        let maxVotes: Int = multipleAnswersSwitch.isOn ? 0 : 1
+
+        showPollCreationUI()
+
+        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: room.token, asDraft: asDraft, for: room.account) { _, error, _ in
+            if error != nil {
+                self.showCreationError()
+            } else if asDraft {
+                self.showDraftCreationSuccess()
+            } else {
+                self.close()
+            }
+        }
     }
 
     func checkIfPollIsReadyToCreate() {
-        footerView.primaryButton.setButtonEnabled(enabled: false)
+        disablePollCreationButtons()
+
         if !question.isEmpty && options.filter({!$0.isEmpty}).count >= 2 {
-            footerView.primaryButton.setButtonEnabled(enabled: true)
+            enablePollCreationButtons()
         }
     }
 
@@ -215,13 +319,13 @@ import UIKit
         } else if indexPath.section == PollCreationSection.kPollCreationSectionSettings.rawValue {
             if indexPath.row == PollSetting.kPollSettingPrivate.rawValue {
                 let actionCell = tableView.dequeueOrCreateCell(withIdentifier: "PollSettingCellIdentifier")
-                actionCell.textLabel?.text = NSLocalizedString("Private poll", comment: "")
-                actionCell.accessoryView = privateSwitch
+                actionCell.textLabel?.text = NSLocalizedString("Anonymous poll", comment: "")
+                actionCell.accessoryView = anonymousPollSwitch
                 return actionCell
             } else if indexPath.row == PollSetting.kPollSettingMultiple.rawValue {
                 let actionCell = tableView.dequeueOrCreateCell(withIdentifier: "PollSettingCellIdentifier")
                 actionCell.textLabel?.text = NSLocalizedString("Multiple answers", comment: "")
-                actionCell.accessoryView = multipleSwitch
+                actionCell.accessoryView = multipleAnswersSwitch
                 return actionCell
             }
         }
