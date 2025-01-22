@@ -43,6 +43,12 @@ class PollDraftsViewController: UITableViewController {
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
 
+        let closeButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+        closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
+            self.dismiss(animated: true)
+        })
+        self.navigationItem.rightBarButtonItems = [closeButton]
+
         setupBackgroundView()
         getPollDrafts()
     }
