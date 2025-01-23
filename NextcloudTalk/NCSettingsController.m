@@ -188,9 +188,11 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 {
     NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
     [self logoutAccountWithAccountId:accountId withCompletionBlock:^(NSError *error) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsList];
-        [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
-        [[NCConnectionController sharedInstance] checkAppState];
+        if (!error) {
+            [[NCUserInterfaceController sharedInstance] presentConversationsList];
+            [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
+            [[NCConnectionController sharedInstance] checkAppState];
+        }
     }];
 }
 
@@ -417,6 +419,15 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 - (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block
 {
     TalkAccount *removingAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+
+    if (!removingAccount) {
+        if (block) {
+            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            block(error);
+        }
+        return;
+    }
+
     if (removingAccount.deviceIdentifier) {
         [[NCAPIController sharedInstance] unsubscribeAccount:removingAccount fromNextcloudServerWithCompletionBlock:^(NSError *error) {
             if (!error) {
