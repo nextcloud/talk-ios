@@ -148,5 +148,11 @@
             <string>Máte %ld nevyřízené pozvánky</string>
         </dict>
     </dict>
+
+    <key>%d options</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@options@</string>
+    </dict>
 </dict>
 </plist>

@@ -120,5 +120,11 @@
             <string>Du har %ld ventende invitasjoner</string>
         </dict>
     </dict>
+
+    <key>%d options</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@options@</string>
+    </dict>
 </dict>
 </plist>

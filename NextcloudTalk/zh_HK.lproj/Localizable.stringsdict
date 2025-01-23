@@ -106,5 +106,11 @@
             <string>您有 %ld 個待定的邀請</string>
         </dict>
     </dict>
+
+    <key>%d options</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@options@</string>
+    </dict>
 </dict>
 </plist>

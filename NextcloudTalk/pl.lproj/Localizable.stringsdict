@@ -148,5 +148,11 @@
             <string>Masz %ld oczekujących zaproszeń</string>
         </dict>
     </dict>
+
+    <key>%d options</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@options@</string>
+    </dict>
 </dict>
 </plist>
