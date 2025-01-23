@@ -440,31 +440,4 @@ import Foundation
         completionBlock?()
     }
 
-    // MARK: - Federation invitations
-
-    public func checkUpdateNeededForPendingFederationInvitations() {
-        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV1) else { return }
-
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let tenMinutesAgo = Int(Date().timeIntervalSince1970 - (10 * 60))
-
-        if activeAccount.lastPendingFederationInvitationFetch == 0 || activeAccount.lastPendingFederationInvitationFetch < tenMinutesAgo {
-            self.updatePendingFederationInvitations()
-        }
-    }
-
-    public func updatePendingFederationInvitations() {
-        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV1) else { return }
-
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().getFederationInvitations(for: activeAccount.accountId) { invitations in
-            guard let invitations else { return }
-            let pendingInvitations = invitations.filter { $0.invitationState != .accepted }
-
-            if activeAccount.pendingFederationInvitations != pendingInvitations.count {
-                NCDatabaseManager.sharedInstance().setPendingFederationInvitationForAccountId(activeAccount.accountId, with: pendingInvitations.count)
-            }
-        }
-    }
 }

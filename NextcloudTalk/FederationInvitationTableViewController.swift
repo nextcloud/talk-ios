@@ -3,6 +3,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+extension Notification.Name {
+    static let FederationInvitationDidAcceptNotification = Notification.Name(rawValue: "FederationInvitationDidAccept")
+}
+
+@objc extension NSNotification {
+    public static let FederationInvitationDidAcceptNotification = Notification.Name.FederationInvitationDidAcceptNotification
+}
+
 class FederationInvitationTableViewController: UITableViewController, FederationInvitationCellDelegate {
 
     private let federationInvitationCellIdentifier = "FederationInvitationCell"
@@ -120,6 +128,8 @@ class FederationInvitationTableViewController: UITableViewController, Federation
         NCAPIController.sharedInstance().acceptFederationInvitation(for: invitation.accountId, with: invitation.invitationId) { [weak self] success in
             if !success {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Failed to accept invitation", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            } else {
+                NotificationCenter.default.post(name: .FederationInvitationDidAcceptNotification, object: self, userInfo: nil)
             }
 
             self?.getData()

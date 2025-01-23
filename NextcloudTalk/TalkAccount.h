@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *lastReceivedModifiedSince;
 @property NSInteger lastNotificationId;
 @property NSString *lastNotificationETag;
-@property NSInteger lastPendingFederationInvitationFetch;
 @property NSInteger pendingFederationInvitations;
 @property NSString *frequentlyUsedEmojisJSONString;
 
