@@ -197,7 +197,6 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                 [NCUtils log:[NSString stringWithFormat:@"Did join call in NCCallController for token %@", self.room.token]];
 
                 [self.delegate callControllerDidJoinCall:self];
-                [self getPeersForCall];
                 [self startMonitoringMicrophoneAudioLevel];
 
                 if (self->_externalSignalingController) {
@@ -205,6 +204,8 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                         [self createPublisherPeerConnection];
                     }
                 } else {
+                    // Only with internal signaling we need to query the API for peers in call
+                    [self getPeersForCall];
                     [self->_signalingController startPullingSignalingMessages];
                 }
 
@@ -820,7 +821,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     }];
 }
 
-#pragma mark - Call participants
+#pragma mark - Call participants (internal signaling)
 
 - (void)getPeersForCall
 {
@@ -1506,7 +1507,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     // Calculate sessions that join the call
     [newSessions removeObjectsInArray:oldSessions];
     
-    if (newSessions.count > 0) {
+    if (newSessions.count > 0 && !_externalSignalingController) {
         [self getPeersForCall];
     }
     
