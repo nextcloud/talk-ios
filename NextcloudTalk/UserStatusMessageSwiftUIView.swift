@@ -28,15 +28,6 @@ struct UserStatusMessageSwiftUIView: View {
     @State private var errorAlertTitle = ""
     @State private var errorAlertMessage = ""
 
-    let clearAtOptions = [
-        NSLocalizedString("Don't clear", comment: ""),
-        NSLocalizedString("30 minutes", comment: ""),
-        NSLocalizedString("1 hour", comment: ""),
-        NSLocalizedString("4 hours", comment: ""),
-        NSLocalizedString("Today", comment: ""),
-        NSLocalizedString("This week", comment: "")
-    ]
-
     var body: some View {
         VStack(alignment: .center) {
             if isLoading {
@@ -74,11 +65,13 @@ struct UserStatusMessageSwiftUIView: View {
                                 setClearAt(clearAt: selectedClearAtString)
                             }) {
                                 HStack(spacing: 20) {
-                                    Text(status.icon ?? " ")
+                                    Text(verbatim: status.icon ?? " ")
                                     VStack(alignment: .leading) {
-                                        Text(status.message ?? "")
+                                        Text(verbatim: status.message ?? "")
                                             .foregroundColor(.primary)
-                                        Text(getPredefinedClearStatusText(clearAt: status.clearAt, clearAtTime: status.clearAtTime, clearAtType: status.clearAtType))
+
+                                        let displayedString = getPredefinedClearStatusText(clearAt: status.clearAt, clearAtTime: status.clearAtTime, clearAtType: status.clearAtType)
+                                        Text(verbatim: displayedString)
                                             .font(.subheadline)
                                             .foregroundColor(.secondary)
                                             .lineLimit(1)
@@ -103,33 +96,16 @@ struct UserStatusMessageSwiftUIView: View {
                         }
                     }
                 }
-                if !UIDevice.current.orientation.isLandscape {
-                    VStack(spacing: 10) {
-                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message", comment: ""),
-                                        action: clearActiveUserStatus,
-                                        style: .tertiary,
-                                        disabled: Binding.constant(!userHasStatusSet))
-                        NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
-                                        action: setActiveUserStatus,
-                                        style: .primary,
-                                        disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
-                        .padding(.bottom, 16)
-                    }
-                } else {
-                    HStack(spacing: 10) {
-                        Spacer()
-                        NCButtonSwiftUI(title: NSLocalizedString("Clear status message", comment: ""),
-                                        action: clearActiveUserStatus,
-                                        style: .tertiary,
-                                        disabled: Binding.constant(!userHasStatusSet))
-                        .padding(.bottom, 16)
-                        NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
-                                        action: setActiveUserStatus,
-                                        style: .primary,
-                                        disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
-                        .padding(.bottom, 16)
-                        Spacer()
-                    }
+
+                ButtonContainerSwiftUI {
+                    NCButtonSwiftUI(title: NSLocalizedString("Clear status message", comment: ""),
+                                    action: clearActiveUserStatus,
+                                    style: .tertiary,
+                                    disabled: Binding.constant(!userHasStatusSet))
+                    NCButtonSwiftUI(title: NSLocalizedString("Set status message", comment: ""),
+                                    action: setActiveUserStatus,
+                                    style: .primary,
+                                    disabled: Binding.constant(selectedMessage.isEmpty && selectedIcon.isEmpty))
                 }
             }
         }

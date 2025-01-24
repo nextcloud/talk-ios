@@ -5,28 +5,72 @@
 
 import Foundation
 
-@objcMembers public class UserAbsence: NSObject {
+public struct UserAbsence {
 
     // See: https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-out-of-office-api.html
-    public var id: String?
+    public var id: Int = 0
     public var userId: String?
-    public var startDate: Int?
-    public var endDate: Int?
-    public var shortMessage: String?
-    public var message: String?
+    public var firstDay = Date()
+    public var lastDay = Date()
+    public var status: String
+    public var message: String
     public var replacementUserId: String?
     public var replacementUserDisplayName: String?
 
-    init(dictionary: [String: Any]) {
-        super.init()
+    public var messageOrStatus: String {
+        !message.isEmpty ? message : status
+    }
 
-        self.id = dictionary["id"] as? String
+    public var isValid: Bool {
+        !message.isEmpty && !status.isEmpty
+    }
+
+    public var hasReplacementSet: Bool {
+        guard let replacementUserId else { return false }
+        return !replacementUserId.isEmpty
+    }
+
+    public var replacementName: String {
+        replacementUserDisplayName ?? replacementUserId ?? ""
+    }
+
+    init(dictionary: [String: Any]) {
+        self.id = dictionary["id"] as? Int ?? 0
         self.userId = dictionary["userId"] as? String
-        self.startDate = dictionary["startDate"] as? Int
-        self.endDate = dictionary["endDate"] as? Int
-        self.shortMessage = dictionary["status"] as? String
-        self.message = dictionary["message"] as? String
+        self.status = dictionary["status"] as? String ?? ""
+        self.message = dictionary["message"] as? String ?? ""
         self.replacementUserId = dictionary["replacementUserId"] as? String
         self.replacementUserDisplayName = dictionary["replacementUserDisplayName"] as? String
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        if let firstDayString = dictionary["firstDay"] as? String, let date = dateFormatter.date(from: firstDayString) {
+            self.firstDay = date
+        }
+
+        if let lastDayString = dictionary["lastDay"] as? String, let date = dateFormatter.date(from: lastDayString) {
+            self.lastDay = date
+        }
+
+    }
+
+    public func asDictionary() -> [String: Any]? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        var result: [String: Any] = [
+            "firstDay": dateFormatter.string(from: firstDay),
+            "lastDay": dateFormatter.string(from: lastDay),
+            "status": status,
+            "message": message
+        ]
+
+        if let replacementUserId, let replacementUserDisplayName {
+            result["replacementUserId"] = replacementUserId
+            result["replacementUserDisplayName"] = replacementUserDisplayName
+        }
+
+        return result
     }
 }

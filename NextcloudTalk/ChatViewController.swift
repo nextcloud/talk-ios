@@ -456,12 +456,14 @@ import SwiftyAttributes
         // Only check once, and only for 1:1 on DND right now
         guard self.hasCheckedOutOfOfficeStatus == false,
               self.room.type == .oneToOne,
-              self.room.status == kUserStatusDND
+              self.room.status == kUserStatusDND,
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
+              serverCapabilities.absenceSupported
         else { return }
 
         self.hasCheckedOutOfOfficeStatus = true
 
-        NCAPIController.sharedInstance().getUserAbsence(forAccountId: self.room.accountId, forUserId: self.room.name) { absenceData in
+        NCAPIController.sharedInstance().getCurrentUserAbsence(forAccountId: self.room.accountId, forUserId: self.room.name) { absenceData in
             guard let absenceData else { return }
 
             let oooView = OutOfOfficeView()

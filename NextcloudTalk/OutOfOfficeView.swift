@@ -72,7 +72,7 @@ import SwiftyAttributes
         return true
     }
 
-    public func setupAbsence(withData absenceData: UserAbsence, inRoom room: NCRoom) {
+    public func setupAbsence(withData absenceData: CurrentUserAbsence, inRoom room: NCRoom) {
         translatesAutoresizingMaskIntoConstraints = false
         title.text = String.localizedStringWithFormat(NSLocalizedString("%@ is out of office", comment: "'%@' is the name of a user"), room.displayName)
 
@@ -105,7 +105,9 @@ import SwiftyAttributes
             dates.isHidden = true
         }
 
-        if let replacementUserId = absenceData.replacementUserId, let replacementUserDisplayname = absenceData.replacementUserDisplayName {
+        if let replacementUserId = absenceData.replacementUserId, let replacementUserDisplayname = absenceData.replacementUserDisplayName,
+           !replacementUserId.isEmpty, !replacementUserDisplayname.isEmpty {
+
             let replacementString = NSLocalizedString("Replacement", comment: "Replacement in case of out of office").withFont(.preferredFont(forTextStyle: .body))
             let separatorString = ": ".withFont(.preferredFont(forTextStyle: .body))
             let usernameString = replacementUserDisplayname.withFont(.preferredFont(for: .body, weight: .bold))

@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL guestsAppEnabled;
 @property BOOL referenceApiSupported;
 @property BOOL modRewriteWorking;
+@property BOOL absenceSupported;
+@property BOOL absenceReplacementSupported;
 @property RLMArray<RLMString> *notificationsCapabilities;
 
 @end

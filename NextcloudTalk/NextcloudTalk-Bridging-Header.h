@@ -83,5 +83,6 @@
 #import "NCCallController.h"
 #import "CallConstants.h"
 #import "AvatarBackgroundImageView.h"
+#import "NCUser.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

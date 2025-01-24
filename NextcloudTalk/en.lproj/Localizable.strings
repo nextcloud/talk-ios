@@ -65,6 +65,9 @@
 "About" = "About";
 
 /* No comment provided by engineer. */
+"Absence" = "Absence";
+
+/* No comment provided by engineer. */
 "Accept" = "Accept";
 
 /* No comment provided by engineer. */
@@ -260,6 +263,9 @@
 "An error occurred while deleting the message" = "An error occurred while deleting the message";
 
 /* No comment provided by engineer. */
+"An error occurred while disabling absence" = "An error occurred while disabling absence";
+
+/* No comment provided by engineer. */
 "An error occurred while opening the file %@" = "An error occurred while opening the file %@";
 
 /* No comment provided by engineer. */
@@ -273,6 +279,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while setting \(formattedPhoneNumber) as phone number" = "An error occurred while setting \(formattedPhoneNumber) as phone number";
+
+/* No comment provided by engineer. */
+"An error occurred while setting absence" = "An error occurred while setting absence";
 
 /* No comment provided by engineer. */
 "An error occurred while setting description" = "An error occurred while setting description";
@@ -482,6 +491,9 @@
 "Configuration" = "Configuration";
 
 /* No comment provided by engineer. */
+"Configure your next absence period" = "Configure your next absence period";
+
+/* No comment provided by engineer. */
 "Confirm and hide warning" = "Confirm and hide warning";
 
 /* No comment provided by engineer. */
@@ -590,6 +602,9 @@
 "Could not delete conversation" = "Could not delete conversation";
 
 /* No comment provided by engineer. */
+"Could not disable absence" = "Could not disable absence";
+
+/* No comment provided by engineer. */
 "Could not get available languages" = "Could not get available languages";
 
 /* No comment provided by engineer. */
@@ -618,6 +633,9 @@
 
 /* No comment provided by engineer. */
 "Could not send the message" = "Could not send the message";
+
+/* No comment provided by engineer. */
+"Could not set absence" = "Could not set absence";
 
 /* No comment provided by engineer. */
 "Could not set conversation name" = "Could not set conversation name";
@@ -701,6 +719,9 @@
 "Description cannot be longer than 500 characters" = "Description cannot be longer than 500 characters";
 
 /* No comment provided by engineer. */
+"Details" = "Details";
+
+/* No comment provided by engineer. */
 "detected" = "detected";
 
 /* No comment provided by engineer. */
@@ -708,6 +729,9 @@
 
 /* No comment provided by engineer. */
 "Diagnostics" = "Diagnostics";
+
+/* No comment provided by engineer. */
+"Disable absence" = "Disable absence";
 
 /* No comment provided by engineer. */
 "Disable blur" = "Disable blur";
@@ -926,6 +950,9 @@
 "Files" = "Files";
 
 /* No comment provided by engineer. */
+"First day" = "First day";
+
+/* No comment provided by engineer. */
 "For password reset and notifications" = "For password reset and notifications";
 
 /* No comment provided by engineer. */
@@ -1048,6 +1075,9 @@
 /* No comment provided by engineer. */
 "Join open conversations" = "Join open conversations";
 
+/* No comment provided by engineer. */
+"Last day (inclusive)" = "Last day (inclusive)";
+
 /* Last subscription to the push notification server */
 "Last subscription" = "Last subscription";
 
@@ -1113,6 +1143,9 @@
 
 /* No comment provided by engineer. */
 "Logged out" = "Logged out";
+
+/* No comment provided by engineer. */
+"Long absence message" = "Long absence message";
 
 /* No comment provided by engineer. */
 "Lower hand" = "Lower hand";
@@ -1281,6 +1314,9 @@
 
 /* No comment provided by engineer. */
 "No shared items" = "No shared items";
+
+/* No comment provided by engineer. */
+"No user found" = "No user found";
 
 /* '{Microphone, Camera, ...} access was not requested' */
 "Not requested" = "Not requested";
@@ -1528,6 +1564,9 @@
 /* Replacement in case of out of office */
 "Replacement" = "Replacement";
 
+/* Replacement in case of out of office */
+"Replacement (optional)" = "Replacement (optional)";
+
 /* No comment provided by engineer. */
 "Reply" = "Reply";
 
@@ -1575,6 +1614,9 @@
 
 /* No comment provided by engineer. */
 "Search for places" = "Search for places";
+
+/* Replacement in case of out of office */
+"Select a replacement" = "Select a replacement";
 
 /* No comment provided by engineer. */
 "Select language" = "Select language";
@@ -1665,6 +1707,9 @@
 
 /* No comment provided by engineer. */
 "Sharing to a federated conversation is not supported." = "Sharing to a federated conversation is not supported.";
+
+/* No comment provided by engineer. */
+"Short absence status" = "Short absence status";
 
 /* No comment provided by engineer. */
 "Show more…" = "Show more…";

@@ -202,14 +202,6 @@ import AVFoundation
         return dateFormatter.string(from: date)
     }
 
-    public static func getDate(fromDate date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .none
-
-        return dateFormatter.string(from: date)
-    }
-
     public static func relativeTimeFromDate(date: Date) -> String {
         let todayDate = Date()
         var ti = date.timeIntervalSince(todayDate)

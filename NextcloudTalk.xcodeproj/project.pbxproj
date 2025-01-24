@@ -119,6 +119,11 @@
 		1F4DD3EC2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */; };
 		1F53819129195FA4003DA6B7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
+		1F54991C2D3468BE00E9AA9E /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991B2D3468BE00E9AA9E /* DateExtension.swift */; };
+		1F54991E2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991D2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift */; };
+		1F5499202D35B07700E9AA9E /* ButtonContainerSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991F2D35B07700E9AA9E /* ButtonContainerSwiftUI.swift */; };
+		1F549B662D3995C600E9AA9E /* UserSelectionSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F549B652D3995C600E9AA9E /* UserSelectionSwiftUIView.swift */; };
+		1F549B692D3A9AA500E9AA9E /* DebouncedOnChange in Frameworks */ = {isa = PBXBuildFile; productRef = 1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */; };
 		1F5683CF2BA7980C0023E151 /* FilePreviewImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */; };
 		1F5813F828EB23EF00318FC3 /* NCSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */; };
 		1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */; };
@@ -259,6 +264,11 @@
 		1FB7B99C2BF0DF360093CE98 /* BannedActorCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */; };
 		1FBC3BE52B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */; };
 		1FBC3BE92B61BD09003909E0 /* TestBaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */; };
+		1FBEA1132D31853800C0968C /* CurrentUserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBEA1122D31853800C0968C /* CurrentUserAbsence.swift */; };
+		1FBEA1142D31858B00C0968C /* CurrentUserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBEA1122D31853800C0968C /* CurrentUserAbsence.swift */; };
+		1FBEA1152D31858B00C0968C /* CurrentUserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBEA1122D31853800C0968C /* CurrentUserAbsence.swift */; };
+		1FBEA1162D31858B00C0968C /* CurrentUserAbsence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBEA1122D31853800C0968C /* CurrentUserAbsence.swift */; };
+		1FBEA1182D31B42F00C0968C /* AbsenceLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBEA1172D31B41C00C0968C /* AbsenceLabelView.swift */; };
 		1FC18FC02CB7EA300058F621 /* AVRoutePickerViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC18FBF2CB7EA300058F621 /* AVRoutePickerViewExtension.swift */; };
 		1FC18FC22CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC18FC12CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift */; };
 		1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */; };
@@ -729,6 +739,10 @@
 		1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDefaultView.swift; sourceTree = "<group>"; };
 		1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDefaultView.xib; sourceTree = "<group>"; };
 		1F4DD3EA2571C688007DC98E /* EmojiUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiUtils.swift; sourceTree = "<group>"; };
+		1F54991B2D3468BE00E9AA9E /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
+		1F54991D2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatusAbsenceSwiftUIView.swift; sourceTree = "<group>"; };
+		1F54991F2D35B07700E9AA9E /* ButtonContainerSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonContainerSwiftUI.swift; sourceTree = "<group>"; };
+		1F549B652D3995C600E9AA9E /* UserSelectionSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSelectionSwiftUIView.swift; sourceTree = "<group>"; };
 		1F5683CE2BA7980C0023E151 /* FilePreviewImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreviewImageView.swift; sourceTree = "<group>"; };
 		1F5813F628EB23EF00318FC3 /* NCSplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewController.swift; sourceTree = "<group>"; };
 		1F5813F728EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCSplitViewPlaceholderViewController.swift; sourceTree = "<group>"; };
@@ -802,6 +816,8 @@
 		1FB7B99B2BF0DF360093CE98 /* BannedActorCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BannedActorCell.xib; sourceTree = "<group>"; };
 		1FBC3BE42B61ACD5003909E0 /* UnitBaseChatViewControllerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitBaseChatViewControllerTest.swift; sourceTree = "<group>"; };
 		1FBC3BE82B61BD09003909E0 /* TestBaseRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBaseRealm.swift; sourceTree = "<group>"; };
+		1FBEA1122D31853800C0968C /* CurrentUserAbsence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentUserAbsence.swift; sourceTree = "<group>"; };
+		1FBEA1172D31B41C00C0968C /* AbsenceLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AbsenceLabelView.swift; sourceTree = "<group>"; };
 		1FC18FBF2CB7EA300058F621 /* AVRoutePickerViewExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVRoutePickerViewExtension.swift; sourceTree = "<group>"; };
 		1FC18FC12CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RPSystemBroadcastPickerViewExtension.swift; sourceTree = "<group>"; };
 		1FC4B3412CCE670400D28138 /* OcsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OcsError.swift; sourceTree = "<group>"; };
@@ -1322,6 +1338,7 @@
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
 				1F759C2C2B63CB93000534AB /* Realm in Frameworks */,
 				1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */,
+				1F549B692D3A9AA500E9AA9E /* DebouncedOnChange in Frameworks */,
 				1FC4B3332CC057DD00D28138 /* MBProgressHUD in Frameworks */,
 				1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */,
 				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
@@ -1568,6 +1585,7 @@
 				2CC316692CC26186007CBE16 /* UITableViewExtension.swift */,
 				1FC18FBF2CB7EA300058F621 /* AVRoutePickerViewExtension.swift */,
 				1FC18FC12CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift */,
+				1F54991B2D3468BE00E9AA9E /* DateExtension.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -1873,6 +1891,10 @@
 				807E30752A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift */,
 				80832B752A822E5100195A97 /* UserStatusSwiftUIView.swift */,
 				80832B772A823D0700195A97 /* UserStatusMessageSwiftUIView.swift */,
+				1F54991D2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift */,
+				1F549B652D3995C600E9AA9E /* UserSelectionSwiftUIView.swift */,
+				1F54991F2D35B07700E9AA9E /* ButtonContainerSwiftUI.swift */,
+				1FBEA1172D31B41C00C0968C /* AbsenceLabelView.swift */,
 				DA8801A127A2DA00009EF248 /* UserProfileTableViewController.swift */,
 				DA66582A27B6992F00B46B11 /* UserProfileTableViewController+AvatarSetup.swift */,
 				DA66582C27B6A73800B46B11 /* UserProfileTableViewController+DelegateMethods.swift */,
@@ -1882,6 +1904,7 @@
 				2C4446EB265D25BA00DF1DBC /* NCKeyChainController.m */,
 				2C444701265D641300DF1DBC /* NCUserDefaults.h */,
 				2C444702265D641300DF1DBC /* NCUserDefaults.m */,
+				1FBEA1122D31853800C0968C /* CurrentUserAbsence.swift */,
 				1F205C4F2CEF903000AAA673 /* UserAbsence.swift */,
 			);
 			name = Settings;
@@ -2303,6 +2326,7 @@
 				1FC4B3242CC054BC00D28138 /* UICKeyChainStore */,
 				1FC4B3322CC057DD00D28138 /* MBProgressHUD */,
 				1FC4B3352CC0586A00D28138 /* libPhoneNumber */,
+				1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -2470,6 +2494,7 @@
 				1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */,
 				1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */,
 				1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */,
+				1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -2812,6 +2837,7 @@
 			files = (
 				F644A2E12CE28CA500E2ED81 /* NCChatFileStatus.swift in Sources */,
 				1F1B504B2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
+				1FBEA1162D31858B00C0968C /* CurrentUserAbsence.swift in Sources */,
 				1F77A5F22AB9A436007B6037 /* EmojiUtils.swift in Sources */,
 				1F77A5FA2AB9A4DF007B6037 /* NCMessageLocationParameter.m in Sources */,
 				1F77A6022AB9A532007B6037 /* CCCertificate.m in Sources */,
@@ -2935,6 +2961,9 @@
 				1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
+				1F549B662D3995C600E9AA9E /* UserSelectionSwiftUIView.swift in Sources */,
+				1FBEA1132D31853800C0968C /* CurrentUserAbsence.swift in Sources */,
+				1F54991C2D3468BE00E9AA9E /* DateExtension.swift in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
 				2C57CD8428C2255000B22E03 /* PollCreationViewController.swift in Sources */,
 				1F77A6272ABA0CD9007B6037 /* NCScreensharingController.m in Sources */,
@@ -2998,6 +3027,7 @@
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
 				1F66B72C29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m in Sources */,
 				1FC18FC22CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift in Sources */,
+				1F5499202D35B07700E9AA9E /* ButtonContainerSwiftUI.swift in Sources */,
 				1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */,
 				1FCE3D552C9C189D009C68A9 /* NCChatFileControllerWrapper.swift in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
@@ -3062,6 +3092,7 @@
 				DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift in Sources */,
 				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
 				2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */,
+				1FBEA1182D31B42F00C0968C /* AbsenceLabelView.swift in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
 				2C84BCCC29EEB9C6001BA6DA /* CallReactionView.swift in Sources */,
 				2C43BA7621309A1000B3068A /* NCMessageParameter.m in Sources */,
@@ -3102,6 +3133,7 @@
 				2CF338E12CED388B0029CACC /* AvatarView.swift in Sources */,
 				1FDCC3D429EBF6E700DEB39B /* AvatarImageView.swift in Sources */,
 				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,
+				1F54991E2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift in Sources */,
 				1FDFC94D2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */,
 				80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */,
@@ -3183,6 +3215,7 @@
 				1F1DF8452C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2CC1FF4A2818395F009F7288 /* NCDeckCardParameter.m in Sources */,
 				1FF136112BFB4F8C006A6101 /* NCRoom.swift in Sources */,
+				1FBEA1152D31858B00C0968C /* CurrentUserAbsence.swift in Sources */,
 				2C4446DA265814D100DF1DBC /* ServerCapabilities.m in Sources */,
 				1FF4DA932C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
 				2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */,
@@ -3252,6 +3285,7 @@
 				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
 				2CC1FF492818395E009F7288 /* NCDeckCardParameter.m in Sources */,
 				2CC001C224A37AC500A20167 /* NCPushNotification.m in Sources */,
+				1FBEA1142D31858B00C0968C /* CurrentUserAbsence.swift in Sources */,
 				1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				1FF4DAAB2C0A114900C1B952 /* OcsResponse.swift in Sources */,
 				1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */,
@@ -4272,6 +4306,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Tunous/DebouncedOnChange";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
@@ -4433,6 +4475,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */;
 			productName = Dynamic;
+		};
+		1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */;
+			productName = DebouncedOnChange;
 		};
 		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
 			isa = XCSwiftPackageProductDependency;
