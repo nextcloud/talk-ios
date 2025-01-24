@@ -88,10 +88,9 @@ jobs:
         # Test with stable23 as well to find regressions in older versions
         configs: [
           { talkbranch: 'stable23', serverbranch: 'stable23', phpversion: '8.0' },
-          { talkbranch: 'stable27', serverbranch: 'stable27', phpversion: '8.2' },
-          { talkbranch: 'stable28', serverbranch: 'stable28', phpversion: '8.3' },
           { talkbranch: 'stable29', serverbranch: 'stable29', phpversion: '8.3' },
           { talkbranch: 'stable30', serverbranch: 'stable30', phpversion: '8.3' },
+          { talkbranch: 'stable31', serverbranch: 'stable31', phpversion: '8.3' },
           { talkbranch: 'main', serverbranch: 'master', phpversion: '8.3' }
         ]
 
