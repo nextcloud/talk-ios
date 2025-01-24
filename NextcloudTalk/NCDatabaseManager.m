@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 74;
+uint64_t const kTalkDatabaseSchemaVersion           = 75;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -806,18 +806,6 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     [[NSNotificationCenter defaultCenter] postNotificationName:NCDatabaseManagerPendingFederationInvitationsDidChange
                                                         object:self
                                                       userInfo:nil];
-}
-
-- (void)updateLastFederationInvitationUpdateForAccountId:(NSString *)accountId withTimestamp:(NSInteger)timestamp
-{
-    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateLastFederationInvitationUpdateForAccountId" expirationHandler:nil];
-    RLMRealm *realm = [RLMRealm defaultRealm];
-    [realm beginWriteTransaction];
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
-    account.lastPendingFederationInvitationFetch = timestamp;
-    [realm commitWriteTransaction];
-    [bgTask stopBackgroundTask];
 }
 
 @end

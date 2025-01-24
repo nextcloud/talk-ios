@@ -148,7 +148,6 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (void)increasePendingFederationInvitationForAccountId:(NSString *)accountId;
 - (void)decreasePendingFederationInvitationForAccountId:(NSString *)accountId;
 - (void)setPendingFederationInvitationForAccountId:(NSString *)accountId with:(NSInteger)numberOfPendingInvitations;
-- (void)updateLastFederationInvitationUpdateForAccountId:(NSString *)accountId withTimestamp:(NSInteger)timestamp;
 
 @end
 

@@ -172,6 +172,7 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomCreated:) name:NCRoomCreatedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activeAccountDidChange:) name:NCSettingsControllerDidChangeActiveAccountNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingInvitationsDidUpdate:) name:NCDatabaseManagerPendingFederationInvitationsDidChange object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inviationDidAccept:) name:NSNotification.FederationInvitationDidAcceptNotification object:nil];
 }
 
 - (void)setupNavigationBar
@@ -329,7 +330,12 @@ typedef enum RoomsSections {
 
 - (void)pendingInvitationsDidUpdate:(NSNotification *)notification
 {
-    // Update the rooms: In case we accepted an invitation, we want to show the new room directly
+    [self refreshRoomList];
+}
+
+- (void)inviationDidAccept:(NSNotification *)notification
+{
+    // We accepted an invitation, so we refresh the rooms from the API to show it directly
     [self refreshRooms];
 }
 
@@ -405,7 +411,6 @@ typedef enum RoomsSections {
 - (void)refreshRooms
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
-    [[NCRoomsManager sharedInstance] checkUpdateNeededForPendingFederationInvitations];
 
     if ([NCConnectionController sharedInstance].connectionState == kConnectionStateConnected) {
         [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:nil];
@@ -440,8 +445,6 @@ typedef enum RoomsSections {
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
-    // When we manually forced a room update, we update the invitation list as well
-    [[NCRoomsManager sharedInstance] updatePendingFederationInvitations];
     [self getUserStatusWithCompletionBlock:nil];
 
     // Actuate `Peek` feedback (weak boom)

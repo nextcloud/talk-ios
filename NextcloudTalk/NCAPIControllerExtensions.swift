@@ -28,6 +28,19 @@ import Foundation
         }
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let response = ocsResponse?.task?.response as? HTTPURLResponse {
+                var numberOfPendingInvitations = 0
+
+                // If the header is not present, there are no pending invites
+                if let federationInvitesString = response.allHeaderFields["x-nextcloud-talk-federation-invites"] as? String {
+                    numberOfPendingInvitations = Int(federationInvitesString) ?? 0
+                }
+
+                if account.pendingFederationInvitations != numberOfPendingInvitations {
+                    NCDatabaseManager.sharedInstance().setPendingFederationInvitationForAccountId(account.accountId, with: numberOfPendingInvitations)
+                }
+            }
+
             // TODO: Move away from generic dictionary return type
             // let rooms = ocs?.dataArrayDict.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
             completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
@@ -261,8 +274,6 @@ import Foundation
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             let invitations = ocs?.dataArrayDict?.map { FederationInvitation(dictionary: $0, for: accountId) }
             completionBlock(invitations)
-
-            NCDatabaseManager.sharedInstance().updateLastFederationInvitationUpdate(forAccountId: accountId, withTimestamp: Int(Date().timeIntervalSince1970))
         }
     }
 
@@ -664,7 +675,7 @@ import Foundation
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v3/test/self"
 
-        apiSessionManager.postOcs(urlString, account: account) { ocsResponse, ocsError in
+        apiSessionManager.postOcs(urlString, account: account) { ocsResponse, _ in
             let message = ocsResponse?.dataDict?["message"] as? String
             completionBlock(message)
         }
