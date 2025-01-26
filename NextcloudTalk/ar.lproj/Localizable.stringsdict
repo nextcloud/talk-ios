@@ -181,6 +181,25 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@options@</string>
+        <key>options</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>zero</key>
+            <string>%d خيار</string>
+            <key>one</key>
+            <string>%d خيار</string>
+            <key>two</key>
+            <string>%d خيار</string>
+            <key>few</key>
+            <string>%d خيارات</string>
+            <key>many</key>
+            <string>%d خيار</string>
+            <key>other</key>
+            <string>%d خيار</string>
+        </dict>
     </dict>
 </dict>
 </plist>
