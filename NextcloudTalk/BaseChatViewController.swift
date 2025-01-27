@@ -1055,6 +1055,11 @@ import SwiftUI
         NotificationPresenter.shared().present(text: NSLocalizedString("Message link copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
+    func didPressCopySelection(for message: NCChatMessage) {
+        let vc = MessageTextViewController(messageText: message.parsedMessage().string)
+        self.presentWithNavigation(vc, animated: true)
+    }
+
     func didPressTranslate(for message: NCChatMessage) {
         let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: self.room.accountId))
         self.presentWithNavigation(translateMessageVC, animated: true)
@@ -3070,8 +3075,13 @@ import SwiftUI
         var actions: [UIMenuElement] = []
 
         // Copy option
-        actions.append(UIAction(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "square.on.square")) { _ in
+        actions.append(UIAction(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "doc.on.doc")) { _ in
             self.didPressCopy(for: message)
+        })
+
+        // Copy Selection
+        actions.append(UIAction(title: NSLocalizedString("Copy message selection", comment: ""), image: .init(systemName: "text.viewfinder")) { _ in
+            self.didPressCopySelection(for: message)
         })
 
         // Copy Link
@@ -3120,7 +3130,7 @@ import SwiftUI
         else { return nil }
 
         let maxPreviewWidth = self.view.bounds.size.width - self.view.safeAreaInsets.left - self.view.safeAreaInsets.right
-        let maxPreviewHeight = self.view.bounds.size.height * 0.6
+        let maxPreviewHeight = self.view.bounds.size.height * 0.4
 
         // TODO: Take padding into account
         let maxTextWidth = maxPreviewWidth - kChatCellAvatarHeight
@@ -3135,10 +3145,14 @@ import SwiftUI
         let previewTableViewCell = self.getCell(for: message)
         var cellHeight = self.getCellHeight(for: message, with: maxTextWidth)
 
+        let heightDifferenceGroupedToNonGrouped = cellHeight - heightOfOriginalCell
+
         // Cut the height if bigger than max height
         if cellHeight > maxPreviewHeight {
             cellHeight = maxPreviewHeight
         }
+
+        let heightdifferenceOriginalToPreview = cellHeight - heightOfOriginalCell
 
         // Use the contentView of the UITableViewCell as a preview view
         let previewMessageView = previewTableViewCell.contentView
@@ -3148,7 +3162,7 @@ import SwiftUI
         // Create a mask to not show the avatar part when showing a grouped messages while animating
         // The mask will be reset in willDisplayContextMenuWithConfiguration so the avatar is visible when the context menu is shown
         let maskLayer = CAShapeLayer()
-        let maskRect = CGRect(x: 0, y: previewMessageView.frame.size.height - heightOfOriginalCell, width: previewMessageView.frame.size.width, height: heightOfOriginalCell)
+        let maskRect = CGRect(x: 0, y: heightDifferenceGroupedToNonGrouped, width: previewMessageView.frame.size.width, height: cellHeight)
         maskLayer.path = CGPath(rect: maskRect, transform: nil)
 
         previewMessageView.layer.mask = maskLayer
@@ -3175,7 +3189,7 @@ import SwiftUI
             if let cell = tableView.cellForRow(at: indexPath as IndexPath) {
                 // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
                 let cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2
-                let cellCenterY = cell.center.y + (totalAccessoryFrameHeight) / 2 - (cellHeight - heightOfOriginalCell) / 2
+                let cellCenterY = cell.center.y + totalAccessoryFrameHeight / 2 + heightdifferenceOriginalToPreview / 2 - heightDifferenceGroupedToNonGrouped
                 cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
             }
         } else {
@@ -3186,7 +3200,7 @@ import SwiftUI
             if let cell = tableView.cellForRow(at: indexPath as IndexPath) {
                 // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
                 let cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2
-                let cellCenterY = cell.center.y - (cellHeight - heightOfOriginalCell) / 2
+                let cellCenterY = cell.center.y + heightdifferenceOriginalToPreview / 2 - heightDifferenceGroupedToNonGrouped
                 cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
             }
         }

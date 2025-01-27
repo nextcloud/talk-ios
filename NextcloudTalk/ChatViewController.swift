@@ -1779,13 +1779,6 @@ import SwiftyAttributes
             })
         }
 
-        // Reply-privately option (only to other users and not in one-to-one)
-        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != self.account.userId {
-            actions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
-                self.didPressReplyPrivately(for: message)
-            })
-        }
-
         // Forward option (only normal messages for now)
         if message.file() == nil, message.poll == nil, !message.isDeletedMessage {
             actions.append(UIAction(title: NSLocalizedString("Forward", comment: ""), image: .init(systemName: "arrowshape.turn.up.right")) { _ in
@@ -1793,13 +1786,24 @@ import SwiftyAttributes
             })
         }
 
-        // Note to self
-        if message.file() == nil, message.poll == nil, !message.isDeletedMessage, room.type != .noteToSelf,
-           NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNoteToSelf, for: room) {
-            actions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
-                self.didPressNoteToSelf(for: message)
-            })
-        }
+        var copyMenuActions: [UIMenuElement] = []
+
+        // Copy option
+        copyMenuActions.append(UIAction(title: NSLocalizedString("Message", comment: "Copy 'message'"), image: .init(systemName: "doc.text")) { _ in
+            self.didPressCopy(for: message)
+        })
+
+        // Copy part option
+        copyMenuActions.append(UIAction(title: NSLocalizedString("Selection", comment: "Copy a 'selection' of a message"), image: .init(systemName: "text.viewfinder")) { _ in
+            self.didPressCopySelection(for: message)
+        })
+
+        // Copy link option
+        copyMenuActions.append(UIAction(title: NSLocalizedString("Message link", comment: "Copy 'link' to a message"), image: .init(systemName: "link")) { _ in
+            self.didPressCopyLink(for: message)
+        })
+
+        actions.append(UIMenu(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "doc.on.doc"), children: copyMenuActions))
 
         // Remind me later
         if !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
@@ -1849,18 +1853,6 @@ import SwiftyAttributes
             })
         }
 
-        // Copy option
-        actions.append(UIAction(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "square.on.square")) { _ in
-            self.didPressCopy(for: message)
-        })
-
-        // Translate
-        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: self.account.accountId) {
-            actions.append(UIAction(title: NSLocalizedString("Translate", comment: ""), image: .init(systemName: "character.book.closed")) { _ in
-                self.didPressTranslate(for: message)
-            })
-        }
-
         // Open in nextcloud option
         if !self.offlineMode, message.file() != nil {
             let openInNextcloudTitle = String(format: NSLocalizedString("Open in %@", comment: ""), filesAppName)
@@ -1875,6 +1867,37 @@ import SwiftyAttributes
             actions.append(UIAction(title: transcribeTitle, image: .init(systemName: "text.bubble")) { _ in
                 self.didPressTranscribeVoiceMessage(for: message)
             })
+        }
+
+        var moreMenuActions: [UIMenuElement] = []
+
+        // Reply-privately option (only to other users and not in one-to-one)
+        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != self.account.userId {
+            moreMenuActions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
+                self.didPressReplyPrivately(for: message)
+            })
+        }
+
+        // Translate
+        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: self.account.accountId) {
+            moreMenuActions.append(UIAction(title: NSLocalizedString("Translate", comment: ""), image: .init(systemName: "character.book.closed")) { _ in
+                self.didPressTranslate(for: message)
+            })
+        }
+
+        // Note to self
+        if message.file() == nil, message.poll == nil, !message.isDeletedMessage, room.type != .noteToSelf,
+           NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNoteToSelf, for: room) {
+            moreMenuActions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
+                self.didPressNoteToSelf(for: message)
+            })
+        }
+
+        if moreMenuActions.count == 1, let firstElement = moreMenuActions.first {
+            // When there's only one element, no need to create a "More" menu
+            actions.append(firstElement)
+        } else if !moreMenuActions.isEmpty {
+            actions.append(UIMenu(title: NSLocalizedString("More", comment: "More menu elements"), children: moreMenuActions))
         }
 
         var destructiveMenuActions: [UIMenuElement] = []

@@ -542,6 +542,9 @@
 "Copy message link" = "Copy message link";
 
 /* No comment provided by engineer. */
+"Copy message selection" = "Copy message selection";
+
+/* No comment provided by engineer. */
 "Could not access camera" = "Could not access camera";
 
 /* No comment provided by engineer. */
@@ -1174,6 +1177,9 @@
 /* 'Mentioned' meaning 'Mentioned conversations' */
 "Mentioned" = "Mentioned";
 
+/* Copy 'message' */
+"Message" = "Message";
+
 /* No comment provided by engineer. */
 "Message copied" = "Message copied";
 
@@ -1191,6 +1197,9 @@
 
 /* No comment provided by engineer. */
 "Message expiration time" = "Message expiration time";
+
+/* Copy 'link' to a message */
+"Message link" = "Message link";
 
 /* No comment provided by engineer. */
 "Message link copied" = "Message link copied";
@@ -1230,6 +1239,9 @@
 
 /* No comment provided by engineer. */
 "Modification date" = "Modification date";
+
+/* More menu elements */
+"More" = "More";
 
 /* No comment provided by engineer. */
 "More actions" = "More actions";
@@ -1620,6 +1632,9 @@
 
 /* No comment provided by engineer. */
 "Select language" = "Select language";
+
+/* Copy a 'selection' of a message */
+"Selection" = "Selection";
 
 /* No comment provided by engineer. */
 "Send" = "Send";
