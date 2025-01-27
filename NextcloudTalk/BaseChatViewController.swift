@@ -1055,6 +1055,11 @@ import SwiftUI
         NotificationPresenter.shared().present(text: NSLocalizedString("Message link copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
+    func didPressCopySelection(for message: NCChatMessage) {
+        let vc = MessageTextViewController(messageText: message.parsedMessage().string)
+        self.presentWithNavigation(vc, animated: true)
+    }
+
     func didPressTranslate(for message: NCChatMessage) {
         let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: self.room.accountId))
         self.presentWithNavigation(translateMessageVC, animated: true)
@@ -3070,8 +3075,13 @@ import SwiftUI
         var actions: [UIMenuElement] = []
 
         // Copy option
-        actions.append(UIAction(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "square.on.square")) { _ in
+        actions.append(UIAction(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "doc.on.doc")) { _ in
             self.didPressCopy(for: message)
+        })
+
+        // Copy Selection
+        actions.append(UIAction(title: NSLocalizedString("Copy message selection", comment: ""), image: .init(systemName: "text.viewfinder")) { _ in
+            self.didPressCopySelection(for: message)
         })
 
         // Copy Link
