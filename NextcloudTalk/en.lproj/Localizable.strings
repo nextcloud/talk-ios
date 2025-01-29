@@ -353,6 +353,9 @@
 "Audio options" = "Audio options";
 
 /* No comment provided by engineer. */
+"Audio, video and screen shares" = "Audio, video and screen shares";
+
+/* No comment provided by engineer. */
 "Audios" = "Audios";
 
 /* No comment provided by engineer. */
@@ -393,6 +396,9 @@
 
 /* No comment provided by engineer. */
 "Call notification sent" = "Call notification sent";
+
+/* No comment provided by engineer. */
+"Call options" = "Call options";
 
 /* No comment provided by engineer. */
 "Call recording enabled?" = "Call recording enabled?";
@@ -800,7 +806,13 @@
 "Double tap to dismiss sharing options" = "Double tap to dismiss sharing options";
 
 /* No comment provided by engineer. */
+"Double tap to display call options" = "Double tap to display call options";
+
+/* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
+
+/* No comment provided by engineer. */
+"Double tap to enable or disable 'Call without notification' option" = "Double tap to enable or disable 'Call without notification' option";
 
 /* No comment provided by engineer. */
 "Double tap to enable or disable the camera" = "Double tap to enable or disable the camera";
@@ -848,7 +860,7 @@
 "Double tap to start a video call" = "Double tap to start a video call";
 
 /* No comment provided by engineer. */
-"Double tap to start a voice call" = "Double tap to start a voice call";
+"Double tap to start a voice only call" = "Double tap to start a voice only call";
 
 /* No comment provided by engineer. */
 "Double tap to stop recording" = "Double tap to stop recording";
@@ -1377,6 +1389,9 @@
 
 /* No comment provided by engineer. */
 "Online status" = "Online status";
+
+/* No comment provided by engineer. */
+"Only audio and screen shares" = "Only audio and screen shares";
 
 /* No comment provided by engineer. */
 "Only normal chat messages can be deleted" = "Only normal chat messages can be deleted";
@@ -2003,10 +2018,10 @@
 "Visibility" = "Visibility";
 
 /* No comment provided by engineer. */
-"Voice call" = "Voice call";
+"Voice messages" = "Voice messages";
 
 /* No comment provided by engineer. */
-"Voice messages" = "Voice messages";
+"Voice only call" = "Voice only call";
 
 /* No comment provided by engineer. */
 "Waiting for %@ to join call …" = "Waiting for %@ to join call …";
