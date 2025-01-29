@@ -28,10 +28,10 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(chatTitleView.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Wait until we joined the room and the call buttons get active
-        let voiceCallButton = chatNavBar.buttons["Voice call"]
-        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        waitForEnabled(object: voiceCallButton)
-        waitForHittable(object: voiceCallButton)
+        let callOptionsButton = chatNavBar.buttons["Call options"]
+        XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        waitForEnabled(object: callOptionsButton)
+        waitForHittable(object: callOptionsButton)
 
         // Open conversation settings
         chatTitleView.tap()
@@ -91,11 +91,14 @@ final class UIRoomTest: XCTestCase {
 
         // Start a call
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
-        let voiceCallButton = chatNavBar.buttons["Voice call"]
-        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        waitForEnabled(object: voiceCallButton)
-        waitForHittable(object: voiceCallButton)
+        let callOptionsButton = chatNavBar.buttons["Call options"]
+        XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        waitForEnabled(object: callOptionsButton)
+        waitForHittable(object: callOptionsButton)
+        callOptionsButton.tap()
 
+        let voiceCallButton = app.buttons["Voice only call"]
+        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
         voiceCallButton.tap()
 
         let hangupCallButton = app.buttons["Hang up"]
@@ -105,7 +108,7 @@ final class UIRoomTest: XCTestCase {
         hangupCallButton.tap()
 
         // Go back to the main view controller
-        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Back"].tap()
 
         // Check if all chat view controllers are deallocated
