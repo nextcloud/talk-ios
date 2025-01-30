@@ -1082,6 +1082,9 @@
 "Join a conversation or start a new one" = "Join a conversation or start a new one";
 
 /* No comment provided by engineer. */
+"Join call" = "Join call";
+
+/* No comment provided by engineer. */
 "Join call (audio only)" = "Join call (audio only)";
 
 /* No comment provided by engineer. */
@@ -1089,6 +1092,9 @@
 
 /* No comment provided by engineer. */
 "Join open conversations" = "Join open conversations";
+
+/* No comment provided by engineer. */
+"Join video call" = "Join video call";
 
 /* No comment provided by engineer. */
 "Last day (inclusive)" = "Last day (inclusive)";
@@ -1778,10 +1784,22 @@
 "Speech recognition failed" = "Speech recognition failed";
 
 /* No comment provided by engineer. */
+"Start call" = "Start call";
+
+/* No comment provided by engineer. */
+"Start call silently" = "Start call silently";
+
+/* No comment provided by engineer. */
 "Start recording" = "Start recording";
 
 /* No comment provided by engineer. */
 "Start time" = "Start time";
+
+/* No comment provided by engineer. */
+"Start video call" = "Start video call";
+
+/* No comment provided by engineer. */
+"Start video call silently" = "Start video call silently";
 
 /* No comment provided by engineer. */
 "Status" = "Status";

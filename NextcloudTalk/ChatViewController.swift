@@ -70,7 +70,7 @@ import SwiftyAttributes
     }
 
     func setupCallOptionsBarButtonMenu(button: BarButtonItemWithActivity) {
-        let audioCallAction = UIAction(title: NSLocalizedString("Voice only call", comment: ""),
+        let audioCallAction = UIAction(title: NSLocalizedString("Start call", comment: ""),
                                        subtitle: NSLocalizedString("Only audio and screen shares", comment: ""),
                                        image: UIImage(systemName: "phone")) { [unowned self] _ in
             startCall(withVideo: false, silently: startCallSilently, button: button)
@@ -79,7 +79,7 @@ import SwiftyAttributes
         audioCallAction.accessibilityIdentifier = NSLocalizedString("Voice only call", comment: "")
         audioCallAction.accessibilityHint = NSLocalizedString("Double tap to start a voice only call", comment: "")
 
-        let videoCallAction = UIAction(title: NSLocalizedString("Video call", comment: ""),
+        let videoCallAction = UIAction(title: NSLocalizedString("Start video call", comment: ""),
                                        subtitle: NSLocalizedString("Audio, video and screen shares", comment: ""),
                                        image: UIImage(systemName: "video")) { [unowned self] _ in
             startCall(withVideo: true, silently: startCallSilently, button: button)
@@ -88,7 +88,15 @@ import SwiftyAttributes
         videoCallAction.accessibilityIdentifier = NSLocalizedString("Video call", comment: "")
         videoCallAction.accessibilityHint = NSLocalizedString("Double tap to start a video call", comment: "")
 
-        var callOptionsMenu = UIMenu(title: "", children: [audioCallAction, videoCallAction])
+        if self.room.hasCall {
+            audioCallAction.title = NSLocalizedString("Join call", comment: "")
+            videoCallAction.title = NSLocalizedString("Join video call", comment: "")
+        } else if self.startCallSilently {
+            audioCallAction.title = NSLocalizedString("Start call silently", comment: "")
+            videoCallAction.title = NSLocalizedString("Start video call silently", comment: "")
+        }
+
+        var callOptions: [UIMenuElement] = [audioCallAction, videoCallAction]
 
         // Only show silent call option when starting a call (not when joining)
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilitySilentCall, for: self.room), !room.hasCall {
@@ -99,19 +107,23 @@ import SwiftyAttributes
             }
 
             let silentCallAction = UIAction(title: NSLocalizedString("Call without notification", comment: ""),
-                                            image: silentImage,
-                                            state: startCallSilently ? .on : .off) { [unowned self] _ in
+                                            image: silentImage) { [unowned self] _ in
                 startCallSilently.toggle()
                 setupCallOptionsBarButtonMenu(button: button)
             }
 
-            videoCallAction.accessibilityIdentifier = NSLocalizedString("Call without notification", comment: "")
-            videoCallAction.accessibilityHint = NSLocalizedString("Double tap to enable or disable 'Call without notification' option", comment: "")
+            if #available(iOS 16.0, *) {
+                silentCallAction.attributes = [.keepsMenuPresented]
+            }
 
-            callOptionsMenu = UIMenu(title: "", children: [audioCallAction, videoCallAction, silentCallAction])
+            silentCallAction.accessibilityIdentifier = NSLocalizedString("Call without notification", comment: "")
+            silentCallAction.accessibilityHint = NSLocalizedString("Double tap to enable or disable 'Call without notification' option", comment: "")
+
+            let silentMenu = UIMenu(title: "", options: [.displayInline], children: [silentCallAction])
+            callOptions.append(silentMenu)
         }
 
-        button.innerButton.menu = callOptionsMenu
+        button.innerButton.menu = UIMenu(title: "", children: callOptions)
         button.innerButton.showsMenuAsPrimaryAction = true
     }
 
@@ -374,6 +386,9 @@ import SwiftyAttributes
             // Make sure the textinput has the correct height
             self.setChatMessage(self.textInputbar.textView.text)
         }
+
+        // Rebuild the call menu to reflect the current call state
+        self.setupCallOptionsBarButtonMenu(button: self.callOptionsButton)
 
         if self.presentedInCall {
             // Create a close button and remove the call buttons
