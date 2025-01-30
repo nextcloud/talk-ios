@@ -4,7 +4,6 @@
  */
 
 #import "AutoCompletionTableViewCell.h"
-#import "ChatTableViewCell.h"
 
 #import "SLKUIConstants.h"
 
