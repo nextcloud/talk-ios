@@ -23,6 +23,7 @@ import UIKit
     let kQuestionTextFieldTag = 9999
 
     var room: NCRoom
+    var editingDraftId: Int?
     var draftsAvailable: Bool = false
     var question: String = ""
     var options: [String] = ["", ""]
@@ -58,7 +59,7 @@ import UIKit
         self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
         self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationItem.title = NSLocalizedString("New poll", comment: "")
+        self.setNavigationBarTitle()
 
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -70,8 +71,8 @@ import UIKit
 
         self.tableView.isEditing = true
 
-        // Set footer buttons
-        self.tableView.tableFooterView = pollFooterView()
+        // Configure footer buttons
+        configureFooterButtons()
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
@@ -98,17 +99,41 @@ import UIKit
         present(navController, animated: true, completion: nil)
     }
 
-    func didSelectPollDraft(question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int) {
+    func didSelectPollDraft(draft: NCPoll, forEditing: Bool) {
         // End editing for any textfield
         self.view.endEditing(true)
 
         // Assign poll draft values
-        self.question = question
-        self.options = options
-        self.anonymousPollSwitch.isOn = resultMode == .hidden
-        self.multipleAnswersSwitch.isOn = maxVotes == 0
+        self.question = draft.question
+        self.options = draft.options.compactMap { $0 as? String }
+        self.anonymousPollSwitch.isOn = draft.resultMode == .hidden
+        self.multipleAnswersSwitch.isOn = draft.maxVotes == 0
+
+        // Check if editing poll draft
+        if forEditing {
+            self.editingDraftId = draft.pollId
+        } else {
+            self.editingDraftId = nil
+        }
+
+        // Refresh poll creation view
+        self.refreshPollCreationView()
+    }
+
+    func refreshPollCreationView() {
         self.tableView.reloadData()
+        self.setNavigationBarTitle()
+        self.setMoreOptionsButton()
+        self.configureFooterButtons()
         self.checkIfPollIsReadyToCreate()
+    }
+
+    func setNavigationBarTitle() {
+        if let editingDraftId = self.editingDraftId {
+            self.navigationItem.title = NSLocalizedString("Editing poll draft", comment: "")
+        } else {
+            self.navigationItem.title = NSLocalizedString("New poll", comment: "")
+        }
     }
 
     func showCreationError() {
@@ -117,12 +142,18 @@ import UIKit
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
         self.present(alert, animated: true)
-        removePollCreationUI()
+    }
+
+    func showEditionError() {
+        let alert = UIAlertController(title: NSLocalizedString("Editing poll failed", comment: ""),
+                                      message: NSLocalizedString("An error occurred while editing the poll", comment: ""),
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
+        self.present(alert, animated: true)
     }
 
     func showDraftCreationSuccess() {
         NotificationPresenter.shared().present(text: NSLocalizedString("Poll draft has been saved", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
-        removePollCreationUI()
     }
 
     func showPollCreationUI() {
@@ -138,7 +169,7 @@ import UIKit
     }
 
     func setMoreOptionsButton() {
-        if draftsAvailable {
+        if draftsAvailable, editingDraftId == nil {
             let menuAction = UIAction(
                 title: NSLocalizedString("Browse poll drafts", comment: ""),
                 image: UIImage(systemName: "doc")) { _ in
@@ -166,14 +197,19 @@ import UIKit
         footerView.secondaryButton.setButtonEnabled(enabled: false)
     }
 
-    func pollFooterView() -> UIView {
-        footerView.primaryButton.setTitle(NSLocalizedString("Create poll", comment: ""), for: .normal)
-        footerView.primaryButton.setButtonAction(target: self, selector: #selector(createPollButtonPressed))
+    func configureFooterButtons() {
+        if editingDraftId != nil {
+            footerView.primaryButton.setTitle(NSLocalizedString("Save", comment: ""), for: .normal)
+            footerView.primaryButton.setButtonAction(target: self, selector: #selector(saveEditedPollDraftButtonPressed))
+        } else {
+            footerView.primaryButton.setTitle(NSLocalizedString("Create poll", comment: ""), for: .normal)
+            footerView.primaryButton.setButtonAction(target: self, selector: #selector(createPollButtonPressed))
+        }
 
         footerView.frame = CGRect(x: 0, y: 0, width: 0, height: PollFooterView.heightForOption)
         footerView.secondaryButtonContainerView.isHidden = true
 
-        if draftsAvailable {
+        if draftsAvailable, editingDraftId == nil {
             footerView.secondaryButton.setTitle(NSLocalizedString("Save as draft", comment: ""), for: .normal)
             footerView.secondaryButton.setButtonStyle(style: .tertiary)
             footerView.secondaryButton.setButtonAction(target: self, selector: #selector(createPollDraftButtonPressed))
@@ -183,7 +219,7 @@ import UIKit
         }
 
         checkIfPollIsReadyToCreate()
-        return footerView
+        self.tableView.tableFooterView = footerView
     }
 
     func createPollButtonPressed() {
@@ -199,14 +235,33 @@ import UIKit
         let maxVotes: Int = multipleAnswersSwitch.isOn ? 0 : 1
 
         showPollCreationUI()
-
         NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: room.token, asDraft: asDraft, for: room.account) { _, error, _ in
+            self.removePollCreationUI()
             if error != nil {
                 self.showCreationError()
             } else if asDraft {
                 self.showDraftCreationSuccess()
             } else {
                 self.close()
+            }
+        }
+    }
+
+    func saveEditedPollDraftButtonPressed() {
+        guard let draftId = editingDraftId else { return }
+
+        let resultMode: NCPollResultMode = anonymousPollSwitch.isOn ? .hidden : .public
+        let maxVotes: Int = multipleAnswersSwitch.isOn ? 0 : 1
+
+        showPollCreationUI()
+        NCAPIController.sharedInstance().editPollDraft(withId: draftId, question: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: room.token, for: room.account) { _, error, _ in
+            self.removePollCreationUI()
+            if error != nil {
+                self.showEditionError()
+            } else {
+                self.editingDraftId = nil
+                self.refreshPollCreationView()
+                self.presentPollDraftsView()
             }
         }
     }

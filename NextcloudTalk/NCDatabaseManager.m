@@ -80,6 +80,7 @@ NSString * const kCapabilityArchivedConversationsV2 = @"archived-conversations-v
 NSString * const kCapabilityCallNotificationState   = @"call-notification-state-api";
 NSString * const kCapabilityForceMute               = @"force-mute";
 NSString * const kCapabilityTalkPollsDrafts         = @"talk-polls-drafts";
+NSString * const kCapabilityEditDraftPoll           = @"edit-draft-poll";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";
