@@ -144,7 +144,7 @@ jobs:
         ./server/occ app:enable --force spreed
         ./server/occ background:cron
         OC_PASS=alice ./server/occ user:add --password-from-env alice
-        PHP_CLI_SERVER_WORKERS=3 php -S localhost:8080 -t server/ &
+        PHP_CLI_SERVER_WORKERS=10 php -S localhost:8080 -t server/ &
 
     - name: Download test-build
       uses: actions/download-artifact@v4
