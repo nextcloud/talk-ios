@@ -709,7 +709,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSSortDescriptor *customSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
             NCRoomParticipant *first = (NCRoomParticipant*)obj1;
             NCRoomParticipant *second = (NCRoomParticipant*)obj2;
-            
+
+            BOOL team1 = first.isTeam;
+            BOOL team2 = second.isTeam;
+            if (team1 != team2) {
+                return team1 - team2;
+            }
+
             BOOL group1 = first.isGroup;
             BOOL group2 = second.isGroup;
             if (group1 != group2) {

@@ -17,6 +17,7 @@ typedef NS_ENUM(NSInteger, NCParticipantType) {
 extern NSString * const NCAttendeeTypeUser;
 extern NSString * const NCAttendeeTypeGroup;
 extern NSString * const NCAttendeeTypeCircle;
+extern NSString * const NCAttendeeTypeTeams;
 extern NSString * const NCAttendeeTypeGuest;
 extern NSString * const NCAttendeeTypeEmail;
 extern NSString * const NCAttendeeTypeFederated;
@@ -48,7 +49,7 @@ extern NSString * const NCAttendeeBridgeBotId;
 - (BOOL)isBridgeBotUser;
 - (BOOL)isGuest;
 - (BOOL)isGroup;
-- (BOOL)isCircle;
+- (BOOL)isTeam;
 - (BOOL)isOffline;
 - (BOOL)isFederated;
 - (NSString *)detailedName;

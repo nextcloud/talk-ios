@@ -11,6 +11,7 @@
 NSString * const NCAttendeeTypeUser     = @"users";
 NSString * const NCAttendeeTypeGroup    = @"groups";
 NSString * const NCAttendeeTypeCircle   = @"circles";
+NSString * const NCAttendeeTypeTeams    = @"teams";
 NSString * const NCAttendeeTypeGuest    = @"guests";
 NSString * const NCAttendeeTypeEmail    = @"emails";
 NSString * const NCAttendeeTypeFederated = @"federated_users";
@@ -106,9 +107,9 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
     return [_actorType isEqualToString:NCAttendeeTypeGroup];
 }
 
-- (BOOL)isCircle
+- (BOOL)isTeam
 {
-    return [_actorType isEqualToString:NCAttendeeTypeCircle];
+    return [_actorType isEqualToString:NCAttendeeTypeCircle] || [_actorType isEqualToString:NCAttendeeTypeTeams];
 }
 
 - (BOOL)isFederated

@@ -1359,7 +1359,7 @@ typedef enum FileAction {
     }
     
     if (canParticipantBeModerated) {
-        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1] && !participant.isGroup && !participant.isCircle && !participant.isFederated) {
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1] && !participant.isGroup && !participant.isTeam && !participant.isFederated) {
             NSString *banTitle = NSLocalizedString(@"Ban participant", nil);
 
             UIAlertAction *banParticipant = [UIAlertAction actionWithTitle:banTitle
@@ -1375,7 +1375,7 @@ typedef enum FileAction {
         NSString *title = NSLocalizedString(@"Remove participant", nil);
         if (participant.isGroup) {
             title = NSLocalizedString(@"Remove group and members", nil);
-        } else if (participant.isCircle) {
+        } else if (participant.isTeam) {
             title = NSLocalizedString(@"Remove team and members", nil);
         }
         UIAlertAction *removeParticipant = [UIAlertAction actionWithTitle:title

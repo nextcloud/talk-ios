@@ -363,7 +363,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         //Set color for mentions
         if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] ||
             [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"] ||
-            [param.type isEqualToString:@"email"]) {
+            [param.type isEqualToString:@"email"] || [param.type isEqualToString:@"circle"]) {
 
             if (param.shouldBeHighlighted) {
                 if (!highlightedColor) {
