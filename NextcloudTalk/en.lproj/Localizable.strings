@@ -2027,9 +2027,6 @@
 "Version" = "Version";
 
 /* No comment provided by engineer. */
-"Video call" = "Video call";
-
-/* No comment provided by engineer. */
 "Video quality" = "Video quality";
 
 /* Conversation visibility settings */
@@ -2037,9 +2034,6 @@
 
 /* No comment provided by engineer. */
 "Voice messages" = "Voice messages";
-
-/* No comment provided by engineer. */
-"Voice only call" = "Voice only call";
 
 /* No comment provided by engineer. */
 "Waiting for %@ to join call …" = "Waiting for %@ to join call …";

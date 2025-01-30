@@ -76,7 +76,7 @@ import SwiftyAttributes
             startCall(withVideo: false, silently: startCallSilently, button: button)
         }
 
-        audioCallAction.accessibilityIdentifier = NSLocalizedString("Voice only call", comment: "")
+        audioCallAction.accessibilityIdentifier = "Voice only call"
         audioCallAction.accessibilityHint = NSLocalizedString("Double tap to start a voice only call", comment: "")
 
         let videoCallAction = UIAction(title: NSLocalizedString("Start video call", comment: ""),
@@ -85,7 +85,7 @@ import SwiftyAttributes
             startCall(withVideo: true, silently: startCallSilently, button: button)
         }
 
-        videoCallAction.accessibilityIdentifier = NSLocalizedString("Video call", comment: "")
+        videoCallAction.accessibilityIdentifier = "Video call"
         videoCallAction.accessibilityHint = NSLocalizedString("Double tap to start a video call", comment: "")
 
         if self.room.hasCall {
@@ -116,7 +116,7 @@ import SwiftyAttributes
                 silentCallAction.attributes = [.keepsMenuPresented]
             }
 
-            silentCallAction.accessibilityIdentifier = NSLocalizedString("Call without notification", comment: "")
+            silentCallAction.accessibilityIdentifier = "Call without notification"
             silentCallAction.accessibilityHint = NSLocalizedString("Double tap to enable or disable 'Call without notification' option", comment: "")
 
             let silentMenu = UIMenu(title: "", options: [.displayInline], children: [silentCallAction])
