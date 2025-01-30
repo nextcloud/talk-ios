@@ -61,6 +61,8 @@ import Foundation
             messageParameter.type = "user-group"
         } else if self.source == "emails" {
             messageParameter.type = "email"
+        } else if self.source == "teams" {
+            messageParameter.type = "circle"
         }
 
         return messageParameter
