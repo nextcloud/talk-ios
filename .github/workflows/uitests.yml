@@ -31,6 +31,8 @@ permissions:
 env:
   WORKSPACE: NextcloudTalk.xcworkspace
   DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.0
+  SIMULATOR_MODEL: iPhone 16
+  SIMULATOR_VERSION: 18.0
   SCHEME: NextcloudTalk
 
 jobs:
@@ -95,6 +97,11 @@ jobs:
         ]
 
     steps:
+    - uses: futureware-tech/simulator-action@v4
+      with:
+        model: ${{ env.SIMULATOR_MODEL }}
+        os_version: ${{ env.SIMULATOR_VERSION }}
+
     - name: Checkout app
       uses: actions/checkout@v4
       with:
