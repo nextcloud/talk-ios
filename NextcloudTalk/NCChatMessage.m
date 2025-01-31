@@ -329,8 +329,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             // Format user and call mentions
             if ([messageParameter.type isEqualToString:@"user"] || [messageParameter.type isEqualToString:@"guest"] ||
                 [messageParameter.type isEqualToString:@"user-group"] || [messageParameter.type isEqualToString:@"call"] ||
-                [messageParameter.type isEqualToString:@"email"]) {
-                
+                [messageParameter.type isEqualToString:@"email"] || [messageParameter.type isEqualToString:@"circle"]) {
+
                 replaceString = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
             }
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];

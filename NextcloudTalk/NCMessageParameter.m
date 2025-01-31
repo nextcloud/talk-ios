@@ -31,7 +31,22 @@
         
         self.contactName = [parameterDict objectForKey:@"contact-name"];
         self.contactPhoto = [parameterDict objectForKey:@"contact-photo"];
-        self.mentionId = [parameterDict objectForKey:@"mentionId"];
+
+        if ([parameterDict objectForKey:@"mention-id"]) {
+            // "mention-id" (with a dash) is returned by the server and should be preferred if it exists
+            NSString *mentionId = [parameterDict objectForKey:@"mention-id"];
+
+            // Note: The "mentionId" in NCMessageParameter is different to MentionSuggestion! In NCMessageParameter we require the @-prefix
+            if ([mentionId containsString:@"/"] || [mentionId rangeOfCharacterFromSet:[NSCharacterSet whitespaceCharacterSet]].location != NSNotFound) {
+                self.mentionId = [NSString stringWithFormat:@"@\"%@\"", mentionId];
+            } else {
+                self.mentionId = [NSString stringWithFormat:@"@%@", mentionId];
+            }
+        } else if ([parameterDict objectForKey:@"mentionId"]) {
+            // "mentionId" (without a dash) is our locally stored mentionId in case a message needs to be resend -> use as fallback
+            self.mentionId = [parameterDict objectForKey:@"mentionId"];
+        }
+
         self.mentionDisplayName = [parameterDict objectForKey:@"mentionDisplayName"];
     }
     

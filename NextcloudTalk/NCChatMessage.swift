@@ -145,8 +145,8 @@ import SwiftyAttributes
         resultMessage = resultMessage.trimmingCharacters(in: .whitespacesAndNewlines)
 
         for case let (key as String, value as [AnyHashable: Any]) in self.messageParameters {
-            if let parameter = NCMessageParameter(dictionary: value) {
-                resultMessage = resultMessage.replacingOccurrences(of: "{\(key)}", with: parameter.mentionId)
+            if let parameter = NCMessageParameter(dictionary: value), let mentionId = parameter.mentionId {
+                resultMessage = resultMessage.replacingOccurrences(of: "{\(key)}", with: mentionId)
             }
         }
 
