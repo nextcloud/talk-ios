@@ -33,6 +33,8 @@ import SwiftyAttributes
     private var generateSummaryFromMessageId: Int?
     private var generateSummaryTimer: Timer?
 
+    private var startCallSilently: Bool = false
+
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
 
@@ -57,29 +59,76 @@ import SwiftyAttributes
 
     // MARK: - Call buttons in NavigationBar
 
-    func getBarButton(forVideo video: Bool) -> BarButtonItemWithActivity {
+    func getCallOptionsBarButton() -> BarButtonItemWithActivity {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
-        let buttonImage = UIImage(systemName: video ? "video" : "phone", withConfiguration: symbolConfiguration)
-
+        let buttonImage = UIImage(systemName: "phone", withConfiguration: symbolConfiguration)
         let button = BarButtonItemWithActivity(width: 50, with: buttonImage)
-        button.innerButton.addAction { [unowned self] in
-            button.showIndicator()
-            startCall(withVideo: video, silently: false, button: button)
-        }
 
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilitySilentCall, for: self.room) {
-            let silentCall = UIAction(title: NSLocalizedString("Call without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
-                button.showIndicator()
-                startCall(withVideo: video, silently: true, button: button)
-            }
-
-            button.innerButton.menu = UIMenu(children: [silentCall])
-        }
+        setupCallOptionsBarButtonMenu(button: button)
 
         return button
     }
 
+    func setupCallOptionsBarButtonMenu(button: BarButtonItemWithActivity) {
+        let audioCallAction = UIAction(title: NSLocalizedString("Start call", comment: ""),
+                                       subtitle: NSLocalizedString("Only audio and screen shares", comment: ""),
+                                       image: UIImage(systemName: "phone")) { [unowned self] _ in
+            startCall(withVideo: false, silently: startCallSilently, button: button)
+        }
+
+        audioCallAction.accessibilityIdentifier = "Voice only call"
+        audioCallAction.accessibilityHint = NSLocalizedString("Double tap to start a voice only call", comment: "")
+
+        let videoCallAction = UIAction(title: NSLocalizedString("Start video call", comment: ""),
+                                       subtitle: NSLocalizedString("Audio, video and screen shares", comment: ""),
+                                       image: UIImage(systemName: "video")) { [unowned self] _ in
+            startCall(withVideo: true, silently: startCallSilently, button: button)
+        }
+
+        videoCallAction.accessibilityIdentifier = "Video call"
+        videoCallAction.accessibilityHint = NSLocalizedString("Double tap to start a video call", comment: "")
+
+        if self.room.hasCall {
+            audioCallAction.title = NSLocalizedString("Join call", comment: "")
+            videoCallAction.title = NSLocalizedString("Join video call", comment: "")
+        } else if self.startCallSilently {
+            audioCallAction.title = NSLocalizedString("Start call silently", comment: "")
+            videoCallAction.title = NSLocalizedString("Start video call silently", comment: "")
+        }
+
+        var callOptions: [UIMenuElement] = [audioCallAction, videoCallAction]
+
+        // Only show silent call option when starting a call (not when joining)
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilitySilentCall, for: self.room), !room.hasCall {
+            var silentImage = UIImage(systemName: "bell.slash")
+
+            if startCallSilently {
+                silentImage =  UIImage(systemName: "bell.slash.fill")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+            }
+
+            let silentCallAction = UIAction(title: NSLocalizedString("Call without notification", comment: ""),
+                                            image: silentImage) { [unowned self] _ in
+                startCallSilently.toggle()
+                setupCallOptionsBarButtonMenu(button: button)
+            }
+
+            if #available(iOS 16.0, *) {
+                silentCallAction.attributes = [.keepsMenuPresented]
+            }
+
+            silentCallAction.accessibilityIdentifier = "Call without notification"
+            silentCallAction.accessibilityHint = NSLocalizedString("Double tap to enable or disable 'Call without notification' option", comment: "")
+
+            let silentMenu = UIMenu(title: "", options: [.displayInline], children: [silentCallAction])
+            callOptions.append(silentMenu)
+        }
+
+        button.innerButton.menu = UIMenu(title: "", children: callOptions)
+        button.innerButton.showsMenuAsPrimaryAction = true
+    }
+
     func startCall(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
+        button.showIndicator()
         if self.room.recordingConsent {
             let alert = UIAlertController(title: "⚠️" + NSLocalizedString("The call might be recorded", comment: ""),
                                           message: NSLocalizedString("The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.", comment: ""),
@@ -100,22 +149,13 @@ import SwiftyAttributes
         }
     }
 
-    private lazy var videoCallButton: BarButtonItemWithActivity = {
-        let videoCallButton = self.getBarButton(forVideo: true)
+    private lazy var callOptionsButton: BarButtonItemWithActivity = {
+        let callOptionsButton = self.getCallOptionsBarButton()
 
-        videoCallButton.accessibilityLabel = NSLocalizedString("Video call", comment: "")
-        videoCallButton.accessibilityHint = NSLocalizedString("Double tap to start a video call", comment: "")
+        callOptionsButton.accessibilityLabel = NSLocalizedString("Call options", comment: "")
+        callOptionsButton.accessibilityHint = NSLocalizedString("Double tap to display call options", comment: "")
 
-        return videoCallButton
-    }()
-
-    private lazy var voiceCallButton: BarButtonItemWithActivity = {
-        let voiceCallButton = self.getBarButton(forVideo: false)
-
-        voiceCallButton.accessibilityLabel = NSLocalizedString("Voice call", comment: "")
-        voiceCallButton.accessibilityHint = NSLocalizedString("Double tap to start a voice call", comment: "")
-
-        return voiceCallButton
+        return callOptionsButton
     }()
 
     private var messageExpirationTimer: Timer?
@@ -170,7 +210,7 @@ import SwiftyAttributes
         super.viewDidLoad()
 
         if room.supportsCalling {
-            self.navigationItem.rightBarButtonItems = [videoCallButton, voiceCallButton]
+            self.navigationItem.rightBarButtonItems = [callOptionsButton]
         }
 
         // No sharing options in federation v1
@@ -226,8 +266,7 @@ import SwiftyAttributes
             self.leaveChat()
         }
 
-        self.videoCallButton.hideIndicator()
-        self.voiceCallButton.hideIndicator()
+        self.callOptionsButton.hideIndicator()
     }
 
     required init?(coder decoder: NSCoder) {
@@ -301,10 +340,8 @@ import SwiftyAttributes
     func disableRoomControls() {
         self.titleView?.isUserInteractionEnabled = false
 
-        self.videoCallButton.hideIndicator()
-        self.videoCallButton.isEnabled = false
-        self.voiceCallButton.hideIndicator()
-        self.voiceCallButton.isEnabled = false
+        self.callOptionsButton.hideIndicator()
+        self.callOptionsButton.isEnabled = false
 
         self.rightButton.isEnabled = false
         self.leftButton.isEnabled = false
@@ -314,8 +351,7 @@ import SwiftyAttributes
         if hasJoinedRoom, !offlineMode {
             // Enable room info and call buttons when we joined a room
             self.titleView?.isUserInteractionEnabled = true
-            self.videoCallButton.isEnabled = true
-            self.voiceCallButton.isEnabled = true
+            self.callOptionsButton.isEnabled = true
         }
 
         // Files/objects can only be send when we're not offline
@@ -327,8 +363,7 @@ import SwiftyAttributes
 
         if !room.userCanStartCall, !room.hasCall {
             // Disable call buttons
-            self.videoCallButton.isEnabled = false
-            self.voiceCallButton.isEnabled = false
+            self.callOptionsButton.isEnabled = false
         }
 
         if room.readOnlyState == .readOnly || self.shouldPresentLobbyView() {
@@ -336,8 +371,7 @@ import SwiftyAttributes
             self.setTextInputbarHidden(true, animated: self.isVisible)
 
             // Disable call buttons
-            self.videoCallButton.isEnabled = false
-            self.voiceCallButton.isEnabled = false
+            self.callOptionsButton.isEnabled = false
         } else if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room), !room.permissions.contains(.chat) {
             // Hide text input
             self.setTextInputbarHidden(true, animated: isVisible)
@@ -352,6 +386,9 @@ import SwiftyAttributes
             // Make sure the textinput has the correct height
             self.setChatMessage(self.textInputbar.textView.text)
         }
+
+        // Rebuild the call menu to reflect the current call state
+        self.setupCallOptionsBarButtonMenu(button: self.callOptionsButton)
 
         if self.presentedInCall {
             // Create a close button and remove the call buttons
@@ -797,8 +834,7 @@ import SwiftyAttributes
         }
 
         DispatchQueue.main.async {
-            self.videoCallButton.hideIndicator()
-            self.voiceCallButton.hideIndicator()
+            self.callOptionsButton.hideIndicator()
         }
     }
 

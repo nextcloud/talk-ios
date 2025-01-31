@@ -353,6 +353,9 @@
 "Audio options" = "Audio options";
 
 /* No comment provided by engineer. */
+"Audio, video and screen shares" = "Audio, video and screen shares";
+
+/* No comment provided by engineer. */
 "Audios" = "Audios";
 
 /* No comment provided by engineer. */
@@ -393,6 +396,9 @@
 
 /* No comment provided by engineer. */
 "Call notification sent" = "Call notification sent";
+
+/* No comment provided by engineer. */
+"Call options" = "Call options";
 
 /* No comment provided by engineer. */
 "Call recording enabled?" = "Call recording enabled?";
@@ -800,7 +806,13 @@
 "Double tap to dismiss sharing options" = "Double tap to dismiss sharing options";
 
 /* No comment provided by engineer. */
+"Double tap to display call options" = "Double tap to display call options";
+
+/* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
+
+/* No comment provided by engineer. */
+"Double tap to enable or disable 'Call without notification' option" = "Double tap to enable or disable 'Call without notification' option";
 
 /* No comment provided by engineer. */
 "Double tap to enable or disable the camera" = "Double tap to enable or disable the camera";
@@ -848,7 +860,7 @@
 "Double tap to start a video call" = "Double tap to start a video call";
 
 /* No comment provided by engineer. */
-"Double tap to start a voice call" = "Double tap to start a voice call";
+"Double tap to start a voice only call" = "Double tap to start a voice only call";
 
 /* No comment provided by engineer. */
 "Double tap to stop recording" = "Double tap to stop recording";
@@ -1070,6 +1082,9 @@
 "Join a conversation or start a new one" = "Join a conversation or start a new one";
 
 /* No comment provided by engineer. */
+"Join call" = "Join call";
+
+/* No comment provided by engineer. */
 "Join call (audio only)" = "Join call (audio only)";
 
 /* No comment provided by engineer. */
@@ -1077,6 +1092,9 @@
 
 /* No comment provided by engineer. */
 "Join open conversations" = "Join open conversations";
+
+/* No comment provided by engineer. */
+"Join video call" = "Join video call";
 
 /* No comment provided by engineer. */
 "Last day (inclusive)" = "Last day (inclusive)";
@@ -1377,6 +1395,9 @@
 
 /* No comment provided by engineer. */
 "Online status" = "Online status";
+
+/* No comment provided by engineer. */
+"Only audio and screen shares" = "Only audio and screen shares";
 
 /* No comment provided by engineer. */
 "Only normal chat messages can be deleted" = "Only normal chat messages can be deleted";
@@ -1763,10 +1784,22 @@
 "Speech recognition failed" = "Speech recognition failed";
 
 /* No comment provided by engineer. */
+"Start call" = "Start call";
+
+/* No comment provided by engineer. */
+"Start call silently" = "Start call silently";
+
+/* No comment provided by engineer. */
 "Start recording" = "Start recording";
 
 /* No comment provided by engineer. */
 "Start time" = "Start time";
+
+/* No comment provided by engineer. */
+"Start video call" = "Start video call";
+
+/* No comment provided by engineer. */
+"Start video call silently" = "Start video call silently";
 
 /* No comment provided by engineer. */
 "Status" = "Status";
@@ -1994,16 +2027,10 @@
 "Version" = "Version";
 
 /* No comment provided by engineer. */
-"Video call" = "Video call";
-
-/* No comment provided by engineer. */
 "Video quality" = "Video quality";
 
 /* Conversation visibility settings */
 "Visibility" = "Visibility";
-
-/* No comment provided by engineer. */
-"Voice call" = "Voice call";
 
 /* No comment provided by engineer. */
 "Voice messages" = "Voice messages";
