@@ -263,7 +263,13 @@
 "An error occurred while deleting the message" = "An error occurred while deleting the message";
 
 /* No comment provided by engineer. */
+"An error occurred while deleting the poll draft" = "An error occurred while deleting the poll draft";
+
+/* No comment provided by engineer. */
 "An error occurred while disabling absence" = "An error occurred while disabling absence";
+
+/* No comment provided by engineer. */
+"An error occurred while editing the poll" = "An error occurred while editing the poll";
 
 /* No comment provided by engineer. */
 "An error occurred while opening the file %@" = "An error occurred while opening the file %@";
@@ -716,6 +722,9 @@
 "Deleting message" = "Deleting message";
 
 /* No comment provided by engineer. */
+"Deleting poll draft failed" = "Deleting poll draft failed";
+
+/* No comment provided by engineer. */
 "Demote from moderator" = "Demote from moderator";
 
 /* '{Microphone, Camera, ...} access is denied' */
@@ -885,6 +894,12 @@
 
 /* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
+
+/* No comment provided by engineer. */
+"Editing poll draft" = "Editing poll draft";
+
+/* No comment provided by engineer. */
+"Editing poll failed" = "Editing poll failed";
 
 /* No comment provided by engineer. */
 "Either you don't have chat permission or the conversation is read-only." = "Either you don't have chat permission or the conversation is read-only.";

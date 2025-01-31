@@ -1646,6 +1646,36 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+- (NSURLSessionDataTask *)editPollDraftWithId:(NSInteger)draftId question:(NSString *)question options:(NSArray *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block
+{
+    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *endpoint = [NSString stringWithFormat:@"poll/%@/draft/%ld", encodedToken, (long)draftId];
+    NSInteger pollsAPIVersion = [self pollsAPIVersionForAccount:account];
+    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:pollsAPIVersion forAccount:account];
+    NSDictionary *parameters = @{@"question" : question,
+                                 @"options" : options,
+                                 @"resultMode" : @(resultMode),
+                                 @"maxVotes" : @(maxVotes)
+    };
+    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
+    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *pollDict = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
+        NCPoll *poll = [NCPoll initWithPollDictionary:pollDict];
+        if (block) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+            block(poll, nil, httpResponse.statusCode);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSInteger statusCode = [self getResponseStatusCode:task.response];
+        [self checkResponseStatusCode:statusCode forAccount:account];
+        if (block) {
+            block(nil, error, statusCode);
+        }
+    }];
+
+    return task;
+}
+
 - (NSURLSessionDataTask *)getPollDraftsInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollDraftsCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];

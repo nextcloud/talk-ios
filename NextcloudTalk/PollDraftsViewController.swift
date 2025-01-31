@@ -6,7 +6,7 @@
 import UIKit
 
 protocol PollDraftsViewControllerDelegate: AnyObject {
-    func didSelectPollDraft(question: String, options: [String], resultMode: NCPollResultMode, maxVotes: Int)
+    func didSelectPollDraft(draft:NCPoll, forEditing: Bool)
 }
 
 class PollDraftsViewController: UITableViewController {
@@ -83,6 +83,15 @@ class PollDraftsViewController: UITableViewController {
         }
     }
 
+    // MARK: - Error dialogs
+    func showDeletionError() {
+        let alert = UIAlertController(title: NSLocalizedString("Deleting poll draft failed", comment: ""),
+                                      message: NSLocalizedString("An error occurred while deleting the poll draft", comment: ""),
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+
     // MARK: - TableView DataSource
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return drafts.count
@@ -105,7 +114,35 @@ class PollDraftsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismiss(animated: true) {
             let draft = self.drafts[indexPath.row]
-            self.delegate?.didSelectPollDraft(question: draft.question, options: draft.options.compactMap { $0 as? String }, resultMode: draft.resultMode, maxVotes: draft.maxVotes)
+            self.delegate?.didSelectPollDraft(draft: draft, forEditing: false)
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { _ in
+            let deleteAction = UIAction(title: NSLocalizedString("Delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { [unowned self] _ in
+                let draft = self.drafts[indexPath.row]
+                NCAPIController.sharedInstance().closePoll(withId: draft.pollId, inRoom: room.token, for: room.account) { _, error, _ in
+                    if error == nil {
+                        self.getPollDrafts()
+                    } else {
+                        self.showDeletionError()
+                    }
+                }
+            }
+
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityEditDraftPoll, forAccountId: self.room.accountId) {
+                let editAction = UIAction(title: NSLocalizedString("Edit", comment: ""), image: UIImage(systemName: "pencil")) { [unowned self] _ in
+                    dismiss(animated: true) {
+                        let draft = self.drafts[indexPath.row]
+                        self.delegate?.didSelectPollDraft(draft: draft, forEditing: true)
+                    }
+                }
+
+                return UIMenu(children: [editAction, deleteAction])
+            }
+
+            return UIMenu(children: [deleteAction])
         }
     }
 }
