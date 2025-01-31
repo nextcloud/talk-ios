@@ -1128,7 +1128,13 @@ import SwiftUI
                     // that manually here, so mentions are correctly removed while editing.
                     // The same needs to happen for "mentionId" -> userId with a prefixed "@"
                     parameter.mentionDisplayName = "@\(paramaterDisplayName)"
-                    parameter.mentionId = "@\(parameterId)"
+
+                    if parameter.mentionId == nil {
+                        // Fallback for servers that do not return "mention-id" in message parameters.
+                        // This will not work correctly in some cases (e.g. teams)
+                        parameter.mentionId = "@\(parameterId)"
+                    }
+
                     self.mentionsDict[key] = parameter
                 }
             }
