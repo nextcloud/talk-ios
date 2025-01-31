@@ -97,7 +97,8 @@ jobs:
         ]
 
     steps:
-    - uses: futureware-tech/simulator-action@v4
+    - name: Boot simulator
+      uses: futureware-tech/simulator-action@v4
       with:
         model: ${{ env.SIMULATOR_MODEL }}
         os_version: ${{ env.SIMULATOR_VERSION }}
@@ -165,8 +166,8 @@ jobs:
       run: |
         source ./ci-setup-rooms.sh
 
-    - name: Launch safari inside simulator
-      run: xcrun simctl openurl booted http://localhost:8080
+    - name: Try to launch safari inside simulator
+      run: xcrun simctl openurl booted http://localhost:8080 || true
 
     - name: Test NextcloudTalk iOS
       run: |
