@@ -53,6 +53,8 @@ import SwiftyGif
         let errorText = UILabel()
         errorText.translatesAutoresizingMaskIntoConstraints = false
         errorText.text = NSLocalizedString("An error occurred downloading the picture", comment: "")
+        errorText.numberOfLines = 0
+        errorText.textAlignment = .center
 
         errorView.addSubview(errorImage)
         errorView.addSubview(errorText)
@@ -64,7 +66,9 @@ import SwiftyGif
             errorImage.centerXAnchor.constraint(equalTo: errorView.centerXAnchor),
             errorText.topAnchor.constraint(equalTo: errorImage.bottomAnchor, constant: 10),
             errorText.bottomAnchor.constraint(equalTo: errorView.bottomAnchor),
-            errorText.centerXAnchor.constraint(equalTo: errorView.centerXAnchor)
+            errorText.centerXAnchor.constraint(equalTo: errorView.centerXAnchor),
+            errorText.leadingAnchor.constraint(equalTo: errorView.leadingAnchor, constant: 10),
+            errorText.trailingAnchor.constraint(equalTo: errorView.trailingAnchor, constant: -10)
         ])
 
         return errorView
@@ -75,9 +79,9 @@ import SwiftyGif
     }
 
     public var currentVideoURL: URL?
-    
+
     private var playerViewController: AVPlayerViewController?
-    
+
     private lazy var activityIndicator = {
         let indicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: 100, height: 100))
         indicator.translatesAutoresizingMaskIntoConstraints = false
