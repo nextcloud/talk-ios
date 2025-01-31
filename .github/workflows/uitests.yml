@@ -32,7 +32,7 @@ env:
   WORKSPACE: NextcloudTalk.xcworkspace
   DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.0
   SIMULATOR_MODEL: iPhone 16
-  SIMULATOR_VERSION: 18.0
+  SIMULATOR_VERSION: "18.0"
   SCHEME: NextcloudTalk
 
 jobs:
@@ -165,6 +165,9 @@ jobs:
       run: |
         source ./ci-setup-rooms.sh
 
+    - name: Launch safari inside simulator
+      run: xcrun simctl openurl booted http://localhost:8080
+
     - name: Test NextcloudTalk iOS
       run: |
         set -o pipefail && \
@@ -174,8 +177,7 @@ jobs:
         -derivedDataPath 'DerivedData' \
         -test-iterations 3 \
         -retry-tests-on-failure \
-        -resultBundlePath 'testResult.xcresult' \
-        | xcbeautify --quieter
+        -resultBundlePath 'testResult.xcresult'
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
