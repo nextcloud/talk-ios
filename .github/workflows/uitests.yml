@@ -97,12 +97,6 @@ jobs:
         ]
 
     steps:
-    - name: Boot simulator
-      uses: futureware-tech/simulator-action@v4
-      with:
-        model: ${{ env.SIMULATOR_MODEL }}
-        os_version: ${{ env.SIMULATOR_VERSION }}
-
     - name: Checkout app
       uses: actions/checkout@v4
       with:
@@ -138,7 +132,13 @@ jobs:
 
     - name: Set up production dependencies
       working-directory: server/apps/spreed
-      run: composer i --no-dev 
+      run: composer i --no-dev
+
+    - name: Boot simulator
+      uses: futureware-tech/simulator-action@v4
+      with:
+        model: ${{ env.SIMULATOR_MODEL }}
+        os_version: ${{ env.SIMULATOR_VERSION }}      
 
     - name: Set up Nextcloud
       run: |
