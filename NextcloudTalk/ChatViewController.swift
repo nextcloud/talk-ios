@@ -240,9 +240,17 @@ import SwiftyAttributes
     public override func viewDidLoad() {
         super.viewDidLoad()
 
+        var barButtonsItems: [UIBarButtonItem] = []
+        // Call options
         if room.supportsCalling {
-            self.navigationItem.rightBarButtonItems = [callOptionsButton, upcomingEventsButton]
+            barButtonsItems.append(callOptionsButton)
         }
+        // Upcoming events
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMeeting, forAccountId: room.accountId) {
+            barButtonsItems.append(upcomingEventsButton)
+        }
+
+        self.navigationItem.rightBarButtonItems = barButtonsItems
 
         // No sharing options in federation v1
         if room.isFederated {
