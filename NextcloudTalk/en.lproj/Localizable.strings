@@ -1,3 +1,6 @@
+/* Indicates an event happening on a specific day (e.g Monday at 10:00) */
+"%@ at %@" = "%1$@ at %2$@";
+
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
 
@@ -818,6 +821,9 @@
 "Double tap to display call options" = "Double tap to display call options";
 
 /* No comment provided by engineer. */
+"Double tap to display upcoming events" = "Double tap to display upcoming events";
+
+/* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
 
 /* No comment provided by engineer. */
@@ -1361,6 +1367,9 @@
 "No shared items" = "No shared items";
 
 /* No comment provided by engineer. */
+"No upcoming events" = "No upcoming events";
+
+/* No comment provided by engineer. */
 "No user found" = "No user found";
 
 /* '{Microphone, Camera, ...} access was not requested' */
@@ -1383,6 +1392,9 @@
 
 /* No comment provided by engineer. */
 "Notifications: %@" = "Notifications: %@";
+
+/* Indicates an event happening right now */
+"Now" = "Now";
 
 /* No comment provided by engineer. */
 "Off" = "Off";
@@ -1930,8 +1942,14 @@
 /* No comment provided by engineer. */
 "Today" = "Today";
 
+/* Indicates an event happening today */
+"Today at %@" = "Today at %@";
+
 /* Remind me tomorrow about that message */
 "Tomorrow" = "Tomorrow";
+
+/* Indicates an event happening tomorrow */
+"Tomorrow at %@" = "Tomorrow at %@";
 
 /* TRANSLATORS this is for transcribing a voice message to text */
 "Transcribe" = "Transcribe";
@@ -2010,6 +2028,9 @@
 
 /* No comment provided by engineer. */
 "Unread messages" = "Unread messages";
+
+/* No comment provided by engineer. */
+"Upcoming events" = "Upcoming events";
 
 /* No comment provided by engineer. */
 "Update" = "Update";

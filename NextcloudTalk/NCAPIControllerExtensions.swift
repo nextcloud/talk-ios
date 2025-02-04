@@ -680,4 +680,26 @@ import Foundation
             completionBlock(message)
         }
     }
+
+    // MARK: - Upcoming events
+
+    public func upcomingEvents(_ room: NCRoom, forAccount account: TalkAccount, completionBlock: @escaping (_ events: [CalendarEvent]) -> Void) {
+        guard let encodedRoomLink = room.linkURL?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock([])
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/events/upcoming?location=\(encodedRoomLink)"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, error in
+            if error == nil, let events = ocsResponse?.dataDict?["events"] as? [[String: Any]] {
+                let calendarEvents = events.map { CalendarEvent(dictionary: $0) }
+                completionBlock(calendarEvents)
+            } else {
+                completionBlock([])
+            }
+        }
+    }
 }

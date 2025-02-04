@@ -391,6 +391,10 @@
 		2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
 		2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
 		2C1ABDE5257F883400AEDFB6 /* ABContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDE4257F883400AEDFB6 /* ABContact.m */; };
+		2C1C68072D51229500A7F98A /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C68062D51229500A7F98A /* CalendarEvent.swift */; };
+		2C1C68082D51338400A7F98A /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C68062D51229500A7F98A /* CalendarEvent.swift */; };
+		2C1C68092D51338400A7F98A /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C68062D51229500A7F98A /* CalendarEvent.swift */; };
+		2C1C680A2D51338400A7F98A /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C68062D51229500A7F98A /* CalendarEvent.swift */; };
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C1EF36B25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
@@ -900,6 +904,7 @@
 		2C1ABDCD257E939600AEDFB6 /* NCContact.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCContact.m; sourceTree = "<group>"; };
 		2C1ABDE3257F883400AEDFB6 /* ABContact.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ABContact.h; sourceTree = "<group>"; };
 		2C1ABDE4257F883400AEDFB6 /* ABContact.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ABContact.m; sourceTree = "<group>"; };
+		2C1C68062D51229500A7F98A /* CalendarEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEvent.swift; sourceTree = "<group>"; };
 		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2C1EF36925505DCE007C9768 /* NCNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCNavigationController.h; sourceTree = "<group>"; };
 		2C1EF36A25505DCE007C9768 /* NCNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNavigationController.m; sourceTree = "<group>"; };
@@ -2185,6 +2190,7 @@
 				1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */,
 				1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */,
 				1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */,
+				2C1C68062D51229500A7F98A /* CalendarEvent.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -2872,6 +2878,7 @@
 				1FF136132BFB6FCD006A6101 /* RLMSupport.swift in Sources */,
 				1F77A5ED2AB9A408007B6037 /* NCChatMessage.m in Sources */,
 				1F77A5EB2AB9A3EE007B6037 /* BGTaskHelper.swift in Sources */,
+				2C1C680A2D51338400A7F98A /* CalendarEvent.swift in Sources */,
 				1F205C532CEF91C500AAA673 /* UserAbsence.swift in Sources */,
 				1FF136182BFB74D0006A6101 /* NCChatMessage.swift in Sources */,
 				1F77A5FC2AB9A4ED007B6037 /* NCRoom.m in Sources */,
@@ -3019,6 +3026,7 @@
 				1F1B50472B90CDF800B0F2F4 /* TalkCapabilities.m in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */,
+				2C1C68072D51229500A7F98A /* CalendarEvent.swift in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2CC3166E2CC698E1007CBE16 /* TextFieldTableViewCell.swift in Sources */,
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
@@ -3177,6 +3185,7 @@
 				2C62AFFD24C1BDA5007E460A /* NCMessageParameter.m in Sources */,
 				1F35F8EC2AEEBC1400044BDA /* UIScrollView+SLKAdditions.m in Sources */,
 				1FF136172BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
+				2C1C68092D51338400A7F98A /* CalendarEvent.swift in Sources */,
 				2CF338E22CED388B0029CACC /* AvatarView.swift in Sources */,
 				1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
@@ -3259,6 +3268,7 @@
 				F644A2DF2CE28C8D00E2ED81 /* NCChatFileStatus.swift in Sources */,
 				2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */,
 				2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */,
+				2C1C68082D51338400A7F98A /* CalendarEvent.swift in Sources */,
 				2C4446D42658147900DF1DBC /* TalkAccount.m in Sources */,
 				1FDCC3E329EC787400DEB39B /* AvatarManager.swift in Sources */,
 				1FF4DA852C025DC000C1B952 /* NCAPISessionManager.swift in Sources */,

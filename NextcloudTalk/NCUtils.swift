@@ -247,6 +247,52 @@ import AVFoundation
         return Calendar.current.date(byAdding: .day, value: (weekday - currentWeekday), to: date)!
     }
 
+    public static func eventTime(from timestamp: TimeInterval) -> String {
+        let eventDate = Date(timeIntervalSince1970: timestamp)
+        let calendar = Calendar.current
+        let now = Date()
+
+        if eventDate <= now {
+            return NSLocalizedString("Now", comment: "Indicates an event happening right now")
+        }
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeStyle = .short
+        timeFormatter.locale = Locale.current
+
+        let timeString = timeFormatter.string(from: eventDate)
+
+        if calendar.isDateInToday(eventDate) {
+            let todayFormat = NSLocalizedString("Today at %@", comment: "Indicates an event happening today")
+            return String(format: todayFormat, timeString)
+        }
+
+        if calendar.isDateInTomorrow(eventDate) {
+            let tomorrowFormat = NSLocalizedString("Tomorrow at %@", comment: "Indicates an event happening tomorrow")
+            return String(format: tomorrowFormat, timeString)
+        }
+
+        if let nextWeek = calendar.date(byAdding: .day, value: 7, to: now),
+           eventDate < calendar.startOfDay(for: nextWeek) {
+            let weekdayFormatter = DateFormatter()
+            weekdayFormatter.dateFormat = "EEEE"
+            weekdayFormatter.locale = Locale.current
+
+            let weekdayString = weekdayFormatter.string(from: eventDate)
+            let weekdayFormat = NSLocalizedString("%@ at %@", comment: "Indicates an event happening on a specific day (e.g Monday at 10:00)")
+            return String(format: weekdayFormat, weekdayString, timeString)
+        }
+
+        let fullDateFormatter = DateFormatter()
+        fullDateFormatter.dateStyle = .medium
+        fullDateFormatter.locale = Locale.current
+
+        let dateString = fullDateFormatter.string(from: eventDate)
+        let dateFormat = NSLocalizedString("%@ at %@", comment: "Indicates an event happening on a specific day (e.g Monday at 10:00)")
+
+        return String(format: dateFormat, dateString, timeString)
+    }
+
     // MARK: - Crypto utils
 
     public static func sha1(fromString string: String) -> String {
