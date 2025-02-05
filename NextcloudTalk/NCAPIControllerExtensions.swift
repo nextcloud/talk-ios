@@ -683,7 +683,8 @@ import Foundation
 
     // MARK: - Upcoming events
 
-    public func upcomingEvents(_ room: NCRoom, forAccount account: TalkAccount, completionBlock: @escaping (_ events: [CalendarEvent]) -> Void) {
+    @nonobjc
+    func upcomingEvents(_ room: NCRoom, forAccount account: TalkAccount, completionBlock: @escaping (_ events: [CalendarEvent]) -> Void) {
         guard let encodedRoomLink = room.linkURL?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {

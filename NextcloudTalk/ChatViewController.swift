@@ -170,7 +170,7 @@ import SwiftyAttributes
                 let actions: [UIAction]
                 if !events.isEmpty {
                     actions = events.map { event in
-                        UIAction(title: event.summary, subtitle: NCUtils.eventTime(from: (TimeInterval(event.start))), handler: { _ in })
+                        UIAction(title: event.summary, subtitle: event.readableStartTime(), handler: { _ in })
                     }
                 } else {
                     actions = [UIAction(title: NSLocalizedString("No upcoming events", comment: ""), attributes: .disabled, handler: { _ in })]
