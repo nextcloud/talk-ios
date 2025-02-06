@@ -163,7 +163,7 @@ import SwiftyAttributes
         let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration)
         let upcomingEventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
 
-        let deferredUpcomingEvents = UIDeferredMenuElement.uncached { [weak self] completion in
+        let deferredUpcomingEvents = UIDeferredMenuElement { [weak self] completion in
             guard let self = self else { return }
 
             NCAPIController.sharedInstance().upcomingEvents(self.room, forAccount: self.account) { events in
