@@ -80,6 +80,7 @@ extern NSString * const kCapabilityCallNotificationState;
 extern NSString * const kCapabilityCallForceMute;
 extern NSString * const kCapabilityTalkPollsDrafts;
 extern NSString * const kCapabilityEditDraftPoll;
+extern NSString * const kCapabilityScheduleMeeting;
 
 extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kNotificationsCapabilityTestPush;

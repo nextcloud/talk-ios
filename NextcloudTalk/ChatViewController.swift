@@ -57,7 +57,7 @@ import SwiftyAttributes
 
     private var lobbyCheckTimer: Timer?
 
-    // MARK: - Call buttons in NavigationBar
+    // MARK: - Buttons in NavigationBar
 
     func getCallOptionsBarButton() -> BarButtonItemWithActivity {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
@@ -158,6 +158,37 @@ import SwiftyAttributes
         return callOptionsButton
     }()
 
+    private lazy var upcomingEventsButton: BarButtonItemWithActivity = {
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
+        let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration)
+        let upcomingEventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
+
+        let deferredUpcomingEvents = UIDeferredMenuElement { [weak self] completion in
+            guard let self = self else { return }
+
+            NCAPIController.sharedInstance().upcomingEvents(self.room, forAccount: self.account) { events in
+                let actions: [UIAction]
+                if !events.isEmpty {
+                    actions = events.map { event in
+                        UIAction(title: event.summary, subtitle: event.readableStartTime(), handler: { _ in })
+                    }
+                } else {
+                    actions = [UIAction(title: NSLocalizedString("No upcoming events", comment: ""), attributes: .disabled, handler: { _ in })]
+                }
+
+                completion(actions)
+            }
+        }
+
+        upcomingEventsButton.innerButton.menu = UIMenu(children: [deferredUpcomingEvents])
+        upcomingEventsButton.innerButton.showsMenuAsPrimaryAction = true
+
+        upcomingEventsButton.accessibilityLabel = NSLocalizedString("Upcoming events", comment: "")
+        upcomingEventsButton.accessibilityHint = NSLocalizedString("Double tap to display upcoming events", comment: "")
+
+        return upcomingEventsButton
+    }()
+
     private var messageExpirationTimer: Timer?
 
     public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
@@ -209,9 +240,17 @@ import SwiftyAttributes
     public override func viewDidLoad() {
         super.viewDidLoad()
 
+        var barButtonsItems: [UIBarButtonItem] = []
+        // Call options
         if room.supportsCalling {
-            self.navigationItem.rightBarButtonItems = [callOptionsButton]
+            barButtonsItems.append(callOptionsButton)
         }
+        // Upcoming events
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMeeting, forAccountId: room.accountId) {
+            barButtonsItems.append(upcomingEventsButton)
+        }
+
+        self.navigationItem.rightBarButtonItems = barButtonsItems
 
         // No sharing options in federation v1
         if room.isFederated {
@@ -291,7 +330,7 @@ import SwiftyAttributes
         // Check if new messages were added while the app was inactive (eg. via background-refresh)
         self.checkForNewStoredMessages()
 
-        if !self.offlineMode {            
+        if !self.offlineMode {
             NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
         }
 

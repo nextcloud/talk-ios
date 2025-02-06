@@ -818,6 +818,9 @@
 "Double tap to display call options" = "Double tap to display call options";
 
 /* No comment provided by engineer. */
+"Double tap to display upcoming events" = "Double tap to display upcoming events";
+
+/* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
 
 /* No comment provided by engineer. */
@@ -1361,6 +1364,9 @@
 "No shared items" = "No shared items";
 
 /* No comment provided by engineer. */
+"No upcoming events" = "No upcoming events";
+
+/* No comment provided by engineer. */
 "No user found" = "No user found";
 
 /* '{Microphone, Camera, ...} access was not requested' */
@@ -1383,6 +1389,9 @@
 
 /* No comment provided by engineer. */
 "Notifications: %@" = "Notifications: %@";
+
+/* Indicates an event happening right now */
+"Now" = "Now";
 
 /* No comment provided by engineer. */
 "Off" = "Off";
@@ -2010,6 +2019,9 @@
 
 /* No comment provided by engineer. */
 "Unread messages" = "Unread messages";
+
+/* No comment provided by engineer. */
+"Upcoming events" = "Upcoming events";
 
 /* No comment provided by engineer. */
 "Update" = "Update";
