@@ -27,47 +27,31 @@ struct CalendarEvent {
 
     func readableStartTime() -> String {
         let eventDate = Date(timeIntervalSince1970: TimeInterval(start))
-        let calendar = Calendar.current
         let now = Date()
 
+        // Event happening now
         if eventDate <= now {
             return NSLocalizedString("Now", comment: "Indicates an event happening right now")
         }
 
-        let timeFormatter = DateFormatter()
-        timeFormatter.timeStyle = .short
-        timeFormatter.locale = Locale.current
-
-        let timeString = timeFormatter.string(from: eventDate)
-
-        if calendar.isDateInToday(eventDate) {
-            let todayFormat = NSLocalizedString("Today at %@", comment: "Indicates an event happening today")
-            return String(format: todayFormat, timeString)
-        }
-
-        if calendar.isDateInTomorrow(eventDate) {
-            let tomorrowFormat = NSLocalizedString("Tomorrow at %@", comment: "Indicates an event happening tomorrow")
-            return String(format: tomorrowFormat, timeString)
-        }
-
+        // Event happening following days (except today or tomorrow)
+        let calendar = Calendar.current
         if let nextWeek = calendar.date(byAdding: .day, value: 7, to: now),
+           !calendar.isDateInToday(eventDate), !calendar.isDateInTomorrow(eventDate),
            eventDate < calendar.startOfDay(for: nextWeek) {
-            let weekdayFormatter = DateFormatter()
-            weekdayFormatter.dateFormat = "EEEE"
-            weekdayFormatter.locale = Locale.current
-
-            let weekdayString = weekdayFormatter.string(from: eventDate)
-            let weekdayFormat = NSLocalizedString("%@ at %@", comment: "Indicates an event happening on a specific day (e.g Monday at 10:00)")
-            return String(format: weekdayFormat, weekdayString, timeString)
+            return eventDate.formatted(
+                .dateTime
+                .weekday(.wide)
+                .hour(.conversationalTwoDigits(amPM: .wide))
+                .minute(.defaultDigits))
         }
 
-        let fullDateFormatter = DateFormatter()
-        fullDateFormatter.dateStyle = .medium
-        fullDateFormatter.locale = Locale.current
+        // Event happening today, tomorrow or later than a week
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+        dateFormatter.doesRelativeDateFormatting = true
 
-        let dateString = fullDateFormatter.string(from: eventDate)
-        let dateFormat = NSLocalizedString("%@ at %@", comment: "Indicates an event happening on a specific day (e.g Monday at 10:00)")
-
-        return String(format: dateFormat, dateString, timeString)
+        return dateFormatter.string(from: eventDate)
     }
 }

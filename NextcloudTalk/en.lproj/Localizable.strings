@@ -1,6 +1,3 @@
-/* Indicates an event happening on a specific day (e.g Monday at 10:00) */
-"%@ at %@" = "%1$@ at %2$@";
-
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
 
@@ -1942,14 +1939,8 @@
 /* No comment provided by engineer. */
 "Today" = "Today";
 
-/* Indicates an event happening today */
-"Today at %@" = "Today at %@";
-
 /* Remind me tomorrow about that message */
 "Tomorrow" = "Tomorrow";
-
-/* Indicates an event happening tomorrow */
-"Tomorrow at %@" = "Tomorrow at %@";
 
 /* TRANSLATORS this is for transcribing a voice message to text */
 "Transcribe" = "Transcribe";
