@@ -20,7 +20,7 @@ typedef enum NCTextColorStyle {
 
 NSString * const talkAppName = @"Nextcloud Talk";
 NSString * const filesAppName = @"Nextcloud";
-NSString * const copyright = @"© 2024 Nextcloud GmbH";
+NSString * const copyright = @"© 2025 Nextcloud GmbH";
 NSString * const bundleIdentifier = @"com.nextcloud.Talk";
 NSString * const groupIdentifier = @"group.com.nextcloud.Talk";
 NSString * const appsGroupIdentifier = @"group.com.nextcloud.apps";
@@ -31,7 +31,7 @@ BOOL const multiAccountEnabled = YES;
 BOOL const useAppsGroup = YES;
 BOOL const forceDomain = NO;
 NSString * const domain = nil;
-NSString * const appAlternateVersion = @"21.0.0 Beta 1";
+NSString * const appAlternateVersion = @"21.0.0 RC 1";
 
 + (NSString *)getAppVersionString
 {
