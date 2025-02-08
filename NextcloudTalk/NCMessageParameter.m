@@ -7,6 +7,8 @@
 
 #import "NCDatabaseManager.h"
 
+#import "NextcloudTalk-Swift.h"
+
 @implementation NCMessageParameter
 
 - (instancetype)initWithDictionary:(NSDictionary *)parameterDict
@@ -32,22 +34,16 @@
         self.contactName = [parameterDict objectForKey:@"contact-name"];
         self.contactPhoto = [parameterDict objectForKey:@"contact-photo"];
 
-        if ([parameterDict objectForKey:@"mention-id"]) {
-            // "mention-id" (with a dash) is returned by the server and should be preferred if it exists
-            NSString *mentionId = [parameterDict objectForKey:@"mention-id"];
+        if ([self isMention]) {
+            NSString *mentionDisplayName = [parameterDict objectForKey:@"mention-display-name"];
 
-            // Note: The "mentionId" in NCMessageParameter is different to MentionSuggestion! In NCMessageParameter we require the @-prefix
-            if ([mentionId containsString:@"/"] || [mentionId rangeOfCharacterFromSet:[NSCharacterSet whitespaceCharacterSet]].location != NSNotFound) {
-                self.mentionId = [NSString stringWithFormat:@"@\"%@\"", mentionId];
-            } else {
-                self.mentionId = [NSString stringWithFormat:@"@%@", mentionId];
+            if (!mentionDisplayName) {
+                mentionDisplayName = self.name;
             }
-        } else if ([parameterDict objectForKey:@"mentionId"]) {
-            // "mentionId" (without a dash) is our locally stored mentionId in case a message needs to be resend -> use as fallback
-            self.mentionId = [parameterDict objectForKey:@"mentionId"];
-        }
 
-        self.mentionDisplayName = [parameterDict objectForKey:@"mentionDisplayName"];
+            NSString *mentionId = [parameterDict objectForKey:@"mention-id"];
+            self.mention = [[Mention alloc] initWithId:self.parameterId label:mentionDisplayName mentionId:mentionId];
+        }
     }
     
     return self;
@@ -59,6 +55,13 @@
     // Call mentions
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     return ([_type isEqualToString:@"user"] && [activeAccount.userId isEqualToString:_parameterId]) || [_type isEqualToString:@"call"];
+}
+
+- (BOOL)isMention
+{
+    return [_type isEqualToString:@"user"] || [_type isEqualToString:@"guest"] ||
+    [_type isEqualToString:@"user-group"] || [_type isEqualToString:@"call"] ||
+    [_type isEqualToString:@"email"] || [_type isEqualToString:@"circle"];
 }
 
 - (UIImage *)contactPhotoImage
@@ -98,11 +101,11 @@
     if (messageParameter.contactPhoto) {
         [messageParameterDict setObject:messageParameter.contactPhoto forKey:@"contact-photo"];
     }
-    if (messageParameter.mentionId) {
-        [messageParameterDict setObject:messageParameter.mentionId forKey:@"mentionId"];
+    if (messageParameter.mention.mentionId) {
+        [messageParameterDict setObject:messageParameter.mention.mentionId forKey:@"mention-id"];
     }
-    if (messageParameter.mentionDisplayName) {
-        [messageParameterDict setObject:messageParameter.mentionDisplayName forKey:@"mentionDisplayName"];
+    if (messageParameter.mention.label) {
+        [messageParameterDict setObject:messageParameter.mention.label forKey:@"mention-display-name"];
     }
 
     return [[NSDictionary alloc] initWithDictionary:messageParameterDict];

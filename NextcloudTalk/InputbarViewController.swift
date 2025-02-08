@@ -245,8 +245,10 @@ import UIKit
         guard let messageParametersDict = NCMessageParameter.messageParametersDict(fromJSONString: parameters) else { return resultMessage }
 
         for (parameterKey, parameter) in messageParametersDict {
+            guard let mention = parameter.mention else { continue }
+
             let parameterKeyString = "{\(parameterKey)}"
-            resultMessage = resultMessage.replacingOccurrences(of: parameter.mentionDisplayName, with: parameterKeyString)
+            resultMessage = resultMessage.replacingOccurrences(of: mention.labelForChat, with: parameterKeyString)
         }
 
         return resultMessage
@@ -295,23 +297,23 @@ import UIKit
         if let details = suggestion.details {
             cell.titleLabel.numberOfLines = 2
 
-            let attributedLabel = (suggestion.label + "\n").withFont(.preferredFont(forTextStyle: .body))
+            let attributedLabel = (suggestion.mention.label + "\n").withFont(.preferredFont(forTextStyle: .body))
             let attributedDetails = details.withFont(.preferredFont(forTextStyle: .callout)).withTextColor(.secondaryLabel)
             attributedLabel.append(attributedDetails)
             cell.titleLabel.attributedText = attributedLabel
         } else {
             cell.titleLabel.numberOfLines = 1
-            cell.titleLabel.text = suggestion.label
+            cell.titleLabel.text = suggestion.mention.label
         }
 
         if let suggestionUserStatus = suggestion.userStatus {
             cell.setUserStatus(suggestionUserStatus)
         }
 
-        if suggestion.id == "all" {
+        if suggestion.mention.id == "all" {
             cell.avatarButton.setAvatar(for: self.room)
         } else {
-            cell.avatarButton.setActorAvatar(forId: suggestion.id, withType: suggestion.source, withDisplayName: suggestion.label, withRoomToken: self.room.token, using: self.account)
+            cell.avatarButton.setActorAvatar(forId: suggestion.mention.id, withType: suggestion.source, withDisplayName: suggestion.mention.label, withRoomToken: self.room.token, using: self.account)
         }
 
         cell.accessibilityIdentifier = AutoCompletionCellIdentifier
@@ -328,7 +330,7 @@ import UIKit
         let mentionKey = "mention-\(self.mentionsDict.count)"
         self.mentionsDict[mentionKey] = suggestion.asMessageParameter()
 
-        let mentionWithWhitespace = suggestion.label + " "
+        let mentionWithWhitespace = suggestion.mention.label + " "
         self.acceptAutoCompletion(with: mentionWithWhitespace, keepPrefix: true)
     }
 
@@ -356,12 +358,14 @@ import UIKit
             let substring = (text as NSString).substring(to: cursorOffset)
 
             if var lastPossibleMention = substring.components(separatedBy: "@").last {
-                lastPossibleMention.insert("@", at: lastPossibleMention.startIndex)
-
                 for (mentionKey, mentionParameter) in self.mentionsDict {
-                    if lastPossibleMention != mentionParameter.mentionDisplayName {
+                    guard let mention = mentionParameter.mention else { continue }
+
+                    if lastPossibleMention != mention.label {
                         continue
                     }
+
+                    lastPossibleMention.insert("@", at: lastPossibleMention.startIndex)
 
                     // Delete mention
                     let range = NSRange(location: cursorOffset - lastPossibleMention.utf16.count, length: lastPossibleMention.utf16.count)

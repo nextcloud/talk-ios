@@ -563,19 +563,6 @@ import SwiftUI
         return unmanagedTemporaryMessage
     }
 
-    internal func replaceMessageMentionsKeysWithMentionsDisplayNames(message: String, parameters: String) -> String {
-        var resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard let messageParametersDict = NCMessageParameter.messageParametersDict(fromJSONString: parameters) else { return resultMessage }
-
-        for (parameterKey, parameter) in messageParametersDict {
-            let parameterKeyString = "{\(parameterKey)}"
-            resultMessage = resultMessage.replacingOccurrences(of: parameterKeyString, with: parameter.mentionDisplayName)
-        }
-
-        return resultMessage
-    }
-
     internal func appendTemporaryMessage(temporaryMessage: NCChatMessage) {
         DispatchQueue.main.async {
             let lastSectionBeforeUpdate = self.dateSections.count - 1
@@ -1017,9 +1004,8 @@ import SwiftUI
         self.removeUnreadMessagesSeparator()
 
         self.removePermanentlyTemporaryMessage(temporaryMessage: message)
-        guard var originalMessage = message.message else { return }
+        guard var originalMessage = message.sendingMessageWithDisplayNames else { return }
         if message.messageType != kMessageTypeVoiceMessage {
-            originalMessage = self.replaceMessageMentionsKeysWithMentionsDisplayNames(message: message.message, parameters: message.messageParametersJSONString ?? "")
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -1109,36 +1095,7 @@ import SwiftUI
             // Show the message to edit in the reply view
             self.showReplyView(for: message)
             self.replyMessageView!.hideCloseButton()
-
-            self.mentionsDict = [:]
-
-            // Try to reconstruct the mentionsDict
-            for (key, value) in message.messageParameters {
-                if let key = key as? String,
-                   key.hasPrefix("mention-"),
-                   let value = value as? [String: String] {
-
-                    guard let parameter = NCMessageParameter(dictionary: value),
-                          let paramaterDisplayName = parameter.name,
-                          let parameterId = parameter.parameterId
-                    else { continue }
-
-                    // For mentions the displayName is in the parameter "name", in our mentionsDict we use
-                    // "mentionsDisplayName" for the displayName with the prefix "@", so we need to construct
-                    // that manually here, so mentions are correctly removed while editing.
-                    // The same needs to happen for "mentionId" -> userId with a prefixed "@"
-                    parameter.mentionDisplayName = "@\(paramaterDisplayName)"
-
-                    if parameter.mentionId == nil {
-                        // Fallback for servers that do not return "mention-id" in message parameters.
-                        // This will not work correctly in some cases (e.g. teams)
-                        parameter.mentionId = "@\(parameterId)"
-                    }
-
-                    self.mentionsDict[key] = parameter
-                }
-            }
-
+            self.mentionsDict = message.mentionMessageParameters
             self.editingMessage = message
 
             // For files without a caption we start with an empty text instead of "{file}"
