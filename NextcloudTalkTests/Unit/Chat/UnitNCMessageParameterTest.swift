@@ -25,7 +25,10 @@ final class UnitNCMessageParameterTest: XCTestCase {
 
         XCTAssertEqual(parameters.parameterId, "admin")
         XCTAssertEqual(parameters.name, "admin displayname")
-        XCTAssertEqual(parameters.mentionId, "@admin")
+        XCTAssertEqual(parameters.mention?.id, "admin")
+        XCTAssertEqual(parameters.mention?.idForChat, "@\"admin\"")
+        XCTAssertEqual(parameters.mention?.label, "admin displayname")
+        XCTAssertEqual(parameters.mention?.labelForChat, "@admin displayname")
     }
 
     func testMentionIdFromServerFederated() throws {
@@ -46,7 +49,7 @@ final class UnitNCMessageParameterTest: XCTestCase {
 
         XCTAssertEqual(parameters.parameterId, "admin")
         XCTAssertEqual(parameters.name, "admin displayname")
-        XCTAssertEqual(parameters.mentionId, "@\"federated_user/admin@nextcloud.local\"")
+        XCTAssertEqual(parameters.mention?.idForChat, "@\"federated_user/admin@nextcloud.local\"")
     }
 
 }

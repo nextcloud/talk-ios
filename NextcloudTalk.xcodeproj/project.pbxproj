@@ -204,6 +204,10 @@
 		1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07929142E62009F72AD /* NextcloudKit */; };
 		1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07B29142E6A009F72AD /* NextcloudKit */; };
 		1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
+		1F7CCC242D552D2000F3FB77 /* Mention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7CCC232D552D2000F3FB77 /* Mention.swift */; };
+		1F7CCC252D552D2000F3FB77 /* Mention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7CCC232D552D2000F3FB77 /* Mention.swift */; };
+		1F7CCC262D552D2000F3FB77 /* Mention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7CCC232D552D2000F3FB77 /* Mention.swift */; };
+		1F7CCC272D552D2000F3FB77 /* Mention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7CCC232D552D2000F3FB77 /* Mention.swift */; };
 		1F8848122A75B68D00063860 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
 		1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B22970644C00CABA33 /* ColorGenerator.swift */; };
 		1F8995B52973547700CABA33 /* WebRTCCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B42973547700CABA33 /* WebRTCCommon.swift */; };
@@ -788,6 +792,7 @@
 		1F785DDA2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VoiceMessageTranscribeViewController.m; sourceTree = "<group>"; };
 		1F785DDB2707865F00AC4B40 /* VoiceMessageTranscribeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VoiceMessageTranscribeViewController.xib; sourceTree = "<group>"; };
 		1F785DDC2707865F00AC4B40 /* VoiceMessageTranscribeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoiceMessageTranscribeViewController.h; sourceTree = "<group>"; };
+		1F7CCC232D552D2000F3FB77 /* Mention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mention.swift; sourceTree = "<group>"; };
 		1F8995B22970644C00CABA33 /* ColorGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorGenerator.swift; sourceTree = "<group>"; };
 		1F8995B42973547700CABA33 /* WebRTCCommon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRTCCommon.swift; sourceTree = "<group>"; };
 		1F8AAC312C518759004DA20A /* SignalingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalingSettings.swift; sourceTree = "<group>"; };
@@ -2188,12 +2193,13 @@
 				1FAB2E842ACB482B001214EB /* ChatViewController.swift */,
 				1F35F8FA2AEEDBC600044BDA /* ChatViewControllerExtension.swift */,
 				2C4230F62B207AB00013E1FA /* ContextChatViewController.swift */,
-				1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */,
 				F644A2DC2CE287FA00E2ED81 /* ChatFileUploader.swift */,
 				1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */,
 				1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */,
 				1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */,
 				2C1C68062D51229500A7F98A /* CalendarEvent.swift */,
+				1F7CCC232D552D2000F3FB77 /* Mention.swift */,
+				1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -2862,6 +2868,7 @@
 				1F77A5F42AB9A4B2007B6037 /* ABContact.m in Sources */,
 				1F77A6012AB9A51D007B6037 /* NCNotificationAction.swift in Sources */,
 				1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */,
+				1F7CCC272D552D2000F3FB77 /* Mention.swift in Sources */,
 				1F77A5F32AB9A43B007B6037 /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1FC4B3452CCE671800D28138 /* OcsError.swift in Sources */,
 				1FF4DA832C025DBF00C1B952 /* NCAPISessionManager.swift in Sources */,
@@ -3129,6 +3136,7 @@
 				1F35F9042AEEDF0E00044BDA /* AutoCompletionTableViewCell.m in Sources */,
 				2C42ADB420B58E6300296DEA /* NCChatController.m in Sources */,
 				1F20582A2CEA404F00AAA673 /* AiSummaryViewController.swift in Sources */,
+				1F7CCC242D552D2000F3FB77 /* Mention.swift in Sources */,
 				1FD9182928C55A73009092AB /* BGTaskHelper.swift in Sources */,
 				1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */,
 				1F785DDD2707865F00AC4B40 /* VoiceMessageTranscribeViewController.m in Sources */,
@@ -3206,6 +3214,7 @@
 				1F35F9052AEEDF0E00044BDA /* AutoCompletionTableViewCell.m in Sources */,
 				1F35F90A2AEEE76A00044BDA /* QuotedMessageView.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
+				1F7CCC262D552D2000F3FB77 /* Mention.swift in Sources */,
 				2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */,
 				1FDCC3ED29EC7E6700DEB39B /* AvatarImageView.swift in Sources */,
 				1F35F8E32AEEBBE000044BDA /* NCChatTitleView.m in Sources */,
@@ -3323,6 +3332,7 @@
 				2CC0016924A25C3400A20167 /* NCMessageParameter.m in Sources */,
 				1FB78E292B6AE8CA00B0D69D /* FederationInvitation.swift in Sources */,
 				2C444704265D641300DF1DBC /* NCUserDefaults.m in Sources */,
+				1F7CCC252D552D2000F3FB77 /* Mention.swift in Sources */,
 				1F205C512CEF91C500AAA673 /* UserAbsence.swift in Sources */,
 				2CC001B724A37A9A00A20167 /* NCUser.m in Sources */,
 				2CC0016124A25B5500A20167 /* NCAPIController.m in Sources */,

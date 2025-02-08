@@ -7,48 +7,26 @@ import Foundation
 
 @objcMembers public class MentionSuggestion: NSObject {
 
-    public var id: String
-    public var label: String
+    public var mention: Mention
     public var source: String
-    public var mentionId: String?
     public var userStatus: String?
     public var details: String?
 
     init(dictionary: [String: Any]) {
-        self.id = dictionary["id"] as? String ?? ""
-        self.label = dictionary["label"] as? String ?? ""
+        self.mention = Mention(id: dictionary["id"] as? String ?? "", label: dictionary["label"] as? String ?? "", mentionId: dictionary["mentionId"] as? String)
         self.source = dictionary["source"] as? String ?? ""
-        self.mentionId = dictionary["mentionId"] as? String
         self.userStatus = dictionary["status"] as? String
         self.details = dictionary["details"] as? String
 
         super.init()
     }
 
-    func getIdForChat() -> String {
-        // When we support a mentionId serverside, we use that
-        var id = self.mentionId ?? self.id
-
-        if id.contains("/") || id.rangeOfCharacter(from: .whitespaces) != nil {
-            id = "\"\(id)\""
-        }
-
-        return id
-    }
-
-    func getIdForAvatar() -> String {
-        // For avatars we always want to use the actorId, so ignore a potential serverside mentionId here
-        return self.id
-    }
-
     func asMessageParameter() -> NCMessageParameter {
         let messageParameter = NCMessageParameter()
 
-        messageParameter.parameterId = self.getIdForAvatar()
-        messageParameter.name = self.label
-        messageParameter.mentionDisplayName = "@\(self.label)"
-        // Note: The mentionId on NCMessageParameter is different than the one on MentionSuggestion!
-        messageParameter.mentionId = "@\(self.getIdForChat())"
+        messageParameter.parameterId = mention.id
+        messageParameter.name = mention.label
+        messageParameter.mention = mention
 
         // Set parameter type
         if self.source == "calls" {

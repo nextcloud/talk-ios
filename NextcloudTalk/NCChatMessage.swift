@@ -131,6 +131,25 @@ import SwiftyAttributes
         return dict
     }
 
+    public var mentionMessageParameters: [String: NCMessageParameter] {
+        var result: [String: NCMessageParameter] = [:]
+
+        for case let (key as String, value as [String: String]) in self.messageParameters {
+            guard key.hasPrefix("mention-"), let parameter = NCMessageParameter(dictionary: value), parameter.isMention() else { continue }
+
+            if parameter.mention == nil, let parameterId = parameter.parameterId, let paramaterDisplayName = parameter.name {
+                // Try to reconstruct the mention for unsupported servers
+                parameter.mention = Mention(id: parameterId, label: paramaterDisplayName)
+            }
+
+            if parameter.mention != nil {
+                result[key] = parameter
+            }
+        }
+
+        return result
+    }
+
     // TODO: Should probably be an optional?
     public var systemMessageFormat: NSMutableAttributedString {
         guard let message = self.parsedMessage() else { return NSMutableAttributedString(string: "") }
@@ -139,14 +158,31 @@ import SwiftyAttributes
     }
 
     // TODO: Should probably be an optional?
+    /// 'Hello {mention-user1}' -> 'Hello @user1'
     public var sendingMessage: String {
         guard var resultMessage = self.message else { return "" }
 
         resultMessage = resultMessage.trimmingCharacters(in: .whitespacesAndNewlines)
 
         for case let (key as String, value as [AnyHashable: Any]) in self.messageParameters {
-            if let parameter = NCMessageParameter(dictionary: value), let mentionId = parameter.mentionId {
-                resultMessage = resultMessage.replacingOccurrences(of: "{\(key)}", with: mentionId)
+            if let parameter = NCMessageParameter(dictionary: value), let mention = parameter.mention {
+                resultMessage = resultMessage.replacingOccurrences(of: "{\(key)}", with: mention.idForChat)
+            }
+        }
+
+        return resultMessage
+    }
+
+    /// 'Hello {mention-user1}' -> 'Hello @User1 Displayname'
+    public var sendingMessageWithDisplayNames: String? {
+        guard var resultMessage = self.message else { return nil }
+
+        resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // TODO: Could use mentionMessageParameters directly here?
+        for case let (key as String, value as [AnyHashable: Any]) in self.messageParameters {
+            if let parameter = NCMessageParameter(dictionary: value), let mention = parameter.mention {
+                resultMessage = resultMessage.replacingOccurrences(of: "{\(key)}", with: mention.labelForChat)
             }
         }
 
