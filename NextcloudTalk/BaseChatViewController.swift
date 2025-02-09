@@ -3608,6 +3608,16 @@ import SwiftUI
         DispatchQueue.main.async {
             if let indexPath = self.indexPath(for: message) {
                 self.highlightMessage(at: indexPath, with: .top)
+            } else {
+                // Show context of messages that are currently not loaded
+                guard let account = self.room.account,
+                      let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0)
+                else { return }
+
+                chatViewController.showContext(ofMessageId: message.messageId, withLimit: 50, withCloseButton: true)
+
+                let navController = NCNavigationController(rootViewController: chatViewController)
+                self.present(navController, animated: true)
             }
         }
     }
