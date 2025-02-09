@@ -73,6 +73,7 @@ import SwiftUI
         chatBackgroundView.loadingView.startAnimating()
         chatBackgroundView.placeholderTextView.text = NSLocalizedString("No messages yet, start the conversation!", comment: "")
         chatBackgroundView.setImage(UIImage(named: "chat-placeholder"))
+        chatBackgroundView.accessibilityIdentifier = "Chat PlacerholderView"
 
         return chatBackgroundView
     }()
