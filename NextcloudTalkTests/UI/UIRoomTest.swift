@@ -177,8 +177,12 @@ final class UIRoomTest: XCTestCase {
         let editExists = editButton.waitForExistence(timeout: TestConstants.timeoutShort)
 
         // Edit might not be supported by the server. Check for reply button to ensure context menu was correctly displayed
-        if !editExists, !app.buttons["Reply"].exists {
-            XCTFail("Neither edit, nor reply button exist")
+        if !editExists {
+            if !app.buttons["Reply"].exists {
+                XCTFail("Neither edit, nor reply button exist")
+            }
+
+            return
         }
 
         editButton.tap()
