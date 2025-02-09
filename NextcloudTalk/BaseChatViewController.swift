@@ -1004,7 +1004,9 @@ import SwiftUI
         self.removeUnreadMessagesSeparator()
 
         self.removePermanentlyTemporaryMessage(temporaryMessage: message)
-        guard var originalMessage = message.sendingMessageWithDisplayNames else { return }
+
+        guard let originalMessage = message.sendingMessageWithDisplayNames else { return }
+
         if message.messageType != kMessageTypeVoiceMessage {
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
