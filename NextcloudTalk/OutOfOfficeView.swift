@@ -114,10 +114,12 @@ import SwiftyAttributes
 
             replacement.attributedText = replacementString + separatorString + usernameString
 
-            let talkIcon = UIImage(named: "talk-20")?.withRenderingMode(.alwaysTemplate)
-            menuActions.append(UIAction(title: NSLocalizedString("Talk to", comment: "Talk to a user") + " " + replacementUserDisplayname, image: talkIcon) { [unowned self] _ in
-                NotificationCenter.default.post(name: .NCChatViewControllerTalkToUserNotification, object: self, userInfo: ["actorId": replacementUserId])
-            })
+            if let account = room.account, replacementUserId != account.userId, replacementUserId != absenceData.userId {
+                let talkIcon = UIImage(named: "talk-20")?.withRenderingMode(.alwaysTemplate)
+                menuActions.append(UIAction(title: NSLocalizedString("Talk to", comment: "Talk to a user") + " " + replacementUserDisplayname, image: talkIcon) { [unowned self] _ in
+                    NotificationCenter.default.post(name: .NCChatViewControllerTalkToUserNotification, object: self, userInfo: ["actorId": replacementUserId])
+                })
+            }
         } else {
             replacement.isHidden = true
         }
