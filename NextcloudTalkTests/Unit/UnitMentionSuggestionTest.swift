@@ -17,11 +17,12 @@ final class UnitMentionSuggestionTest: XCTestCase {
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.id, "my-id")
-        XCTAssertEqual(suggestion.label, "My Label")
         XCTAssertEqual(suggestion.source, "users")
-        XCTAssertEqual(suggestion.getIdForChat(), "my-id")
-        XCTAssertEqual(suggestion.getIdForAvatar(), "my-id")
+
+        XCTAssertEqual(suggestion.mention.id, "my-id")
+        XCTAssertEqual(suggestion.mention.label, "My Label")
+        XCTAssertEqual(suggestion.mention.idForChat, "@\"my-id\"")
+        XCTAssertEqual(suggestion.mention.labelForChat, "@My Label")
     }
 
     func testLocalGuestMention() throws {
@@ -31,9 +32,8 @@ final class UnitMentionSuggestionTest: XCTestCase {
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.id, "guest/guest-id")
-        XCTAssertEqual(suggestion.getIdForChat(), "\"guest/guest-id\"")
-        XCTAssertEqual(suggestion.getIdForAvatar(), "guest/guest-id")
+        XCTAssertEqual(suggestion.mention.id, "guest/guest-id")
+        XCTAssertEqual(suggestion.mention.idForChat, "@\"guest/guest-id\"")
     }
 
     func testLocalWhitespaceMention() throws {
@@ -43,9 +43,8 @@ final class UnitMentionSuggestionTest: XCTestCase {
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.id, "my id")
-        XCTAssertEqual(suggestion.getIdForChat(), "\"my id\"")
-        XCTAssertEqual(suggestion.getIdForAvatar(), "my id")
+        XCTAssertEqual(suggestion.mention.id, "my id")
+        XCTAssertEqual(suggestion.mention.idForChat, "@\"my id\"")
     }
 
     func testMentionId() throws {
@@ -56,10 +55,9 @@ final class UnitMentionSuggestionTest: XCTestCase {
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.id, "my-id")
-        XCTAssertEqual(suggestion.mentionId, "mention-id")
-        XCTAssertEqual(suggestion.getIdForChat(), "mention-id")
-        XCTAssertEqual(suggestion.getIdForAvatar(), "my-id")
+        XCTAssertEqual(suggestion.mention.id, "my-id")
+        XCTAssertEqual(suggestion.mention.mentionId, "mention-id")
+        XCTAssertEqual(suggestion.mention.idForChat, "@\"mention-id\"")
     }
 
     func testMessageParameter() throws {
@@ -75,8 +73,10 @@ final class UnitMentionSuggestionTest: XCTestCase {
 
         XCTAssertEqual(parameter.parameterId, "my-id")
         XCTAssertEqual(parameter.name, "My Label")
-        XCTAssertEqual(parameter.mentionDisplayName, "@My Label")
-        XCTAssertEqual(parameter.mentionId, "@mention-id")
+        XCTAssertEqual(parameter.mention?.label, "My Label")
+        XCTAssertEqual(parameter.mention?.mentionId, "mention-id")
+        XCTAssertEqual(parameter.mention?.idForChat, "@\"mention-id\"")
+        XCTAssertEqual(parameter.mention?.labelForChat, "@My Label")
         XCTAssertEqual(parameter.type, "user")
     }
 }

@@ -166,7 +166,41 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(app.images["MessageSent"].waitForExistence(timeout: TestConstants.timeoutShort))
 
         let tables = app.tables
-        XCTAssert(tables.textViews["@" + newConversationName].waitForExistence(timeout: TestConstants.timeoutShort))
+        var messageTextView = tables.textViews["@\(newConversationName)"]
+        XCTAssert(messageTextView.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        // Open context menu
+        messageTextView.descendants(matching: .any)["@\(newConversationName)"].press(forDuration: 2.0)
+
+        // Check if 'Edit' exists
+        let editButton = app.buttons["Edit"]
+        let editExists = editButton.waitForExistence(timeout: TestConstants.timeoutShort)
+
+        // Edit might not be supported by the server. Check for reply button to ensure context menu was correctly displayed
+        if !editExists {
+            if !app.buttons["Reply"].exists {
+                XCTFail("Neither edit, nor reply button exist")
+            }
+
+            return
+        }
+
+        editButton.tap()
+
+        // Wait for the original text to be shown in the textView
+        var predicate = NSPredicate(format: "value == '@\(newConversationName)'")
+        var textViewValue = toolbar.descendants(matching: .any).containing(predicate).firstMatch
+        XCTAssert(textViewValue.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        textView.typeText(" Edited")
+
+        // TODO: Should change the lib to have a proper identifier here
+        // Save the edit
+        toolbar.buttons["selected"].tap()
+
+        // Check if the edit is correct
+        messageTextView = tables.textViews["@\(newConversationName) Edited"]
+        XCTAssert(messageTextView.waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
     func testLobbyView() {
