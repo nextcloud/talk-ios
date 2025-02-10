@@ -132,12 +132,42 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@pendinginvitations@</string>
+        <key>pendinginvitations</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Máte %ld čakajúcu pozvánku</string>
+            <key>few</key>
+            <string>Máte %ld čakajúce pozvánky</string>
+            <key>many</key>
+            <string>Máte %ld čakajúcich pozvánok</string>
+            <key>other</key>
+            <string>Máte %ld čakajúcich pozvánok</string>
+        </dict>
     </dict>
 
     <key>%d options</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@options@</string>
+        <key>options</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d možnosť</string>
+            <key>few</key>
+            <string>%d možnosti</string>
+            <key>many</key>
+            <string>%d možností</string>
+            <key>other</key>
+            <string>%d možností</string>
+        </dict>
     </dict>
 </dict>
 </plist>
