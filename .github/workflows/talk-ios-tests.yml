@@ -167,8 +167,7 @@ jobs:
         -derivedDataPath 'DerivedData' \
         -test-iterations 3 \
         -retry-tests-on-failure \
-        -resultBundlePath 'testResult.xcresult' \
-        | xcbeautify --quieter
+        -resultBundlePath 'testResult.xcresult'
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
