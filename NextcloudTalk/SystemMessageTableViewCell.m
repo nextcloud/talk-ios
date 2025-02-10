@@ -9,6 +9,8 @@
 
 #import "NextcloudTalk-Swift.h"
 
+static CGFloat kChatCellDateLabelWidth      = 40.0;
+
 @interface SystemMessageTableViewCell () <UITextFieldDelegate>
 @property (nonatomic, assign) BOOL didCreateSubviews;
 @end

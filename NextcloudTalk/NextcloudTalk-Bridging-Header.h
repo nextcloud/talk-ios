@@ -85,4 +85,6 @@
 #import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
 
+#import "DRCellSlideGestureRecognizer.h"
+
 #endif /* NextcloudTalk_Bridging_Header_h */

@@ -7,9 +7,11 @@ protocol MessageSeparatorTableViewCellDelegate: AnyObject {
     func generateSummaryButtonPressed()
 }
 
-class MessageSeparatorTableViewCell: ChatTableViewCell {
+class MessageSeparatorTableViewCell: UITableViewCell {
 
     public weak var delegate: MessageSeparatorTableViewCellDelegate?
+
+    public var messageId: Int = 0
 
     public static let identifier = "MessageSeparatorCellIdentifier"
 

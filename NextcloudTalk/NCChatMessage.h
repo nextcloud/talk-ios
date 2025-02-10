@@ -32,6 +32,15 @@ extern NSString * const kSharedItemTypeVoice;
 extern NSString * const kSharedItemTypePoll;
 extern NSString * const kSharedItemTypeRecording;
 
+typedef NS_ENUM(NSInteger, ChatMessageDeliveryState) {
+    ChatMessageDeliveryStateSent = 0,
+    ChatMessageDeliveryStateRead,
+    ChatMessageDeliveryStateSending,
+    ChatMessageDeliveryStateDeleting,
+    ChatMessageDeliveryStateFailed,
+    ChatMessageDeliveryStateSilent
+};
+
 @class NCChatMessage;
 
 typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictionary *referenceData, NSString *url);

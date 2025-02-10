@@ -5,7 +5,10 @@
 
 #import <UIKit/UIKit.h>
 
+#import "SystemMessageTableViewCell.h"
+
 static CGFloat kAutoCompletionCellHeight        = 50.0;
+
 static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier";
 
 @class AvatarButton;

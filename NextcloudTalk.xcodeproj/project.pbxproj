@@ -589,7 +589,6 @@
 		2CC32E9A27F5DADB00BB8C39 /* NCChatReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC32E9727F5D9BD00BB8C39 /* NCChatReaction.m */; };
 		2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
 		2CC7158C20B8394A0045C789 /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
-		2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7159320C54D080045C789 /* ChatTableViewCell.m */; };
 		2CCCD21D2835088F00F076CE /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 2CCCD21C2835088F00F076CE /* OpenSSL */; };
 		2CD4F6B72C11C80600ED594F /* ContactsSearchResultTableViewContoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD4F6B62C11C80600ED594F /* ContactsSearchResultTableViewContoller.swift */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
@@ -1172,8 +1171,6 @@
 		2CC7158820B837140045C789 /* PlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlaceholderView.xib; sourceTree = "<group>"; };
 		2CC7158A20B8394A0045C789 /* PlaceholderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaceholderView.h; sourceTree = "<group>"; };
 		2CC7158B20B8394A0045C789 /* PlaceholderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaceholderView.m; sourceTree = "<group>"; };
-		2CC7159220C54D080045C789 /* ChatTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatTableViewCell.h; sourceTree = "<group>"; };
-		2CC7159320C54D080045C789 /* ChatTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatTableViewCell.m; sourceTree = "<group>"; };
 		2CD4F6B62C11C80600ED594F /* ContactsSearchResultTableViewContoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsSearchResultTableViewContoller.swift; sourceTree = "<group>"; };
 		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
@@ -1951,8 +1948,6 @@
 				2C04248F2CA32D45004772F6 /* BaseChatTableViewCell+Audio.swift */,
 				2C4747E52CB6710F002828F2 /* BaseChatTableViewCell+Poll.swift */,
 				1FE029B92CE289A200C0C633 /* MessageSeparatorTableViewCell.swift */,
-				2CC7159220C54D080045C789 /* ChatTableViewCell.h */,
-				2CC7159320C54D080045C789 /* ChatTableViewCell.m */,
 				1F35F9022AEEDEE800044BDA /* AutoCompletionTableViewCell.h */,
 				1F35F9032AEEDF0E00044BDA /* AutoCompletionTableViewCell.m */,
 				2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */,
@@ -2962,7 +2957,6 @@
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
 				1F1B0F452BE047CE003FD766 /* ModalPresentationController.swift in Sources */,
 				2CBF82AE1FC888FC00636459 /* NCPushNotification.m in Sources */,
-				2CC7159420C54D080045C789 /* ChatTableViewCell.m in Sources */,
 				1F8AAC322C518759004DA20A /* SignalingSettings.swift in Sources */,
 				1F1B0F272BDA61C5003FD766 /* AllocationTracker.swift in Sources */,
 				2CA1CCAA1F02D1A4002FE6A2 /* NCAPIController.m in Sources */,
