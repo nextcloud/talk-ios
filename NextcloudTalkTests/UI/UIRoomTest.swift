@@ -177,8 +177,11 @@ final class UIRoomTest: XCTestCase {
 
         lobbyCell.tap()
 
-        // Seems we can't access the backgroundView of a UITableView from the UITests
-        // let lobbyText = app.staticTexts["You are currently waiting in the lobby"]
+        // Check that the lobby view is displayed
+        let backgroundView = app.descendants(matching: .any)["Chat PlacerholderView"]
+        let lobbyTextView = backgroundView.textViews["You are currently waiting in the lobby"]
+
+        XCTAssert(lobbyTextView.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Check that the table has no rows
         let tables = app.tables.firstMatch
