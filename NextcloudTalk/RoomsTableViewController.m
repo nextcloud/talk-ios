@@ -1293,26 +1293,10 @@ typedef enum RoomsSections {
     }
 
     ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initForRoom:room withAccount:account withMessage:@[] withHighlightId:0];
-    contextChatViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeContextChat)];
-
-    NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
-    [chatController getMessageContextForMessageId:messageId withLimit:50 withCompletionBlock:^(NSArray<NCChatMessage *> * _Nullable messages) {
-        if (messages.count > 0) {
-            [contextChatViewController appendMessagesWithMessages:messages];
-            [contextChatViewController reloadDataAndHighlightMessageWithMessageId:messageId];
-        } else {
-            NSString *errorMessage = NSLocalizedString(@"Unable to get context of the message", nil);
-            [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:errorMessage dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
-        }
-    }];
+    [contextChatViewController showContextOfMessageId:messageId withLimit:50 withCloseButton:YES];
 
     _contextChatNavigationController = [[NCNavigationController alloc] initWithRootViewController:contextChatViewController];
     [self presentViewController:_contextChatNavigationController animated:YES completion:nil];
-}
-
-- (void)closeContextChat
-{
-    [_contextChatNavigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)createRoomForSelectedUser:(NCUser *)user
