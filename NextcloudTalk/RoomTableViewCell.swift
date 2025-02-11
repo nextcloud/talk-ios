@@ -40,6 +40,7 @@ import Foundation
 
         self.subtitleLabel.text = ""
         self.dateLabel.text = ""
+        self.titleOnly = false
 
         self.unreadMessagesView.setBadgeNumber(0)
     }
