@@ -409,12 +409,7 @@ import QuickLook
 
                 // Fetch the context of the message and update the BaseChatViewController
                 let message = self.currentItems[indexPath.row]
-                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 50) { messages in
-                    guard let messages else { return }
-
-                    chatViewController.appendMessages(messages: messages)
-                    chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
-                }
+                chatViewController.showContext(ofMessageId: message.messageId, withLimit: 50, withCloseButton: false)
 
                 let navController = NCNavigationController(rootViewController: chatViewController)
                 self.previewNavigationChatViewController = navController

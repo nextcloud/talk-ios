@@ -48,18 +48,7 @@ import UIKit
             let message = mediaPageViewController.message
 
             if let account = message.account, let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0) {
-
-                // Fetch the context of the message and update the BaseChatViewController
-                NCChatController(for: self.room).getMessageContext(forMessageId: message.messageId, withLimit: 50) { messages in
-                    guard let messages else { return }
-
-                    chatViewController.appendMessages(messages: messages)
-                    chatViewController.reloadDataAndHighlightMessage(messageId: message.messageId)
-                }
-
-                chatViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Close", comment: ""), primaryAction: UIAction { [weak chatViewController] _ in
-                    chatViewController?.dismiss(animated: true)
-                })
+                chatViewController.showContext(ofMessageId: message.messageId, withLimit: 50, withCloseButton: true)
 
                 let navController = NCNavigationController(rootViewController: chatViewController)
                 self.present(navController, animated: true)
