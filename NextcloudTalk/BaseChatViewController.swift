@@ -1193,22 +1193,23 @@ import SwiftUI
 
     // MARK: - Editing support
 
-    public override func didCancelTextEditing(_ sender: Any) {
-        super.didCancelTextEditing(sender)
+    private func didEndTextEditing() {
         self.autoCompletionView.tableHeaderView = nil
         self.replyMessageView?.dismiss()
         self.mentionsDict.removeAll()
         self.editingMessage = nil
         self.restorePendingMessage()
+        self.stopTyping(force: true)
+    }
+
+    public override func didCancelTextEditing(_ sender: Any) {
+        super.didCancelTextEditing(sender)
+        self.didEndTextEditing()
     }
 
     public override func didCommitTextEditing(_ sender: Any) {
         super.didCommitTextEditing(sender)
-        self.autoCompletionView.tableHeaderView = nil
-        self.replyMessageView?.dismiss()
-        self.mentionsDict.removeAll()
-        self.editingMessage = nil
-        self.restorePendingMessage()
+        self.didEndTextEditing()
     }
 
     // MARK: - UITextField delegate
