@@ -32,6 +32,11 @@ import SDWebImage
         return UIImage(named: "group-avatar", in: nil, compatibleWith: traitCollection)
     }
 
+    public func getTeamAvatar(with style: UIUserInterfaceStyle) -> UIImage? {
+        let traitCollection = UITraitCollection(userInterfaceStyle: style)
+        return UIImage(named: "team-avatar", in: nil, compatibleWith: traitCollection)
+    }
+
     public func getMailAvatar(with style: UIUserInterfaceStyle) -> UIImage? {
         let traitCollection = UITraitCollection(userInterfaceStyle: style)
         return UIImage(named: "mail-avatar", in: nil, compatibleWith: traitCollection)
@@ -86,8 +91,10 @@ import SDWebImage
 
         if actorType == NCAttendeeTypeEmail || actorType == NCAttendeeTypeGuest {
             image = self.getGuestsAvatar(withDisplayName: actorDisplayName ?? "", withStyle: style)
-        } else if actorType == NCAttendeeTypeGroup || actorType == NCAttendeeTypeCircle {
+        } else if actorType == NCAttendeeTypeGroup {
             image = self.getGroupAvatar(with: style)
+        } else if actorType == NCAttendeeTypeCircle || actorType == NCAttendeeTypeTeams {
+            image = self.getTeamAvatar(with: style)
         } else if actorType == "deleted_users" {
             image = self.getDeletedUserAvatar()
         } else {

@@ -327,10 +327,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             // Default replacement string is the parameter name
             NSString *replaceString = messageParameter.name;
             // Format user and call mentions
-            if ([messageParameter.type isEqualToString:@"user"] || [messageParameter.type isEqualToString:@"guest"] ||
-                [messageParameter.type isEqualToString:@"user-group"] || [messageParameter.type isEqualToString:@"call"] ||
-                [messageParameter.type isEqualToString:@"email"]) {
-                
+            if ([messageParameter isMention]) {
                 replaceString = [NSString stringWithFormat:@"@%@", [parameterDict objectForKey:@"name"]];
             }
             parsedMessage = [parsedMessage stringByReplacingOccurrencesOfString:parameter withString:replaceString];
@@ -361,10 +358,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
     for (NCMessageParameter *param in parameters) {
         //Set color for mentions
-        if ([param.type isEqualToString:@"user"] || [param.type isEqualToString:@"guest"] ||
-            [param.type isEqualToString:@"user-group"] || [param.type isEqualToString:@"call"] ||
-            [param.type isEqualToString:@"email"]) {
-
+        if ([param isMention]) {
             if (param.shouldBeHighlighted) {
                 if (!highlightedColor) {
                     // Only get the elementColor if we really need it to reduce realm queries

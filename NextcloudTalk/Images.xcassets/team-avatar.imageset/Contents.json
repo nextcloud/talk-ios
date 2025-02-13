@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "icon-open-conversation-bright.svg",
+      "filename" : "icon-team-bright.svg",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "icon-open-conversation-dark.svg",
+      "filename" : "icon-team-dark.svg",
       "idiom" : "universal"
     }
   ],
