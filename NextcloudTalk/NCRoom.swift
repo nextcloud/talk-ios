@@ -82,6 +82,11 @@ import Realm
             self.type != .changelog && self.type != .noteToSelf
     }
 
+    public var supportsUpcomingEvents: Bool {
+        return self.type != .changelog && self.type != .noteToSelf &&
+        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMeeting, forAccountId: self.accountId)
+    }
+
     public var supportsMessageExpirationModeration: Bool {
         if self.type == .formerOneToOne || self.type == .changelog {
             return false

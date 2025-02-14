@@ -246,7 +246,7 @@ import SwiftyAttributes
             barButtonsItems.append(callOptionsButton)
         }
         // Upcoming events
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMeeting, forAccountId: room.accountId) {
+        if room.supportsUpcomingEvents {
             barButtonsItems.append(upcomingEventsButton)
         }
 
