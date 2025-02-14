@@ -390,6 +390,14 @@
 		2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
 		2C06BF6420AC64370031EB46 /* DateHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C06BF6320AC64370031EB46 /* DateHeaderView.xib */; };
 		2C06BF6720AC647A0031EB46 /* DateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF6620AC647A0031EB46 /* DateHeaderView.m */; };
+		2C13E2E92D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */; };
+		2C13E2EA2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */; };
+		2C13E2EB2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */; };
+		2C13E2EC2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */; };
+		2C13E4102D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E40F2D5DF3C800590959 /* NCAPIController+CalDAV.swift */; };
+		2C13E4112D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E40F2D5DF3C800590959 /* NCAPIController+CalDAV.swift */; };
+		2C13E4122D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E40F2D5DF3C800590959 /* NCAPIController+CalDAV.swift */; };
+		2C13E4132D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E40F2D5DF3C800590959 /* NCAPIController+CalDAV.swift */; };
 		2C16A82C28E7284D00EDE523 /* NCButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C16A82B28E7284D00EDE523 /* NCButton.swift */; };
 		2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
 		2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
@@ -487,6 +495,7 @@
 		2C6955132B0CE1A20070F6E1 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
 		2C6955142B0CE1A20070F6E1 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
 		2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
+		2C6D1A992D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C6F0D6C2CDE26B0005E0812 /* BadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6F0D6B2CDE26B0005E0812 /* BadgeView.swift */; };
@@ -903,6 +912,8 @@
 		2C06BF6320AC64370031EB46 /* DateHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DateHeaderView.xib; sourceTree = "<group>"; };
 		2C06BF6520AC647A0031EB46 /* DateHeaderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateHeaderView.h; sourceTree = "<group>"; };
 		2C06BF6620AC647A0031EB46 /* DateHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateHeaderView.m; sourceTree = "<group>"; };
+		2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCalDAVSessionManager.swift; sourceTree = "<group>"; };
+		2C13E40F2D5DF3C800590959 /* NCAPIController+CalDAV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCAPIController+CalDAV.swift"; sourceTree = "<group>"; };
 		2C16A82B28E7284D00EDE523 /* NCButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCButton.swift; sourceTree = "<group>"; };
 		2C1ABDC4257A7CF000AEDFB6 /* NCContactsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCContactsManager.h; sourceTree = "<group>"; };
 		2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCContactsManager.m; sourceTree = "<group>"; };
@@ -1017,6 +1028,7 @@
 		2C67905128D35BEB00762744 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sl; path = sl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C69323B2923ECAA00017AD2 /* WSMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WSMessage.h; sourceTree = "<group>"; };
 		2C69323C2923ECAA00017AD2 /* WSMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WSMessage.m; sourceTree = "<group>"; };
+		2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingSwiftUIView.swift; sourceTree = "<group>"; };
 		2C6E74442386D33200AE396C /* ReplyMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReplyMessageView.h; sourceTree = "<group>"; };
 		2C6E74452386D33200AE396C /* ReplyMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReplyMessageView.m; sourceTree = "<group>"; };
 		2C6E7447238C1A0800AE396C /* QuotedMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuotedMessageView.h; sourceTree = "<group>"; };
@@ -1930,12 +1942,14 @@
 				2CA1CCA81F02D1A4002FE6A2 /* NCAPIController.h */,
 				2CA1CCA91F02D1A4002FE6A2 /* NCAPIController.m */,
 				1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */,
+				2C13E40F2D5DF3C800590959 /* NCAPIController+CalDAV.swift */,
 				2CA1CC8F1F014354002FE6A2 /* NCConnectionController.h */,
 				2CA1CC901F014354002FE6A2 /* NCConnectionController.m */,
 				1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */,
 				1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */,
 				1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */,
 				1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */,
+				2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */,
 				2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */,
 				1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */,
 				1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */,
@@ -1999,6 +2013,7 @@
 				1F205C542CEFA01200AAA673 /* OutOfOfficeView.xib */,
 				1F549E2C2D45695D00E9AA9E /* MessageTextViewController.swift */,
 				1F549E2A2D45695C00E9AA9E /* MessageTextViewController.xib */,
+				2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -2860,6 +2875,8 @@
 				1F77A5FA2AB9A4DF007B6037 /* NCMessageLocationParameter.m in Sources */,
 				1F77A6022AB9A532007B6037 /* CCCertificate.m in Sources */,
 				1F77A5EC2AB9A405007B6037 /* NCChatBlock.m in Sources */,
+				2C13E2EA2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */,
+				2C13E4102D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
 				1F77A5F42AB9A4B2007B6037 /* ABContact.m in Sources */,
 				1F77A6012AB9A51D007B6037 /* NCNotificationAction.swift in Sources */,
 				1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */,
@@ -2918,6 +2935,7 @@
 				2C4747E92CB67177002828F2 /* PollMessageView.swift in Sources */,
 				2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */,
 				1FEC459E2A02BCB900A636AA /* ReferenceGithubPermalinkView.swift in Sources */,
+				2C13E2EC2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */,
 				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
 				2CC3166C2CC2A850007CBE16 /* SettingsTableViewCell.swift in Sources */,
 				1FEDE3C6257D439500853F79 /* NCChatFileController.m in Sources */,
@@ -3011,6 +3029,7 @@
 				1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */,
 				2C4446F0265D454200DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */,
+				2C13E4112D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
 				1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
@@ -3049,6 +3068,7 @@
 				1F66B72C29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m in Sources */,
 				1FC18FC22CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift in Sources */,
 				1F5499202D35B07700E9AA9E /* ButtonContainerSwiftUI.swift in Sources */,
+				2C6D1A992D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift in Sources */,
 				1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */,
 				1FCE3D552C9C189D009C68A9 /* NCChatFileControllerWrapper.swift in Sources */,
 				2C78EF991F80F81E008AFA74 /* NCSignalingController.m in Sources */,
@@ -3193,6 +3213,7 @@
 				1FF136172BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
 				2C1C68092D51338400A7F98A /* CalendarEvent.swift in Sources */,
 				2CF338E22CED388B0029CACC /* AvatarView.swift in Sources */,
+				2C13E4122D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
 				1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
 				2C62B00C24C1BDC1007E460A /* NCNotification.m in Sources */,
 				1F8AAC3E2C519689004DA20A /* StunServer.swift in Sources */,
@@ -3248,6 +3269,7 @@
 				1FC4B3442CCE671800D28138 /* OcsError.swift in Sources */,
 				2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */,
 				1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
+				2C13E2EB2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */,
 				2C4446D52658147900DF1DBC /* TalkAccount.m in Sources */,
 				1F35F9062AEEE3C400044BDA /* NCMessageTextView.m in Sources */,
 				2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */,
@@ -3305,6 +3327,7 @@
 				1F0B0A752BA265310073FF8D /* MentionSuggestion.swift in Sources */,
 				1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1FF4DA882C0262BA00C1B952 /* NCBaseSessionManager.swift in Sources */,
+				2C13E2E92D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */,
 				1F8AAC332C518B8A004DA20A /* SignalingSettings.swift in Sources */,
 				2CB6ACDB2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				2C4446FB265D5C5700DF1DBC /* NCRoomParticipants.m in Sources */,
@@ -3320,6 +3343,7 @@
 				1F1B50482B90CF0800B0F2F4 /* TalkCapabilities.m in Sources */,
 				1FC4B3432CCE671800D28138 /* OcsError.swift in Sources */,
 				2CC0016724A25BE100A20167 /* NCChatMessage.m in Sources */,
+				2C13E4132D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
 				1FF4DA8F2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2CC0016324A25B7400A20167 /* NCDatabaseManager.m in Sources */,
 				1FF136102BFB4F8C006A6101 /* NCRoom.swift in Sources */,
