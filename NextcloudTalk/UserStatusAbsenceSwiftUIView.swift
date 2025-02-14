@@ -26,7 +26,6 @@ struct UserStatusAbsenceSwiftUIView: View {
                         Text("Last day (inclusive)")
                     }
                 }
-                .tint(Color(NCAppBranding.themeColor()))
 
                 if replacementSupported {
                     Section(header: Text("Replacement (optional)", comment: "Replacement in case of out of office")) {
@@ -52,7 +51,7 @@ struct UserStatusAbsenceSwiftUIView: View {
                                 absenceStatus.replacementUserId = nil
                                 absenceStatus.replacementUserDisplayName = nil
                             }
-                            .tint(.primary)
+                            .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -74,6 +73,7 @@ struct UserStatusAbsenceSwiftUIView: View {
                     }
                 }
             }
+            .tint(Color(NCAppBranding.themeColor()))
 
             ButtonContainerSwiftUI {
                 NCButtonSwiftUI(title: NSLocalizedString("Disable absence", comment: ""),
