@@ -89,6 +89,9 @@ typedef void (^SetUserStatusCompletionBlock)(NSError *error);
 
 typedef void (^GetAppIdCompletionBlock)(NSString *appId, NSError *error);
 
+typedef void (^GetWipeStatusCompletionBlock)(BOOL wipe, NSError *error);
+typedef void (^ConfirmWipeCompletionBlock)(NSError *error);
+
 typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
 
 typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
@@ -146,6 +149,10 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // App Store
 - (NSURLSessionDataTask *)getAppStoreAppIdWithCompletionBlock:(GetAppIdCompletionBlock)block;
+
+// Remote Wipe
+- (NSURLSessionDataTask *)checkWipeStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetWipeStatusCompletionBlock)block;
+- (NSURLSessionDataTask *)confirmWipeForAccount:(TalkAccount *)account withCompletionBlock:(GetWipeStatusCompletionBlock)block;
 
 // Contacts Controller
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
