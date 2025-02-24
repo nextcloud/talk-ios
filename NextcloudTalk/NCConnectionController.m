@@ -121,6 +121,9 @@ NSString * const NCConnectionStateHasChangedNotification    = @"NCConnectionStat
             }];
         }];
     } else {
+        // Fetch additional data asynchronously.
+        // We set the app as ready, so we don’t need to wait for this to complete.
+        [[NCSettingsController sharedInstance] getUserGroupsAndTeamsForAccountId:activeAccount.accountId];
         [self setAppState:kAppStateReady];
     }
     

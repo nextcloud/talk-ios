@@ -416,6 +416,55 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     }];
 }
 
+- (void)getUserGroupsAndTeamsForAccountId:(NSString *)accountId
+{
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+
+    if (!account) {
+        return;
+    }
+
+    [[NCAPIController sharedInstance] getUserGroupsForAccount:account completionBlock:^(NSArray * _Nullable groupIds, NSError * _Nullable error) {
+        if (!error) {
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm beginWriteTransaction];
+
+            NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+            TalkAccount *managedActiveAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+
+            if (!managedActiveAccount) {
+                return;
+            }
+
+            managedActiveAccount.groupIds = groupIds;
+
+            [realm commitWriteTransaction];
+        } else {
+            NSLog(@"Error while getting user's groups");
+        }
+    }];
+
+    [[NCAPIController sharedInstance] getUserTeamsForAccount:account completionBlock:^(NSArray * _Nullable teamIds, NSError * _Nullable error) {
+        if (!error) {
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm beginWriteTransaction];
+
+            NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+            TalkAccount *managedActiveAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+
+            if (!managedActiveAccount) {
+                return;
+            }
+
+            managedActiveAccount.teamIds = teamIds;
+
+            [realm commitWriteTransaction];
+        } else {
+            NSLog(@"Error while getting user' teams");
+        }
+    }];
+}
+
 - (void)logoutAccountWithAccountId:(NSString *)accountId withCompletionBlock:(LogoutCompletionBlock)block
 {
     TalkAccount *removingAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];

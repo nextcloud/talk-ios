@@ -51,10 +51,15 @@
 
 - (BOOL)shouldBeHighlighted
 {
-    // Own mentions
-    // Call mentions
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    return ([_type isEqualToString:@"user"] && [activeAccount.userId isEqualToString:_parameterId]) || [_type isEqualToString:@"call"];
+    BOOL ownMention = [_type isEqualToString:@"user"] && [activeAccount.userId isEqualToString:_parameterId];
+    BOOL callMention = [_type isEqualToString:@"call"];
+    NSArray *userGroups = [activeAccount.groupIds valueForKey:@"self"];
+    BOOL groupMention = [_type isEqualToString:@"user-group"] && [userGroups containsObject:_mention.id];
+    NSArray *userTeams = [activeAccount.teamIds valueForKey:@"self"];
+    BOOL teamMention = [_type isEqualToString:@"circle"] && [userTeams containsObject:_mention.id];
+
+    return ownMention || callMention || groupMention || teamMention;
 }
 
 - (BOOL)isMention
