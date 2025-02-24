@@ -153,6 +153,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@options@</string>
+        <key>options</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d opcja</string>
+            <key>few</key>
+            <string>%d opcje</string>
+            <key>many</key>
+            <string>%d opcji</string>
+            <key>other</key>
+            <string>%d opcji</string>
+        </dict>
     </dict>
 </dict>
 </plist>
