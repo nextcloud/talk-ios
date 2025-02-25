@@ -374,44 +374,87 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
                 email = @"";
             }
             RLMRealm *realm = [RLMRealm defaultRealm];
-            [realm beginWriteTransaction];
+            [realm transactionWithBlock:^{
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+                TalkAccount *managedActiveAccount = [TalkAccount objectsWithPredicate:query].firstObject;
 
-            NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
-            TalkAccount *managedActiveAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+                if (!managedActiveAccount) {
+                    NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+                    block(error);
 
-            if (!managedActiveAccount) {
-                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-                block(error);
+                    return;
+                }
 
-                return;
-            }
+                managedActiveAccount.userId = [userProfile objectForKey:kUserProfileUserId];
+                // "display-name" is returned by /cloud/user endpoint
+                // change to kUserProfileDisplayName ("displayName") when using /cloud/users/{userId} endpoint
+                managedActiveAccount.userDisplayName = [userProfile objectForKey:@"display-name"];
+                managedActiveAccount.userDisplayNameScope = [userProfile objectForKey:kUserProfileDisplayNameScope];
+                managedActiveAccount.phone = [userProfile objectForKey:kUserProfilePhone];
+                managedActiveAccount.phoneScope = [userProfile objectForKey:kUserProfilePhoneScope];
+                managedActiveAccount.email = email;
+                managedActiveAccount.emailScope = [userProfile objectForKey:kUserProfileEmailScope];
+                managedActiveAccount.address = [userProfile objectForKey:kUserProfileAddress];
+                managedActiveAccount.addressScope = [userProfile objectForKey:kUserProfileAddressScope];
+                managedActiveAccount.website = [userProfile objectForKey:kUserProfileWebsite];
+                managedActiveAccount.websiteScope = [userProfile objectForKey:kUserProfileWebsiteScope];
+                managedActiveAccount.twitter = [userProfile objectForKey:kUserProfileTwitter];
+                managedActiveAccount.twitterScope = [userProfile objectForKey:kUserProfileTwitterScope];
+                managedActiveAccount.avatarScope = [userProfile objectForKey:kUserProfileAvatarScope];
 
-            managedActiveAccount.userId = [userProfile objectForKey:kUserProfileUserId];
-            // "display-name" is returned by /cloud/user endpoint
-            // change to kUserProfileDisplayName ("displayName") when using /cloud/users/{userId} endpoint
-            managedActiveAccount.userDisplayName = [userProfile objectForKey:@"display-name"];
-            managedActiveAccount.userDisplayNameScope = [userProfile objectForKey:kUserProfileDisplayNameScope];
-            managedActiveAccount.phone = [userProfile objectForKey:kUserProfilePhone];
-            managedActiveAccount.phoneScope = [userProfile objectForKey:kUserProfilePhoneScope];
-            managedActiveAccount.email = email;
-            managedActiveAccount.emailScope = [userProfile objectForKey:kUserProfileEmailScope];
-            managedActiveAccount.address = [userProfile objectForKey:kUserProfileAddress];
-            managedActiveAccount.addressScope = [userProfile objectForKey:kUserProfileAddressScope];
-            managedActiveAccount.website = [userProfile objectForKey:kUserProfileWebsite];
-            managedActiveAccount.websiteScope = [userProfile objectForKey:kUserProfileWebsiteScope];
-            managedActiveAccount.twitter = [userProfile objectForKey:kUserProfileTwitter];
-            managedActiveAccount.twitterScope = [userProfile objectForKey:kUserProfileTwitterScope];
-            managedActiveAccount.avatarScope = [userProfile objectForKey:kUserProfileAvatarScope];
+                TalkAccount *unmanagedUpdatedAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
+                [[NCAPIController sharedInstance] saveProfileImageForAccount:unmanagedUpdatedAccount];
 
-            [realm commitWriteTransaction];
-
-            TalkAccount *unmanagedUpdatedAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
-            [[NCAPIController sharedInstance] saveProfileImageForAccount:unmanagedUpdatedAccount];
-
-            block(nil);
+                block(nil);
+            }];
         } else {
             NSLog(@"Error while getting the user profile");
             block(error);
+        }
+    }];
+}
+
+- (void)getUserGroupsAndTeamsForAccountId:(NSString *)accountId
+{
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+
+    if (!account) {
+        return;
+    }
+
+    [[NCAPIController sharedInstance] getUserGroupsForAccount:account completionBlock:^(NSArray * _Nullable groupIds, NSError * _Nullable error) {
+        if (!error) {
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm transactionWithBlock:^{
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+                TalkAccount *managedActiveAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+
+                if (!managedActiveAccount) {
+                    return;
+                }
+
+                managedActiveAccount.groupIds = groupIds;
+            }];
+        } else {
+            NSLog(@"Error while getting user's groups");
+        }
+    }];
+
+    [[NCAPIController sharedInstance] getUserTeamsForAccount:account completionBlock:^(NSArray * _Nullable teamIds, NSError * _Nullable error) {
+        if (!error) {
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm transactionWithBlock:^{
+                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
+                TalkAccount *managedActiveAccount = [TalkAccount objectsWithPredicate:query].firstObject;
+
+                if (!managedActiveAccount) {
+                    return;
+                }
+
+                managedActiveAccount.teamIds = teamIds;
+            }];
+        } else {
+            NSLog(@"Error while getting user' teams");
         }
     }];
 }

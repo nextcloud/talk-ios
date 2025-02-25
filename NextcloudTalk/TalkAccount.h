@@ -43,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *lastNotificationETag;
 @property NSInteger pendingFederationInvitations;
 @property NSString *frequentlyUsedEmojisJSONString;
+@property RLMArray<RLMString> *groupIds;
+@property RLMArray<RLMString> *teamIds;
 
 @end
 

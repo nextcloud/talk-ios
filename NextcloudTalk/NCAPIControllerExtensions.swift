@@ -703,4 +703,44 @@ import Foundation
             }
         }
     }
+
+    // MARK: - Groups & Teams
+
+    func getUserGroups(forAccount account: TalkAccount, completionBlock: @escaping (_ groupIds: [String]?, _ error: Error?) -> Void) {
+        guard let encodedUserId = account.userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/cloud/users/\(encodedUserId)/groups"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            if ocsError?.error == nil, let groupdIds = ocsResponse?.dataDict?["groups"] as? [String] {
+                completionBlock(groupdIds, nil)
+            } else {
+                completionBlock(nil, ocsError?.error)
+            }
+        }
+    }
+
+    func getUserTeams(forAccount account: TalkAccount, completionBlock: @escaping (_ teamIds: [String]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/circles/probecircles"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            if ocsError?.error == nil, let teamsDicts = ocsResponse?.dataArrayDict {
+                let teamIds = teamsDicts.compactMap { $0["id"] as? String }
+                completionBlock(teamIds, nil)
+            } else {
+                completionBlock(nil, ocsError?.error)
+            }
+        }
+    }
 }
