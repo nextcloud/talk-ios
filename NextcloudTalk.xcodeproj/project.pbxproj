@@ -4305,7 +4305,7 @@
 			repositoryURL = "https://github.com/nextcloud-deps/CDMarkdownKit.git";
 			requirement = {
 				kind = revision;
-				revision = 9c2fa78ff27045bfd76ba4d1e7a2565146287666;
+				revision = 60c7cf18b2c6b3c71e7944deccf836d0622d391b;
 			};
 		};
 		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
