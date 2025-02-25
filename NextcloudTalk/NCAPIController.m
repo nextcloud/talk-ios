@@ -2461,7 +2461,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (NSURLSessionDataTask *)setUserProfileField:(NSString *)field withValue:(NSString*)value forAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block
 {
-    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/users/%@", account.server, account.userId];
+    NSString *encodedUserId = [account.userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/cloud/users/%@", account.server, encodedUserId];
     NSDictionary *parameters = @{@"format" : @"json",
                                  @"key" : field,
                                  @"value" : value};
