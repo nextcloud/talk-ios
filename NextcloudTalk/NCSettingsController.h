@@ -77,5 +77,6 @@ typedef NS_ENUM(NSInteger, NCPreferredFileSorting) {
 - (void)setContactSync:(BOOL)enabled;
 - (BOOL)didReceiveCallsFromOldAccount;
 - (void)setDidReceiveCallsFromOldAccount:(BOOL)receivedOldCalls;
+- (void)createAccountsFile;
 
 @end

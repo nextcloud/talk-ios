@@ -15,6 +15,8 @@
 #import <BackgroundTasks/BGTaskRequest.h>
 #import <BackgroundTasks/BGTask.h>
 
+#import <SDWebImage/SDImageCache.h>
+
 #import "NCAudioController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
@@ -67,15 +69,19 @@
     NSLog(@"Configure App Settings");
     [NCSettingsController sharedInstance];
 
-    // Perform logfile cleanup only once in app lifecycle
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [NCUtils removeOldLogfiles];
+    // Perform cleanup only once in app lifecycle
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(void){
+        @autoreleasepool {
+            [NCUtils removeOldLogfiles];
+            [[SDImageCache sharedImageCache].diskCache removeExpiredData];
+            [[NCSettingsController sharedInstance] createAccountsFile];
+        }
     });
 
     UIDevice *currentDevice = [UIDevice currentDevice];
     [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@, %@ %@, model %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString], currentDevice.systemName, currentDevice.systemVersion, currentDevice.model]];
 
-    //Init rooms manager to start receiving NSNotificationCenter notifications
+    // Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager sharedInstance];
     
     [self registerBackgroundFetchTask];

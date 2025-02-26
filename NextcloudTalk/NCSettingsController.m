@@ -95,13 +95,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRevokedResponseReceived:) name:NCTokenRevokedResponseReceivedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(upgradeRequiredResponseReceived:) name:NCUpgradeRequiredResponseReceivedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(talkConfigurationHasChanged:) name:NCTalkConfigurationHashChangedNotification object:nil];
-
-        // No need to create the file immediately -> dispatch to background
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^(void){
-            @autoreleasepool {
-                [self createAccountsFile];
-            }
-        });
     }
     return self;
 }

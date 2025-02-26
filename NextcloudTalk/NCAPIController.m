@@ -150,6 +150,11 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     // Don't set the path to an app group in order to prevent crashes
     [SDImageCache sharedImageCache].config.shouldDisableiCloud = YES;
     [SDImageCache sharedImageCache].config.maxDiskSize = 100 * 1024 * 1024;
+    [SDImageCache sharedImageCache].config.maxDiskAge = 60 * 60 * 24 * 7 * 4; // 4 weeks
+
+    // We expire the cache once on app launch, see AppDelegate
+    [SDImageCache sharedImageCache].config.shouldRemoveExpiredDataWhenTerminate = NO;
+    [SDImageCache sharedImageCache].config.shouldRemoveExpiredDataWhenEnterBackground = NO;
 
     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
                   [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
