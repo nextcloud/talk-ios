@@ -122,8 +122,11 @@
     UIAlertAction* okButton = [UIAlertAction
                                actionWithTitle:NSLocalizedString(@"OK", nil)
                                style:UIAlertActionStyleDefault
-                               handler:nil];
-    
+                               handler:^(UIAlertAction * _Nonnull action) {
+        // Check the app state here, as this alert may have blocked the login view from being presented (if no other accounts are configured)
+        [[NCConnectionController sharedInstance] checkAppState];
+    }];
+
     [alert addAction:okButton];
 
     [_mainViewController presentViewController:alert animated:YES completion:nil];
