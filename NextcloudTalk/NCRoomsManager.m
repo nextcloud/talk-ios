@@ -315,20 +315,22 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }];
 }
 
-- (void)updateLastMessage:(NCChatMessage *)message withNoUnreadMessages:(BOOL)noUnreadMessages forRoom:(NCRoom *)room
+- (void)setNoUnreadMessagesForRoom:(NCRoom *)room withLastMessage:(NCChatMessage * _Nullable)lastMessage
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         NCRoom *managedRoom = [NCRoom objectsWhere:@"internalId = %@", room.internalId].firstObject;
-        if (managedRoom) {
-            managedRoom.lastMessageId = message.internalId;
-            managedRoom.lastActivity = message.timestamp;
-            
-            if (noUnreadMessages) {
-                managedRoom.unreadMention = NO;
-                managedRoom.unreadMentionDirect = NO;
-                managedRoom.unreadMessages = 0;
-            }
+        if (!managedRoom) {
+            return;
+        }
+
+        managedRoom.unreadMention = NO;
+        managedRoom.unreadMentionDirect = NO;
+        managedRoom.unreadMessages = 0;
+
+        if (lastMessage) {
+            managedRoom.lastMessageId = lastMessage.internalId;
+            managedRoom.lastActivity = lastMessage.timestamp;
         }
     }];
 }
