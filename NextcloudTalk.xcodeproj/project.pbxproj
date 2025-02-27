@@ -2526,6 +2526,7 @@
 				1FC4B32F2CC057B700D28138 /* XCRemoteSwiftPackageReference "MBProgressHUD" */,
 				1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */,
 				1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */,
+				2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -4450,6 +4451,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.4.5;
+			};
+		};
+		2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yahoojapan/SwiftyXMLParser";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.6.0;
 			};
 		};
 		2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
