@@ -180,11 +180,21 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 - (void)tokenRevokedResponseReceived:(NSNotification *)notification
 {
     NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
+
+    // Always remove the account, whether the token has been revoked or marked for remote wipe
     [self logoutAccountWithAccountId:accountId withCompletionBlock:^(NSError *error) {
         if (!error) {
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
             [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
             [[NCConnectionController sharedInstance] checkAppState];
+
+            // If the token was marked for remote wipe, confirm the wipe
+            [[NCAPIController sharedInstance] checkWipeStatusForAccount:account withCompletionBlock:^(BOOL wipe, NSError *error) {
+                if (wipe) {
+                    [[NCAPIController sharedInstance] confirmWipeForAccount:account withCompletionBlock:nil];
+                }
+            }];
         }
     }];
 }
