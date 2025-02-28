@@ -60,8 +60,8 @@ struct ScheduleMeetingSwiftUIView: View {
                     }
 
                     Section(header: Text("Schedule")) {
-                        DatePicker("From", selection: $start, displayedComponents: [.date, .hourAndMinute])
-                        DatePicker("To", selection: $end, in: start..., displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("From", selection: $start, in: Date()..., displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("To", selection: $end, in: start.addingTimeInterval(60 * 15)..., displayedComponents: [.date, .hourAndMinute])
                     }
                     .tint(Color(NCAppBranding.themeColor()))
 
@@ -223,10 +223,16 @@ struct ScheduleMeetingSwiftUIView: View {
     private func initStartEndTimes() {
         let calendar = Calendar.current
         let now = Date()
-        let currentHour = calendar.component(.hour, from: now)
-
-        start = calendar.date(bySettingHour: currentHour + 1, minute: 0, second: 0, of: now) ?? now
-        end = calendar.date(bySettingHour: currentHour + 2, minute: 0, second: 0, of: now) ?? now + 60 * 60
+        if let nextHour = calendar.date(byAdding: .hour, value: 1, to: now) {
+            start = calendar.date(bySettingHour: calendar.component(.hour, from: nextHour),
+                                  minute: 0,
+                                  second: 0,
+                                  of: nextHour) ?? now + (60 * 60)
+            end = calendar.date(bySettingHour: calendar.component(.hour, from: nextHour),
+                                minute: 15,
+                                second: 0,
+                                of: nextHour) ?? now + (60 * 60) + (60 * 15)
+        }
     }
 
     private func fetchCalendars() {
