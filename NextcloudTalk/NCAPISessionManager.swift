@@ -8,7 +8,7 @@ import Foundation
 @objcMembers public class NCAPISessionManager: NCBaseSessionManager {
 
     init(configuration: URLSessionConfiguration) {
-        super.init(configuration: configuration, responseSerializer: AFJSONResponseSerializer(), requestSerializer: AFJSONRequestSerializer())
+        super.init(configuration: configuration, responseSerializer: AFJSONResponseSerializer(), requestSerializer: AFHTTPRequestSerializer())
 
         self.requestSerializer.setValue("application/json", forHTTPHeaderField: "Accept")
         self.requestSerializer.setValue("true", forHTTPHeaderField: "OCS-APIRequest")
