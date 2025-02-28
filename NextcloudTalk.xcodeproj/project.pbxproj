@@ -419,6 +419,10 @@
 		2C3195BC24C599130066F221 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
 		2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
 		2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */; };
+		2C349B802D71A030004EC882 /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 2C349B7F2D71A030004EC882 /* SwiftyXMLParser */; };
+		2C349B822D71A03B004EC882 /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 2C349B812D71A03B004EC882 /* SwiftyXMLParser */; };
+		2C349B842D71A058004EC882 /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 2C349B832D71A058004EC882 /* SwiftyXMLParser */; };
+		2C349B862D71A15F004EC882 /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 2C349B852D71A15F004EC882 /* SwiftyXMLParser */; };
 		2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
@@ -1337,6 +1341,7 @@
 				1FF1361A2BFBC841006A6101 /* SwiftyAttributes in Frameworks */,
 				847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */,
 				1F77A5F12AB9A423007B6037 /* SDWebImageSVGKitPlugin in Frameworks */,
+				2C349B862D71A15F004EC882 /* SwiftyXMLParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1369,6 +1374,7 @@
 				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
 				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
 				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
+				2C349B842D71A058004EC882 /* SwiftyXMLParser in Frameworks */,
 				9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1378,6 +1384,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
+				2C349B822D71A03B004EC882 /* SwiftyXMLParser in Frameworks */,
 				1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */,
 				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
@@ -1405,6 +1412,7 @@
 				1FF1361C2BFBC86A006A6101 /* SwiftyAttributes in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 				1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */,
+				2C349B802D71A030004EC882 /* SwiftyXMLParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2309,6 +2317,7 @@
 				1F759C312B63CBA5000534AB /* Realm */,
 				1FF136192BFBC841006A6101 /* SwiftyAttributes */,
 				1FC4B32A2CC0564100D28138 /* UICKeyChainStore */,
+				2C349B852D71A15F004EC882 /* SwiftyXMLParser */,
 			);
 			productName = BroadcastUploadExtension;
 			productReference = 1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */;
@@ -2358,6 +2367,7 @@
 				1FC4B3322CC057DD00D28138 /* MBProgressHUD */,
 				1FC4B3352CC0586A00D28138 /* libPhoneNumber */,
 				1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */,
+				2C349B832D71A058004EC882 /* SwiftyXMLParser */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -2390,6 +2400,7 @@
 				1F759C2F2B63CBA0000534AB /* Realm */,
 				1FC4B3282CC0562E00D28138 /* UICKeyChainStore */,
 				1FC4B3302CC057B700D28138 /* MBProgressHUD */,
+				2C349B812D71A03B004EC882 /* SwiftyXMLParser */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -2417,6 +2428,7 @@
 				1F759C2D2B63CB9A000534AB /* Realm */,
 				1FF1361B2BFBC86A006A6101 /* SwiftyAttributes */,
 				1FC4B3262CC0562600D28138 /* UICKeyChainStore */,
+				2C349B7F2D71A030004EC882 /* SwiftyXMLParser */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -4729,6 +4741,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
 			productName = SwiftyAttributes;
+		};
+		2C349B7F2D71A030004EC882 /* SwiftyXMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */;
+			productName = SwiftyXMLParser;
+		};
+		2C349B812D71A03B004EC882 /* SwiftyXMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */;
+			productName = SwiftyXMLParser;
+		};
+		2C349B832D71A058004EC882 /* SwiftyXMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */;
+			productName = SwiftyXMLParser;
+		};
+		2C349B852D71A15F004EC882 /* SwiftyXMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */;
+			productName = SwiftyXMLParser;
 		};
 		2CCCD21C2835088F00F076CE /* OpenSSL */ = {
 			isa = XCSwiftPackageProductDependency;
