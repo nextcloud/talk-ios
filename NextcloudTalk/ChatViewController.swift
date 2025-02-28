@@ -194,7 +194,7 @@ import SwiftUI
         var menuElements: [UIMenuElement] = [deferredUpcomingEvents]
 
         if self.room.canModerate || self.room.type == .oneToOne {
-            let scheduleMeetingAction = UIAction(title: NSLocalizedString("Schedule a meeting", comment: ""), image: UIImage(systemName: "calendar.badge.plus")) { _ in
+            let scheduleMeetingAction = UIAction(title: NSLocalizedString("Schedule a meeting", comment: ""), image: UIImage(systemName: "calendar.badge.plus")) { [unowned self] _ in
                 let scheduleMeetingView = ScheduleMeetingSwiftUIView(account: self.account, room: self.room) {
                     self.handleMeetingCreationSuccess()
                 }
