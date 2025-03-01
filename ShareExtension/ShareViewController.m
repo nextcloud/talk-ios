@@ -312,7 +312,7 @@
         [self setProfileButtonForAccount:_shareAccount];
     }
     
-    NSArray *accountRooms = [self roomsForAccountId:_shareAccount.accountId];
+    NSArray *accountRooms = [[NCDatabaseManager sharedInstance] roomsForAccountId:_shareAccount.accountId withRealm:_realm];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     _serverCapabilities = [self getServerCapabilitesForAccount:_shareAccount withRealm:_realm];
     
@@ -349,42 +349,6 @@
     optionsActionSheet.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
     
     [self presentViewController:optionsActionSheet animated:YES completion:nil];
-}
-
-#pragma mark - Rooms
-
-- (NSArray *)roomsForAccountId:(NSString *)accountId
-{
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
-    RLMResults *managedRooms = [NCRoom objectsInRealm:_realm withPredicate:query];;
-    
-    // Create an unmanaged copy of the rooms
-    NSMutableArray *unmanagedRooms = [NSMutableArray new];
-    for (NCRoom *managedRoom in managedRooms) {
-        NCRoom *unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
-        // Filter out breakout rooms with lobby enabled
-        if ([unmanagedRoom isBreakoutRoom] && unmanagedRoom.lobbyState == NCRoomLobbyStateModeratorsOnly) {
-            continue;
-        }
-        [unmanagedRooms addObject:unmanagedRoom];
-    }
-    // Sort by favorites
-    NSSortDescriptor *favoriteSorting = [NSSortDescriptor sortDescriptorWithKey:@"" ascending:YES comparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-        NCRoom *first = (NCRoom*)obj1;
-        NCRoom *second = (NCRoom*)obj2;
-        BOOL favorite1 = first.isFavorite;
-        BOOL favorite2 = second.isFavorite;
-        if (favorite1 != favorite2) {
-            return favorite2 - favorite1;
-        }
-        return NSOrderedSame;
-    }];
-    // Sort by lastActivity
-    NSSortDescriptor *valueDescriptor = [[NSSortDescriptor alloc] initWithKey:@"lastActivity" ascending:NO];
-    NSArray *descriptors = [NSArray arrayWithObjects:favoriteSorting, valueDescriptor, nil];
-    [unmanagedRooms sortUsingDescriptors:descriptors];
-    
-    return unmanagedRooms;
 }
 
 #pragma mark - Shared items
