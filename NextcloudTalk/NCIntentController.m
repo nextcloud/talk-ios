@@ -58,7 +58,7 @@
                             displayName:title
                             image:image
                             contactIdentifier:nil
-                            customIdentifier:nil];
+                            customIdentifier:room.internalId];
 
         INSendMessageIntent *sendMessageIntent = [[INSendMessageIntent alloc] initWithRecipients:nil
                                                                              outgoingMessageType:INOutgoingMessageTypeOutgoingMessageText
