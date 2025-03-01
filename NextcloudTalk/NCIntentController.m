@@ -87,8 +87,19 @@
 
 - (void)donateSendMessageIntentForRoom:(NCRoom *)room
 {
+    // When the system suggest to write a message to "someone", we don't receive the conversationIdentifier.
+    // Therefore we also add a recipient here, although it's technically not a "Person", but a "Room".
+    INPersonHandle *handle = [[INPersonHandle alloc] initWithValue:nil type:INPersonHandleTypeUnknown];
+    INPerson *recipient = [[INPerson alloc]
+                           initWithPersonHandle:handle
+                           nameComponents:nil
+                           displayName:room.displayName
+                           image:nil
+                           contactIdentifier:nil
+                           customIdentifier:room.internalId];
+
     INSpeakableString *groupName = [[INSpeakableString alloc] initWithSpokenPhrase:room.displayName];
-    INSendMessageIntent *sendMessageIntent = [[INSendMessageIntent alloc] initWithRecipients:nil
+    INSendMessageIntent *sendMessageIntent = [[INSendMessageIntent alloc] initWithRecipients:@[recipient]
                                                                          outgoingMessageType:INOutgoingMessageTypeOutgoingMessageText
                                                                                      content:nil
                                                                           speakableGroupName:groupName

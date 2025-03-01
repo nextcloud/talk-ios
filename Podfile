@@ -38,6 +38,10 @@ target "BroadcastUploadExtension" do
   common_dependencies
 end
 
+target "TalkIntents" do
+  common_dependencies_ext
+end
+
 pre_install do |installer|
     puts 'pre_install begin....'
 
