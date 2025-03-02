@@ -38,4 +38,35 @@ import Foundation
             }
         }
     }
+
+    // MARK: - Rooms
+
+    func roomsForAccountId(_ accountId: String, withRealm realm: RLMRealm?) -> [NCRoom] {
+        let query = NSPredicate(format: "accountId = %@", accountId)
+        var managedRooms: RLMResults<AnyObject>
+
+        if let realm {
+            managedRooms = NCRoom.objects(in: realm, with: query)
+        } else {
+            managedRooms = NCRoom.objects(with: query)
+        }
+
+        // Create an unmanaged copy of the rooms
+        var unmanagedRooms: [NCRoom] = []
+
+        for case let managedRoom as NCRoom in managedRooms {
+            if managedRoom.isBreakoutRoom, managedRoom.lobbyState == .moderatorsOnly {
+                continue
+            }
+
+            unmanagedRooms.append(NCRoom(value: managedRoom))
+        }
+
+        // Sort by favorites first, then by lastActivity
+        unmanagedRooms.sort { first, second in
+            (first.isFavorite ? 1 : 0, first.lastActivity) > (second.isFavorite ? 1 : 0, second.lastActivity)
+        }
+
+        return unmanagedRooms
+    }
 }

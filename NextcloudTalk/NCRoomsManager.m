@@ -680,7 +680,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 - (void)joinOrCreateChatWithUser:(NSString *)userId usingAccountId:(NSString *)accountId
 {
-    NSArray *accountRooms = [[NCRoomsManager sharedInstance] roomsForAccountId:accountId withRealm:nil];
+    NSArray *accountRooms = [[NCDatabaseManager sharedInstance] roomsForAccountId:accountId withRealm:nil];
 
     for (NCRoom *room in accountRooms) {
         if (room.type == kNCRoomTypeOneToOne && [room.name isEqualToString:userId]) {

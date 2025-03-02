@@ -47,9 +47,11 @@ struct UserStatusAbsenceSwiftUIView: View {
                         })
 
                         if absenceStatus.hasReplacementSet {
-                            Button("Reset replacement") {
+                            Button {
                                 absenceStatus.replacementUserId = nil
                                 absenceStatus.replacementUserDisplayName = nil
+                            } label: {
+                                Text("Reset replacement", comment: "Replacement in case of out of office")
                             }
                             .foregroundStyle(.primary)
                         }
