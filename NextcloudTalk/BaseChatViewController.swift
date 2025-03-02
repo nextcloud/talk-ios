@@ -483,7 +483,7 @@ import SwiftUI
 
         guard let lastMessageBeforeInteraction, let tableView else { return }
 
-        if NCUtils.isValid(indexPath: lastMessageBeforeInteraction, forTableView: tableView) {
+        if tableView.isValid(indexPath: lastMessageBeforeInteraction) {
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
                 tableView.scrollToRow(at: lastMessageBeforeInteraction, at: .bottom, animated: true)
             }

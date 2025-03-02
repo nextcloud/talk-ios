@@ -14,4 +14,10 @@ extension UITableView {
 
         return T(style: style, reuseIdentifier: identifier)
     }
+
+    func isValid(indexPath: IndexPath) -> Bool {
+        indexPath.row >= 0 && indexPath.section >= 0 &&
+        indexPath.section < self.numberOfSections &&
+        indexPath.row < self.numberOfRows(inSection: indexPath.section)
+    }
 }

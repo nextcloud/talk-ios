@@ -1011,7 +1011,7 @@ import SwiftyAttributes
 
                     self.tableView?.reloadData()
 
-                    if NCUtils.isValid(indexPath: lastHistoryMessageIP, forTableView: tableView) {
+                    if tableView.isValid(indexPath: lastHistoryMessageIP) {
                         self.tableView?.scrollToRow(at: lastHistoryMessageIP, at: .top, animated: false)
                     }
                 }
