@@ -440,12 +440,6 @@ import AVFoundation
         )
     }
 
-    // MARK: - UITableView utils
-
-    public static func isValid(indexPath: IndexPath, forTableView tableView: UITableView) -> Bool {
-        indexPath.section < tableView.numberOfSections && indexPath.row < tableView.numberOfRows(inSection: indexPath.section)
-    }
-
     // MARK: - QueryItems utils
 
     public static func value(forKey key: String, fromQueryItems queryItems: NSArray) -> String? {

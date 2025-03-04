@@ -19,6 +19,7 @@ import UIKit
     internal var autocompletionUsers: [MentionSuggestion] = []
     internal var mentionsDict: [String: NCMessageParameter] = [:]
     internal var contentView: UIView?
+    internal var selectedAutocompletionRow: IndexPath?
 
     public init?(forRoom room: NCRoom, withAccount account: TalkAccount, tableViewStyle style: UITableView.Style) {
         self.room = room
@@ -230,6 +231,8 @@ import UIKit
 
             // Check if "@" is still there
             self.textView.look(forPrefixes: self.registeredPrefixes) { prefix, word, _ in
+                self.selectedAutocompletionRow = nil
+
                 if prefix?.count ?? 0 > 0 && word?.count ?? 0 > 0 {
                     self.showAutoCompletionView(showAutocomplete)
                 } else {
@@ -252,6 +255,38 @@ import UIKit
         }
 
         return resultMessage
+    }
+
+    override public func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        guard self.isAutoCompleting, !self.autocompletionUsers.isEmpty
+        else {
+            super.pressesBegan(presses, with: event)
+            return
+        }
+
+        let oldIndexPath = self.selectedAutocompletionRow ?? IndexPath(row: 0, section: 0)
+        var newIndexPath: IndexPath?
+
+        // Support selecting the auto complete with return/enter key
+        if presses.contains(where: { $0.key?.keyCode == .keyboardReturnOrEnter }) {
+            self.acceptAutoCompletion(withIndexPath: oldIndexPath)
+
+            return
+        } else if presses.contains(where: { $0.key?.keyCode == .keyboardUpArrow }) {
+            newIndexPath = IndexPath(row: oldIndexPath.row - 1, section: 0)
+        } else if presses.contains(where: { $0.key?.keyCode == .keyboardDownArrow }) {
+            newIndexPath = IndexPath(row: oldIndexPath.row + 1, section: 0)
+        }
+
+        if let newIndexPath, self.autoCompletionView.isValid(indexPath: newIndexPath) {
+            self.selectedAutocompletionRow = newIndexPath
+            self.autoCompletionView.reloadRows(at: [oldIndexPath, newIndexPath], with: .none)
+            self.autoCompletionView.scrollToRow(at: newIndexPath, at: .none, animated: true)
+
+            return
+        }
+
+        super.pressesBegan(presses, with: event)
     }
 
     // MARK: - UITableViewDataSource methods
@@ -316,14 +351,25 @@ import UIKit
             cell.avatarButton.setActorAvatar(forId: suggestion.mention.id, withType: suggestion.source, withDisplayName: suggestion.mention.label, withRoomToken: self.room.token, using: self.account)
         }
 
+        if let selectedAutocompletionRow, selectedAutocompletionRow == indexPath {
+            cell.layer.borderColor = UIColor.systemGray.cgColor
+            cell.layer.borderWidth = 2.0
+        } else {
+            cell.layer.borderWidth = 0.0
+        }
+
         cell.accessibilityIdentifier = AutoCompletionCellIdentifier
         return cell
     }
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard tableView == self.autoCompletionView,
-              indexPath.row < self.autocompletionUsers.count
-        else { return }
+        guard tableView == self.autoCompletionView else { return }
+
+        self.acceptAutoCompletion(withIndexPath: indexPath)
+    }
+
+    private func acceptAutoCompletion(withIndexPath indexPath: IndexPath) {
+        guard indexPath.row < self.autocompletionUsers.count else { return }
 
         let suggestion = self.autocompletionUsers[indexPath.row]
 
@@ -332,6 +378,7 @@ import UIKit
 
         let mentionWithWhitespace = suggestion.mention.label + " "
         self.acceptAutoCompletion(with: mentionWithWhitespace, keepPrefix: true)
+        self.selectedAutocompletionRow = nil
     }
 
     public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
