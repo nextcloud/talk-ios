@@ -8,6 +8,7 @@ import NextcloudKit
 import PhotosUI
 import UIKit
 import SwiftyAttributes
+import SwiftUI
 
 @objcMembers public class ChatViewController: BaseChatViewController {
 
@@ -163,6 +164,16 @@ import SwiftyAttributes
         let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration)
         let upcomingEventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
 
+        upcomingEventsButton.innerButton.menu = createUpcomingEventsMenu()
+        upcomingEventsButton.innerButton.showsMenuAsPrimaryAction = true
+
+        upcomingEventsButton.accessibilityLabel = NSLocalizedString("Upcoming events", comment: "")
+        upcomingEventsButton.accessibilityHint = NSLocalizedString("Double tap to display upcoming events", comment: "")
+
+        return upcomingEventsButton
+    }()
+
+    private func createUpcomingEventsMenu() -> UIMenu {
         let deferredUpcomingEvents = UIDeferredMenuElement { [weak self] completion in
             guard let self = self else { return }
 
@@ -180,14 +191,28 @@ import SwiftyAttributes
             }
         }
 
-        upcomingEventsButton.innerButton.menu = UIMenu(children: [deferredUpcomingEvents])
-        upcomingEventsButton.innerButton.showsMenuAsPrimaryAction = true
+        var menuElements: [UIMenuElement] = [deferredUpcomingEvents]
 
-        upcomingEventsButton.accessibilityLabel = NSLocalizedString("Upcoming events", comment: "")
-        upcomingEventsButton.accessibilityHint = NSLocalizedString("Double tap to display upcoming events", comment: "")
+        if self.room.canModerate || self.room.type == .oneToOne {
+            let scheduleMeetingAction = UIAction(title: NSLocalizedString("Schedule a meeting", comment: ""), image: UIImage(systemName: "calendar.badge.plus")) { [unowned self] _ in
+                let scheduleMeetingView = ScheduleMeetingSwiftUIView(account: self.account, room: self.room) {
+                    self.handleMeetingCreationSuccess()
+                }
+                let hostingController = UIHostingController(rootView: scheduleMeetingView)
+                self.present(hostingController, animated: true)
+            }
 
-        return upcomingEventsButton
-    }()
+            let scheduleMeetingMenu = UIMenu(title: "", options: [.displayInline], children: [scheduleMeetingAction])
+            menuElements.append(scheduleMeetingMenu)
+        }
+
+        return UIMenu(children: menuElements)
+    }
+
+    private func handleMeetingCreationSuccess() {
+        // Re-create menu so upcoming events are refetched
+        upcomingEventsButton.innerButton.menu = createUpcomingEventsMenu()
+    }
 
     private var messageExpirationTimer: Timer?
 

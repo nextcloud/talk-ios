@@ -101,6 +101,9 @@
 "Add answer" = "Add answer";
 
 /* No comment provided by engineer. */
+"Add attendees" = "Add attendees";
+
+/* No comment provided by engineer. */
 "Add participants" = "Add participants";
 
 /* No comment provided by engineer. */
@@ -257,6 +260,9 @@
 "An error occurred while creating poll draft" = "An error occurred while creating poll draft";
 
 /* No comment provided by engineer. */
+"An error occurred while creating the meeting" = "An error occurred while creating the meeting";
+
+/* No comment provided by engineer. */
 "An error occurred while creating the poll" = "An error occurred while creating the poll";
 
 /* No comment provided by engineer. */
@@ -316,8 +322,14 @@
 /* Alice, Bob, Charlie and 3 others are typing… */
 "and %ld others are typing…" = "and %ld others are typing…";
 
+/* Alice, Bob, Charlie and 3 others will receive invitations */
+"and %ld others will receive invitations" = "and %ld others will receive invitations";
+
 /* Alice, Bob, Charlie and 1 other is typing… */
 "and 1 other is typing…" = "and 1 other is typing…";
+
+/* Alice, Bob, Charlie and 1 other is typing… */
+"and 1 other will receive invitations" = "and 1 other will receive invitations";
 
 /* No comment provided by engineer. */
 "Anonymous poll" = "Anonymous poll";
@@ -354,6 +366,9 @@
 
 /* No comment provided by engineer. */
 "Attachments allowed?" = "Attachments allowed?";
+
+/* No comment provided by engineer. */
+"Attendees" = "Attendees";
 
 /* No comment provided by engineer. */
 "Audio options" = "Audio options";
@@ -399,6 +414,9 @@
 
 /* No comment provided by engineer. */
 "Cached images" = "Cached images";
+
+/* No comment provided by engineer. */
+"Calendar" = "Calendar";
 
 /* No comment provided by engineer. */
 "Call notification sent" = "Call notification sent";
@@ -612,6 +630,9 @@
 
 /* No comment provided by engineer. */
 "Could not clear status message" = "Could not clear status message";
+
+/* No comment provided by engineer. */
+"Could not create meeting" = "Could not create meeting";
 
 /* No comment provided by engineer. */
 "Could not delete conversation" = "Could not delete conversation";
@@ -885,6 +906,9 @@
 
 /* Edit a message or room participants */
 "Edit" = "Edit";
+
+/* No comment provided by engineer. */
+"Edit attendees" = "Edit attendees";
 
 /* A message was edited */
 "edited" = "edited";
@@ -1203,6 +1227,9 @@
 
 /* No comment provided by engineer. */
 "Media" = "Media";
+
+/* No comment provided by engineer. */
+"Meeting created" = "Meeting created";
 
 /* No comment provided by engineer. */
 "Meeting ID" = "Meeting ID";
@@ -1664,6 +1691,12 @@
 "Scanning QR Codes is not supported on this device." = "Scanning QR Codes is not supported on this device.";
 
 /* No comment provided by engineer. */
+"Schedule" = "Schedule";
+
+/* No comment provided by engineer. */
+"Schedule a meeting" = "Schedule a meeting";
+
+/* No comment provided by engineer. */
 "Screensharing stopped" = "Screensharing stopped";
 
 /* No comment provided by engineer. */
@@ -1698,6 +1731,9 @@
 
 /* No comment provided by engineer. */
 "Send/Accept" = "Send/Accept";
+
+/* No comment provided by engineer. */
+"Sending no invitations" = "Sending no invitations";
 
 /* A message has been sent without notifications */
 "Sent without notification" = "Sent without notification";
@@ -1927,6 +1963,9 @@
 /* No comment provided by engineer. */
 "This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";
 
+/* No comment provided by engineer. */
+"Title" = "Title";
+
 /* 'To' which language user wants to translate text */
 "To" = "To";
 
@@ -2073,6 +2112,12 @@
 
 /* No comment provided by engineer. */
 "What is your status?" = "What is your status?";
+
+/* Alice will receive an invitation */
+"will receive an invitation" = "will receive an invitation";
+
+/* Alice and Bob will receive invitations */
+"will receive invitations" = "will receive invitations";
 
 /* No comment provided by engineer. */
 "Write message, @ to mention someone …" = "Write message, @ to mention someone …";
