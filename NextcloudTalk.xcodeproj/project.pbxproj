@@ -236,6 +236,7 @@
 		1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
+		1FA940B92D74F3B500DF6CDF /* UITableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC316692CC26186007CBE16 /* UITableViewExtension.swift */; };
 		1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7C2AC99326001214EB /* TOCropViewController */; };
 		1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7E2AC99367001214EB /* TOCropViewController */; };
 		1FAB2E832AC9EC3F001214EB /* BaseChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2E822AC9EC3F001214EB /* BaseChatViewController.swift */; };
@@ -3184,6 +3185,7 @@
 				F644A2E02CE28C9A00E2ED81 /* NCChatFileStatus.swift in Sources */,
 				1F4DD3ED2571C688007DC98E /* EmojiUtils.swift in Sources */,
 				1F35F8EB2AEEBC1100044BDA /* UIResponder+SLKAdditions.m in Sources */,
+				1FA940B92D74F3B500DF6CDF /* UITableViewExtension.swift in Sources */,
 				2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */,
 				1F35F90B2AEEE76C00044BDA /* ReplyMessageView.m in Sources */,
 				1F1C999E2909846400EACF02 /* BGTaskHelper.swift in Sources */,
