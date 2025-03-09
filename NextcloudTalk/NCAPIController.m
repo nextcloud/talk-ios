@@ -2691,6 +2691,49 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
+#pragma mark - Remote Wipe
+
+- (NSURLSessionDataTask *)checkWipeStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetWipeStatusCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/index.php/core/wipe/check", account.server];
+    NSDictionary *parameters = @{
+        @"token" : [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]
+    };
+
+    NSURLSessionDataTask *task = [_defaultAPISessionManager POST:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        BOOL wipe = [responseObject objectForKey:@"wipe"];
+        if (block) {
+            block(wipe, nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(NO, error);
+        }
+    }];
+
+    return task;
+}
+
+- (NSURLSessionDataTask *)confirmWipeForAccount:(TalkAccount *)account withCompletionBlock:(ConfirmWipeCompletionBlock)block
+{
+    NSString *URLString = [NSString stringWithFormat:@"%@/index.php/core/wipe/success", account.server];
+    NSDictionary *parameters = @{
+        @"token" : [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]
+    };
+
+    NSURLSessionDataTask *task = [_defaultAPISessionManager POST:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (block) {
+            block(nil);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (block) {
+            block(error);
+        }
+    }];
+
+    return task;
+}
+
 #pragma mark - Server capabilities
 
 - (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block
