@@ -72,7 +72,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     
     _apiSessionManagers = [NSMutableDictionary new];
     _longPollingApiSessionManagers = [NSMutableDictionary new];
-    
+    _calDAVSessionManagers = [NSMutableDictionary new];
+
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         [self createAPISessionManagerForAccount:account];
     }
@@ -100,6 +101,13 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     apiSessionManager = [[NCAPISessionManager alloc] initWithConfiguration:configuration];
     [apiSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
     [_longPollingApiSessionManagers setObject:apiSessionManager forKey:account.accountId];
+
+    configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    cookieStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:account.accountId];
+    configuration.HTTPCookieStorage = cookieStorage;
+    NCCalDAVSessionManager *calDAVSessionManager = [[NCCalDAVSessionManager alloc] initWithConfiguration:configuration];
+    [calDAVSessionManager.requestSerializer setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
+    [_calDAVSessionManagers setObject:calDAVSessionManager forKey:account.accountId];
 }
 
 - (void)removeAPISessionManagerForAccount:(TalkAccount *)account
@@ -108,6 +116,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [self.requestModifierCache removeObjectForKey:account.accountId];
     [self.apiSessionManagers removeObjectForKey:account.accountId];
     [self.longPollingApiSessionManagers removeObjectForKey:account.accountId];
+    [self.calDAVSessionManagers removeObjectForKey:account.accountId];
 }
 
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account
