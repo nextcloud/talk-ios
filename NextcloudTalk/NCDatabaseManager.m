@@ -174,7 +174,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     return nil;
 }
 
-- (NSArray *)allAccounts
+- (NSArray<TalkAccount *> *)allAccounts;
 {
     NSMutableArray *allAccounts = [NSMutableArray new];
     for (TalkAccount *managedAccount in [TalkAccount allObjects]) {
@@ -184,7 +184,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     return allAccounts;
 }
 
-- (NSArray *)inactiveAccounts
+- (NSArray<TalkAccount *> *)inactiveAccounts
 {
     NSMutableArray *inactiveAccounts = [NSMutableArray new];
     for (TalkAccount *managedInactiveAccount in [TalkAccount objectsWhere:(@"active = false")]) {
@@ -361,10 +361,21 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
 
 #pragma mark - Rooms
 
-- (NCRoom *)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
+- (NCRoom * _Nullable)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId
 {
     NCRoom *unmanagedRoom = nil;
     NSPredicate *query = [NSPredicate predicateWithFormat:@"token = %@ AND accountId = %@", token, accountId];
+    NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
+    if (managedRoom) {
+        unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];
+    }
+    return unmanagedRoom;
+}
+
+- (NCRoom * _Nullable)roomWithInternalId:(NSString *)internalId
+{
+    NCRoom *unmanagedRoom = nil;
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"internalId = %@", internalId];
     NCRoom *managedRoom = [NCRoom objectsWithPredicate:query].firstObject;
     if (managedRoom) {
         unmanagedRoom = [[NCRoom alloc] initWithValue:managedRoom];

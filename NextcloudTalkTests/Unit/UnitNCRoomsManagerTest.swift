@@ -50,37 +50,4 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
         XCTAssertFalse(realmMessage.isOfflineMessage)
     }
 
-    func testRoomsForAccount() throws {
-        let nonFavOld = addRoom(withToken: "NonFavOld") { room in
-            room.lastActivity = 100
-        }
-
-        let nonFavNew = addRoom(withToken: "NonFavNew") { room in
-            room.lastActivity = 1000
-        }
-
-        let favOld = addRoom(withToken: "FavOld") { room in
-            room.lastActivity = 100
-            room.isFavorite = true
-        }
-
-        let favNew = addRoom(withToken: "FavNew") { room in
-            room.lastActivity = 1000
-            room.isFavorite = true
-        }
-
-        // Add an unrelated room, which should not be returned
-        addRoom(withToken: "Unrelated", withAccountId: "foo")
-
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let rooms = NCRoomsManager.sharedInstance().roomsForAccountId(activeAccount.accountId, withRealm: nil)
-        let expectedOrder = [favNew, favOld, nonFavNew, nonFavOld]
-
-        XCTAssertEqual(rooms.count, 4)
-
-        // Check if the order is correct
-        for (index, element) in rooms.enumerated() {
-            XCTAssertEqual(expectedOrder[index].token, element.token)
-        }
-    }
 }

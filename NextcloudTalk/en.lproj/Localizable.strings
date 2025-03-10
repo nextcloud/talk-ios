@@ -80,6 +80,9 @@
 "Account not configured" = "Account not configured";
 
 /* No comment provided by engineer. */
+"Account not found" = "Account not found";
+
+/* No comment provided by engineer. */
 "Accounts" = "Accounts";
 
 /* No comment provided by engineer. */
@@ -300,6 +303,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while setting the avatar" = "An error occurred while setting the avatar";
+
+/* No comment provided by engineer. */
+"An error occurred while setting user status" = "An error occurred while setting user status";
 
 /* No comment provided by engineer. */
 "An error occurred while sharing the file" = "An error occurred while sharing the file";
@@ -1641,6 +1647,9 @@
 
 /* No comment provided by engineer. */
 "Resend invitations" = "Resend invitations";
+
+/* Replacement in case of out of office */
+"Reset replacement" = "Reset replacement";
 
 /* Results of a poll */
 "Results" = "Results";

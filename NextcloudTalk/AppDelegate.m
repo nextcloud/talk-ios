@@ -136,6 +136,22 @@
             [[NCUserInterfaceController sharedInstance] presentCallKitCallInRoom:roomToken withVideoEnabled:videoCallIntent];
         }
     }
+
+    // A INSendMessageIntent is usually a Siri/Shortcut suggestion and automatically created when we donate a INSendMessageIntent
+    if ([userActivity.interaction.intent isKindOfClass:[INSendMessageIntent class]]) {
+        // For a INSendMessageIntent we don't receive a conversationIdentifier, see NCIntentController
+        INSendMessageIntent *intent = (INSendMessageIntent *)userActivity.interaction.intent;
+        INPerson *recipient = intent.recipients.firstObject;
+
+        if (recipient && recipient.customIdentifier && recipient.customIdentifier.length > 0) {
+            NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithInternalId:recipient.customIdentifier];
+
+            if (room) {
+                [[NCRoomsManager sharedInstance] startChatInRoom:room];
+            }
+        }
+    }
+
     return YES;
 }
 
