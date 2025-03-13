@@ -402,12 +402,27 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
             // Store new messages
             if (messages.count > 0) {
-                [self storeMessages:messages];
-                [self checkLastCommonReadMessage:lastCommonReadMessage];
-
                 // In case we finish after the app already got active again, notify any potential view controller
                 NSMutableDictionary *userInfo = [NSMutableDictionary new];
                 [userInfo setObject:self->_room.token forKey:@"room"];
+
+                for (NSDictionary *messageDict in messages) {
+                    NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self->_account.accountId];
+
+                    if (message && [message.systemMessage isEqualToString:@"history_cleared"]) {
+                        [self clearHistoryAndResetChatController];
+
+                        [userInfo setObject:message forKey:@"historyCleared"];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveHistoryClearedNotification
+                                                                            object:self
+                                                                          userInfo:userInfo];
+                        return;
+                    }
+                }
+
+                [self storeMessages:messages];
+                [self checkLastCommonReadMessage:lastCommonReadMessage];
+
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveMessagesInBackgroundNotification
                                                                     object:self
                                                                   userInfo:userInfo];
