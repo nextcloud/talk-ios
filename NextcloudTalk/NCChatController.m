@@ -485,14 +485,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                                                             object:self
                                                           userInfo:userInfo];
 
-        // Messages are already sorted by messageId here
-        NCChatMessage *lastMessage = [storedMessages lastObject];
-
-        // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
-        if (lastMessage.timestamp >= self->_room.lastActivity && !lastMessage.isUpdateMessage) {
-            self->_room.lastActivity = lastMessage.timestamp;
-            [[NCRoomsManager sharedInstance] updateLastMessage:lastMessage withNoUnreadMessages:YES forRoom:self->_room];
-        }
+        [self updateLastMessageIfNeededFromMessages:storedMessages];
     }
 }
 
@@ -516,15 +509,8 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
-        
-        // Messages are already sorted by messageId here
-        NCChatMessage *lastMessage = [storedMessages lastObject];
-        
-        // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
-        if (lastMessage.timestamp >= self->_room.lastActivity && !lastMessage.isUpdateMessage) {
-            self->_room.lastActivity = lastMessage.timestamp;
-            [[NCRoomsManager sharedInstance] updateLastMessage:lastMessage withNoUnreadMessages:YES forRoom:self->_room];
-        }
+
+        [self updateLastMessageIfNeededFromMessages:storedMessages];
     } else {
         _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (self->_stopChatMessagesPoll) {
@@ -554,6 +540,34 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             
             [self checkLastCommonReadMessage:lastCommonReadMessage];
         }];
+    }
+}
+
+- (void)updateLastMessageIfNeededFromMessages:(NSArray *)storedMessages
+{
+    // Try to find the last non-update message - Messages are already sorted by messageId here
+    NCChatMessage *lastNonUpdateMessage;
+    NCChatMessage *lastMessage = [storedMessages lastObject];
+    NCChatMessage *tempMessage;
+
+    for (NSInteger i = (storedMessages.count - 1); i >= 0; i--) {
+        tempMessage = [storedMessages objectAtIndex:i];
+
+        if (![tempMessage isUpdateMessage]) {
+            lastNonUpdateMessage = tempMessage;
+            break;
+        }
+    }
+
+    // Make sure we update the unread flags for the room (lastMessage can already be set, but there still might be unread flags)
+    if (lastMessage && lastMessage.timestamp >= self->_room.lastActivity) {
+        // Make sure our local reference to the room also has the correct lastActivity set
+        if (lastNonUpdateMessage) {
+            self->_room.lastActivity = lastNonUpdateMessage.timestamp;
+        }
+
+        // We always want to set the room to have no unread messages, optionally we also want to update the last message, if there's one
+        [[NCRoomsManager sharedInstance] setNoUnreadMessagesForRoom:self->_room withLastMessage:lastNonUpdateMessage];
     }
 }
 
