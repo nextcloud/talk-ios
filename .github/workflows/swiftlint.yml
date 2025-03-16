@@ -20,8 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-     - uses: actions/checkout@v4
+     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+       with:
+         persist-credentials: false
        
      - name: GitHub Action for SwiftLint
-       uses: norio-nomura/action-swiftlint@3.2.1
+       uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # v3.2.1
 

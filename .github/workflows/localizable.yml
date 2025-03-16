@@ -29,8 +29,9 @@ jobs:
 
     steps:
     - name: Checkout app
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
+        persist-credentials: false
         submodules: true
 
     - name: Run localizable generation
@@ -50,7 +51,7 @@ jobs:
         pyspelling
 
     - name: Verify Changed files
-      uses: tj-actions/verify-changed-files@v20
+      uses: tj-actions/verify-changed-files@6ed7632824d235029086612d4330d659005af687 # v20.0.1
       id: verify-changed-files
       if: always()
       with:
