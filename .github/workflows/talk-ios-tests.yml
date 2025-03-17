@@ -39,6 +39,16 @@ jobs:
     runs-on: macos-15
 
     steps:
+      # Workaround for eliminating iOS 17 simulators stalling issue
+      # Runs deamon which kills CPU intensive tasks which affects simulator performance
+      # See https://github.com/actions/runner-images/issues/11509#issuecomment-2703308482
+    - name: Install and run yeetd
+      run: |
+        wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+        sudo installer -pkg yeetd-normal.pkg -target /
+        defaults write dev.biscuit.yeetd killapsd true
+        yeetd & 
+            
     - name: Checkout app
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
@@ -96,6 +106,16 @@ jobs:
         ]
 
     steps:
+      # Workaround for eliminating iOS 17 simulators stalling issue
+      # Runs deamon which kills CPU intensive tasks which affects simulator performance
+      # See https://github.com/actions/runner-images/issues/11509#issuecomment-2703308482
+    - name: Install and run yeetd
+      run: |
+        wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+        sudo installer -pkg yeetd-normal.pkg -target /
+        defaults write dev.biscuit.yeetd killapsd true
+        yeetd & 
+
     - name: Checkout app
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
