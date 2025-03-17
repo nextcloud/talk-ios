@@ -21,6 +21,9 @@ extern NSString * const NCAttendeeTypeTeams;
 extern NSString * const NCAttendeeTypeGuest;
 extern NSString * const NCAttendeeTypeEmail;
 extern NSString * const NCAttendeeTypeFederated;
+extern NSString * const NCAttendeeTypeBots;
+
+extern NSString * const NCAttendeeBotPrefix;
 
 extern NSString * const NCAttendeeBridgeBotId;
 
