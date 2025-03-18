@@ -79,13 +79,14 @@ import SwiftyAttributes
 
         let sameUser = self.isMessage(from: account.userId)
         let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
+        let botInOneToOne = room.type == .oneToOne && self.actorType == NCAttendeeTypeBots && self.actorId.starts(with: NCAttendeeBotPrefix)
 
-        let userCanDeleteMessage = sameUser || moderatorUser
+        let userCanEditMessage = sameUser || moderatorUser || botInOneToOne
 
         let noTimeLimitForMessageEdit = (room.type == .noteToSelf) && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityEditMessagesNoteToSelf, forAccountId: account.accountId)
         let editAllowedByTime = noTimeLimitForMessageEdit || (self.timestamp >= twentyFourHoursAgoTimestamp)
 
-        return serverCanEditMessage && userCanDeleteMessage && editAllowedByTime
+        return serverCanEditMessage && userCanEditMessage && editAllowedByTime
     }
 
     public var isObjectShare: Bool {

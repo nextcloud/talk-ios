@@ -15,6 +15,9 @@ NSString * const NCAttendeeTypeTeams    = @"teams";
 NSString * const NCAttendeeTypeGuest    = @"guests";
 NSString * const NCAttendeeTypeEmail    = @"emails";
 NSString * const NCAttendeeTypeFederated = @"federated_users";
+NSString * const NCAttendeeTypeBots     = @"bots";
+
+NSString * const NCAttendeeBotPrefix    = @"bot-";
 
 NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
 
