@@ -182,6 +182,7 @@ struct UserStatusMessageSwiftUIView: View {
                 if error.errorCode == 0 {
                     dismiss()
                     changed.toggle()
+                    AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
                 } else {
                     triggerErrorAlert(title: NSLocalizedString("Could not set status message", comment: ""),
                                          message: NSLocalizedString("An error occurred while setting status message", comment: ""))
@@ -193,6 +194,7 @@ struct UserStatusMessageSwiftUIView: View {
                 if error.errorCode == 0 {
                     dismiss()
                     changed.toggle()
+                    AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
                 } else {
                     triggerErrorAlert(title: NSLocalizedString("Could not set status message", comment: ""), message: NSLocalizedString("An error occurred while setting status message", comment: ""))
 

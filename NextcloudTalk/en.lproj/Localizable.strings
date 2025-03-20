@@ -293,6 +293,9 @@
 "An error occurred while setting description" = "An error occurred while setting description";
 
 /* No comment provided by engineer. */
+"An error occurred while setting online status" = "An error occurred while setting online status";
+
+/* No comment provided by engineer. */
 "An error occurred while setting phone number" = "An error occurred while setting phone number";
 
 /* No comment provided by engineer. */
@@ -657,6 +660,9 @@
 
 /* No comment provided by engineer. */
 "Could not set message expiration time" = "Could not set message expiration time";
+
+/* No comment provided by engineer. */
+"Could not set online status" = "Could not set online status";
 
 /* No comment provided by engineer. */
 "Could not set phone number" = "Could not set phone number";

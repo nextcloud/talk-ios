@@ -411,6 +411,7 @@
 		2C3195BC24C599130066F221 /* PlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC7158820B837140045C789 /* PlaceholderView.xib */; };
 		2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
 		2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */; };
+		2C349BC22D8B0CFF004EC882 /* AppStoreReviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C349BC12D8B0CFF004EC882 /* AppStoreReviewController.swift */; };
 		2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */; };
 		2C3780BD2107209C003F9AE8 /* NCRoomParticipants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780BC2107209C003F9AE8 /* NCRoomParticipants.m */; };
 		2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C3780C2210F49DC003F9AE8 /* HeaderWithButton.m */; };
@@ -922,6 +923,7 @@
 		2C2E64231F3462AF00D39CE8 /* NCSignalingMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCSignalingMessage.h; sourceTree = "<group>"; };
 		2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCSignalingMessage.m; sourceTree = "<group>"; };
 		2C330373255E6EBC00BDB4E4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2C349BC12D8B0CFF004EC882 /* AppStoreReviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreReviewController.swift; sourceTree = "<group>"; };
 		2C36A048261487BC0026F04A /* DetailedOptionsSelectorTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailedOptionsSelectorTableViewController.h; sourceTree = "<group>"; };
 		2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailedOptionsSelectorTableViewController.m; sourceTree = "<group>"; };
 		2C3780BB2107209C003F9AE8 /* NCRoomParticipant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCRoomParticipant.h; sourceTree = "<group>"; };
@@ -1889,6 +1891,7 @@
 		2C55216A1F7D48850077E587 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				2C349BC12D8B0CFF004EC882 /* AppStoreReviewController.swift */,
 				2CC3166B2CC2A849007CBE16 /* SettingsTableViewCell.swift */,
 				2C2A788C2359CC8800EEB797 /* NCAppBranding.h */,
 				2C2A788D2359CC8800EEB797 /* NCAppBranding.m */,
@@ -3101,6 +3104,7 @@
 				DA75580F278EEA1000A48A1B /* SettingsTableViewController.swift in Sources */,
 				1FF4DA962C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */,
 				2CB3041D2264775E0053078A /* SLKTextView.m in Sources */,
+				2C349BC22D8B0CFF004EC882 /* AppStoreReviewController.swift in Sources */,
 				1F1B0F4A2BE047D5003FD766 /* OneWayPanGestureRecognizer.swift in Sources */,
 				1FE94734293CE55600D6584C /* NCCameraController.swift in Sources */,
 				2CB304212264775E0053078A /* UIScrollView+SLKAdditions.m in Sources */,
