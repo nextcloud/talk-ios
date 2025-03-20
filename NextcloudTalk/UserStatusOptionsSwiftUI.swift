@@ -56,6 +56,7 @@ struct UserStatusOptionsSwiftUI: View {
             getActiveUserStatus()
             dismiss()
             changed.toggle()
+            AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
         }
     }
 

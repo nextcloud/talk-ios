@@ -267,7 +267,7 @@ typedef enum RoomsSections {
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+
     [self refreshRoomList];
     
     self.clearsSelectionOnViewWillAppear = self.splitViewController.isCollapsed;
@@ -576,6 +576,7 @@ typedef enum RoomsSections {
     UIAction *openSettingsOption = [UIAction actionWithTitle:NSLocalizedString(@"Settings", nil) image:[[UIImage systemImageNamed:@"gear"] imageWithTintColor:[UIColor secondaryLabelColor] renderingMode:UIImageRenderingModeAlwaysOriginal] identifier:nil handler:^(UIAction *action) {
         [[NCDatabaseManager sharedInstance] removeUnreadNotificationForInactiveAccounts];
         [self setUnreadMessageForInactiveAccountsIndicator];
+        [AppStoreReviewController recordAction:AppStoreReviewController.visitAppSettings];
         [[NCUserInterfaceController sharedInstance] presentSettingsViewController];
     }];
 

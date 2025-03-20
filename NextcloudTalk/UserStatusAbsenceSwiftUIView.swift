@@ -97,6 +97,7 @@ struct UserStatusAbsenceSwiftUIView: View {
             if success {
                 dismiss()
                 changed.toggle()
+                AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
             } else {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not set absence", comment: ""), withMessage: NSLocalizedString("An error occurred while setting absence", comment: ""))
             }
