@@ -52,11 +52,15 @@ struct UserStatusOptionsSwiftUI: View {
 
     func setActiveUserStatus(userStatus: String) {
         let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setUserStatus(userStatus, for: activeAccount) { _ in
-            getActiveUserStatus()
-            dismiss()
-            changed.toggle()
-            AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
+        NCAPIController.sharedInstance().setUserStatus(userStatus, for: activeAccount) { error in
+            if error == nil {
+                getActiveUserStatus()
+                dismiss()
+                changed.toggle()
+                AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
+            } else {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not set online status", comment: ""), withMessage: NSLocalizedString("An error occurred while setting online status", comment: ""))
+            }
         }
     }
 
