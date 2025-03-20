@@ -28,6 +28,11 @@ import StoreKit
     private static let lastRequestedReviewAppVersion = "lastRequestedReviewAppVersion"
 
     static func recordAction(_ action: String) {
+        // Do not request reviews for branded apps
+        if isBrandedApp.boolValue {
+            return
+        }
+
         let currentAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
         let lastRequestedAppVersion = UserDefaults.standard.string(forKey: lastRequestedReviewAppVersion)
 
