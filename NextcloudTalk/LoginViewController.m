@@ -186,6 +186,11 @@
         [self.activityIndicatorView stopAnimating];
         self.activityIndicatorView.hidden = YES;
         if (!error) {
+            if (![serverCapabilities isKindOfClass:[NSDictionary class]]) {
+                [self showAlertWithTitle:NSLocalizedString(@"Nextcloud server not found", nil) andMessage:NSLocalizedString(@"Please check that you entered the correct Nextcloud server address.", nil)];
+                return;
+            }
+
             NSArray *talkFeatures = [[[serverCapabilities objectForKey:@"capabilities"] objectForKey:@"spreed"] objectForKey:@"features"];
             // Check minimum required version
             if ([talkFeatures containsObject:kMinimumRequiredTalkCapability]) {
