@@ -9,3 +9,7 @@ updates:
     day: sunday
     time: "09:00"
     timezone: Europe/Paris
+  groups:
+    github-actions:
+      patterns:
+        - "*"
