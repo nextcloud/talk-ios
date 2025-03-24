@@ -1367,7 +1367,7 @@ class CallViewController: UIViewController,
         }
 
         // Background blur
-        if self.isAudioOnly {
+        if !self.isAudioOnly {
             var blurActionImage = UIImage(systemName: "person.crop.rectangle.fill")
             var blurActionTitle = NSLocalizedString("Enable blur", comment: "")
 
