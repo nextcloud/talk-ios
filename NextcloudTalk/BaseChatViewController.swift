@@ -2572,6 +2572,8 @@ import SwiftUI
             return
         }
 
+        AppStoreReviewController.recordAction(AppStoreReviewController.addReaction)
+
         self.setTemporaryReaction(reaction: reaction, withState: .adding, toMessage: message)
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: self.account.accountId)
