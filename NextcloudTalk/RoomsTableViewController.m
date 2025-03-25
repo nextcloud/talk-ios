@@ -1520,7 +1520,14 @@ typedef enum RoomsSections {
     }
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
     cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
-    
+
+    // Event conversation handling
+    if ([room isFutureEvent]) {
+        cell.titleOnly = NO;
+        cell.subtitleLabel.text = [room eventStartString];
+        cell.dateLabel.text = @"";
+    }
+
     // Set unread messages
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
         BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;

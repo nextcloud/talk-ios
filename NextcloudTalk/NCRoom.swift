@@ -85,6 +85,13 @@ import Realm
         return (startTimestamp, endTimestamp)
     }
 
+    // TODO: Move to caller when migrated to swift
+    public var eventStartString: String? {
+        guard let start = self.eventTimestamps?.start else { return nil }
+
+        return Date(timeIntervalSince1970: TimeInterval(start)).futureRelativeTime()
+    }
+
     public var isVisible: Bool {
         // In case we have objectType 'event', but the calendar entry was not saved, we don't have a valid timestamp,
         // in this case, we always show the room
