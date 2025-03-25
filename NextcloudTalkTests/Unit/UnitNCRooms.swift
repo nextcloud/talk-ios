@@ -14,25 +14,33 @@ final class UnitNCRooms: TestBaseRealm {
 
         let unfinishedEventRoom = NCRoom()
         unfinishedEventRoom.objectType = "event"
-        unfinishedEventRoom.objectId = "abcdefg" // unfinished event rooms don't have a timestamp set, but a hash
+        unfinishedEventRoom.objectId = "abcdefg" // "Unfinished" event rooms don't have a timestamp set, but a hash
 
         XCTAssertTrue(unfinishedEventRoom.isVisible)
-        XCTAssertNil(unfinishedEventRoom.eventStartTimestamp)
+        XCTAssertNil(unfinishedEventRoom.eventTimestamps)
 
         let timestampNow = Int(Date().timeIntervalSince1970)
         let eventRoom = NCRoom()
         eventRoom.objectType = "event"
-        eventRoom.objectId = String(timestampNow + 15 * 3600)
+
+        // "Finished" event rooms store start/end-date in objectId as "<startTimestamp>#<endTimestamp>"
+        var start = String(timestampNow + 15 * 3600)
+        var end = String(timestampNow + 15 * 3600 + 60)
+        eventRoom.objectId = "\(start)#\(end)"
 
         XCTAssertTrue(eventRoom.isVisible)
-        XCTAssertNotNil(eventRoom.eventStartTimestamp)
+        XCTAssertNotNil(eventRoom.eventTimestamps)
 
         // Always show rooms of events in the past
-        eventRoom.objectId = String(timestampNow - 5 * 3600)
+        start = String(timestampNow - 5 * 3600)
+        end = String(timestampNow - 5 * 3600 + 60)
+        eventRoom.objectId = "\(start)#\(end)"
         XCTAssertTrue(eventRoom.isVisible)
 
         // Event rooms should only be shown 24h before start
-        eventRoom.objectId = String(timestampNow + 17 * 3600)
+        start = String(timestampNow + 17 * 3600)
+        end = String(timestampNow + 17 * 3600 + 60)
+        eventRoom.objectId = "\(start)#\(end)"
         XCTAssertFalse(eventRoom.isVisible)
     }
 }

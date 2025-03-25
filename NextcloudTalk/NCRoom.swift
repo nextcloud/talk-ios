@@ -63,25 +63,34 @@ import Realm
     }
 
     public var isFutureEvent: Bool {
-        guard isEvent, let eventStartTimestamp else { return false }
+        guard isEvent, let eventTimestamps else { return false }
 
         let nowTimestamp = Int(Date().timeIntervalSince1970)
-        return nowTimestamp >= eventStartTimestamp
+        return nowTimestamp >= eventTimestamps.start
     }
 
     @nonobjc
-    public var eventStartTimestamp: Int? {
-        guard isEvent else { return nil }
+    public var eventTimestamps: (start: Int, end: Int)? {
+        // For event rooms the objectId looks like "<startTimestamp>#<endTimestamp>"
+        guard isEvent, self.objectId.contains("#") else { return nil }
 
-        return Int(self.objectId)
+        let splitTimestamps = self.objectId.components(separatedBy: "#")
+
+        guard splitTimestamps.count == 2,
+              let startTimestamp = Int(splitTimestamps[0]),
+              let endTimestamp = Int(splitTimestamps[1]),
+              endTimestamp >= startTimestamp
+        else { return nil }
+
+        return (startTimestamp, endTimestamp)
     }
 
     public var isVisible: Bool {
         // In case we have objectType 'event', but the calendar entry was not saved, we don't have a valid timestamp,
         // in this case, we always show the room
-        guard isEvent, let eventStartTimestamp else { return true }
+        guard isEvent, let eventTimestamps else { return true }
 
-        let sixteenHoursBeforeTimestamp = eventStartTimestamp - (16 * 3600)
+        let sixteenHoursBeforeTimestamp = eventTimestamps.start - (16 * 3600)
         let nowTimestamp = Int(Date().timeIntervalSince1970)
 
         return nowTimestamp >= sixteenHoursBeforeTimestamp
