@@ -33,7 +33,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 typedef enum RoomsFilter {
     kRoomsFilterAll = 0,
     kRoomsFilterUnread,
-    kRoomsFilterMentioned
+    kRoomsFilterMentioned,
+    kRoomsFilterEvent
 } RoomsFilter;
 
 typedef enum RoomsSections {
@@ -715,6 +716,8 @@ typedef enum RoomsSections {
             return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"unreadMessages > 0 AND isArchived == %@", @(_showingArchivedRooms)]];
         case kRoomsFilterMentioned:
             return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES AND isArchived == %@", @(_showingArchivedRooms)]];
+        case kRoomsFilterEvent:
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"objectType == 'event' AND isArchived == %@", @(_showingArchivedRooms)]];
         default:
             return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == %@", @(_showingArchivedRooms)]];
     }
@@ -755,6 +758,7 @@ typedef enum RoomsSections {
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterAll]];
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterUnread]];
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterMentioned]];
+    [filters addObject:[NSNumber numberWithInt:kRoomsFilterEvent]];
 
     return [NSArray arrayWithArray:filters];
 }
@@ -768,6 +772,8 @@ typedef enum RoomsSections {
             return NSLocalizedString(@"Unread", @"'Unread' meaning 'Unread conversations'");
         case kRoomsFilterMentioned:
             return NSLocalizedString(@"Mentioned", @"'Mentioned' meaning 'Mentioned conversations'");
+        case kRoomsFilterEvent:
+            return NSLocalizedString(@"Event", @"'Event' meaning 'Conversations that were created from a calendar event'");
         default:
             return @"";
     }
