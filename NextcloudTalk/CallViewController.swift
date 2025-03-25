@@ -218,12 +218,14 @@ class CallViewController: UIViewController,
         self.videoCallButton.accessibilityHint = NSLocalizedString("Double tap to upgrade this voice call to a video call", comment: "")
         self.toggleChatButton.accessibilityLabel = NSLocalizedString("Chat", comment: "")
         self.toggleChatButton.accessibilityHint = NSLocalizedString("Double tap to show or hide chat view", comment: "")
+        self.toggleChatButton.accessibilityIdentifier = "toggleChatButton"
         self.recordingButton.accessibilityLabel = NSLocalizedString("Recording", comment: "")
         self.recordingButton.accessibilityHint = NSLocalizedString("Double tap to stop recording", comment: "")
         self.lowerHandButton.accessibilityLabel = NSLocalizedString("Lower hand", comment: "")
         self.lowerHandButton.accessibilityHint = NSLocalizedString("Double tap to lower hand", comment: "")
         self.moreMenuButton.accessibilityLabel = NSLocalizedString("More actions", comment: "")
         self.moreMenuButton.accessibilityHint = NSLocalizedString("Double tap to show more actions", comment: "")
+        self.moreMenuButton.accessibilityIdentifier = "moreMenuButton"
 
         let deferredMoreMenu = UIDeferredMenuElement.uncached { [unowned self] completion in
             completion(self.getMoreButtonMenuItems())

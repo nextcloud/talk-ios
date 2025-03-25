@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F064AB62D91A9550002FE7A /* UICallTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F064AB52D91A9550002FE7A /* UICallTest.swift */; };
 		1F0A1D442A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */; };
 		1F0B0A722BA264540073FF8D /* MentionSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */; };
 		1F0B0A732BA265300073FF8D /* MentionSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */; };
@@ -787,6 +788,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1F064AB52D91A9550002FE7A /* UICallTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICallTest.swift; sourceTree = "<group>"; };
 		1F0A1D432A5F1FA800A25433 /* SwiftMarkdownObjCBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftMarkdownObjCBridge.swift; sourceTree = "<group>"; };
 		1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MentionSuggestion.swift; sourceTree = "<group>"; };
 		1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitMentionSuggestionTest.swift; sourceTree = "<group>"; };
@@ -1684,6 +1686,7 @@
 				1F6D8C3C2B2F23C4004376B8 /* Helpers.swift */,
 				1F6D8C472B2F2F69004376B8 /* AAAALoginTest.swift */,
 				1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */,
+				1F064AB52D91A9550002FE7A /* UICallTest.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -3156,6 +3159,7 @@
 				1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */,
 				1F6D8C3D2B2F23C4004376B8 /* Helpers.swift in Sources */,
 				1F6D8C442B2F2791004376B8 /* TestConstants.swift in Sources */,
+				1F064AB62D91A9550002FE7A /* UICallTest.swift in Sources */,
 				1F6D8C492B2F2FB7004376B8 /* AAAALoginTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

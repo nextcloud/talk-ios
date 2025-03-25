@@ -460,6 +460,7 @@ import SwiftUI
             barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { _ in
                 NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
             })
+            barButtonItem.accessibilityIdentifier = "closeInCallChatView"
             self.navigationItem.rightBarButtonItems = [barButtonItem]
         }
     }
