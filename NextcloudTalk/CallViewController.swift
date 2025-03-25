@@ -13,7 +13,7 @@ import AVKit
     @objc func callViewControllerWantsToBeDismissed(_ viewController: CallViewController)
     @objc func callViewControllerWantsVideoCallUpgrade(_ viewController: CallViewController)
     @objc func callViewControllerDidFinish(_ viewController: CallViewController)
-    @objc func callViewController(_ viewController: CallViewController, wantsToSwitchFromCall from: String, toRoom to: String)
+    @objc func callViewController(_ viewController: CallViewController, wantsToSwitchFromRoom from: String, toRoom to: String)
 }
 
 @objcMembers
@@ -838,7 +838,7 @@ class CallViewController: UIViewController,
             // Prepare rooms manager to switch to another room
             NCRoomsManager.sharedInstance().prepareSwitchToAnotherRoom(fromRoom: self.room.token) { _ in
                 // Notify callkit about room switch
-                self.delegate?.callViewController(self, wantsToSwitchFromCall: self.room.token, toRoom: token)
+                self.delegate?.callViewController(self, wantsToSwitchFromRoom: self.room.token, toRoom: token)
 
                 // Assign new room as current room
                 self.room = newRoom

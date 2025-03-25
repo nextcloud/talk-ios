@@ -586,7 +586,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }
 }
 
-- (void)callViewController:(CallViewController *)viewController wantsToSwitchCallFromCall:(NSString *)from toRoom:(NSString *)to
+- (void)callViewController:(CallViewController *)viewController wantsToSwitchFromRoom:(NSString *)from toRoom:(NSString *)to
 {
     if (_callViewController == viewController) {
         [[CallKitManager sharedInstance] switchCallFrom:from toCall:to];
