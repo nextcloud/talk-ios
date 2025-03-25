@@ -66,7 +66,7 @@ import Realm
         guard isEvent, let eventTimestamps else { return false }
 
         let nowTimestamp = Int(Date().timeIntervalSince1970)
-        return nowTimestamp >= eventTimestamps.start
+        return eventTimestamps.start >= nowTimestamp
     }
 
     @nonobjc
