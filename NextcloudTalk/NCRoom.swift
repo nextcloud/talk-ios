@@ -58,6 +58,16 @@ import Realm
         return false
     }
 
+    public var isEvent: Bool {
+        return self.objectType == "event"
+    }
+
+    public var eventStartTime: Date? {
+        guard isEvent, let timestamp = TimeInterval(self.objectId) else { return nil }
+
+        return Date(timeIntervalSince1970: timestamp)
+    }
+
     public var supportsFederatedCalling: Bool {
         guard self.isFederated else { return false }
 
