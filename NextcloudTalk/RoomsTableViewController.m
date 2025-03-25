@@ -713,13 +713,13 @@ typedef enum RoomsSections {
 {
     switch (filter) {
         case kRoomsFilterUnread:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"unreadMessages > 0 AND isArchived == %@", @(_showingArchivedRooms)]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isVisible == YES AND unreadMessages > 0 AND isArchived == %@", @(_showingArchivedRooms)]];
         case kRoomsFilterMentioned:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES AND isArchived == %@", @(_showingArchivedRooms)]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isVisible == YES AND hasUnreadMention == YES AND isArchived == %@", @(_showingArchivedRooms)]];
         case kRoomsFilterEvent:
             return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"objectType == 'event' AND isArchived == %@", @(_showingArchivedRooms)]];
         default:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == %@", @(_showingArchivedRooms)]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isVisible == YES AND isArchived == %@", @(_showingArchivedRooms)]];
     }
 }
 

@@ -62,10 +62,29 @@ import Realm
         return self.objectType == "event"
     }
 
-    public var eventStartTime: Date? {
-        guard isEvent, let timestamp = TimeInterval(self.objectId) else { return nil }
+    public var isFutureEvent: Bool {
+        guard isEvent, let eventStartTimestamp else { return false }
 
-        return Date(timeIntervalSince1970: timestamp)
+        let nowTimestamp = Int(Date().timeIntervalSince1970)
+        return nowTimestamp >= eventStartTimestamp
+    }
+
+    @nonobjc
+    public var eventStartTimestamp: Int? {
+        guard isEvent else { return nil }
+
+        return Int(self.objectId)
+    }
+
+    public var isVisible: Bool {
+        // In case we have objectType 'event', but the calendar entry was not saved, we don't have a valid timestamp,
+        // in this case, we always show the room
+        guard isEvent, let eventStartTimestamp else { return true }
+
+        let sixteenHoursBeforeTimestamp = eventStartTimestamp - (16 * 3600)
+        let nowTimestamp = Int(Date().timeIntervalSince1970)
+
+        return nowTimestamp >= sixteenHoursBeforeTimestamp
     }
 
     public var supportsFederatedCalling: Bool {
