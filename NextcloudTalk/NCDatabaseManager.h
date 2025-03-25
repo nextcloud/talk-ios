@@ -103,8 +103,8 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 
 - (NSInteger)numberOfAccounts;
 - (TalkAccount *)activeAccount;
-- (NSArray *)allAccounts;
-- (NSArray *)inactiveAccounts;
+- (NSArray<TalkAccount *> *)allAccounts;
+- (NSArray<TalkAccount *> *)inactiveAccounts;
 - (TalkAccount * _Nullable)talkAccountForAccountId:(NSString *)accountId;
 - (TalkAccount *)talkAccountForUserId:(NSString *)userId inServer:(NSString *)server;
 - (void)setActiveAccountWithAccountId:(NSString *)accountId;
@@ -122,6 +122,7 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 
 // Rooms
 - (NCRoom * _Nullable)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId;
+- (NCRoom * _Nullable)roomWithInternalId:(NSString *)internalId;
 
 // FederatedCapabilities
 - (FederatedCapabilities * __nullable)federatedCapabilitiesForAccountId:(NSString *)accountId remoteServer:(NSString *)remoteServer roomToken:(NSString *)roomToken;
