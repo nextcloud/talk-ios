@@ -230,13 +230,15 @@
 		1F90EFBD25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFBE25FE39F800F3FA55 /* NCIntentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */; };
 		1F90EFC725FE4BE700F3FA55 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
+		1F96D6DF2D92FDDB0088331F /* NCAPIController+CalDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E40F2D5DF3C800590959 /* NCAPIController+CalDAV.swift */; };
+		1F96D6E02D92FDEA0088331F /* NCCalDAVSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */; };
+		1F96D76E2D93013C0088331F /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 1F96D76D2D93013C0088331F /* SwiftyXMLParser */; };
 		1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */; };
 		1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */; };
 		1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA20C89284001D80062B4F3 /* DebounceWebView.swift */; };
 		1FA38C9029A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA38C8F29A4B3C6008871B8 /* NCNotificationAction.swift */; };
 		1FA732FC2966CBB7003D2103 /* CallFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA732FB2966CBB7003D2103 /* CallFlowLayout.swift */; };
-		1FA940B92D74F3B500DF6CDF /* UITableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC316692CC26186007CBE16 /* UITableViewExtension.swift */; };
 		1FA93CBE2D70C6BC00DF6CDF /* NCDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDB47F72C9C7E3F00D6F423 /* NCDatabaseManager.swift */; };
 		1FA93DA52D70FCC200DF6CDF /* TalkIntents.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1FA93DAE2D70FE9F00DF6CDF /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
@@ -306,6 +308,7 @@
 		1FA93F332D711E7200DF6CDF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FA93F352D712A1F00DF6CDF /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		1FA93F362D712A2C00DF6CDF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
+		1FA940B92D74F3B500DF6CDF /* UITableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC316692CC26186007CBE16 /* UITableViewExtension.swift */; };
 		1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7C2AC99326001214EB /* TOCropViewController */; };
 		1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7E2AC99367001214EB /* TOCropViewController */; };
 		1FAB2E832AC9EC3F001214EB /* BaseChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2E822AC9EC3F001214EB /* BaseChatViewController.swift */; };
@@ -1454,6 +1457,7 @@
 				1FA93DE52D71010F00DF6CDF /* CDMarkdownKit in Frameworks */,
 				1FA93DED2D71012000DF6CDF /* SDWebImageSVGKitPlugin in Frameworks */,
 				1FA93DEF2D71012500DF6CDF /* SwiftyAttributes in Frameworks */,
+				1F96D76E2D93013C0088331F /* SwiftyXMLParser in Frameworks */,
 				2B4BED05DC4A4EB4761A6C87 /* libPods-TalkIntents.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2443,6 +2447,7 @@
 				1FA93DEC2D71012000DF6CDF /* SDWebImageSVGKitPlugin */,
 				1FA93DEE2D71012500DF6CDF /* SwiftyAttributes */,
 				1FA93DF02D71012900DF6CDF /* UICKeyChainStore */,
+				1F96D76D2D93013C0088331F /* SwiftyXMLParser */,
 			);
 			productName = TalkIntents;
 			productReference = 1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */;
@@ -3104,6 +3109,7 @@
 				1FA93DBB2D70FFE800DF6CDF /* NCAPISessionManager.swift in Sources */,
 				1FA93DB82D70FFD200DF6CDF /* FederationInvitation.swift in Sources */,
 				1FA93DDD2D7100AF00DF6CDF /* NCRoomParticipants.m in Sources */,
+				1F96D6E02D92FDEA0088331F /* NCCalDAVSessionManager.swift in Sources */,
 				1FA93DD62D71007500DF6CDF /* ABContact.m in Sources */,
 				1FA93DE02D7100C400DF6CDF /* NCUserStatus.m in Sources */,
 				1FA93DD72D71007500DF6CDF /* NCContact.m in Sources */,
@@ -3124,6 +3130,7 @@
 				1FA93DC42D71001400DF6CDF /* NCUtils.swift in Sources */,
 				1FA93DAF2D70FEA300DF6CDF /* NCDatabaseManager.swift in Sources */,
 				1FA93E442D71023900DF6CDF /* NCChatBlock.m in Sources */,
+				1F96D6DF2D92FDDB0088331F /* NCAPIController+CalDAV.swift in Sources */,
 				1FA93DCE2D71006900DF6CDF /* NCMessageLocationParameter.m in Sources */,
 				1FA93DCF2D71006900DF6CDF /* NCChatMessage.m in Sources */,
 				1FA93DD02D71006900DF6CDF /* NCMessageFileParameter.m in Sources */,
@@ -5044,6 +5051,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
 			productName = NextcloudKit;
+		};
+		1F96D76D2D93013C0088331F /* SwiftyXMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */;
+			productName = SwiftyXMLParser;
 		};
 		1FA93DE42D71010F00DF6CDF /* CDMarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
