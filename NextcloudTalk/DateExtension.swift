@@ -11,4 +11,33 @@ extension Date {
 
         return dateFormatter.string(from: self)
     }
+
+    func futureRelativeTime() -> String {
+        let now = Date()
+
+        // Event happening now
+        if self <= now {
+            return NSLocalizedString("Now", comment: "Indicates an event happening right now")
+        }
+
+        // Event happening following days (except today or tomorrow)
+        let calendar = Calendar.current
+        if let nextWeek = calendar.date(byAdding: .day, value: 7, to: now),
+           !calendar.isDateInToday(self), !calendar.isDateInTomorrow(self),
+           self < calendar.startOfDay(for: nextWeek) {
+            return self.formatted(
+                .dateTime
+                    .weekday(.wide)
+                    .hour(.conversationalTwoDigits(amPM: .wide))
+                    .minute(.defaultDigits))
+        }
+
+        // Event happening today, tomorrow or later than a week
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+        dateFormatter.doesRelativeDateFormatting = true
+
+        return dateFormatter.string(from: self)
+    }
 }

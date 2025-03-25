@@ -25,33 +25,7 @@ struct CalendarEvent {
         self.uri = dictionary["uri"] as? String ?? ""
     }
 
-    func readableStartTime() -> String {
-        let eventDate = Date(timeIntervalSince1970: TimeInterval(start))
-        let now = Date()
-
-        // Event happening now
-        if eventDate <= now {
-            return NSLocalizedString("Now", comment: "Indicates an event happening right now")
-        }
-
-        // Event happening following days (except today or tomorrow)
-        let calendar = Calendar.current
-        if let nextWeek = calendar.date(byAdding: .day, value: 7, to: now),
-           !calendar.isDateInToday(eventDate), !calendar.isDateInTomorrow(eventDate),
-           eventDate < calendar.startOfDay(for: nextWeek) {
-            return eventDate.formatted(
-                .dateTime
-                .weekday(.wide)
-                .hour(.conversationalTwoDigits(amPM: .wide))
-                .minute(.defaultDigits))
-        }
-
-        // Event happening today, tomorrow or later than a week
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        dateFormatter.doesRelativeDateFormatting = true
-
-        return dateFormatter.string(from: eventDate)
+    func startDate() -> Date {
+        return Date(timeIntervalSince1970: TimeInterval(start))
     }
 }
