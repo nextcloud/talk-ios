@@ -997,7 +997,7 @@ class CallViewController: UIViewController,
             participantText.append("  \(self.peersInCall.count + 1)".withFont(self.participantsLabel.font))
 
             self.participantsLabel.attributedText = participantText
-            self.participantsLabel.isHidden = false
+            self.participantsLabelContainer.isHidden = false
         }
     }
 
