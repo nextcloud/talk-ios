@@ -247,6 +247,8 @@ class CallViewController: UIViewController,
 
         // We hide localVideoView until we receive it from cameraController
         self.setLocalVideoViewHidden(true)
+        self.localVideoView.layer.cornerRadius = 15
+        self.localVideoView.layer.masksToBounds = true
 
         // We disableLocalVideo here even if the call controller has not been created just to show the video button as disabled
         // also we set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
@@ -273,6 +275,9 @@ class CallViewController: UIViewController,
 
         self.collectionView.register(UINib(nibName: kCallParticipantCellNibName, bundle: nil), forCellWithReuseIdentifier: kCallParticipantCellIdentifier)
         self.collectionView.contentInsetAdjustmentBehavior = .never
+
+        let localVideoDragGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(localVideoDragged(_:)))
+        self.localVideoView.addGestureRecognizer(localVideoDragGestureRecognizer)
 
         NotificationCenter.default.addObserver(self, selector: #selector(sensorStateChange(notification:)), name: UIDevice.proximityStateDidChangeNotification, object: nil)
 
@@ -315,7 +320,6 @@ class CallViewController: UIViewController,
 
         self.setSideBarVisible(false, animated: false, withCompletion: nil)
         self.adjustConstraints()
-        self.setLocalVideoRect()
         self.adjustSpeakerButton()
         self.adjustTopBar()
     }
@@ -332,6 +336,8 @@ class CallViewController: UIViewController,
 
         UIDevice.current.isProximityMonitoringEnabled = true
         UIApplication.shared.isIdleTimerDisabled = true
+
+        self.setLocalVideoRect()
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -901,8 +907,6 @@ class CallViewController: UIViewController,
 
         DispatchQueue.main.async {
             self.localVideoView.frame = localVideoRect
-            self.localVideoView.layer.cornerRadius = 15
-            self.localVideoView.layer.masksToBounds = true
         }
     }
 
