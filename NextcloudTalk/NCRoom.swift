@@ -62,13 +62,6 @@ import Realm
         return self.objectType == NCRoomObjectTypeEvent
     }
 
-    public var isFutureEvent: Bool {
-        guard isEvent, let eventTimestamps else { return false }
-
-        let nowTimestamp = Int(Date().timeIntervalSince1970)
-        return eventTimestamps.start >= nowTimestamp
-    }
-
     @nonobjc
     public var eventTimestamps: (start: Int, end: Int)? {
         // For event rooms the objectId looks like "<startTimestamp>#<endTimestamp>"
@@ -85,11 +78,23 @@ import Realm
         return (startTimestamp, endTimestamp)
     }
 
+    @nonobjc
+    public var calendarEvent: CalendarEvent? {
+        guard let eventTimestamps else { return nil }
+
+        return CalendarEvent(calendarAppUrl: "", calendarUri: "", location: "", recurrenceId: "", start: eventTimestamps.start, end: eventTimestamps.end, summary: "", uri: "")
+    }
+
     // TODO: Move to caller when migrated to swift
     public var eventStartString: String? {
         guard let start = self.eventTimestamps?.start else { return nil }
 
         return Date(timeIntervalSince1970: TimeInterval(start)).futureRelativeTime()
+    }
+
+    // TODO: Move to caller when migrated to swift
+    public var isFutureEvent: Bool {
+        return self.calendarEvent?.isFutureEvent ?? false
     }
 
     public var isVisible: Bool {

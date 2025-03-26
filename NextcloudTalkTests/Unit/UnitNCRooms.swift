@@ -30,20 +30,20 @@ final class UnitNCRooms: TestBaseRealm {
 
         XCTAssertTrue(eventRoom.isVisible)
         XCTAssertNotNil(eventRoom.eventTimestamps)
-        XCTAssertTrue(eventRoom.isFutureEvent)
+        XCTAssertTrue(eventRoom.calendarEvent?.isFutureEvent ?? false)
 
         // Always show rooms of events in the past
         start = String(timestampNow - 5 * 3600)
         end = String(timestampNow - 5 * 3600 + 60)
         eventRoom.objectId = "\(start)#\(end)"
         XCTAssertTrue(eventRoom.isVisible)
-        XCTAssertFalse(eventRoom.isFutureEvent)
+        XCTAssertFalse(eventRoom.calendarEvent?.isFutureEvent ?? true)
 
         // Event rooms should only be shown 24h before start
         start = String(timestampNow + 17 * 3600)
         end = String(timestampNow + 17 * 3600 + 60)
         eventRoom.objectId = "\(start)#\(end)"
         XCTAssertFalse(eventRoom.isVisible)
-        XCTAssertTrue(eventRoom.isFutureEvent)
+        XCTAssertTrue(eventRoom.calendarEvent?.isFutureEvent ?? false)
     }
 }

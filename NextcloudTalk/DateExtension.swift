@@ -15,11 +15,6 @@ extension Date {
     func futureRelativeTime() -> String {
         let now = Date()
 
-        // Event happening now
-        if self <= now {
-            return NSLocalizedString("Now", comment: "Indicates an event happening right now")
-        }
-
         // Event happening following days (except today or tomorrow)
         let calendar = Calendar.current
         if let nextWeek = calendar.date(byAdding: .day, value: 7, to: now),
