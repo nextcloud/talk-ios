@@ -205,7 +205,7 @@ import Realm
     }
 
     public var deletionMessage: String {
-        var message = NSLocalizedString("Do you really want to delete this conversation?", comment: "")
+        var message = NSLocalizedString("Do you really want to delete this conversation for everyone?", comment: "")
 
         if self.type == .oneToOne {
             message = String(format: NSLocalizedString("If you delete the conversation, it will also be deleted for %@", comment: ""), self.displayName)
