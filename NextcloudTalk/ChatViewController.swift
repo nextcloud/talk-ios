@@ -159,21 +159,21 @@ import SwiftUI
         return callOptionsButton
     }()
 
-    private lazy var upcomingEventsButton: BarButtonItemWithActivity = {
+    private lazy var eventsButton: BarButtonItemWithActivity = {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
         let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration)
-        let upcomingEventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
+        let eventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
 
-        upcomingEventsButton.innerButton.menu = createUpcomingEventsMenu()
-        upcomingEventsButton.innerButton.showsMenuAsPrimaryAction = true
+        eventsButton.innerButton.menu = createEventsMenu()
+        eventsButton.innerButton.showsMenuAsPrimaryAction = true
 
-        upcomingEventsButton.accessibilityLabel = NSLocalizedString("Upcoming events", comment: "")
-        upcomingEventsButton.accessibilityHint = NSLocalizedString("Double tap to display upcoming events", comment: "")
+        eventsButton.accessibilityLabel = NSLocalizedString("Upcoming events", comment: "")
+        eventsButton.accessibilityHint = NSLocalizedString("Double tap to display upcoming events", comment: "")
 
-        return upcomingEventsButton
+        return eventsButton
     }()
 
-    private func createUpcomingEventsMenu() -> UIMenu {
+    private func createEventsMenu() -> UIMenu {
         let deferredUpcomingEvents = UIDeferredMenuElement { [weak self] completion in
             guard let self = self else { return }
 
@@ -211,7 +211,7 @@ import SwiftUI
 
     private func handleMeetingCreationSuccess() {
         // Re-create menu so upcoming events are refetched
-        upcomingEventsButton.innerButton.menu = createUpcomingEventsMenu()
+        eventsButton.innerButton.menu = createEventsMenu()
     }
 
     private var messageExpirationTimer: Timer?
@@ -272,7 +272,7 @@ import SwiftUI
         }
         // Upcoming events
         if room.supportsUpcomingEvents {
-            barButtonsItems.append(upcomingEventsButton)
+            barButtonsItems.append(eventsButton)
         }
 
         self.navigationItem.rightBarButtonItems = barButtonsItems
