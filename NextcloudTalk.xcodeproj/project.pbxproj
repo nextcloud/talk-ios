@@ -144,7 +144,7 @@
 		1F66B72C29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */; };
 		1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F66B72E29FABD01003FB168 /* SwiftyAttributes */; };
 		1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C322B2E3756004376B8 /* IntegrationRoomTest.swift */; };
-		1F6D8C3D2B2F23C4004376B8 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C3C2B2F23C4004376B8 /* Helpers.swift */; };
+		1F6D8C3D2B2F23C4004376B8 /* XCTestCaseExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C3C2B2F23C4004376B8 /* XCTestCaseExtensions.swift */; };
 		1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C402B2F26D5004376B8 /* TestConstants.swift */; };
 		1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C422B2F26EE004376B8 /* Helpers.swift */; };
 		1F6D8C442B2F2791004376B8 /* TestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C402B2F26D5004376B8 /* TestConstants.swift */; };
@@ -239,6 +239,7 @@
 		1F96D8702D9369B20088331F /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991B2D3468BE00E9AA9E /* DateExtension.swift */; };
 		1F96D8712D9369B20088331F /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991B2D3468BE00E9AA9E /* DateExtension.swift */; };
 		1F96D8722D936A260088331F /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F54991B2D3468BE00E9AA9E /* DateExtension.swift */; };
+		1F96D8742D9453550088331F /* XCUIElementExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F96D8732D94534C0088331F /* XCUIElementExtensions.swift */; };
 		1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */; };
 		1F98DF9E28E7485000E05174 /* ReferenceDeckView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */; };
 		1FA20C8A284001D80062B4F3 /* DebounceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA20C89284001D80062B4F3 /* DebounceWebView.swift */; };
@@ -884,7 +885,7 @@
 		1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLKDefaultTypingIndicatorView.m; sourceTree = "<group>"; };
 		1F6D8C302B2E3756004376B8 /* NextcloudTalkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F6D8C322B2E3756004376B8 /* IntegrationRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationRoomTest.swift; sourceTree = "<group>"; };
-		1F6D8C3C2B2F23C4004376B8 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		1F6D8C3C2B2F23C4004376B8 /* XCTestCaseExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCaseExtensions.swift; sourceTree = "<group>"; };
 		1F6D8C402B2F26D5004376B8 /* TestConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestConstants.swift; sourceTree = "<group>"; };
 		1F6D8C422B2F26EE004376B8 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		1F6D8C472B2F2F69004376B8 /* AAAALoginTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAAALoginTest.swift; sourceTree = "<group>"; };
@@ -917,6 +918,7 @@
 		1F90EFBB25FE39F800F3FA55 /* NCIntentController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCIntentController.m; sourceTree = "<group>"; };
 		1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		1F96D5AD2D92E41F0088331F /* UnitNCRooms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitNCRooms.swift; sourceTree = "<group>"; };
+		1F96D8732D94534C0088331F /* XCUIElementExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIElementExtensions.swift; sourceTree = "<group>"; };
 		1F98DF9B28E7484700E05174 /* ReferenceDeckView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDeckView.swift; sourceTree = "<group>"; };
 		1F98DF9D28E7485000E05174 /* ReferenceDeckView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDeckView.xib; sourceTree = "<group>"; };
 		1FA20C89284001D80062B4F3 /* DebounceWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebounceWebView.swift; sourceTree = "<group>"; };
@@ -1690,7 +1692,8 @@
 		1F6D8C462B2F27BB004376B8 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				1F6D8C3C2B2F23C4004376B8 /* Helpers.swift */,
+				1F6D8C3C2B2F23C4004376B8 /* XCTestCaseExtensions.swift */,
+				1F96D8732D94534C0088331F /* XCUIElementExtensions.swift */,
 				1F6D8C472B2F2F69004376B8 /* AAAALoginTest.swift */,
 				1FD8AD8C2A3A162100787C16 /* UIRoomTest.swift */,
 				1F064AB52D91A9550002FE7A /* UICallTest.swift */,
@@ -3166,8 +3169,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1FD8AE6B2A3A216300787C16 /* UIRoomTest.swift in Sources */,
-				1F6D8C3D2B2F23C4004376B8 /* Helpers.swift in Sources */,
+				1F6D8C3D2B2F23C4004376B8 /* XCTestCaseExtensions.swift in Sources */,
 				1F6D8C442B2F2791004376B8 /* TestConstants.swift in Sources */,
+				1F96D8742D9453550088331F /* XCUIElementExtensions.swift in Sources */,
 				1F064AB62D91A9550002FE7A /* UICallTest.swift in Sources */,
 				1F6D8C492B2F2FB7004376B8 /* AAAALoginTest.swift in Sources */,
 			);
