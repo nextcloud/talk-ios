@@ -20,6 +20,8 @@ extern NSString * const NCRoomsManagerDidStartCallNotification;
 typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, TalkAccount *account, NSError *error);
 typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 typedef void (^SendOfflineMessagesCompletionBlock)(void);
+typedef void (^RoomDeletionStartedBlock)(void);
+typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 
 @class ChatViewController;
 @class CallViewController;
@@ -62,6 +64,8 @@ typedef void (^SendOfflineMessagesCompletionBlock)(void);
 - (void)updateLastReadMessage:(NSInteger)lastReadMessage forRoom:(NCRoom *)room;
 - (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room;
 - (void)setNoUnreadMessagesForRoom:(NCRoom *)room withLastMessage:(NCChatMessage * _Nullable)lastMessage;
+- (void)deleteRoomWithConfirmation:(NCRoom * _Nonnull)room withStartedBlock:(RoomDeletionStartedBlock _Nullable)startedBlock andWithFinishedBlock:(RoomDeletionFinishedBlock _Nullable)finishedBlock;
+- (void)deleteEventRoomWithConfirmationAfterCall:(NCRoom * _Nonnull)room;
 // Chat
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)leaveChatInRoom:(NSString *)token;

@@ -1181,31 +1181,14 @@ typedef enum RoomsSections {
 
 - (void)deleteRoom:(NCRoom *)room
 {
-    UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Delete conversation", nil)
-                                        message:room.deletionMessage
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsList];
-
+    [[NCRoomsManager sharedInstance] deleteRoomWithConfirmation:room withStartedBlock:^{
         NSIndexPath *indexPath = [self indexPathForRoom:room];
 
         if (indexPath) {
             [self->_rooms removeObjectAtIndex:indexPath.row];
             [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
-
-        [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
-            if (error) {
-                NSLog(@"Error deleting room: %@", error.description);
-            }
-            [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
-        }];
-    }];
-    [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
-    [confirmDialog addAction:cancelAction];
-    [self presentViewController:confirmDialog animated:YES completion:nil];
+    } andWithFinishedBlock:nil];
 }
 
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath

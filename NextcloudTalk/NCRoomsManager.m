@@ -335,6 +335,50 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }];
 }
 
+- (void)deleteRoomWithConfirmation:(NCRoom *)room withStartedBlock:(RoomDeletionStartedBlock)startedBlock andWithFinishedBlock:(RoomDeletionFinishedBlock)finishedBlock
+{
+    [self deleteRoomWithConfirmation:room withTitle:NSLocalizedString(@"Delete conversation", nil) withMessage:room.deletionMessage withStartedBlock:startedBlock andWithFinishedBlock:finishedBlock];
+}
+
+- (void)deleteEventRoomWithConfirmationAfterCall:(NCRoom *)room
+{
+    NSString *message = NSLocalizedString(@"The call for this event ended. Do you want to delete this room for everyone?", nil);
+    [self deleteRoomWithConfirmation:room withTitle:NSLocalizedString(@"Delete conversation", nil) withMessage:message withStartedBlock:nil andWithFinishedBlock:nil];
+}
+
+- (void)deleteRoomWithConfirmation:(NCRoom *)room withTitle:(NSString *)title withMessage:(NSString *)message withStartedBlock:(RoomDeletionStartedBlock)startedBlock andWithFinishedBlock:(RoomDeletionFinishedBlock)finishedBlock
+{
+    UIAlertController *confirmDialog =
+    [UIAlertController alertControllerWithTitle:title
+                                        message:message
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [[NCUserInterfaceController sharedInstance] presentConversationsList];
+
+        if (startedBlock) {
+            startedBlock();
+        }
+
+        [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
+            if (error) {
+                NSLog(@"Error deleting room: %@", error.description);
+            }
+
+            [self updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+
+            if (finishedBlock) {
+                finishedBlock(error == nil);
+            }
+        }];
+    }];
+
+    [confirmDialog addAction:confirmAction];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    [confirmDialog addAction:cancelAction];
+
+    [[NCUserInterfaceController sharedInstance] presentAlertViewController:confirmDialog];
+}
+
 - (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
@@ -526,27 +570,6 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     [[CallKitManager sharedInstance] endCall:room.token withStatusCode:0];
 }
 
-- (void)leaveCallInRoom:(NSString *)token
-{
-    NCRoomController *roomController = [_activeRooms objectForKey:token];
-    if (roomController) {
-        roomController.inCall = NO;
-    }
-
-    [self leaveRoom:token];
-}
-
-- (void)callDidEndInRoomWithToken:(NSString *)token
-{
-    [self leaveCallInRoom:token];
-
-    [[CallKitManager sharedInstance] endCall:token withStatusCode:0];
-    
-    if ([_chatViewController.room.token isEqualToString:token]) {
-        [_chatViewController resumeChat];
-    }
-}
-
 #pragma mark - Switch to
 
 - (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block
@@ -596,13 +619,33 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 - (void)callViewControllerDidFinish:(CallViewController *)viewController
 {
     if (_callViewController == viewController) {
-        NSString *token = [_callViewController.room.token copy];
+        NCRoom *room = _callViewController.room;
+        NSString *token = room.token;
+
         _callViewController = nil;
-        [self callDidEndInRoomWithToken:token];
+
+        NCRoomController *roomController = [_activeRooms objectForKey:token];
+        if (roomController) {
+            roomController.inCall = NO;
+        }
+
+        [self leaveRoom:token];
+
+        [[CallKitManager sharedInstance] endCall:token withStatusCode:0];
+
+        if ([_chatViewController.room.token isEqualToString:token]) {
+            [_chatViewController resumeChat];
+        }
+
         // Keep connection alive temporarily when a call was finished while the app in the background
         if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
             AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
             [appDelegate keepExternalSignalingConnectionAliveTemporarily];
+        }
+
+        // If this is an event room and we are a moderator, we allow direct deletion
+        if ([room canModerate] && [room isEvent]) {
+            [self deleteEventRoomWithConfirmationAfterCall:room];
         }
     }
 }

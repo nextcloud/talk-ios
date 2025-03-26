@@ -190,7 +190,7 @@ import SwiftUI
 
         if self.room.canModerate, calendarEvent.isPastEvent {
             let deleteConversation = UIAction(title: NSLocalizedString("Delete conversation", comment: ""), image: .init(systemName: "trash")) { [unowned self] _ in
-                self.confirmDelete()
+                NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil)
             }
 
             deleteConversation.attributes = .destructive
@@ -200,30 +200,6 @@ import SwiftUI
         }
 
         return UIMenu(children: menuElements)
-    }
-
-    private func confirmDelete() {
-        let confirmAction = UIAlertAction(title: NSLocalizedString("Delete", comment: ""), style: .destructive) { [unowned self] _ in
-            guard let account = self.room.account else { return }
-
-            NCAPIController.sharedInstance().deleteRoom(self.room.token, forAccount: account) { error in
-                if error == nil {
-                    self.leaveChat()
-                    NCUserInterfaceController.sharedInstance().presentConversationsList()
-                } else {
-                    NotificationPresenter.shared().present(title: NSLocalizedString("Could not delete conversation", comment: ""), subtitle: "", includedStyle: .warning)
-                    NotificationPresenter.shared().dismiss(afterDelay: 8.0)
-                }
-            }
-        }
-
-        let alertController = UIAlertController(title: NSLocalizedString("Delete conversation", comment: ""), message: self.room.deletionMessage, preferredStyle: .alert)
-        alertController.addAction(confirmAction)
-
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
-        alertController.addAction(cancelAction)
-
-        self.present(alertController, animated: true)
     }
 
     private func createUpcomingEventsMenu() -> UIMenu {
