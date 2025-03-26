@@ -167,13 +167,66 @@ import SwiftUI
         eventsButton.innerButton.menu = createEventsMenu()
         eventsButton.innerButton.showsMenuAsPrimaryAction = true
 
-        eventsButton.accessibilityLabel = NSLocalizedString("Upcoming events", comment: "")
-        eventsButton.accessibilityHint = NSLocalizedString("Double tap to display upcoming events", comment: "")
+        eventsButton.accessibilityLabel = NSLocalizedString("Events menu", comment: "")
+        eventsButton.accessibilityHint = NSLocalizedString("Double tap to display events menu", comment: "")
 
         return eventsButton
     }()
 
     private func createEventsMenu() -> UIMenu {
+        if self.room.isEvent {
+            return self.createEventsRoomMenu()
+        } else {
+            return self.createUpcomingEventsMenu()
+        }
+    }
+
+    private func createEventsRoomMenu() -> UIMenu {
+        guard let calendarEvent = self.room.calendarEvent else { return UIMenu() }
+
+        var menuElements: [UIMenuElement] = []
+
+        menuElements.append(UIAction(title: NSLocalizedString("Schedule", comment: ""), subtitle: calendarEvent.readableStartTime(), handler: { _ in }))
+
+        if self.room.canModerate, calendarEvent.isPastEvent {
+            let deleteConversation = UIAction(title: NSLocalizedString("Delete conversation", comment: ""), image: .init(systemName: "trash")) { [unowned self] _ in
+                self.confirmDelete()
+            }
+
+            deleteConversation.attributes = .destructive
+
+            let deleteMenu = UIMenu(title: "", options: [.displayInline], children: [deleteConversation])
+            menuElements.append(deleteMenu)
+        }
+
+        return UIMenu(children: menuElements)
+    }
+
+    private func confirmDelete() {
+        let confirmAction = UIAlertAction(title: NSLocalizedString("Delete", comment: ""), style: .destructive) { [unowned self] _ in
+            guard let account = self.room.account else { return }
+
+            NCAPIController.sharedInstance().deleteRoom(self.room.token, forAccount: account) { error in
+                if error == nil {
+                    self.leaveChat()
+                    NCUserInterfaceController.sharedInstance().presentConversationsList()
+                } else {
+                    NotificationPresenter.shared().present(title: NSLocalizedString("Could not delete conversation", comment: ""), subtitle: "", includedStyle: .warning)
+                    NotificationPresenter.shared().dismiss(afterDelay: 8.0)
+                }
+            }
+        }
+
+        let alertController = UIAlertController(title: NSLocalizedString("Delete conversation", comment: ""), message: self.room.deletionMessage, preferredStyle: .alert)
+        alertController.addAction(confirmAction)
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
+        alertController.addAction(cancelAction)
+
+        self.present(alertController, animated: true)
+    }
+
+    private func createUpcomingEventsMenu() -> UIMenu {
         let deferredUpcomingEvents = UIDeferredMenuElement { [weak self] completion in
             guard let self = self else { return }
 
@@ -181,7 +234,7 @@ import SwiftUI
                 let actions: [UIAction]
                 if !events.isEmpty {
                     actions = events.map { event in
-                        UIAction(title: event.summary, subtitle: event.startDate().futureRelativeTime(), handler: { _ in })
+                        UIAction(title: event.summary, subtitle: event.readableStartTime(), handler: { _ in })
                     }
                 } else {
                     actions = [UIAction(title: NSLocalizedString("No upcoming events", comment: ""), attributes: .disabled, handler: { _ in })]
