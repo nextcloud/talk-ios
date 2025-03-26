@@ -1405,6 +1405,12 @@ class CallViewController: UIViewController,
             self.showScreensharingPicker()
         }))
 
+        if self.room.canModerate {
+            items.append(UIAction(title: NSLocalizedString("Mute others", comment: ""), image: .init(systemName: "mic.slash.fill"), handler: { [unowned self] _ in
+                self.callController?.forceMuteOthers()
+            }))
+        }
+
         return items
     }
 

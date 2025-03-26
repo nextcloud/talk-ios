@@ -80,6 +80,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 - (void)stopCapturing;
 - (BOOL)isCameraAccessAvailable;
 - (BOOL)isMicrophoneAccessAvailable;
+- (void)forceMuteOthers;
 
 - (void)willSwitchToCall:(NSString *)token;
 
