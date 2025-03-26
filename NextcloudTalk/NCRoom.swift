@@ -59,7 +59,7 @@ import Realm
     }
 
     public var isEvent: Bool {
-        return self.objectType == "event"
+        return self.objectType == NCRoomObjectTypeEvent
     }
 
     public var isFutureEvent: Bool {

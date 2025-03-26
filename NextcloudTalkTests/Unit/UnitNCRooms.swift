@@ -13,7 +13,7 @@ final class UnitNCRooms: TestBaseRealm {
         XCTAssertTrue(nonEventRoom.isVisible)
 
         let unfinishedEventRoom = NCRoom()
-        unfinishedEventRoom.objectType = "event"
+        unfinishedEventRoom.objectType = NCRoomObjectTypeEvent
         unfinishedEventRoom.objectId = "abcdefg" // "Unfinished" event rooms don't have a timestamp set, but a hash
 
         XCTAssertTrue(unfinishedEventRoom.isVisible)
@@ -21,7 +21,7 @@ final class UnitNCRooms: TestBaseRealm {
 
         let timestampNow = Int(Date().timeIntervalSince1970)
         let eventRoom = NCRoom()
-        eventRoom.objectType = "event"
+        eventRoom.objectType = NCRoomObjectTypeEvent
 
         // "Finished" event rooms store start/end-date in objectId as "<startTimestamp>#<endTimestamp>"
         var start = String(timestampNow + 15 * 3600)
