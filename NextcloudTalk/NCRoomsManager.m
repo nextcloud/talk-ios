@@ -485,6 +485,15 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }];
 }
 
+- (BOOL)isCallOngoingWithCallToken:(NSString *)token
+{
+    if (!self.callViewController) {
+        return false;
+    }
+
+    return [self.callViewController.room.token isEqualToString:token];
+}
+
 - (void)startCallWithCallToken:(NSString *)token withVideo:(BOOL)video enabledAtStart:(BOOL)enabled asInitiator:(BOOL)initiator silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent andVoiceChatMode:(BOOL)voiceChatMode
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
