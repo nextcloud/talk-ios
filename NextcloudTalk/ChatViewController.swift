@@ -182,7 +182,9 @@ import SwiftUI
     }
 
     private func createEventsRoomMenu() -> UIMenu {
-        guard let calendarEvent = self.room.calendarEvent else { return UIMenu() }
+        guard let calendarEvent = self.room.calendarEvent else {
+            return UIMenu(children: [UIAction(title: NSLocalizedString("No upcoming events", comment: ""), attributes: .disabled, handler: { _ in })])
+        }
 
         var menuElements: [UIMenuElement] = []
 
