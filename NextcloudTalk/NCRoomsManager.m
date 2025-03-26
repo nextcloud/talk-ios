@@ -342,7 +342,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 - (void)deleteEventRoomWithConfirmationAfterCall:(NCRoom *)room
 {
-    NSString *message = NSLocalizedString(@"The call for this event ended. Do you want to delete this room for everyone?", nil);
+    NSString *message = NSLocalizedString(@"The call for this event ended. Do you want to delete this conversation for everyone?", nil);
     [self deleteRoomWithConfirmation:room withTitle:NSLocalizedString(@"Delete conversation", nil) withMessage:message withStartedBlock:nil andWithFinishedBlock:nil];
 }
 

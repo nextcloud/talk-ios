@@ -812,7 +812,7 @@
 "Do you really want to delete all messages in this conversation?" = "Do you really want to delete all messages in this conversation?";
 
 /* No comment provided by engineer. */
-"Do you really want to delete this conversation?" = "Do you really want to delete this conversation?";
+"Do you really want to delete this conversation for everyone?" = "Do you really want to delete this conversation for everyone?";
 
 /* No comment provided by engineer. */
 "Do you really want to end this poll?" = "Do you really want to end this poll?";
@@ -851,7 +851,7 @@
 "Double tap to display call options" = "Double tap to display call options";
 
 /* No comment provided by engineer. */
-"Double tap to display upcoming events" = "Double tap to display upcoming events";
+"Double tap to display events menu" = "Double tap to display events menu";
 
 /* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
@@ -975,6 +975,12 @@
 
 /* No comment provided by engineer. */
 "Error occurred while editing a message" = "Error occurred while editing a message";
+
+/* 'Event' meaning 'Conversations that were created from a calendar event' */
+"Event" = "Event";
+
+/* No comment provided by engineer. */
+"Events menu" = "Events menu";
 
 /* External signaling used */
 "External" = "External";
@@ -1242,6 +1248,9 @@
 
 /* No comment provided by engineer. */
 "Meeting created" = "Meeting created";
+
+/* No comment provided by engineer. */
+"Meeting ended" = "Meeting ended";
 
 /* No comment provided by engineer. */
 "Meeting ID" = "Meeting ID";
@@ -1937,6 +1946,9 @@
 "The app is too old and no longer supported by this server." = "The app is too old and no longer supported by this server.";
 
 /* No comment provided by engineer. */
+"The call for this event ended. Do you want to delete this conversation for everyone?" = "The call for this event ended. Do you want to delete this conversation for everyone?";
+
+/* No comment provided by engineer. */
 "The call has been running for one hour" = "The call has been running for one hour";
 
 /* No comment provided by engineer. */
@@ -1953,6 +1965,9 @@
 
 /* No comment provided by engineer. */
 "This call is being recorded" = "This call is being recorded";
+
+/* No comment provided by engineer. */
+"This conversation is attached to a calendar event. Edit the event to change the name/description of the conversation." = "This conversation is attached to a calendar event. Edit the event to change the name/description of the conversation.";
 
 /* No comment provided by engineer. */
 "This conversation is read-only" = "This conversation is read-only";
@@ -2073,9 +2088,6 @@
 
 /* No comment provided by engineer. */
 "Unread messages" = "Unread messages";
-
-/* No comment provided by engineer. */
-"Upcoming events" = "Upcoming events";
 
 /* No comment provided by engineer. */
 "Update" = "Update";
