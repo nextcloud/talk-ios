@@ -113,10 +113,7 @@ import SwiftUI
                 setupCallOptionsBarButtonMenu(button: button)
             }
 
-            if #available(iOS 16.0, *) {
-                silentCallAction.attributes = [.keepsMenuPresented]
-            }
-
+            silentCallAction.attributes = [.keepsMenuPresented]
             silentCallAction.accessibilityIdentifier = "Call without notification"
             silentCallAction.accessibilityHint = NSLocalizedString("Double tap to enable or disable 'Call without notification' option", comment: "")
 

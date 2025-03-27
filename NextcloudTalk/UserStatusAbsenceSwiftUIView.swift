@@ -63,16 +63,7 @@ struct UserStatusAbsenceSwiftUIView: View {
                 }
 
                 Section(header: Text("Long absence message")) {
-                    if #available(iOS 16.0, *) {
-                        TextField("Message", text: $absenceStatus.message, axis: .vertical)
-                    } else {
-                        // Work around for auto-expanding TextField in iOS < 16
-                        ZStack {
-                            TextEditor(text: $absenceStatus.message)
-                            Text(absenceStatus.message).opacity(0).padding(.all, 8)
-                                .multilineTextAlignment(.leading)
-                        }
-                    }
+                    TextField("Message", text: $absenceStatus.message, axis: .vertical)
                 }
             }
             .tint(Color(NCAppBranding.themeColor()))

@@ -47,16 +47,7 @@ struct ScheduleMeetingSwiftUIView: View {
                     }
 
                     Section(header: Text("Description")) {
-                        if #available(iOS 16.0, *) {
-                            TextField("Description", text: $description, axis: .vertical)
-                        } else {
-                            // Work around for auto-expanding TextField in iOS < 16
-                            ZStack {
-                                TextEditor(text: $description)
-                                Text(description).opacity(0).padding(.all, 8)
-                                    .multilineTextAlignment(.leading)
-                            }
-                        }
+                        TextField("Description", text: $description, axis: .vertical)
                     }
 
                     Section(header: Text("Schedule")) {
