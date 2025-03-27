@@ -89,9 +89,6 @@
 "Accuracy" = "Accuracy";
 
 /* No comment provided by engineer. */
-"Add" = "Add";
-
-/* No comment provided by engineer. */
 "Add (%lu)" = "Add (%lu)";
 
 /* No comment provided by engineer. */
@@ -318,6 +315,9 @@
 
 /* No comment provided by engineer. */
 "An error occurred while sharing the file" = "An error occurred while sharing the file";
+
+/* No comment provided by engineer. */
+"An error occurred while starting a new group conversation" = "An error occurred while starting a new group conversation";
 
 /* No comment provided by engineer. */
 "An error occurred while testing push notifications" = "An error occurred while testing push notifications";
@@ -699,6 +699,9 @@
 
 /* No comment provided by engineer. */
 "Could not share file" = "Could not share file";
+
+/* No comment provided by engineer. */
+"Could not start group conversation" = "Could not start group conversation";
 
 /* No comment provided by engineer. */
 "Could not unarchive conversation" = "Could not unarchive conversation";
@@ -1887,6 +1890,9 @@
 
 /* No comment provided by engineer. */
 "Speech recognition failed" = "Speech recognition failed";
+
+/* No comment provided by engineer. */
+"Start a new group conversation" = "Start a new group conversation";
 
 /* No comment provided by engineer. */
 "Start call" = "Start call";

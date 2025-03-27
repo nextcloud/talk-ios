@@ -2395,18 +2395,21 @@ typedef enum FileAction {
             if (action == kParticipantsActionAddParticipant) {
                 UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:participantsActionCellIdentifier];
                 if (!cell) {
-                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:participantsActionCellIdentifier];
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:participantsActionCellIdentifier];
                 }
 
-                NSString *addParticipantsActionTitle = NSLocalizedString(@"Start a group conversation", nil);
-                if (_room.type != kNCRoomTypeOneToOne) {
-                    addParticipantsActionTitle = NSLocalizedString(@"Add participants", nil);
-                }
-
-                cell.textLabel.text = addParticipantsActionTitle;
+                cell.textLabel.text = NSLocalizedString(@"Add participants", nil);;
                 cell.textLabel.numberOfLines = 0;
-                [cell.imageView setImage:[UIImage systemImageNamed:@"person.badge.plus"]];
+
+                if (_room.type == kNCRoomTypeOneToOne) {
+                    cell.detailTextLabel.text = NSLocalizedString(@"Start a new group conversation", nil);
+                    cell.detailTextLabel.numberOfLines = 0;
+                    cell.detailTextLabel.textColor = [UIColor secondaryLabelColor];
+                }
+
                 cell.imageView.tintColor = [UIColor secondaryLabelColor];
+                [cell.imageView setImage:[UIImage systemImageNamed:@"person.badge.plus"]];
+
                 return cell;
 
             }
