@@ -509,6 +509,17 @@ NSString *const kRoomTypeScreen = @"screen";
 
 @implementation NCControlMessage
 
+- (instancetype)initWithFrom:(NSString *)from to:(NSString *)to sid:(NSString *)sid roomType:(NSString *)roomType payload:(NSDictionary *)payload {
+
+    return [super initWithFrom:from
+                            to:to
+                           sid:sid
+                          type:kNCSignalingMessageTypeControlKey
+                       payload:payload
+                      roomType:roomType
+                   broadcaster:nil];
+}
+
 - (instancetype)initWithValues:(NSDictionary *)values {
     NSDictionary *dataDict = [[NSDictionary alloc] initWithDictionary:values];
     NSDictionary *payload = [dataDict objectForKey:kNCSignalingMessagePayloadKey];
@@ -527,6 +538,55 @@ NSString *const kRoomTypeScreen = @"screen";
                        payload:payload
                       roomType:[dataDict objectForKey:kNCSignalingMessageRoomTypeKey]
                    broadcaster:[dataDict objectForKey:kNCSignalingMessageBroadcasterKey]];
+}
+
+- (NSData *)JSONData {
+    NSError *error = nil;
+    NSData *data =
+    [NSJSONSerialization dataWithJSONObject:[self messageDict]
+                                    options:0
+                                      error:&error];
+    if (error) {
+        RTCLogError(@"Error serializing JSON: %@", error);
+        return nil;
+    }
+
+    return data;
+}
+
+- (NSString *)functionJSONSerialization
+{
+    NSError *error;
+    NSString *jsonString = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[self functionDict]
+                                                       options:0
+                                                         error:&error];
+
+    if (! jsonData) {
+        NSLog(@"Error serializing JSON: %@", error);
+    } else {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+
+    return jsonString;
+}
+
+- (NSDictionary *)messageDict {
+    return @{
+        kNCSignalingMessageEventKey: kNCSignalingMessageKey,
+        kNCSignalingMessageFunctionKey: [self functionJSONSerialization],
+        kNCSignalingMessageSessionIdKey: self.from
+    };
+}
+
+- (NSDictionary *)functionDict {
+    return @{
+        kNCSignalingMessageToKey: self.to,
+        kNCSignalingMessageRoomTypeKey: self.roomType,
+        kNCSignalingMessageTypeKey: self.type,
+        kNCSignalingMessageSidKey: self.sid,
+        kNCSignalingMessagePayloadKey: self.payload,
+    };
 }
 
 - (NCSignalingMessageType)messageType {

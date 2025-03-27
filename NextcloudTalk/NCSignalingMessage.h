@@ -94,6 +94,11 @@ typedef NS_ENUM(NSInteger, NCSignalingMessageType) {
 @interface NCControlMessage : NCSignalingMessage
 
 - (instancetype)initWithValues:(NSDictionary *)values;
+- (instancetype)initWithFrom:(NSString *)from
+                          to:(NSString *)to
+                         sid:(NSString *)sid
+                    roomType:(NSString *)roomType
+                     payload:(NSDictionary *)payload;
 
 @end
 

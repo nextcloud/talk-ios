@@ -1240,6 +1240,29 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     });
 }
 
+#pragma mark - Control support
+
+- (void)forceMuteOthers
+{
+    [[WebRTCCommon shared] dispatch:^{
+        for (NCPeerConnection *peer in [self->_connectionsDict allValues]) {
+            NSDictionary *payload = @{@"action": @"forceMute", @"peerId": peer.peerId};
+
+            NCControlMessage *message = [[NCControlMessage alloc] initWithFrom:[self signalingSessionId]
+                                                                            to:peer.peerId
+                                                                           sid:peer.sid
+                                                                      roomType:peer.roomType
+                                                                       payload:payload];
+
+            if (self->_externalSignalingController) {
+                [self->_externalSignalingController sendCallMessage:message];
+            } else {
+                [self->_signalingController sendSignalingMessage:message];
+            }
+        }
+    }];
+}
+
 #pragma mark - External Signaling Controller Delegate
 
 - (void)externalSignalingController:(NCExternalSignalingController *)externalSignalingController didReceivedSignalingMessage:(NSDictionary *)signalingMessageDict
