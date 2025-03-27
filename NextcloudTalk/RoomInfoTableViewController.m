@@ -1784,7 +1784,7 @@ typedef enum FileAction {
         {
             NSString *title = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld participants", nil), _roomParticipants.count];
             _headerView.label.text = [title uppercaseString];
-            _headerView.button.hidden = (_room.canModerate) ? NO : YES;
+            _headerView.button.hidden = (_room.canAddParticipants) ? NO : YES;
             return _headerView;
         }
             break;

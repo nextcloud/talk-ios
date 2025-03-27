@@ -538,6 +538,11 @@
 		2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFA2891598900E75118 /* PollResultTableViewCell.xib */; };
 		2C5BFBFE2891C3DF00E75118 /* PollResultsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBFD2891C3DF00E75118 /* PollResultsDetailsViewController.swift */; };
 		2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */; };
+		2C6137962D94572000C51684 /* RoomBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6137952D94572000C51684 /* RoomBuilder.swift */; };
+		2C6137972D94572000C51684 /* RoomBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6137952D94572000C51684 /* RoomBuilder.swift */; };
+		2C6137982D94572000C51684 /* RoomBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6137952D94572000C51684 /* RoomBuilder.swift */; };
+		2C6137992D94572000C51684 /* RoomBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6137952D94572000C51684 /* RoomBuilder.swift */; };
+		2C61379A2D94572000C51684 /* RoomBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6137952D94572000C51684 /* RoomBuilder.swift */; };
 		2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2C62AFA324C08845007E460A /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C62AFBB24C1B7B1007E460A /* NCDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C40281422832EED0000DDFC /* NCDatabaseManager.m */; };
 		2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA15540208E350300CE8EF0 /* NCChatMessage.m */; };
@@ -1084,6 +1089,7 @@
 		2C604BD7211988A700D34DCD /* SystemMessageTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMessageTableViewCell.h; sourceTree = "<group>"; };
 		2C604BD8211988A700D34DCD /* SystemMessageTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SystemMessageTableViewCell.m; sourceTree = "<group>"; };
 		2C6085C11FB1063700B36A6E /* NextcloudTalk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NextcloudTalk.entitlements; sourceTree = "<group>"; };
+		2C6137952D94572000C51684 /* RoomBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomBuilder.swift; sourceTree = "<group>"; };
 		2C62AFA324C08845007E460A /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C67905128D35BEB00762744 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sl; path = sl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2C69323B2923ECAA00017AD2 /* WSMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WSMessage.h; sourceTree = "<group>"; };
@@ -2030,6 +2036,7 @@
 				1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */,
 				1FF4DAA92C0A114900C1B952 /* OcsResponse.swift */,
 				1FC4B3412CCE670400D28138 /* OcsError.swift */,
+				2C6137952D94572000C51684 /* RoomBuilder.swift */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -3008,6 +3015,7 @@
 				1FA93DC82D71003F00DF6CDF /* SignalingSettings.swift in Sources */,
 				1FA93DC92D71003F00DF6CDF /* TalkActor.swift in Sources */,
 				1FA93DCA2D71003F00DF6CDF /* StunServer.swift in Sources */,
+				2C6137982D94572000C51684 /* RoomBuilder.swift in Sources */,
 				1FA93DD92D71008A00DF6CDF /* TalkCapabilities.m in Sources */,
 				1FA93DD52D71006F00DF6CDF /* NCUser.m in Sources */,
 				1FA93DCB2D71003F00DF6CDF /* TurnServer.swift in Sources */,
@@ -3114,6 +3122,7 @@
 				1F205C532CEF91C500AAA673 /* UserAbsence.swift in Sources */,
 				1F96D8722D936A260088331F /* DateExtension.swift in Sources */,
 				1FF136182BFB74D0006A6101 /* NCChatMessage.swift in Sources */,
+				2C61379A2D94572000C51684 /* RoomBuilder.swift in Sources */,
 				1F77A5FC2AB9A4ED007B6037 /* NCRoom.m in Sources */,
 				1F77A60D2AB9A5CC007B6037 /* NCPoll.m in Sources */,
 				1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */,
@@ -3141,6 +3150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C6137992D94572000C51684 /* RoomBuilder.swift in Sources */,
 				2C444703265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				2C4747E92CB67177002828F2 /* PollMessageView.swift in Sources */,
 				2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */,
@@ -3460,6 +3470,7 @@
 				2C6955132B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
 				1F8AAC342C518B8A004DA20A /* SignalingSettings.swift in Sources */,
 				2C62AFFF24C1BDAA007E460A /* NCUser.m in Sources */,
+				2C6137972D94572000C51684 /* RoomBuilder.swift in Sources */,
 				1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				1FB78E212B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */,
@@ -3539,6 +3550,7 @@
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955142B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
 				1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
+				2C6137962D94572000C51684 /* RoomBuilder.swift in Sources */,
 				1F0B0A752BA265310073FF8D /* MentionSuggestion.swift in Sources */,
 				1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1FF4DA882C0262BA00C1B952 /* NCBaseSessionManager.swift in Sources */,

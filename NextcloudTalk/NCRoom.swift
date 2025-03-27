@@ -166,6 +166,14 @@ import Realm
         return self.isUserOwnerOrModerator && !self.isLockedOneToOne
     }
 
+    public var canAddParticipants: Bool {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationCreationAll) && self.type == .oneToOne {
+            return true
+        }
+
+        return self.canModerate
+    }
+
     public var isNameEditable: Bool {
         return self.canModerate && self.type != .oneToOne && self.type != .formerOneToOne
     }
