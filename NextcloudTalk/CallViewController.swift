@@ -466,6 +466,9 @@ class CallViewController: UIViewController,
             if proximityState {
                 self.disableLocalVideo()
                 self.disableSpeaker()
+
+                self.localVideoOriginPosition = self.localVideoViewWrapper.frame.origin
+                self.adjustLocalVideoPositionFromOriginPosition(localVideoOriginPosition)
             } else {
                 // Only enable video if it was not disabled by the user
                 if !userDisabledVideo {
