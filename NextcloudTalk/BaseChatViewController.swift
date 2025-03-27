@@ -748,7 +748,7 @@ import SwiftUI
     func addMenuToLeftButton() {
         // The keyboard will be hidden when an action is invoked. Depending on what
         // attachment is shared, not resigning might lead to a currupted chat view
-        var items: [UIAction] = []
+        var items: [UIMenuElement] = []
 
         let cameraAction = UIAction(title: NSLocalizedString("Camera", comment: ""), image: UIImage(systemName: "camera")) { [unowned self] _ in
             self.textView.resignFirstResponder()
@@ -786,19 +786,23 @@ import SwiftUI
         }
 
         // Add actions (inverted)
-        items.append(ncFilesAction)
-        items.append(filesAction)
-        items.append(contactShareAction)
+        var objectItems = [UIMenuElement]()
+        objectItems.append(contactShareAction)
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityLocationSharing, for: self.room) {
-            items.append(shareLocationAction)
+            objectItems.append(shareLocationAction)
         }
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room),
             self.room.type != .oneToOne, self.room.type != .noteToSelf {
 
-            items.append(pollAction)
+            objectItems.append(pollAction)
         }
+
+        items.append(UIMenu(options: .displayInline, children: objectItems))
+
+        items.append(ncFilesAction)
+        items.append(filesAction)
 
         items.append(photoLibraryAction)
 
