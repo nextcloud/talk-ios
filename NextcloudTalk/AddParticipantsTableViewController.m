@@ -282,7 +282,7 @@
         [self removeAddingParticipantsView];
         if (error) {
             UIAlertController * alert = [UIAlertController
-                                         alertControllerWithTitle:NSLocalizedString(@"Could not start group conversatio ", nil)
+                                         alertControllerWithTitle:NSLocalizedString(@"Could not start group conversation", nil)
                                          message:NSLocalizedString(@"An error occurred while starting a new group conversation", nil)
                                          preferredStyle:UIAlertControllerStyleAlert];
 
