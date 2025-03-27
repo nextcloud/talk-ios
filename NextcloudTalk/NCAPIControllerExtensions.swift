@@ -87,6 +87,18 @@ import Foundation
         }
     }
 
+    public func createRoom(forAccount account: TalkAccount, withParameters parameters: [String: Any], completionBlock: @escaping (_ room: NCRoom?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
+            completionBlock(room, ocsError?.error)
+        }
+    }
+
     public func createRoom(forAccount account: TalkAccount, withInvite invite: String?, ofType roomType: NCRoomType, andName roomName: String?, completionBlock: @escaping (_ room: NCRoom?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
