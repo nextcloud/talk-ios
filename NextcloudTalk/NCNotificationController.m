@@ -696,7 +696,8 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                                                                        message:serverNotification.message
                                                                 preferredStyle:UIAlertControllerStyleAlert];
 
-        for (NCNotificationAction *notificationAction in [serverNotification notificationActions]) {
+        NSArray *notificationActions = [serverNotification notificationActions];
+        for (NCNotificationAction *notificationAction in notificationActions) {
             UIAlertAction* tempButton = [UIAlertAction actionWithTitle:notificationAction.actionLabel
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^(UIAlertAction * _Nonnull action) {
@@ -704,6 +705,16 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             }];
 
             [alert addAction:tempButton];
+        }
+
+        if ([notificationActions count] == 0) {
+            // Make sure that we have at least a way to dismiss the notification, if there are no actions
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:NSLocalizedString(@"OK", nil)
+                                       style:UIAlertActionStyleDefault
+                                       handler:nil];
+
+            [alert addAction:okButton];
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
