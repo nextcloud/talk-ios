@@ -97,11 +97,7 @@ typedef enum RoomsSections {
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
 
-    if (@available(iOS 16.0, *)) {
-        _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
-    } else {
-        _searchController.automaticallyShowsScopeBar = YES;
-    }
+    _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
     _searchController.searchBar.scopeButtonTitles = [self getFilters];
 
     [self setupNavigationBar];
@@ -195,10 +191,7 @@ typedef enum RoomsSections {
 
     self.navigationItem.searchController = _searchController;
     self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
-
-    if (@available(iOS 16.0, *)) {
-        self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    }
+    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
     [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];

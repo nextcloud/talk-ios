@@ -2502,11 +2502,7 @@ typedef enum FileAction {
                     cell.textLabel.text = NSLocalizedString(@"Delete all messages", nil);
                     cell.textLabel.numberOfLines = 0;
                     cell.textLabel.textColor = [UIColor systemRedColor];
-                    if (@available(iOS 16.0, *)) {
-                        [cell.imageView setImage:[UIImage systemImageNamed:@"eraser"]];
-                    } else {
-                        [cell.imageView setImage:[UIImage systemImageNamed:@"trash"]];
-                    }
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"eraser"]];
                     [cell.imageView setTintColor:[UIColor systemRedColor]];
                     
                     return cell;
