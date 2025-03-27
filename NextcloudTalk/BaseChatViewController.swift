@@ -114,6 +114,8 @@ import SwiftUI
     private var contextMenuAccessoryView: UIView?
     private var contextMenuMessageView: UIView?
 
+    private var leftButtonLongPressGesture: UILongPressGestureRecognizer?
+
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
         inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
@@ -250,6 +252,11 @@ import SwiftUI
         self.leftButton.setImage(UIImage(systemName: "paperclip"), for: .normal)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
         self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
+
+        // Add LongPressRecognizer to allow showing photo picker directly
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(gestureRecognizer:)))
+        self.leftButtonLongPressGesture = longPressRecognizer
+        self.leftButton.addGestureRecognizer(longPressRecognizer)
 
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none
@@ -812,6 +819,25 @@ import SwiftUI
 
         self.leftButton.menu = UIMenu(children: items)
         self.leftButton.showsMenuAsPrimaryAction = true
+
+        // Ensure that our longPressGestureRecognizer does not interfere with the native ones
+        _ = self.leftButton.gestureRecognizers?.map { recognizer in
+            if let leftButtonLongPressGesture {
+                recognizer.require(toFail: leftButtonLongPressGesture)
+            }
+        }
+    }
+
+    func longPress(gestureRecognizer: UILongPressGestureRecognizer) {
+        guard gestureRecognizer.state == .began else { return }
+
+        // Remove the menu, so we don't accidentially open the menu on a long press
+        self.leftButton.menu = nil
+
+        self.presentPhotoLibrary()
+
+        // Re-add the menu to the left button
+        self.addMenuToLeftButton()
     }
 
     func presentNextcloudFilesBrowser() {
