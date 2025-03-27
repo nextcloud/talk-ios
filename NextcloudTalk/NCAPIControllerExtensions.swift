@@ -100,10 +100,6 @@ import Foundation
     }
 
     public func createRoom(forAccount account: TalkAccount, withInvite invite: String?, ofType roomType: NCRoomType, andName roomName: String?, completionBlock: @escaping (_ room: NCRoom?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
-        else { return }
-
-        let urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
         var parameters: [String: Any] = ["roomType": roomType.rawValue]
 
         if let invite, !invite.isEmpty {
@@ -114,10 +110,7 @@ import Foundation
             parameters["roomName"] = roomName
         }
 
-        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
-            completionBlock(room, ocsError?.error)
-        }
+        self.createRoom(forAccount: account, withParameters: parameters, completionBlock: completionBlock)
     }
 
     public func renameRoom(_ token: String, forAccount account: TalkAccount, withName roomName: String, completionBlock: @escaping (_ error: Error?) -> Void) {
