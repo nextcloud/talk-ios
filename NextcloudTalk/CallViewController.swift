@@ -48,6 +48,7 @@ class CallViewController: UIViewController,
     public var recordingConsent = false
 
     @IBOutlet public var localVideoView: MTKView!
+    @IBOutlet public var localVideoViewWrapper: UIView!
     @IBOutlet public var screensharingView: NCZoomableView!
     @IBOutlet public var closeScreensharingButton: UIButton!
     @IBOutlet public var toggleChatButton: UIButton!
@@ -248,9 +249,9 @@ class CallViewController: UIViewController,
         self.createWaitingScreen()
 
         // We hide localVideoView until we receive it from cameraController
-        self.setLocalVideoViewHidden(true)
-        self.localVideoView.layer.cornerRadius = 15
-        self.localVideoView.layer.masksToBounds = true
+        self.setLocalVideoViewWrapperHidden(true)
+        self.localVideoViewWrapper.layer.cornerRadius = 15
+        self.localVideoViewWrapper.layer.masksToBounds = true
 
         // We disableLocalVideo here even if the call controller has not been created just to show the video button as disabled
         // also we set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
@@ -279,7 +280,7 @@ class CallViewController: UIViewController,
         self.collectionView.contentInsetAdjustmentBehavior = .never
 
         let localVideoDragGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(localVideoDragged(_:)))
-        self.localVideoView.addGestureRecognizer(localVideoDragGestureRecognizer)
+        self.localVideoViewWrapper.addGestureRecognizer(localVideoDragGestureRecognizer)
 
         NotificationCenter.default.addObserver(self, selector: #selector(sensorStateChange(notification:)), name: UIDevice.proximityStateDidChangeNotification, object: nil)
 
@@ -465,6 +466,9 @@ class CallViewController: UIViewController,
             if proximityState {
                 self.disableLocalVideo()
                 self.disableSpeaker()
+
+                self.localVideoOriginPosition = self.localVideoViewWrapper.frame.origin
+                self.adjustLocalVideoPositionFromOriginPosition(localVideoOriginPosition)
             } else {
                 // Only enable video if it was not disabled by the user
                 if !userDisabledVideo {
@@ -614,7 +618,7 @@ class CallViewController: UIViewController,
     func callControllerDidDrawFirstLocalFrame(_ callController: NCCallController!) {
         callController.getVideoEnabledState { isEnabled in
             DispatchQueue.main.async {
-                self.setLocalVideoViewHidden(!isEnabled)
+                self.setLocalVideoViewWrapperHidden(!isEnabled)
             }
         }
     }
@@ -908,13 +912,13 @@ class CallViewController: UIViewController,
         let localVideoRect = CGRect(x: localVideoOriginPosition.x, y: localVideoOriginPosition.y, width: localVideoSize.width, height: localVideoSize.height)
 
         DispatchQueue.main.async {
-            self.localVideoView.frame = localVideoRect
+            self.localVideoViewWrapper.frame = localVideoRect
         }
     }
 
-    func setLocalVideoViewHidden(_ isHidden: Bool) {
+    func setLocalVideoViewWrapperHidden(_ isHidden: Bool) {
         DispatchQueue.main.async {
-            self.localVideoView.isHidden = isHidden
+            self.localVideoViewWrapper.isHidden = isHidden
         }
     }
 
@@ -1462,7 +1466,7 @@ class CallViewController: UIViewController,
     }
 
     func adjustLocalVideoPositionFromOriginPosition(_ position: CGPoint) {
-        let safeAreaInsets = localVideoView.superview?.safeAreaInsets ?? .zero
+        let safeAreaInsets = localVideoViewWrapper.superview?.safeAreaInsets ?? .zero
 
         let edgeInsetTop = 16 + topBarView.frame.origin.y + topBarView.frame.size.height
         let edgeInsetLeft = 16 + safeAreaInsets.left + collectionViewLeftConstraint.constant
@@ -1471,8 +1475,8 @@ class CallViewController: UIViewController,
 
         let edgeInsets = UIEdgeInsets(top: edgeInsetTop, left: edgeInsetLeft, bottom: edgeInsetBottom, right: edgeInsetRight)
 
-        let parentSize = localVideoView.superview?.bounds.size ?? .zero
-        let viewSize = localVideoView.bounds.size
+        let parentSize = localVideoViewWrapper.superview?.bounds.size ?? .zero
+        let viewSize = localVideoViewWrapper.bounds.size
 
         var newPosition = position
 
@@ -1496,15 +1500,15 @@ class CallViewController: UIViewController,
             newPosition = CGPoint(x: newPosition.x, y: parentSize.height - viewSize.height - edgeInsets.bottom)
         }
 
-        let newFrame = CGRect(origin: .init(x: newPosition.x, y: newPosition.y), size: localVideoView.frame.size)
+        let newFrame = CGRect(origin: .init(x: newPosition.x, y: newPosition.y), size: localVideoViewWrapper.frame.size)
 
         UIView.animate(withDuration: 0.3) {
-            self.localVideoView.frame = newFrame
+            self.localVideoViewWrapper.frame = newFrame
         }
     }
 
     func localVideoDragged(_ gesture: UIPanGestureRecognizer) {
-        guard let view = gesture.view, view == self.localVideoView else { return }
+        guard let view = gesture.view, view == self.localVideoViewWrapper else { return }
 
         switch gesture.state {
         case .began:
@@ -1513,7 +1517,7 @@ class CallViewController: UIViewController,
             guard let localVideoDragStartingPoint else { return }
 
             let translation = gesture.translation(in: view)
-            self.localVideoView.center = .init(x: localVideoDragStartingPoint.x + translation.x, y: localVideoDragStartingPoint.y + translation.y)
+            self.localVideoViewWrapper.center = .init(x: localVideoDragStartingPoint.x + translation.x, y: localVideoDragStartingPoint.y + translation.y)
         case .ended:
             self.localVideoOriginPosition = view.frame.origin
             self.adjustLocalVideoPositionFromOriginPosition(localVideoOriginPosition)
@@ -1650,7 +1654,7 @@ class CallViewController: UIViewController,
 
         callController.enableVideo(enabled)
 
-        self.setLocalVideoViewHidden(!enabled)
+        self.setLocalVideoViewWrapperHidden(!enabled)
         self.setVideoDisableButtonActive(enabled)
     }
 
@@ -1658,17 +1662,17 @@ class CallViewController: UIViewController,
         guard let callController else { return }
 
         callController.switchCamera()
-        self.flipLocalVideoView()
+        self.flipLocalVideoViewWrapper()
     }
 
-    func flipLocalVideoView() {
+    func flipLocalVideoViewWrapper() {
         let animation = CATransition()
         animation.duration = 0.5
         animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
         animation.type = CATransitionType(rawValue: "oglFlip")
         animation.subtype = CATransitionSubtype.fromRight
 
-        self.localVideoView.layer.add(animation, forKey: nil)
+        self.localVideoViewWrapper.layer.add(animation, forKey: nil)
     }
 
     @IBAction func speakerButtonPressed(_ sender: Any?) {
@@ -1749,7 +1753,7 @@ class CallViewController: UIViewController,
         self.delegate?.callViewControllerWantsToBeDismissed(self)
 
         callController?.stopCapturing()
-        localVideoView.isHidden = true
+        localVideoViewWrapper.isHidden = true
 
         DispatchQueue.main.async {
             for peerConnection in self.peersInCall {
@@ -1846,13 +1850,13 @@ class CallViewController: UIViewController,
 
         self.adjustTopBar()
 
-        var localVideoViewOrigin = self.localVideoView.frame.origin
+        var localVideoViewOrigin = self.localVideoViewWrapper.frame.origin
         // Check if localVideoView needs to be moved to the right when sidebar is being closed
         if !visible {
             let sideBarWidthGap = self.collectionView.frame.size.width - sidebarWidth
 
             if localVideoViewOrigin.x > sideBarWidthGap {
-                localVideoViewOrigin.x = self.localVideoView.superview?.frame.size.width ?? 0
+                localVideoViewOrigin.x = self.localVideoViewWrapper.superview?.frame.size.width ?? 0
             }
         }
 
@@ -1994,7 +1998,7 @@ class CallViewController: UIViewController,
             self.showChat()
 
             if !isAudioOnly {
-                self.view.bringSubviewToFront(localVideoView)
+                self.view.bringSubviewToFront(localVideoViewWrapper)
             }
 
             self.removeTapGestureForDetailedView()
