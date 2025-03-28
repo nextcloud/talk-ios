@@ -29,8 +29,7 @@ final class UIRoomTest: XCTestCase {
 
         // Wait until we joined the room and the call buttons get active
         let callOptionsButton = chatNavBar.buttons["Call options"]
-        XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        waitForEnabledAndHittable(object: callOptionsButton)
+        waitForReady(object: callOptionsButton)
 
         // Open conversation settings
         chatTitleView.tap()
@@ -106,8 +105,7 @@ final class UIRoomTest: XCTestCase {
         // Start a call
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         let callOptionsButton = chatNavBar.buttons["Call options"]
-        XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        waitForEnabledAndHittable(object: callOptionsButton)
+        waitForReady(object: callOptionsButton)
         callOptionsButton.tap()
 
         let voiceCallButton = app.buttons["Voice only call"]
@@ -115,8 +113,7 @@ final class UIRoomTest: XCTestCase {
         voiceCallButton.tap()
 
         let hangupCallButton = app.buttons["Hang up"]
-        XCTAssert(hangupCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        waitForEnabledAndHittable(object: hangupCallButton)
+        waitForReady(object: hangupCallButton)
         hangupCallButton.tap()
 
         // Go back to the main view controller
