@@ -20,6 +20,11 @@ extension XCTestCase {
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
+    func waitForEnabledAndHittable(object: Any?) {
+        self.waitForEnabled(object: object)
+        self.waitForHittable(object: object)
+    }
+
     // Based on https://stackoverflow.com/a/47947315
     @discardableResult
     func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement? {
@@ -69,8 +74,7 @@ extension XCTestCase {
         // Wait for the login button to be available and to get enabled/hittable
         let loginButtonWeb = webViewsQuery.buttons["Log in"]
         XCTAssert(loginButtonWeb.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabled(object: loginButtonWeb)
-        waitForHittable(object: loginButtonWeb)
+        waitForEnabledAndHittable(object: loginButtonWeb)
 
         loginButtonWeb.tap()
 
@@ -91,8 +95,7 @@ extension XCTestCase {
 
         let grantAccessButton = webViewsQuery.buttons["Grant access"]
         XCTAssert(grantAccessButton.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabled(object: grantAccessButton)
-        waitForHittable(object: grantAccessButton)
+        waitForEnabledAndHittable(object: grantAccessButton)
 
         // TODO: Find a better way to reliable detect if the grant access button is tappable
         sleep(5)
@@ -101,7 +104,7 @@ extension XCTestCase {
 
         // When the account switcher gets enabled, we have atleast 1 account in the app and are online
         XCTAssert(accountSwitcherButton.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabled(object: accountSwitcherButton)
+        waitForEnabledAndHittable(object: accountSwitcherButton)
 
         return app
     }
