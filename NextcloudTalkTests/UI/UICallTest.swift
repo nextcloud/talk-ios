@@ -23,8 +23,7 @@ final class UICallTest: XCTestCase {
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         let callOptionsButton = chatNavBar.buttons["Call options"]
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        waitForEnabled(object: callOptionsButton)
-        waitForHittable(object: callOptionsButton)
+        waitForEnabledAndHittable(object: callOptionsButton)
         callOptionsButton.tap()
 
         let videoCallButton = app.buttons["Video call"]
@@ -33,8 +32,7 @@ final class UICallTest: XCTestCase {
 
         let hangupCallButton = app.buttons["Hang up"]
         XCTAssert(hangupCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        waitForEnabled(object: hangupCallButton)
-        waitForHittable(object: hangupCallButton)
+        waitForEnabledAndHittable(object: hangupCallButton)
 
         let moreMenuButton = app.buttons["moreMenuButton"]
         XCTAssert(moreMenuButton.waitForExistence(timeout: TestConstants.timeoutShort))
