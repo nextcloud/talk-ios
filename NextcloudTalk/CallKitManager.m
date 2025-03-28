@@ -395,7 +395,11 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
             return;
         } else if (state == CallNotificationStateParticipantJoined) {
             // Account is already in a call (answered the call on a different device) -> no need to keep ringing
-            [self endCallWithUUID:call.uuid];
+
+            if (![[NCRoomsManager sharedInstance] isCallOngoingWithCallToken:call.token]) {
+                [self endCallWithUUID:call.uuid];
+            }
+
             return;
         }
 

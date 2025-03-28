@@ -1743,8 +1743,8 @@ class CallViewController: UIViewController,
         }
 
         // Make sure there's no menu interfering with our dismissal
-        self.moreMenuButton.contextMenuInteraction?.dismissMenu()
-        self.hangUpButton.contextMenuInteraction?.dismissMenu()
+        self.moreMenuButton?.contextMenuInteraction?.dismissMenu()
+        self.hangUpButton?.contextMenuInteraction?.dismissMenu()
 
         self.delegate?.callViewControllerWantsToBeDismissed(self)
 
