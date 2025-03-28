@@ -8,19 +8,20 @@ import XCTest
 
 extension XCTestCase {
 
-    func waitForEnabled(object: Any?) {
+    func waitForEnabled(object: XCUIElement) {
         let enabledPredicate = NSPredicate(format: "enabled == true")
         expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func waitForHittable(object: Any?) {
+    func waitForHittable(object: XCUIElement) {
         let enabledPredicate = NSPredicate(format: "hittable == true")
         expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func waitForEnabledAndHittable(object: Any?) {
+    func waitForReady(object: XCUIElement, timeout: Double = TestConstants.timeoutShort) {
+        XCTAssert(object.waitForExistence(timeout: timeout))
         self.waitForEnabled(object: object)
         self.waitForHittable(object: object)
     }
@@ -73,8 +74,7 @@ extension XCTestCase {
 
         // Wait for the login button to be available and to get enabled/hittable
         let loginButtonWeb = webViewsQuery.buttons["Log in"]
-        XCTAssert(loginButtonWeb.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabledAndHittable(object: loginButtonWeb)
+        waitForReady(object: loginButtonWeb, timeout: TestConstants.timeoutLong)
 
         loginButtonWeb.tap()
 
@@ -94,8 +94,7 @@ extension XCTestCase {
         XCTAssert(accountAccess.waitForExistence(timeout: TestConstants.timeoutLong))
 
         let grantAccessButton = webViewsQuery.buttons["Grant access"]
-        XCTAssert(grantAccessButton.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabledAndHittable(object: grantAccessButton)
+        waitForReady(object: grantAccessButton, timeout: TestConstants.timeoutLong)
 
         // TODO: Find a better way to reliable detect if the grant access button is tappable
         sleep(5)
@@ -103,8 +102,7 @@ extension XCTestCase {
         grantAccessButton.tap()
 
         // When the account switcher gets enabled, we have atleast 1 account in the app and are online
-        XCTAssert(accountSwitcherButton.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabledAndHittable(object: accountSwitcherButton)
+        waitForReady(object: accountSwitcherButton, timeout: TestConstants.timeoutLong)
 
         return app
     }
