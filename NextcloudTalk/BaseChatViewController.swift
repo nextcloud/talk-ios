@@ -114,6 +114,8 @@ import SwiftUI
     private var contextMenuAccessoryView: UIView?
     private var contextMenuMessageView: UIView?
 
+    private var leftButtonLongPressGesture: UILongPressGestureRecognizer?
+
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
         inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
@@ -250,6 +252,11 @@ import SwiftUI
         self.leftButton.setImage(UIImage(systemName: "paperclip"), for: .normal)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
         self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
+
+        // Add LongPressRecognizer to allow showing photo picker directly
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(gestureRecognizer:)))
+        self.leftButtonLongPressGesture = longPressRecognizer
+        self.leftButton.addGestureRecognizer(longPressRecognizer)
 
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none
@@ -748,7 +755,7 @@ import SwiftUI
     func addMenuToLeftButton() {
         // The keyboard will be hidden when an action is invoked. Depending on what
         // attachment is shared, not resigning might lead to a currupted chat view
-        var items: [UIAction] = []
+        var items: [UIMenuElement] = []
 
         let cameraAction = UIAction(title: NSLocalizedString("Camera", comment: ""), image: UIImage(systemName: "camera")) { [unowned self] _ in
             self.textView.resignFirstResponder()
@@ -786,19 +793,23 @@ import SwiftUI
         }
 
         // Add actions (inverted)
-        items.append(ncFilesAction)
-        items.append(filesAction)
-        items.append(contactShareAction)
+        var objectItems = [UIMenuElement]()
+        objectItems.append(contactShareAction)
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityLocationSharing, for: self.room) {
-            items.append(shareLocationAction)
+            objectItems.append(shareLocationAction)
         }
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room),
             self.room.type != .oneToOne, self.room.type != .noteToSelf {
 
-            items.append(pollAction)
+            objectItems.append(pollAction)
         }
+
+        items.append(UIMenu(options: .displayInline, children: objectItems))
+
+        items.append(ncFilesAction)
+        items.append(filesAction)
 
         items.append(photoLibraryAction)
 
@@ -808,6 +819,29 @@ import SwiftUI
 
         self.leftButton.menu = UIMenu(children: items)
         self.leftButton.showsMenuAsPrimaryAction = true
+
+        // Ensure that our longPressGestureRecognizer does not interfere with the native ones
+        _ = self.leftButton.gestureRecognizers?.map { recognizer in
+            if let leftButtonLongPressGesture {
+                recognizer.require(toFail: leftButtonLongPressGesture)
+            }
+        }
+    }
+
+    func longPress(gestureRecognizer: UILongPressGestureRecognizer) {
+        guard gestureRecognizer.state == .began else { return }
+
+        // Remove the menu, so we don't accidentially open the menu on a long press
+        self.leftButton.menu = nil
+
+        // Add haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.impactOccurred()
+
+        self.presentPhotoLibrary()
+
+        // Re-add the menu to the left button
+        self.addMenuToLeftButton()
     }
 
     func presentNextcloudFilesBrowser() {
