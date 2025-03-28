@@ -834,6 +834,10 @@ import SwiftUI
         // Remove the menu, so we don't accidentially open the menu on a long press
         self.leftButton.menu = nil
 
+        // Add haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.impactOccurred()
+
         self.presentPhotoLibrary()
 
         // Re-add the menu to the left button
