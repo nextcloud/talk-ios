@@ -39,6 +39,13 @@ jobs:
     runs-on: macos-15
 
     steps:
+    - name: Collect Workflow Telemetry
+      uses: catchpoint/workflow-telemetry-action@v2
+      with:
+        comment_on_pr: false
+        job_summary: true
+        theme: dark
+
       # Workaround for eliminating iOS 17 simulators stalling issue
       # Runs deamon which kills CPU intensive tasks which affects simulator performance
       # See https://github.com/actions/runner-images/issues/11509#issuecomment-2703308482
