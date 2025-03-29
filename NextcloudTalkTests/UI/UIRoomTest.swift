@@ -12,9 +12,9 @@ final class UIRoomTest: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testCreateConversation() {
+    func testCreateAndDeleteConversation() {
         let app = launchAndLogin()
-        let newConversationName = "Test conversation"
+        let newConversationName = "Test conversation" + UUID().uuidString
 
         self.createConversation(for: app, with: newConversationName)
 
@@ -37,14 +37,29 @@ final class UIRoomTest: XCTestCase {
         chatTitleView.tap()
 
         // Check if if the name of the conversation is shown
-        XCTAssert(app.textFields[newConversationName].waitForExistence(timeout: TestConstants.timeoutLong))
+        let conversationTextField = app.textFields[newConversationName]
+        XCTAssert(conversationTextField.waitForExistence(timeout: TestConstants.timeoutLong))
 
         // Go back to conversation list
         app.navigationBars["Conversation settings"].buttons["Back"].tap()
         chatNavBar.buttons["Back"].tap()
 
         // Check if the conversation appears in the conversation list
-        XCTAssert(app.tables.cells.staticTexts[newConversationName].waitForExistence(timeout: TestConstants.timeoutLong))
+        let conversationStaticText = app.tables.cells.staticTexts[newConversationName]
+        XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutLong))
+
+        // Try to delete the room
+        conversationStaticText.press(forDuration: 2.0)
+        let deleteConversation = app.buttons["Delete conversation"]
+        XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        deleteConversation.tap()
+        let alert = app.alerts.element.staticTexts["Delete conversation"]
+        XCTAssert(alert.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        app.buttons["Delete"].tap()
+
+        XCTAssert(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
     }
 
     func testDeallocation() {

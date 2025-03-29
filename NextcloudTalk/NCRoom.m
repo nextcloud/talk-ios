@@ -11,6 +11,7 @@
 NSString * const NCRoomObjectTypeFile           = @"file";
 NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
 NSString * const NCRoomObjectTypeRoom           = @"room";
+NSString * const NCRoomObjectTypeEvent          = @"event";
 
 @implementation NCRoom
 

@@ -131,11 +131,14 @@ enum RoomAvatarInfoSection: Int {
             let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
             textInputCell.textField.delegate = self
             textInputCell.textField.text = self.room.displayName
+            textInputCell.textField.isEnabled = !self.room.isEvent
+            textInputCell.textField.alpha = self.room.isEvent ? 0.5 : 1
             return textInputCell
         } else if indexPath.section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
             let descriptionCell: TextViewTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextViewTableViewCell.identifier)
             descriptionCell.textView.text = self.room.roomDescription
-            descriptionCell.textView.isEditable = true
+            descriptionCell.textView.isEditable = !self.room.isEvent
+            descriptionCell.textView.alpha = self.room.isEvent ? 0.5 : 1
             descriptionCell.delegate = self
             descriptionCell.characterLimit = descriptionMaxLength
             descriptionCell.selectionStyle = .none
@@ -153,6 +156,25 @@ enum RoomAvatarInfoSection: Int {
         }
 
         return nil
+    }
+
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard self.room.isEvent else { return nil }
+
+        // Always add the footer to the last cell
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: self.room.accountId) {
+            if section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
+                return NSLocalizedString("This conversation is attached to a calendar event. Edit the event to change the name/description of the conversation.", comment: "")
+            }
+        } else if section == RoomAvatarInfoSection.kRoomNameSection.rawValue {
+            return NSLocalizedString("This conversation is attached to a calendar event. Edit the event to change the name/description of the conversation.", comment: "")
+        }
+
+        return nil
+    }
+
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return UITableView.automaticDimension
     }
 
     func updateRoomAndRemoveModifyingView() {

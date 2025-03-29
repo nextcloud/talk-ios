@@ -159,19 +159,50 @@ import SwiftUI
         return callOptionsButton
     }()
 
-    private lazy var upcomingEventsButton: BarButtonItemWithActivity = {
+    private lazy var eventsButton: BarButtonItemWithActivity = {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
         let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration)
-        let upcomingEventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
+        let eventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
 
-        upcomingEventsButton.innerButton.menu = createUpcomingEventsMenu()
-        upcomingEventsButton.innerButton.showsMenuAsPrimaryAction = true
+        eventsButton.innerButton.menu = createEventsMenu()
+        eventsButton.innerButton.showsMenuAsPrimaryAction = true
 
-        upcomingEventsButton.accessibilityLabel = NSLocalizedString("Upcoming events", comment: "")
-        upcomingEventsButton.accessibilityHint = NSLocalizedString("Double tap to display upcoming events", comment: "")
+        eventsButton.accessibilityLabel = NSLocalizedString("Events menu", comment: "")
+        eventsButton.accessibilityHint = NSLocalizedString("Double tap to display events menu", comment: "")
 
-        return upcomingEventsButton
+        return eventsButton
     }()
+
+    private func createEventsMenu() -> UIMenu {
+        if self.room.isEvent {
+            return self.createEventsRoomMenu()
+        } else {
+            return self.createUpcomingEventsMenu()
+        }
+    }
+
+    private func createEventsRoomMenu() -> UIMenu {
+        guard let calendarEvent = self.room.calendarEvent else {
+            return UIMenu(children: [UIAction(title: NSLocalizedString("No upcoming events", comment: ""), attributes: .disabled, handler: { _ in })])
+        }
+
+        var menuElements: [UIMenuElement] = []
+
+        menuElements.append(UIAction(title: NSLocalizedString("Schedule", comment: ""), subtitle: calendarEvent.readableStartTime(), handler: { _ in }))
+
+        if self.room.canModerate, calendarEvent.isPastEvent {
+            let deleteConversation = UIAction(title: NSLocalizedString("Delete conversation", comment: ""), image: .init(systemName: "trash")) { [unowned self] _ in
+                NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil)
+            }
+
+            deleteConversation.attributes = .destructive
+
+            let deleteMenu = UIMenu(title: "", options: [.displayInline], children: [deleteConversation])
+            menuElements.append(deleteMenu)
+        }
+
+        return UIMenu(children: menuElements)
+    }
 
     private func createUpcomingEventsMenu() -> UIMenu {
         let deferredUpcomingEvents = UIDeferredMenuElement { [weak self] completion in
@@ -211,7 +242,7 @@ import SwiftUI
 
     private func handleMeetingCreationSuccess() {
         // Re-create menu so upcoming events are refetched
-        upcomingEventsButton.innerButton.menu = createUpcomingEventsMenu()
+        eventsButton.innerButton.menu = createEventsMenu()
     }
 
     private var messageExpirationTimer: Timer?
@@ -272,7 +303,7 @@ import SwiftUI
         }
         // Upcoming events
         if room.supportsUpcomingEvents {
-            barButtonsItems.append(upcomingEventsButton)
+            barButtonsItems.append(eventsButton)
         }
 
         self.navigationItem.rightBarButtonItems = barButtonsItems

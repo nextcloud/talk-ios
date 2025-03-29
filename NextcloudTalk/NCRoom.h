@@ -85,6 +85,7 @@ typedef NS_ENUM(NSInteger, NCCallRecordingState) {
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 extern NSString * const NCRoomObjectTypeRoom;
+extern NSString * const NCRoomObjectTypeEvent;
 
 @interface NCRoom : RLMObject
 
