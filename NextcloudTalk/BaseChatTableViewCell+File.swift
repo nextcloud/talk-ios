@@ -10,6 +10,7 @@ extension BaseChatTableViewCell {
             // Preview image view
             let filePreviewImageView = FilePreviewImageView(frame: .init(x: 0, y: 0, width: fileMessageCellFileMaxPreviewHeight, height: fileMessageCellFileMaxPreviewWidth))
             self.filePreviewImageView = filePreviewImageView
+            filePreviewImageView.accessibilityIdentifier = "filePreviewImageView"
 
             filePreviewImageView.translatesAutoresizingMaskIntoConstraints = false
             filePreviewImageView.layer.cornerRadius = chatMessageCellPreviewCornerRadius
