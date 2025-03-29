@@ -250,6 +250,7 @@ import SwiftUI
         self.leftButton.setImage(UIImage(systemName: "paperclip"), for: .normal)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
         self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
+        self.leftButton.accessibilityIdentifier = "shareButton"
 
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none

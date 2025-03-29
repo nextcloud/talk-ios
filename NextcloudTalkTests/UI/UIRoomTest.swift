@@ -12,6 +12,11 @@ final class UIRoomTest: XCTestCase {
         continueAfterFailure = false
     }
 
+    override func tearDownWithError() throws {
+        // Check if all controllers are deallocated -> that should be the case after every test
+        XCTAssert(XCUIApplication().staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
+    }
+
     func testCreateAndDeleteConversation() {
         let app = launchAndLogin()
         let newConversationName = "Test conversation" + UUID().uuidString
@@ -102,25 +107,29 @@ final class UIRoomTest: XCTestCase {
             app.buttons["Reply"].tap()
         }
 
-        // Start a call
+        // Start a call and hangup afterwards
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         let callOptionsButton = chatNavBar.buttons["Call options"]
-        waitForReady(object: callOptionsButton)
-        callOptionsButton.tap()
+        waitForReady(object: callOptionsButton).tap()
 
-        let voiceCallButton = app.buttons["Voice only call"]
-        XCTAssert(voiceCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        voiceCallButton.tap()
+        waitForReady(object: app.buttons["Voice only call"]).tap()
+        waitForReady(object: app.buttons["Hang up"]).tap()
 
-        let hangupCallButton = app.buttons["Hang up"]
-        waitForReady(object: hangupCallButton)
-        hangupCallButton.tap()
+        // Share an image and open the media preview
+        waitForReady(object: app.buttons["shareButton"]).tap()
+        waitForReady(object: app.buttons["Photo Library"]).tap()
+        waitForReady(object: app.images["Photo, 30. March 2018, 21:14"]).tap()
+        app.buttons["Add"].tap()
+
+        waitForReady(object: sendMessageButton).tap()
+        waitForReady(object: app.images["filePreviewImageView"]).tap()
+        waitForReady(object: app.buttons["Close"]).tap()
 
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Back"].tap()
 
-        // Check if all chat view controllers are deallocated
+        // Check if all controllers are deallocated
         XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
@@ -197,8 +206,8 @@ final class UIRoomTest: XCTestCase {
         editButton.tap()
 
         // Wait for the original text to be shown in the textView
-        var predicate = NSPredicate(format: "value == '@\(newConversationName)'")
-        var textViewValue = toolbar.descendants(matching: .any).containing(predicate).firstMatch
+        let predicate = NSPredicate(format: "value == '@\(newConversationName)'")
+        let textViewValue = toolbar.descendants(matching: .any).containing(predicate).firstMatch
         XCTAssert(textViewValue.waitForExistence(timeout: TestConstants.timeoutShort))
 
         textView.typeText(" Edited")
@@ -210,6 +219,9 @@ final class UIRoomTest: XCTestCase {
         // Check if the edit is correct
         messageTextView = tables.textViews["@\(newConversationName) Edited"]
         XCTAssert(messageTextView.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
+        chatNavBar.buttons["Back"].tap()
     }
 
     func testLobbyView() {
