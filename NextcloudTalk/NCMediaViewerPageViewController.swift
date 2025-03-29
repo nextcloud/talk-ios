@@ -122,6 +122,12 @@ import SwiftyGif
         self.navigationItem.title = self.message.file().name
 
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
+
+        AllocationTracker.shared.addAllocation("NCMediaViewerPageViewController")
+    }
+
+    deinit {
+        AllocationTracker.shared.removeAllocation("NCMediaViewerPageViewController")
     }
 
     override func viewDidLayoutSubviews() {
