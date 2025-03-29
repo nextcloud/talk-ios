@@ -8,22 +8,13 @@ import XCTest
 
 extension XCTestCase {
 
-    func waitForEnabled(object: XCUIElement) {
-        let enabledPredicate = NSPredicate(format: "enabled == true")
+    @discardableResult
+    func waitForReady(object: XCUIElement, timeout: Double = TestConstants.timeoutShort) -> XCUIElement {
+        let enabledPredicate = NSPredicate(format: "exists == true AND enabled == true AND hittable == true")
         expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-    }
+        waitForExpectations(timeout: timeout, handler: nil)
 
-    func waitForHittable(object: XCUIElement) {
-        let enabledPredicate = NSPredicate(format: "hittable == true")
-        expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-    }
-
-    func waitForReady(object: XCUIElement, timeout: Double = TestConstants.timeoutShort) {
-        XCTAssert(object.waitForExistence(timeout: timeout))
-        self.waitForEnabled(object: object)
-        self.waitForHittable(object: object)
+        return object
     }
 
     // Based on https://stackoverflow.com/a/47947315
@@ -46,10 +37,14 @@ extension XCTestCase {
     @discardableResult
     func launchAndLogin() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments += ["-AppleLanguages", "(en-US)"]
-        app.launchArguments += ["-AppleLocale", "\"en-US\""]
-        app.launchArguments += ["-TestEnvironment"]
-        app.launch()
+
+        // Only start the app once for our tests
+        if app.state == .notRunning {
+            app.launchArguments += ["-AppleLanguages", "(en-US)"]
+            app.launchArguments += ["-AppleLocale", "\"en-US\""]
+            app.launchArguments += ["-TestEnvironment"]
+            app.launch()
+        }
 
         let accountSwitcherButton = app.buttons["LoadedProfileButton"]
         let serverAddressHttpsTextField = app.textFields["Server address https://…"]
@@ -110,9 +105,7 @@ extension XCTestCase {
     func createConversation(for app: XCUIApplication, with newConversationName: String) {
         app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"].tap()
 
-        let createNewConversationCell = app.tables.cells.staticTexts["Create a new conversation"]
-        XCTAssert(createNewConversationCell.waitForExistence(timeout: TestConstants.timeoutShort))
-        createNewConversationCell.tap()
+        waitForReady(object: app.tables.cells.staticTexts["Create a new conversation"]).tap()
 
         let newConversationNavBar = app.navigationBars["New conversation"]
         XCTAssert(newConversationNavBar.waitForExistence(timeout: TestConstants.timeoutShort))

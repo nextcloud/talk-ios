@@ -12,6 +12,11 @@ final class UICallTest: XCTestCase {
         continueAfterFailure = false
     }
 
+    override func tearDownWithError() throws {
+        // Check if all controllers are deallocated -> that should be the case after every test
+        XCTAssert(XCUIApplication().staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
+    }
+
     func testCallView() {
         let app = launchAndLogin()
         let newConversationName = "CallTest"
@@ -22,12 +27,9 @@ final class UICallTest: XCTestCase {
         // Start a call
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         let callOptionsButton = chatNavBar.buttons["Call options"]
-        waitForReady(object: callOptionsButton)
-        callOptionsButton.tap()
+        waitForReady(object: callOptionsButton).tap()
 
-        let videoCallButton = app.buttons["Video call"]
-        XCTAssert(videoCallButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        videoCallButton.tap()
+        waitForReady(object: app.buttons["Video call"]).tap()
 
         let hangupCallButton = app.buttons["Hang up"]
         waitForReady(object: hangupCallButton)
