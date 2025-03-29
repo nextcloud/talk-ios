@@ -96,6 +96,12 @@ import UIKit
         self.pageController.setViewControllers([initialViewController], direction: .forward, animated: false)
 
         self.navigationItem.title = initialViewController.navigationItem.title
+
+        AllocationTracker.shared.addAllocation("NCMediaViewerViewController")
+    }
+
+    deinit {
+        AllocationTracker.shared.removeAllocation("NCMediaViewerViewController")
     }
 
     func setupNavigationBar() {
