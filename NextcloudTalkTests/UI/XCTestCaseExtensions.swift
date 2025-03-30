@@ -21,16 +21,18 @@ extension XCTestCase {
     @discardableResult
     func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement? {
         let startTime = NSDate.timeIntervalSinceReferenceDate
-        while !elementA.exists && !elementB.exists { // while neither element exists
+        while !(elementA.exists && elementA.isHittable) && !(elementB.exists && elementB.isHittable) { // while neither element exists
             if NSDate.timeIntervalSinceReferenceDate - startTime > timeout {
                 XCTFail("Timed out waiting for either element to exist.")
                 break
             }
-            sleep(1)
+            usleep(500)
         }
 
         if elementA.exists { return elementA }
         if elementB.exists { return elementB }
+
+        XCTFail("Unknown failure while waiting for either element to exist.")
         return nil
     }
 
@@ -48,7 +50,6 @@ extension XCTestCase {
 
         // Wait shortly until the app is fully started
         let foundElement = waitForEitherElementToExist(accountSwitcherButton, serverAddressHttpsTextField, TestConstants.timeoutLong)
-        XCTAssertNotNil(foundElement)
 
         // When the account switcher button exists, we have atleast one account configured
         if foundElement == accountSwitcherButton {
