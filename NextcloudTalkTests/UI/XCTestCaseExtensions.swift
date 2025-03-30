@@ -38,13 +38,10 @@ extension XCTestCase {
     func launchAndLogin() -> XCUIApplication {
         let app = XCUIApplication()
 
-        // Only start the app once for our tests
-        if app.state == .notRunning {
-            app.launchArguments += ["-AppleLanguages", "(en-US)"]
-            app.launchArguments += ["-AppleLocale", "\"en-US\""]
-            app.launchArguments += ["-TestEnvironment"]
-            app.launch()
-        }
+        app.launchArguments += ["-AppleLanguages", "(en-US)"]
+        app.launchArguments += ["-AppleLocale", "\"en-US\""]
+        app.launchArguments += ["-TestEnvironment"]
+        app.launch()
 
         let accountSwitcherButton = app.buttons["LoadedProfileButton"]
         let serverAddressHttpsTextField = app.textFields["Server address https://…"]
