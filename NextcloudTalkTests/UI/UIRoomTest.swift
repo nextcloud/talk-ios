@@ -197,9 +197,6 @@ final class UIRoomTest: XCTestCase {
         // Check if the edit is correct
         messageTextView = tables.textViews["@\(newConversationName) Edited"]
         XCTAssert(messageTextView.waitForExistence(timeout: TestConstants.timeoutShort))
-
-        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
-        chatNavBar.buttons["Back"].tap()
     }
 
     func testLobbyView() {
@@ -232,8 +229,5 @@ final class UIRoomTest: XCTestCase {
         let toolbar = app.toolbars["Toolbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(!textView.exists)
-
-        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
-        chatNavBar.buttons["Back"].tap()
     }
 }
