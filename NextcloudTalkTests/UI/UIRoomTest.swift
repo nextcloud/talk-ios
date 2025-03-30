@@ -96,16 +96,11 @@ final class UIRoomTest: XCTestCase {
         message.press(forDuration: 2.0)
 
         // Add a reaction to close the context menu
-        let reactionExists = app.staticTexts["👍"].waitForExistence(timeout: TestConstants.timeoutShort)
-
-        if reactionExists {
-            app.staticTexts["👍"].tap()
-        } else {
-            // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
-            // we simply tap the "Reply" button from the context menu
-            XCTAssert(app.buttons["Reply"].waitForExistence(timeout: TestConstants.timeoutShort))
-            app.buttons["Reply"].tap()
-        }
+        // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
+        // we simply tap the "Reply" button from the context menu
+        let foundElement = waitForEitherElementToExist(app.staticTexts["👍"], app.buttons["Reply"], TestConstants.timeoutShort)
+        XCTAssertNotNil(foundElement)
+        foundElement?.tap()
 
         // Start a call and hangup afterwards
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
@@ -123,7 +118,12 @@ final class UIRoomTest: XCTestCase {
         waitForReady(object: app.images.labelContains("Photo").firstMatch).tap()
         app.buttons["Add"].tap()
 
-        waitForReady(object: sendMessageButton).tap()
+        // On old versions, we don't have an inputbar on the sharing dialog, therefore also check for the send button
+        let oldSendButton = app.buttons["Send"]
+        let sendButton = waitForEitherElementToExist(sendMessageButton, oldSendButton, TestConstants.timeoutShort)
+        XCTAssertNotNil(sendButton)
+        sendButton?.tap()
+
         waitForReady(object: app.images["filePreviewImageView"]).tap()
         waitForReady(object: app.buttons["Close"]).tap()
 
