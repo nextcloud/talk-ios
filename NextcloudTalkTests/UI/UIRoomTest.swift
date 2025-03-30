@@ -99,12 +99,10 @@ final class UIRoomTest: XCTestCase {
         app.buttons["Add"].tap()
 
         // On old versions, we don't have an inputbar on the sharing dialog, therefore also check for the send button
-        let oldSendButton = app.buttons["Send"]
-        let sendButton = waitForEitherElementToExist(sendMessageButton, oldSendButton, TestConstants.timeoutShort)
-        XCTAssertNotNil(sendButton)
-        sendButton?.tap()
+        waitForEitherElementToExist(sendMessageButton, app.buttons["Send"], TestConstants.timeoutShort)?.tap()
 
-        waitForReady(object: app.images["filePreviewImageView"]).tap()
+        // Open the preview and close it again
+        waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong).tap()
         waitForReady(object: app.buttons["Close"]).tap()
 
         // Go back to the main view controller
@@ -187,8 +185,7 @@ final class UIRoomTest: XCTestCase {
         editButton.tap()
 
         // Wait for the original text to be shown in the textView
-        let predicate = NSPredicate(format: "value == '@\(newConversationName)'")
-        let textViewValue = toolbar.descendants(matching: .any).containing(predicate).firstMatch
+        let textViewValue = toolbar.descendants(matching: .any).valueContains("@\(newConversationName)").firstMatch
         XCTAssert(textViewValue.waitForExistence(timeout: TestConstants.timeoutShort))
 
         textView.typeText(" Edited")
