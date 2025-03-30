@@ -53,8 +53,8 @@ final class UIRoomTest: XCTestCase {
         self.createConversation(for: app, with: newConversationName)
 
         // Check if we have one chat view controller allocated
-        let predicate = NSPredicate(format: "label CONTAINS[c] %@", "ChatViewController\":1")
-        XCTAssert(app.staticTexts.containing(predicate).firstMatch.waitForExistence(timeout: TestConstants.timeoutShort))
+        let debugLabel = app.staticTexts.labelContains("ChatViewController\":1").firstMatch
+        XCTAssert(debugLabel.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Send a test message
         let testMessage = "TestMessage"
@@ -98,7 +98,9 @@ final class UIRoomTest: XCTestCase {
         // Share an image and open the media preview
         waitForReady(object: app.buttons["shareButton"]).tap()
         waitForReady(object: app.buttons["Photo Library"]).tap()
-        waitForReady(object: app.images["Photo, 30. March 2018, 21:14"]).tap()
+
+        // All photos in simulator start with "Photo", use the first one
+        waitForReady(object: app.images.labelContains("Photo").firstMatch).tap()
         app.buttons["Add"].tap()
 
         waitForReady(object: sendMessageButton).tap()
@@ -129,8 +131,7 @@ final class UIRoomTest: XCTestCase {
         textView.typeText("M")
         textView.typeText("e")
 
-        let predicateLabel = NSPredicate(format: "label CONTAINS[c] %@", newConversationName)
-        let autoCompleteCell = app.tables.cells["AutoCompletionCellIdentifier"].staticTexts.containing(predicateLabel).firstMatch
+        let autoCompleteCell = app.tables.cells["AutoCompletionCellIdentifier"].staticTexts.labelContains(newConversationName).firstMatch
         XCTAssert(autoCompleteCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
         autoCompleteCell.tap()
@@ -234,5 +235,8 @@ final class UIRoomTest: XCTestCase {
         let toolbar = app.toolbars["Toolbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(!textView.exists)
+
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
+        chatNavBar.buttons["Back"].tap()
     }
 }
