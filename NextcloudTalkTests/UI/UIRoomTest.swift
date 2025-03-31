@@ -79,8 +79,7 @@ final class UIRoomTest: XCTestCase {
         // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
         // we simply tap the "Reply" button from the context menu
         let foundElement = waitForEitherElementToExist(app.staticTexts["👍"], app.buttons["Reply"], TestConstants.timeoutShort)
-        XCTAssertNotNil(foundElement)
-        foundElement?.tap()
+        waitForReady(object: foundElement).tap()
 
         // Start a call and hangup afterwards
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
@@ -99,7 +98,8 @@ final class UIRoomTest: XCTestCase {
         app.buttons["Add"].tap()
 
         // On old versions, we don't have an inputbar on the sharing dialog, therefore also check for the send button
-        waitForEitherElementToExist(sendMessageButton, app.buttons["Send"], TestConstants.timeoutShort)?.tap()
+        let foundSendButton = waitForEitherElementToExist(sendMessageButton, app.buttons["Send"], TestConstants.timeoutShort)
+        waitForReady(object: foundSendButton).tap()
 
         // Open the preview and close it again
         waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong).tap()
