@@ -260,7 +260,7 @@
 {
     RoomBuilder *roomBuilder = [[RoomBuilder alloc] init];
     [roomBuilder roomType:kNCRoomTypeGroup];
-    [roomBuilder objecType:@"extended_conversation"];
+    [roomBuilder objecType:NCRoomObjectTypeExtendedConversation];
     [roomBuilder objectId:_room.token];
 
     NCUser *user = [[NCUser alloc] init];
