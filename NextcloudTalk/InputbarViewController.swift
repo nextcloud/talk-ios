@@ -79,6 +79,12 @@ import UIKit
         self.bounces = false
         self.shakeToClearEnabled = false
 
+        // Set the rightButton early, to allow sizing the textInputbar correctly
+        self.rightButton.setTitle("", for: .normal)
+        self.rightButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
+        self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
+        self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
+
         self.textInputbar.autoHideRightButton = false
         self.textInputbar.counterStyle = .limitExceeded
         self.textInputbar.counterPosition = .top
@@ -172,11 +178,6 @@ import UIKit
         }
 
         self.restorePendingMessage()
-
-        self.rightButton.setTitle("", for: .normal)
-        self.rightButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
-        self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
-        self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
     }
 
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
