@@ -1,3 +1,9 @@
+/* Alice, Bob, Charlie and 3 others will receive invitations */
+"%@ and %ld others will receive invitations" = "%1$@ and %2$ld others will receive invitations";
+
+/* Alice, Bob, Charlie and 1 other will receive invitations */
+"%@ and 1 other will receive invitations" = "%@ and 1 other will receive invitations";
+
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
 
@@ -12,6 +18,12 @@
 
 /* {app name} version not supported */
 "%@ version not supported" = "%@ version not supported";
+
+/* Alice will receive an invitation */
+"%@ will receive an invitation" = "%@ will receive an invitation";
+
+/* Alice and Bob will receive invitations */
+"%@ will receive invitations" = "%@ will receive invitations";
 
 /* No comment provided by engineer. */
 "%d days ago" = "%d days ago";
@@ -331,14 +343,8 @@
 /* Alice, Bob, Charlie and 3 others are typing… */
 "and %ld others are typing…" = "and %ld others are typing…";
 
-/* Alice, Bob, Charlie and 3 others will receive invitations */
-"and %ld others will receive invitations" = "and %ld others will receive invitations";
-
 /* Alice, Bob, Charlie and 1 other is typing… */
 "and 1 other is typing…" = "and 1 other is typing…";
-
-/* Alice, Bob, Charlie and 1 other is typing… */
-"and 1 other will receive invitations" = "and 1 other will receive invitations";
 
 /* No comment provided by engineer. */
 "Anonymous poll" = "Anonymous poll";
@@ -2166,12 +2172,6 @@
 
 /* No comment provided by engineer. */
 "What is your status?" = "What is your status?";
-
-/* Alice will receive an invitation */
-"will receive an invitation" = "will receive an invitation";
-
-/* Alice and Bob will receive invitations */
-"will receive invitations" = "will receive invitations";
 
 /* No comment provided by engineer. */
 "Write message, @ to mention someone …" = "Write message, @ to mention someone …";
