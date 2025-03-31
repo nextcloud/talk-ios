@@ -393,7 +393,7 @@ import MBProgressHUD
 
     public override func canPressRightButton() -> Bool {
         // We want to allow sending pictures even when no text is entered
-        return true
+        return !self.shareItemController.shareItems.isEmpty
     }
 
     // MARK: - Button Actions
@@ -929,6 +929,9 @@ import MBProgressHUD
                 self.shareCollectionView.layoutIfNeeded()
                 self.updateToolbarForCurrentItem()
                 self.pageControl.numberOfPages = shareItemController.shareItems.count
+
+                // Update the text input to check if sending is (not-)possible
+                self.textDidUpdate(false)
             }
         }
     }
