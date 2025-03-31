@@ -161,26 +161,41 @@ struct ScheduleMeetingSwiftUIView: View {
     }
 
     private func footerString() -> String {
-        var localizedSuffix: String
+        var localizedText: String
 
         if self.selectedParticipants.isEmpty {
             return NSLocalizedString("Sending no invitations", comment: "")
-
-        } else if self.selectedParticipants.count == 1 {
-            localizedSuffix = NSLocalizedString("will receive an invitation", comment: "Alice will receive an invitation")
-
-        } else if self.selectedParticipants.count == 2 || self.selectedParticipants.count == 3 {
-            localizedSuffix = NSLocalizedString("will receive invitations", comment: "Alice and Bob will receive invitations")
-
-        } else if self.selectedParticipants.count == 4 {
-            localizedSuffix = NSLocalizedString("and 1 other will receive invitations", comment: "Alice, Bob, Charlie and 1 other is typing…")
-
         } else {
-            let localizedString = NSLocalizedString("and %ld others will receive invitations", comment: "Alice, Bob, Charlie and 3 others will receive invitations")
-            localizedSuffix = String(format: localizedString, self.selectedParticipants.count - 3)
+            let participantsString = getParticipantsString()
+
+            if self.selectedParticipants.count == 1 {
+                localizedText = String(
+                    format: NSLocalizedString("%@ will receive an invitation", comment: "Alice will receive an invitation"),
+                    participantsString
+                )
+
+            } else if self.selectedParticipants.count == 2 || self.selectedParticipants.count == 3 {
+                localizedText = String(
+                    format: NSLocalizedString("%@ will receive invitations", comment: "Alice and Bob will receive invitations"),
+                    participantsString
+                )
+
+            } else if self.selectedParticipants.count == 4 {
+                localizedText = String(
+                    format: NSLocalizedString("%@ and 1 other will receive invitations", comment: "Alice, Bob, Charlie and 1 other will receive invitations"),
+                    participantsString
+                )
+
+            } else {
+                let othersCount = self.selectedParticipants.count - 3
+                localizedText = String(
+                    format: NSLocalizedString("%@ and %ld others will receive invitations", comment: "Alice, Bob, Charlie and 3 others will receive invitations"),
+                    participantsString, othersCount
+                )
+            }
         }
 
-        return getParticipantsString() + " " + localizedSuffix
+        return localizedText
     }
 
     private func getParticipantsString() -> String {
