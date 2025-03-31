@@ -1,8 +1,17 @@
+/* Alice, Bob, Charlie and 3 others are typing… */
+"%@ and %ld others are typing…" = "%1$@ and %2$ld others are typing…";
+
 /* Alice, Bob, Charlie and 3 others will receive invitations */
 "%@ and %ld others will receive invitations" = "%1$@ and %2$ld others will receive invitations";
 
+/* Alice, Bob, Charlie and 1 other is typing… */
+"%@ and 1 other is typing…" = "%@ and 1 other is typing…";
+
 /* Alice, Bob, Charlie and 1 other will receive invitations */
 "%@ and 1 other will receive invitations" = "%@ and 1 other will receive invitations";
+
+/* Alice and Bob are typing… */
+"%@ are typing…" = "%@ are typing…";
 
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
@@ -12,6 +21,9 @@
 
 /* '%@' is the name of a user */
 "%@ is out of office today" = "%@ is out of office today";
+
+/* Alice is typing… */
+"%@ is typing…" = "%@ is typing…";
 
 /* {app name} is not installed */
 "%@ not installed" = "%@ not installed";
@@ -340,12 +352,6 @@
 /* Alice and Bob */
 "and" = "and";
 
-/* Alice, Bob, Charlie and 3 others are typing… */
-"and %ld others are typing…" = "and %ld others are typing…";
-
-/* Alice, Bob, Charlie and 1 other is typing… */
-"and 1 other is typing…" = "and 1 other is typing…";
-
 /* No comment provided by engineer. */
 "Anonymous poll" = "Anonymous poll";
 
@@ -372,9 +378,6 @@
 
 /* No comment provided by engineer. */
 "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list." = "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.";
-
-/* Alice and Bob are typing… */
-"are typing…" = "are typing…";
 
 /* No comment provided by engineer. */
 "Ask a question" = "Ask a question";
@@ -1149,9 +1152,6 @@
 
 /* No comment provided by engineer. */
 "Invitations resent" = "Invitations resent";
-
-/* Alice is typing… */
-"is typing…" = "is typing…";
 
 /* It seems that {app name} is not installed in your server. */
 "It seems that %@ is not installed in your server." = "It seems that %@ is not installed in your server.";
