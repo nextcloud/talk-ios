@@ -186,6 +186,9 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
 
 - (void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation
 {
+    // Set a different accessibility identifier, to correctly determin if the webview is interactive or not
+    [self.webView setAccessibilityIdentifier:@"nonInteractiveWebLoginView"];
+
     // Disable user interaction to prevent any unwanted zooming while the navigation is ongoing
     [self.webView setUserInteractionEnabled:NO];
     [_activityIndicatorView stopAnimating];
@@ -194,6 +197,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [self.webView setUserInteractionEnabled:YES];
+    [self.webView setAccessibilityIdentifier:@"interactiveWebLoginView"];
 }
 
 
