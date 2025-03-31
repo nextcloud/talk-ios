@@ -104,32 +104,30 @@ import SwiftyAttributes
             // Just hide the label to have a nice animation. Otherwise we would animate an empty label/space
             self.isVisible = false
         } else {
-            let attributedSpace = NSAttributedString(string: " ")
-            var localizedSuffix: NSAttributedString
+            let usersString = self.getUsersTypingString()
+            var localizedText: String
 
             if self.typingUsers.count == 1 {
-                localizedSuffix = NSLocalizedString("is typing…", comment: "Alice is typing…").withTextColor(.tertiaryLabel)
-
+                localizedText = String(format: NSLocalizedString("%@ is typing…", comment: "Alice is typing…"), usersString.string)
             } else if self.typingUsers.count == 2 || self.typingUsers.count == 3 {
-                localizedSuffix = NSLocalizedString("are typing…", comment: "Alice and Bob are typing…").withTextColor(.tertiaryLabel)
-
+                localizedText = String(format: NSLocalizedString("%@ are typing…", comment: "Alice and Bob are typing…"), usersString.string)
             } else if self.typingUsers.count == 4 {
-                localizedSuffix = NSLocalizedString("and 1 other is typing…", comment: "Alice, Bob, Charlie and 1 other is typing…").withTextColor(.tertiaryLabel)
-
+                localizedText = String(format: NSLocalizedString("%@ and 1 other is typing…", comment: "Alice, Bob, Charlie and 1 other is typing…"), usersString.string)
             } else {
-                let localizedString = NSLocalizedString("and %ld others are typing…", comment: "Alice, Bob, Charlie and 3 others are typing…")
-                let formattedString = String(format: localizedString, self.typingUsers.count - 3)
-                localizedSuffix = formattedString.withTextColor(.tertiaryLabel)
+                let othersCount = self.typingUsers.count - 3
+                localizedText = String(format: NSLocalizedString("%@ and %ld others are typing…", comment: "Alice, Bob, Charlie and 3 others are typing…"), usersString.string, othersCount)
             }
+
+            let suffixAttributedString = localizedText.replacingOccurrences(of: usersString.string, with: "").withTextColor(.tertiaryLabel)
+            let finalAttributedString = NSMutableAttributedString()
+            finalAttributedString.append(usersString)
+            finalAttributedString.append(suffixAttributedString)
 
             UIView.transition(with: self.typingLabel,
                               duration: 0.2,
                               options: .transitionCrossDissolve,
                               animations: {
-
-                let newTypingText = self.getUsersTypingString() + attributedSpace + localizedSuffix
-
-                self.typingLabel.attributedText = newTypingText.withFont(.preferredFont(forTextStyle: .body))
+                self.typingLabel.attributedText = finalAttributedString.withFont(.preferredFont(forTextStyle: .body))
             }, completion: nil)
 
             self.isVisible = true
