@@ -67,16 +67,17 @@ extension XCTestCase {
         XCTAssert(loginButton.waitForExistence(timeout: TestConstants.timeoutLong))
         loginButton.tap()
 
-        let webViewsQuery = app.webViews.webViews.webViews
+        let loginWebview = app.webViews["interactiveWebLoginView"]
+        waitForReady(object: loginWebview)
 
         // Wait for the login button to be available and to get enabled/hittable
-        let loginButtonWeb = webViewsQuery.buttons["Log in"]
+        let loginButtonWeb = loginWebview.buttons["Log in"]
         waitForReady(object: loginButtonWeb, timeout: TestConstants.timeoutLong)
 
         loginButtonWeb.tap()
 
-        let usernameTextField = webViewsQuery.descendants(matching: .textField).firstMatch
-        let passwordTextField = webViewsQuery.descendants(matching: .secureTextField).firstMatch
+        let usernameTextField = loginWebview.descendants(matching: .textField).firstMatch
+        let passwordTextField = loginWebview.descendants(matching: .secureTextField).firstMatch
 
         XCTAssert(usernameTextField.waitForExistence(timeout: TestConstants.timeoutLong))
         XCTAssert(passwordTextField.waitForExistence(timeout: TestConstants.timeoutLong))
@@ -87,14 +88,14 @@ extension XCTestCase {
         passwordTextField.tap()
         passwordTextField.typeText(TestConstants.password + "\n")
 
-        let accountAccess = webViewsQuery.staticTexts["Account access"]
+        let accountAccess = loginWebview.staticTexts["Account access"]
         XCTAssert(accountAccess.waitForExistence(timeout: TestConstants.timeoutLong))
 
-        let grantAccessButton = webViewsQuery.buttons["Grant access"]
+        let grantAccessButton = loginWebview.buttons["Grant access"]
         waitForReady(object: grantAccessButton, timeout: TestConstants.timeoutLong)
 
-        // TODO: Find a better way to reliable detect if the grant access button is tappable
-        sleep(5)
+        // Wait again for the webview to be ready
+        waitForReady(object: loginWebview)
 
         grantAccessButton.tap()
 
