@@ -275,6 +275,10 @@
     [namesArray addObject:_room.account.userDisplayName];
     NSArray *sortedNamesArray = [namesArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     NSString *roomName = [sortedNamesArray componentsJoinedByString:@", "];
+    // Ensure the roomName does not exceed 255 characters limit.
+    if (roomName.length > 255) {
+        roomName = [[roomName substringToIndex:254] stringByAppendingString:@"…"];
+    }
     [roomBuilder roomName:roomName];
 
     [self showAddingParticipantsView];
