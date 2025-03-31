@@ -19,7 +19,7 @@ extension XCTestCase {
 
     // Based on https://stackoverflow.com/a/47947315
     @discardableResult
-    func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement? {
+    func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement {
         let startTime = NSDate.timeIntervalSinceReferenceDate
         while !(elementA.exists && elementA.isHittable) && !(elementB.exists && elementB.isHittable) { // while neither element exists
             if NSDate.timeIntervalSinceReferenceDate - startTime > timeout {
@@ -29,11 +29,15 @@ extension XCTestCase {
             usleep(500)
         }
 
-        if elementA.exists { return elementA }
-        if elementB.exists { return elementB }
+        if elementA.exists {
+            return elementA
+        }
 
-        XCTFail("Unknown failure while waiting for either element to exist.")
-        return nil
+        if !elementB.exists {
+            XCTFail("Unknown failure while waiting for either element to exist.")
+        }
+
+        return elementB
     }
 
     @discardableResult
@@ -101,8 +105,7 @@ extension XCTestCase {
     }
 
     func createConversation(for app: XCUIApplication, with newConversationName: String) {
-        app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"].tap()
-
+        waitForReady(object: app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"]).tap()
         waitForReady(object: app.tables.cells.staticTexts["Create a new conversation"]).tap()
 
         let newConversationNavBar = app.navigationBars["New conversation"]
