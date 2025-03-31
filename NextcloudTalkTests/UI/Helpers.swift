@@ -76,7 +76,7 @@ extension XCTestCase {
         loginButton.tap()
 
         let loginWebview = app.webViews["interactiveWebLoginView"]
-        waitForReady(object: loginWebview)
+        waitForReady(object: loginWebview, timeout: TestConstants.timeoutLong)
 
         // Wait for the login button to be available and to get enabled/hittable
         let loginButtonWeb = loginWebview.buttons["Log in"]
