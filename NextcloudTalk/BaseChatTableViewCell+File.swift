@@ -109,6 +109,9 @@ extension BaseChatTableViewCell {
         self.filePreviewImageView?.image = nil
         self.filePreviewPlayIconImageView?.isHidden = true
 
+        // Remove a potential gif
+        self.filePreviewImageView?.clear()
+
         self.clearFileStatusView()
     }
 
