@@ -468,6 +468,8 @@
 		2C1EF36D25505DCE007C9768 /* NCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1EF36A25505DCE007C9768 /* NCNavigationController.m */; };
 		2C21446E2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21446D2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift */; };
 		2C2145682BF6B8E900470C0C /* NewRoomTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2145672BF6B8E900470C0C /* NewRoomTableViewController.swift */; };
+		2C24ED842D9C0B2B004F48CF /* NSAttributedStringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C24ED832D9C0B2B004F48CF /* NSAttributedStringExtension.swift */; };
+		2C24ED852D9C14F8004F48CF /* NSAttributedStringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C24ED832D9C0B2B004F48CF /* NSAttributedStringExtension.swift */; };
 		2C2A788E2359CC8800EEB797 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C2D7A172B8C9C0000642373 /* RoomCreationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2D7A162B8C9C0000642373 /* RoomCreationTableViewController.swift */; };
 		2C2E64251F3462AF00D39CE8 /* NCSignalingMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2E64241F3462AF00D39CE8 /* NCSignalingMessage.m */; };
@@ -991,6 +993,7 @@
 		2C1EF36A25505DCE007C9768 /* NCNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCNavigationController.m; sourceTree = "<group>"; };
 		2C21446D2BB5B54D005A6537 /* BaseChatTableViewCell+Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BaseChatTableViewCell+Location.swift"; sourceTree = "<group>"; };
 		2C2145672BF6B8E900470C0C /* NewRoomTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRoomTableViewController.swift; sourceTree = "<group>"; };
+		2C24ED832D9C0B2B004F48CF /* NSAttributedStringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAttributedStringExtension.swift; sourceTree = "<group>"; };
 		2C2A788C2359CC8800EEB797 /* NCAppBranding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCAppBranding.h; sourceTree = "<group>"; };
 		2C2A788D2359CC8800EEB797 /* NCAppBranding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCAppBranding.m; sourceTree = "<group>"; };
 		2C2D7A162B8C9C0000642373 /* RoomCreationTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomCreationTableViewController.swift; sourceTree = "<group>"; };
@@ -1683,6 +1686,7 @@
 				2C9200C12474262C0050084F /* UIBarButtonItem+Badge.h */,
 				2C9200C22474262C0050084F /* UIBarButtonItem+Badge.m */,
 				2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */,
+				2C24ED832D9C0B2B004F48CF /* NSAttributedStringExtension.swift */,
 				1FDFC94C2BA50B9100670DF4 /* UIFontExtension.swift */,
 				2CBD0D592C8770A40013C089 /* UIImageExtension.swift */,
 				1FAB2EED2AD1BC1B001214EB /* UIControlExtensions.swift */,
@@ -3271,6 +3275,7 @@
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */,
 				2C1C68072D51229500A7F98A /* CalendarEvent.swift in Sources */,
+				2C24ED842D9C0B2B004F48CF /* NSAttributedStringExtension.swift in Sources */,
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2CC3166E2CC698E1007CBE16 /* TextFieldTableViewCell.swift in Sources */,
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
@@ -3449,6 +3454,7 @@
 				2CB6ACDC2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
 				1F35F8E82AEEBC0800044BDA /* SLKTextView+SLKAdditions.m in Sources */,
 				1F35F9052AEEDF0E00044BDA /* AutoCompletionTableViewCell.m in Sources */,
+				2C24ED852D9C14F8004F48CF /* NSAttributedStringExtension.swift in Sources */,
 				1F35F90A2AEEE76A00044BDA /* QuotedMessageView.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
 				1F7CCC262D552D2000F3FB77 /* Mention.swift in Sources */,

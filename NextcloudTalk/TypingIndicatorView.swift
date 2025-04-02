@@ -62,75 +62,59 @@ import SwiftyAttributes
         self.removeTimer?.invalidate()
     }
 
-    private func getUsersTypingString() -> NSAttributedString {
-        // Array keep the order of the elements, no need to sort here manually
-        if self.typingUsers.count == 1 {
-            // Alice
-            return self.typingUsers[0].displayName.withTextColor(.secondaryLabel)
-
-        } else {
-            let separator = ", ".withTextColor(.tertiaryLabel)
-            let separatorSpace = NSAttributedString(string: " ")
-            let separatorLast = NSLocalizedString("and", comment: "Alice and Bob").withTextColor(.tertiaryLabel)
-
-            if self.typingUsers.count == 2 {
-                // Alice and Bob
-                let user1 = self.typingUsers[0].displayName.withTextColor(.secondaryLabel)
-                let user2 = self.typingUsers[1].displayName.withTextColor(.secondaryLabel)
-
-                return user1 + separatorSpace + separatorLast + separatorSpace + user2
-
-            } else if self.typingUsers.count == 3 {
-                // Alice, Bob and Charlie
-                let user1 = self.typingUsers[0].displayName.withTextColor(.secondaryLabel)
-                let user2 = self.typingUsers[1].displayName.withTextColor(.secondaryLabel)
-                let user3 = self.typingUsers[2].displayName.withTextColor(.secondaryLabel)
-
-                return user1 + separator + user2 + separatorSpace + separatorLast + separatorSpace + user3
-
-            } else {
-                // Alice, Bob, Charlie
-                let user1 = self.typingUsers[0].displayName.withTextColor(.secondaryLabel)
-                let user2 = self.typingUsers[1].displayName.withTextColor(.secondaryLabel)
-                let user3 = self.typingUsers[2].displayName.withTextColor(.secondaryLabel)
-
-                return user1 + separator + user2 + separator + user3
-            }
-        }
-    }
-
     private func updateTypingIndicator() {
         if self.typingUsers.isEmpty {
             // Just hide the label to have a nice animation. Otherwise we would animate an empty label/space
             self.isVisible = false
         } else {
-            let usersString = self.getUsersTypingString()
-            var localizedText: String
+            var localizedAttributedString: NSAttributedString?
 
             if self.typingUsers.count == 1 {
-                localizedText = String(format: NSLocalizedString("%@ is typing…", comment: "Alice is typing…"), usersString.string)
-            } else if self.typingUsers.count == 2 || self.typingUsers.count == 3 {
-                localizedText = String(format: NSLocalizedString("%@ are typing…", comment: "Alice and Bob are typing…"), usersString.string)
+                let unformattedAttributedString = NSLocalizedString("%@ is typing…", comment: "Alice is typing…").withTextColor(.tertiaryLabel)
+                localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
+                                                               self.typingUsers[0].displayName.withTextColor(.secondaryLabel))
+
+            } else if self.typingUsers.count == 2 {
+                let unformattedAttributedString = NSLocalizedString("%@ and %@ are typing…", comment: "Alice and Bob are typing…").withTextColor(.tertiaryLabel)
+                localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
+                                                               self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
+                                                               self.typingUsers[1].displayName.withTextColor(.secondaryLabel))
+
+            } else if self.typingUsers.count == 3 {
+                let unformattedAttributedString = NSLocalizedString("%@, %@ and %@ are typing…", comment: "Alice, Bob and Charlie are typing…").withTextColor(.tertiaryLabel)
+                localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
+                                                               self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
+                                                               self.typingUsers[1].displayName.withTextColor(.secondaryLabel),
+                                                               self.typingUsers[2].displayName.withTextColor(.secondaryLabel))
+
             } else if self.typingUsers.count == 4 {
-                localizedText = String(format: NSLocalizedString("%@ and 1 other is typing…", comment: "Alice, Bob, Charlie and 1 other is typing…"), usersString.string)
+                let unformattedAttributedString = NSLocalizedString("%@, %@, %@ and 1 other is typing…", comment: "Alice, Bob, Charlie and 1 other is typing…").withTextColor(.tertiaryLabel)
+                localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
+                                                               self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
+                                                               self.typingUsers[1].displayName.withTextColor(.secondaryLabel),
+                                                               self.typingUsers[2].displayName.withTextColor(.secondaryLabel))
             } else {
                 let othersCount = self.typingUsers.count - 3
-                localizedText = String(format: NSLocalizedString("%@ and %ld others are typing…", comment: "Alice, Bob, Charlie and 3 others are typing…"), usersString.string, othersCount)
+                let unformattedAttributedString = NSLocalizedString("%@, %@, %@ and %@ others are typing…", comment: "Alice, Bob, Charlie and 3 others are typing…").withTextColor(.tertiaryLabel)
+                localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
+                                                               self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
+                                                               self.typingUsers[1].displayName.withTextColor(.secondaryLabel),
+                                                               self.typingUsers[2].displayName.withTextColor(.secondaryLabel),
+                                                               othersCount)
             }
 
-            let suffixAttributedString = localizedText.replacingOccurrences(of: usersString.string, with: "").withTextColor(.tertiaryLabel)
-            let finalAttributedString = NSMutableAttributedString()
-            finalAttributedString.append(usersString)
-            finalAttributedString.append(suffixAttributedString)
+            if let localizedAttributedString {
+                UIView.transition(with: self.typingLabel,
+                                  duration: 0.2,
+                                  options: .transitionCrossDissolve,
+                                  animations: {
+                    self.typingLabel.attributedText = localizedAttributedString.withFont(.preferredFont(forTextStyle: .body))
+                }, completion: nil)
 
-            UIView.transition(with: self.typingLabel,
-                              duration: 0.2,
-                              options: .transitionCrossDissolve,
-                              animations: {
-                self.typingLabel.attributedText = finalAttributedString.withFont(.preferredFont(forTextStyle: .body))
-            }, completion: nil)
-
-            self.isVisible = true
+                self.isVisible = true
+            } else {
+                self.isVisible = false
+            }
         }
 
         self.previousUpdateTimestamp = Date().timeIntervalSinceReferenceDate

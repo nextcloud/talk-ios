@@ -1,17 +1,8 @@
-/* Alice, Bob, Charlie and 3 others are typing… */
-"%@ and %ld others are typing…" = "%1$@ and %2$ld others are typing…";
-
-/* Alice, Bob, Charlie and 3 others will receive invitations */
-"%@ and %ld others will receive invitations" = "%1$@ and %2$ld others will receive invitations";
-
-/* Alice, Bob, Charlie and 1 other is typing… */
-"%@ and 1 other is typing…" = "%@ and 1 other is typing…";
-
-/* Alice, Bob, Charlie and 1 other will receive invitations */
-"%@ and 1 other will receive invitations" = "%@ and 1 other will receive invitations";
-
 /* Alice and Bob are typing… */
-"%@ are typing…" = "%@ are typing…";
+"%@ and %@ are typing…" = "%1$@ and %2$@ are typing…";
+
+/* Alice and Bob will receive invitations */
+"%@ and %@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
 
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
@@ -34,8 +25,23 @@
 /* Alice will receive an invitation */
 "%@ will receive an invitation" = "%@ will receive an invitation";
 
-/* Alice and Bob will receive invitations */
-"%@ will receive invitations" = "%@ will receive invitations";
+/* Alice, Bob and Charlie are typing… */
+"%@, %@ and %@ are typing…" = "%1$@, %2$@ and %3$@ are typing…";
+
+/* Alice, Bob and Charlie will receive invitations */
+"%@, %@ and %@ will receive invitations" = "%1$@, %2$@ and %3$@ will receive invitations";
+
+/* Alice, Bob, Charlie and 3 others are typing… */
+"%@, %@, %@ and %@ others are typing…" = "%1$@, %2$@, %3$@ and %4$@ others are typing…";
+
+/* Alice, Bob, Charlie and 3 others will receive invitations */
+"%@, %@, %@ and %ld others will receive invitations" = "%1$@, %2$@, %3$@ and %4$ld others will receive invitations";
+
+/* Alice, Bob, Charlie and 1 other is typing… */
+"%@, %@, %@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
+
+/* Alice, Bob, Charlie and 1 other will receive invitations */
+"%@, %@, %@ and 1 other will receive invitations" = "%1$@, %2$@, %3$@ and 1 other will receive invitations";
 
 /* No comment provided by engineer. */
 "%d days ago" = "%d days ago";
@@ -348,9 +354,6 @@
 
 /* No comment provided by engineer. */
 "an hour" = "an hour";
-
-/* Alice and Bob */
-"and" = "and";
 
 /* No comment provided by engineer. */
 "Anonymous poll" = "Anonymous poll";
