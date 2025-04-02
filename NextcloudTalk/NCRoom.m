@@ -8,9 +8,10 @@
 #import "NCDatabaseManager.h"
 #import "NextcloudTalk-Swift.h"
 
-NSString * const NCRoomObjectTypeFile           = @"file";
-NSString * const NCRoomObjectTypeSharePassword  = @"share:password";
-NSString * const NCRoomObjectTypeRoom           = @"room";
+NSString * const NCRoomObjectTypeFile                   = @"file";
+NSString * const NCRoomObjectTypeSharePassword          = @"share:password";
+NSString * const NCRoomObjectTypeRoom                   = @"room";
+NSString * const NCRoomObjectTypeExtendedConversation   = @"extended_conversation";
 
 @implementation NCRoom
 
