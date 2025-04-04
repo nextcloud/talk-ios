@@ -675,6 +675,20 @@ typedef enum FileAction {
 
 - (void)showConfirmationDialogForDestructiveAction:(DestructiveAction)action
 {
+    if (action == kDestructiveActionDelete) {
+        [[NCRoomsManager sharedInstance] deleteRoomWithConfirmation:self.room withStartedBlock:nil andWithFinishedBlock:^(BOOL success) {
+            if (success) {
+                if (self->_chatViewController) {
+                    [self->_chatViewController leaveChat];
+                }
+            } else {
+                [self showRoomModificationError:kModificationErrorDelete];
+            }
+        }];
+
+        return;
+    }
+
     NSString *title = @"";
     NSString *message = @"";
     UIAlertAction *confirmAction = nil;
@@ -695,15 +709,6 @@ typedef enum FileAction {
             message = NSLocalizedString(@"Do you really want to delete all messages in this conversation?", nil);
             confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete all", "Short version for confirmation button. Complete text is 'Delete all messages'.") style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
                 [self clearHistory];
-            }];
-        }
-            break;
-        case kDestructiveActionDelete:
-        {
-            title = NSLocalizedString(@"Delete conversation", nil);
-            message = _room.deletionMessage;
-            confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-                [self deleteRoom];
             }];
         }
             break;
@@ -1178,21 +1183,6 @@ typedef enum FileAction {
         } else {
             NSLog(@"Error leaving the room: %@", error.description);
             [self showRoomModificationError:kModificationErrorLeave];
-        }
-    }];
-}
-
-- (void)deleteRoom
-{
-    [[NCAPIController sharedInstance] deleteRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
-        if (!error) {
-            if (self->_chatViewController) {
-                [self->_chatViewController leaveChat];
-            }
-            [[NCUserInterfaceController sharedInstance] presentConversationsList];
-        } else {
-            NSLog(@"Error deleting the room: %@", error.description);
-            [self showRoomModificationError:kModificationErrorDelete];
         }
     }];
 }

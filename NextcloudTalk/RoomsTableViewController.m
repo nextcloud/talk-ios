@@ -33,7 +33,8 @@ typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 typedef enum RoomsFilter {
     kRoomsFilterAll = 0,
     kRoomsFilterUnread,
-    kRoomsFilterMentioned
+    kRoomsFilterMentioned,
+    kRoomsFilterEvent
 } RoomsFilter;
 
 typedef enum RoomsSections {
@@ -712,11 +713,13 @@ typedef enum RoomsSections {
 {
     switch (filter) {
         case kRoomsFilterUnread:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"unreadMessages > 0 AND isArchived == %@", @(_showingArchivedRooms)]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isVisible == YES AND unreadMessages > 0 AND isArchived == %@", @(_showingArchivedRooms)]];
         case kRoomsFilterMentioned:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hasUnreadMention == YES AND isArchived == %@", @(_showingArchivedRooms)]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isVisible == YES AND hasUnreadMention == YES AND isArchived == %@", @(_showingArchivedRooms)]];
+        case kRoomsFilterEvent:
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"objectType == 'event' AND isArchived == %@", @(_showingArchivedRooms)]];
         default:
-            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isArchived == %@", @(_showingArchivedRooms)]];
+            return [_allRooms filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"isVisible == YES AND isArchived == %@", @(_showingArchivedRooms)]];
     }
 }
 
@@ -755,6 +758,7 @@ typedef enum RoomsSections {
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterAll]];
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterUnread]];
     [filters addObject:[NSNumber numberWithInt:kRoomsFilterMentioned]];
+    [filters addObject:[NSNumber numberWithInt:kRoomsFilterEvent]];
 
     return [NSArray arrayWithArray:filters];
 }
@@ -768,6 +772,8 @@ typedef enum RoomsSections {
             return NSLocalizedString(@"Unread", @"'Unread' meaning 'Unread conversations'");
         case kRoomsFilterMentioned:
             return NSLocalizedString(@"Mentioned", @"'Mentioned' meaning 'Mentioned conversations'");
+        case kRoomsFilterEvent:
+            return NSLocalizedString(@"Event", @"'Event' meaning 'Conversations that were created from a calendar event'");
         default:
             return @"";
     }
@@ -1175,31 +1181,14 @@ typedef enum RoomsSections {
 
 - (void)deleteRoom:(NCRoom *)room
 {
-    UIAlertController *confirmDialog =
-    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Delete conversation", nil)
-                                        message:room.deletionMessage
-                                 preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        [[NCUserInterfaceController sharedInstance] presentConversationsList];
-
+    [[NCRoomsManager sharedInstance] deleteRoomWithConfirmation:room withStartedBlock:^{
         NSIndexPath *indexPath = [self indexPathForRoom:room];
 
         if (indexPath) {
             [self->_rooms removeObjectAtIndex:indexPath.row];
             [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
-
-        [[NCAPIController sharedInstance] deleteRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
-            if (error) {
-                NSLog(@"Error deleting room: %@", error.description);
-            }
-            [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
-        }];
-    }];
-    [confirmDialog addAction:confirmAction];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
-    [confirmDialog addAction:cancelAction];
-    [self presentViewController:confirmDialog animated:YES completion:nil];
+    } andWithFinishedBlock:nil];
 }
 
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
@@ -1514,7 +1503,14 @@ typedef enum RoomsSections {
     }
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
     cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
-    
+
+    // Event conversation handling
+    if ([room isFutureEvent]) {
+        cell.titleOnly = NO;
+        cell.subtitleLabel.text = [room eventStartString];
+        cell.dateLabel.text = @"";
+    }
+
     // Set unread messages
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag]) {
         BOOL mentioned = room.unreadMentionDirect || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;

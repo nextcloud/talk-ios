@@ -52,6 +52,8 @@ import SDWebImage
             completionBlock(UIImage(named: "file-avatar", in: nil, compatibleWith: traitCollection))
         } else if room.objectType == NCRoomObjectTypeSharePassword {
             completionBlock(UIImage(named: "password-avatar", in: nil, compatibleWith: traitCollection))
+        } else if room.objectType == NCRoomObjectTypeEvent {
+            completionBlock(UIImage(named: "event-avatar", in: nil, compatibleWith: traitCollection))
         } else {
             switch room.type {
             case .oneToOne:

@@ -308,7 +308,7 @@
 
 - (void)presentAlertViewController:(UIAlertController *)alertViewController
 {
-    if (_mainViewController.presentedViewController != nil) {
+    if (_mainViewController.presentedViewController != nil && !_mainViewController.presentedViewController.isBeingDismissed) {
         // When the callview is presented, we need to show the alert this way
         [_mainViewController.presentedViewController presentViewController:alertViewController animated:YES completion:nil];
     } else {

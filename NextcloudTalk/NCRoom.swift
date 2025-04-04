@@ -58,6 +58,56 @@ import Realm
         return false
     }
 
+    public var isEvent: Bool {
+        return self.objectType == NCRoomObjectTypeEvent
+    }
+
+    @nonobjc
+    public var eventTimestamps: (start: Int, end: Int)? {
+        // For event rooms the objectId looks like "<startTimestamp>#<endTimestamp>"
+        guard isEvent, self.objectId.contains("#") else { return nil }
+
+        let splitTimestamps = self.objectId.components(separatedBy: "#")
+
+        guard splitTimestamps.count == 2,
+              let startTimestamp = Int(splitTimestamps[0]),
+              let endTimestamp = Int(splitTimestamps[1]),
+              endTimestamp >= startTimestamp
+        else { return nil }
+
+        return (startTimestamp, endTimestamp)
+    }
+
+    @nonobjc
+    public var calendarEvent: CalendarEvent? {
+        guard let eventTimestamps else { return nil }
+
+        return CalendarEvent(calendarAppUrl: "", calendarUri: "", location: "", recurrenceId: "", start: eventTimestamps.start, end: eventTimestamps.end, summary: "", uri: "")
+    }
+
+    // TODO: Move to caller when migrated to swift
+    public var eventStartString: String? {
+        guard let start = self.eventTimestamps?.start else { return nil }
+
+        return Date(timeIntervalSince1970: TimeInterval(start)).futureRelativeTime()
+    }
+
+    // TODO: Move to caller when migrated to swift
+    public var isFutureEvent: Bool {
+        return self.calendarEvent?.isFutureEvent ?? false
+    }
+
+    public var isVisible: Bool {
+        // In case we have objectType 'event', but the calendar entry was not saved, we don't have a valid timestamp,
+        // in this case, we always show the room
+        guard isEvent, let eventTimestamps else { return true }
+
+        let sixteenHoursBeforeTimestamp = eventTimestamps.start - (16 * 3600)
+        let nowTimestamp = Int(Date().timeIntervalSince1970)
+
+        return nowTimestamp >= sixteenHoursBeforeTimestamp
+    }
+
     public var supportsFederatedCalling: Bool {
         guard self.isFederated else { return false }
 
@@ -155,7 +205,7 @@ import Realm
     }
 
     public var deletionMessage: String {
-        var message = NSLocalizedString("Do you really want to delete this conversation?", comment: "")
+        var message = NSLocalizedString("Do you really want to delete this conversation for everyone?", comment: "")
 
         if self.type == .oneToOne {
             message = String(format: NSLocalizedString("If you delete the conversation, it will also be deleted for %@", comment: ""), self.displayName)
