@@ -1322,36 +1322,34 @@ class CallViewController: UIViewController,
                 }))
             }
 
-            if #available(iOS 16.0, *) {
-                var currentItemsCount = 0
-                var temporaryReactionItems: [UIMenuElement] = []
-                var temporaryReactionMenus: [UIMenu] = []
+            var currentItemsCount = 0
+            var temporaryReactionItems: [UIMenuElement] = []
+            var temporaryReactionMenus: [UIMenu] = []
 
-                for reactionAction in reactionItems {
-                    currentItemsCount += 1
-                    temporaryReactionItems.append(reactionAction)
+            for reactionAction in reactionItems {
+                currentItemsCount += 1
+                temporaryReactionItems.append(reactionAction)
 
-                    if currentItemsCount >= 2 {
-                        let inlineReactionMenu = UIMenu(title: "", options: .displayInline, children: temporaryReactionItems)
-                        inlineReactionMenu.preferredElementSize = .small
-
-                        temporaryReactionMenus.append(inlineReactionMenu)
-                        temporaryReactionItems = []
-                        currentItemsCount = 0
-                    }
-                }
-
-                if currentItemsCount > 0 {
-                    // Add a last item, in case there's one
+                if currentItemsCount >= 2 {
                     let inlineReactionMenu = UIMenu(title: "", options: .displayInline, children: temporaryReactionItems)
                     inlineReactionMenu.preferredElementSize = .small
 
                     temporaryReactionMenus.append(inlineReactionMenu)
+                    temporaryReactionItems = []
+                    currentItemsCount = 0
                 }
-
-                // Replace the plain actions with the newly create inline menus
-                reactionItems = temporaryReactionMenus
             }
+
+            if currentItemsCount > 0 {
+                // Add a last item, in case there's one
+                let inlineReactionMenu = UIMenu(title: "", options: .displayInline, children: temporaryReactionItems)
+                inlineReactionMenu.preferredElementSize = .small
+
+                temporaryReactionMenus.append(inlineReactionMenu)
+            }
+
+            // Replace the plain actions with the newly create inline menus
+            reactionItems = temporaryReactionMenus
 
             let reactionMenu = UIMenu(title: NSLocalizedString("Send a reaction", comment: ""), image: .init(systemName: "face.smiling"), children: reactionItems)
             items.append(reactionMenu)
@@ -1378,12 +1376,8 @@ class CallViewController: UIViewController,
 
         // Background blur
         if !self.isAudioOnly {
-            var blurActionImage = UIImage(systemName: "person.crop.rectangle.fill")
+            var blurActionImage = UIImage(systemName: "person.and.background.dotted")
             var blurActionTitle = NSLocalizedString("Enable blur", comment: "")
-
-            if #available(iOS 16.0, *) {
-                blurActionImage = UIImage(systemName: "person.and.background.dotted")
-            }
 
             if callController.isBackgroundBlurEnabled() {
                 blurActionImage = UIImage(systemName: "person.crop.rectangle")

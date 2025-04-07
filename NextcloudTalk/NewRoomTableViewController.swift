@@ -54,9 +54,7 @@ enum NewRoomOption: Int {
         self.searchController.searchBar.tintColor = NCAppBranding.themeTextColor()
         self.navigationItem.searchController = searchController
         self.navigationItem.searchController?.searchBar.searchTextField.backgroundColor = NCUtils.searchbarBGColor(forColor: NCAppBranding.themeColor())
-        if #available(iOS 16.0, *) {
-            self.navigationItem.preferredSearchBarPlacement = .stacked
-        }
+        self.navigationItem.preferredSearchBarPlacement = .stacked
 
         if let searchTextField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
             searchTextField.tintColor = NCAppBranding.themeTextColor()
