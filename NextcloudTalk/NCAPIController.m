@@ -2705,8 +2705,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)checkWipeStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetWipeStatusCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/index.php/core/wipe/check", account.server];
+
+    NSString *token = [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId];
+    if (!token) {
+        if (block) {
+            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            block(NO, error);
+        }
+        return nil;
+    }
+
     NSDictionary *parameters = @{
-        @"token" : [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]
+        @"token" : token
     };
 
     NSURLSessionDataTask *task = [_defaultAPISessionManager POST:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -2726,8 +2736,18 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 - (NSURLSessionDataTask *)confirmWipeForAccount:(TalkAccount *)account withCompletionBlock:(ConfirmWipeCompletionBlock)block
 {
     NSString *URLString = [NSString stringWithFormat:@"%@/index.php/core/wipe/success", account.server];
+
+    NSString *token = [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId];
+    if (!token) {
+        if (block) {
+            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
+            block(error);
+        }
+        return nil;
+    }
+
     NSDictionary *parameters = @{
-        @"token" : [[NCKeyChainController sharedInstance] tokenForAccountId:account.accountId]
+        @"token" : token
     };
 
     NSURLSessionDataTask *task = [_defaultAPISessionManager POST:URLString parameters:parameters success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
