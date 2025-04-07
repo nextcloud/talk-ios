@@ -427,6 +427,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
     [[NCAPIController sharedInstance] getUserGroupsForAccount:account completionBlock:^(NSArray * _Nullable groupIds, NSError * _Nullable error) {
         if (!error) {
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCSetUserGroups" expirationHandler:nil];
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
@@ -438,6 +439,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
                 managedActiveAccount.groupIds = groupIds;
             }];
+            [bgTask stopBackgroundTask];
         } else {
             NSLog(@"Error while getting user's groups");
         }
@@ -445,6 +447,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
     [[NCAPIController sharedInstance] getUserTeamsForAccount:account completionBlock:^(NSArray * _Nullable teamIds, NSError * _Nullable error) {
         if (!error) {
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCSetUserTeams" expirationHandler:nil];
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
@@ -456,6 +459,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
                 managedActiveAccount.teamIds = teamIds;
             }];
+            [bgTask stopBackgroundTask];
         } else {
             NSLog(@"Error while getting user' teams");
         }
