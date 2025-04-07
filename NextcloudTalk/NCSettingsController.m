@@ -376,6 +376,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             if (!emailObject || [emailObject isEqual:[NSNull null]]) {
                 email = @"";
             }
+            BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCSetUserProfile" expirationHandler:nil];
             RLMRealm *realm = [RLMRealm defaultRealm];
             [realm transactionWithBlock:^{
                 NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
@@ -410,6 +411,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
                 block(nil);
             }];
+            [bgTask stopBackgroundTask];
         } else {
             NSLog(@"Error while getting the user profile");
             block(error);
