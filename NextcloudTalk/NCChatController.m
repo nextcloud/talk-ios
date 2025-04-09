@@ -147,7 +147,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         
         NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", message.internalId].firstObject;
         if (managedMessage) {
-            [NCChatMessage updateChatMessage:managedMessage withChatMessage:message isRoomLastMessage:NO];
+            [NCChatMessage updateChatMessage:managedMessage withChatMessage:message];
         } else if (message) {
             [realm addObject:message];
         }
@@ -156,7 +156,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         NCChatMessage *managedParentMessage = [NCChatMessage objectsWhere:@"internalId = %@", parent.internalId].firstObject;
         if (managedParentMessage) {
             // updateChatMessage takes care of not setting a parentId to nil if there was one before
-            [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent isRoomLastMessage:NO];
+            [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent];
         } else if (parent) {
             [realm addObject:parent];
         }

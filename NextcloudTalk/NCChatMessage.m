@@ -138,7 +138,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return message;
 }
 
-+ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage
 {
     int previewImageHeight = 0;
     int previewImageWidth = 0;
@@ -173,9 +173,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     managedChatMessage.lastEditActorDisplayName = chatMessage.lastEditActorDisplayName;
     managedChatMessage.lastEditTimestamp = chatMessage.lastEditTimestamp;
 
-    if (!isRoomLastMessage) {
-        managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
-    }
+    // Note: `reactionsSelfJSONString` should not be updated when done from `lastMessage`
+    // The code-path to do that was removed, but keeping a note for future reference
+    managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
     
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
@@ -656,7 +656,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
         void (^update)(void) = ^void(){
             NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.internalId].firstObject;
-            [NCChatMessage updateChatMessage:managedMessage withChatMessage:self isRoomLastMessage:NO];
+            [NCChatMessage updateChatMessage:managedMessage withChatMessage:self];
         };
 
         if ([realm inWriteTransaction]) {
