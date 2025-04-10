@@ -280,9 +280,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
     if (lastMessage) {
         NCChatMessage *managedLastMessage = [NCChatMessage objectsWhere:@"internalId = %@", lastMessage.internalId].firstObject;
-        if (managedLastMessage) {
-            [NCChatMessage updateChatMessage:managedLastMessage withChatMessage:lastMessage isRoomLastMessage:YES];
-        } else {
+        if (!managedLastMessage) {
             NCChatController *chatController = [[NCChatController alloc] initForRoom:room];
             [chatController storeMessages:@[messageDict] withRealm:realm];
         }
