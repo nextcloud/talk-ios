@@ -1577,6 +1577,7 @@ typedef enum RoomsSections {
         _showingArchivedRooms = !_showingArchivedRooms;
         [UIView transitionWithView:self.tableView duration:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
             [self filterRooms];
+            [self updateMentionsIndicator];
         } completion:nil];
         return;
     }
