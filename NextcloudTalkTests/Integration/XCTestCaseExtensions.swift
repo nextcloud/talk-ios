@@ -44,4 +44,31 @@ extension XCTestCase {
             completion?()
         }
     }
+
+    func createUniqueRoom(prefix: String, withAccount account: TalkAccount) async throws -> NCRoom {
+        let roomName = "\(prefix)-\(UUID().uuidString)"
+
+        return try await withCheckedThrowingContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: account, withInvite: nil, ofType: .public, andName: roomName) { room, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                XCTAssertEqual(roomName, room?.displayName)
+                continuation.resume(returning: room!)
+            }
+        }
+    }
+
+    func skipWithoutCapability(capability: String) throws {
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
+
+        guard serverCapabilities != nil else {
+            XCTFail("Capabilities are missing")
+            return
+        }
+
+        try XCTSkipIf(!NCDatabaseManager.sharedInstance().serverHasTalkCapability(capability), "Capability \(capability) not available -> skipping")
+    }
 }
