@@ -995,6 +995,9 @@
 "Failed to forward message" = "Failed to forward message";
 
 /* No comment provided by engineer. */
+"Failed to get calendar to schedule a meeting" = "Failed to get calendar to schedule a meeting";
+
+/* No comment provided by engineer. */
 "Failed to reject invitation" = "Failed to reject invitation";
 
 /* No comment provided by engineer. */
@@ -1109,7 +1112,19 @@
 "Internal note" = "Internal note";
 
 /* No comment provided by engineer. */
+"Invalid date range" = "Invalid date range";
+
+/* No comment provided by engineer. */
+"Invalid email address" = "Invalid email address";
+
+/* No comment provided by engineer. */
+"Invalid end date" = "Invalid end date";
+
+/* No comment provided by engineer. */
 "Invalid server address" = "Invalid server address";
+
+/* No comment provided by engineer. */
+"Invalid start date" = "Invalid start date";
 
 /* No comment provided by engineer. */
 "Invisible" = "Invisible";
@@ -1824,6 +1839,9 @@
 
 /* No comment provided by engineer. */
 "Short absence status" = "Short absence status";
+
+/* No comment provided by engineer. */
+"Short absence status is too long" = "Short absence status is too long";
 
 /* No comment provided by engineer. */
 "Show more…" = "Show more…";
