@@ -18,6 +18,7 @@
 		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
 		1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF82A68277C00921E90 /* CDMarkdownKit */; };
 		1F11FB7229C07B04001E21E7 /* NCZoomableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */; };
+		1F185CCC2DB0340100857139 /* IntegrationScheduleMeeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F185CCB2DB0340100857139 /* IntegrationScheduleMeeting.swift */; };
 		1F1B0F252BD94A0D003FD766 /* UnitDarwinCenterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */; };
 		1F1B0F272BDA61C5003FD766 /* AllocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */; };
 		1F1B0F2C2BDBB3AC003FD766 /* NCMediaViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1B0F2B2BDBB3AC003FD766 /* NCMediaViewerViewController.swift */; };
@@ -147,7 +148,7 @@
 		1F6D8C332B2E3756004376B8 /* IntegrationRoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C322B2E3756004376B8 /* IntegrationRoomTest.swift */; };
 		1F6D8C3D2B2F23C4004376B8 /* XCTestCaseExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C3C2B2F23C4004376B8 /* XCTestCaseExtensions.swift */; };
 		1F6D8C412B2F26D5004376B8 /* TestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C402B2F26D5004376B8 /* TestConstants.swift */; };
-		1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C422B2F26EE004376B8 /* Helpers.swift */; };
+		1F6D8C432B2F26EE004376B8 /* XCTestCaseExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C422B2F26EE004376B8 /* XCTestCaseExtensions.swift */; };
 		1F6D8C442B2F2791004376B8 /* TestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C402B2F26D5004376B8 /* TestConstants.swift */; };
 		1F6D8C492B2F2FB7004376B8 /* AAAALoginTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C472B2F2F69004376B8 /* AAAALoginTest.swift */; };
 		1F6D8C4B2B2F5B61004376B8 /* TestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6D8C4A2B2F5B61004376B8 /* TestBase.swift */; };
@@ -800,6 +801,7 @@
 		1F0B0A712BA264540073FF8D /* MentionSuggestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MentionSuggestion.swift; sourceTree = "<group>"; };
 		1F0B0A762BA26BE10073FF8D /* UnitMentionSuggestionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitMentionSuggestionTest.swift; sourceTree = "<group>"; };
 		1F11FB7129C07B04001E21E7 /* NCZoomableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCZoomableView.swift; sourceTree = "<group>"; };
+		1F185CCB2DB0340100857139 /* IntegrationScheduleMeeting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationScheduleMeeting.swift; sourceTree = "<group>"; };
 		1F1B0F242BD94A0D003FD766 /* UnitDarwinCenterTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitDarwinCenterTest.swift; sourceTree = "<group>"; };
 		1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllocationTracker.swift; sourceTree = "<group>"; };
 		1F1B0F2B2BDBB3AC003FD766 /* NCMediaViewerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCMediaViewerViewController.swift; sourceTree = "<group>"; };
@@ -889,7 +891,7 @@
 		1F6D8C322B2E3756004376B8 /* IntegrationRoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationRoomTest.swift; sourceTree = "<group>"; };
 		1F6D8C3C2B2F23C4004376B8 /* XCTestCaseExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCaseExtensions.swift; sourceTree = "<group>"; };
 		1F6D8C402B2F26D5004376B8 /* TestConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestConstants.swift; sourceTree = "<group>"; };
-		1F6D8C422B2F26EE004376B8 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		1F6D8C422B2F26EE004376B8 /* XCTestCaseExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCaseExtensions.swift; sourceTree = "<group>"; };
 		1F6D8C472B2F2F69004376B8 /* AAAALoginTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAAALoginTest.swift; sourceTree = "<group>"; };
 		1F6D8C4A2B2F5B61004376B8 /* TestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestBase.swift; sourceTree = "<group>"; };
 		1F6D8C4C2B2F8FE5004376B8 /* IntegrationChatTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntegrationChatTest.swift; sourceTree = "<group>"; };
@@ -1657,11 +1659,12 @@
 		1F6D8C3A2B2F236D004376B8 /* Integration */ = {
 			isa = PBXGroup;
 			children = (
-				1F6D8C422B2F26EE004376B8 /* Helpers.swift */,
+				1F6D8C422B2F26EE004376B8 /* XCTestCaseExtensions.swift */,
 				1F6D8C4A2B2F5B61004376B8 /* TestBase.swift */,
 				1F6D8C322B2E3756004376B8 /* IntegrationRoomTest.swift */,
 				1F6629F92C17700E001C6C0E /* IntegrationRoomsManagerTest.swift */,
 				1F6D8C4C2B2F8FE5004376B8 /* IntegrationChatTest.swift */,
+				1F185CCB2DB0340100857139 /* IntegrationScheduleMeeting.swift */,
 			);
 			path = Integration;
 			sourceTree = "<group>";
@@ -3000,9 +3003,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3017,9 +3024,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3086,6 +3097,7 @@
 				1F6D8C4D2B2F8FE5004376B8 /* IntegrationChatTest.swift in Sources */,
 				1F96D5AE2D92E41F0088331F /* UnitNCRooms.swift in Sources */,
 				1FB7B9892BE442400093CE98 /* UnitBaseChatTableViewCellTest.swift in Sources */,
+				1F185CCC2DB0340100857139 /* IntegrationScheduleMeeting.swift in Sources */,
 				1F5CDAE72B3B05110040ECC0 /* UnitColorGeneratorTest.swift in Sources */,
 				1F1DF8412C63C25900E5EA86 /* UnitNCDatabaseManager.swift in Sources */,
 				1FF4DAA82C08DE3A00C1B952 /* UnitNCRoomsManagerTest.swift in Sources */,
@@ -3096,7 +3108,7 @@
 				1FEF49B62D4D3C37001B400A /* UnitNCMessageParameterTest.swift in Sources */,
 				1F8AAC622C596308004DA20A /* UnitSignalingSettings.swift in Sources */,
 				1F0B0A772BA26BE10073FF8D /* UnitMentionSuggestionTest.swift in Sources */,
-				1F6D8C432B2F26EE004376B8 /* Helpers.swift in Sources */,
+				1F6D8C432B2F26EE004376B8 /* XCTestCaseExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
