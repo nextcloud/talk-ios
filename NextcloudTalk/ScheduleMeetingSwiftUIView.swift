@@ -259,6 +259,14 @@ struct ScheduleMeetingSwiftUIView: View {
             attendeeIds = selectedParticipants.map(\.attendeeId)
         }
 
+        // Work around for a SwiftUI bug in DatePicker
+        // The UI does not allow to pick an end date smaller than (start + 15 min). We can still
+        // end up in this situation, if only the start date was modified, but not the end date.
+        // Therefore it can only happen if end should be (start + 15 min), so we set it here again
+        if start >= end {
+            end = start.addingTimeInterval(60 * 15)
+        }
+
         isCreatingMeeting = true
         NCAPIController.sharedInstance().createMeeting(
             account: account,
@@ -269,15 +277,32 @@ struct ScheduleMeetingSwiftUIView: View {
             end: Int(end.timeIntervalSince1970),
             calendarUri: calendarUri,
             attendeeIds: attendeeIds
-        ) { error in
+        ) { response in
             self.isCreatingMeeting = false
-            if error == nil {
-                onMeetingCreationSuccess?()
-                NotificationPresenter.shared().present(text: NSLocalizedString("Meeting created", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
-                dismiss()
-            } else {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not create meeting", comment: ""), withMessage: NSLocalizedString("An error occurred while creating the meeting", comment: ""))
+
+            guard response == .success else {
+                var errorMessage: String
+
+                switch response {
+                case .calendarError:
+                    errorMessage = NSLocalizedString("Failed to get calendar to schedule a meeting", comment: "")
+                case .emailError:
+                    errorMessage = NSLocalizedString("Invalid email address", comment: "")
+                case .startError:
+                    errorMessage = NSLocalizedString("Invalid start date", comment: "")
+                case .endError:
+                    errorMessage = NSLocalizedString("Invalid end date", comment: "")
+                default:
+                    errorMessage = NSLocalizedString("An error occurred while creating the meeting", comment: "")
+                }
+
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not create meeting", comment: ""), withMessage: errorMessage)
+                return
             }
+
+            onMeetingCreationSuccess?()
+            NotificationPresenter.shared().present(text: NSLocalizedString("Meeting created", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+            dismiss()
         }
     }
 }
