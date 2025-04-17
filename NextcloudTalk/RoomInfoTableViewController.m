@@ -390,11 +390,9 @@ typedef enum FileAction {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [actions addObject:[NSNumber numberWithInt:kNotificationActionChatNotifications]];
     }
-    // Call notifications action
-    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityNotificationCalls forRoom:self.room] &&
-        [[NCDatabaseManager sharedInstance] roomTalkCapabilitiesForRoom:self.room].callEnabled &&
-        ![self.room isFederated]) {
 
+    // Call notifications action
+    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityNotificationCalls forRoom:self.room] && [_room supportsCalling]) {
         [actions addObject:[NSNumber numberWithInt:kNotificationActionCallNotifications]];
     }
 
