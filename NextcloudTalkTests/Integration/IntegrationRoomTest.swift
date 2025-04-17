@@ -260,4 +260,47 @@ final class IntegrationRoomTest: TestBase {
 
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
+
+    func testRoomImportantConversation() async throws {
+        try skipWithoutCapability(capability: kCapabilityImportantConversations)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "ImportantConversation", withAccount: activeAccount)
+
+        // Set to important
+        var exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().setImportantState(enabled: true, forRoom: room.token, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token) { roomDict, error in
+                XCTAssertNil(error)
+
+                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
+                XCTAssertNotNil(room)
+                XCTAssertTrue(room?.isImportant ?? false)
+
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+
+        // Set to unimportant again
+        exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().setImportantState(enabled: false, forRoom: room.token, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token) { roomDict, error in
+                XCTAssertNil(error)
+
+                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
+                XCTAssertNotNil(room)
+                XCTAssertFalse(room?.isImportant ?? true)
+
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
 }
