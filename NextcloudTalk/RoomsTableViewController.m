@@ -1055,7 +1055,10 @@ typedef enum RoomsSections {
         [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
             if (error) {
                 NSLog(@"Error renaming the room: %@", error.description);
+            } else {
+                [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
             }
+
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
         }];
     }];
@@ -1660,12 +1663,62 @@ typedef enum RoomsSections {
 
         NSMutableArray *notificationActions = [[NSMutableArray alloc] init];
 
+        // Chat notification settings
         [notificationActions addObject:[self actionForNotificationLevel:kNCRoomNotificationLevelAlways forRoom:room]];
         [notificationActions addObject:[self actionForNotificationLevel:kNCRoomNotificationLevelMention forRoom:room]];
         [notificationActions addObject:[self actionForNotificationLevel:kNCRoomNotificationLevelNever forRoom:room]];
 
-        NSString *notificationTitle = [NSString stringWithFormat:NSLocalizedString(@"Notifications: %@", nil), room.notificationLevelString];
-        UIMenu *notificationMenu = [UIMenu menuWithTitle:notificationTitle
+        // Call notification
+        if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityNotificationCalls forRoom:room] && [room supportsCalling]) {
+            UIAction *callNotificationAction = [UIAction actionWithTitle:NSLocalizedString(@"Notify about calls", nil) image:nil identifier:nil handler:^(UIAction *action) {
+                BOOL newState = !(action.state == UIMenuElementStateOn);
+
+                [[NCAPIController sharedInstance] setCallNotificationEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+                    if (error) {
+                        NSLog(@"Error setting call notification: %@", error.description);
+                    } else {
+                        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+                    }
+
+                    [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+                }];
+            }];
+
+            if (room.notificationCalls) {
+                callNotificationAction.state = UIMenuElementStateOn;
+            }
+
+            UIMenu *callNotificationMenu = [UIMenu menuWithTitle:nil image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[callNotificationAction]];
+            [notificationActions addObject:callNotificationMenu];
+        }
+
+        // Important conversation
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityImportantConversations]) {
+            UIAction *importantConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Important conversation", nil) image:nil identifier:nil handler:^(UIAction *action) {
+                BOOL newState = !(action.state == UIMenuElementStateOn);
+
+                [[NCAPIController sharedInstance] setImportantStateWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {
+                    if (error) {
+                        NSLog(@"Error setting call notification: %@", error.description);
+                    } else {
+                        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+                    }
+
+                    [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+                }];
+            }];
+
+            importantConversationAction.subtitle = NSLocalizedString(@"'Do not disturb' user status is ignored for important conversations", nil);
+
+            if (room.isImportant) {
+                importantConversationAction.state = UIMenuElementStateOn;
+            }
+
+            UIMenu *importantConversationMenu = [UIMenu menuWithTitle:nil image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[importantConversationAction]];
+            [notificationActions addObject:importantConversationMenu];
+        }
+
+        UIMenu *notificationMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Notifications", nil)
                                                    image:[UIImage systemImageNamed:@"bell"]
                                               identifier:nil
                                                  options:0
