@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 76;
+uint64_t const kTalkDatabaseSchemaVersion           = 77;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -83,6 +83,7 @@ NSString * const kCapabilityTalkPollsDrafts         = @"talk-polls-drafts";
 NSString * const kCapabilityEditDraftPoll           = @"edit-draft-poll";
 NSString * const kCapabilityScheduleMeeting         = @"schedule-meeting";
 NSString * const kCapabilityConversationCreationAll = @"conversation-creation-all";
+NSString * const kCapabilityImportantConversations  = @"important-conversations";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";
