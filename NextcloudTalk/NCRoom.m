@@ -66,6 +66,7 @@ NSString * const NCRoomObjectTypeEvent          = @"event";
     room.remoteToken = [roomDict objectForKey:@"remoteToken"];
     room.mentionPermissions = [[roomDict objectForKey:@"mentionPermissions"] integerValue];
     room.isArchived = [[roomDict objectForKey:@"isArchived"] boolValue];
+    room.isImportant = [[roomDict objectForKey:@"isImportant"] boolValue];
 
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -180,6 +181,7 @@ NSString * const NCRoomObjectTypeEvent          = @"event";
     managedRoom.remoteServer = room.remoteServer;
     managedRoom.mentionPermissions = room.mentionPermissions;
     managedRoom.isArchived = room.isArchived;
+    managedRoom.isImportant = room.isImportant;
 }
 
 + (NSString *)primaryKey {
