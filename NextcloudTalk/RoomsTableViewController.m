@@ -1697,7 +1697,7 @@ typedef enum RoomsSections {
             UIAction *importantConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Important conversation", nil) image:nil identifier:nil handler:^(UIAction *action) {
                 BOOL newState = !(action.state == UIMenuElementStateOn);
 
-                [[NCAPIController sharedInstance] setImportantStateWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {
+                [[NCAPIController sharedInstance] setImportantStateWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
                     if (error) {
                         NSLog(@"Error setting call notification: %@", error.description);
                     } else {

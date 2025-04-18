@@ -892,7 +892,7 @@ typedef enum FileAction {
 - (void)setImportantConversationEnabled:(BOOL)enabled
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] setImportantStateWithEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {
+    [[NCAPIController sharedInstance] setImportantStateWithEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
