@@ -55,8 +55,9 @@ import Foundation
     }
 
     @discardableResult
-    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, progress downloadProgress: ((Progress) -> Void)? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
-        return self.get(URLString, parameters: parameters, progress: downloadProgress) { task, data in
+    @available(*, renamed: "getOcs()")
+    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
+        return self.get(URLString, parameters: parameters, progress: nil) { task, data in
             if checkResponseHeaders {
                 self.checkHeaders(for: task, for: account)
             }
@@ -72,8 +73,9 @@ import Foundation
     }
 
     @discardableResult
-    public func postOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, progress downloadProgress: ((Progress) -> Void)? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
-        return self.post(URLString, parameters: parameters, progress: downloadProgress) { task, data in
+    @available(*, renamed: "postOcs()")
+    public func postOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
+        return self.post(URLString, parameters: parameters, progress: nil) { task, data in
             completion?(OcsResponse(withData: data, withTask: task), nil)
         } failure: { task, error in
             if checkResponseStatusCode, let task {
@@ -85,6 +87,7 @@ import Foundation
     }
 
     @discardableResult
+    @available(*, renamed: "putOcs()")
     public func putOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
         return self.put(URLString, parameters: parameters) { task, data in
             completion?(OcsResponse(withData: data, withTask: task), nil)
@@ -98,6 +101,7 @@ import Foundation
     }
 
     @discardableResult
+    @available(*, renamed: "deleteOcs()")
     public func deleteOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
         return self.delete(URLString, parameters: parameters) { task, data in
             completion?(OcsResponse(withData: data, withTask: task), nil)
@@ -107,6 +111,60 @@ import Foundation
             }
 
             completion?(nil, OcsError(withError: error as NSError, withTask: task))
+        }
+    }
+
+    // MARK: - Async/Await wrapper
+
+    @discardableResult
+    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            getOcs(URLString, account: account, parameters: parameters, checkResponseStatusCode: checkResponseStatusCode) { response, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let response {
+                    continuation.resume(returning: response)
+                }
+            }
+        }
+    }
+
+    @discardableResult
+    public func postOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            postOcs(URLString, account: account, parameters: parameters, checkResponseStatusCode: checkResponseStatusCode) { response, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let response {
+                    continuation.resume(returning: response)
+                }
+            }
+        }
+    }
+
+    @discardableResult
+    public func putOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            putOcs(URLString, account: account, parameters: parameters, checkResponseStatusCode: checkResponseStatusCode) { response, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let response {
+                    continuation.resume(returning: response)
+                }
+            }
+        }
+    }
+
+    @discardableResult
+    public func deleteOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            deleteOcs(URLString, account: account, parameters: parameters, checkResponseStatusCode: checkResponseStatusCode) { response, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let response {
+                    continuation.resume(returning: response)
+                }
+            }
         }
     }
 }

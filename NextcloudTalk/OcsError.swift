@@ -5,7 +5,7 @@
 
 import Foundation
 
-@objcMembers public class OcsError: NSObject {
+@objcMembers public class OcsError: NSObject, CustomNSError {
 
     let error: NSError
     let task: URLSessionDataTask?
@@ -41,6 +41,15 @@ import Foundation
     lazy var errorMessage: String? = {
         return dataDict?["message"] as? String
     }()
+
+    // Implement CustomNSError to acces this class from ObjC as well
+    public var errorUserInfo: [String: Any] {
+        return [ "ocsError": self ]
+    }
+
+    public override var description: String {
+        return error.description
+    }
 
     init(withError error: NSError, withTask task: URLSessionDataTask?) {
         self.error = error
