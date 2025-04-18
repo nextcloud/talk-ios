@@ -268,39 +268,11 @@ final class IntegrationRoomTest: TestBase {
         let room = try await createUniqueRoom(prefix: "ImportantConversation", withAccount: activeAccount)
 
         // Set to important
-        var exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().setImportantState(enabled: true, forRoom: room.token, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
-
-            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token) { roomDict, error in
-                XCTAssertNil(error)
-
-                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
-                XCTAssertNotNil(room)
-                XCTAssertTrue(room?.isImportant ?? false)
-
-                exp.fulfill()
-            }
-        }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+        var updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: true, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertTrue(try XCTUnwrap(updatedRoom).isImportant)
 
         // Set to unimportant again
-        exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().setImportantState(enabled: false, forRoom: room.token, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
-
-            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token) { roomDict, error in
-                XCTAssertNil(error)
-
-                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
-                XCTAssertNotNil(room)
-                XCTAssertFalse(room?.isImportant ?? true)
-
-                exp.fulfill()
-            }
-        }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+        updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: false, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertFalse(try XCTUnwrap(updatedRoom).isImportant)
     }
 }
