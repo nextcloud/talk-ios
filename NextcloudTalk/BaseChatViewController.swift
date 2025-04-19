@@ -252,6 +252,7 @@ import SwiftUI
         self.leftButton.setImage(UIImage(systemName: "paperclip"), for: .normal)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
         self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
+        self.leftButton.accessibilityIdentifier = "shareButton"
 
         // Add LongPressRecognizer to allow showing photo picker directly
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(gestureRecognizer:)))

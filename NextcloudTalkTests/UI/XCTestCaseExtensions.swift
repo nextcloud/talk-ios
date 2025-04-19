@@ -8,38 +8,42 @@ import XCTest
 
 extension XCTestCase {
 
-    func waitForEnabled(object: Any?) {
-        let enabledPredicate = NSPredicate(format: "enabled == true")
+    @discardableResult
+    func waitForReady(object: XCUIElement, timeout: Double = TestConstants.timeoutShort) -> XCUIElement {
+        let enabledPredicate = NSPredicate(format: "exists == true AND enabled == true AND hittable == true")
         expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-    }
+        waitForExpectations(timeout: timeout, handler: nil)
 
-    func waitForHittable(object: Any?) {
-        let enabledPredicate = NSPredicate(format: "hittable == true")
-        expectation(for: enabledPredicate, evaluatedWith: object, handler: nil)
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+        return object
     }
 
     // Based on https://stackoverflow.com/a/47947315
     @discardableResult
-    func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement? {
+    func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement {
         let startTime = NSDate.timeIntervalSinceReferenceDate
-        while !elementA.exists && !elementB.exists { // while neither element exists
+        while !(elementA.exists && elementA.isHittable) && !(elementB.exists && elementB.isHittable) { // while neither element exists
             if NSDate.timeIntervalSinceReferenceDate - startTime > timeout {
                 XCTFail("Timed out waiting for either element to exist.")
                 break
             }
-            sleep(1)
+            usleep(500)
         }
 
-        if elementA.exists { return elementA }
-        if elementB.exists { return elementB }
-        return nil
+        if elementA.exists {
+            return elementA
+        }
+
+        if !elementB.exists {
+            XCTFail("Unknown failure while waiting for either element to exist.")
+        }
+
+        return elementB
     }
 
     @discardableResult
     func launchAndLogin() -> XCUIApplication {
         let app = XCUIApplication()
+
         app.launchArguments += ["-AppleLanguages", "(en-US)"]
         app.launchArguments += ["-AppleLocale", "\"en-US\""]
         app.launchArguments += ["-TestEnvironment"]
@@ -50,7 +54,6 @@ extension XCTestCase {
 
         // Wait shortly until the app is fully started
         let foundElement = waitForEitherElementToExist(accountSwitcherButton, serverAddressHttpsTextField, TestConstants.timeoutLong)
-        XCTAssertNotNil(foundElement)
 
         // When the account switcher button exists, we have atleast one account configured
         if foundElement == accountSwitcherButton {
@@ -64,18 +67,17 @@ extension XCTestCase {
         XCTAssert(loginButton.waitForExistence(timeout: TestConstants.timeoutLong))
         loginButton.tap()
 
-        let webViewsQuery = app.webViews.webViews.webViews
+        let loginWebview = app.webViews["interactiveWebLoginView"]
+        waitForReady(object: loginWebview, timeout: TestConstants.timeoutLong)
 
         // Wait for the login button to be available and to get enabled/hittable
-        let loginButtonWeb = webViewsQuery.buttons["Log in"]
-        XCTAssert(loginButtonWeb.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabled(object: loginButtonWeb)
-        waitForHittable(object: loginButtonWeb)
+        let loginButtonWeb = loginWebview.buttons["Log in"]
+        waitForReady(object: loginButtonWeb, timeout: TestConstants.timeoutLong)
 
         loginButtonWeb.tap()
 
-        let usernameTextField = webViewsQuery.descendants(matching: .textField).firstMatch
-        let passwordTextField = webViewsQuery.descendants(matching: .secureTextField).firstMatch
+        let usernameTextField = loginWebview.descendants(matching: .textField).firstMatch
+        let passwordTextField = loginWebview.descendants(matching: .secureTextField).firstMatch
 
         XCTAssert(usernameTextField.waitForExistence(timeout: TestConstants.timeoutLong))
         XCTAssert(passwordTextField.waitForExistence(timeout: TestConstants.timeoutLong))
@@ -86,32 +88,26 @@ extension XCTestCase {
         passwordTextField.tap()
         passwordTextField.typeText(TestConstants.password + "\n")
 
-        let accountAccess = webViewsQuery.staticTexts["Account access"]
+        let accountAccess = loginWebview.staticTexts["Account access"]
         XCTAssert(accountAccess.waitForExistence(timeout: TestConstants.timeoutLong))
 
-        let grantAccessButton = webViewsQuery.buttons["Grant access"]
-        XCTAssert(grantAccessButton.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabled(object: grantAccessButton)
-        waitForHittable(object: grantAccessButton)
+        let grantAccessButton = loginWebview.buttons["Grant access"]
+        waitForReady(object: grantAccessButton, timeout: TestConstants.timeoutLong)
 
-        // TODO: Find a better way to reliable detect if the grant access button is tappable
-        sleep(5)
+        // Wait again for the webview to be ready
+        waitForReady(object: loginWebview)
 
         grantAccessButton.tap()
 
         // When the account switcher gets enabled, we have atleast 1 account in the app and are online
-        XCTAssert(accountSwitcherButton.waitForExistence(timeout: TestConstants.timeoutLong))
-        waitForEnabled(object: accountSwitcherButton)
+        waitForReady(object: accountSwitcherButton, timeout: TestConstants.timeoutLong)
 
         return app
     }
 
     func createConversation(for app: XCUIApplication, with newConversationName: String) {
-        app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"].tap()
-
-        let createNewConversationCell = app.tables.cells.staticTexts["Create a new conversation"]
-        XCTAssert(createNewConversationCell.waitForExistence(timeout: TestConstants.timeoutShort))
-        createNewConversationCell.tap()
+        waitForReady(object: app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"]).tap()
+        waitForReady(object: app.tables.cells.staticTexts["Create a new conversation"]).tap()
 
         let newConversationNavBar = app.navigationBars["New conversation"]
         XCTAssert(newConversationNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
