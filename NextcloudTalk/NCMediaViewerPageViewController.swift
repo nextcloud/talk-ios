@@ -127,7 +127,12 @@ import SwiftyGif
     }
 
     deinit {
+        self.removePlayerViewControllerIfNeeded()
         AllocationTracker.shared.removeAllocation("NCMediaViewerPageViewController")
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        self.playerViewController?.player?.pause()
     }
 
     override func viewDidLayoutSubviews() {
@@ -257,6 +262,7 @@ import SwiftyGif
 
     private func removePlayerViewControllerIfNeeded() {
         if let playerVC = self.playerViewController {
+            playerVC.player?.replaceCurrentItem(with: nil)
             playerVC.willMove(toParent: nil)
             playerVC.view.removeFromSuperview()
             playerVC.removeFromParent()
