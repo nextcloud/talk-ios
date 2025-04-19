@@ -578,21 +578,37 @@ import Foundation
         }
     }
 
+    public enum SetUserAbsenceResponse: Int {
+        case unknownError = 0
+        case success = 1
+        case statusLengthError = 2
+        case firstDayError = 3
+
+        init(errorKey: String?) {
+            switch errorKey {
+            case nil: self = .success
+            case "statusLength": self = .statusLengthError
+            case "firstDay": self = .firstDayError
+            default: self = .unknownError
+            }
+        }
+    }
+
     @nonobjc
-    public func setUserAbsence(forAccountId accountId: String, forUserId userId: String, withAbsence absenceData: UserAbsence, completionBlock: @escaping (_ success: Bool) -> Void) {
+    public func setUserAbsence(forAccountId accountId: String, forUserId userId: String, withAbsence absenceData: UserAbsence, completionBlock: @escaping (_ response: SetUserAbsenceResponse) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let absenceDictionary = absenceData.asDictionary()
         else {
-            completionBlock(false)
+            completionBlock(.unknownError)
             return
         }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)"
 
         apiSessionManager.postOcs(urlString, account: account, parameters: absenceDictionary) { _, ocsError in
-            completionBlock(ocsError == nil)
+            completionBlock(SetUserAbsenceResponse(errorKey: ocsError?.errorKey))
         }
     }
 

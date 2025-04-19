@@ -34,6 +34,10 @@ import Foundation
         return ocsDict?["data"] as? [String: AnyObject]
     }()
 
+    lazy var errorKey: String? = {
+        return dataDict?["error"] as? String
+    }()
+
     lazy var errorMessage: String? = {
         return dataDict?["message"] as? String
     }()
