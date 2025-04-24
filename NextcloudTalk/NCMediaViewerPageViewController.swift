@@ -124,6 +124,14 @@ import SwiftyGif
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
     }
 
+    deinit {
+        self.removePlayerViewControllerIfNeeded()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        self.playerViewController?.player?.pause()
+    }
+
     override func viewDidLayoutSubviews() {
         // Make sure we have the correct bounds and center the view correctly
         self.zoomableView.resizeContentView()
@@ -251,6 +259,7 @@ import SwiftyGif
 
     private func removePlayerViewControllerIfNeeded() {
         if let playerVC = self.playerViewController {
+            playerVC.player?.replaceCurrentItem(with: nil)
             playerVC.willMove(toParent: nil)
             playerVC.view.removeFromSuperview()
             playerVC.removeFromParent()
