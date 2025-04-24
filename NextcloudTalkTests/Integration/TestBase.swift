@@ -67,9 +67,15 @@ class TestBase: XCTestCase {
             NCSettingsController.sharedInstance().addNewAccount(forUser: TestConstants.username, withToken: appToken, inServer: TestConstants.server)
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             let exp = expectation(description: "\(#function)\(#line)")
+            exp.expectedFulfillmentCount = 2
 
             // Make sure the capabilities are up to date
             NCSettingsController.sharedInstance().getCapabilitiesForAccountId(activeAccount.accountId) { _ in
+                exp.fulfill()
+            }
+
+            // Fetch to user profile to have a complete account object
+            NCSettingsController.sharedInstance().getUserProfile(forAccountId: activeAccount.accountId) { _ in
                 exp.fulfill()
             }
 

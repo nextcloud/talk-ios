@@ -94,15 +94,35 @@ struct UserStatusAbsenceSwiftUIView: View {
     }
 
     func setActiveUserStatus() {
+        // Work around for a SwiftUI bug in DatePicker
+        // The UI does not allow to pick an end date smaller than start. We can still
+        // end up in this situation, if only the start date was modified, but not the end date.
+        // Therefore it can only happen if end should be equal to start, so we set it here again
+        if self.absenceStatus.firstDay >= self.absenceStatus.lastDay {
+            self.absenceStatus.lastDay = self.absenceStatus.firstDay
+        }
+
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().setUserAbsence(forAccountId: activeAccount.accountId, forUserId: activeAccount.user, withAbsence: self.absenceStatus) { success in
-            if success {
-                dismiss()
-                changed.toggle()
-                AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
-            } else {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not set absence", comment: ""), withMessage: NSLocalizedString("An error occurred while setting absence", comment: ""))
+        NCAPIController.sharedInstance().setUserAbsence(forAccountId: activeAccount.accountId, forUserId: activeAccount.user, withAbsence: self.absenceStatus) { response in
+            guard response == .success else {
+                var errorMessage: String
+
+                switch response {
+                case .firstDayError:
+                    errorMessage = NSLocalizedString("Invalid date range", comment: "")
+                case .statusLengthError:
+                    errorMessage = NSLocalizedString("Short absence status is too long", comment: "")
+                default:
+                    errorMessage = NSLocalizedString("An error occurred while setting absence", comment: "")
+                }
+
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not set absence", comment: ""), withMessage: errorMessage)
+                return
             }
+
+            dismiss()
+            changed.toggle()
+            AppStoreReviewController.recordAction(AppStoreReviewController.updateStatus)
         }
     }
 

@@ -76,11 +76,34 @@ extension NCAPIController {
         return writableCalendars
     }
 
+    public enum CreateMeetingResponse: Int {
+        case unknownError = 0
+        case success = 1
+        case calendarError = 2
+        case emailError = 3
+        case startError = 4
+        case endError = 5
+
+        init(errorKey: String?) {
+            switch errorKey {
+            case nil: self = .success
+            case "calendar": self = .calendarError
+            case "email": self = .emailError
+            case "start": self = .startError
+            case "end": self = .endError
+            default: self = .unknownError
+            }
+        }
+    }
+
     // swiftlint:disable function_parameter_count
-    public func createMeeting(account: TalkAccount, token: String, title: String?, description: String?, start: Int, end: Int, calendarUri: String, attendeeIds: [Int]?, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func createMeeting(account: TalkAccount, token: String, title: String?, description: String?, start: Int, end: Int, calendarUri: String, attendeeIds: [Int]?, completionBlock: @escaping (_ error: CreateMeetingResponse) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        else { return }
+        else {
+            completionBlock(.unknownError)
+            return
+        }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/meeting", for: account)
         var parameters: [String: Any] = ["calendarUri": calendarUri]
@@ -99,9 +122,8 @@ extension NCAPIController {
             parameters["attendeeIds"] = attendeeIds
         }
 
-        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
-            completionBlock(ocsError?.error)
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(CreateMeetingResponse(errorKey: ocsError?.errorKey))
         }
     }
 }
