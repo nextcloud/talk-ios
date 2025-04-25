@@ -263,18 +263,20 @@
     [roomBuilder objecType:NCRoomObjectTypeExtendedConversation];
     [roomBuilder objectId:_room.token];
 
+    // Create the other participant of the 1:1 room from room object
     NCUser *user = [[NCUser alloc] init];
     user.userId = _room.name;
     user.name = _room.displayName;
     user.source = kParticipantTypeUser;
 
-    NSArray *participants = [_selectedParticipants arrayByAddingObject:user];
+    // Add the other participant of the 1:1 room at the beginning of the selected participants array
+    NSArray *participants = [@[user] arrayByAddingObjectsFromArray:_selectedParticipants];
     [roomBuilder participants:participants];
 
+    // Create the room name [Actor who extends the 1:1 room, other participant of the 1:1 room, selected participants...]
     NSMutableArray *namesArray = [NSMutableArray arrayWithArray:[participants valueForKey:@"name"]];
-    [namesArray addObject:_room.account.userDisplayName];
-    NSArray *sortedNamesArray = [namesArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    NSString *roomName = [sortedNamesArray componentsJoinedByString:@", "];
+    [namesArray insertObject:_room.account.userDisplayName atIndex:0];
+    NSString *roomName = [namesArray componentsJoinedByString:@", "];
     // Ensure the roomName does not exceed 255 characters limit.
     if (roomName.length > 255) {
         roomName = [[roomName substringToIndex:254] stringByAppendingString:@"…"];
