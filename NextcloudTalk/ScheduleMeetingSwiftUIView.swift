@@ -322,6 +322,11 @@ struct SelectParticipantsView: View {
             }
         }
         .navigationTitle("Meeting attendees")
+        .overlay {
+            if selectedParticipants.isEmpty {
+                Text("No participants found").foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
