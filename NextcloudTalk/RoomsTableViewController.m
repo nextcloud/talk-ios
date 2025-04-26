@@ -16,7 +16,6 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCConnectionController.h"
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCRoomsManager.h"
@@ -158,8 +157,8 @@ typedef enum RoomsSections {
     [NSLayoutConstraint activateConstraints:@[[_unreadMentionsBottomButton.centerXAnchor constraintEqualToAnchor:margins.centerXAnchor]]];
     [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.safeAreaLayoutGuide.bottomAnchor constant:-20]];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NSNotification.NCAppStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NSNotification.NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesUpdated:) name:NCServerCapabilitiesUpdatedNotification object:nil];
@@ -250,8 +249,8 @@ typedef enum RoomsSections {
 {
     [super viewDidAppear:animated];
 
-    [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
-    [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
+    [self adaptInterfaceForAppState:[NCConnectionController shared].appState];
+    [self adaptInterfaceForConnectionState:[NCConnectionController shared].connectionState];
 
     if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
         [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
@@ -351,7 +350,7 @@ typedef enum RoomsSections {
 
 - (void)appWillEnterForeground:(NSNotification *)notification
 {
-    if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
+    if ([NCConnectionController shared].appState == AppStateReady) {
         [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
         [self startRefreshRoomsTimer];
 
@@ -406,7 +405,7 @@ typedef enum RoomsSections {
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
-    if ([NCConnectionController sharedInstance].connectionState == kConnectionStateConnected) {
+    if ([NCConnectionController shared].connectionState == ConnectionStateConnected) {
         [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:nil];
     }
 
@@ -811,17 +810,17 @@ typedef enum RoomsSections {
 - (void)adaptInterfaceForAppState:(AppState)appState
 {
     switch (appState) {
-        case kAppStateNotServerProvided:
-        case kAppStateMissingUserProfile:
-        case kAppStateMissingServerCapabilities:
-        case kAppStateMissingSignalingConfiguration:
+        case AppStateNoServerProvided:
+        case AppStateMissingUserProfile:
+        case AppStateMissingServerCapabilities:
+        case AppStateMissingSignalingConfiguration:
         {
             // Clear active user status when changing users
             _activeUserStatus = nil;
             [self setProfileButton];
         }
             break;
-        case kAppStateReady:
+        case AppStateReady:
         {
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
@@ -840,13 +839,13 @@ typedef enum RoomsSections {
 - (void)adaptInterfaceForConnectionState:(ConnectionState)connectionState
 {
     switch (connectionState) {
-        case kConnectionStateConnected:
+        case ConnectionStateConnected:
         {
             [self setOnlineAppearance];
         }
             break;
             
-        case kConnectionStateDisconnected:
+        case ConnectionStateDisconnected:
         {
             [self setOfflineAppearance];
         }

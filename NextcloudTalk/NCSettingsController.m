@@ -18,7 +18,6 @@
 
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCExternalSignalingController.h"
 #import "NCKeyChainController.h"
@@ -143,7 +142,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCDatabaseManager sharedInstance] setActiveAccountWithAccountId:accountId];
     [[NCDatabaseManager sharedInstance] resetUnreadBadgeNumberForAccountId:accountId];
     [[NCNotificationController sharedInstance] removeAllNotificationsForAccountId:accountId];
-    [[NCConnectionController sharedInstance] checkAppState];
+    [[NCConnectionController shared] checkAppState];
 
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:accountId forKey:@"accountId"];
@@ -187,7 +186,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         if (!error) {
             [[NCUserInterfaceController sharedInstance] presentConversationsList];
             [[NCUserInterfaceController sharedInstance] presentLoggedOutInvalidCredentialsAlert];
-            [[NCConnectionController sharedInstance] checkAppState];
+            [[NCConnectionController shared] checkAppState];
 
             // If the token was marked for remote wipe, confirm the wipe
             [[NCAPIController sharedInstance] checkWipeStatusForAccount:account withCompletionBlock:^(BOOL wipe, NSError *error) {

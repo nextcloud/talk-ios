@@ -85,7 +85,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChat:) name:NSNotification.NCChatViewControllerTalkToUserNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinOrCreateChatWithURL:) name:NCURLWantsToOpenConversationNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(joinChatHighlightingMessage:) name:NCPresentChatHighlightingMessageNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NSNotification.NCConnectionStateHasChangedNotification object:nil];
     }
     
     return self;
@@ -827,7 +827,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
 
     // Try to send offline message when the connection state changes to connected again
-    if (connectionState == kConnectionStateConnected) {
+    if (connectionState == ConnectionStateConnected) {
         [self resendOfflineMessagesWithCompletionBlock:nil];
     }
 }

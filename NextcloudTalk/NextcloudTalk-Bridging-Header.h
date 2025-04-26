@@ -14,7 +14,6 @@
 #import "HeaderWithButton.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCConnectionController.h"
 #import "NCContactsManager.h"
 #import "NCDatabaseManager.h"
 #import "NCChatFileController.h"
