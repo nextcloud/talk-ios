@@ -17,7 +17,6 @@
 #import "AddParticipantsTableViewController.h"
 #import "CallConstants.h"
 #import "ContactsTableViewCell.h"
-#import "HeaderWithButton.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCChatFileController.h"
@@ -39,10 +38,15 @@ typedef enum RoomInfoSection {
     kRoomInfoSectionConversation,
     kRoomInfoSectionWebinar,
     kRoomInfoSectionSIP,
+    kRoomInfoSectionParticipantsActions,
     kRoomInfoSectionParticipants,
     kRoomInfoSectionNonDestructive,
     kRoomInfoSectionDestructive
 } RoomInfoSection;
+
+typedef enum ParticipantsAction {
+    kParticipantsActionAddParticipant = 0
+} ParticipantsAction;
 
 typedef enum NotificationAction {
     kNotificationActionChatNotifications = 0,
@@ -137,7 +141,6 @@ typedef enum FileAction {
 @property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
 @property (nonatomic, strong) UITextField *lobbyDateTextField;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
-@property (nonatomic, strong) HeaderWithButton *headerView;
 @property (nonatomic, strong) UIAlertAction *setPasswordAction;
 @property (nonatomic, strong) UIActivityIndicatorView *fileDownloadIndicator;
 @property (nonatomic, strong) NSString *previewControllerFilePath;
@@ -229,10 +232,6 @@ typedef enum FileAction {
     _modifyingRoomView = [[UIActivityIndicatorView alloc] init];
     _modifyingRoomView.color = [NCAppBranding themeTextColor];
 
-    _headerView = [[HeaderWithButton alloc] init];
-    [_headerView.button setTitle:NSLocalizedString(@"Add", nil) forState:UIControlStateNormal];
-    [_headerView.button addTarget:self action:@selector(addParticipantsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-
     [self.tableView registerNib:[UINib nibWithNibName:kContactsTableCellNibName bundle:nil] forCellReuseIdentifier:kContactCellIdentifier];
     [self.tableView registerNib:[UINib nibWithNibName:RoomNameTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomNameTableViewCell.identifier];
     [self.tableView registerClass:TextViewTableViewCell.class forCellReuseIdentifier:TextViewTableViewCell.identifier];
@@ -276,9 +275,25 @@ typedef enum FileAction {
 {
     [[NCAPIController sharedInstance] getParticipantsFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSMutableArray *participants, NSError *error) {
         self->_roomParticipants = participants;
-        [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange([self getSectionForRoomInfoSection:kRoomInfoSectionParticipants], 1)] withRowAnimation:UITableViewRowAnimationNone];
+        NSMutableIndexSet *sectionsSet = [NSMutableIndexSet indexSet];
+        [sectionsSet addIndex:[self getSectionForRoomInfoSection:kRoomInfoSectionParticipants]];
+        if ([self getParticipantsActions].count > 0) {
+            [sectionsSet addIndex:[self getSectionForRoomInfoSection:kRoomInfoSectionParticipantsActions]];
+        }
+        [self.tableView reloadSections:sectionsSet withRowAnimation:UITableViewRowAnimationAutomatic];
         [self removeModifyingRoomUI];
     }];
+}
+
+- (NSArray *)getParticipantsActions
+{
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+
+    if (_room.canAddParticipants) {
+        [actions addObject:[NSNumber numberWithInt:kParticipantsActionAddParticipant]];
+    }
+
+    return actions;
 }
 
 - (NSArray *)getRoomInfoSections
@@ -326,6 +341,11 @@ typedef enum FileAction {
     // SIP section
     if (_room.sipState > NCRoomSIPStateDisabled) {
         [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionSIP]];
+    }
+
+    // Participants actions section
+    if ([self getParticipantsActions].count > 0) {
+        [sections addObject:[NSNumber numberWithInt:kRoomInfoSectionParticipantsActions]];
     }
 
     // Participants section
@@ -1692,7 +1712,11 @@ typedef enum FileAction {
         case kRoomInfoSectionSIP:
             return kSIPActionNumber;
             break;
-            
+
+        case kRoomInfoSectionParticipantsActions:
+            return [self getParticipantsActions].count;
+            break;
+
         case kRoomInfoSectionParticipants:
             return _roomParticipants.count;
             break;
@@ -1748,6 +1772,16 @@ typedef enum FileAction {
         case kRoomInfoSectionSIP:
             return NSLocalizedString(@"SIP dial-in", nil);
             break;
+        case kRoomInfoSectionParticipantsActions:
+            if (_roomParticipants.count > 0) {
+                return [NSString localizedStringWithFormat:NSLocalizedString(@"%ld participants", nil), _roomParticipants.count];
+            }
+            break;
+        case kRoomInfoSectionParticipants:
+            if ([self getParticipantsActions].count == 0 && _roomParticipants.count > 0) {
+                return [NSString localizedStringWithFormat:NSLocalizedString(@"%ld participants", nil), _roomParticipants.count];
+            }
+            break;
         default:
             break;
     }
@@ -1775,51 +1809,52 @@ typedef enum FileAction {
     return nil;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-    NSArray *sections = [self getRoomInfoSections];
-    RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
-    switch (infoSection) {
-        case kRoomInfoSectionParticipants:
-        {
-            NSString *title = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld participants", nil), _roomParticipants.count];
-            _headerView.label.text = [title uppercaseString];
-            _headerView.button.hidden = (_room.canModerate) ? NO : YES;
-            return _headerView;
-        }
-            break;
-        default:
-            break;
-    }
-    
-    return nil;
-}
-
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     NSArray *sections = [self getRoomInfoSections];
     RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
-    switch (infoSection) {
-        case kRoomInfoSectionDescription:
-            return 2;
-            break;
-        case kRoomInfoSectionNotifications:
-        case kRoomInfoSectionFile:
-        case kRoomInfoSectionSharedItems:
-        case kRoomInfoSectionGuests:
-        case kRoomInfoSectionConversation:
-        case kRoomInfoSectionWebinar:
-        case kRoomInfoSectionSIP:
-            return 36;
-            break;
-        case kRoomInfoSectionParticipants:
-            return 40;
-            break;
-        default:
-            break;
+
+    if (infoSection == kRoomInfoSectionParticipants && [self getParticipantsActions].count > 0) {
+        return 4;
     }
-    
-    return 25;
+
+    return UITableViewAutomaticDimension;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    NSArray *sections = [self getRoomInfoSections];
+    RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
+
+    if (infoSection == kRoomInfoSectionParticipantsActions) {
+        return 4;
+    }
+
+    return UITableViewAutomaticDimension;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    NSArray *sections = [self getRoomInfoSections];
+    RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
+
+    if (infoSection == kRoomInfoSectionParticipants && [self getParticipantsActions].count > 0) {
+        return [[UIView alloc] initWithFrame:CGRectZero];
+    }
+
+    return nil;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+    NSArray *sections = [self getRoomInfoSections];
+    RoomInfoSection infoSection = [[sections objectAtIndex:section] intValue];
+
+    if (infoSection == kRoomInfoSectionParticipantsActions) {
+        return [[UIView alloc] initWithFrame:CGRectZero];
+    }
+
+    return nil;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -1850,6 +1885,7 @@ typedef enum FileAction {
     static NSString *readOnlyStateCellIdentifier = @"ReadOnlyStateCellIdentifier";
     static NSString *archiveConversationCellIdentifier = @"ArchiveConversationCellIdentifier";
     static NSString *unarchiveConversationCellIdentifier = @"UnarchiveConversationCellIdentifier";
+    static NSString *participantsActionCellIdentifier = @"ParticipantsActionCellIdentifier";
 
     NSArray *sections = [self getRoomInfoSections];
     RoomInfoSection section = [[sections objectAtIndex:indexPath.section] intValue];
@@ -2351,6 +2387,34 @@ typedef enum FileAction {
             }
         }
             break;
+
+        case kRoomInfoSectionParticipantsActions:
+        {
+            NSArray *actions = [self getParticipantsActions];
+            ParticipantsAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            if (action == kParticipantsActionAddParticipant) {
+                UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:participantsActionCellIdentifier];
+                if (!cell) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:participantsActionCellIdentifier];
+                }
+
+                cell.textLabel.text = NSLocalizedString(@"Add participants", nil);;
+                cell.textLabel.numberOfLines = 0;
+
+                if (_room.type == kNCRoomTypeOneToOne) {
+                    cell.detailTextLabel.text = NSLocalizedString(@"Start a new group conversation", nil);
+                    cell.detailTextLabel.numberOfLines = 0;
+                    cell.detailTextLabel.textColor = [UIColor secondaryLabelColor];
+                }
+
+                cell.imageView.tintColor = [UIColor secondaryLabelColor];
+                [cell.imageView setImage:[UIImage systemImageNamed:@"person.badge.plus"]];
+
+                return cell;
+
+            }
+        }
+            break;
         case kRoomInfoSectionParticipants:
         {
             NCRoomParticipant *participant = [_roomParticipants objectAtIndex:indexPath.row];
@@ -2602,6 +2666,15 @@ typedef enum FileAction {
                     break;
                 default:
                     break;
+            }
+        }
+            break;
+        case kRoomInfoSectionParticipantsActions:
+        {
+            NSArray *actions = [self getParticipantsActions];
+            ParticipantsAction action = [[actions objectAtIndex:indexPath.row] intValue];
+            if (action == kParticipantsActionAddParticipant) {
+                [self addParticipantsButtonPressed];
             }
         }
             break;

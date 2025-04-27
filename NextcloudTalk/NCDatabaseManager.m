@@ -82,6 +82,7 @@ NSString * const kCapabilityForceMute               = @"force-mute";
 NSString * const kCapabilityTalkPollsDrafts         = @"talk-polls-drafts";
 NSString * const kCapabilityEditDraftPoll           = @"edit-draft-poll";
 NSString * const kCapabilityScheduleMeeting         = @"schedule-meeting";
+NSString * const kCapabilityConversationCreationAll = @"conversation-creation-all";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";

@@ -195,24 +195,34 @@
 
 - (void)addButtonPressed
 {
+    // Adding participants to a room
     if (_room && _selectedParticipants.count > 0) {
-        dispatch_group_t addParticipantsGroup = dispatch_group_create();
+        // Extending a one2one room
+        if (_room.type == kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationCreationAll]) {
+            [self extendOne2OneRoom];
 
-        [self showAddingParticipantsView];
-        for (NCUser *participant in _selectedParticipants) {
-            [self addParticipantToRoom:participant withDispatchGroup:addParticipantsGroup];
-        }
+        // Adding participants to a group room
+        } else {
+            dispatch_group_t addParticipantsGroup = dispatch_group_create();
 
-        dispatch_group_notify(addParticipantsGroup, dispatch_get_main_queue(), ^{
-            [self removeAddingParticipantsView];
-
-            if (!self->_errorAddingParticipants) {
-                [self close];
+            [self showAddingParticipantsView];
+            for (NCUser *participant in _selectedParticipants) {
+                [self addParticipantToRoom:participant withDispatchGroup:addParticipantsGroup];
             }
 
-            // Reset flag once adding participants process has finished
-            self->_errorAddingParticipants = NO;
-        });
+            dispatch_group_notify(addParticipantsGroup, dispatch_get_main_queue(), ^{
+                [self removeAddingParticipantsView];
+
+                if (!self->_errorAddingParticipants) {
+                    [self close];
+                }
+
+                // Reset flag once adding participants process has finished
+                self->_errorAddingParticipants = NO;
+            });
+        }
+
+    // If there is no room, it means the AddParticipantsViewController is being used just to select participants
     } else if ([self.delegate respondsToSelector:@selector(addParticipantsTableViewController:wantsToAdd:)]) {
         [self.delegate addParticipantsTableViewController:self wantsToAdd:_selectedParticipants];
         [self close];
@@ -243,6 +253,58 @@
         }
 
         dispatch_group_leave(dispatchGroup);
+    }];
+}
+
+- (void)extendOne2OneRoom
+{
+    RoomBuilder *roomBuilder = [[RoomBuilder alloc] init];
+    [roomBuilder roomType:kNCRoomTypeGroup];
+    [roomBuilder objecType:NCRoomObjectTypeExtendedConversation];
+    [roomBuilder objectId:_room.token];
+
+    // Create the other participant of the 1:1 room from room object
+    NCUser *user = [[NCUser alloc] init];
+    user.userId = _room.name;
+    user.name = _room.displayName;
+    user.source = kParticipantTypeUser;
+
+    // Add the other participant of the 1:1 room at the beginning of the selected participants array
+    NSArray *participants = [@[user] arrayByAddingObjectsFromArray:_selectedParticipants];
+    [roomBuilder participants:participants];
+
+    // Create the room name [Actor who extends the 1:1 room, other participant of the 1:1 room, selected participants...]
+    NSMutableArray *namesArray = [NSMutableArray arrayWithArray:[participants valueForKey:@"name"]];
+    [namesArray insertObject:_room.account.userDisplayName atIndex:0];
+    NSString *roomName = [namesArray componentsJoinedByString:@", "];
+    // Ensure the roomName does not exceed 255 characters limit.
+    if (roomName.length > 255) {
+        roomName = [[roomName substringToIndex:254] stringByAppendingString:@"…"];
+    }
+    [roomBuilder roomName:roomName];
+
+    [self showAddingParticipantsView];
+    [[NCAPIController sharedInstance] createRoomForAccount:_room.account withParameters:roomBuilder.roomParameters completionBlock:^(NCRoom *room, NSError *error) {
+        [self removeAddingParticipantsView];
+        if (error) {
+            UIAlertController * alert = [UIAlertController
+                                         alertControllerWithTitle:NSLocalizedString(@"Could not start group conversation", nil)
+                                         message:NSLocalizedString(@"An error occurred while starting a new group conversation", nil)
+                                         preferredStyle:UIAlertControllerStyleAlert];
+
+            UIAlertAction* okButton = [UIAlertAction
+                                       actionWithTitle:NSLocalizedString(@"OK", nil)
+                                       style:UIAlertActionStyleDefault
+                                       handler:nil];
+
+            [alert addAction:okButton];
+
+            [[NCUserInterfaceController sharedInstance] presentAlertViewController:alert];
+        } else if (room) {
+            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedUserForChatNotification object:self userInfo:@{@"token": room.token}];
+            }];
+        }
     }];
 }
 

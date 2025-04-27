@@ -1409,11 +1409,25 @@ class CallViewController: UIViewController,
             self.showScreensharingPicker()
         }))
 
+        var moderatorItems: [UIMenuElement] = []
+
+        // Add participant to a one2one call
+        if self.room.type == .oneToOne && self.room.canAddParticipants {
+            moderatorItems.append(UIAction(title: NSLocalizedString("Add participants", comment: ""), subtitle: NSLocalizedString("Start a new group conversation", comment: ""), image: .init(systemName: "person.badge.plus"), handler: { [unowned self] _ in
+                if let addParticipantsVC = AddParticipantsTableViewController(for: self.room) {
+                    self.present(NCNavigationController(rootViewController: addParticipantsVC), animated: true)
+                }
+            }))
+        }
+
+        // Mute others
         if self.room.canModerate {
-            items.append(UIAction(title: NSLocalizedString("Mute others", comment: ""), image: .init(systemName: "mic.slash.fill"), handler: { [unowned self] _ in
+            moderatorItems.append(UIAction(title: NSLocalizedString("Mute others", comment: ""), image: .init(systemName: "mic.slash.fill"), handler: { [unowned self] _ in
                 self.callController?.forceMuteOthers()
             }))
         }
+
+        items.append(UIMenu(options: .displayInline, children: moderatorItems))
 
         return items
     }
