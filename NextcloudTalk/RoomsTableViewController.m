@@ -1044,7 +1044,7 @@ typedef enum RoomsSections {
         if (level == room.notificationLevel) {
             return;
         }
-        [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] setNotificationLevelWithLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
             if (error) {
                 NSLog(@"Error renaming the room: %@", error.description);
             } else {
@@ -1671,7 +1671,7 @@ typedef enum RoomsSections {
             UIAction *callNotificationAction = [UIAction actionWithTitle:NSLocalizedString(@"Notify about calls", nil) image:nil identifier:nil handler:^(UIAction *action) {
                 BOOL newState = !(action.state == UIMenuElementStateOn);
 
-                [[NCAPIController sharedInstance] setCallNotificationEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+                [[NCAPIController sharedInstance] setCallNotificationLevelWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
                     if (error) {
                         NSLog(@"Error setting call notification: %@", error.description);
                     } else {

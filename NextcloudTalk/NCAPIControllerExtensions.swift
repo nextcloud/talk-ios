@@ -249,6 +249,34 @@ import Foundation
         return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
     }
 
+    @MainActor
+    public func setNotificationLevel(level: NCRoomNotificationLevel, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify", for: account)
+        let parameters: [String: Int] = ["level": level.rawValue]
+
+        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+
+        return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
+    @MainActor
+    public func setCallNotificationLevel(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify-calls", for: account)
+        let parameters: [String: Bool] = ["level": enabled]
+
+        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+
+        return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {

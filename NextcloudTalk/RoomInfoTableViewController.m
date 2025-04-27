@@ -846,7 +846,8 @@ typedef enum FileAction {
         return;
     }
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setNotificationLevelWithLevel:level forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
+        // TODO: Use returned room to update local room
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {
@@ -877,7 +878,7 @@ typedef enum FileAction {
 - (void)setCallNotificationEnabled:(BOOL)enabled
 {
     [self setModifyingRoomUI];
-    [[NCAPIController sharedInstance] setCallNotificationEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setCallNotificationLevelWithEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
         if (!error) {
             [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
         } else {

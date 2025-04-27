@@ -25,7 +25,6 @@ typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
 typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode, NSString * _Nullable statusReason);
 typedef void (^ExitRoomCompletionBlock)(NSError *error);
 typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
-typedef void (^NotificationLevelCompletionBlock)(NSError *error);
 typedef void (^ReadOnlyCompletionBlock)(NSError *error);
 typedef void (^SetLobbyStateCompletionBlock)(NSError *error);
 typedef void (^SetSIPStateCompletionBlock)(NSError *error);
@@ -163,8 +162,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Rooms Controller
 - (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)exitRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ExitRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)setNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(NotificationLevelCompletionBlock)block;
-- (NSURLSessionDataTask *)setCallNotificationEnabled:(BOOL)enabled forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(NotificationLevelCompletionBlock)block;
 - (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ReadOnlyCompletionBlock)block;
 - (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetLobbyStateCompletionBlock)block;
 - (NSURLSessionDataTask *)setSIPState:(NCRoomSIPState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetSIPStateCompletionBlock)block;
