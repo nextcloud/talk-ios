@@ -75,27 +75,27 @@ import SwiftyAttributes
                                                                self.typingUsers[0].displayName.withTextColor(.secondaryLabel))
 
             } else if self.typingUsers.count == 2 {
-                let unformattedAttributedString = NSLocalizedString("%@ and %@ are typing…", comment: "Alice and Bob are typing…").withTextColor(.tertiaryLabel)
+                let unformattedAttributedString = NSLocalizedString("%1$@ and %2$@ are typing…", comment: "Alice and Bob are typing…").withTextColor(.tertiaryLabel)
                 localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
                                                                self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
                                                                self.typingUsers[1].displayName.withTextColor(.secondaryLabel))
 
             } else if self.typingUsers.count == 3 {
-                let unformattedAttributedString = NSLocalizedString("%@, %@ and %@ are typing…", comment: "Alice, Bob and Charlie are typing…").withTextColor(.tertiaryLabel)
+                let unformattedAttributedString = NSLocalizedString("%1$@, %2$@ and %3$@ are typing…", comment: "Alice, Bob and Charlie are typing…").withTextColor(.tertiaryLabel)
                 localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
                                                                self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
                                                                self.typingUsers[1].displayName.withTextColor(.secondaryLabel),
                                                                self.typingUsers[2].displayName.withTextColor(.secondaryLabel))
 
             } else if self.typingUsers.count == 4 {
-                let unformattedAttributedString = NSLocalizedString("%@, %@, %@ and 1 other is typing…", comment: "Alice, Bob, Charlie and 1 other is typing…").withTextColor(.tertiaryLabel)
+                let unformattedAttributedString = NSLocalizedString("%1$@, %2$@, %3$@ and 1 other is typing…", comment: "Alice, Bob, Charlie and 1 other is typing…").withTextColor(.tertiaryLabel)
                 localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
                                                                self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
                                                                self.typingUsers[1].displayName.withTextColor(.secondaryLabel),
                                                                self.typingUsers[2].displayName.withTextColor(.secondaryLabel))
             } else {
                 let othersCount = self.typingUsers.count - 3
-                let unformattedAttributedString = NSLocalizedString("%@, %@, %@ and %@ others are typing…", comment: "Alice, Bob, Charlie and 3 others are typing…").withTextColor(.tertiaryLabel)
+                let unformattedAttributedString = NSLocalizedString("%1$@, %2$@, %3$@ and %4$@ others are typing…", comment: "Alice, Bob, Charlie and 3 others are typing…").withTextColor(.tertiaryLabel)
                 localizedAttributedString = NSAttributedString(format: unformattedAttributedString,
                                                                self.typingUsers[0].displayName.withTextColor(.secondaryLabel),
                                                                self.typingUsers[1].displayName.withTextColor(.secondaryLabel),

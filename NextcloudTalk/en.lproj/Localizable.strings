@@ -1,5 +1,14 @@
 /* Alice and Bob are typing… */
-"%@ and %@ are typing…" = "%1$@ and %2$@ are typing…";
+"%1$@ and %2$@ are typing…" = "%1$@ and %2$@ are typing…";
+
+/* Alice, Bob and Charlie are typing… */
+"%1$@, %2$@ and %3$@ are typing…" = "%1$@, %2$@ and %3$@ are typing…";
+
+/* Alice, Bob, Charlie and 3 others are typing… */
+"%1$@, %2$@, %3$@ and %4$@ others are typing…" = "%1$@, %2$@, %3$@ and %4$@ others are typing…";
+
+/* Alice, Bob, Charlie and 1 other is typing… */
+"%1$@, %2$@, %3$@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
 
 /* Alice and Bob will receive invitations */
 "%@ and %@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
@@ -25,20 +34,11 @@
 /* Alice will receive an invitation */
 "%@ will receive an invitation" = "%@ will receive an invitation";
 
-/* Alice, Bob and Charlie are typing… */
-"%@, %@ and %@ are typing…" = "%1$@, %2$@ and %3$@ are typing…";
-
 /* Alice, Bob and Charlie will receive invitations */
 "%@, %@ and %@ will receive invitations" = "%1$@, %2$@ and %3$@ will receive invitations";
 
-/* Alice, Bob, Charlie and 3 others are typing… */
-"%@, %@, %@ and %@ others are typing…" = "%1$@, %2$@, %3$@ and %4$@ others are typing…";
-
 /* Alice, Bob, Charlie and 3 others will receive invitations */
 "%@, %@, %@ and %ld others will receive invitations" = "%1$@, %2$@, %3$@ and %4$ld others will receive invitations";
-
-/* Alice, Bob, Charlie and 1 other is typing… */
-"%@, %@, %@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
 
 /* Alice, Bob, Charlie and 1 other will receive invitations */
 "%@, %@, %@ and 1 other will receive invitations" = "%1$@, %2$@, %3$@ and 1 other will receive invitations";
