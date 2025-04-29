@@ -1307,7 +1307,7 @@ typedef enum RoomsSections {
      ofType:kNCRoomTypeOneToOne
      andName:nil
      completionBlock:^(NCRoom *room, NSError *error) {
-        if (!error) {
+        if (!error && room.token != nil) {
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedUserForChatNotification
                                                                     object:self
