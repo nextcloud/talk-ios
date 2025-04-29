@@ -62,7 +62,7 @@ import SwiftyAttributes
         self.removeTimer?.invalidate()
     }
 
-    private func updateTypingIndicator() {
+    internal func updateTypingIndicator() {
         if self.typingUsers.isEmpty {
             // Just hide the label to have a nice animation. Otherwise we would animate an empty label/space
             self.isVisible = false
