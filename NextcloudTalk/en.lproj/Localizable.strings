@@ -1,3 +1,18 @@
+/* Alice and Bob are typing… */
+"%1$@ and %2$@ are typing…" = "%1$@ and %2$@ are typing…";
+
+/* Alice, Bob and Charlie are typing… */
+"%1$@, %2$@ and %3$@ are typing…" = "%1$@, %2$@ and %3$@ are typing…";
+
+/* Alice, Bob, Charlie and 3 others are typing… */
+"%1$@, %2$@, %3$@ and %4$@ others are typing…" = "%1$@, %2$@, %3$@ and %4$@ others are typing…";
+
+/* Alice, Bob, Charlie and 1 other is typing… */
+"%1$@, %2$@, %3$@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
+
+/* Alice and Bob will receive invitations */
+"%@ and %@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
+
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
 
@@ -7,11 +22,26 @@
 /* '%@' is the name of a user */
 "%@ is out of office today" = "%@ is out of office today";
 
+/* Alice is typing… */
+"%@ is typing…" = "%@ is typing…";
+
 /* {app name} is not installed */
 "%@ not installed" = "%@ not installed";
 
 /* {app name} version not supported */
 "%@ version not supported" = "%@ version not supported";
+
+/* Alice will receive an invitation */
+"%@ will receive an invitation" = "%@ will receive an invitation";
+
+/* Alice, Bob and Charlie will receive invitations */
+"%@, %@ and %@ will receive invitations" = "%1$@, %2$@ and %3$@ will receive invitations";
+
+/* Alice, Bob, Charlie and 3 others will receive invitations */
+"%@, %@, %@ and %ld others will receive invitations" = "%1$@, %2$@, %3$@ and %4$ld others will receive invitations";
+
+/* Alice, Bob, Charlie and 1 other will receive invitations */
+"%@, %@, %@ and 1 other will receive invitations" = "%1$@, %2$@, %3$@ and 1 other will receive invitations";
 
 /* No comment provided by engineer. */
 "%d days ago" = "%d days ago";
@@ -325,21 +355,6 @@
 /* No comment provided by engineer. */
 "an hour" = "an hour";
 
-/* Alice and Bob */
-"and" = "and";
-
-/* Alice, Bob, Charlie and 3 others are typing… */
-"and %ld others are typing…" = "and %ld others are typing…";
-
-/* Alice, Bob, Charlie and 3 others will receive invitations */
-"and %ld others will receive invitations" = "and %ld others will receive invitations";
-
-/* Alice, Bob, Charlie and 1 other is typing… */
-"and 1 other is typing…" = "and 1 other is typing…";
-
-/* Alice, Bob, Charlie and 1 other is typing… */
-"and 1 other will receive invitations" = "and 1 other will receive invitations";
-
 /* No comment provided by engineer. */
 "Anonymous poll" = "Anonymous poll";
 
@@ -366,9 +381,6 @@
 
 /* No comment provided by engineer. */
 "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list." = "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.";
-
-/* Alice and Bob are typing… */
-"are typing…" = "are typing…";
 
 /* No comment provided by engineer. */
 "Ask a question" = "Ask a question";
@@ -1143,9 +1155,6 @@
 
 /* No comment provided by engineer. */
 "Invitations resent" = "Invitations resent";
-
-/* Alice is typing… */
-"is typing…" = "is typing…";
 
 /* It seems that {app name} is not installed in your server. */
 "It seems that %@ is not installed in your server." = "It seems that %@ is not installed in your server.";
@@ -2166,12 +2175,6 @@
 
 /* No comment provided by engineer. */
 "What is your status?" = "What is your status?";
-
-/* Alice will receive an invitation */
-"will receive an invitation" = "will receive an invitation";
-
-/* Alice and Bob will receive invitations */
-"will receive invitations" = "will receive invitations";
 
 /* No comment provided by engineer. */
 "Write message, @ to mention someone …" = "Write message, @ to mention someone …";

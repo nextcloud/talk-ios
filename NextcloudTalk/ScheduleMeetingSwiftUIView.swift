@@ -161,63 +161,43 @@ struct ScheduleMeetingSwiftUIView: View {
     }
 
     private func footerString() -> String {
-        var localizedSuffix: String
+        var localizedText: String
 
         if self.selectedParticipants.isEmpty {
             return NSLocalizedString("Sending no invitations", comment: "")
-
         } else if self.selectedParticipants.count == 1 {
-            localizedSuffix = NSLocalizedString("will receive an invitation", comment: "Alice will receive an invitation")
+            localizedText = String(
+                format: NSLocalizedString("%@ will receive an invitation", comment: "Alice will receive an invitation"),
+                self.selectedParticipants[0].displayName
+            )
 
-        } else if self.selectedParticipants.count == 2 || self.selectedParticipants.count == 3 {
-            localizedSuffix = NSLocalizedString("will receive invitations", comment: "Alice and Bob will receive invitations")
+        } else if self.selectedParticipants.count == 2 {
+            localizedText = String(
+                format: NSLocalizedString("%@ and %@ will receive invitations", comment: "Alice and Bob will receive invitations"),
+                self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName
+            )
+
+        } else if self.selectedParticipants.count == 3 {
+            localizedText = String(
+                format: NSLocalizedString("%@, %@ and %@ will receive invitations", comment: "Alice, Bob and Charlie will receive invitations"),
+                self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName, self.selectedParticipants[2].displayName
+            )
 
         } else if self.selectedParticipants.count == 4 {
-            localizedSuffix = NSLocalizedString("and 1 other will receive invitations", comment: "Alice, Bob, Charlie and 1 other is typing…")
+            localizedText = String(
+                format: NSLocalizedString("%@, %@, %@ and 1 other will receive invitations", comment: "Alice, Bob, Charlie and 1 other will receive invitations"),
+                self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName, self.selectedParticipants[2].displayName
+            )
 
         } else {
-            let localizedString = NSLocalizedString("and %ld others will receive invitations", comment: "Alice, Bob, Charlie and 3 others will receive invitations")
-            localizedSuffix = String(format: localizedString, self.selectedParticipants.count - 3)
+            let othersCount = self.selectedParticipants.count - 3
+            localizedText = String(
+                format: NSLocalizedString("%@, %@, %@ and %ld others will receive invitations", comment: "Alice, Bob, Charlie and 3 others will receive invitations"),
+                self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName, self.selectedParticipants[2].displayName, othersCount
+            )
         }
 
-        return getParticipantsString() + " " + localizedSuffix
-    }
-
-    private func getParticipantsString() -> String {
-        if self.selectedParticipants.count == 1,
-           let user1 = self.selectedParticipants[0].displayName {
-            // Alice
-            return user1
-
-        } else {
-            let separator = ", "
-            let separatorSpace = " "
-            let separatorLast = NSLocalizedString("and", comment: "Alice and Bob")
-
-            if self.selectedParticipants.count == 2,
-               let user1 = self.selectedParticipants[0].displayName,
-               let user2 = self.selectedParticipants[1].displayName {
-                // Alice and Bob
-                return user1 + separatorSpace + separatorLast + separatorSpace + user2
-
-            } else if self.selectedParticipants.count == 3,
-                      let user1 = self.selectedParticipants[0].displayName,
-                      let user2 = self.selectedParticipants[1].displayName,
-                      let user3 = self.selectedParticipants[2].displayName {
-                // Alice, Bob and Charlie
-                return user1 + separator + user2 + separatorSpace + separatorLast + separatorSpace + user3
-
-            } else if let user1 = self.selectedParticipants[0].displayName,
-                      let user2 = self.selectedParticipants[1].displayName,
-                      let user3 = self.selectedParticipants[2].displayName {
-
-                // Alice, Bob, Charlie
-                return user1 + separator + user2 + separator + user3
-
-            } else {
-                return NSLocalizedString("Participants", comment: "")
-            }
-        }
+        return localizedText
     }
 
     private func initStartEndTimes() {
