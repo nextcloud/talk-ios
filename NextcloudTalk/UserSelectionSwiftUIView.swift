@@ -70,12 +70,7 @@ struct UserSelectionSwiftUIView: View {
 
     var body: some View {
         VStack {
-            if #available(iOS 16.0, *) {
-                userList
-                    .scrollContentBackground(.hidden)
-            } else {
-                userList
-            }
+            userList.scrollContentBackground(.hidden)
         }
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationBarTitle(Text("Absence"), displayMode: .inline)

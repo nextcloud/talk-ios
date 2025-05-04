@@ -29,10 +29,7 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
         self.navigationItem.standardAppearance = appearance
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
-
-        if #available(iOS 16.0, *) {
-            self.navigationItem.preferredSearchBarPlacement = .stacked
-        }
+        self.navigationItem.preferredSearchBarPlacement = .stacked
 
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
