@@ -1963,9 +1963,6 @@
 /* No comment provided by engineer. */
 "Synchronize to trusted servers and the global and public address book" = "Synchronize to trusted servers and the global and public address book";
 
-/* No comment provided by engineer. */
-"Talk" = "Talk";
-
 /* Talk to a user */
 "Talk to" = "Talk to";
 
