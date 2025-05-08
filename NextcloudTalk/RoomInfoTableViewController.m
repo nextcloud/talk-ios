@@ -50,7 +50,8 @@ typedef enum ParticipantsAction {
 
 typedef enum NotificationAction {
     kNotificationActionChatNotifications = 0,
-    kNotificationActionCallNotifications
+    kNotificationActionCallNotifications,
+    kNotificationActionImportantConversation
 } NotificationAction;
 
 typedef enum GuestAction {
@@ -116,6 +117,7 @@ typedef enum ModificationError {
     kModificationErrorMentionPermissions,
     kModificationErrorArchive,
     kModificationErrorUnarchive,
+    kModificationErrorImprtantConversation,
 } ModificationError;
 
 typedef enum FileAction {
@@ -138,6 +140,7 @@ typedef enum FileAction {
 @property (nonatomic, strong) UISwitch *sipSwitch;
 @property (nonatomic, strong) UISwitch *sipNoPINSwitch;
 @property (nonatomic, strong) UISwitch *callNotificationSwitch;
+@property (nonatomic, strong) UISwitch *importantConversationSwitch;
 @property (nonatomic, strong) UIDatePicker *lobbyDatePicker;
 @property (nonatomic, strong) UITextField *lobbyDateTextField;
 @property (nonatomic, strong) UIActivityIndicatorView *modifyingRoomView;
@@ -216,6 +219,9 @@ typedef enum FileAction {
 
     _callNotificationSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     [_callNotificationSwitch addTarget: self action: @selector(callNotificationValueChanged:) forControlEvents:UIControlEventValueChanged];
+
+    _importantConversationSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    [_importantConversationSwitch addTarget: self action: @selector(importantConversationValueChanged:) forControlEvents:UIControlEventValueChanged];
 
     _lobbyDatePicker = [[UIDatePicker alloc] init];
     _lobbyDatePicker.datePickerMode = UIDatePickerModeDateAndTime;
@@ -384,12 +390,15 @@ typedef enum FileAction {
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityNotificationLevels]) {
         [actions addObject:[NSNumber numberWithInt:kNotificationActionChatNotifications]];
     }
-    // Call notifications action
-    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityNotificationCalls forRoom:self.room] &&
-        [[NCDatabaseManager sharedInstance] roomTalkCapabilitiesForRoom:self.room].callEnabled &&
-        ![self.room isFederated]) {
 
+    // Call notifications action
+    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityNotificationCalls forRoom:self.room] && [_room supportsCalling]) {
         [actions addObject:[NSNumber numberWithInt:kNotificationActionCallNotifications]];
+    }
+
+    // Important conversation action
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityImportantConversations]) {
+        [actions addObject:[NSNumber numberWithInt:kNotificationActionImportantConversation]];
     }
 
     return [NSArray arrayWithArray:actions];
@@ -680,6 +689,10 @@ typedef enum FileAction {
             errorDescription = NSLocalizedString(@"Could not unarchive conversation", nil);
             break;
 
+        case kModificationErrorImprtantConversation:
+            errorDescription = NSLocalizedString(@"Could not change important conversation setting", nil);
+            break;
+
         default:
             break;
     }
@@ -875,6 +888,22 @@ typedef enum FileAction {
         self->_callNotificationSwitch.enabled = YES;
     }];
 }
+
+- (void)setImportantConversationEnabled:(BOOL)enabled
+{
+    [self setModifyingRoomUI];
+    [[NCAPIController sharedInstance] setImportantStateWithEnabled:enabled forRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
+        if (!error) {
+            [[NCRoomsManager sharedInstance] updateRoom:self->_room.token withCompletionBlock:nil];
+        } else {
+            NSLog(@"Error setting room important state: %@", error.description);
+            [self.tableView reloadData];
+            [self showRoomModificationError:kModificationErrorImprtantConversation];
+        }
+        self->_importantConversationSwitch.enabled = YES;
+    }];
+}
+
 
 - (void)showPasswordOptions
 {
@@ -1639,6 +1668,18 @@ typedef enum FileAction {
     }
 }
 
+#pragma mark - Important conversation switch
+
+- (void)importantConversationValueChanged:(id)sender
+{
+    _importantConversationSwitch.enabled = NO;
+    if (_importantConversationSwitch.on) {
+        [self setImportantConversationEnabled:YES];
+    } else {
+        [self setImportantConversationEnabled:NO];
+    }
+}
+
 #pragma mark - UITextField delegate
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -1861,6 +1902,7 @@ typedef enum FileAction {
     UITableViewCell *cell = nil;
     static NSString *chatnotificationLevelCellIdentifier = @"ChatNotificationLevelCellIdentifier";
     static NSString *callnotificationCellIdentifier = @"CallNotificationCellIdentifier";
+    static NSString *importantConversationCellIdentifier = @"ImportantConversationCellIdentifier";
     static NSString *allowGuestsCellIdentifier = @"AllowGuestsCellIdentifier";
     static NSString *passwordCellIdentifier = @"PasswordCellIdentifier";
     static NSString *shareLinkCellIdentifier = @"ShareLinkCellIdentifier";
@@ -1979,6 +2021,27 @@ typedef enum FileAction {
                     [cell.imageView setImage:[UIImage systemImageNamed:@"phone"]];
                     cell.imageView.tintColor = [UIColor secondaryLabelColor];
                     
+                    return cell;
+                }
+                    break;
+                case kNotificationActionImportantConversation:
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:importantConversationCellIdentifier];
+                    if (!cell) {
+                        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:importantConversationCellIdentifier];
+                    }
+
+                    cell.textLabel.text = NSLocalizedString(@"Important conversation", nil);
+                    cell.textLabel.numberOfLines = 0;
+                    cell.detailTextLabel.text = NSLocalizedString(@"'Do not disturb' user status is ignored for important conversations", nil);
+                    cell.detailTextLabel.numberOfLines = 0;
+                    cell.detailTextLabel.textColor = [UIColor secondaryLabelColor];
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.accessoryView = _importantConversationSwitch;
+                    _importantConversationSwitch.on = _room.isImportant;
+                    [cell.imageView setImage:[UIImage systemImageNamed:@"exclamationmark.bubble"]];
+                    cell.imageView.tintColor = [UIColor secondaryLabelColor];
+
                     return cell;
                 }
                     break;

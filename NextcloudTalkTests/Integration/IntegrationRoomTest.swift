@@ -260,4 +260,19 @@ final class IntegrationRoomTest: TestBase {
 
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
+
+    func testRoomImportantConversation() async throws {
+        try skipWithoutCapability(capability: kCapabilityImportantConversations)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "ImportantConversation", withAccount: activeAccount)
+
+        // Set to important
+        var updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: true, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertTrue(try XCTUnwrap(updatedRoom).isImportant)
+
+        // Set to unimportant again
+        updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: false, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertFalse(try XCTUnwrap(updatedRoom).isImportant)
+    }
 }

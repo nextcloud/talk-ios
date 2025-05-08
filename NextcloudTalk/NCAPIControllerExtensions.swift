@@ -231,6 +231,24 @@ import Foundation
         }
     }
 
+    @MainActor
+    public func setImportantState(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/important", for: account)
+        var ocsResponse: OcsResponse
+
+        if enabled {
+            ocsResponse = try await apiSessionManager.postOcs(urlString, account: account)
+        } else {
+            ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
+        }
+
+        return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {

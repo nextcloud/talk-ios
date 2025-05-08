@@ -65,6 +65,9 @@
 "%ld participants" = "%ld participants";
 
 /* No comment provided by engineer. */
+"'Do not disturb' user status is ignored for important conversations" = "'Do not disturb' user status is ignored for important conversations";
+
+/* No comment provided by engineer. */
 "1 day" = "1 day";
 
 /* No comment provided by engineer. */
@@ -620,6 +623,9 @@
 "Could not change call notifications setting" = "Could not change call notifications setting";
 
 /* No comment provided by engineer. */
+"Could not change important conversation setting" = "Could not change important conversation setting";
+
+/* No comment provided by engineer. */
 "Could not change listable scope of the conversation" = "Could not change listable scope of the conversation";
 
 /* No comment provided by engineer. */
@@ -1121,6 +1127,9 @@
 "Import account" = "Import account";
 
 /* No comment provided by engineer. */
+"Important conversation" = "Important conversation";
+
+/* No comment provided by engineer. */
 "in" = "in";
 
 /* No comment provided by engineer. */
@@ -1466,7 +1475,7 @@
 "Notifications app enabled?" = "Notifications app enabled?";
 
 /* No comment provided by engineer. */
-"Notifications: %@" = "Notifications: %@";
+"Notify about calls" = "Notify about calls";
 
 /* Indicates an event happening right now */
 "Now" = "Now";
@@ -2127,6 +2136,9 @@
 
 /* No comment provided by engineer. */
 "Update" = "Update";
+
+/* No comment provided by engineer. */
+"Updated notification settings" = "Updated notification settings";
 
 /* No comment provided by engineer. */
 "Upload failed" = "Upload failed";
