@@ -32,6 +32,11 @@
 
 @implementation NCPeerConnection
 
+- (NSUInteger)hash
+{
+    return [self.peerIdentifier hash];
+}
+
 - (instancetype)initWithSessionId:(NSString *)sessionId sid:(NSString *)sid andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly
 {
     self = [super init];
@@ -79,7 +84,7 @@
 {
     if ([object isKindOfClass:[NCPeerConnection class]]) {
         NCPeerConnection *otherConnection = (NCPeerConnection *)object;
-        return [otherConnection.peerConnection isEqual:self.peerConnection];
+        return [otherConnection.peerIdentifier isEqualToString:self.peerIdentifier];
     }
     
     return NO;
