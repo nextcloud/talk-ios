@@ -233,7 +233,7 @@ class DiagnosticsTableViewController: UITableViewController {
             return NSLocalizedString("Server", comment: "")
 
         case DiagnosticsSections.kDiagnosticsSectionTalk.rawValue:
-            return NSLocalizedString("Talk", comment: "")
+            return "Talk"
 
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
             return NSLocalizedString("Signaling", comment: "")
