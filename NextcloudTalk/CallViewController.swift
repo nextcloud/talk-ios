@@ -207,9 +207,9 @@ class CallViewController: UIViewController,
         self.audioMuteButton.accessibilityLabel = NSLocalizedString("Microphone", comment: "")
         self.audioMuteButton.accessibilityValue = NSLocalizedString("Microphone enabled", comment: "")
         self.audioMuteButton.accessibilityHint = NSLocalizedString("Double tap to enable or disable the microphone", comment: "")
-        self.speakerButton.accessibilityLabel = NSLocalizedString("Speaker", comment: "")
-        self.speakerButton.accessibilityValue = NSLocalizedString("Speaker disabled", comment: "")
-        self.speakerButton.accessibilityHint = NSLocalizedString("Double tap to enable or disable the speaker", comment: "")
+        self.speakerButton.accessibilityLabel = NSLocalizedString("Speaker", comment: "speaker = Loudspeaker, device")
+        self.speakerButton.accessibilityValue = NSLocalizedString("Speaker disabled", comment: "speaker = Loudspeaker, device")
+        self.speakerButton.accessibilityHint = NSLocalizedString("Double tap to enable or disable the speaker", comment: "speaker = Loudspeaker, device")
         self.videoDisableButton.accessibilityLabel = NSLocalizedString("Camera", comment: "")
         self.videoDisableButton.accessibilityValue = NSLocalizedString("Camera enabled", comment: "")
         self.videoDisableButton.accessibilityHint = NSLocalizedString("Double tap to enable or disable the camera", comment: "")
@@ -1265,7 +1265,7 @@ class CallViewController: UIViewController,
         let audioController = NCAudioController.sharedInstance()
         if self.speakerButton.isHidden, audioController.isAudioRouteChangeable() {
             var speakerImage = UIImage(systemName: "speaker.slash.fill")
-            var speakerActionTitle = NSLocalizedString("Disable speaker", comment: "")
+            var speakerActionTitle = NSLocalizedString("Disable speaker", comment: "speaker = Loudspeaker, device")
 
             if !audioController.isSpeakerActive {
                 speakerImage = UIImage(systemName: "speaker.wave.3.fill")
@@ -1720,10 +1720,10 @@ class CallViewController: UIViewController,
             let speakerStatusString: String
 
             if active {
-                speakerStatusString = NSLocalizedString("Speaker enabled", comment: "")
+                speakerStatusString = NSLocalizedString("Speaker enabled", comment: "speaker = Loudspeaker, device")
                 self.speakerButton.setImage(.init(systemName: "speaker.wave.3.fill", withConfiguration: self.barButtonsConfiguration), for: .normal)
             } else {
-                speakerStatusString = NSLocalizedString("Speaker disabled", comment: "")
+                speakerStatusString = NSLocalizedString("Speaker disabled", comment: "speaker = Loudspeaker, device")
                 self.speakerButton.setImage(.init(systemName: "speaker.slash.fill", withConfiguration: self.barButtonsConfiguration), for: .normal)
             }
 

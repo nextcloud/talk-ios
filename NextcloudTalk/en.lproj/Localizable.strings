@@ -808,7 +808,7 @@
 /* No comment provided by engineer. */
 "Disable blur" = "Disable blur";
 
-/* No comment provided by engineer. */
+/* speaker = Loudspeaker, device */
 "Disable speaker" = "Disable speaker";
 
 /* No comment provided by engineer. */
@@ -886,7 +886,7 @@
 /* No comment provided by engineer. */
 "Double tap to enable or disable the microphone" = "Double tap to enable or disable the microphone";
 
-/* No comment provided by engineer. */
+/* speaker = Loudspeaker, device */
 "Double tap to enable or disable the speaker" = "Double tap to enable or disable the speaker";
 
 /* No comment provided by engineer. */
@@ -1894,13 +1894,13 @@
 /* No comment provided by engineer. */
 "Source code" = "Source code";
 
-/* No comment provided by engineer. */
+/* speaker = Loudspeaker, device */
 "Speaker" = "Speaker";
 
-/* No comment provided by engineer. */
+/* speaker = Loudspeaker, device */
 "Speaker disabled" = "Speaker disabled";
 
-/* No comment provided by engineer. */
+/* speaker = Loudspeaker, device */
 "Speaker enabled" = "Speaker enabled";
 
 /* No comment provided by engineer. */
