@@ -802,7 +802,7 @@
 /* No comment provided by engineer. */
 "Disable blur" = "Disable blur";
 
-/* speaker = loudspecker, device */
+/* speaker = Loudspeaker, device */
 "Disable speaker" = "Disable speaker";
 
 /* No comment provided by engineer. */
@@ -880,7 +880,7 @@
 /* No comment provided by engineer. */
 "Double tap to enable or disable the microphone" = "Double tap to enable or disable the microphone";
 
-/* speaker = Loudspecker, device */
+/* speaker = Loudspeaker, device */
 "Double tap to enable or disable the speaker" = "Double tap to enable or disable the speaker";
 
 /* No comment provided by engineer. */
@@ -973,7 +973,7 @@
 /* No comment provided by engineer. */
 "Enable screensharing" = "Enable screensharing";
 
-/* speaker = Loudspecker, device */
+/* No comment provided by engineer. */
 "Enable speaker" = "Enable speaker";
 
 /* No comment provided by engineer. */
@@ -1885,13 +1885,13 @@
 /* No comment provided by engineer. */
 "Source code" = "Source code";
 
-/* speaker = Loudspecker, device */
+/* speaker = Loudspeaker, device */
 "Speaker" = "Speaker";
 
-/* speaker = Loudspecker, device */
+/* speaker = Loudspeaker, device */
 "Speaker disabled" = "Speaker disabled";
 
-/* speaker = Loudspecker, device */
+/* speaker = Loudspeaker, device */
 "Speaker enabled" = "Speaker enabled";
 
 /* No comment provided by engineer. */
