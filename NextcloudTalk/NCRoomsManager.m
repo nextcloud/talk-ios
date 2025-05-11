@@ -326,7 +326,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         managedRoom.unreadMentionDirect = NO;
         managedRoom.unreadMessages = 0;
 
-        if (lastMessage) {
+        if (lastMessage && !room.isSensitive) {
             managedRoom.lastMessageId = lastMessage.internalId;
             managedRoom.lastActivity = lastMessage.timestamp;
         }

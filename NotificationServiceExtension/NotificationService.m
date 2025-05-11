@@ -182,11 +182,15 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                         self.bestAttemptContent.userInfo = userInfo;
 
                         if (serverNotification.notificationType == kNCNotificationTypeChat) {
-                            NSAttributedString *attributedMessage = [[NSAttributedString alloc] initWithString:serverNotification.message];
-                            NSAttributedString *markdownMessage = [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:attributedMessage];
+                            // Only try to adjust the title/body if there are rich parameters
+                            // E.g. for sensitive conversations, there are none, so we use the server provided title/body
+                            if ([serverNotification.subjectRichParameters count] > 0) {
+                                NSAttributedString *attributedMessage = [[NSAttributedString alloc] initWithString:serverNotification.message];
+                                NSAttributedString *markdownMessage = [SwiftMarkdownObjCBridge parseMarkdownWithMarkdownString:attributedMessage];
 
-                            self.bestAttemptContent.title = serverNotification.chatMessageTitle;
-                            self.bestAttemptContent.body = markdownMessage.string;
+                                self.bestAttemptContent.title = serverNotification.chatMessageTitle;
+                                self.bestAttemptContent.body = markdownMessage.string;
+                            }
 
                             NSDictionary *fileDict = [serverNotification.messageRichParameters objectForKey:@"file"];
                             if (fileDict && [[fileDict objectForKey:@"preview-available"] boolValue]) {
