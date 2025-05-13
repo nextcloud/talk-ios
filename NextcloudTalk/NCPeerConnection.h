@@ -56,6 +56,7 @@
 @property (nonatomic, assign) BOOL isHandRaised;
 @property (nonatomic, assign) BOOL showRemoteVideoInOriginalSize;
 @property (nonatomic, strong, readonly) NSMutableArray *queuedRemoteCandidates;
+@property (nonatomic, assign) NSInteger addedTime;
 
 - (instancetype)initWithSessionId:(NSString *)sessionId sid:(NSString *)sid andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;
 - (instancetype)initForPublisherWithSessionId:(NSString *)sessionId andICEServers:(NSArray *)iceServers forAudioOnlyCall:(BOOL)audioOnly;

@@ -537,7 +537,7 @@ class CallViewController: UIViewController,
     func priority(for peerConnection: NCPeerConnection) -> (Int, Int) {
         // 1. Screen sharers
         if screenRenderersDict[peerConnection.peerId] != nil {
-            return (0, 0)
+            return (0, peerConnection.addedTime)
         }
 
         // 2. Speakers (respecting order in speakers array)
@@ -548,14 +548,14 @@ class CallViewController: UIViewController,
         // 3. Peers sending audio/video streams
         if peerConnection.hasRemoteStream() {
             if !peerConnection.isRemoteVideoDisabled {
-                return (2, 0)
+                return (2, peerConnection.addedTime)
             } else {
-                return (3, 0)
+                return (3, peerConnection.addedTime)
             }
         }
 
         // 4. Other peers
-        return (4, 0)
+        return (4, peerConnection.addedTime)
     }
 
     func sortPeersInCall() {
@@ -2346,6 +2346,11 @@ class CallViewController: UIViewController,
 
     func addPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
+            // Store added time
+            if peer.addedTime == 0 {
+                peer.addedTime = Int(Date().timeIntervalSince1970 * 1000)
+            }
+            // Add peer to collection view
             if self.peersInCall.isEmpty {
                 // Don't delay adding the first peer
                 self.peersInCall.append(peer)
