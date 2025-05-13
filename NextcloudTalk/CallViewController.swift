@@ -567,21 +567,20 @@ class CallViewController: UIViewController,
 
     func addSpeakerAndPromoteIfNeeded(_ peerConnection: NCPeerConnection) {
         DispatchQueue.main.async {
-            // Check if the participant is already in the speakers array
-            if let index = self.speakers.firstIndex(of: peerConnection) {
-                // Check if the participant is currently visible in the collection view
-                let isVisible = self.collectionView.indexPathsForVisibleItems.contains {
-                    self.dataSource.itemIdentifier(for: $0)?.peerIdentifier == peerConnection.peerIdentifier
-                }
-                // If not visible and not already at the top, promote to the first position
-                if !isVisible && index != 0 {
-                    self.speakers.remove(at: index)
-                    self.speakers.insert(peerConnection, at: 0)
-                }
-            } else {
-                // Participant is not yet in the speakers array -> promote to the first position
-                self.speakers.insert(peerConnection, at: 0)
+            let isVisible = self.collectionView.indexPathsForVisibleItems.contains {
+                self.dataSource.itemIdentifier(for: $0)?.peerIdentifier == peerConnection.peerIdentifier
             }
+
+            // Do not add to speakers or resort if participant is already visible.
+            if isVisible { return }
+
+            // If already in speakers and not visible, promote to the first position.
+            // Skip reordering if already at the top.
+            if let index = self.speakers.firstIndex(of: peerConnection) {
+                guard index != 0 else { return }
+                self.speakers.remove(at: index)
+            }
+            self.speakers.insert(peerConnection, at: 0)
 
             self.sortPeersInCall()
             self.updateSnapshot()
