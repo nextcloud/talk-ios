@@ -507,7 +507,7 @@ class CallViewController: UIViewController,
     // MARK: - UICollectionView Datasource
 
     lazy var dataSource: UICollectionViewDiffableDataSource<CallViewSection, NCPeerConnection> = {
-        return UICollectionViewDiffableDataSource<CallViewSection, NCPeerConnection>(collectionView: collectionView) { collectionView, indexPath, peerConnection -> UICollectionViewCell? in
+        return UICollectionViewDiffableDataSource<CallViewSection, NCPeerConnection>(collectionView: collectionView) { [weak self] collectionView, indexPath, peerConnection -> UICollectionViewCell? in
 
             guard let participantCell = collectionView.dequeueReusableCell(withReuseIdentifier: kCallParticipantCellIdentifier, for: indexPath) as? CallParticipantViewCell
             else { return UICollectionViewCell() }
