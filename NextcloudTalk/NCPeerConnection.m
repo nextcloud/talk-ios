@@ -75,6 +75,11 @@
 
 #pragma mark - NSObject
 
+- (NSUInteger)hash
+{
+    return [self.peerIdentifier hash];
+}
+
 - (BOOL)isEqual:(id)object
 {
     if ([object isKindOfClass:[NCPeerConnection class]]) {

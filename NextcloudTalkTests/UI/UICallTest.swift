@@ -50,8 +50,10 @@ final class UICallTest: XCTestCase {
         XCTAssert(disableBlur.waitForExistence(timeout: TestConstants.timeoutShort))
         disableBlur.tap()
 
-        // Check if we are back at enable blur
+        // Check if we are back at enable blur and tap it to close the menu
+        moreMenuButton.tap()
         XCTAssert(enableBlur.waitForExistence(timeout: TestConstants.timeoutShort))
+        enableBlur.tap()
 #endif
 
         // Open chat
