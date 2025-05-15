@@ -1004,7 +1004,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)joinCall:(NSString *)token withCallFlags:(NSInteger)flags silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block
+- (NSURLSessionDataTask *)joinCall:(NSString *)token withCallFlags:(NSInteger)flags silently:(BOOL)silently silentFor:(NSArray *)silentFor recordingConsent:(BOOL)recordingConsent forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"call/%@", encodedToken];
@@ -1016,7 +1016,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     if (silently) {
         [parameters setObject:@(silently) forKey:@"silent"];
     }
-    
+    if (silentFor.count > 0) {
+        [parameters setObject:silentFor forKey:@"silentFor"];
+    }
+
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (block) {

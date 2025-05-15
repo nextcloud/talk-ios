@@ -128,6 +128,7 @@ class CallViewController: UIViewController,
     private var callDurationTimer: Timer?
     private var soundsPlayer: AVAudioPlayer?
     private var currentCallState: CallState = .joining
+    private var previousParticipants: [String] = []
 
     public init?(for room: NCRoom, asUser displayName: String, audioOnly: Bool) {
         self.room = room
@@ -172,6 +173,14 @@ class CallViewController: UIViewController,
         callController.disableVideoAtStart = self.videoDisabledAtStart
         callController.silentCall = self.silentCall
         callController.recordingConsent = self.recordingConsent
+
+        // Check if there are previous participants and we are joning an extended room
+        if self.room.objectType == NCRoomObjectTypeExtendedConversation {
+            callController.silentCall = false
+            if !self.previousParticipants.isEmpty {
+                callController.silentFor = previousParticipants
+            }
+        }
 
         callController.startCall()
     }
@@ -851,6 +860,12 @@ class CallViewController: UIViewController,
             NCRoomsManager.sharedInstance().prepareSwitchToAnotherRoom(fromRoom: self.room.token) { _ in
                 // Notify callkit about room switch
                 self.delegate?.callViewController(self, wantsToSwitchFromRoom: self.room.token, toRoom: token)
+
+                // Store user that doesn't need to be notify in case we are switching from a one2one to an extended room
+                self.previousParticipants.removeAll()
+                if self.room.type == .oneToOne {
+                    self.previousParticipants.append(self.room.name)
+                }
 
                 // Assign new room as current room
                 self.room = newRoom
