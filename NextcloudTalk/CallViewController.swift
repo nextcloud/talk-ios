@@ -855,6 +855,9 @@ class CallViewController: UIViewController,
                 // Assign new room as current room
                 self.room = newRoom
 
+                // Start call silently in new room
+                self.silentCall = true
+
                 // Save current audio and video state
                 self.audioDisabledAtStart = !audioEnabled
                 self.videoDisabledAtStart = !videoEnabled
