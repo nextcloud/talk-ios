@@ -1410,8 +1410,7 @@ typedef enum RoomsSections {
             completionHandler(true);
         }];
 
-        NSString *markImageName = (room.unreadMessages > 0) ? @"eye" : @"eye.slash";
-        markReadAction.image = [UIImage systemImageNamed:markImageName];
+        markReadAction.image = (room.unreadMessages > 0) ? [UIImage systemImageNamed:@"checkmark.bubble"] : [UIImage imageNamed:@"custom.bubble.badge"];
         markReadAction.backgroundColor = [UIColor systemBlueColor];
 
         return [UISwipeActionsConfiguration configurationWithActions:@[markReadAction, favoriteAction]];
@@ -1638,7 +1637,7 @@ typedef enum RoomsSections {
         (!room.isFederated || [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatReadLast])) {
         if (room.unreadMessages > 0) {
             // Mark room as read
-            UIAction *markReadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as read", nil) image:[UIImage systemImageNamed:@"eye"] identifier:nil handler:^(UIAction *action) {
+            UIAction *markReadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as read", nil) image:[UIImage systemImageNamed:@"checkmark.bubble"] identifier:nil handler:^(UIAction *action) {
                 weakSelf.contextMenuActionBlock = ^{
                     [weakSelf markRoomAsRead:room];
                 };
@@ -1647,7 +1646,7 @@ typedef enum RoomsSections {
             [actions addObject:markReadAction];
         } else if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatUnread]) {
             // Mark room as unread
-            UIAction *markUnreadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as unread", nil) image:[UIImage systemImageNamed:@"eye.slash"] identifier:nil handler:^(UIAction *action) {
+            UIAction *markUnreadAction = [UIAction actionWithTitle:NSLocalizedString(@"Mark as unread", nil) image:[UIImage imageNamed:@"custom.bubble.badge"] identifier:nil handler:^(UIAction *action) {
                 weakSelf.contextMenuActionBlock = ^{
                     [weakSelf markRoomAsUnread:room];
                 };
