@@ -312,6 +312,7 @@ typedef enum RoomSearchSection {
         cell.subtitleLabel.attributedText = room.lastMessageString;
     } else {
         cell.titleOnly = YES;
+        cell.subtitleLabel.text = @"";
     }
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
     cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
@@ -331,6 +332,11 @@ typedef enum RoomSearchSection {
     } else {
         BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
+    }
+
+    if (room.unreadMessages > 0) {
+        // When there are unread messages, we need to show the subtitle at the moment
+        cell.titleOnly = NO;
     }
 
     [cell.avatarView setAvatarFor:room];

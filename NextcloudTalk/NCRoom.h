@@ -145,6 +145,7 @@ extern NSString * const NCRoomObjectTypeExtendedConversation;
 @property (nonatomic, assign) NSInteger mentionPermissions;
 @property (nonatomic, assign) BOOL isArchived;
 @property (nonatomic, assign) BOOL isImportant;
+@property (nonatomic, assign) BOOL isSensitive;
 
 + (instancetype _Nullable)roomWithDictionary:(NSDictionary * _Nullable)roomDict andAccountId:(NSString * _Nullable)accountId;
 + (void)updateRoom:(NCRoom * _Nonnull)managedRoom withRoom:(NCRoom * _Nonnull)room;
