@@ -1403,7 +1403,7 @@ typedef enum RoomsSections {
             completionHandler(true);
         }];
 
-        NSString *markImageName = (room.unreadMessages > 0) ? @"eye" : @"eye.slash";
+        NSString *markImageName = (room.unreadMessages > 0) ? @"app.badge.checkmark" : @"app.badge";
         markReadAction.image = [UIImage systemImageNamed:markImageName];
         markReadAction.backgroundColor = [UIColor systemBlueColor];
 
