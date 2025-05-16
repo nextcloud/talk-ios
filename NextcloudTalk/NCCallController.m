@@ -191,7 +191,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [NCUtils log:[NSString stringWithFormat:@"Join call in NCCallController for token %@", self.room.token]];
 
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall silentFor:_silentFor recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [NCUtils log:[NSString stringWithFormat:@"Did join call in NCCallController for token %@", self.room.token]];
@@ -272,7 +272,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [self createLocalMedia];
 
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall silentFor:_silentFor recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [self.delegate callControllerDidJoinCall:self];
