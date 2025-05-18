@@ -66,7 +66,6 @@ typedef void (^SetTypingPrivacySettingCompletionBlock)(NSError *error);
 
 typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
 typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
-typedef void (^GetFileByFileIdCompletionBlock)(NKFile *file, NSInteger error, NSString *errorDescription);
 typedef void (^GetFileUniqueNameCompletionBlock)(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription);
 typedef void (^CheckAttachmentFolderCompletionBlock)(BOOL created, NSInteger errorCode);
 
@@ -231,8 +230,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // DAV client
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
 - (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData referenceId:(NSString *)referenceId withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
-- (void)getFileByFileId:(TalkAccount *)account fileId:(NSString *)fileId
-    withCompletionBlock:(GetFileByFileIdCompletionBlock)block;
 - (void)uniqueNameForFileUploadWithName:(NSString *)fileName originalName:(BOOL)isOriginalName forAccount:(TalkAccount *)account withCompletionBlock:(GetFileUniqueNameCompletionBlock)block;
 - (void)checkOrCreateAttachmentFolderForAccount:(TalkAccount *)account withCompletionBlock:(CheckAttachmentFolderCompletionBlock)block;
 

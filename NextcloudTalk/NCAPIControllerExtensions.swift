@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import NextcloudKit
 
 @objc extension NCAPIController {
 
@@ -808,6 +809,59 @@ import Foundation
             } else {
                 completionBlock(nil, ocsError?.error)
             }
+        }
+    }
+
+    // MARK: - File operations
+
+    func getFileById(forAccount account: TalkAccount, withFileId fileId: String, completionBlock: @escaping (_ file: NKFile?, _ error: NKError?) -> Void) {
+        self.setupNCCommunication(for: account)
+
+        let body = """
+            <?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+            <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://nextcloud.com/ns\">\
+            <d:basicsearch>\
+            <d:select>\
+                <d:prop>\
+                    <d:displayname />\
+                    <d:getcontenttype />\
+                    <d:resourcetype />\
+                    <d:getcontentlength />\
+                    <d:getlastmodified />\
+                    <d:creationdate />\
+                    <d:getetag />\
+                    <d:quota-used-bytes />\
+                    <d:quota-available-bytes />\
+                    <oc:permissions xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:id xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:size xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:favorite xmlns:oc=\"http://owncloud.org/ns\" />\
+                </d:prop>\
+            </d:select>\
+            <d:from>\
+                <d:scope>\
+                    <d:href>/files/%@</d:href>\
+                    <d:depth>infinity</d:depth>\
+                </d:scope>\
+            </d:from>\
+            <d:where>\
+                <d:eq>\
+                    <d:prop>\
+                        <oc:fileid xmlns:oc=\"http://owncloud.org/ns\" />\
+                    </d:prop>\
+                    <d:literal>%@</d:literal>\
+                </d:eq>\
+            </d:where>\
+            <d:orderby />\
+            </d:basicsearch>\
+            </d:searchrequest>
+            """
+
+        let bodyRequest = String(format: body, account.userId, fileId)
+        let options = NKRequestOptions(timeout: 60, queue: .main)
+
+        NextcloudKit.shared.searchBodyRequest(serverUrl: account.server, requestBody: bodyRequest, showHiddenFiles: true, options: options) { _, files, _, error in
+            completionBlock(files.first, error)
         }
     }
 }
