@@ -1044,10 +1044,10 @@ typedef enum RoomsSections {
             return;
         }
         [[NCAPIController sharedInstance] setNotificationLevelWithLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(BOOL success) {
-            if (!success) {
-                NSLog(@"Error setting notification level");
-            } else {
+            if (success) {
                 [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+            } else {
+                NSLog(@"Error setting notification level");
             }
 
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
@@ -1670,11 +1670,11 @@ typedef enum RoomsSections {
             UIAction *callNotificationAction = [UIAction actionWithTitle:NSLocalizedString(@"Notify about calls", nil) image:nil identifier:nil handler:^(UIAction *action) {
                 BOOL newState = !(action.state == UIMenuElementStateOn);
 
-                [[NCAPIController sharedInstance] setCallNotificationLevelWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
-                    if (error) {
-                        NSLog(@"Error setting call notification: %@", error.description);
-                    } else {
+                [[NCAPIController sharedInstance] setCallNotificationLevelWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(BOOL success) {
+                    if (success) {
                         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+                    } else {
+                        NSLog(@"Error setting call notification");
                     }
 
                     [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];

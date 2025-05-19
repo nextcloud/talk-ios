@@ -25,7 +25,6 @@ struct RoomInfoNotificationSection: View {
                             let success = await NCAPIController.sharedInstance().setNotificationLevel(level: newValue, forRoom: room.token, forAccount: room.account!)
                             if !success {
                                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change notifications setting", comment: ""), withMessage: nil)
-
                             }
                             
                             NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
@@ -40,12 +39,12 @@ struct RoomInfoNotificationSection: View {
 
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNotificationCalls, for: room), room.supportsCalling {
                 ActionToggle(isOn: $room.notificationCalls, action: { newValue in
-                    if let updatedRoom = try? await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: newValue, forRoom: room.token, forAccount: room.account!) {
-                        self.room = updatedRoom
-                    } else {
+                    let success = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: newValue, forRoom: room.token, forAccount: room.account!)
+                    if !success {
                         NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change call notifications setting", comment: ""), withMessage: nil)
-                        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
                     }
+
+                    NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
                 }, label: {
                     ImageSublabelView(image: Image(systemName: "phone")) {
                         Text("Calls")

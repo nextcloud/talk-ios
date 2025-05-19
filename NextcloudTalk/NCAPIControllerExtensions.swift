@@ -299,17 +299,19 @@ import NextcloudKit
     }
 
     @MainActor
-    public func setCallNotificationLevel(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
+    public func setCallNotificationLevel(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async -> Bool {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        else { return nil }
+        else { return false }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify-calls", for: account)
         let parameters: [String: Bool] = ["level": enabled]
 
-        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+        let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
 
-        return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+        // Older endpoints don't return the room object
+        // return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+        return (ocsResponse != nil)
     }
 
     // MARK: - Federation

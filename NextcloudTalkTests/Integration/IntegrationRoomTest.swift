@@ -327,10 +327,12 @@ final class IntegrationRoomTest: TestBase {
         XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.never)
 
         // Test call notification setting
-        updatedRoom = try await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: false, forRoom: room.token, forAccount: activeAccount)
+        _ = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: false, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
         XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationCalls, false)
 
-        updatedRoom = try await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: true, forRoom: room.token, forAccount: activeAccount)
+        _ = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: true, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
         XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationCalls, true)
     }
 }
