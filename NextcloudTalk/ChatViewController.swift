@@ -2055,8 +2055,15 @@ import SwiftUI
         let roomInfo = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: !self.presentedInCall)
 
         if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController, !splitViewController.isCollapsed {
+            let cancelButton = SwiftBarButtonItem(barButtonSystemItem: .cancel) { _ in
+                roomInfo.dismiss(animated: true)
+            }
+
+            cancelButton.tintColor = NCAppBranding.themeTextColor()
             roomInfo.modalPresentationStyle = .pageSheet
+
             let navController = UINavigationController(rootViewController: roomInfo)
+            navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
             self.present(navController, animated: true)
         } else {
             self.navigationController?.pushViewController(roomInfo, animated: true)

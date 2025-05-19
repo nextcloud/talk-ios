@@ -1139,6 +1139,14 @@ typedef enum RoomsSections {
 {
     UIViewController *roomInfoVC = [RoomInfoUIViewFactory createWithRoom:room showDestructiveActions:YES];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:roomInfoVC];
+
+    UIAction *cancelAction = [UIAction actionWithHandler:^(__kindof UIAction * _Nonnull action) {
+        [roomInfoVC dismissModalViewControllerAnimated:YES];
+    }];
+
+    SwiftBarButtonItem *cancelButton = [[SwiftBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel primaryAction:cancelAction];
+    navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
+
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
