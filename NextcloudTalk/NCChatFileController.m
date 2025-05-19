@@ -154,19 +154,19 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
 - (void)downloadFileWithFileId:(NSString *)fileId
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    
-    [[NCAPIController sharedInstance] getFileByFileId:activeAccount fileId:fileId withCompletionBlock:^(NKFile *file, NSInteger error, NSString *errorDescription) {
+
+    [[NCAPIController sharedInstance] getFileByIdForAccount:activeAccount withFileId:fileId completionBlock:^(NKFile * _Nullable file, NKError * _Nullable error) {
         if (file) {
             NSString *remoteDavPrefix = [NSString stringWithFormat:@"/remote.php/dav/files/%@/", activeAccount.userId];
             NSString *directoryPath = [file.path componentsSeparatedByString:remoteDavPrefix].lastObject;
-            
+
             NSString *filePath = [NSString stringWithFormat:@"%@%@", directoryPath, file.fileName];
-            
+
             self->_fileStatus = [[NCChatFileStatus alloc] initWithFileId:file.fileId fileName:file.fileName filePath:filePath fileLocalPath:nil];
             [self startDownload];
         } else {
-            NSLog(@"An error occurred while getting file with fileId %@: %@", fileId, errorDescription);
-            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:errorDescription];
+            NSLog(@"An error occurred while getting file with fileId %@: %@", fileId, error.errorDescription);
+            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:error.errorDescription];
         }
     }];
 }

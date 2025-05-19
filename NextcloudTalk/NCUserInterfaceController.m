@@ -438,12 +438,16 @@
     [controller setValue:emailSubject forKey:@"subject"];
 
     // Presentation on iPads
-    if (indexPath) {
+    if (viewController && indexPath) {
         controller.popoverPresentationController.sourceView = viewController.tableView;
         controller.popoverPresentationController.sourceRect = [viewController.tableView rectForRowAtIndexPath:indexPath];
     }
 
-    [viewController presentViewController:controller animated:YES completion:nil];
+    if (viewController) {
+        [viewController presentViewController:controller animated:YES completion:nil];
+    } else {
+        [self.mainViewController presentViewController:controller animated:YES completion:nil];
+    }
 
     controller.completionWithItemsHandler = ^(NSString *activityType,
                                               BOOL completed,

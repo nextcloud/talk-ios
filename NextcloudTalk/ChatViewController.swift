@@ -2052,19 +2052,14 @@ import SwiftUI
     // MARK: - NCChatTitleViewDelegate
 
     public override func chatTitleViewTapped(_ titleView: NCChatTitleView!) {
-        guard let roomInfoVC = RoomInfoTableViewController(for: self.room, from: self) else { return }
-        roomInfoVC.hideDestructiveActions = self.presentedInCall
+        let roomInfo = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: !self.presentedInCall)
 
-        if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController {
-            if !splitViewController.isCollapsed {
-                roomInfoVC.modalPresentationStyle = .pageSheet
-                let navController = UINavigationController(rootViewController: roomInfoVC)
-                self.present(navController, animated: true)
-            } else {
-                self.navigationController?.pushViewController(roomInfoVC, animated: true)
-            }
+        if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController, !splitViewController.isCollapsed {
+            roomInfo.modalPresentationStyle = .pageSheet
+            let navController = UINavigationController(rootViewController: roomInfo)
+            self.present(navController, animated: true)
         } else {
-            self.navigationController?.pushViewController(roomInfoVC, animated: true)
+            self.navigationController?.pushViewController(roomInfo, animated: true)
         }
 
         // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden

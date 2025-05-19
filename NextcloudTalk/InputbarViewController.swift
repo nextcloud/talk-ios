@@ -146,6 +146,9 @@ import UIKit
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
 
+        // Ensure that we only show an error and not the full "Back" text
+        self.navigationItem.backButtonDisplayMode = .minimal
+
         self.view.backgroundColor = .systemBackground
         self.textInputbar.backgroundColor = .systemBackground
 

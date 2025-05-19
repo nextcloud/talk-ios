@@ -65,7 +65,6 @@
 #import "VoiceMessageTranscribeViewController.h"
 #import "AppDelegate.h"
 #import "DateHeaderView.h"
-#import "RoomInfoTableViewController.h"
 #import "AutoCompletionTableViewCell.h"
 #import "NCKeyChainController.h"
 #import "NCIntentController.h"
@@ -83,6 +82,8 @@
 #import "CallConstants.h"
 #import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
+#import "NCRoomParticipant.h"
+#import "ContactsTableViewCell.h"
 
 #import "DRCellSlideGestureRecognizer.h"
 

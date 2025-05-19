@@ -23,7 +23,6 @@
 #import "NCUserInterfaceController.h"
 #import "NotificationCenterNotifications.h"
 #import "PlaceholderView.h"
-#import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
 #import "UIBarButtonItem+Badge.h"
 
@@ -1138,7 +1137,7 @@ typedef enum RoomsSections {
 
 - (void)presentRoomInfoForRoom:(NCRoom *)room
 {
-    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:room];
+    UIViewController *roomInfoVC = [RoomInfoUIViewFactory createWithRoom:room showDestructiveActions:YES];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:roomInfoVC];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
