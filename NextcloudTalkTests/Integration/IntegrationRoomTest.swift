@@ -314,13 +314,16 @@ final class IntegrationRoomTest: TestBase {
         let room = try await createUniqueRoom(prefix: "NotificationConversation", withAccount: activeAccount)
 
         // Test chat notification levels
-        var updatedRoom = try await NCAPIController.sharedInstance().setNotificationLevel(level: .always, forRoom: room.token, forAccount: activeAccount)
+        _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .always, forRoom: room.token, forAccount: activeAccount)
+        var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
         XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.always)
 
-        updatedRoom = try await NCAPIController.sharedInstance().setNotificationLevel(level: .mention, forRoom: room.token, forAccount: activeAccount)
+        _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .mention, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
         XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.mention)
 
-        updatedRoom = try await NCAPIController.sharedInstance().setNotificationLevel(level: .never, forRoom: room.token, forAccount: activeAccount)
+        _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .never, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
         XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.never)
 
         // Test call notification setting

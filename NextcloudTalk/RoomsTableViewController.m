@@ -1043,9 +1043,9 @@ typedef enum RoomsSections {
         if (level == room.notificationLevel) {
             return;
         }
-        [[NCAPIController sharedInstance] setNotificationLevelWithLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
-            if (error) {
-                NSLog(@"Error renaming the room: %@", error.description);
+        [[NCAPIController sharedInstance] setNotificationLevelWithLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(BOOL success) {
+            if (!success) {
+                NSLog(@"Error setting notification level");
             } else {
                 [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
             }

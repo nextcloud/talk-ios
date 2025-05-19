@@ -60,6 +60,20 @@ import NextcloudKit
         }
     }
 
+    @MainActor
+    @discardableResult
+    public func getRoom(forAccount account: TalkAccount, withToken token: String) async throws -> NCRoom? {
+        return try await withCheckedThrowingContinuation { continuation in
+            self.getRoom(forAccount: account, withToken: token) { room, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: NCRoom(dictionary: room, andAccountId: account.accountId))
+                }
+            }
+        }
+    }
+
     public func getNoteToSelfRoom(forAccount account: TalkAccount, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
@@ -269,17 +283,19 @@ import NextcloudKit
     }
 
     @MainActor
-    public func setNotificationLevel(level: NCRoomNotificationLevel, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
+    public func setNotificationLevel(level: NCRoomNotificationLevel, forRoom token: String, forAccount account: TalkAccount) async -> Bool {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        else { return nil }
+        else { return false }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify", for: account)
         let parameters: [String: Int] = ["level": level.rawValue]
 
-        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+        let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
 
-        return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+        // Older endpoints don't return the room object
+        // return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+        return (ocsResponse != nil)
     }
 
     @MainActor

@@ -22,12 +22,13 @@ struct RoomInfoNotificationSection: View {
                         Text("Chat messages")
                         Spacer()
                         ActionPicker(selection: $room.notificationLevel, action: { newValue in
-                            if let updatedRoom = try? await NCAPIController.sharedInstance().setNotificationLevel(level: newValue, forRoom: room.token, forAccount: room.account!) {
-                                self.room = updatedRoom
-                            } else {
+                            let success = await NCAPIController.sharedInstance().setNotificationLevel(level: newValue, forRoom: room.token, forAccount: room.account!)
+                            if !success {
                                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change notifications setting", comment: ""), withMessage: nil)
-                                NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+
                             }
+                            
+                            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
                         }, label: {}, content: {
                             Text(verbatim: NCRoom.stringFor(notificationLevel: .always)).tag(NCRoomNotificationLevel.always)
                             Text(verbatim: NCRoom.stringFor(notificationLevel: .mention)).tag(NCRoomNotificationLevel.mention)
