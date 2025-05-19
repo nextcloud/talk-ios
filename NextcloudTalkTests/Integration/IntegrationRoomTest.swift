@@ -276,6 +276,39 @@ final class IntegrationRoomTest: TestBase {
         XCTAssertFalse(try XCTUnwrap(updatedRoom).isImportant)
     }
 
+    func testRoomSensitiveConversation() async throws {
+        try skipWithoutCapability(capability: kCapabilitySensitiveConversations)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "SensitiveConversation", withAccount: activeAccount)
+
+        // TODO: Check for lastMessage does not work, since we don't create a reference to the lastMessage when creating a room just by a dict
+        /*
+        let message = "SensitiveTestMessage"
+
+        // Send a message
+        let exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, displayName: "", replyTo: 0, referenceId: "", silently: false, for: activeAccount) { error in
+            XCTAssertNil(error)
+
+            let chatController = NCChatController(for: room)!
+            chatController.updateHistoryInBackground { _ in
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+         */
+
+        // Set to sensitive
+        var updatedRoom = try await NCAPIController.sharedInstance().setSensitiveState(enabled: true, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertTrue(try XCTUnwrap(updatedRoom).isSensitive)
+
+        // Set to non-sensitive again
+        updatedRoom = try await NCAPIController.sharedInstance().setSensitiveState(enabled: false, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertFalse(try XCTUnwrap(updatedRoom).isSensitive)
+    }
+
     func testRoomNotificationSettings() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "NotificationConversation", withAccount: activeAccount)
