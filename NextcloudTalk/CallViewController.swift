@@ -2428,9 +2428,9 @@ class CallViewController: UIViewController,
         roomInfoVC.modalPresentationStyle = .pageSheet
 
         let navController = UINavigationController(rootViewController: roomInfoVC)
-        let cancelButton = SwiftBarButtonItem(barButtonSystemItem: .cancel) { _ in
+        let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
             roomInfoVC.dismiss(animated: true)
-        }
+        })
 
         cancelButton.tintColor = NCAppBranding.themeTextColor()
         navController.navigationBar.topItem?.leftBarButtonItem = cancelButton

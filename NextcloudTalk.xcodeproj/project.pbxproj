@@ -55,7 +55,6 @@
 		1F1DF8442C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
 		1F1DF8452C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
 		1F1DF8462C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
-		1F1F4F182DDBBD9A0012AE37 /* SwiftBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4F172DDBBD900012AE37 /* SwiftBarButtonItem.swift */; };
 		1F20582A2CEA404F00AAA673 /* AiSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */; };
 		1F20582C2CEA405700AAA673 /* AiSummaryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */; };
 		1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */; };
@@ -820,7 +819,6 @@
 		1F1C0D8829AFB89900D17C6D /* VLCKitVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLCKitVideoViewController.swift; sourceTree = "<group>"; };
 		1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkActor.swift; sourceTree = "<group>"; };
 		1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingParticipant.swift; sourceTree = "<group>"; };
-		1F1F4F172DDBBD900012AE37 /* SwiftBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftBarButtonItem.swift; sourceTree = "<group>"; };
 		1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AiSummaryViewController.swift; sourceTree = "<group>"; };
 		1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AiSummaryViewController.xib; sourceTree = "<group>"; };
 		1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiSummaryController.swift; sourceTree = "<group>"; };
@@ -1853,7 +1851,6 @@
 		2C0633102046CCA60043481A /* User Interface */ = {
 			isa = PBXGroup;
 			children = (
-				1F1F4F172DDBBD900012AE37 /* SwiftBarButtonItem.swift */,
 				1F605D472DD146DB00DF50DC /* SwiftUI */,
 				1FC18FC72CB7EE030058F621 /* Extensions */,
 				1F1B0F262BDA61C5003FD766 /* AllocationTracker.swift */,
@@ -3335,7 +3332,6 @@
 				2C90E5D31EE80C870093D85A /* AuthenticationViewController.m in Sources */,
 				2C604BD9211988A700D34DCD /* SystemMessageTableViewCell.m in Sources */,
 				1F1B50472B90CDF800B0F2F4 /* TalkCapabilities.m in Sources */,
-				1F1F4F182DDBBD9A0012AE37 /* SwiftBarButtonItem.swift in Sources */,
 				2CA1CCD01F1E1779002FE6A2 /* SearchTableViewController.m in Sources */,
 				1F1C0D8929AFB89900D17C6D /* VLCKitVideoViewController.swift in Sources */,
 				2C1C68072D51229500A7F98A /* CalendarEvent.swift in Sources */,
