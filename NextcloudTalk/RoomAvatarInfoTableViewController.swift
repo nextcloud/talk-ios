@@ -12,30 +12,6 @@ enum RoomAvatarInfoSection: Int {
     case kRoomDescriptionSection
 }
 
-struct RoomAvatarInfoTableViewControllerWrapper: UIViewControllerRepresentable {
-    @Binding var room: NCRoom
-
-    class Coordinator {
-        var parentObserver: NSKeyValueObservation?
-    }
-
-    func makeUIViewController(context: Context) -> some UIViewController {
-        let controller = UINavigationController(rootViewController: RoomAvatarInfoTableViewController(room: room))
-
-        context.coordinator.parentObserver = controller.observe(\.parent, changeHandler: { vc, _ in
-            NCAppBranding.styleViewController(controller)
-        })
-
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        //NCAppBranding.styleViewController(uiViewController.parent!)
-    }
-
-    func makeCoordinator() -> Self.Coordinator { Coordinator() }
-}
-
 @objcMembers class RoomAvatarInfoTableViewController: UITableViewController,
                                                       UINavigationControllerDelegate,
                                                       UIImagePickerControllerDelegate,
