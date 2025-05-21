@@ -1717,7 +1717,10 @@ import SwiftUI
                 let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: now)
                 let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: now)
 
-                self.datePickerTextField.getDate(startingDate: startingDate, minimumDate: minimumDate) { selectedDate in
+                self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
+                self.datePickerTextField.getDate { buttonTapped, selectedDate in
+                    guard buttonTapped == .done, let selectedDate else { return }
+
                     let timestamp = String(Int(selectedDate.timeIntervalSince1970))
                     NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
                 }

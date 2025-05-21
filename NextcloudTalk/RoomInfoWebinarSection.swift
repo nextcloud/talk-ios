@@ -9,6 +9,10 @@ import NextcloudKit
 struct RoomInfoWebinarSection: View {
     @Binding var room: NCRoom
 
+    private let manualStartTimeText = NSLocalizedString("Manual", comment: "TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually")
+    private let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+    private let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
+
     var body: (some View)? {
         guard room.canModerate else { return Body.none }
 
@@ -20,33 +24,28 @@ struct RoomInfoWebinarSection: View {
             })
 
             ActionToggle(isOn: isLobbyEnabled, action: { newValue in
-                NCAPIController.sharedInstance().setLobbyState(newValue ? .moderatorsOnly : .allParticipants, withTimer: 0, forRoom: room.token, for: room.account!) { error in
-                    if error != nil {
-                        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change lobby state of the conversation", comment: ""), withMessage: nil)
-                    }
-
-                    NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-                }
+                setLobbyState(withNewState: newValue ? .moderatorsOnly : .allParticipants, withTimer: 0)
             }, label: {
                 ImageSublabelView(image: Image("lobby").renderingMode(.template)) {
                     Text("Lobby")
                 }
             })
 
-            let lobbyTimer = Binding<Date>(get: {
-                return Date(timeIntervalSince1970: TimeInterval(self.room.lobbyTimer))
-            }, set: {
-                self.room.lobbyTimer = Int($0.timeIntervalSince1970)
-            })
-
             if isLobbyEnabled.wrappedValue {
-                // FIXME: Allow setting and changing back to manual
-                // Keep for now for translation
-                Text("Manual", comment: "TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually")
-
-                DatePicker(selection: lobbyTimer, in: Date.now...) {
-                    ImageSublabelView(image: Image(systemName: "calendar.badge.clock")) {
+                ImageSublabelView(image: Image(systemName: "calendar.badge.clock")) {
+                    HStack {
                         Text("Start time")
+                        DatePickerTextFieldWrapper(placeholder: self.room.lobbyTimer == 0 ? manualStartTimeText : NCUtils.readableDateTime(fromDate: Date(timeIntervalSince1970: TimeInterval(self.room.lobbyTimer))),
+                                                   minimumDate: minimumDate,
+                                                   startingDate: startingDate,
+                                                   buttons: self.room.lobbyTimer == 0 ? .cancelAndDone : .removeAndDone) { buttonTapped, selectedDate in
+
+                            if buttonTapped == .done, let selectedDate {
+                                setLobbyState(withNewState: .moderatorsOnly, withTimer: Int(selectedDate.timeIntervalSince1970))
+                            } else if buttonTapped == .remove {
+                                setLobbyState(withNewState: .moderatorsOnly, withTimer: 0)
+                            }
+                        }.id(room)
                     }
                 }
             }
@@ -59,13 +58,7 @@ struct RoomInfoWebinarSection: View {
                 })
 
                 ActionToggle(isOn: isSipEnabled, action: { newValue in
-                    NCAPIController.sharedInstance().setSIPState(newValue ? .enabled : .disabled, forRoom: room.token, for: room.account!) { error in
-                        if error != nil {
-                            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change SIP state of the conversation", comment: ""), withMessage: nil)
-                        }
-
-                        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-                    }
+                    setSipState(withNewState: newValue ? .enabled : .disabled)
                 }, label: {
                     ImageSublabelView(image: Image(systemName: "phone")) {
                         Text("SIP dial-in")
@@ -80,13 +73,7 @@ struct RoomInfoWebinarSection: View {
                     })
 
                     ActionToggle(isOn: isSipEnabledWithoutPin, action: { newValue in
-                        NCAPIController.sharedInstance().setSIPState(newValue ? .enabledWithoutPIN : .enabled, forRoom: room.token, for: room.account!) { error in
-                            if error != nil {
-                                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change SIP state of the conversation", comment: ""), withMessage: nil)
-                            }
-
-                            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-                        }
+                        setSipState(withNewState: newValue ? .enabledWithoutPIN : .enabled)
                     }, label: {
                         ImageSublabelView(image: Image(uiImage: UIImage())) {
                             Text("Allow to dial-in without a pin")
@@ -94,6 +81,26 @@ struct RoomInfoWebinarSection: View {
                     })
                 }
             }
+        }
+    }
+
+    func setLobbyState(withNewState newState: NCRoomLobbyState, withTimer timer: Int) {
+        NCAPIController.sharedInstance().setLobbyState(newState, withTimer: timer, forRoom: room.token, for: room.account!) { error in
+            if error != nil {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change lobby state of the conversation", comment: ""), withMessage: nil)
+            }
+
+            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+        }
+    }
+
+    func setSipState(withNewState newState: NCRoomSIPState) {
+        NCAPIController.sharedInstance().setSIPState(newState, forRoom: room.token, for: room.account!) { error in
+            if error != nil {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change SIP state of the conversation", comment: ""), withMessage: nil)
+            }
+
+            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
         }
     }
 }
