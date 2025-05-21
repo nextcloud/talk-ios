@@ -1238,6 +1238,9 @@
 "Local" = "Local";
 
 /* No comment provided by engineer. */
+"Local time: %@" = "Local time: %@";
+
+/* No comment provided by engineer. */
 "Location" = "Location";
 
 /* No comment provided by engineer. */
