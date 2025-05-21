@@ -848,6 +848,9 @@
 "Do you want to connect to the server anyway?" = "Do you want to connect to the server anyway?";
 
 /* No comment provided by engineer. */
+"Do you want to delete this conversation?" = "Do you want to delete this conversation?";
+
+/* No comment provided by engineer. */
 "Do you want to enable your camera?" = "Do you want to enable your camera?";
 
 /* No comment provided by engineer. */
@@ -1191,6 +1194,9 @@
 
 /* No comment provided by engineer. */
 "Join video call" = "Join video call";
+
+/* No comment provided by engineer. */
+"Keep" = "Keep";
 
 /* No comment provided by engineer. */
 "Last day (inclusive)" = "Last day (inclusive)";
@@ -2013,6 +2019,9 @@
 
 /* No comment provided by engineer. */
 "This conversation is read-only" = "This conversation is read-only";
+
+/* No comment provided by engineer. */
+"This conversation will be automatically deleted for everyone in %ld days of no activity." = "This conversation will be automatically deleted for everyone in %ld days of no activity.";
 
 /* The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00) */
 "This meeting is scheduled for" = "This meeting is scheduled for";

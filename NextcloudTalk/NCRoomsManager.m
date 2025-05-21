@@ -335,21 +335,55 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 - (void)deleteRoomWithConfirmation:(NCRoom *)room withStartedBlock:(RoomDeletionStartedBlock)startedBlock andWithFinishedBlock:(RoomDeletionFinishedBlock)finishedBlock
 {
-    [self deleteRoomWithConfirmation:room withTitle:NSLocalizedString(@"Delete conversation", nil) withMessage:room.deletionMessage withStartedBlock:startedBlock andWithFinishedBlock:finishedBlock];
+    [self deleteRoomWithConfirmation:room withTitle:NSLocalizedString(@"Delete conversation", nil) withMessage:room.deletionMessage withStartedBlock:startedBlock withKeepOption:NO andWithFinishedBlock:finishedBlock];
 }
 
 - (void)deleteEventRoomWithConfirmationAfterCall:(NCRoom *)room
 {
+    NSString *title = NSLocalizedString(@"Delete conversation", nil);
     NSString *message = NSLocalizedString(@"The call for this event ended. Do you want to delete this conversation for everyone?", nil);
-    [self deleteRoomWithConfirmation:room withTitle:NSLocalizedString(@"Delete conversation", nil) withMessage:message withStartedBlock:nil andWithFinishedBlock:nil];
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
+    BOOL isRetentionEnabled = serverCapabilities.retentionEvent > 0;
+    if (isRetentionEnabled) {
+        title = NSLocalizedString(@"Do you want to delete this conversation?", nil);
+        message = [NSString localizedStringWithFormat:NSLocalizedString(@"This conversation will be automatically deleted for everyone in %ld days of no activity.", nil), (long)serverCapabilities.retentionEvent];
+    }
+
+    [self deleteRoomWithConfirmation:room withTitle:title withMessage:message withStartedBlock:nil withKeepOption:isRetentionEnabled andWithFinishedBlock:nil];
 }
 
-- (void)deleteRoomWithConfirmation:(NCRoom *)room withTitle:(NSString *)title withMessage:(NSString *)message withStartedBlock:(RoomDeletionStartedBlock)startedBlock andWithFinishedBlock:(RoomDeletionFinishedBlock)finishedBlock
+- (void)deleteRoomWithConfirmation:(NCRoom *)room withTitle:(NSString *)title withMessage:(NSString *)message withStartedBlock:(RoomDeletionStartedBlock)startedBlock withKeepOption:(BOOL)withKeepOption andWithFinishedBlock:(RoomDeletionFinishedBlock)finishedBlock
 {
     UIAlertController *confirmDialog =
     [UIAlertController alertControllerWithTitle:title
                                         message:message
                                  preferredStyle:UIAlertControllerStyleAlert];
+
+    // Keep option
+    if (withKeepOption) {
+        UIAlertAction *keepAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Keep", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+
+            if (startedBlock) {
+                startedBlock();
+            }
+
+            [[NCAPIController sharedInstance] unbindRoomFromObject:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
+                if (error) {
+                    NSLog(@"Error unbinding room from object: %@", error.description);
+                }
+
+                if (finishedBlock) {
+                    finishedBlock(error == nil);
+                }
+            }];
+        }];
+
+        [confirmDialog addAction:keepAction];
+    }
+
+    // Delete option
     UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
 
@@ -371,6 +405,8 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }];
 
     [confirmDialog addAction:confirmAction];
+
+    // Cancel option
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
 

@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 78;
+uint64_t const kTalkDatabaseSchemaVersion           = 79;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -433,6 +433,18 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.descriptionLength = [[conversationsConfig objectForKey:@"description-length"] integerValue];
     } else {
         capabilities.descriptionLength = 500;
+    }
+
+    if ([conversationsConfigKeys containsObject:@"retention-event"]) {
+        capabilities.retentionEvent = [[conversationsConfig objectForKey:@"retention-event"] integerValue];
+    }
+
+    if ([conversationsConfigKeys containsObject:@"retention-phone"]) {
+        capabilities.retentionPhone = [[conversationsConfig objectForKey:@"retention-phone"] integerValue];
+    }
+
+    if ([conversationsConfigKeys containsObject:@"retention-instant-meetings"]) {
+        capabilities.retentionInstantMeetings = [[conversationsConfig objectForKey:@"retention-instant-meetings"] integerValue];
     }
 
     // Chat capabilities

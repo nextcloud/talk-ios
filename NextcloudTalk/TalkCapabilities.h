@@ -30,6 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSInteger maxGifSize;
 @property NSInteger summaryThreshold;
 @property NSInteger descriptionLength;
+@property NSInteger retentionEvent;
+@property NSInteger retentionPhone;
+@property NSInteger retentionInstantMeetings;
 
 @end
 
