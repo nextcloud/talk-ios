@@ -900,4 +900,28 @@ import NextcloudKit
             completionBlock(files.first, error)
         }
     }
+
+    // MARK: - Profile
+
+    @nonobjc
+    func getUserProfile(forUserId userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ info: ProfileInfo?) -> Void) {
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/profile/\(encodedUserId)"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, error in
+            // Note: HTTP 405 -> Server does not support the endpoint
+            guard let dataDict = ocsResponse?.dataDict else {
+                completionBlock(nil)
+                return
+            }
+
+            completionBlock(ProfileInfo(dictionary: dataDict))
+        }
+    }
 }

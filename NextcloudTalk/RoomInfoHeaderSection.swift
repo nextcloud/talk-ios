@@ -10,6 +10,7 @@ struct RoomInfoHeaderSection: View {
     let hostingWrapper: HostingControllerWrapper
 
     @Binding var room: NCRoom
+    @Binding var profileInfo: ProfileInfo?
 
     var body: (some View)? {
         Section {
@@ -29,6 +30,33 @@ struct RoomInfoHeaderSection: View {
                 // TODO: Use UITextView wrapper to enable data detectors
                 Text(description)
                     .textSelection(.enabled)
+            }
+        }
+
+        if let profileInfo, profileInfo.hasAnyInformation() {
+            Section {
+                if let firstLine = profileInfo.getFirstProfileLine() {
+                    ImageSublabelView(image: Image(systemName: "person")) {
+                        Text(firstLine)
+                    }
+                }
+
+                if let secondLine = profileInfo.getSecondProfileLine() {
+                    ImageSublabelView(image: Image(systemName: "building")) {
+                        Text(secondLine)
+                    }
+                }
+
+                if let timezoneOffset = profileInfo.timezoneOffset {
+                    ImageSublabelView(image: Image(systemName: "clock")) {
+                        let myOffset = TimeZone.current.secondsFromGMT()
+                        let resultOffset = timezoneOffset - myOffset
+                        let localTime = Date(timeIntervalSince1970: Date().timeIntervalSince1970 + TimeInterval(resultOffset))
+                        let timeString = String(format: NSLocalizedString("Local time: %@", comment: ""), NCUtils.getTime(fromDate: localTime))
+
+                        Text(verbatim: timeString)
+                    }
+                }
             }
         }
     }

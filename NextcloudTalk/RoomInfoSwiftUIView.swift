@@ -25,11 +25,11 @@ struct RoomInfoSwiftUIView: View {
     @State var room: NCRoom
     @State var showDestructiveActions: Bool = true
     @State var quickLookUrl: URL?
+    @State var profileInfo: ProfileInfo?
 
     var body: some View {
         List {
-            RoomInfoHeaderSection(hostingWrapper: hostingWrapper, room: $room)
-            // TODO: New 1:1 info
+            RoomInfoHeaderSection(hostingWrapper: hostingWrapper, room: $room, profileInfo: $profileInfo)
 
             RoomInfoFileSection(hostingWrapper: hostingWrapper, room: $room, quickLookUrl: $quickLookUrl)
             RoomInfoSharedItemsSection(hostingWrapper: hostingWrapper, room: $room)
@@ -62,6 +62,15 @@ struct RoomInfoSwiftUIView: View {
         }
         .task {
             NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+
+            if room.type == .oneToOne {
+                // TODO: Should have some caching here
+                NCAPIController.sharedInstance().getUserProfile(forUserId: room.name, forAccount: room.account!) { info in
+                    guard let info else { return }
+
+                    self.profileInfo = info
+                }
+            }
         }
     }
 }

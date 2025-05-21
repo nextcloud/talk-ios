@@ -57,6 +57,11 @@
 		1F1DF8462C64006E00E5EA86 /* SignalingParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */; };
 		1F1F4EE72DDB76960012AE37 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4ED32DDB76960012AE37 /* UIViewExtensions.swift */; };
 		1F1F4F192DDE63550012AE37 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4ED32DDB76960012AE37 /* UIViewExtensions.swift */; };
+		1F1F4F1E2DDE65A50012AE37 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4F1D2DDE65A50012AE37 /* ProfileInfo.swift */; };
+		1F1F4F1F2DDE67E00012AE37 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4F1D2DDE65A50012AE37 /* ProfileInfo.swift */; };
+		1F1F4F202DDE67E00012AE37 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4F1D2DDE65A50012AE37 /* ProfileInfo.swift */; };
+		1F1F4F212DDE67E00012AE37 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4F1D2DDE65A50012AE37 /* ProfileInfo.swift */; };
+		1F1F4F222DDE67F00012AE37 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F4F1D2DDE65A50012AE37 /* ProfileInfo.swift */; };
 		1F20582A2CEA404F00AAA673 /* AiSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */; };
 		1F20582C2CEA405700AAA673 /* AiSummaryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */; };
 		1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */; };
@@ -822,6 +827,7 @@
 		1F1DF83B2C5C17AF00E5EA86 /* TalkActor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkActor.swift; sourceTree = "<group>"; };
 		1F1DF8422C64006E00E5EA86 /* SignalingParticipant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalingParticipant.swift; sourceTree = "<group>"; };
 		1F1F4ED32DDB76960012AE37 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
+		1F1F4F1D2DDE65A50012AE37 /* ProfileInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInfo.swift; sourceTree = "<group>"; };
 		1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AiSummaryViewController.swift; sourceTree = "<group>"; };
 		1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AiSummaryViewController.xib; sourceTree = "<group>"; };
 		1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiSummaryController.swift; sourceTree = "<group>"; };
@@ -1702,6 +1708,7 @@
 		1FA8AB002DC3E19D005B3157 /* RoomInfo */ = {
 			isa = PBXGroup;
 			children = (
+				1F1F4F1D2DDE65A50012AE37 /* ProfileInfo.swift */,
 				1FA8AB132DC950F5005B3157 /* RoomInfoSwiftUIView.swift */,
 				1FCB72F42DD8DAA0001A4238 /* RoomInfoHeaderSection.swift */,
 				1F605D3B2DD141D800DF50DC /* RoomInfoFileSection.swift */,
@@ -3110,6 +3117,7 @@
 				1FA93DB72D70FFCC00DF6CDF /* BGTaskHelper.swift in Sources */,
 				1FA93DE32D7100DC00DF6CDF /* NotificationCenterNotifications.m in Sources */,
 				1FA93DC72D71002800DF6CDF /* UIFontExtension.swift in Sources */,
+				1F1F4F222DDE67F00012AE37 /* ProfileInfo.swift in Sources */,
 				1FA93DB12D70FF1600DF6CDF /* SwiftMarkdownObjCBridge.swift in Sources */,
 				1FA93DAE2D70FE9F00DF6CDF /* NCDatabaseManager.m in Sources */,
 				1FA93DB32D70FF3100DF6CDF /* NCChatFileStatus.swift in Sources */,
@@ -3159,6 +3167,7 @@
 				1F77A5EC2AB9A405007B6037 /* NCChatBlock.m in Sources */,
 				2C13E2EA2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */,
 				2C13E4102D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
+				1F1F4F212DDE67E00012AE37 /* ProfileInfo.swift in Sources */,
 				1F77A5F42AB9A4B2007B6037 /* ABContact.m in Sources */,
 				1F77A6012AB9A51D007B6037 /* NCNotificationAction.swift in Sources */,
 				1FB7B9902BF0CDF80093CE98 /* BannedActor.swift in Sources */,
@@ -3364,6 +3373,7 @@
 				1FC18FC22CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift in Sources */,
 				1F5499202D35B07700E9AA9E /* ButtonContainerSwiftUI.swift in Sources */,
 				2C6D1A992D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift in Sources */,
+				1F1F4F1E2DDE65A50012AE37 /* ProfileInfo.swift in Sources */,
 				1F605D442DD1456000DF50DC /* RoomInfoNonDestructiveSection.swift in Sources */,
 				1F46CE2928E05B3200E7D88E /* ReferenceDefaultView.swift in Sources */,
 				1FCE3D552C9C189D009C68A9 /* NCChatFileControllerWrapper.swift in Sources */,
@@ -3517,6 +3527,7 @@
 				1F35F8EC2AEEBC1400044BDA /* UIScrollView+SLKAdditions.m in Sources */,
 				1FF136172BFB74CF006A6101 /* NCChatMessage.swift in Sources */,
 				2C1C68092D51338400A7F98A /* CalendarEvent.swift in Sources */,
+				1F1F4F202DDE67E00012AE37 /* ProfileInfo.swift in Sources */,
 				2CF338E22CED388B0029CACC /* AvatarView.swift in Sources */,
 				2C13E4122D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
 				1FF4DA8A2C0262BB00C1B952 /* NCBaseSessionManager.swift in Sources */,
@@ -3633,6 +3644,7 @@
 				1F8AAC3D2C519689004DA20A /* StunServer.swift in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955142B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
+				1F1F4F1F2DDE67E00012AE37 /* ProfileInfo.swift in Sources */,
 				1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
 				2C6137962D94572000C51684 /* RoomBuilder.swift in Sources */,
 				1F0B0A752BA265310073FF8D /* MentionSuggestion.swift in Sources */,
