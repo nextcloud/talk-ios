@@ -16,12 +16,15 @@ import AVKit
     @objc func callViewController(_ viewController: CallViewController, wantsToSwitchFromRoom from: String, toRoom to: String)
 }
 
+enum CallViewSection {
+    case main
+}
+
 @objcMembers
 class CallViewController: UIViewController,
                             NCCallControllerDelegate,
                             UICollectionViewDelegate,
                             UICollectionViewDelegateFlowLayout,
-                            UICollectionViewDataSource,
                             RTCVideoViewDelegate,
                             CallParticipantViewCellDelegate,
                             UIGestureRecognizerDelegate,
@@ -46,6 +49,8 @@ class CallViewController: UIViewController,
     public var initiator = false
     public var silentCall = false
     public var recordingConsent = false
+
+    private var speakers: [NCPeerConnection] = []
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -254,6 +259,7 @@ class CallViewController: UIViewController,
 
         self.titleView.delegate = self
         self.collectionView.delegate = self
+        self.applyInitialSnapshot()
 
         self.createWaitingScreen()
 
@@ -509,9 +515,85 @@ class CallViewController: UIViewController,
 
     // MARK: - UICollectionView Datasource
 
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    lazy var dataSource: UICollectionViewDiffableDataSource<CallViewSection, NCPeerConnection> = {
+        return UICollectionViewDiffableDataSource<CallViewSection, NCPeerConnection>(collectionView: collectionView) { [weak self] collectionView, indexPath, peerConnection -> UICollectionViewCell? in
+
+            guard let participantCell = collectionView.dequeueReusableCell(withReuseIdentifier: kCallParticipantCellIdentifier, for: indexPath) as? CallParticipantViewCell
+            else { return UICollectionViewCell() }
+
+            participantCell.peerIdentifier = peerConnection.peerIdentifier
+            participantCell.actionsDelegate = self
+
+            return participantCell
+        }
+    }()
+
+    private func applyInitialSnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<CallViewSection, NCPeerConnection>()
+        snapshot.appendSections([.main])
+        dataSource.apply(snapshot, animatingDifferences: false)
+    }
+
+    func updateSnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<CallViewSection, NCPeerConnection>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(peersInCall)
+        dataSource.apply(snapshot, animatingDifferences: true)
+
         self.setCallStateForPeersInCall()
-        return peersInCall.count
+    }
+
+    func priority(for peerConnection: NCPeerConnection) -> (Int, Int) {
+        // 1. Screen sharers
+        if screenRenderersDict[peerConnection.peerId] != nil {
+            return (0, peerConnection.addedTime)
+        }
+
+        // 2. Speakers (respecting order in speakers array)
+        if let speakerIndex = speakers.firstIndex(of: peerConnection) {
+            return (1, speakerIndex)
+        }
+
+        // 3. Peers sending audio/video streams
+        if peerConnection.hasRemoteStream() {
+            if !peerConnection.isRemoteVideoDisabled {
+                return (2, peerConnection.addedTime)
+            } else {
+                return (3, peerConnection.addedTime)
+            }
+        }
+
+        // 4. Other peers
+        return (4, peerConnection.addedTime)
+    }
+
+    func sortPeersInCall() {
+        // Only sort participants if the collection view is scrollable (not all participants fit in the screen)
+        if collectionView.contentSize.height > collectionView.bounds.height {
+            peersInCall.sort { priority(for: $0) < priority(for: $1) }
+        }
+    }
+
+    func addSpeakerAndPromoteIfNeeded(_ peerConnection: NCPeerConnection) {
+        DispatchQueue.main.async {
+            let isVisible = self.collectionView.indexPathsForVisibleItems.contains {
+                self.dataSource.itemIdentifier(for: $0)?.peerIdentifier == peerConnection.peerIdentifier
+            }
+
+            // Do not add to speakers or resort if participant is already visible.
+            if isVisible { return }
+
+            // If already in speakers and not visible, promote to the first position.
+            // Skip reordering if already at the top.
+            if let index = self.speakers.firstIndex(of: peerConnection) {
+                guard index != 0 else { return }
+                self.speakers.remove(at: index)
+            }
+            self.speakers.insert(peerConnection, at: 0)
+
+            self.sortPeersInCall()
+            self.updateSnapshot()
+        }
     }
 
     func updateParticipantCell(cell: CallParticipantViewCell, withPeerConnection peerConnection: NCPeerConnection) {
@@ -558,18 +640,6 @@ class CallViewController: UIViewController,
                 cell.connectionState = connectionState
             }
         }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let participantCell = collectionView.dequeueReusableCell(withReuseIdentifier: kCallParticipantCellIdentifier, for: indexPath) as? CallParticipantViewCell
-        else { return UICollectionViewCell() }
-
-        let peerConnection = peersInCall[indexPath.row]
-
-        participantCell.peerIdentifier = peerConnection.peerIdentifier
-        participantCell.actionsDelegate = self
-
-        return participantCell
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -703,6 +773,9 @@ class CallViewController: UIViewController,
                 self.updatePeer(remotePeer) { cell in
                     cell.screenShared = true
                 }
+
+                self.sortPeersInCall()
+                self.updateSnapshot()
             }
         }
     }
@@ -747,6 +820,10 @@ class CallViewController: UIViewController,
             if peersInCall.count > 1 {
                 self.updatePeer(peer) { cell in
                     cell.setSpeaking(peer.isPeerSpeaking)
+                }
+                // Add to speakers and sort participants if needed
+                if message == "speaking" {
+                    self.addSpeakerAndPromoteIfNeeded(peer)
                 }
             }
         case "raiseHand":
@@ -807,9 +884,7 @@ class CallViewController: UIViewController,
             self.batchUpdateTimer = nil
 
             // Force the collectionView to reload all data
-            self.collectionView.reloadData()
-            self.collectionView.collectionViewLayout.invalidateLayout()
-            self.collectionView.layoutSubviews()
+            self.applyInitialSnapshot()
 
             self.setCallState(.reconnecting)
         }
@@ -2283,15 +2358,17 @@ class CallViewController: UIViewController,
 
     func addPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
+            // Store added time
+            if peer.addedTime == 0 {
+                peer.addedTime = Int(Date().timeIntervalSince1970 * 1000)
+            }
+            // Add peer to collection view
             if self.peersInCall.isEmpty {
                 // Don't delay adding the first peer
-
                 self.peersInCall.append(peer)
-                let insertionIndexPath = IndexPath(row: 0, section: 0)
-                self.collectionView.insertItems(at: [insertionIndexPath])
+                self.updateSnapshot()
             } else if !self.pendingPeerInserts.contains(peer) {
                 // Delay updating the collection view a bit to allow batch updating
-
                 self.pendingPeerInserts.append(peer)
                 self.scheduleBatchCollectionViewUpdate()
             }
@@ -2342,58 +2419,38 @@ class CallViewController: UIViewController,
             return
         }
 
-        self.collectionView.performBatchUpdates {
-            // Perform deletes before inserts according to apples docs
-            var indexPathsToDelete: [IndexPath] = []
+        // Remove peer and renderers
+        for peer in pendingPeerDeletions {
+            // Video renderers
+            let videoRenderer = self.videoRenderersDict[peer.peerIdentifier]
+            self.videoRenderersDict.removeValue(forKey: peer.peerIdentifier)
 
-            // Determine all indexPaths we want to delete and remove the renderers
-            for peer in pendingPeerDeletions {
-                // Video renderers
-                let videoRenderer = self.videoRenderersDict[peer.peerIdentifier]
-                self.videoRenderersDict.removeValue(forKey: peer.peerIdentifier)
-
-                if let videoRenderer {
-                    WebRTCCommon.shared.dispatch {
-                        peer.getRemoteStream()?.videoTracks.first?.remove(videoRenderer)
-                    }
-                }
-
-                let indexPath = self.indexPath(forPeerIdentifier: peer.peerIdentifier)
-
-                // Make sure we remove every index path only once
-                if let indexPath, !indexPathsToDelete.contains(indexPath) {
-                    indexPathsToDelete.append(indexPath)
+            if let videoRenderer {
+                WebRTCCommon.shared.dispatch {
+                    peer.getRemoteStream()?.videoTracks.first?.remove(videoRenderer)
                 }
             }
-
-            // Delete should be done in descending order
-            let indexPathsToDeleteSorted = indexPathsToDelete.sorted { $0.row > $1.row }
-
-            for indexPath in indexPathsToDeleteSorted {
-                self.peersInCall.remove(at: indexPath.row)
-                self.collectionView.deleteItems(at: [indexPath])
-            }
-
-            // Add all new peers
-            for peer in pendingPeerInserts {
-                let indexPath = self.indexPath(forPeerIdentifier: peer.peerIdentifier)
-
-                if indexPath == nil {
-                    self.peersInCall.append(peer)
-                    let insertionIndexPath = IndexPath(row: self.peersInCall.count - 1, section: 0)
-                    self.collectionView.insertItems(at: [insertionIndexPath])
-                }
-            }
-
-            // Process pending updates
-            for pendingUpdate in pendingPeerUpdates {
-                self.updatePeer(pendingUpdate.peer, block: pendingUpdate.block)
-            }
-
-            pendingPeerInserts = []
-            pendingPeerDeletions = []
-            pendingPeerUpdates = []
+            // Remove peer
+            self.peersInCall.removeAll { $0.peerIdentifier == peer.peerIdentifier }
         }
+
+        // Add all new peers
+        self.peersInCall.append(contentsOf: pendingPeerInserts)
+
+        // Sort peers in call
+        self.sortPeersInCall()
+
+        // Update collection view snapshot
+        self.updateSnapshot()
+
+        // Process pending updates
+        for pendingUpdate in pendingPeerUpdates {
+            self.updatePeer(pendingUpdate.peer, block: pendingUpdate.block)
+        }
+
+        pendingPeerInserts = []
+        pendingPeerDeletions = []
+        pendingPeerUpdates = []
     }
 
     func showPeersInfo() {
