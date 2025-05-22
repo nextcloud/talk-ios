@@ -21,6 +21,7 @@ typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, TalkAc
 typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 typedef void (^SendOfflineMessagesCompletionBlock)(void);
 typedef void (^RoomDeletionStartedBlock)(void);
+typedef void (^RoomDeletionAdditionalOptionBlock)(BOOL success);
 typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 
 @class ChatViewController;
