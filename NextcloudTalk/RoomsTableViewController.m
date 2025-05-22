@@ -766,7 +766,7 @@ typedef enum RoomsSections {
         case kRoomsFilterMentioned:
             return NSLocalizedString(@"Mentioned", @"'Mentioned' meaning 'Mentioned conversations'");
         case kRoomsFilterEvent:
-            return NSLocalizedString(@"Event", @"'Event' meaning 'Conversations that were created from a calendar event'");
+            return NSLocalizedString(@"Meeting", @"'Meeting' meaning 'Conversations that were created from a calendar event'");
         default:
             return @"";
     }

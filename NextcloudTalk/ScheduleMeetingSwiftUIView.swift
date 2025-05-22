@@ -50,7 +50,7 @@ struct ScheduleMeetingSwiftUIView: View {
                         TextField("Description", text: $description, axis: .vertical)
                     }
 
-                    Section(header: Text("Schedule")) {
+                    Section(header: Text("Schedule", comment: "Noun. 'Schedule' of a meeting")) {
                         DatePicker("From", selection: $start, in: Date()..., displayedComponents: [.date, .hourAndMinute])
                         DatePicker("To", selection: $end, in: start.addingTimeInterval(60 * 15)..., displayedComponents: [.date, .hourAndMinute])
                     }
