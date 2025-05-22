@@ -411,7 +411,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     [confirmDialog addAction:confirmAction];
 
     // Cancel option
-    NSString *cancelTitle = withKeepOption ? NSLocalizedString(@"Dismiss", nil) :NSLocalizedString(@"Delete", nil);
+    NSString *cancelTitle = withKeepOption ? NSLocalizedString(@"Dismiss", nil) : NSLocalizedString(@"Cancel", nil);
 
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelTitle style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
