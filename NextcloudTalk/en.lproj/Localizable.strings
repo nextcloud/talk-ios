@@ -1000,9 +1000,6 @@
 /* No comment provided by engineer. */
 "Error occurred while editing a message" = "Error occurred while editing a message";
 
-/* 'Event' meaning 'Conversations that were created from a calendar event' */
-"Event" = "Event";
-
 /* No comment provided by engineer. */
 "Events menu" = "Events menu";
 
@@ -1287,6 +1284,9 @@
 
 /* No comment provided by engineer. */
 "Media" = "Media";
+
+/* 'Meeting' meaning 'Conversations that were created from a calendar event' */
+"Meeting" = "Meeting";
 
 /* No comment provided by engineer. */
 "Meeting created" = "Meeting created";
@@ -1759,7 +1759,7 @@
 /* No comment provided by engineer. */
 "Scanning QR Codes is not supported on this device." = "Scanning QR Codes is not supported on this device.";
 
-/* No comment provided by engineer. */
+/* Noun. 'Schedule' of a meeting */
 "Schedule" = "Schedule";
 
 /* No comment provided by engineer. */

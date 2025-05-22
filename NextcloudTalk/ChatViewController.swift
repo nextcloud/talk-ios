@@ -185,7 +185,7 @@ import SwiftUI
 
         var menuElements: [UIMenuElement] = []
 
-        menuElements.append(UIAction(title: NSLocalizedString("Schedule", comment: ""), subtitle: calendarEvent.readableStartTime(), handler: { _ in }))
+        menuElements.append(UIAction(title: NSLocalizedString("Schedule", comment: "Noun. 'Schedule' of a meeting"), subtitle: calendarEvent.readableStartTime(), handler: { _ in }))
 
         if self.room.canModerate, calendarEvent.isPastEvent {
             let deleteConversation = UIAction(title: NSLocalizedString("Delete conversation", comment: ""), image: .init(systemName: "trash")) { [unowned self] _ in
