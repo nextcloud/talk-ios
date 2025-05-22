@@ -95,6 +95,33 @@ NSString * const NCAttendeeBridgeBotId  = @"bridge-bot";
     return _participantType == kNCParticipantTypeModerator || _participantType == kNCParticipantTypeGuestModerator;
 }
 
+- (BOOL)canBeModerated
+{
+    return _participantType != kNCParticipantTypeOwner && ![self isAppUser];
+}
+
+- (BOOL)canBeBanned
+{
+    return [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityBanV1] && !self.isGroup && !self.isTeam && !self.isFederated && !self.canModerate;
+}
+
+- (BOOL)canBeNotifiedAboutCall
+{
+    return ![self isAppUser] &&
+            self.inCall == CallFlagDisconnected &&
+            [self.actorType isEqualToString:NCAttendeeTypeUser] &&
+            [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySendCallNotification];
+}
+
+- (BOOL)isAppUser
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([self.participantId isEqualToString:activeAccount.userId]) {
+        return YES;
+    }
+    return NO;
+}
+
 - (BOOL)isBridgeBotUser
 {
     return [_actorType isEqualToString:NCAttendeeTypeUser] && [_actorId isEqualToString:NCAttendeeBridgeBotId];

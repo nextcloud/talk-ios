@@ -275,7 +275,7 @@ import SwiftUI
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive(notification:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive(notification:)), name: UIApplication.willResignActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(connectionStateHasChanged(notification:)), name: NSNotification.Name.NCConnectionStateHasChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionStateHasChanged(notification:)), name: NSNotification.Name.NCConnectionStateHasChangedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(maintenanceModeActive(notification:)), name: NSNotification.Name.NCServerMaintenanceMode, object: nil)
 
         // Notifications when runing on Mac
@@ -1717,7 +1717,10 @@ import SwiftUI
                 let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: now)
                 let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: now)
 
-                self.datePickerTextField.getDate(startingDate: startingDate, minimumDate: minimumDate) { selectedDate in
+                self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
+                self.datePickerTextField.getDate { buttonTapped, selectedDate in
+                    guard buttonTapped == .done, let selectedDate else { return }
+
                     let timestamp = String(Int(selectedDate.timeIntervalSince1970))
                     NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
                 }
@@ -2052,19 +2055,21 @@ import SwiftUI
     // MARK: - NCChatTitleViewDelegate
 
     public override func chatTitleViewTapped(_ titleView: NCChatTitleView!) {
-        guard let roomInfoVC = RoomInfoTableViewController(for: self.room, from: self) else { return }
-        roomInfoVC.hideDestructiveActions = self.presentedInCall
+        let roomInfo = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: !self.presentedInCall)
 
-        if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController {
-            if !splitViewController.isCollapsed {
-                roomInfoVC.modalPresentationStyle = .pageSheet
-                let navController = UINavigationController(rootViewController: roomInfoVC)
-                self.present(navController, animated: true)
-            } else {
-                self.navigationController?.pushViewController(roomInfoVC, animated: true)
-            }
+        if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController, !splitViewController.isCollapsed {
+            let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
+                roomInfo.dismiss(animated: true)
+            })
+
+            cancelButton.tintColor = NCAppBranding.themeTextColor()
+            roomInfo.modalPresentationStyle = .pageSheet
+
+            let navController = UINavigationController(rootViewController: roomInfo)
+            navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
+            self.present(navController, animated: true)
         } else {
-            self.navigationController?.pushViewController(roomInfoVC, animated: true)
+            self.navigationController?.pushViewController(roomInfo, animated: true)
         }
 
         // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden

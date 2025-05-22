@@ -4,6 +4,46 @@
 //
 
 import Foundation
+import SwiftUI
+
+struct RoomNameTableViewCellWrapper: UIViewRepresentable {
+    @Binding var room: NCRoom
+
+    func makeUIView(context: Context) -> RoomNameTableViewCell {
+        let cell: RoomNameTableViewCell = .fromNib()
+        cell.translatesAutoresizingMaskIntoConstraints = false
+
+        return cell
+    }
+
+    func updateUIView(_ cell: RoomNameTableViewCell, context: Context) {
+        cell.roomNameTextField.text = room.name
+
+        if room.type == .oneToOne || room.type == .formerOneToOne || room.type == .changelog {
+            cell.roomNameTextField.text = room.displayName
+        }
+
+        cell.roomImage.setAvatar(for: room)
+
+        if room.hasCall {
+            cell.favoriteImage.tintColor = .systemRed
+            cell.favoriteImage.image = UIImage(systemName: "video.fill")
+        } else if room.isFavorite {
+            cell.favoriteImage.tintColor = .systemYellow
+            cell.favoriteImage.image = UIImage(systemName: "star.fill")
+        }
+
+        cell.roomNameTextField.isUserInteractionEnabled = false
+
+        if room.canModerate || room.type == .noteToSelf {
+            cell.accessoryType = .disclosureIndicator
+            cell.isUserInteractionEnabled = true
+        } else {
+            cell.accessoryType = .none
+            cell.isUserInteractionEnabled = false
+        }
+    }
+}
 
 @objcMembers public class RoomNameTableViewCell: UITableViewCell {
 

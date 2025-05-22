@@ -469,54 +469,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)setNotificationLevel:(NCRoomNotificationLevel)level forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(NotificationLevelCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@/notify", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    NSDictionary *parameters = @{@"level" : @(level)};
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)setCallNotificationEnabled:(BOOL)enabled forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(NotificationLevelCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"room/%@/notify-calls", encodedToken];
-    NSInteger conversationAPIVersion = [self conversationAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:conversationAPIVersion forAccount:account];
-    NSDictionary *parameters = @{@"level" : @(enabled)};
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
 - (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ReadOnlyCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
@@ -1954,61 +1906,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
             block(nil);
         } else if (block) {
             block(error);
-        }
-    }];
-}
-
-- (void)getFileByFileId:(TalkAccount *)account fileId:(NSString *)fileId withCompletionBlock:(GetFileByFileIdCompletionBlock)block
-{
-    [self setupNCCommunicationForAccount:account];
-    
-    NSString *body = @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
-    <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://nextcloud.com/ns\">\
-        <d:basicsearch>\
-            <d:select>\
-                <d:prop>\
-                    <d:displayname />\
-                    <d:getcontenttype />\
-                    <d:resourcetype />\
-                    <d:getcontentlength />\
-                    <d:getlastmodified />\
-                    <d:creationdate />\
-                    <d:getetag />\
-                    <d:quota-used-bytes />\
-                    <d:quota-available-bytes />\
-                    <oc:permissions xmlns:oc=\"http://owncloud.org/ns\" />\
-                    <oc:id xmlns:oc=\"http://owncloud.org/ns\" />\
-                    <oc:size xmlns:oc=\"http://owncloud.org/ns\" />\
-                    <oc:favorite xmlns:oc=\"http://owncloud.org/ns\" />\
-                </d:prop>\
-            </d:select>\
-            <d:from>\
-                <d:scope>\
-                    <d:href>/files/%@</d:href>\
-                    <d:depth>infinity</d:depth>\
-                </d:scope>\
-            </d:from>\
-            <d:where>\
-                <d:eq>\
-                    <d:prop>\
-                        <oc:fileid xmlns:oc=\"http://owncloud.org/ns\" />\
-                    </d:prop>\
-                    <d:literal>%@</d:literal>\
-                </d:eq>\
-            </d:where>\
-            <d:orderby />\
-        </d:basicsearch>\
-    </d:searchrequest>";
-    
-    NSString *bodyRequest = [NSString stringWithFormat:body, account.userId, fileId];
-    NKRequestOptions *options = [[NKRequestOptions alloc] initWithEndpoint:nil customHeader:nil customUserAgent:nil contentType:nil e2eToken:nil timeout:60 queue:dispatch_get_main_queue()];
-    [[NextcloudKit shared] searchBodyRequestWithServerUrl:account.server requestBody:bodyRequest showHiddenFiles:YES includeHiddenFiles:@[] options:options completion:^(NSString *account, NSArray<NKFile *> *files, NSData *data, NKError *error) {
-        if (block) {
-            if ([files count] > 0) {
-                block([files objectAtIndex:0], error.errorCode, error.errorDescription);
-            } else {
-                block(nil, error.errorCode, error.errorDescription);
-            }
         }
     }];
 }

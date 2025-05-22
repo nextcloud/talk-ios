@@ -20,7 +20,7 @@ import UIKit
 
         adjustTheming()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.appStateChanged(notification:)), name: NSNotification.Name.NCAppStateHasChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.appStateChanged(notification:)), name: NSNotification.Name.NCAppStateHasChangedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.serverCapabilitiesUpdated(notification:)), name: NSNotification.Name.NCServerCapabilitiesUpdated, object: nil)
     }
 

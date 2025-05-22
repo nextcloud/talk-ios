@@ -5,6 +5,7 @@
 
 import Foundation
 import Realm
+import SwiftyAttributes
 
 @objc extension NCRoom {
 
@@ -39,8 +40,10 @@ import Realm
             levelString = NSLocalizedString("8 hours", comment: "")
         case .expiration1Hour:
             levelString = NSLocalizedString("1 hour", comment: "")
-        default:
+        case .expirationOff:
             levelString = NSLocalizedString("Off", comment: "")
+        default:
+            break
         }
 
         return levelString
@@ -227,7 +230,8 @@ import Realm
     }
 
     public var messageExpirationString: String {
-        if let tempMessageExpiration = NCMessageExpiration(rawValue: self.messageExpiration) {
+        // TODO: Check
+        if let tempMessageExpiration = NCMessageExpiration(rawValue: self.messageExpiration.rawValue) {
             return NCRoom.stringFor(messageExpiration: tempMessageExpiration)
         }
 
@@ -321,6 +325,20 @@ import Realm
 
     public var account: TalkAccount? {
         return NCDatabaseManager.sharedInstance().talkAccount(forAccountId: self.accountId)
+    }
+
+    @nonobjc
+    public var parsedRoomDescription: AttributedString? {
+        guard
+            let account,
+            NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: account.accountId),
+            let description = self.roomDescription,
+            !description.isEmpty
+        else { return nil }
+
+        let attributedDescription = description.withFont(.preferredFont(forTextStyle: .body)).withTextColor(.label)
+
+        return AttributedString(SwiftMarkdownObjCBridge.parseMarkdown(markdownString: attributedDescription))
     }
 
 }

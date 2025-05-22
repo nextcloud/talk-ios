@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import NextcloudKit
 
 @objc extension NCAPIController {
 
@@ -56,6 +57,20 @@ import Foundation
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError?.error)
+        }
+    }
+
+    @MainActor
+    @discardableResult
+    public func getRoom(forAccount account: TalkAccount, withToken token: String) async throws -> NCRoom? {
+        return try await withCheckedThrowingContinuation { continuation in
+            self.getRoom(forAccount: account, withToken: token) { room, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: NCRoom(dictionary: room, andAccountId: account.accountId))
+                }
+            }
         }
     }
 
@@ -247,6 +262,56 @@ import Foundation
         }
 
         return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
+    @MainActor
+    public func setSensitiveState(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/sensitive", for: account)
+        var ocsResponse: OcsResponse
+
+        if enabled {
+            ocsResponse = try await apiSessionManager.postOcs(urlString, account: account)
+        } else {
+            ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
+        }
+
+        return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
+    @MainActor
+    public func setNotificationLevel(level: NCRoomNotificationLevel, forRoom token: String, forAccount account: TalkAccount) async -> Bool {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return false }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify", for: account)
+        let parameters: [String: Int] = ["level": level.rawValue]
+
+        let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+
+        // Older endpoints don't return the room object
+        // return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+        return (ocsResponse != nil)
+    }
+
+    @MainActor
+    public func setCallNotificationLevel(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async -> Bool {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return false }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify-calls", for: account)
+        let parameters: [String: Bool] = ["level": enabled]
+
+        let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+
+        // Older endpoints don't return the room object
+        // return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+        return (ocsResponse != nil)
     }
 
     // MARK: - Federation
@@ -780,6 +845,83 @@ import Foundation
             } else {
                 completionBlock(nil, ocsError?.error)
             }
+        }
+    }
+
+    // MARK: - File operations
+
+    func getFileById(forAccount account: TalkAccount, withFileId fileId: String, completionBlock: @escaping (_ file: NKFile?, _ error: NKError?) -> Void) {
+        self.setupNCCommunication(for: account)
+
+        let body = """
+            <?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+            <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://nextcloud.com/ns\">\
+            <d:basicsearch>\
+            <d:select>\
+                <d:prop>\
+                    <d:displayname />\
+                    <d:getcontenttype />\
+                    <d:resourcetype />\
+                    <d:getcontentlength />\
+                    <d:getlastmodified />\
+                    <d:creationdate />\
+                    <d:getetag />\
+                    <d:quota-used-bytes />\
+                    <d:quota-available-bytes />\
+                    <oc:permissions xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:id xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:size xmlns:oc=\"http://owncloud.org/ns\" />\
+                    <oc:favorite xmlns:oc=\"http://owncloud.org/ns\" />\
+                </d:prop>\
+            </d:select>\
+            <d:from>\
+                <d:scope>\
+                    <d:href>/files/%@</d:href>\
+                    <d:depth>infinity</d:depth>\
+                </d:scope>\
+            </d:from>\
+            <d:where>\
+                <d:eq>\
+                    <d:prop>\
+                        <oc:fileid xmlns:oc=\"http://owncloud.org/ns\" />\
+                    </d:prop>\
+                    <d:literal>%@</d:literal>\
+                </d:eq>\
+            </d:where>\
+            <d:orderby />\
+            </d:basicsearch>\
+            </d:searchrequest>
+            """
+
+        let bodyRequest = String(format: body, account.userId, fileId)
+        let options = NKRequestOptions(timeout: 60, queue: .main)
+
+        NextcloudKit.shared.searchBodyRequest(serverUrl: account.server, requestBody: bodyRequest, showHiddenFiles: true, options: options) { _, files, _, error in
+            completionBlock(files.first, error)
+        }
+    }
+
+    // MARK: - Profile
+
+    @nonobjc
+    func getUserProfile(forUserId userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ info: ProfileInfo?) -> Void) {
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/profile/\(encodedUserId)"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, error in
+            // Note: HTTP 405 -> Server does not support the endpoint
+            guard let dataDict = ocsResponse?.dataDict else {
+                completionBlock(nil)
+                return
+            }
+
+            completionBlock(ProfileInfo(dictionary: dataDict))
         }
     }
 }

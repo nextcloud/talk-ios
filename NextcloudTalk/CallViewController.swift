@@ -2424,11 +2424,17 @@ class CallViewController: UIViewController,
     // MARK: - NCChatTitleViewDelegate
 
     func chatTitleViewTapped(_ chatTitleView: NCChatTitleView) {
-        guard let roomInfoVC = RoomInfoTableViewController(for: self.room) else { return }
-        roomInfoVC.hideDestructiveActions = true
+        let roomInfoVC = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: false)
         roomInfoVC.modalPresentationStyle = .pageSheet
 
         let navController = UINavigationController(rootViewController: roomInfoVC)
+        let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
+            roomInfoVC.dismiss(animated: true)
+        })
+
+        cancelButton.tintColor = NCAppBranding.themeTextColor()
+        navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
+
         self.present(navController, animated: true)
     }
 }
