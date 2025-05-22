@@ -769,6 +769,9 @@
 /* No comment provided by engineer. */
 "Delete conversation" = "Delete conversation";
 
+/* Delete a conversation right now without waiting for auto-deletion */
+"Delete now" = "Delete now";
+
 /* No comment provided by engineer. */
 "Deleted user" = "Deleted user";
 

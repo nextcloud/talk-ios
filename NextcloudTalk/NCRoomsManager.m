@@ -384,7 +384,11 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     }
 
     // Delete option
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+    NSString *deleteTitle = withKeepOption ?
+    NSLocalizedString(@"Delete now", @"Delete a conversation right now without waiting for auto-deletion") :
+    NSLocalizedString(@"Delete", nil);
+
+    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:deleteTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
 
         if (startedBlock) {
@@ -407,7 +411,9 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     [confirmDialog addAction:confirmAction];
 
     // Cancel option
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
+    NSString *cancelTitle = withKeepOption ? NSLocalizedString(@"Dismiss", nil) :NSLocalizedString(@"Delete", nil);
+
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelTitle style:UIAlertActionStyleCancel handler:nil];
     [confirmDialog addAction:cancelAction];
 
     [[NCUserInterfaceController sharedInstance] presentAlertViewController:confirmDialog];
