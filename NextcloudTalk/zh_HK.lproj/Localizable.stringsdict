@@ -121,5 +121,11 @@
             <string>%d 個選項</string>
         </dict>
     </dict>
+
+    <key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+    </dict>
 </dict>
 </plist>
