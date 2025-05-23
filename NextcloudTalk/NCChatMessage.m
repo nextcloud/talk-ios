@@ -138,7 +138,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return message;
 }
 
-+ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage
++ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage;
 {
     int previewImageHeight = 0;
     int previewImageWidth = 0;
@@ -154,6 +154,14 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         if (managedChatMessage.file.previewImageWidth > 0 && chatMessage.file.previewImageWidth == 0) {
             previewImageWidth = managedChatMessage.file.previewImageWidth;
         }
+    }
+
+    NSDictionary *fileParameterDict;
+
+    if (isRoomLastMessage && managedChatMessage.file && chatMessage.file) {
+        // We need to keep the file information when updating from the last update message,
+        // because the file information might be inaccurate on the last message
+        fileParameterDict = [managedChatMessage.messageParameters objectForKey:@"file"];
     }
 
     managedChatMessage.actorDisplayName = chatMessage.actorDisplayName;
@@ -173,10 +181,26 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     managedChatMessage.lastEditActorDisplayName = chatMessage.lastEditActorDisplayName;
     managedChatMessage.lastEditTimestamp = chatMessage.lastEditTimestamp;
 
-    // Note: `reactionsSelfJSONString` should not be updated when done from `lastMessage`
-    // The code-path to do that was removed, but keeping a note for future reference
-    managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
-    
+    if (!isRoomLastMessage) {
+        managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
+    }
+
+    if (fileParameterDict) {
+        NSMutableDictionary *messageParameterDict = [[NSMutableDictionary alloc] initWithDictionary:managedChatMessage.messageParameters];
+        [messageParameterDict setObject:fileParameterDict forKey:@"file"];
+
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:messageParameterDict
+                                                           options:0
+                                                             error:nil];
+
+        if (jsonData) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+            // Only the JSON String is stored inside of the database
+            managedChatMessage.messageParametersJSONString = jsonString;
+        }
+    }
+
     if (!managedChatMessage.parentId && chatMessage.parentId) {
         managedChatMessage.parentId = chatMessage.parentId;
     }
@@ -656,7 +680,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
         void (^update)(void) = ^void(){
             NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.internalId].firstObject;
-            [NCChatMessage updateChatMessage:managedMessage withChatMessage:self];
+            [NCChatMessage updateChatMessage:managedMessage withChatMessage:self isRoomLastMessage:NO];
         };
 
         if ([realm inWriteTransaction]) {
