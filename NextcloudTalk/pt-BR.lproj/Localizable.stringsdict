@@ -127,7 +127,7 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>Você tem %ld convites pendentes</string>
+            <string>Você tem %ld convite pendente</string>
             <key>many</key>
             <string>Você tem %ld convites pendentes</string>
             <key>other</key>
@@ -158,6 +158,19 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Esta conversa será excluída automaticamente para todos em %ld dia sem atividade.</string>
+            <key>many</key>
+            <string>Esta conversa será excluída automaticamente para todos em %ld dias sem atividade.</string>
+            <key>other</key>
+            <string>Esta conversa será excluída automaticamente para todos em %ld dias sem atividade.</string>
+        </dict>
     </dict>
 </dict>
 </plist>

@@ -142,6 +142,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Diese Unterhaltung wird für alle bei Inaktivität in %ld Tag gelöscht</string>
+            <key>other</key>
+            <string>Diese Unterhaltung wird für alle bei Inaktivität in %ld Tagen gelöscht</string>
+        </dict>
     </dict>
 </dict>
 </plist>

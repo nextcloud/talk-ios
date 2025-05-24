@@ -142,6 +142,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>See vestlus kustub automaatselt kõigi osalejate jaoks, kui siin pole olnud tegevust %ld päeva jooksul.</string>
+            <key>other</key>
+            <string>See vestlus kustub automaatselt kõigi osalejate jaoks, kui siin pole olnud tegevust %ld päeva jooksul.</string>
+        </dict>
     </dict>
 </dict>
 </plist>
