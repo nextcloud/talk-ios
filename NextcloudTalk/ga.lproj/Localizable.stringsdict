@@ -190,6 +190,23 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+            <key>two</key>
+            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+            <key>few</key>
+            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+            <key>many</key>
+            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+            <key>other</key>
+            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+        </dict>
     </dict>
 </dict>
 </plist>

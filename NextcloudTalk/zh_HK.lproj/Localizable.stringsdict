@@ -126,6 +126,15 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>此對話如無人於%ld天內互動，將會自動為所有人刪除。</string>
+        </dict>
     </dict>
 </dict>
 </plist>

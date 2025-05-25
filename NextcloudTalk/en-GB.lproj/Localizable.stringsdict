@@ -142,6 +142,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>This conversation will be automatically deleted for everyone after %ld days of inactivity.</string>
+            <key>other</key>
+            <string>This conversation will be automatically deleted for everyone after %ld days of inactivity.</string>
+        </dict>
     </dict>
 </dict>
 </plist>
