@@ -62,17 +62,11 @@ struct RoomInfoDestructiveSection: View {
                     })
                 }
 
-                Button(role: .destructive, action: {
-                    NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil) { success in
-                        if !success {
-                            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not delete conversation", comment: ""), withMessage: nil)
-                        }
-                    }
-                }, label: {
+                Button(role: .destructive, action: deleteRoomWithConfirmation) {
                     ImageSublabelView(image: Image(systemName: "trash")) {
                         Text("Delete conversation")
                     }
-                })
+                }
             }
         }
     }
@@ -102,6 +96,14 @@ struct RoomInfoDestructiveSection: View {
             } else {
                 print("Chat history cleared.")
                 NotificationPresenter.shared().present(text: NSLocalizedString("All messages were deleted", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
+            }
+        }
+    }
+
+    func deleteRoomWithConfirmation() {
+        NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil) { success in
+            if !success {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not delete conversation", comment: ""), withMessage: nil)
             }
         }
     }

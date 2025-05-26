@@ -18,27 +18,29 @@ struct RoomInfoNonDestructiveSection: View {
         }
 
         return Section {
-            Button(action: {
-                let method = room.isArchived ? NCAPIController.sharedInstance().unarchiveRoom : NCAPIController.sharedInstance().archiveRoom
-
-                method(room.token, room.account!) { success in
-                    if !success {
-                        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change archived conversation setting", comment: ""), withMessage: nil)
-                    }
-
-                    NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-                }
-            }, label: {
+            Button(action: archiveConversation) {
                 ImageSublabelView(image: Image(systemName: "archivebox")) {
                     Text(room.isArchived ? unarchiveConversationText : archiveConversationText)
                 }
-            }).foregroundStyle(.primary)
+            }.foregroundStyle(.primary)
         } footer: {
             if room.isArchived {
                 Text("Once a conversation is unarchived, it will be shown by default again.")
             } else {
                 Text("Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.")
             }
+        }
+    }
+
+    func archiveConversation() {
+        let method = room.isArchived ? NCAPIController.sharedInstance().unarchiveRoom : NCAPIController.sharedInstance().archiveRoom
+
+        method(room.token, room.account!) { success in
+            if !success {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change archived conversation setting", comment: ""), withMessage: nil)
+            }
+
+            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
         }
     }
 }
