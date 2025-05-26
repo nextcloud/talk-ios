@@ -42,13 +42,7 @@ struct RoomInfoParticipantsSection: View {
     var body: (some View)? {
         if room.canAddParticipants {
             Section(participantCountText) {
-                Button(action: {
-                    guard let addParticipantsVC = AddParticipantsTableViewController(for: room) else { return }
-
-                    self.coordinator = AddParticipantCoordinator(parent: self)
-                    addParticipantsVC.delegate = self.coordinator
-                    hostingWrapper.presentViewController(NCNavigationController(rootViewController: addParticipantsVC), animated: true)
-                }, label: {
+                Button(action: addParticipants) {
                     if room.type == .oneToOne {
                         ImageSublabelView(image: Image(systemName: "person.badge.plus")) {
                             Text("Add participants")
@@ -60,7 +54,7 @@ struct RoomInfoParticipantsSection: View {
                             Text("Add participants")
                         }
                     }
-                })
+                }
                 .foregroundStyle(.primary)
             }
         }
@@ -155,6 +149,14 @@ struct RoomInfoParticipantsSection: View {
             Button("Cancel", role: .cancel) {}
         }
         // .listSectionSpacing() is only available on iOS 17, but could be an alternative
+    }
+
+    func addParticipants() {
+        guard let addParticipantsVC = AddParticipantsTableViewController(for: room) else { return }
+
+        self.coordinator = AddParticipantCoordinator(parent: self)
+        addParticipantsVC.delegate = self.coordinator
+        hostingWrapper.presentViewController(NCNavigationController(rootViewController: addParticipantsVC), animated: true)
     }
 
     func getParticipants() {

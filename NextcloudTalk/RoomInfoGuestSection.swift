@@ -23,17 +23,7 @@ struct RoomInfoGuestSection: View {
             })
 
             ActionToggle(isOn: isPublic, action: { makePublic in
-                let method = makePublic ? NCAPIController.sharedInstance().makeRoomPublic : NCAPIController.sharedInstance().makeRoomPrivate
-
-                method(room.token, room.account!) { error in
-                    if error != nil {
-                        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change sharing permissions of the conversation", comment: ""), withMessage: nil)
-                    } else if makePublic {
-                        NCUserInterfaceController.sharedInstance().presentShareLinkDialog(for: room, inViewContoller: nil, for: nil)
-                    }
-
-                    NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-                }
+                setPublicPrivateState(to: makePublic)
             }, label: {
                 ImageSublabelView(image: Image("link").renderingMode(.template)) {
                     Text("Allow guests to join this conversation via link")
@@ -44,25 +34,41 @@ struct RoomInfoGuestSection: View {
                 RoomInfoGuestPassword(room: $room)
 
                 if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySIPSupport) {
-                    Button(action: {
-                        NCAPIController.sharedInstance().resendInvitation(toParticipant: nil, inRoom: room.token, for: room.account!) { error in
-                            if error == nil {
-                                NotificationPresenter.shared().present(text: NSLocalizedString("Invitations resent", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
-                                NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-
-                                return
-                            }
-
-                            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not resend email invitations", comment: ""), withMessage: nil)
-                        }
-                    }, label: {
+                    Button(action: resendInvitations) {
                         ImageSublabelView(image: Image(systemName: "envelope")) {
                             Text("Resend invitations")
                         }
-                    })
+                    }
                     .foregroundStyle(.primary)
                 }
             }
+        }
+    }
+
+    func setPublicPrivateState(to makePublic: Bool) {
+        let method = makePublic ? NCAPIController.sharedInstance().makeRoomPublic : NCAPIController.sharedInstance().makeRoomPrivate
+
+        method(room.token, room.account!) { error in
+            if error != nil {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change sharing permissions of the conversation", comment: ""), withMessage: nil)
+            } else if makePublic {
+                NCUserInterfaceController.sharedInstance().presentShareLinkDialog(for: room, inViewContoller: nil, for: nil)
+            }
+
+            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+        }
+    }
+
+    func resendInvitations() {
+        NCAPIController.sharedInstance().resendInvitation(toParticipant: nil, inRoom: room.token, for: room.account!) { error in
+            if error == nil {
+                NotificationPresenter.shared().present(text: NSLocalizedString("Invitations resent", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
+                NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+
+                return
+            }
+
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not resend email invitations", comment: ""), withMessage: nil)
         }
     }
 }

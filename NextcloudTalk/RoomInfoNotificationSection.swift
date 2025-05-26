@@ -22,12 +22,7 @@ struct RoomInfoNotificationSection: View {
                         Text("Chat messages")
                         Spacer()
                         ActionPicker(selection: $room.notificationLevel, action: { newValue in
-                            let success = await NCAPIController.sharedInstance().setNotificationLevel(level: newValue, forRoom: room.token, forAccount: room.account!)
-                            if !success {
-                                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change notifications setting", comment: ""), withMessage: nil)
-                            }
-                            
-                            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+                            await setNotificationLevel(toLevel: newValue)
                         }, label: {}, content: {
                             Text(verbatim: NCRoom.stringFor(notificationLevel: .always)).tag(NCRoomNotificationLevel.always)
                             Text(verbatim: NCRoom.stringFor(notificationLevel: .mention)).tag(NCRoomNotificationLevel.mention)
@@ -39,12 +34,7 @@ struct RoomInfoNotificationSection: View {
 
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNotificationCalls, for: room), room.supportsCalling {
                 ActionToggle(isOn: $room.notificationCalls, action: { newValue in
-                    let success = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: newValue, forRoom: room.token, forAccount: room.account!)
-                    if !success {
-                        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change call notifications setting", comment: ""), withMessage: nil)
-                    }
-
-                    NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+                    await setCallNotifications(toEnabled: newValue)
                 }, label: {
                     ImageSublabelView(image: Image(systemName: "phone")) {
                         Text("Calls")
@@ -54,12 +44,7 @@ struct RoomInfoNotificationSection: View {
 
             if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityImportantConversations) {
                 ActionToggle(isOn: $room.isImportant, action: { newValue in
-                    if let updatedRoom = try? await NCAPIController.sharedInstance().setImportantState(enabled: newValue, forRoom: room.token, forAccount: room.account!) {
-                        self.room = updatedRoom
-                    } else {
-                        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change important conversation setting", comment: ""), withMessage: nil)
-                        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-                    }
+                    await setImportantConversation(toEnabled: newValue)
                 }, label: {
                     ImageSublabelView(image: Image(systemName: "exclamationmark.bubble")) {
                         Text("Important conversation")
@@ -71,12 +56,7 @@ struct RoomInfoNotificationSection: View {
 
             if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySensitiveConversations) {
                 ActionToggle(isOn: $room.isSensitive, action: { newValue in
-                    if let updatedRoom = try? await NCAPIController.sharedInstance().setSensitiveState(enabled: newValue, forRoom: room.token, forAccount: room.account!) {
-                        self.room = updatedRoom
-                    } else {
-                        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change sensitive conversation setting", comment: ""), withMessage: nil)
-                        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
-                    }
+                    await setSensitiveConversation(toEnabled: newValue)
                 }, label: {
                     ImageSublabelView(image: Image(systemName: "lock.shield")) {
                         Text("Sensitive conversation")
@@ -85,6 +65,42 @@ struct RoomInfoNotificationSection: View {
                     }
                 })
             }
+        }
+    }
+
+    func setNotificationLevel(toLevel newLevel: NCRoomNotificationLevel) async {
+        let success = await NCAPIController.sharedInstance().setNotificationLevel(level: newLevel, forRoom: room.token, forAccount: room.account!)
+        if !success {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change notifications setting", comment: ""), withMessage: nil)
+        }
+
+        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+    }
+
+    func setCallNotifications(toEnabled newValue: Bool) async {
+        let success = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: newValue, forRoom: room.token, forAccount: room.account!)
+        if !success {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change call notifications setting", comment: ""), withMessage: nil)
+        }
+
+        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+    }
+
+    func setImportantConversation(toEnabled newValue: Bool) async {
+        if let updatedRoom = try? await NCAPIController.sharedInstance().setImportantState(enabled: newValue, forRoom: room.token, forAccount: room.account!) {
+            self.room = updatedRoom
+        } else {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change important conversation setting", comment: ""), withMessage: nil)
+            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+        }
+    }
+
+    func setSensitiveConversation(toEnabled newValue: Bool) async {
+        if let updatedRoom = try? await NCAPIController.sharedInstance().setSensitiveState(enabled: newValue, forRoom: room.token, forAccount: room.account!) {
+            self.room = updatedRoom
+        } else {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change sensitive conversation setting", comment: ""), withMessage: nil)
+            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
         }
     }
 }
