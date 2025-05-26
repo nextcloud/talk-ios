@@ -104,4 +104,73 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         XCTAssertEqual(message.sendingMessage, "Hello @\"alice\" --- hello @\"federated_user/user1@nextcloud.local\" --- hello @\"all\" 123")
         XCTAssertEqual(message.sendingMessageWithDisplayNames, "Hello @alice --- hello @User1 Displayname --- hello @Group Conversation 123")
     }
+
+    func testLastMessageFileUpdate() throws {
+        let fileMessageParameters = """
+        {
+            "actor": {
+                "type": "user",
+                "id": "admin",
+                "name": "admin"
+            },
+            "file": {
+                "type": "file",
+                "id": "9",
+                "name": "photo-1517603250781-c4eac1449a80.jpeg",
+                "size": 444676,
+                "path": "Media/photo-1517603250781-c4eac1449a80.jpeg",
+                "link": "https://nextcloud-mm.local/index.php/f/9",
+                "etag": "60fb4ececc370787b1cdc5623ff4a189",
+                "permissions": 27,
+                "mimetype": "image/jpeg",
+                "preview-available": "yes",
+                "width": 1491,
+                "height": 837
+            }
+        }
+        """
+
+        let newFileMessageParameters = """
+        {
+            "actor": {
+                "type": "user",
+                "id": "bob",
+                "name": "bob"
+            },
+            "file": {
+                "type": "file",
+                "id": "9",
+                "name": "abc.jpeg",
+                "size": 444676,
+                "path": "abc.jpeg",
+                "link": "https://nextcloud-mm.local/index.php/f/9",
+                "etag": "60fb4ececc370787b1cdc5623ff4a189",
+                "permissions": 27,
+                "mimetype": "image/jpeg",
+                "preview-available": "yes",
+                "width": 1491,
+                "height": 837
+            }
+        }
+        """
+
+        let existingMessage = NCChatMessage()
+        existingMessage.messageId = 1
+        existingMessage.internalId = "internal-1"
+        existingMessage.message = "existing"
+        existingMessage.messageParametersJSONString = fileMessageParameters
+
+        let updateMessage = NCChatMessage()
+        updateMessage.messageId = 1
+        updateMessage.internalId = "internal-1"
+        updateMessage.message = "new"
+        updateMessage.messageParametersJSONString = newFileMessageParameters
+
+        NCChatMessage.update(existingMessage, with: updateMessage, isRoomLastMessage: true)
+        XCTAssertEqual(existingMessage.message, "new")
+        XCTAssertEqual(existingMessage.file().path, "Media/photo-1517603250781-c4eac1449a80.jpeg")
+
+        let parameters = (existingMessage.messageParameters as? [String: Any])?["actor"] as? [String: String]
+        XCTAssertEqual(try XCTUnwrap(parameters)["name"], "bob")
+    }
 }
