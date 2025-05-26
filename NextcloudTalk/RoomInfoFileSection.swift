@@ -26,9 +26,7 @@ struct RoomInfoFileSection: View {
         }
 
         return Section(header: Text("Linked file")) {
-            Button(action: {
-                previewFile()
-            }, label: {
+            Button(action: previewFile) {
                 HStack {
                     ImageSublabelView(image: Image(systemName: "eye").renderingMode(.template)) {
                         HStack {
@@ -41,13 +39,11 @@ struct RoomInfoFileSection: View {
                         }
                     }
                 }
-            })
+            }
             .foregroundStyle(.primary)
             .disabled(isDownloadingPreview)
 
-            Button(action: {
-                openFileInFilesApp()
-            }, label: {
+            Button(action: openFileInFilesApp) {
                 ImageSublabelView(image: Image("logo-action").renderingMode(.template)) {
                     HStack {
                         Text(verbatim: openInText)
@@ -58,7 +54,7 @@ struct RoomInfoFileSection: View {
                         }
                     }
                 }
-            })
+            }
             .foregroundStyle(.primary)
             .disabled(isFetchingFileId)
         }
