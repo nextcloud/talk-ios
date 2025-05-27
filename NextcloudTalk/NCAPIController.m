@@ -663,7 +663,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         NSArray *responseParticipants = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
         NSMutableArray *participants = [[NSMutableArray alloc] initWithCapacity:responseParticipants.count];
         for (NSDictionary *participantDict in responseParticipants) {
-            NCRoomParticipant *participant = [NCRoomParticipant participantWithDictionary:participantDict];
+            NCRoomParticipant *participant = [[NCRoomParticipant alloc] initWithDictionary:participantDict];
             [participants addObject:participant];
         }
         

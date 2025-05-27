@@ -19,10 +19,10 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
     }
 
     func updateUIView(_ cell: ContactsTableViewCell, context: Context) {
-        if participant.canModerate(), (room.type == .oneToOne || room.type == .formerOneToOne || room.type == .noteToSelf) {
+        if participant.canModerate, (room.type == .oneToOne || room.type == .formerOneToOne || room.type == .noteToSelf) {
             cell.labelTitle.text = participant.displayName
         } else {
-            cell.labelTitle.text = participant.detailedName()
+            cell.labelTitle.text = participant.detailedName
         }
 
         if let account = room.account {
@@ -32,7 +32,7 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
         cell.setUserStatus(participant.status)
         cell.setUserStatusMessage(participant.statusMessage, withIcon: participant.statusIcon)
 
-        if participant.statusMessage == nil || participant.statusMessage.isEmpty {
+        if (participant.statusMessage ?? "").isEmpty {
             if participant.status == kUserStatusDND {
                 cell.setUserStatusMessage(NSLocalizedString("Do not disturb", comment: ""), withIcon: nil)
             } else if participant.status == kUserStatusAway {
@@ -40,17 +40,17 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
             }
         }
 
-        if participant.isFederated() {
+        if participant.isFederated {
             let conf = UIImage.SymbolConfiguration(pointSize: 14)
             let image = UIImage(systemName: "globe")?.withTintColor(.label).withRenderingMode(.alwaysOriginal).applyingSymbolConfiguration(conf)
             cell.setUserStatusIconWith(image)
         }
 
-        if participant.invitedActorId != nil, !participant.invitedActorId.isEmpty {
-            cell.setUserStatusMessage(participant.invitedActorId, withIcon: nil)
+        if let invitedActorId = participant.invitedActorId, !invitedActorId.isEmpty {
+            cell.setUserStatusMessage(invitedActorId, withIcon: nil)
         }
 
-        if participant.isOffline() {
+        if participant.isOffline {
             cell.contactImage.alpha = 0.5
             cell.labelTitle.alpha = 0.5
             cell.userStatusMessageLabel.alpha = 0.5
@@ -62,8 +62,8 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
             cell.userStatusImageView.alpha = 1
         }
 
-        if participant.callIconImageName != nil, !participant.callIconImageName.isEmpty {
-            cell.accessoryView = UIImageView(image: .init(systemName: participant.callIconImageName))
+        if let callIconImageName = participant.callIconImageName, !callIconImageName.isEmpty {
+            cell.accessoryView = UIImageView(image: .init(systemName: callIconImageName))
             cell.accessoryView?.tintColor = .secondaryLabel
         } else {
             cell.accessoryView = nil

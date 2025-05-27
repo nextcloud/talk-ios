@@ -27,7 +27,7 @@ struct ScheduleMeetingSwiftUIView: View {
     var onMeetingCreationSuccess: (() -> Void)?
 
     var areAllParticipantsSelected: Bool {
-        selectedParticipants.map { $0.actorId }.sorted() == roomParticipants.map { $0.actorId }.sorted()
+        selectedParticipants.map { $0.actorId ?? "" }.sorted() == roomParticipants.map { $0.actorId ?? "" }.sorted()
     }
 
     var canCreateMeeting: Bool {

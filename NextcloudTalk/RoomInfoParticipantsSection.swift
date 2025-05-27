@@ -63,8 +63,8 @@ struct RoomInfoParticipantsSection: View {
             if let participants = Binding($participants) {
                 ForEach(participants, id: \.self) { $participant in
                     Menu {
-                        if room.canModerate, participant.canBeModerated() {
-                            if participant.canBeDemoted() {
+                        if room.canModerate, participant.canBeModerated {
+                            if participant.canBeDemoted {
                                 Button {
                                     self.changeModerationPermission(forParticipant: participant, canModerate: false)
                                 } label: {
@@ -72,7 +72,7 @@ struct RoomInfoParticipantsSection: View {
                                 }
                             }
 
-                            if participant.canBePromoted() {
+                            if participant.canBePromoted {
                                 Button {
                                     self.changeModerationPermission(forParticipant: participant, canModerate: true)
                                 } label: {
@@ -81,7 +81,7 @@ struct RoomInfoParticipantsSection: View {
                             }
                         }
 
-                        if participant.canBeNotifiedAboutCall(), room.permissions.contains(.startCall), room.participantFlags > CallFlag.disconnected.rawValue {
+                        if participant.canBeNotifiedAboutCall, room.permissions.contains(.startCall), room.participantFlags != [] {
                             Button {
                                 self.sendCallNotification(forParticipant: participant)
                             } label: {
@@ -97,8 +97,8 @@ struct RoomInfoParticipantsSection: View {
                             }
                         }
 
-                        if room.canModerate, participant.canBeModerated() {
-                            if participant.canBeBanned() {
+                        if room.canModerate, participant.canBeModerated {
+                            if participant.canBeBanned {
                                 Button(role: .destructive) {
                                     participantToBan = participant
                                     banConfirmationShown = true
@@ -167,9 +167,9 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func getRemoveLabel(forParticipant participant: NCRoomParticipant) -> String {
-        if participant.isGroup() {
+        if participant.isGroup {
             return NSLocalizedString("Remove group and members", comment: "")
-        } else if participant.isTeam() {
+        } else if participant.isTeam {
             return NSLocalizedString("Remove team and members", comment: "")
         }
 
@@ -178,16 +178,9 @@ struct RoomInfoParticipantsSection: View {
 
     func changeModerationPermission(forParticipant participant: NCRoomParticipant, canModerate: Bool) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        var participantId = participant.participantId()
-
-        // TODO: Move to NCRoomParticipant?
-        if NCAPIController.sharedInstance().conversationAPIVersion(for: activeAccount) >= APIv3 {
-            participantId = String(participant.attendeeId)
-        }
-
         let method = canModerate ? NCAPIController.sharedInstance().promoteParticipant : NCAPIController.sharedInstance().demoteModerator
 
-        _ = method(participantId, room.token, activeAccount) { error in
+        _ = method(participant.participantId, room.token, activeAccount) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change moderation permissions of the participant", comment: ""), withMessage: nil)
             }
@@ -237,9 +230,9 @@ struct RoomInfoParticipantsSection: View {
             return
         }
 
-        let method = participant.isGuest() ? NCAPIController.sharedInstance().removeGuest : NCAPIController.sharedInstance().removeParticipant
+        let method = participant.isGuest ? NCAPIController.sharedInstance().removeGuest : NCAPIController.sharedInstance().removeParticipant
 
-        _ = method(participant.participantId(), room.token, activeAccount) { error in
+        _ = method(participant.participantId, room.token, activeAccount) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not remove participant", comment: ""), withMessage: nil)
             }
@@ -249,9 +242,11 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func banParticipant(participant: NCRoomParticipant, withInternalNote internalNote: String) {
+        guard let actorType = participant.actorType, let actorId = participant.actorId else { return }
+
         isBanActionRunning = true
 
-        NCAPIController.sharedInstance().banActor(for: room.accountId, in: room.token, with: participant.actorType, with: participant.actorId, with: trimmedInternalNote) { success in
+        NCAPIController.sharedInstance().banActor(for: room.accountId, in: room.token, with: actorType, with: actorId, with: trimmedInternalNote) { success in
             isBanActionRunning = false
 
             if !success {
