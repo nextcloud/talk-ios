@@ -69,13 +69,8 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var canBePromoted: Bool {
-        // In Talk 5 guest moderators were introduced
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityInviteGroupsAndMails) {
-            let allowedActorType = actorType == NCAttendeeTypeUser || actorType == NCAttendeeTypeGuest || actorType == NCAttendeeTypeEmail
-            return !canModerate && allowedActorType
-        }
-
-        return participantType == .user
+        let allowedActorType = actorType == NCAttendeeTypeUser || actorType == NCAttendeeTypeGuest || actorType == NCAttendeeTypeEmail
+        return !canModerate && allowedActorType
     }
 
     public var canBeDemoted: Bool {
