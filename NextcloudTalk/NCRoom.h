@@ -6,7 +6,7 @@
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
 
-#import "NCRoomParticipant.h"
+#import "CallConstants.h"
 #import "NCChatMessage.h"
 
 typedef NS_ENUM(NSInteger, NCRoomType) {
@@ -82,6 +82,7 @@ typedef NS_ENUM(NSInteger, NCCallRecordingState) {
     NCCallRecordingStateFailed = 5
 };
 
+
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 extern NSString * const NCRoomObjectTypeRoom;
@@ -130,7 +131,7 @@ extern NSString * const NCRoomObjectTypeExtendedConversation;
 @property (nonatomic, copy, nullable) NSString *status;
 @property (nonatomic, copy, nullable) NSString *statusIcon;
 @property (nonatomic, copy, nullable) NSString *statusMessage;
-@property (nonatomic, assign) NSInteger participantFlags;
+@property (nonatomic, assign) CallFlag participantFlags;
 @property (nonatomic, assign) NCPermission permissions;
 @property (nonatomic, assign) NSInteger attendeePermissions;
 @property (nonatomic, assign) NSInteger defaultPermissions;

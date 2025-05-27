@@ -82,7 +82,6 @@
 #import "CallConstants.h"
 #import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
-#import "NCRoomParticipant.h"
 #import "ContactsTableViewCell.h"
 
 #import "DRCellSlideGestureRecognizer.h"
