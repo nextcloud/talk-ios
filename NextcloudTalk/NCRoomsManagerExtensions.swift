@@ -196,7 +196,7 @@ import Foundation
                         return
                     }
 
-                    if !self.isJoiningRoom(withSessionId: sessionId ?? "") {
+                    if !self.isJoiningRoom(withSessionId: sessionId) {
                         NCUtils.log("Joining the same room with a different sessionId. Ignore external signaling completion block.")
                         completionBlock(nil, nil, nil, NCRoomsManager.statusCodeIgnoreJoinAttempt, nil)
                         return
