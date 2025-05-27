@@ -139,9 +139,8 @@ struct RoomInfoParticipantsSection: View {
             getParticipants()
         }
         .listRowInsets(room.canAddParticipants ? EdgeInsets(top: -12, leading: 0, bottom: 0, trailing: 0) : nil)
-        .alert(NSLocalizedString("Ban %@", comment: "e.g. Ban John Doe"), isPresented: $banConfirmationShown) {
+        .alert(String(format: NSLocalizedString("Ban %@", comment: "e.g. Ban John Doe"), participantToBan?.displayName ?? "Unknown"), isPresented: $banConfirmationShown) {
             // Can't move alert inside a menu element, it needs to be outside of the menu
-            Text("Add an internal note about this ban", comment: "")
 
             let banText = NSLocalizedString("Internal note", comment: "Internal note about why a user/guest was banned")
             TextField(banText, text: $internalNote)
@@ -153,6 +152,8 @@ struct RoomInfoParticipantsSection: View {
             .disabled(trimmedInternalNote.count > 4000)
 
             Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Add an internal note about this ban", comment: "")
         }
         // .listSectionSpacing() is only available on iOS 17, but could be an alternative
     }
