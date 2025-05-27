@@ -100,6 +100,10 @@ import SwiftyAttributes
         return self.calendarEvent?.isFutureEvent ?? false
     }
 
+    public var isPastEvent: Bool {
+        return self.calendarEvent?.isPastEvent ?? false
+    }
+
     public var isVisible: Bool {
         // In case we have objectType 'event', but the calendar entry was not saved, we don't have a valid timestamp,
         // in this case, we always show the room

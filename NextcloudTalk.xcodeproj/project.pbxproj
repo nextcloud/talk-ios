@@ -580,6 +580,8 @@
 		2C62B01C24C1BDC9007E460A /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2C62B02424C1BDCF007E460A /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
 		2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7158B20B8394A0045C789 /* PlaceholderView.m */; };
+		2C6899B02DE0BD38007A6D97 /* ChatInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6899AF2DE0BD38007A6D97 /* ChatInfoView.swift */; };
+		2C6899B22DE0BD6A007A6D97 /* ChatInfoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C6899B12DE0BD6A007A6D97 /* ChatInfoView.xib */; };
 		2C69323D2923ECAA00017AD2 /* WSMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C69323C2923ECAA00017AD2 /* WSMessage.m */; };
 		2C6955122B0CE1A10070F6E1 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
 		2C6955132B0CE1A20070F6E1 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
@@ -1134,6 +1136,8 @@
 		2C6137952D94572000C51684 /* RoomBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomBuilder.swift; sourceTree = "<group>"; };
 		2C62AFA324C08845007E460A /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C67905128D35BEB00762744 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sl; path = sl.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		2C6899AF2DE0BD38007A6D97 /* ChatInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInfoView.swift; sourceTree = "<group>"; };
+		2C6899B12DE0BD6A007A6D97 /* ChatInfoView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatInfoView.xib; sourceTree = "<group>"; };
 		2C69323B2923ECAA00017AD2 /* WSMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WSMessage.h; sourceTree = "<group>"; };
 		2C69323C2923ECAA00017AD2 /* WSMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WSMessage.m; sourceTree = "<group>"; };
 		2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingSwiftUIView.swift; sourceTree = "<group>"; };
@@ -2164,6 +2168,8 @@
 				2C0424992CA33681004772F6 /* AudioPlayerView.swift */,
 				2C0424962CA335C4004772F6 /* AudioPlayerView.xib */,
 				C65D252C2C7581A200157A89 /* ExpandedVoiceMessageRecordingView.swift */,
+				2C6899AF2DE0BD38007A6D97 /* ChatInfoView.swift */,
+				2C6899B12DE0BD6A007A6D97 /* ChatInfoView.xib */,
 				1F205C562CEFA01900AAA673 /* OutOfOfficeView.swift */,
 				1F205C542CEFA01200AAA673 /* OutOfOfficeView.xib */,
 				1F549E2C2D45695D00E9AA9E /* MessageTextViewController.swift */,
@@ -2829,6 +2835,7 @@
 				2CC7158920B837140045C789 /* PlaceholderView.xib in Resources */,
 				1F1C0D8729AFB88800D17C6D /* VLCKitVideoViewController.xib in Resources */,
 				2CF8AD402A0010FB00A4D3E6 /* MessageTranslationViewController.xib in Resources */,
+				2C6899B22DE0BD6A007A6D97 /* ChatInfoView.xib in Resources */,
 				1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C477C1628B79D980044DEB4 /* Localizable.stringsdict in Resources */,
 				2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */,
@@ -3276,6 +3283,7 @@
 				1F8995B32970644C00CABA33 /* ColorGenerator.swift in Sources */,
 				1F1B0F2C2BDBB3AC003FD766 /* NCMediaViewerViewController.swift in Sources */,
 				1FB7B98E2BF0CBA60093CE98 /* BannedActor.swift in Sources */,
+				2C6899B02DE0BD38007A6D97 /* ChatInfoView.swift in Sources */,
 				1F1B503A2B8F9E1300B0F2F4 /* BaseChatTableViewCell+File.swift in Sources */,
 				1F5813F928EB23EF00318FC3 /* NCSplitViewPlaceholderViewController.swift in Sources */,
 				2CC32E9227F45AE000BB8C39 /* ReactionsViewCell.swift in Sources */,
