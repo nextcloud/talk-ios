@@ -152,19 +152,19 @@ public class NCRoomParticipant: NSObject {
         // Moderator label
         if canModerate {
             let moderatorString = NSLocalizedString("moderator", comment: "")
-            detailedNameString = String(format: NSLocalizedString("%@ (%@)", comment: ""), detailedNameString, moderatorString)
+            detailedNameString = String(format: "%@ (%@)", detailedNameString, moderatorString)
         }
 
         // Bridge bot label
         if isBridgeBotUser {
             let botString = NSLocalizedString("bot", comment: "")
-            detailedNameString = String(format: NSLocalizedString("%@ (%@)", comment: ""), detailedNameString, botString)
+            detailedNameString = String(format: "%@ (%@)", detailedNameString, botString)
         }
 
         // Guest label
         if isGuest, !defaultGuestNameUsed {
             let guestString = NSLocalizedString("guest", comment: "")
-            detailedNameString = String(format: NSLocalizedString("%@ (%@)", comment: ""), detailedNameString, guestString)
+            detailedNameString = String(format: "%@ (%@)", detailedNameString, guestString)
         }
 
         return detailedNameString
