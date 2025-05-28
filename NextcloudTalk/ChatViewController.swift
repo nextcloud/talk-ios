@@ -641,10 +641,10 @@ import SwiftUI
         retentionView.titleLabel.text = String.localizedStringWithFormat(
             NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
             serverCapabilities.retentionEvent)
-        retentionView.leftButton.setTitle("Delete now", for: .normal)
+        retentionView.leftButton.setTitle(NSLocalizedString("Delete now", comment: ""), for: .normal)
         retentionView.leftButton.setButtonStyle(style: .destructive)
         retentionView.leftButton.setButtonAction(target: self, selector: #selector(deleteNowButtonPressed))
-        retentionView.rightButton.setTitle("Keep", for: .normal)
+        retentionView.rightButton.setTitle(NSLocalizedString("Keep", comment: ""), for: .normal)
         retentionView.rightButton.setButtonStyle(style: .primary)
         retentionView.rightButton.setButtonAction(target: self, selector: #selector(keepButtonPressed))
         retentionView.alpha = 0
