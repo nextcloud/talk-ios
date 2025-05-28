@@ -8,6 +8,10 @@ import NextcloudKit
 
 @objc extension NCAPIController {
 
+    enum ApiControllerError: Error {
+        case preconditionError
+    }
+
     // MARK: - Rooms Controller
 
     @discardableResult
@@ -376,6 +380,77 @@ import NextcloudKit
         // Older endpoints don't return the room object
         // return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
         return (ocsResponse != nil)
+    }
+
+    @MainActor
+    @discardableResult
+    public func setReadOnlyState(state: NCRoomReadOnlyState, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/read-only", for: account)
+        let parameters: [String: Int] = ["state": state.rawValue]
+
+        return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
+    }
+
+    @MainActor
+    @discardableResult
+    public func setLobbyState(state: NCRoomLobbyState, withTimer timer: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let endpoint = self.conversationAPIVersion(for: account) >= APIv4 ? "room/\(encodedToken)/webinar/lobby" : "room/\(encodedToken)/webinary/lobby"
+        let urlString = self.getRequestURL(forConversationEndpoint: endpoint, for: account)
+        var parameters: [String: Int] = ["state": state.rawValue]
+
+        if timer > 0 {
+            parameters["timer"] = timer
+        }
+
+        return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
+    }
+
+    @MainActor
+    @discardableResult
+    public func setSIPState(state: NCRoomSIPState, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/webinar/sip", for: account)
+        let parameters: [String: Int] = ["state": state.rawValue]
+
+        return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
+    }
+
+    @MainActor
+    @discardableResult
+    public func setListableScope(scope: NCRoomListableScope, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/listable", for: account)
+        let parameters: [String: Int] = ["scope": scope.rawValue]
+
+
+        return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
+    }
+
+    @MainActor
+    @discardableResult
+    public func setMessageExpiration(messageExpiration: NCMessageExpiration, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/message-expiration", for: account)
+        let parameters: [String: Int] = ["seconds": messageExpiration.rawValue]
+
+        return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
     }
 
     // MARK: - Federation
