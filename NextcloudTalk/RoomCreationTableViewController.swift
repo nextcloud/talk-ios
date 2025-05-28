@@ -312,9 +312,11 @@ enum RoomVisibilityOption: Int {
         if self.isOpenConversation {
             self.roomCreationGroup.enter()
             let listableScope: NCRoomListableScope = self.isOpenForGuests ? .everyone : .regularUsersOnly
-            NCAPIController.sharedInstance().setListableScope(listableScope, forRoom: token, for: self.account) { error in
-                if let error {
-                    NCUtils.log(String(format: "Failed to set listable scope. Error: %@", error.localizedDescription))
+
+            Task {
+                do {
+                    try await NCAPIController.sharedInstance().setListableScope(scope: listableScope, forRoom: token, forAccount: self.account)
+                } catch {
                     self.roomCreationErrors.append(error.localizedDescription)
                 }
 

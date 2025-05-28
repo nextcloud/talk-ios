@@ -22,14 +22,8 @@ typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contact
 typedef void (^SearchUsersCompletionBlock)(NSArray *indexes, NSMutableDictionary *users, NSMutableArray *userList, NSError *error);
 
 typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
-typedef void (^PrepareSwitchRoomCompletionBlock)(NSError *error);
-typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
-typedef void (^ReadOnlyCompletionBlock)(NSError *error);
-typedef void (^SetLobbyStateCompletionBlock)(NSError *error);
-typedef void (^SetSIPStateCompletionBlock)(NSError *error);
-typedef void (^ListableCompletionBlock)(NSError *error);
-typedef void (^MessageExpirationCompletionBlock)(NSError *error);
 
+typedef void (^PrepareSwitchRoomCompletionBlock)(NSError *error);
 typedef void (^RequestAssistanceCompletionBlock)(NSError *error);
 
 typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participants, NSError *error);
@@ -156,13 +150,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 - (NSURLSessionDataTask *)searchUsersForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(SearchUsersCompletionBlock)block;
-
-// Rooms Controller
-- (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ReadOnlyCompletionBlock)block;
-- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetLobbyStateCompletionBlock)block;
-- (NSURLSessionDataTask *)setSIPState:(NCRoomSIPState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetSIPStateCompletionBlock)block;
-- (NSURLSessionDataTask *)setListableScope:(NCRoomListableScope)scope forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ListableCompletionBlock)block;
-- (NSURLSessionDataTask *)setMessageExpiration:(NCMessageExpiration)messageExpiration forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageExpirationCompletionBlock)block;
 
 // Breakout Rooms Controller
 - (NSURLSessionDataTask *)requestAssistanceInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(RequestAssistanceCompletionBlock)block;
