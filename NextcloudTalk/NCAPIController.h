@@ -22,8 +22,7 @@ typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contact
 typedef void (^SearchUsersCompletionBlock)(NSArray *indexes, NSMutableDictionary *users, NSMutableArray *userList, NSError *error);
 
 typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
-typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode, NSString * _Nullable statusReason);
-typedef void (^ExitRoomCompletionBlock)(NSError *error);
+typedef void (^PrepareSwitchRoomCompletionBlock)(NSError *error);
 typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
 typedef void (^ReadOnlyCompletionBlock)(NSError *error);
 typedef void (^SetLobbyStateCompletionBlock)(NSError *error);
@@ -159,8 +158,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)searchUsersForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(SearchUsersCompletionBlock)block;
 
 // Rooms Controller
-- (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)exitRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ExitRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ReadOnlyCompletionBlock)block;
 - (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetLobbyStateCompletionBlock)block;
 - (NSURLSessionDataTask *)setSIPState:(NCRoomSIPState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetSIPStateCompletionBlock)block;
@@ -304,5 +301,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response;
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;
+- (void)checkProxyResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account forRoom:(NSString *)token;
 
 @end

@@ -68,7 +68,7 @@ import Foundation
                     self.leavingRoomToken = token
 
                     let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-                    self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, for: activeAccount, withCompletionBlock: { _ in
+                    self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, forAccount: activeAccount, completionBlock: { _ in
                         self.leaveRoomTask = nil
                         self.leavingRoomToken = nil
                     })
@@ -138,7 +138,7 @@ import Foundation
     private func joinRoomHelper(_ token: String, forCall call: Bool, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode, statusReason in
+        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, forAccount: activeAccount, completionBlock: { sessionId, room, error, statusCode, statusReason in
             if !self.isJoiningRoom(withToken: token) {
                 // Treat a cancelled request as success, as we can't determine if the request was processed on the server or not
                 if let error = error as? NSError, error.code != NSURLErrorCancelled {
@@ -249,7 +249,7 @@ import Foundation
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         self.joiningRoomToken = token
-        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, for: activeAccount, withCompletionBlock: { sessionId, room, error, statusCode, statusReason in
+        self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, forAccount: activeAccount, completionBlock: { sessionId, room, error, statusCode, statusReason in
             if error == nil {
                 roomController.userSessionId = sessionId
                 roomController.inCall = true
@@ -308,7 +308,7 @@ import Foundation
             self.activeRooms.removeObject(forKey: token)
 
             self.leavingRoomToken = token
-            self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, for: activeAccount, withCompletionBlock: { error in
+            self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, forAccount: activeAccount, completionBlock: { error in
                 var userInfo = [:]
                 userInfo["token"] = token
 

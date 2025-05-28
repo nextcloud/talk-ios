@@ -10,6 +10,58 @@ import NextcloudKit
 
     // MARK: - Rooms Controller
 
+    @discardableResult
+    public func joinRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/active", for: account)
+
+        return apiSessionManager.postOcs(urlString, account: account) { ocsResponse, ocsError in
+            if let ocsError {
+                completionBlock(nil, nil, ocsError.error, ocsError.responseStatusCode, ocsError.errorKey)
+                return
+            }
+
+            if let response = ocsResponse?.task?.response as? HTTPURLResponse {
+                self.checkProxyResponseHeaders(response.allHeaderFields, for: account, forRoom: token)
+            }
+
+            var room: NCRoom?
+
+            // Room object is returned only since Talk 11
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityListableRooms) {
+                room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
+
+                // In case there's no token, or a non-matching token, don't return
+                if room?.token != token {
+                    room = nil
+                }
+            }
+
+            completionBlock(ocsResponse?.dataDict?["sessionId"] as? String, room, nil, 0, nil)
+        }
+    }
+
+    @discardableResult
+    public func exitRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/active", for: account)
+
+        return apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            if let ocsError {
+                completionBlock(ocsError.error)
+                return
+            }
+
+            completionBlock(nil)
+        }
+    }
+
     public func getRooms(forAccount account: TalkAccount, updateStatus: Bool, modifiedSince: Int, completionBlock: @escaping (_ rooms: [[String: AnyObject]]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
