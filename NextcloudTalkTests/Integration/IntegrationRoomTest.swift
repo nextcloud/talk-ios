@@ -369,7 +369,7 @@ final class IntegrationRoomTest: TestBase {
 
     func testRoomListable() async throws {
         try skipWithoutCapability(capability: kCapabilityListableRooms)
-        
+
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "ListableConversation", withAccount: activeAccount)
 
@@ -395,5 +395,20 @@ final class IntegrationRoomTest: TestBase {
         try await NCAPIController.sharedInstance().setMessageExpiration(messageExpiration: .expirationOff, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
         XCTAssertEqual(try XCTUnwrap(updatedRoom).messageExpiration, .expirationOff)
+    }
+
+    func testRoomParticipants() async throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "ParticipantConversation", withAccount: activeAccount)
+
+        try await NCAPIController.sharedInstance().addParticipant("alice", ofType: "users", toRoom: room.token, forAccount: activeAccount)
+
+        do {
+            try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: activeAccount)
+            XCTFail("OcsError expected")
+        } catch {
+            let error = try XCTUnwrap(error as? OcsError)
+            XCTAssertEqual(error.responseStatusCode, 400)
+        }
     }
 }
