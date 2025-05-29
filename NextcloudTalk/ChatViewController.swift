@@ -322,6 +322,7 @@ import SwiftUI
         self.checkLobbyState()
         self.checkRoomControlsAvailability()
         self.checkOutOfOfficeAbsence()
+        self.checkRetention()
 
         self.startObservingExpiredMessages()
 
@@ -580,6 +581,8 @@ import SwiftUI
         self.checkRoomControlsAvailability()
     }
 
+    // MARK: - Out Of Office
+
     let outOfOfficeView: OutOfOfficeView? = nil
 
     func checkOutOfOfficeAbsence() {
@@ -611,6 +614,66 @@ import SwiftUI
             UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
                 oooView.alpha = 1.0
             }
+        }
+    }
+
+    // MARK: - Room retention
+
+    var retentionView: ChatInfoView? = nil
+
+    func checkRetention() {
+        // Only check for event conversations that have ended
+        // TODO: check if there are end_call messages
+        guard self.room.isEvent,
+              self.room.isPastEvent,
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
+              serverCapabilities.retentionEvent > 0
+        else {
+            self.retentionView?.removeFromSuperview()
+            return
+        }
+
+        guard self.retentionView == nil else { return }
+
+        let retentionView = ChatInfoView()
+        self.retentionView = retentionView
+
+        retentionView.titleLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
+            serverCapabilities.retentionEvent)
+        retentionView.leftButton.setTitle(NSLocalizedString("Delete now", comment: ""), for: .normal)
+        retentionView.leftButton.setButtonStyle(style: .destructive)
+        retentionView.leftButton.setButtonAction(target: self, selector: #selector(deleteNowButtonPressed))
+        retentionView.rightButton.setTitle(NSLocalizedString("Keep", comment: ""), for: .normal)
+        retentionView.rightButton.setButtonStyle(style: .primary)
+        retentionView.rightButton.setButtonAction(target: self, selector: #selector(keepButtonPressed))
+        retentionView.alpha = 0
+
+        self.view.addSubview(retentionView)
+
+        NSLayoutConstraint.activate([
+            retentionView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            retentionView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+            retentionView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor)
+        ])
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+            retentionView.alpha = 1.0
+        }
+    }
+
+    func deleteNowButtonPressed() {
+        NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil)
+    }
+
+    func keepButtonPressed() {
+        NCAPIController.sharedInstance().unbindRoomFromObject(self.room.token, forAccount: self.account) { error in
+            if error != nil {
+                print("Error unbinding room from object")
+                return
+            }
+
+            self.updateRoomInformation()
         }
     }
 
@@ -848,6 +911,8 @@ import SwiftUI
             self.checkLobbyState()
             self.checkRoomControlsAvailability()
         }
+
+        self.checkRetention()
     }
 
     func didJoinRoom(notification: Notification) {
