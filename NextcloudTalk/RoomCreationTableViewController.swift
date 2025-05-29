@@ -285,8 +285,11 @@ enum RoomVisibilityOption: Int {
         // Room participants
         for participant in roomParticipants {
             self.roomCreationGroup.enter()
-            NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source as String?, toRoom: token, for: account) { error in
-                if let error {
+
+            Task {
+                do {
+                    try await NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source as String?, toRoom: token, forAccount: account)
+                } catch {
                     NCUtils.log(String(format: "Failed to add participant. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
                 }
