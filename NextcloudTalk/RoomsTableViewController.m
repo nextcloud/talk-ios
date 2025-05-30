@@ -1166,12 +1166,16 @@ typedef enum RoomsSections {
             [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
 
-        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
-            if (errorCode == 400) {
-                [self showLeaveRoomLastModeratorErrorForRoom:room];
-            } else if (error) {
-                NSLog(@"Error leaving room: %@", error.description);
+        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(OcsResponse * _Nullable response, NSError * _Nullable error) {
+            if (error) {
+                OcsError *ocsError = [error.userInfo objectForKey:@"ocsError"];
+                if (ocsError.responseStatusCode == 400) {
+                    [self showLeaveRoomLastModeratorErrorForRoom:room];
+                } else {
+                    NSLog(@"Error leaving room: %@", error.description);
+                }
             }
+
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
         }];
     }];

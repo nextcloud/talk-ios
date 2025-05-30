@@ -28,7 +28,9 @@ struct RoomInfoDestructiveSection: View {
                 })
                 .alert(NSLocalizedString("Leave conversation", comment: ""), isPresented: $showLeaveConfirmation, actions: {
                     Button(role: .destructive, action: {
-                        leaveRoom()
+                        Task {
+                            await leaveRoom()
+                        }
                     }, label: {
                         Text("Leave")
                     })
@@ -71,16 +73,14 @@ struct RoomInfoDestructiveSection: View {
         }
     }
 
-    func leaveRoom() {
-        NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, for: room.account!) { errorCode, error in
-            if error == nil {
-                NCRoomsManager.sharedInstance().chatViewController?.leaveChat()
-                NCUserInterfaceController.sharedInstance().presentConversationsList()
+    func leaveRoom() async {
+        do {
+            try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: room.account!)
 
-                return
-            }
-
-            if errorCode == 400 {
+            NCRoomsManager.sharedInstance().chatViewController?.leaveChat()
+            NCUserInterfaceController.sharedInstance().presentConversationsList()
+        } catch {
+            if let error = error as? OcsError, error.responseStatusCode == 400 {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("You need to promote a new moderator before you can leave this conversation", comment: ""), withMessage: nil)
             } else {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not leave conversation", comment: ""), withMessage: nil)

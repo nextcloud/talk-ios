@@ -15,7 +15,7 @@ struct RoomInfoConversationSettingsSection: View {
         Section(header: Text("Conversation settings")) {
             if room.supportsMessageExpirationModeration {
                 ActionPicker(selection: $room.messageExpiration, action: { newValue in
-                    setMessageExpiration(to: newValue)
+                    await setMessageExpiration(to: newValue)
                 }, label: {
                     ImageSublabelView(image: Image(systemName: "timer")) {
                         Text("Message expiration")
@@ -60,7 +60,7 @@ struct RoomInfoConversationSettingsSection: View {
                     })
 
                     ActionToggle(isOn: listable, action: { newValue in
-                        setListableScope(to: newValue ? .regularUsersOnly : .participantsOnly)
+                        await setListableScope(to: newValue ? .regularUsersOnly : .participantsOnly)
                     }, label: {
                         ImageSublabelView(image: Image(systemName: "list.bullet")) {
                             Text("Open conversation to registered users")
@@ -75,7 +75,7 @@ struct RoomInfoConversationSettingsSection: View {
                         })
 
                         ActionToggle(isOn: listableEveryone, action: { newValue in
-                            setListableScope(to: newValue ? .everyone : .regularUsersOnly)
+                            await setListableScope(to: newValue ? .everyone : .regularUsersOnly)
                         }, label: {
                             ImageSublabelView(image: Image(uiImage: UIImage())) {
                                 Text("Also open to guest app users")
@@ -108,7 +108,7 @@ struct RoomInfoConversationSettingsSection: View {
                     })
 
                     ActionToggle(isOn: readOnly, action: { newValue in
-                        setReadOnlyState(to: newValue ? .readOnly : .readWrite)
+                        await setReadOnlyState(to: newValue ? .readOnly : .readWrite)
                     }, label: {
                         ImageSublabelView(image: Image(systemName: "lock.square")) {
                             Text("Lock conversation")
@@ -129,24 +129,24 @@ struct RoomInfoConversationSettingsSection: View {
         }
     }
 
-    func setMessageExpiration(to newValue: NCMessageExpiration) {
-        NCAPIController.sharedInstance().setMessageExpiration(newValue, forRoom: room.token, for: room.account!) { error in
-            if error != nil {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not set message expiration time", comment: ""), withMessage: nil)
-            }
-
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+    func setMessageExpiration(to newValue: NCMessageExpiration) async {
+        do {
+            try await NCAPIController.sharedInstance().setMessageExpiration(messageExpiration: newValue, forRoom: room.token, forAccount: room.account!)
+        } catch {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not set message expiration time", comment: ""), withMessage: nil)
         }
+
+        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
     }
 
-    func setListableScope(to newScope: NCRoomListableScope) {
-        NCAPIController.sharedInstance().setListableScope(newScope, forRoom: room.token, for: room.account!) { error in
-            if error != nil {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change listable scope of the conversation", comment: ""), withMessage: nil)
-            }
-
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+    func setListableScope(to newScope: NCRoomListableScope) async {
+        do {
+            try await NCAPIController.sharedInstance().setListableScope(scope: newScope, forRoom: room.token, forAccount: room.account!)
+        } catch {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change listable scope of the conversation", comment: ""), withMessage: nil)
         }
+
+        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
     }
 
     func setMentionPermissions(to newPermission: NCRoomMentionPermissions) {
@@ -159,13 +159,13 @@ struct RoomInfoConversationSettingsSection: View {
         }
     }
 
-    func setReadOnlyState(to newState: NCRoomReadOnlyState) {
-        NCAPIController.sharedInstance().setReadOnlyState(newState, forRoom: room.token, for: room.account!) { error in
-            if error != nil {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change read-only state of the conversation", comment: ""), withMessage: nil)
-            }
-
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+    func setReadOnlyState(to newState: NCRoomReadOnlyState) async {
+        do {
+            try await NCAPIController.sharedInstance().setReadOnlyState(state: newState, forRoom: room.token, forAccount: room.account!)
+        } catch {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change read-only state of the conversation", comment: ""), withMessage: nil)
         }
+
+        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
     }
 }

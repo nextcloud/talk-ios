@@ -87,9 +87,10 @@ struct RoomInfoNotificationSection: View {
     }
 
     func setImportantConversation(toEnabled newValue: Bool) async {
-        if let updatedRoom = try? await NCAPIController.sharedInstance().setImportantState(enabled: newValue, forRoom: room.token, forAccount: room.account!) {
-            self.room = updatedRoom
-        } else {
+        do {
+            let updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: newValue, forRoom: room.token, forAccount: room.account!)
+            self.room = updatedRoom!
+        } catch {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change important conversation setting", comment: ""), withMessage: nil)
             NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
         }
