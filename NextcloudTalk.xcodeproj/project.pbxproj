@@ -67,6 +67,7 @@
 		1F1F517E2DE5A5510012AE37 /* NCRoomParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F517B2DE4B9DF0012AE37 /* NCRoomParticipant.swift */; };
 		1F1F517F2DE5A5510012AE37 /* NCRoomParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F517B2DE4B9DF0012AE37 /* NCRoomParticipant.swift */; };
 		1F1F51802DE5A5510012AE37 /* NCRoomParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F517B2DE4B9DF0012AE37 /* NCRoomParticipant.swift */; };
+		1F1F53432DE9127F0012AE37 /* NCRoomParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1F517B2DE4B9DF0012AE37 /* NCRoomParticipant.swift */; };
 		1F20582A2CEA404F00AAA673 /* AiSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F2058292CEA404F00AAA673 /* AiSummaryViewController.swift */; };
 		1F20582C2CEA405700AAA673 /* AiSummaryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F20582B2CEA405700AAA673 /* AiSummaryViewController.xib */; };
 		1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F205B9F2CEE1B8800AAA673 /* AiSummaryController.swift */; };
@@ -3079,6 +3080,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F1F53432DE9127F0012AE37 /* NCRoomParticipant.swift in Sources */,
 				1F1F4EE72DDB76960012AE37 /* UIViewExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

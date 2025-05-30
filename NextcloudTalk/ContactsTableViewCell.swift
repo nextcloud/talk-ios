@@ -26,7 +26,7 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
         }
 
         if let account = room.account {
-            cell.contactImage.setActorAvatar(forId: participant.actorId, withType: participant.actorType, withDisplayName: participant.displayName, withRoomToken: room.token, using: account)
+            cell.contactImage.setActorAvatar(forId: participant.actorId, withType: participant.actorType?.rawValue, withDisplayName: participant.displayName, withRoomToken: room.token, using: account)
         }
 
         cell.setUserStatus(participant.status)

@@ -89,7 +89,7 @@ struct RoomInfoParticipantsSection: View {
                             }
                         }
 
-                        if participant.actorType == NCAttendeeTypeEmail {
+                        if participant.actorType == .email {
                             Button {
                                 self.resendInvitation(forParticipant: participant)
                             } label: {
@@ -163,8 +163,8 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func getParticipants() {
-        NCAPIController.sharedInstance().getParticipantsFromRoom(room.token, for: room.account!) { participants, _ in
-            self.participants = participants as? [NCRoomParticipant]
+        Task {
+            self.participants = try? await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: room.account!)
         }
     }
 
@@ -249,7 +249,7 @@ struct RoomInfoParticipantsSection: View {
 
         isBanActionRunning = true
 
-        NCAPIController.sharedInstance().banActor(for: room.accountId, in: room.token, with: actorType, with: actorId, with: trimmedInternalNote) { success in
+        NCAPIController.sharedInstance().banActor(for: room.accountId, in: room.token, with: actorType.rawValue, with: actorId, with: trimmedInternalNote) { success in
             isBanActionRunning = false
 
             if !success {

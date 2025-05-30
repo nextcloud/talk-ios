@@ -10,6 +10,7 @@ import NextcloudKit
 
     enum ApiControllerError: Error {
         case preconditionError
+        case unexpectedOcsResponse
     }
 
     // MARK: - Rooms Controller
@@ -453,6 +454,28 @@ import NextcloudKit
     }
 
     // MARK: - Participants
+
+    @MainActor
+    @discardableResult
+    public func getParticipants(forRoom token: String, forAccount account: TalkAccount) async throws -> [NCRoomParticipant] {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        var urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", for: account)
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+
+        if serverCapabilities?.userStatus == true {
+            urlString += "?includeStatus=true"
+        }
+
+        let response = try await apiSessionManager.getOcs(urlString, account: account)
+        guard let dataArrayDict = response.dataArrayDict else { throw ApiControllerError.unexpectedOcsResponse }
+
+        let participants = dataArrayDict.compactMap { NCRoomParticipant(dictionary: $0) }
+
+        return participants.sortedParticipants()
+    }
 
     @MainActor
     @discardableResult
