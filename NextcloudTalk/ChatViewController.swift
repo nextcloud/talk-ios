@@ -61,13 +61,21 @@ import SwiftUI
     // MARK: - Buttons in NavigationBar
 
     func getCallOptionsBarButton() -> BarButtonItemWithActivity {
-        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
-        let buttonImage = UIImage(systemName: "phone", withConfiguration: symbolConfiguration)
-        let button = BarButtonItemWithActivity(width: 50, with: buttonImage)
-
+        let button = BarButtonItemWithActivity(image: UIImage())
+        configureCallButtonAsInCall(button: button, inCall: room.hasCall)
         setupCallOptionsBarButtonMenu(button: button)
 
         return button
+    }
+
+    func configureCallButtonAsInCall(button: BarButtonItemWithActivity, inCall: Bool) {
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let imageName = inCall ? "phone.fill" : "phone"
+        let image = UIImage(systemName: imageName, withConfiguration: symbolConfiguration) ?? UIImage()
+        button.setImage(image)
+
+        let callButtonColor: UIColor = inCall ? .systemGreen : .clear
+        button.setBackgroundColor(callButtonColor)
     }
 
     func setupCallOptionsBarButtonMenu(button: BarButtonItemWithActivity) {
@@ -157,9 +165,9 @@ import SwiftUI
     }()
 
     private lazy var eventsButton: BarButtonItemWithActivity = {
-        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
-        let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration)
-        let eventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration) ?? UIImage()
+        let eventsButton = BarButtonItemWithActivity(image: buttonImage)
 
         eventsButton.innerButton.menu = createEventsMenu()
         eventsButton.innerButton.showsMenuAsPrimaryAction = true
@@ -458,6 +466,9 @@ import SwiftUI
             // Disable call buttons
             self.callOptionsButton.isEnabled = false
         }
+
+        // Configure inCall state for call button
+        self.configureCallButtonAsInCall(button: callOptionsButton, inCall: room.hasCall)
 
         if room.readOnlyState == .readOnly || self.shouldPresentLobbyView() {
             // Hide text input
