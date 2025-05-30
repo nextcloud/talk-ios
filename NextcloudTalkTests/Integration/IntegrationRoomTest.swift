@@ -402,6 +402,9 @@ final class IntegrationRoomTest: TestBase {
         let room = try await createUniqueRoom(prefix: "ParticipantConversation", withAccount: activeAccount)
 
         try await NCAPIController.sharedInstance().addParticipant("alice", ofType: "users", toRoom: room.token, forAccount: activeAccount)
+        let participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
+
+        XCTAssertTrue(participants.contains { $0.displayName == "alice" })
 
         do {
             try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: activeAccount)

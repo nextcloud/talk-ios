@@ -214,8 +214,10 @@ struct ScheduleMeetingSwiftUIView: View {
     }
 
     private func fetchParticipants() {
-        NCAPIController.sharedInstance().getParticipantsFromRoom(room.token, for: account) { participants, _ in
-            guard let participants = participants as? [NCRoomParticipant] else { return }
+        Task {
+            guard let participants = try? await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: account)
+            else { return }
+
             let filteredParticipants = participants.filter { $0.actorId != account.userId }
             self.roomParticipants = filteredParticipants
             self.selectedParticipants = isSwitchEnabled ? filteredParticipants : []
@@ -308,7 +310,7 @@ struct ParticipantCellView: View {
 
     var body: some View {
         HStack {
-            AvatarImageViewWrapper(actorId: Binding.constant(participant.actorId), actorType: Binding.constant(participant.actorType))
+            AvatarImageViewWrapper(actorId: Binding.constant(participant.actorId), actorType: Binding.constant(participant.actorType?.rawValue))
                 .frame(width: 28, height: 28)
                 .clipShape(Capsule())
             Text(participant.displayName)

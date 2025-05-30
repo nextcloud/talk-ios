@@ -3,24 +3,26 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-public let NCAttendeeTypeUser = "users"
-public let NCAttendeeTypeGroup = "groups"
-public let NCAttendeeTypeCircle = "circles"
-public let NCAttendeeTypeTeams = "teams"
-public let NCAttendeeTypeGuest = "guests"
-public let NCAttendeeTypeEmail = "emails"
-public let NCAttendeeTypeFederated = "federated_users"
-public let NCAttendeeTypeBots = "bots"
-
 public let NCAttendeeBotPrefix = "bot-"
 
 public let NCAttendeeBridgeBotId = "bridge-bot"
+
+enum AttendeeType: String {
+    case user = "users"
+    case group = "groups"
+    case circle = "circles"
+    case teams = "teams"
+    case guest = "guests"
+    case email = "emails"
+    case federated = "federated_users"
+    case bots = "bots"
+}
 
 @objcMembers
 public class NCRoomParticipant: NSObject {
 
     var attendeeId: Int = 0
-    var actorType: String?
+    var actorType: AttendeeType?
     var actorId: String?
     var displayName: String
     var inCall: CallFlag = []
@@ -40,7 +42,6 @@ public class NCRoomParticipant: NSObject {
 
     init(dictionary: [String: Any]) {
         self.attendeeId = dictionary["attendeeId"] as? Int ?? 0
-        self.actorType = dictionary["actorType"] as? String
         self.actorId = dictionary["actorId"] as? String
         self.displayName = dictionary["displayName"] as? String ?? ""
         self.inCall = dictionary["inCall"] as? CallFlag ?? []
@@ -48,6 +49,12 @@ public class NCRoomParticipant: NSObject {
         self.sessionId = dictionary["sessionId"] as? String
         self.sessionIds = dictionary["sessionIds"] as? [String]
         self.userId = dictionary["userId"] as? String
+
+        if let attendeeTypeRaw = dictionary["actorType"] as? String,
+           let attendeeType = AttendeeType(rawValue: attendeeTypeRaw) {
+
+            self.actorType = attendeeType
+        }
 
         if let participantTypeRaw = dictionary["participantType"] as? Int,
            let participantType = NCParticipantType(rawValue: participantTypeRaw) {
@@ -69,7 +76,7 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var canBePromoted: Bool {
-        let allowedActorType = actorType == NCAttendeeTypeUser || actorType == NCAttendeeTypeGuest || actorType == NCAttendeeTypeEmail
+        let allowedActorType = actorType == .user || actorType == .guest || actorType == .email
         return !canModerate && allowedActorType
     }
 
@@ -86,7 +93,7 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var canBeNotifiedAboutCall: Bool {
-        return !isAppUser && inCall.isEmpty && actorType == NCAttendeeTypeUser && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySendCallNotification)
+        return !isAppUser && inCall.isEmpty && actorType == .user && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySendCallNotification)
     }
 
     public var isAppUser: Bool {
@@ -95,7 +102,7 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var isBridgeBotUser: Bool {
-        return actorType == NCAttendeeTypeUser && actorId == NCAttendeeBridgeBotId
+        return actorType == .user && actorId == NCAttendeeBridgeBotId
     }
 
     public var isGuest: Bool {
@@ -103,20 +110,19 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var isGroup: Bool {
-        return actorType == NCAttendeeTypeGroup
+        return actorType == .group
     }
 
     public var isTeam: Bool {
-        return actorType == NCAttendeeTypeCircle || actorType == NCAttendeeTypeTeams
+        return actorType == .circle || actorType == .teams
     }
 
     public var isFederated: Bool {
-        return actorType == NCAttendeeTypeFederated
+        return actorType == .federated
     }
 
     public var isOffline: Bool {
-        guard let sessionId else { return false }
-        return sessionId == "0" || sessionId.isEmpty
+        return (sessionId == "0" || sessionId == nil) && (sessionIds ?? []).isEmpty
     }
 
     public var participantId: String? {
@@ -171,7 +177,7 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var callIconImageName: String? {
-        guard inCall.isEmpty else { return nil }
+        guard !inCall.isEmpty else { return nil }
 
         if inCall.contains(.withVideo) {
             return "video"
@@ -182,6 +188,41 @@ public class NCRoomParticipant: NSObject {
         }
 
         return "mic"
+    }
+}
+
+extension Array where Element == NCRoomParticipant {
+
+    func sortedParticipants() -> [NCRoomParticipant] {
+        // Sort participants by:
+        // - Participants before groups
+        // - In call before online before offline
+        // - Type (moderators before normal participants)
+        // - Alphabetic
+
+        self.sorted {
+            if $0.isTeam != $1.isTeam {
+                return !$0.isTeam && $1.isTeam
+            }
+
+            if $0.isGroup != $1.isGroup {
+                return !$0.isGroup && $1.isGroup
+            }
+
+            if $0.inCall != $1.inCall {
+                return !$0.inCall.isEmpty
+            }
+
+            if $0.isOffline != $1.isOffline {
+                return !$0.isOffline && $1.isOffline
+            }
+
+            if $0.canModerate != $1.canModerate {
+                return $0.canModerate && !$1.canModerate
+            }
+
+            return $0.displayName < $1.displayName
+        }
     }
 
 }
