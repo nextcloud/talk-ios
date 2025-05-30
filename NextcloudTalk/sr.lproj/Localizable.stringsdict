@@ -158,6 +158,19 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Овај разговор ће се аутоматски обрисати за све након %ld дан неактивности.</string>
+            <key>few</key>
+            <string>Овај разговор ће се аутоматски обрисати за све након %ld дана неактивности.</string>
+            <key>other</key>
+            <string>Овај разговор ће се аутоматски обрисати за све након %ld дана неактивности.</string>
+        </dict>
     </dict>
 </dict>
 </plist>
