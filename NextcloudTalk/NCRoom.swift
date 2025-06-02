@@ -175,7 +175,9 @@ import SwiftyAttributes
 
     public var canAddParticipants: Bool {
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationCreationAll) && self.type == .oneToOne {
-            return true
+            // Don't go through NCSettingsController, as that would bring too many dependencies to the extensions
+            guard let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId) else { return false }
+            return capabilities.canCreate
         }
 
         return self.canModerate
