@@ -13,17 +13,13 @@ class BarButtonItemWithActivity: UIBarButtonItem {
     init(image: UIImage) {
         super.init()
 
-        let themeTextColor = NCAppBranding.themeTextColor()
-
-        var configuration = UIButton.Configuration.filled()
+        var configuration = UIButton.Configuration.plain()
         configuration.image = image
-        configuration.cornerStyle = .medium
-        configuration.baseBackgroundColor = .clear
-        configuration.baseForegroundColor = themeTextColor
+        setupDefaultConfiguration(&configuration)
 
         self.innerButton.configuration = configuration
 
-        self.activityIndicator.color = themeTextColor
+        self.activityIndicator.color = NCAppBranding.themeTextColor()
         self.activityIndicator.style = .medium
 
         self.innerButton.heightAnchor.constraint(equalToConstant: 36.0).isActive = true
@@ -41,6 +37,12 @@ class BarButtonItemWithActivity: UIBarButtonItem {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private func setupDefaultConfiguration(_ config: inout UIButton.Configuration) {
+        config.cornerStyle = .medium
+        config.baseBackgroundColor = .clear
+        config.baseForegroundColor = NCAppBranding.themeTextColor()
+    }
+
     func setImage(_ image: UIImage) {
         guard var configuration = self.innerButton.configuration else { return }
         configuration.image = image
@@ -48,9 +50,22 @@ class BarButtonItemWithActivity: UIBarButtonItem {
     }
 
     func setBackgroundColor(_ color: UIColor) {
-        guard var configuration = self.innerButton.configuration else { return }
-        configuration.baseBackgroundColor = color
-        self.innerButton.configuration = configuration
+        guard let configuration = self.innerButton.configuration else { return }
+
+        var newConfiguration: UIButton.Configuration
+        if color == .clear {
+            newConfiguration = UIButton.Configuration.plain()
+            newConfiguration.image = configuration.image
+            setupDefaultConfiguration(&newConfiguration)
+        } else {
+            newConfiguration = UIButton.Configuration.filled()
+            newConfiguration.image = configuration.image
+            setupDefaultConfiguration(&newConfiguration)
+        }
+
+        newConfiguration.baseBackgroundColor = color
+
+        self.innerButton.configuration = newConfiguration
     }
 
     func showIndicator() {
