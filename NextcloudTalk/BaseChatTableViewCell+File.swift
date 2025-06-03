@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import SDWebImage
+
 extension BaseChatTableViewCell {
 
     func setupForFileCell(with message: NCChatMessage, with account: TalkAccount) {
@@ -166,6 +168,18 @@ extension BaseChatTableViewCell {
     func requestGifPreview(for message: NCChatMessage, with account: TalkAccount) {
         guard let fileId = message.file()?.parameterId else { return }
 
+        let cacheKey = "\(account.accountId)-\(message.messageId)-\(fileId)"
+
+        if let cachedData = SDImageCache.shared.diskImageData(forKey: cacheKey),
+            let gifImage = try? UIImage(gifData: cachedData),
+            let baseImage = UIImage(data: cachedData) {
+
+            self.filePreviewImageView?.setGifImage(gifImage)
+            self.adjustImageView(toImageSize: baseImage, ofMessage: message)
+
+            return
+        }
+
         let fileControllerWrapper = NCChatFileControllerWrapper()
         self.fileControllerWrapper = fileControllerWrapper
 
@@ -187,6 +201,8 @@ extension BaseChatTableViewCell {
 
             imageView.setGifImage(gifImage)
             self.adjustImageView(toImageSize: baseImage, ofMessage: message)
+
+            SDImageCache.shared.storeImageData(data, forKey: cacheKey)
         }
     }
 
