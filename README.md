@@ -10,7 +10,7 @@ Nextcloud Talk is a fully on-premises audio/video and chat communication service
 
 Nextcloud Talk lowers the barrier for communication and lets your team connect any time, any where, on any device, with each other, customers or partners.
 
-[![Available on the AppStore](https://github.com/nextcloud/talk-ios/blob/master/docs/App%20Store/Download_on_the_App_Store_Badge.svg)](https://itunes.apple.com/app/id1296825574)
+[![Available on the AppStore](https://github.com/nextcloud/talk-ios/blob/main/docs/App%20Store/Download_on_the_App_Store_Badge.svg)](https://itunes.apple.com/app/id1296825574)
 
 ## Prerequisites
 
@@ -38,7 +38,7 @@ Thanks for wanting to contribute source code to the Talk iOS app. That's great! 
 
 Please read the [Code of Conduct](https://nextcloud.com/community/code-of-conduct/). This document offers some guidance to ensure Nextcloud participants can cooperate effectively in a positive and inspiring atmosphere, and to explain how together we can strengthen and support each other.
 
-For more information please review the [guidelines for contributing](https://github.com/nextcloud/server/blob/master/.github/CONTRIBUTING.md) to this repository.
+For more information please review the [guidelines for contributing](https://github.com/nextcloud/server/blob/main/.github/CONTRIBUTING.md) to this repository.
 
 ## How to contribute
 
@@ -58,7 +58,7 @@ Current version: [121.6167.0](https://github.com/nextcloud-releases/talk-clients
 
 ## Running tests locally
 
-The tests included in `talk-ios` require a running Nextcloud instance. To run this locally, make sure you have a working docker enviroment and run the file `start-instance-for-tests.sh` - this will install a Nextcloud instance, install Nextcloud Talk and wait for everything to be up and running. By default this uses the `master` branch of Nextcloud and NextcloudTalk. You can edit the file to specify a different branch (e.g. `stable27`).
+The tests included in `talk-ios` require a running Nextcloud instance. To run this locally, make sure you have a working docker enviroment and run the file `start-instance-for-tests.sh` - this will install a Nextcloud instance, install Nextcloud Talk and wait for everything to be up and running. By default this uses the `main` branch of Nextcloud and NextcloudTalk. You can edit the file to specify a different branch (e.g. `stable27`).
 After that you can run the tests directly from Xcode or alternatively from the command line you can use:
 
 ```
@@ -71,7 +71,7 @@ xcodebuild test -workspace NextcloudTalk.xcworkspace \
 
 ## Push notifications
 
-If you are experiencing problems with push notifications, please check this [document](https://github.com/nextcloud/talk-ios/blob/master/docs/notifications.md) to detect possible issues.
+If you are experiencing problems with push notifications, please check this [document](https://github.com/nextcloud/talk-ios/blob/main/docs/notifications.md) to detect possible issues.
 
 ## Credits
 
@@ -88,5 +88,5 @@ Do you want to try the latest version in development of Nextcloud Talk iOS? Simp
 
 We are also available on [our public Talk team conversation](https://cloud.nextcloud.com/call/c7fz9qpr), if you want to join the discussion.
 
-**License:** [GPLv3](https://github.com/nextcloud/spreed-ios/blob/master/LICENSE) with [Apple app store exception](https://github.com/nextcloud/spreed-ios/blob/master/COPYING.iOS).
+**License:** [GPLv3](https://github.com/nextcloud/talk-ios/blob/main/LICENSE) with [Apple app store exception](https://github.com/nextcloud/talk-ios/blob/main/COPYING.iOS).
 
