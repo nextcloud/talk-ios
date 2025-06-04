@@ -2617,6 +2617,8 @@ import SwiftUI
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
+            } else {
+                self.setTemporaryReaction(reaction: reaction, withState: .added, toMessage: message)
             }
         }
     }
@@ -2628,6 +2630,8 @@ import SwiftUI
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
+            } else {
+                self.setTemporaryReaction(reaction: reaction, withState: .removed, toMessage: message)
             }
         }
     }
@@ -2648,7 +2652,7 @@ import SwiftUI
         DispatchQueue.main.async {
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: messageId) else { return }
 
-            message.removeReactionTemporarily(reaction)
+            message.removeReactionFromTemporaryReactions(reaction)
 
             self.tableView?.beginUpdates()
             self.tableView?.reloadRows(at: [indexPath], with: .none)
@@ -2662,11 +2666,7 @@ import SwiftUI
 
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: message.messageId) else { return }
 
-            if state == .adding {
-                message.addTemporaryReaction(reaction)
-            } else if state == .removing {
-                message.removeReactionTemporarily(reaction)
-            }
+            message.setOrUpdateTemporaryReaction(reaction, state: state)
 
             self.tableView?.performBatchUpdates({
                 self.tableView?.reloadRows(at: [indexPath], with: .none)
