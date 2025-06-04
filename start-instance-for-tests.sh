@@ -7,7 +7,7 @@
 # This script runs the CI scripts needed to set up a test instance and install talk locally
 
 CONTAINER_NAME=nextcloud_test
-TEST_BRANCH=master
+TEST_BRANCH=main
 SERVER_PORT=8080
 
 source ./ci-create-docker-server.sh

@@ -8,7 +8,7 @@ not be complete. Please contribute to this list as you gain new knowledge. Just 
 # 📱 Users
 Please make sure you're using the latest version available on the AppStore. Push notifications are not available if you're compiling and installing the app yourself through XCode.
 
-[![Available on the AppStore](https://github.com/nextcloud/talk-ios/blob/master/docs/App%20Store/Download_on_the_App_Store_Badge.svg)](https://itunes.apple.com/app/id1296825574)
+[![Available on the AppStore](https://github.com/nextcloud/talk-ios/blob/main/docs/App%20Store/Download_on_the_App_Store_Badge.svg)](https://itunes.apple.com/app/id1296825574)
 
 If you're using Talk 12 on the server, please make sure you're running atleast version 12.2.1 (see [here for details](https://github.com/nextcloud/spreed/pull/6329)).
 
