@@ -22,18 +22,10 @@ typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contact
 typedef void (^SearchUsersCompletionBlock)(NSArray *indexes, NSMutableDictionary *users, NSMutableArray *userList, NSError *error);
 
 typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
-typedef void (^JoinRoomCompletionBlock)(NSString *sessionId, NCRoom *room, NSError *error, NSInteger statusCode, NSString * _Nullable statusReason);
-typedef void (^ExitRoomCompletionBlock)(NSError *error);
-typedef void (^FavoriteRoomCompletionBlock)(NSError *error);
-typedef void (^ReadOnlyCompletionBlock)(NSError *error);
-typedef void (^SetLobbyStateCompletionBlock)(NSError *error);
-typedef void (^SetSIPStateCompletionBlock)(NSError *error);
-typedef void (^ListableCompletionBlock)(NSError *error);
-typedef void (^MessageExpirationCompletionBlock)(NSError *error);
 
+typedef void (^PrepareSwitchRoomCompletionBlock)(NSError *error);
 typedef void (^RequestAssistanceCompletionBlock)(NSError *error);
 
-typedef void (^GetParticipantsFromRoomCompletionBlock)(NSMutableArray *participants, NSError *error);
 typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
 typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
 
@@ -158,26 +150,11 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 - (NSURLSessionDataTask *)searchUsersForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(SearchUsersCompletionBlock)block;
 
-// Rooms Controller
-- (NSURLSessionDataTask *)joinRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(JoinRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)exitRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ExitRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)setReadOnlyState:(NCRoomReadOnlyState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ReadOnlyCompletionBlock)block;
-- (NSURLSessionDataTask *)setLobbyState:(NCRoomLobbyState)state withTimer:(NSInteger)timer forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetLobbyStateCompletionBlock)block;
-- (NSURLSessionDataTask *)setSIPState:(NCRoomSIPState)state forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SetSIPStateCompletionBlock)block;
-- (NSURLSessionDataTask *)setListableScope:(NCRoomListableScope)scope forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ListableCompletionBlock)block;
-- (NSURLSessionDataTask *)setMessageExpiration:(NCMessageExpiration)messageExpiration forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageExpirationCompletionBlock)block;
-
 // Breakout Rooms Controller
 - (NSURLSessionDataTask *)requestAssistanceInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(RequestAssistanceCompletionBlock)block;
 - (NSURLSessionDataTask *)stopRequestingAssistanceInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(RequestAssistanceCompletionBlock)block;
 
 // Participants Controller
-- (NSURLSessionDataTask *)getParticipantsFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetParticipantsFromRoomCompletionBlock)block;
-- (NSURLSessionDataTask *)addParticipant:(NSString *)participant ofType:(NSString *)type toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeAttendee:(NSInteger)attendeeId fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeParticipant:(NSString *)user fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeGuest:(NSString *)guest fromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
-- (NSURLSessionDataTask *)removeSelfFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(LeaveRoomCompletionBlock)block;
 - (NSURLSessionDataTask *)promoteParticipant:(NSString *)user toModeratorOfRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)demoteModerator:(NSString *)moderator toParticipantOfRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 - (NSURLSessionDataTask *)resendInvitationToParticipant:(NSString *)participant inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
@@ -304,5 +281,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response;
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;
+- (void)checkProxyResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account forRoom:(NSString *)token;
 
 @end

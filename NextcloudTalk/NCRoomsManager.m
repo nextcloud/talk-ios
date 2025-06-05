@@ -623,7 +623,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
 #pragma mark - Switch to
 
-- (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block
+- (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(PrepareSwitchRoomCompletionBlock)block
 {
     if ([_chatViewController.room.token isEqualToString:token]) {
         [_chatViewController leaveChat];
@@ -635,7 +635,7 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     NCRoomController *roomController = [_activeRooms objectForKey:token];
     if (roomController) {
         [_activeRooms removeObjectForKey:token];
-        [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount withCompletionBlock:block];
+        [[NCAPIController sharedInstance] exitRoom:token forAccount:activeAccount completionBlock:block];
     } else {
         NSLog(@"Couldn't find a room controller from the room we are switching from");
         block(nil);

@@ -91,11 +91,11 @@ import SDWebImage
 
         var image: UIImage?
 
-        if actorType == NCAttendeeTypeEmail || actorType == NCAttendeeTypeGuest {
+        if actorType == AttendeeType.email.rawValue || actorType == AttendeeType.guest.rawValue {
             image = self.getGuestsAvatar(withDisplayName: actorDisplayName ?? "", withStyle: style)
-        } else if actorType == NCAttendeeTypeGroup {
+        } else if actorType == AttendeeType.group.rawValue {
             image = self.getGroupAvatar(with: style)
-        } else if actorType == NCAttendeeTypeCircle || actorType == NCAttendeeTypeTeams {
+        } else if actorType == AttendeeType.circle.rawValue || actorType == AttendeeType.teams.rawValue {
             image = self.getTeamAvatar(with: style)
         } else if actorType == "deleted_users" {
             image = self.getDeletedUserAvatar()

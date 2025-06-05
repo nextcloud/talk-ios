@@ -30,6 +30,5 @@
 #import "NCUserDefaults.h"
 #import "NCIntentController.h"
 #import "NCNotification.h"
-#import "NCRoomParticipant.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

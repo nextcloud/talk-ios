@@ -230,7 +230,7 @@
 {
     dispatch_group_enter(dispatchGroup);
 
-    [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(OcsResponse * _Nullable response, NSError * _Nullable error) {
         if (error) {
             UIAlertController * alert = [UIAlertController
                                          alertControllerWithTitle:NSLocalizedString(@"Could not add participant", nil)

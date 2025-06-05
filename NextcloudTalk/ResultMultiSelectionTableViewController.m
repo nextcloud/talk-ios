@@ -102,8 +102,9 @@
     }
     
     cell.labelTitle.text = contact.name;
-    
-    if ([contact.source isEqualToString:NCAttendeeTypeEmail]) {
+
+    // TODO: Replace with NCAttendeeTypeEmail when migrating to swift
+    if ([contact.source isEqualToString:@"emails"]) {
         // Only when adding new (email) participants we show the mail avatar
         [cell.contactImage setMailAvatar];
     } else {
