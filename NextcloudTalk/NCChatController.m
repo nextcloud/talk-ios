@@ -694,6 +694,12 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 [self notifyChatIsBlocked];
                 return;
             }
+
+            if (statusCode == 429) {
+                [NCUtils log:@"Brute-force protected, received 429 while receiving messages. No further polling."];
+                return;
+            }
+
             if (statusCode != 304) {
                 NSLog(@"Could not get new chat messages. Error: %@", error.description);
             }
