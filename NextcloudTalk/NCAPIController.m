@@ -141,6 +141,14 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                maximumActiveDownloads:4
                                             imageCache:nil];
 
+    // The defaults for the shared url cache are very low, use some sane values for caching. Apple only caches assets <= 5% of the available space.
+    // Otherwise some (user) avatars will never be cached and always requested
+    NSURLCache *sharedURLCache = [[NSURLCache alloc] initWithMemoryCapacity:20 * 1024 * 1024
+                                                               diskCapacity:100 * 1024 * 1024
+                                                                   diskPath:nil];
+
+    [NSURLCache setSharedURLCache:sharedURLCache];
+
     // By default SDWebImageDownloader defaults to 6 concurrent downloads (see SDWebImageDownloaderConfig)
 
     // Make sure we support download SVGs with SDImageDownloader
@@ -148,12 +156,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
     // Make sure we support self-signed certificates we trusted before
     [[SDWebImageDownloader sharedDownloader].config setOperationClass:[NCWebImageDownloaderOperation class]];
-
-    // Try to remove legacy avatar cache in app group
-    NSURL *legacyCacheURL = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"AvatarCache"];
-    if (legacyCacheURL != nil) {
-        [[NSFileManager defaultManager] removeItemAtURL:legacyCacheURL error:nil];
-    }
 
     // Limit the cache size to 100 MB and prevent uploading to iCloud
     // Don't set the path to an app group in order to prevent crashes
