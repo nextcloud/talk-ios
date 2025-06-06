@@ -545,6 +545,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
             NCImageSessionManager.shared.cache.removeAllCachedResponses()
 
+            URLCache.shared.removeAllCachedResponses()
             SDImageCache.shared.clearMemory()
             SDImageCache.shared.clearDisk {
                 self.updateTotalImageCacheSize()
@@ -1028,8 +1029,9 @@ extension SettingsTableViewController {
 
     func updateTotalImageCacheSize() {
         let imageCacheSize = NCImageSessionManager.shared.cache.currentDiskUsage
+        let sharedUrlCache = URLCache.shared.currentDiskUsage
         let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
-        self.totalImageCacheSize = imageCacheSize + Int(sdImageCacheSize)
+        self.totalImageCacheSize = imageCacheSize + sharedUrlCache + Int(sdImageCacheSize)
     }
 
     func updateTotalFileCacheSize() {
