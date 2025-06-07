@@ -8,7 +8,9 @@
 typedef NS_ENUM(NSInteger, NCChatReactionState) {
     NCChatReactionStateSet = 0,
     NCChatReactionStateAdding,
-    NCChatReactionStateRemoving
+    NCChatReactionStateRemoving,
+    NCChatReactionStateAdded,
+    NCChatReactionStateRemoved
 };
 
 @interface NCChatReaction : NSObject

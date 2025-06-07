@@ -207,7 +207,11 @@ import SwiftyAttributes
     }
 
     public func isReactionBeingModified(_ reaction: String) -> Bool {
-        return self.temporaryReactions().first(where: { ($0 as? NCChatReaction)?.reaction == reaction }) != nil
+        if let reaction = temporaryReactions().compactMap({ $0 as? NCChatReaction }).first(where: { $0.reaction == reaction }) {
+            return reaction.state == .adding || reaction.state == .removing
+        }
+
+        return false
     }
 
     public func removeReactionFromTemporaryReactions(_ reaction: String) {
@@ -216,18 +220,16 @@ import SwiftyAttributes
         }
     }
 
-    public func addTemporaryReaction(_ reaction: String) {
-        let temporaryReaction = NCChatReaction()
-        temporaryReaction.reaction = reaction
-        temporaryReaction.state = .adding
-        self.temporaryReactions().add(temporaryReaction)
-    }
-
-    public func removeReactionTemporarily(_ reaction: String) {
-        let temporaryReaction = NCChatReaction()
-        temporaryReaction.reaction = reaction
-        temporaryReaction.state = .removing
-        self.temporaryReactions().add(temporaryReaction)
+    public func setOrUpdateTemporaryReaction(_ reaction: String, state: NCChatReactionState) {
+        if let updateReaction = temporaryReactions().compactMap({ $0 as? NCChatReaction }).first(where: { $0.reaction == reaction }) {
+            updateReaction.reaction = reaction
+            updateReaction.state = state
+        } else {
+            let temporaryReaction = NCChatReaction()
+            temporaryReaction.reaction = reaction
+            temporaryReaction.state = state
+            self.temporaryReactions().add(temporaryReaction)
+        }
     }
 
     internal var isReferenceApiSupported: Bool {

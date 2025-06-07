@@ -60,7 +60,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
 
         // Normal chat message with reaction
         testMessage.message = "test"
-        testMessage.addTemporaryReaction("👍")
+        testMessage.setOrUpdateTemporaryReaction("👍", state: .added)
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 110.0)
     }
 
@@ -71,7 +71,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 30.0)
 
         // Grouped chat message with reaction
-        testMessage.addTemporaryReaction("👍")
+        testMessage.setOrUpdateTemporaryReaction("👍", state: .added)
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 70.0)
     }
 

@@ -462,9 +462,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 - (void)mergeTemporaryReactionsWithReactions:(NSMutableArray *)reactions
 {
     for (NCChatReaction *temporaryReaction in [self temporaryReactions]) {
-        if (temporaryReaction.state == NCChatReactionStateAdding) {
+        if (temporaryReaction.state == NCChatReactionStateAdding || temporaryReaction.state == NCChatReactionStateAdded) {
             [self addTemporaryReaction:temporaryReaction.reaction inReactions:reactions];
-        } else if (temporaryReaction.state == NCChatReactionStateRemoving) {
+        } else if (temporaryReaction.state == NCChatReactionStateRemoving || temporaryReaction.state == NCChatReactionStateRemoved) {
             [self removeReactionTemporarily:temporaryReaction.reaction inReactions:reactions];
         }
     }
@@ -475,6 +475,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     BOOL includedReaction = NO;
     for (NCChatReaction *currentReaction in reactions) {
         if ([currentReaction.reaction isEqualToString:reaction]) {
+            // Do not need to increase the count since it was already increased on "adding" state
+            if (currentReaction.userReacted) {return;}
+
             currentReaction.count += 1;
             currentReaction.userReacted = YES;
             includedReaction = YES;
@@ -493,8 +496,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 {
     NCChatReaction *removeReaction = nil;
     for (NCChatReaction *currentReaction in reactions) {
-        if ([currentReaction.reaction isEqualToString:reaction]) {
-            currentReaction.state = NCChatReactionStateRemoving;
+        if ([currentReaction.reaction isEqualToString:reaction] && currentReaction.userReacted) {
             if (currentReaction.count > 1) {
                 currentReaction.count -= 1;
                 currentReaction.userReacted = NO;
