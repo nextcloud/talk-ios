@@ -79,7 +79,7 @@ import SwiftyAttributes
 
         let sameUser = self.isMessage(from: account.userId)
         let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
-        let botInOneToOne = room.type == .oneToOne && self.actorType == NCAttendeeTypeBots && self.actorId.starts(with: NCAttendeeBotPrefix)
+        let botInOneToOne = room.type == .oneToOne && self.actorType == AttendeeType.bots.rawValue && self.actorId.starts(with: NCAttendeeBotPrefix)
 
         let userCanEditMessage = sameUser || moderatorUser || botInOneToOne
 

@@ -24,7 +24,7 @@ struct RoomInfoWebinarSection: View {
             })
 
             ActionToggle(isOn: isLobbyEnabled, action: { newValue in
-                setLobbyState(withNewState: newValue ? .moderatorsOnly : .allParticipants, withTimer: 0)
+                await setLobbyState(withNewState: newValue ? .moderatorsOnly : .allParticipants, withTimer: 0)
             }, label: {
                 ImageSublabelView(image: Image("lobby").renderingMode(.template)) {
                     Text("Lobby")
@@ -40,10 +40,12 @@ struct RoomInfoWebinarSection: View {
                                                    startingDate: startingDate,
                                                    buttons: self.room.lobbyTimer == 0 ? .cancelAndDone : .removeAndDone) { buttonTapped, selectedDate in
 
-                            if buttonTapped == .done, let selectedDate {
-                                setLobbyState(withNewState: .moderatorsOnly, withTimer: Int(selectedDate.timeIntervalSince1970))
-                            } else if buttonTapped == .remove {
-                                setLobbyState(withNewState: .moderatorsOnly, withTimer: 0)
+                            Task {
+                                if buttonTapped == .done, let selectedDate {
+                                    await setLobbyState(withNewState: .moderatorsOnly, withTimer: Int(selectedDate.timeIntervalSince1970))
+                                } else if buttonTapped == .remove {
+                                    await setLobbyState(withNewState: .moderatorsOnly, withTimer: 0)
+                                }
                             }
                         }.id(room)
                     }
@@ -58,7 +60,7 @@ struct RoomInfoWebinarSection: View {
                 })
 
                 ActionToggle(isOn: isSipEnabled, action: { newValue in
-                    setSipState(withNewState: newValue ? .enabled : .disabled)
+                    await setSipState(withNewState: newValue ? .enabled : .disabled)
                 }, label: {
                     ImageSublabelView(image: Image(systemName: "phone")) {
                         Text("SIP dial-in")
@@ -73,7 +75,7 @@ struct RoomInfoWebinarSection: View {
                     })
 
                     ActionToggle(isOn: isSipEnabledWithoutPin, action: { newValue in
-                        setSipState(withNewState: newValue ? .enabledWithoutPIN : .enabled)
+                        await setSipState(withNewState: newValue ? .enabledWithoutPIN : .enabled)
                     }, label: {
                         ImageSublabelView(image: Image(uiImage: UIImage())) {
                             Text("Allow to dial-in without a pin")
@@ -84,23 +86,23 @@ struct RoomInfoWebinarSection: View {
         }
     }
 
-    func setLobbyState(withNewState newState: NCRoomLobbyState, withTimer timer: Int) {
-        NCAPIController.sharedInstance().setLobbyState(newState, withTimer: timer, forRoom: room.token, for: room.account!) { error in
-            if error != nil {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change lobby state of the conversation", comment: ""), withMessage: nil)
-            }
-
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+    func setLobbyState(withNewState newState: NCRoomLobbyState, withTimer timer: Int) async {
+        do {
+            try await NCAPIController.sharedInstance().setLobbyState(state: newState, withTimer: timer, forRoom: room.token, forAccount: room.account!)
+        } catch {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change lobby state of the conversation", comment: ""), withMessage: nil)
         }
+
+        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
     }
 
-    func setSipState(withNewState newState: NCRoomSIPState) {
-        NCAPIController.sharedInstance().setSIPState(newState, forRoom: room.token, for: room.account!) { error in
-            if error != nil {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change SIP state of the conversation", comment: ""), withMessage: nil)
-            }
-
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+    func setSipState(withNewState newState: NCRoomSIPState) async {
+        do {
+            try await NCAPIController.sharedInstance().setSIPState(state: newState, forRoom: room.token, forAccount: room.account!)
+        } catch {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change SIP state of the conversation", comment: ""), withMessage: nil)
         }
+
+        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
     }
 }
