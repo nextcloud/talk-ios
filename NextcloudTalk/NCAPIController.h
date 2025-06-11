@@ -6,7 +6,6 @@
 #import <Foundation/Foundation.h>
 
 #import "AFNetworking.h"
-#import "AFImageDownloader.h"
 #import "NCPoll.h"
 #import "NCRoom.h"
 #import "NCUser.h"
@@ -70,6 +69,8 @@ typedef void (^GetAvatarForConversationWithImageCompletionBlock)(UIImage *image,
 typedef void (^SetAvatarForConversationWithImageCompletionBlock)(NSError *error);
 typedef void (^RemoveAvatarForConversationWithImageCompletionBlock)(NSError *error);
 
+typedef void (^GetPreviewForFileCompletionBlock)(UIImage *image, NSString *fileId, NSError *error);
+
 typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
 typedef void (^GetUserProfileEditableFieldsCompletionBlock)(NSArray *userProfileEditableFields, NSError *error);
 typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger statusCode);
@@ -119,8 +120,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 @property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
 @property (nonatomic, strong) NSMutableDictionary *longPollingApiSessionManagers;
 @property (nonatomic, strong) NSMutableDictionary *calDAVSessionManagers;
-@property (nonatomic, strong) AFImageDownloader *imageDownloader;
-@property (nonatomic, strong) AFImageDownloader *imageDownloaderNoCache;
 
 + (instancetype)sharedInstance;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
@@ -226,8 +225,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getUserActionsForUser:(NSString *)userId usingAccount:(TalkAccount *)account withCompletionBlock:(GetUserActionsCompletionBlock)block;
 
 // File previews
-- (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account;
-- (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId withMaxHeight:(NSInteger) height usingAccount:(TalkAccount *)account;
+- (SDWebImageCombinedOperation *)getPreviewForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account withCompletionBlock:(GetPreviewForFileCompletionBlock)block;
 
 // User Profile
 - (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block;
@@ -261,7 +259,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 // Reference data
 - (NSURLSessionDataTask *)getReferenceForUrlString:(NSString *)url forAccount:(TalkAccount *)account withCompletionBlock:(GetReferenceForUrlStringCompletionBlock)block;
-- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url;
 
 // Recording
 - (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block;

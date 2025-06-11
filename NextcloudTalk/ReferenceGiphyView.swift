@@ -79,8 +79,8 @@ import SwiftyGif
 
     func gifURLDidFail(sender: UIImageView, url: URL, error: (any Error)?) {
         // In case we were unable to load or process the gif, fall back to the normal thumbnail
-        if let request = NCAPIController.sharedInstance().createReferenceThumbnailRequest(forUrl: url.absoluteString) {
-            referenceThumbnailView.setImageWith(request, placeholderImage: nil, success: nil) { _, _, _ in
+        referenceThumbnailView.sd_setImage(with: url, placeholderImage: nil, options: [.retryFailed, .refreshCached]) { _, error, _, _ in
+            if error != nil {
                 self.setPlaceholderThumbnail()
             }
         }
