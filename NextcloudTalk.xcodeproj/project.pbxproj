@@ -271,7 +271,6 @@
 		1FA93DBA2D70FFE400DF6CDF /* NCBaseSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */; };
 		1FA93DBB2D70FFE800DF6CDF /* NCAPISessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */; };
 		1FA93DBC2D70FFFB00DF6CDF /* NCRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF1360E2BFB4F8C006A6101 /* NCRoom.swift */; };
-		1FA93DBD2D70FFFB00DF6CDF /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
 		1FA93DBE2D70FFFB00DF6CDF /* BannedActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7B98D2BF0CBA60093CE98 /* BannedActor.swift */; };
 		1FA93DBF2D70FFFB00DF6CDF /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
 		1FA93DC02D70FFFB00DF6CDF /* OcsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC4B3412CCE670400D28138 /* OcsError.swift */; };
@@ -444,10 +443,6 @@
 		1FF4DA8D2C0264B100C1B952 /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
 		1FF4DA8E2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
 		1FF4DA8F2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */; };
-		1FF4DA912C02677C00C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
-		1FF4DA922C02677F00C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
-		1FF4DA932C02678000C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
-		1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */; };
 		1FF4DA962C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
 		1FF4DA972C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
 		1FF4DA982C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */; };
@@ -995,7 +990,6 @@
 		1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPISessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCBaseSessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCPushProxySessionManager.swift; sourceTree = "<group>"; };
-		1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCImageSessionManager.swift; sourceTree = "<group>"; };
 		1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCWebImageDownloaderOperation.swift; sourceTree = "<group>"; };
 		1FF4DA9A2C032AAC00C1B952 /* RoomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomTableViewCell.swift; sourceTree = "<group>"; };
 		1FF4DA9F2C03351E00C1B952 /* RoomNameTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomNameTableViewCell.swift; sourceTree = "<group>"; };
@@ -2103,7 +2097,6 @@
 				1FF4DA862C02626D00C1B952 /* NCBaseSessionManager.swift */,
 				1FF4DA812C025DB900C1B952 /* NCAPISessionManager.swift */,
 				1FF4DA8B2C0263A200C1B952 /* NCPushProxySessionManager.swift */,
-				1FF4DA902C02677C00C1B952 /* NCImageSessionManager.swift */,
 				2C13E2E82D5C978000590959 /* NCCalDAVSessionManager.swift */,
 				2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */,
 				1FF4DA952C0327FF00C1B952 /* NCWebImageDownloaderOperation.swift */,
@@ -3099,7 +3092,6 @@
 				1FA93DCB2D71003F00DF6CDF /* TurnServer.swift in Sources */,
 				1FA93DCC2D71003F00DF6CDF /* SignalingParticipant.swift in Sources */,
 				1FA93DBC2D70FFFB00DF6CDF /* NCRoom.swift in Sources */,
-				1FA93DBD2D70FFFB00DF6CDF /* NCImageSessionManager.swift in Sources */,
 				1FA93DBE2D70FFFB00DF6CDF /* BannedActor.swift in Sources */,
 				1FA93DBF2D70FFFB00DF6CDF /* NCPushProxySessionManager.swift in Sources */,
 				1FA93DC02D70FFFB00DF6CDF /* OcsError.swift in Sources */,
@@ -3192,7 +3184,6 @@
 				1F1F517F2DE5A5510012AE37 /* NCRoomParticipant.swift in Sources */,
 				1F77A5FB2AB9A4E6007B6037 /* NCMessageParameter.m in Sources */,
 				1F77A5F62AB9A4BF007B6037 /* NCChatReaction.m in Sources */,
-				1FF4DA922C02677F00C1B952 /* NCImageSessionManager.swift in Sources */,
 				1FB78E272B6AE8C900B0D69D /* FederationInvitation.swift in Sources */,
 				1F77A5FE2AB9A4F9007B6037 /* TalkAccount.m in Sources */,
 				1FF136132BFB6FCD006A6101 /* RLMSupport.swift in Sources */,
@@ -3481,7 +3472,6 @@
 				2CA15541208E350300CE8EF0 /* NCChatMessage.m in Sources */,
 				2CB304192264775E0053078A /* SLKInputAccessoryView.m in Sources */,
 				1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */,
-				1FF4DA912C02677C00C1B952 /* NCImageSessionManager.swift in Sources */,
 				1F24B5A228E0648600654457 /* ReferenceGithubView.swift in Sources */,
 				2C4D7D691F2F7DBC00FF4A0D /* ARDSettingsModel.m in Sources */,
 				2C6F0D6C2CDE26B0005E0812 /* BadgeView.swift in Sources */,
@@ -3586,7 +3576,6 @@
 				1FF136112BFB4F8C006A6101 /* NCRoom.swift in Sources */,
 				1FBEA1152D31858B00C0968C /* CurrentUserAbsence.swift in Sources */,
 				2C4446DA265814D100DF1DBC /* ServerCapabilities.m in Sources */,
-				1FF4DA932C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
 				2C444705265D641300DF1DBC /* NCUserDefaults.m in Sources */,
 				1FF4DA8E2C0264B200C1B952 /* NCPushProxySessionManager.swift in Sources */,
 				2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */,
@@ -3651,7 +3640,6 @@
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				2C6955142B0CE1A20070F6E1 /* NCUtils.swift in Sources */,
 				1F1F4F1F2DDE67E00012AE37 /* ProfileInfo.swift in Sources */,
-				1FF4DA942C02678000C1B952 /* NCImageSessionManager.swift in Sources */,
 				2C6137962D94572000C51684 /* RoomBuilder.swift in Sources */,
 				1F0B0A752BA265310073FF8D /* MentionSuggestion.swift in Sources */,
 				1FC940B92A5F21FC00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,

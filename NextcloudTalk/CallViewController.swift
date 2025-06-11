@@ -144,9 +144,6 @@ class CallViewController: UIViewController,
 
         self.modalPresentationStyle = .fullScreen
 
-        // Use image downloader without cache so I can get 200 or 201 from the avatar requests.
-        AvatarBackgroundImageView.setSharedImageDownloader(NCAPIController.sharedInstance().imageDownloaderNoCache)
-
         NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidJoinRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(providerDidEndCall(notification:)), name: NSNotification.Name.CallKitManagerDidEndCall, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(providerDidChangeAudioMute(notification:)), name: NSNotification.Name.CallKitManagerDidChangeAudioMute, object: nil)

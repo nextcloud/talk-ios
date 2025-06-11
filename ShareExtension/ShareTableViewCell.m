@@ -6,7 +6,6 @@
 #import "ShareTableViewCell.h"
 
 #import "AFNetworking.h"
-#import "AFImageDownloader.h"
 #import "NCAppBranding.h"
 
 #import "NextcloudTalk-Swift.h"

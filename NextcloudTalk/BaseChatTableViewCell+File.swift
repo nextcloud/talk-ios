@@ -106,7 +106,7 @@ extension BaseChatTableViewCell {
     }
 
     func prepareForReuseFileCell() {
-        self.filePreviewImageView?.cancelImageDownloadTask()
+        self.fileCurrentRequest?.cancel()
         self.filePreviewImageView?.image = nil
         self.filePreviewPlayIconImageView?.isHidden = true
 
@@ -194,17 +194,22 @@ extension BaseChatTableViewCell {
         guard let file = message.file() else { return }
 
         let requestedHeight = Int(3 * fileMessageCellFileMaxPreviewHeight)
-        guard let previewRequest = NCAPIController.sharedInstance().createPreviewRequest(forFile: file.parameterId, withMaxHeight: requestedHeight, using: account) else { return }
 
-        self.filePreviewImageView?.setImageWith(previewRequest, placeholderImage: placeholderImage, success: {  [weak self] _, _, image in
+        if let placeholderImage {
+            self.filePreviewImageView?.setImage(placeholderImage)
+        }
+
+        fileCurrentRequest = NCAPIController.sharedInstance().getPreviewForFile(file.parameterId, width: -1, height: requestedHeight, using: account) { [weak self] image, _, error in
             guard let self, let imageView = self.filePreviewImageView else { return }
 
-            // Use SwiftyGif extension method, to ensure that the gif ImageView is removed, in case there's any
-            imageView.setImage(image)
-            self.adjustImageView(toImageSize: image, ofMessage: message)
-        }, failure: { _, _, _ in
-            self.showFallbackIcon(for: message)
-        })
+            if error == nil, let image {
+                // Use SwiftyGif extension method, to ensure that the gif ImageView is removed, in case there's any
+                imageView.setImage(image)
+                self.adjustImageView(toImageSize: image, ofMessage: message)
+            } else {
+                self.showFallbackIcon(for: message)
+            }
+        }
     }
 
     func adjustImageView(toImageSize image: UIImage, ofMessage message: NCChatMessage) {
