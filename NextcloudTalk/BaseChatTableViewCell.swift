@@ -5,6 +5,7 @@
 
 import MapKit
 import SwiftyGif
+import SDWebImage
 
 protocol BaseChatTableViewCellDelegate: AnyObject {
 
@@ -96,6 +97,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     internal var filePreviewActivityIndicator: MDCActivityIndicator?
     internal var filePreviewPlayIconImageView: UIImageView?
     internal var fileControllerWrapper: NCChatFileControllerWrapper?
+    internal var fileCurrentRequest: SDWebImageCombinedOperation?
 
     // Location cell
     internal var locationPreviewImageView: UIImageView?

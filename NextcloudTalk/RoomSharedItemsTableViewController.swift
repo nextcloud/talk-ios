@@ -391,11 +391,7 @@ import QuickLook
         cell.fileImageView?.image = image
         cell.fileImageView?.tintColor = .secondaryLabel
         if message.file()?.previewAvailable != nil {
-            cell.fileImageView?
-                .setImageWith(NCAPIController.sharedInstance().createPreviewRequest(forFile: message.file().parameterId,
-                                                                                    width: 40, height: 40,
-                                                                                    using: NCDatabaseManager.sharedInstance().activeAccount()),
-                              placeholderImage: image, success: nil, failure: nil)
+            cell.fileImageView?.setPreview(forFileId: message.file().parameterId, withWidth: 40, withHeight: 40, usingAccount: .active)
         }
         return cell
     }

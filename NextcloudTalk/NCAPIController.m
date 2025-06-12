@@ -129,18 +129,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 - (void)initImageDownloaders
 {
-    _imageDownloader = [[AFImageDownloader alloc]
-                        initWithSessionManager:[NCImageSessionManager shared]
-                        downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                        maximumActiveDownloads:4
-                                    imageCache:[[AFAutoPurgingImageCache alloc] init]];
-    
-    _imageDownloaderNoCache = [[AFImageDownloader alloc]
-                               initWithSessionManager:[NCImageSessionManager shared]
-                               downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                               maximumActiveDownloads:4
-                                            imageCache:nil];
-
     // The defaults for the shared url cache are very low, use some sane values for caching. Apple only caches assets <= 5% of the available space.
     // Otherwise some (user) avatars will never be cached and always requested
     NSURLCache *sharedURLCache = [[NSURLCache alloc] initWithMemoryCapacity:20 * 1024 * 1024
@@ -1907,21 +1895,35 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - File previews
 
-- (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account
+- (SDWebImageCombinedOperation *)getPreviewForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account withCompletionBlock:(GetPreviewForFileCompletionBlock)block
 {
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=%ld&y=%ld&forceIcon=1", account.server, fileId, (long)width, (long)height];
-    NSMutableURLRequest *previewRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
-    [previewRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
-    return previewRequest;
-}
+    NSString *urlString;
 
-- (NSURLRequest *)createPreviewRequestForFile:(NSString *)fileId withMaxHeight:(NSInteger) height usingAccount:(TalkAccount *)account
-{
-    NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, (long)height];
-    
-    NSMutableURLRequest *previewRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
-    [previewRequest setValue:[self authHeaderForAccount:account] forHTTPHeaderField:@"Authorization"];
-    return previewRequest;
+    if (width > 0) {
+        urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=%ld&y=%ld&forceIcon=1", account.server, fileId, (long)width, (long)height];
+    } else {
+        urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, (long)height];
+    }
+
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;
+    SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
+
+    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        if (error) {
+            // When the request was cancelled before completing, we expect no completion handler to be called
+            if (block && error.code != SDWebImageErrorCancelled) {
+                block(nil, fileId, error);
+            }
+
+            return;
+        }
+
+        if (image && block) {
+            block(image, fileId, nil);
+        }
+    }];
 }
 
 #pragma mark - User profile
@@ -2543,12 +2545,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }];
 
     return task;
-}
-
-- (NSURLRequest *)createReferenceThumbnailRequestForUrl:(NSString *)url
-{
-    NSMutableURLRequest *thumbnailRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:60];
-    return thumbnailRequest;
 }
 
 #pragma - Recording

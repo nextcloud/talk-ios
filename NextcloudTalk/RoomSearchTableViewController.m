@@ -192,7 +192,7 @@ typedef enum RoomSearchSection {
     NSString *actorId = [messageEntry.attributes objectForKey:@"actorId"];
     NSString *actorType = [messageEntry.attributes objectForKey:@"actorType"];
     if (thumbnailURL && thumbnailURL.absoluteString.length > 0) {
-        [cell.avatarView.avatarImageView setImageWithURL:thumbnailURL placeholderImage:nil];
+        [cell.avatarView.avatarImageView sd_setImageWithURL:thumbnailURL placeholderImage:nil options:SDWebImageRetryFailed | SDWebImageRefreshCached];
         cell.avatarView.avatarImageView.contentMode = UIViewContentModeScaleToFill;
     } else {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
