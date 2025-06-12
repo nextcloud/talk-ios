@@ -10,6 +10,8 @@ class BarButtonItemWithActivity: UIBarButtonItem {
     var innerButton = UIButton()
     var activityIndicator = UIActivityIndicatorView()
 
+    lazy var textColor: UIColor = NCAppBranding.themeTextColor()
+
     init(image: UIImage) {
         super.init()
 
@@ -19,7 +21,7 @@ class BarButtonItemWithActivity: UIBarButtonItem {
 
         self.innerButton.configuration = configuration
 
-        self.activityIndicator.color = NCAppBranding.themeTextColor()
+        self.activityIndicator.color = textColor
         self.activityIndicator.style = .medium
 
         self.innerButton.heightAnchor.constraint(equalToConstant: 36.0).isActive = true
@@ -40,7 +42,16 @@ class BarButtonItemWithActivity: UIBarButtonItem {
     private func setupDefaultConfiguration(_ config: inout UIButton.Configuration) {
         config.cornerStyle = .medium
         config.baseBackgroundColor = .clear
-        config.baseForegroundColor = NCAppBranding.themeTextColor()
+        config.baseForegroundColor = textColor
+
+        // Apply 50% alpha to textColor when innerButton is disabled to override UIKit's automatic light/dark theme adjustments
+        config.imageColorTransformer = UIConfigurationColorTransformer { [weak self] color in
+            guard let self = self else { return color }
+            if !self.innerButton.isEnabled {
+                return self.textColor.withAlphaComponent(0.5)
+            }
+            return color
+        }
     }
 
     func setImage(_ image: UIImage) {
