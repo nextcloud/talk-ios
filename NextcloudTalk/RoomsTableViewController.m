@@ -16,7 +16,6 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCConnectionController.h"
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCRoomsManager.h"
@@ -24,7 +23,6 @@
 #import "NCUserInterfaceController.h"
 #import "NotificationCenterNotifications.h"
 #import "PlaceholderView.h"
-#import "RoomInfoTableViewController.h"
 #import "RoomSearchTableViewController.h"
 #import "UIBarButtonItem+Badge.h"
 
@@ -98,11 +96,7 @@ typedef enum RoomsSections {
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
 
-    if (@available(iOS 16.0, *)) {
-        _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
-    } else {
-        _searchController.automaticallyShowsScopeBar = YES;
-    }
+    _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
     _searchController.searchBar.scopeButtonTitles = [self getFilters];
 
     [self setupNavigationBar];
@@ -162,8 +156,8 @@ typedef enum RoomsSections {
     [NSLayoutConstraint activateConstraints:@[[_unreadMentionsBottomButton.centerXAnchor constraintEqualToAnchor:margins.centerXAnchor]]];
     [self.view addConstraint:[_unreadMentionsBottomButton.bottomAnchor constraintEqualToAnchor:self.tableView.safeAreaLayoutGuide.bottomAnchor constant:-20]];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NSNotification.NCAppStateHasChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NSNotification.NCConnectionStateHasChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(roomsDidUpdate:) name:NCRoomsManagerDidUpdateRoomsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationWillBePresented:) name:NCNotificationControllerWillPresentNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverCapabilitiesUpdated:) name:NCServerCapabilitiesUpdatedNotification object:nil];
@@ -196,10 +190,7 @@ typedef enum RoomsSections {
 
     self.navigationItem.searchController = _searchController;
     self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
-
-    if (@available(iOS 16.0, *)) {
-        self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    }
+    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
     [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
@@ -257,8 +248,8 @@ typedef enum RoomsSections {
 {
     [super viewDidAppear:animated];
 
-    [self adaptInterfaceForAppState:[NCConnectionController sharedInstance].appState];
-    [self adaptInterfaceForConnectionState:[NCConnectionController sharedInstance].connectionState];
+    [self adaptInterfaceForAppState:[NCConnectionController shared].appState];
+    [self adaptInterfaceForConnectionState:[NCConnectionController shared].connectionState];
 
     if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
         [[NCContactsManager sharedInstance] searchInServerForAddressBookContacts:NO];
@@ -358,7 +349,7 @@ typedef enum RoomsSections {
 
 - (void)appWillEnterForeground:(NSNotification *)notification
 {
-    if ([NCConnectionController sharedInstance].appState == kAppStateReady) {
+    if ([NCConnectionController shared].appState == AppStateReady) {
         [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
         [self startRefreshRoomsTimer];
 
@@ -413,7 +404,7 @@ typedef enum RoomsSections {
 {
     [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
-    if ([NCConnectionController sharedInstance].connectionState == kConnectionStateConnected) {
+    if ([NCConnectionController shared].connectionState == ConnectionStateConnected) {
         [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:nil];
     }
 
@@ -773,7 +764,7 @@ typedef enum RoomsSections {
         case kRoomsFilterMentioned:
             return NSLocalizedString(@"Mentioned", @"'Mentioned' meaning 'Mentioned conversations'");
         case kRoomsFilterEvent:
-            return NSLocalizedString(@"Event", @"'Event' meaning 'Conversations that were created from a calendar event'");
+            return NSLocalizedString(@"Meeting", @"'Meeting' meaning 'Conversations that were created from a calendar event'");
         default:
             return @"";
     }
@@ -818,17 +809,17 @@ typedef enum RoomsSections {
 - (void)adaptInterfaceForAppState:(AppState)appState
 {
     switch (appState) {
-        case kAppStateNotServerProvided:
-        case kAppStateMissingUserProfile:
-        case kAppStateMissingServerCapabilities:
-        case kAppStateMissingSignalingConfiguration:
+        case AppStateNoServerProvided:
+        case AppStateMissingUserProfile:
+        case AppStateMissingServerCapabilities:
+        case AppStateMissingSignalingConfiguration:
         {
             // Clear active user status when changing users
             _activeUserStatus = nil;
             [self setProfileButton];
         }
             break;
-        case kAppStateReady:
+        case AppStateReady:
         {
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
@@ -847,13 +838,13 @@ typedef enum RoomsSections {
 - (void)adaptInterfaceForConnectionState:(ConnectionState)connectionState
 {
     switch (connectionState) {
-        case kConnectionStateConnected:
+        case ConnectionStateConnected:
         {
             [self setOnlineAppearance];
         }
             break;
             
-        case kConnectionStateDisconnected:
+        case ConnectionStateDisconnected:
         {
             [self setOfflineAppearance];
         }
@@ -1052,11 +1043,11 @@ typedef enum RoomsSections {
         if (level == room.notificationLevel) {
             return;
         }
-        [[NCAPIController sharedInstance] setNotificationLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-            if (error) {
-                NSLog(@"Error renaming the room: %@", error.description);
-            } else {
+        [[NCAPIController sharedInstance] setNotificationLevelWithLevel:level forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(BOOL success) {
+            if (success) {
                 [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+            } else {
+                NSLog(@"Error setting notification level");
             }
 
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
@@ -1146,8 +1137,16 @@ typedef enum RoomsSections {
 
 - (void)presentRoomInfoForRoom:(NCRoom *)room
 {
-    RoomInfoTableViewController *roomInfoVC = [[RoomInfoTableViewController alloc] initForRoom:room];
+    UIViewController *roomInfoVC = [RoomInfoUIViewFactory createWithRoom:room showDestructiveActions:YES];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:roomInfoVC];
+
+    UIAction *cancelAction = [UIAction actionWithHandler:^(__kindof UIAction * _Nonnull action) {
+        [roomInfoVC dismissModalViewControllerAnimated:YES];
+    }];
+
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel primaryAction:cancelAction];
+    navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
+
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
@@ -1167,12 +1166,16 @@ typedef enum RoomsSections {
             [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
 
-        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSInteger errorCode, NSError *error) {
-            if (errorCode == 400) {
-                [self showLeaveRoomLastModeratorErrorForRoom:room];
-            } else if (error) {
-                NSLog(@"Error leaving room: %@", error.description);
+        [[NCAPIController sharedInstance] removeSelfFromRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(OcsResponse * _Nullable response, NSError * _Nullable error) {
+            if (error) {
+                OcsError *ocsError = [error.userInfo objectForKey:@"ocsError"];
+                if (ocsError.responseStatusCode == 400) {
+                    [self showLeaveRoomLastModeratorErrorForRoom:room];
+                } else {
+                    NSLog(@"Error leaving room: %@", error.description);
+                }
             }
+
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
         }];
     }];
@@ -1503,6 +1506,7 @@ typedef enum RoomsSections {
         cell.subtitleLabel.attributedText = room.lastMessageString;
     } else {
         cell.titleOnly = YES;
+        cell.subtitleLabel.text = @"";
     }
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:room.lastActivity];
     cell.dateLabel.text = [NCUtils readableTimeOrDateFromDate:date];
@@ -1522,6 +1526,11 @@ typedef enum RoomsSections {
     } else {
         BOOL mentioned = room.unreadMention || room.type == kNCRoomTypeOneToOne || room.type == kNCRoomTypeFormerOneToOne;
         [cell setUnreadWithMessages:room.unreadMessages mentioned:mentioned groupMentioned:NO];
+    }
+
+    if (room.unreadMessages > 0) {
+        // When there are unread messages, we need to show the subtitle at the moment
+        cell.titleOnly = NO;
     }
 
     [cell.avatarView setAvatarFor:room];
@@ -1673,11 +1682,11 @@ typedef enum RoomsSections {
             UIAction *callNotificationAction = [UIAction actionWithTitle:NSLocalizedString(@"Notify about calls", nil) image:nil identifier:nil handler:^(UIAction *action) {
                 BOOL newState = !(action.state == UIMenuElementStateOn);
 
-                [[NCAPIController sharedInstance] setCallNotificationEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
-                    if (error) {
-                        NSLog(@"Error setting call notification: %@", error.description);
-                    } else {
+                [[NCAPIController sharedInstance] setCallNotificationLevelWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(BOOL success) {
+                    if (success) {
                         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+                    } else {
+                        NSLog(@"Error setting call notification");
                     }
 
                     [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];

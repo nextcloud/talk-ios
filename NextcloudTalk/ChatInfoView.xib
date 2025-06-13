@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ChatInfoView" customModule="NextcloudTalk" customModuleProvider="target">
+            <connections>
+                <outlet property="containerView" destination="Xgg-Fn-Vib" id="Cw5-tw-a8x"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="vye-Wh-F2z"/>
+                <outlet property="leftButton" destination="NJy-65-6D9" id="0sC-b0-dQ4"/>
+                <outlet property="rightButton" destination="F1h-Ug-LYT" id="NDj-hE-F2i"/>
+                <outlet property="titleLabel" destination="wih-dJ-gdF" id="qwl-Pf-QVw"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="422" height="105"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xgg-Fn-Vib">
+                    <rect key="frame" x="8" y="8" width="406" height="89"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wih-dJ-gdF">
+                            <rect key="frame" x="8" y="7.9999999999999982" width="390" height="20.333333333333329"/>
+                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <stackView opaque="NO" contentMode="scaleAspectFit" distribution="fillProportionally" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="9XV-8e-7fV">
+                            <rect key="frame" x="120" y="44.333333333333343" width="166" height="36.666666666666657"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NJy-65-6D9" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
+                                    <rect key="frame" x="0.0" y="1.3333333333333286" width="75" height="34.333333333333336"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain" title="Button"/>
+                                </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F1h-Ug-LYT" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
+                                    <rect key="frame" x="91" y="1.3333333333333286" width="75" height="34.333333333333336"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain" title="Button"/>
+                                </button>
+                            </subviews>
+                        </stackView>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="9XV-8e-7fV" secondAttribute="trailing" constant="8" id="CRD-OI-u3U"/>
+                        <constraint firstAttribute="trailing" secondItem="wih-dJ-gdF" secondAttribute="trailing" constant="8" id="Pop-dN-9YI"/>
+                        <constraint firstAttribute="bottom" secondItem="9XV-8e-7fV" secondAttribute="bottom" constant="8" id="TcD-Ja-C4I"/>
+                        <constraint firstItem="9XV-8e-7fV" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Xgg-Fn-Vib" secondAttribute="leading" constant="8" id="feo-se-vsG"/>
+                        <constraint firstItem="wih-dJ-gdF" firstAttribute="leading" secondItem="Xgg-Fn-Vib" secondAttribute="leading" constant="8" id="fqd-E8-t9z"/>
+                        <constraint firstItem="9XV-8e-7fV" firstAttribute="centerX" secondItem="Xgg-Fn-Vib" secondAttribute="centerX" id="jos-tQ-Qa0"/>
+                        <constraint firstItem="wih-dJ-gdF" firstAttribute="top" secondItem="Xgg-Fn-Vib" secondAttribute="top" constant="8" id="oGA-DG-0br"/>
+                        <constraint firstItem="9XV-8e-7fV" firstAttribute="top" secondItem="wih-dJ-gdF" secondAttribute="bottom" constant="16" id="zdO-At-dR8"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="Xgg-Fn-Vib" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="8" id="Auf-64-tUf"/>
+                <constraint firstAttribute="bottom" secondItem="Xgg-Fn-Vib" secondAttribute="bottom" constant="8" id="dOz-4s-z13"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Xgg-Fn-Vib" secondAttribute="trailing" constant="8" id="ijS-5w-KNa"/>
+                <constraint firstItem="Xgg-Fn-Vib" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="8" id="nG1-eV-GW3"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="-357.25190839694653" y="-265.14084507042253"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

@@ -50,7 +50,7 @@ extension UserProfileTableViewController {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCSettingsController.sharedInstance().logoutAccount(withAccountId: activeAccount.accountId) { _ in
             NCUserInterfaceController.sharedInstance().presentConversationsList()
-            NCConnectionController.sharedInstance().checkAppState()
+            NCConnectionController.shared.checkAppState()
         }
     }
 

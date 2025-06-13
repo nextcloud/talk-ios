@@ -7,12 +7,10 @@ on:
   push:
     branches:
       - main
-      - master
       - stable*
   pull_request:
     branches:
       - main
-      - master
       - stable*
 
 concurrency:

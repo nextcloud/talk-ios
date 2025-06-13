@@ -61,13 +61,21 @@ import SwiftUI
     // MARK: - Buttons in NavigationBar
 
     func getCallOptionsBarButton() -> BarButtonItemWithActivity {
-        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
-        let buttonImage = UIImage(systemName: "phone", withConfiguration: symbolConfiguration)
-        let button = BarButtonItemWithActivity(width: 50, with: buttonImage)
-
+        let button = BarButtonItemWithActivity(image: UIImage())
+        configureCallButtonAsInCall(button: button, inCall: room.hasCall)
         setupCallOptionsBarButtonMenu(button: button)
 
         return button
+    }
+
+    func configureCallButtonAsInCall(button: BarButtonItemWithActivity, inCall: Bool) {
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let imageName = inCall ? "phone.fill" : "phone"
+        let image = UIImage(systemName: imageName, withConfiguration: symbolConfiguration) ?? UIImage()
+        button.setImage(image)
+
+        let callButtonColor: UIColor = inCall ? .systemGreen : .clear
+        button.setBackgroundColor(callButtonColor)
     }
 
     func setupCallOptionsBarButtonMenu(button: BarButtonItemWithActivity) {
@@ -113,10 +121,7 @@ import SwiftUI
                 setupCallOptionsBarButtonMenu(button: button)
             }
 
-            if #available(iOS 16.0, *) {
-                silentCallAction.attributes = [.keepsMenuPresented]
-            }
-
+            silentCallAction.attributes = [.keepsMenuPresented]
             silentCallAction.accessibilityIdentifier = "Call without notification"
             silentCallAction.accessibilityHint = NSLocalizedString("Double tap to enable or disable 'Call without notification' option", comment: "")
 
@@ -160,9 +165,9 @@ import SwiftUI
     }()
 
     private lazy var eventsButton: BarButtonItemWithActivity = {
-        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
-        let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration)
-        let eventsButton = BarButtonItemWithActivity(width: 50, with: buttonImage)
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration) ?? UIImage()
+        let eventsButton = BarButtonItemWithActivity(image: buttonImage)
 
         eventsButton.innerButton.menu = createEventsMenu()
         eventsButton.innerButton.showsMenuAsPrimaryAction = true
@@ -188,7 +193,7 @@ import SwiftUI
 
         var menuElements: [UIMenuElement] = []
 
-        menuElements.append(UIAction(title: NSLocalizedString("Schedule", comment: ""), subtitle: calendarEvent.readableStartTime(), handler: { _ in }))
+        menuElements.append(UIAction(title: NSLocalizedString("Schedule", comment: "Noun. 'Schedule' of a meeting"), subtitle: calendarEvent.readableStartTime(), handler: { _ in }))
 
         if self.room.canModerate, calendarEvent.isPastEvent {
             let deleteConversation = UIAction(title: NSLocalizedString("Delete conversation", comment: ""), image: .init(systemName: "trash")) { [unowned self] _ in
@@ -278,7 +283,7 @@ import SwiftUI
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive(notification:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive(notification:)), name: UIApplication.willResignActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(connectionStateHasChanged(notification:)), name: NSNotification.Name.NCConnectionStateHasChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionStateHasChanged(notification:)), name: NSNotification.Name.NCConnectionStateHasChangedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(maintenanceModeActive(notification:)), name: NSNotification.Name.NCServerMaintenanceMode, object: nil)
 
         // Notifications when runing on Mac
@@ -325,6 +330,7 @@ import SwiftUI
         self.checkLobbyState()
         self.checkRoomControlsAvailability()
         self.checkOutOfOfficeAbsence()
+        self.checkRetention()
 
         self.startObservingExpiredMessages()
 
@@ -461,6 +467,9 @@ import SwiftUI
             self.callOptionsButton.isEnabled = false
         }
 
+        // Configure inCall state for call button
+        self.configureCallButtonAsInCall(button: callOptionsButton, inCall: room.hasCall)
+
         if room.readOnlyState == .readOnly || self.shouldPresentLobbyView() {
             // Hide text input
             self.setTextInputbarHidden(true, animated: self.isVisible)
@@ -583,6 +592,8 @@ import SwiftUI
         self.checkRoomControlsAvailability()
     }
 
+    // MARK: - Out Of Office
+
     let outOfOfficeView: OutOfOfficeView? = nil
 
     func checkOutOfOfficeAbsence() {
@@ -614,6 +625,66 @@ import SwiftUI
             UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
                 oooView.alpha = 1.0
             }
+        }
+    }
+
+    // MARK: - Room retention
+
+    var retentionView: ChatInfoView? = nil
+
+    func checkRetention() {
+        // Only check for event conversations that have ended
+        // TODO: check if there are end_call messages
+        guard self.room.isEvent,
+              self.room.isPastEvent,
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
+              serverCapabilities.retentionEvent > 0
+        else {
+            self.retentionView?.removeFromSuperview()
+            return
+        }
+
+        guard self.retentionView == nil else { return }
+
+        let retentionView = ChatInfoView()
+        self.retentionView = retentionView
+
+        retentionView.titleLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
+            serverCapabilities.retentionEvent)
+        retentionView.leftButton.setTitle(NSLocalizedString("Delete now", comment: ""), for: .normal)
+        retentionView.leftButton.setButtonStyle(style: .destructive)
+        retentionView.leftButton.setButtonAction(target: self, selector: #selector(deleteNowButtonPressed))
+        retentionView.rightButton.setTitle(NSLocalizedString("Keep", comment: ""), for: .normal)
+        retentionView.rightButton.setButtonStyle(style: .primary)
+        retentionView.rightButton.setButtonAction(target: self, selector: #selector(keepButtonPressed))
+        retentionView.alpha = 0
+
+        self.view.addSubview(retentionView)
+
+        NSLayoutConstraint.activate([
+            retentionView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            retentionView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+            retentionView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor)
+        ])
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+            retentionView.alpha = 1.0
+        }
+    }
+
+    func deleteNowButtonPressed() {
+        NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil)
+    }
+
+    func keepButtonPressed() {
+        NCAPIController.sharedInstance().unbindRoomFromObject(self.room.token, forAccount: self.account) { error in
+            if error != nil {
+                print("Error unbinding room from object")
+                return
+            }
+
+            self.updateRoomInformation()
         }
     }
 
@@ -851,6 +922,8 @@ import SwiftUI
             self.checkLobbyState()
             self.checkRoomControlsAvailability()
         }
+
+        self.checkRetention()
     }
 
     func didJoinRoom(notification: Notification) {
@@ -1720,7 +1793,10 @@ import SwiftUI
                 let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: now)
                 let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: now)
 
-                self.datePickerTextField.getDate(startingDate: startingDate, minimumDate: minimumDate) { selectedDate in
+                self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
+                self.datePickerTextField.getDate { buttonTapped, selectedDate in
+                    guard buttonTapped == .done, let selectedDate else { return }
+
                     let timestamp = String(Int(selectedDate.timeIntervalSince1970))
                     NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
                 }
@@ -2055,19 +2131,21 @@ import SwiftUI
     // MARK: - NCChatTitleViewDelegate
 
     public override func chatTitleViewTapped(_ titleView: NCChatTitleView!) {
-        guard let roomInfoVC = RoomInfoTableViewController(for: self.room, from: self) else { return }
-        roomInfoVC.hideDestructiveActions = self.presentedInCall
+        let roomInfo = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: !self.presentedInCall)
 
-        if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController {
-            if !splitViewController.isCollapsed {
-                roomInfoVC.modalPresentationStyle = .pageSheet
-                let navController = UINavigationController(rootViewController: roomInfoVC)
-                self.present(navController, animated: true)
-            } else {
-                self.navigationController?.pushViewController(roomInfoVC, animated: true)
-            }
+        if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController, !splitViewController.isCollapsed {
+            let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
+                roomInfo.dismiss(animated: true)
+            })
+
+            cancelButton.tintColor = NCAppBranding.themeTextColor()
+            roomInfo.modalPresentationStyle = .pageSheet
+
+            let navController = UINavigationController(rootViewController: roomInfo)
+            navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
+            self.present(navController, animated: true)
         } else {
-            self.navigationController?.pushViewController(roomInfoVC, animated: true)
+            self.navigationController?.pushViewController(roomInfo, animated: true)
         }
 
         // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden

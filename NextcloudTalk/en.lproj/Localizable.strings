@@ -614,10 +614,10 @@
 "Could not add participant" = "Could not add participant";
 
 /* No comment provided by engineer. */
-"Could not archive conversation" = "Could not archive conversation";
+"Could not ban participant" = "Could not ban participant";
 
 /* No comment provided by engineer. */
-"Could not ban participant" = "Could not ban participant";
+"Could not change archived conversation setting" = "Could not change archived conversation setting";
 
 /* No comment provided by engineer. */
 "Could not change call notifications setting" = "Could not change call notifications setting";
@@ -645,6 +645,9 @@
 
 /* No comment provided by engineer. */
 "Could not change read-only state of the conversation" = "Could not change read-only state of the conversation";
+
+/* No comment provided by engineer. */
+"Could not change sensitive conversation setting" = "Could not change sensitive conversation setting";
 
 /* No comment provided by engineer. */
 "Could not change sharing permissions of the conversation" = "Could not change sharing permissions of the conversation";
@@ -722,9 +725,6 @@
 "Could not start group conversation" = "Could not start group conversation";
 
 /* No comment provided by engineer. */
-"Could not unarchive conversation" = "Could not unarchive conversation";
-
-/* No comment provided by engineer. */
 "Create" = "Create";
 
 /* No comment provided by engineer. */
@@ -744,6 +744,9 @@
 
 /* No comment provided by engineer. */
 "Credentials for this account were no longer valid" = "Credentials for this account were no longer valid";
+
+/* Custom message expiration */
+"Custom" = "Custom";
 
 /* name of a moderator who banned a participant */
 "Date:" = "Date:";
@@ -768,6 +771,9 @@
 
 /* No comment provided by engineer. */
 "Delete conversation" = "Delete conversation";
+
+/* Delete a conversation right now without waiting for auto-deletion */
+"Delete now" = "Delete now";
 
 /* No comment provided by engineer. */
 "Deleted user" = "Deleted user";
@@ -846,6 +852,9 @@
 
 /* No comment provided by engineer. */
 "Do you want to connect to the server anyway?" = "Do you want to connect to the server anyway?";
+
+/* No comment provided by engineer. */
+"Do you want to delete this conversation?" = "Do you want to delete this conversation?";
 
 /* No comment provided by engineer. */
 "Do you want to enable your camera?" = "Do you want to enable your camera?";
@@ -996,9 +1005,6 @@
 
 /* No comment provided by engineer. */
 "Error occurred while editing a message" = "Error occurred while editing a message";
-
-/* 'Event' meaning 'Conversations that were created from a calendar event' */
-"Event" = "Event";
 
 /* No comment provided by engineer. */
 "Events menu" = "Events menu";
@@ -1193,6 +1199,9 @@
 "Join video call" = "Join video call";
 
 /* No comment provided by engineer. */
+"Keep" = "Keep";
+
+/* No comment provided by engineer. */
 "Last day (inclusive)" = "Last day (inclusive)";
 
 /* Last subscription to the push notification server */
@@ -1233,6 +1242,9 @@
 
 /* No comment provided by engineer. */
 "Local" = "Local";
+
+/* No comment provided by engineer. */
+"Local time: %@" = "Local time: %@";
 
 /* No comment provided by engineer. */
 "Location" = "Location";
@@ -1282,6 +1294,9 @@
 /* No comment provided by engineer. */
 "Media" = "Media";
 
+/* 'Meeting' meaning 'Conversations that were created from a calendar event' */
+"Meeting" = "Meeting";
+
 /* No comment provided by engineer. */
 "Meeting created" = "Meeting created";
 
@@ -1315,14 +1330,14 @@
 /* No comment provided by engineer. */
 "Message expiration" = "Message expiration";
 
-/* No comment provided by engineer. */
-"Message expiration time" = "Message expiration time";
-
 /* Copy 'link' to a message */
 "Message link" = "Message link";
 
 /* No comment provided by engineer. */
 "Message link copied" = "Message link copied";
+
+/* No comment provided by engineer. */
+"Message preview will be disabled in conversation list and notifications" = "Message preview will be disabled in conversation list and notifications";
 
 /* No comment provided by engineer. */
 "Messages" = "Messages";
@@ -1753,7 +1768,7 @@
 /* No comment provided by engineer. */
 "Scanning QR Codes is not supported on this device." = "Scanning QR Codes is not supported on this device.";
 
-/* No comment provided by engineer. */
+/* Noun. 'Schedule' of a meeting */
 "Schedule" = "Schedule";
 
 /* No comment provided by engineer. */
@@ -1797,6 +1812,9 @@
 
 /* No comment provided by engineer. */
 "Sending no invitations" = "Sending no invitations";
+
+/* No comment provided by engineer. */
+"Sensitive conversation" = "Sensitive conversation";
 
 /* A message has been sent without notifications */
 "Sent without notification" = "Sent without notification";
@@ -2013,6 +2031,9 @@
 
 /* No comment provided by engineer. */
 "This conversation is read-only" = "This conversation is read-only";
+
+/* No comment provided by engineer. */
+"This conversation will be automatically deleted for everyone in %ld days of no activity." = "This conversation will be automatically deleted for everyone in %ld days of no activity.";
 
 /* The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00) */
 "This meeting is scheduled for" = "This meeting is scheduled for";

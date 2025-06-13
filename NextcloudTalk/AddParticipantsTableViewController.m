@@ -93,10 +93,7 @@
 
     self.navigationItem.searchController = _searchController;
     self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
-
-    if (@available(iOS 16.0, *)) {
-        self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    }
+    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
     UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
@@ -233,7 +230,7 @@
 {
     dispatch_group_enter(dispatchGroup);
 
-    [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addParticipant:participant.userId ofType:participant.source toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(OcsResponse * _Nullable response, NSError * _Nullable error) {
         if (error) {
             UIAlertController * alert = [UIAlertController
                                          alertControllerWithTitle:NSLocalizedString(@"Could not add participant", nil)

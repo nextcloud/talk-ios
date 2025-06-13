@@ -55,6 +55,7 @@ typedef void (^GetAudioEnabledStateCompletionBlock)(BOOL isEnabled);
 @property (nonatomic, assign) BOOL disableAudioAtStart;
 @property (nonatomic, assign) BOOL disableVideoAtStart;
 @property (nonatomic, assign) BOOL silentCall;
+@property (nonatomic, strong) NSArray *silentFor;
 @property (nonatomic, assign) BOOL recordingConsent;
 @property (nonatomic, assign) BOOL screensharingActive;
 

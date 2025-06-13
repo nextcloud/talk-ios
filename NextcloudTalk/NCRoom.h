@@ -6,7 +6,7 @@
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
 
-#import "NCRoomParticipant.h"
+#import "CallConstants.h"
 #import "NCChatMessage.h"
 
 typedef NS_ENUM(NSInteger, NCRoomType) {
@@ -82,6 +82,7 @@ typedef NS_ENUM(NSInteger, NCCallRecordingState) {
     NCCallRecordingStateFailed = 5
 };
 
+
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;
 extern NSString * const NCRoomObjectTypeRoom;
@@ -114,7 +115,7 @@ extern NSString * const NCRoomObjectTypeExtendedConversation;
 @property (nonatomic, copy) NSString *objectId;
 @property (nonatomic, assign) NCRoomReadOnlyState readOnlyState;
 @property (nonatomic, assign) NCRoomListableScope listable;
-@property (nonatomic, assign) NSInteger messageExpiration;
+@property (nonatomic, assign) NCMessageExpiration messageExpiration;
 @property (nonatomic, assign) NCRoomLobbyState lobbyState;
 @property (nonatomic, assign) NSInteger lobbyTimer;
 @property (nonatomic, assign) NCRoomSIPState sipState;
@@ -130,7 +131,7 @@ extern NSString * const NCRoomObjectTypeExtendedConversation;
 @property (nonatomic, copy, nullable) NSString *status;
 @property (nonatomic, copy, nullable) NSString *statusIcon;
 @property (nonatomic, copy, nullable) NSString *statusMessage;
-@property (nonatomic, assign) NSInteger participantFlags;
+@property (nonatomic, assign) CallFlag participantFlags;
 @property (nonatomic, assign) NCPermission permissions;
 @property (nonatomic, assign) NSInteger attendeePermissions;
 @property (nonatomic, assign) NSInteger defaultPermissions;
@@ -142,9 +143,10 @@ extern NSString * const NCRoomObjectTypeExtendedConversation;
 @property (nonatomic, copy) NSString *remoteServer;
 @property (nonatomic, copy) NSString *remoteToken;
 @property (nonatomic, copy) NSString *lastReceivedProxyHash;
-@property (nonatomic, assign) NSInteger mentionPermissions;
+@property (nonatomic, assign) NCRoomMentionPermissions mentionPermissions;
 @property (nonatomic, assign) BOOL isArchived;
 @property (nonatomic, assign) BOOL isImportant;
+@property (nonatomic, assign) BOOL isSensitive;
 
 + (instancetype _Nullable)roomWithDictionary:(NSDictionary * _Nullable)roomDict andAccountId:(NSString * _Nullable)accountId;
 + (void)updateRoom:(NCRoom * _Nonnull)managedRoom withRoom:(NCRoom * _Nonnull)room;

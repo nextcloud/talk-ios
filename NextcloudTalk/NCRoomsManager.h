@@ -21,6 +21,7 @@ typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, TalkAc
 typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 typedef void (^SendOfflineMessagesCompletionBlock)(void);
 typedef void (^RoomDeletionStartedBlock)(void);
+typedef void (^RoomDeletionAdditionalOptionBlock)(BOOL success);
 typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 
 @class ChatViewController;
@@ -74,6 +75,6 @@ typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video asInitiator:(BOOL)initiator recordingConsent:(BOOL)recordingConsent;
 - (BOOL)isCallOngoingWithCallToken:(NSString *)token;
 // Switch to
-- (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(ExitRoomCompletionBlock)block;
+- (void)prepareSwitchToAnotherRoomFromRoom:(NSString *)token withCompletionBlock:(PrepareSwitchRoomCompletionBlock)block;
 
 @end

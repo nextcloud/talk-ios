@@ -115,7 +115,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.navigationItem.compactAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
 
-        NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChangedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsHaveBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsAccessHasBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsAccessUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
@@ -123,7 +123,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.updateTotalImageCacheSize()
         self.updateTotalFileCacheSize()
 
-        self.adaptInterfaceForAppState(appState: NCConnectionController.sharedInstance().appState)
+        self.adaptInterfaceForAppState(appState: NCConnectionController.shared.appState)
     }
 
     override func didReceiveMemoryWarning() {
@@ -545,6 +545,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
             NCImageSessionManager.shared.cache.removeAllCachedResponses()
 
+            URLCache.shared.removeAllCachedResponses()
             SDImageCache.shared.clearMemory()
             SDImageCache.shared.clearDisk {
                 self.updateTotalImageCacheSize()
@@ -1028,8 +1029,9 @@ extension SettingsTableViewController {
 
     func updateTotalImageCacheSize() {
         let imageCacheSize = NCImageSessionManager.shared.cache.currentDiskUsage
+        let sharedUrlCache = URLCache.shared.currentDiskUsage
         let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
-        self.totalImageCacheSize = imageCacheSize + Int(sdImageCacheSize)
+        self.totalImageCacheSize = imageCacheSize + sharedUrlCache + Int(sdImageCacheSize)
     }
 
     func updateTotalFileCacheSize() {

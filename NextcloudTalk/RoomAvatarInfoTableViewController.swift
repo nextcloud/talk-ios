@@ -5,6 +5,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 enum RoomAvatarInfoSection: Int {
     case kRoomNameSection = 0

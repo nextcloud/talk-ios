@@ -275,4 +275,143 @@ final class IntegrationRoomTest: TestBase {
         updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: false, forRoom: room.token, forAccount: activeAccount)
         XCTAssertFalse(try XCTUnwrap(updatedRoom).isImportant)
     }
+
+    func testRoomSensitiveConversation() async throws {
+        try skipWithoutCapability(capability: kCapabilitySensitiveConversations)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "SensitiveConversation", withAccount: activeAccount)
+
+        // TODO: Check for lastMessage does not work, since we don't create a reference to the lastMessage when creating a room just by a dict
+        /*
+        let message = "SensitiveTestMessage"
+
+        // Send a message
+        let exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, displayName: "", replyTo: 0, referenceId: "", silently: false, for: activeAccount) { error in
+            XCTAssertNil(error)
+
+            let chatController = NCChatController(for: room)!
+            chatController.updateHistoryInBackground { _ in
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+         */
+
+        // Set to sensitive
+        var updatedRoom = try await NCAPIController.sharedInstance().setSensitiveState(enabled: true, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertTrue(try XCTUnwrap(updatedRoom).isSensitive)
+
+        // Set to non-sensitive again
+        updatedRoom = try await NCAPIController.sharedInstance().setSensitiveState(enabled: false, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertFalse(try XCTUnwrap(updatedRoom).isSensitive)
+    }
+
+    func testRoomNotificationSettings() async throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "NotificationConversation", withAccount: activeAccount)
+
+        // Test chat notification levels
+        _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .always, forRoom: room.token, forAccount: activeAccount)
+        var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.always)
+
+        _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .mention, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.mention)
+
+        _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .never, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.never)
+
+        // Test call notification setting
+        _ = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: false, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationCalls, false)
+
+        _ = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: true, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationCalls, true)
+    }
+
+    func testRoomSettings() async throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "SettingConversation", withAccount: activeAccount)
+
+        // Read only state
+        try await NCAPIController.sharedInstance().setReadOnlyState(state: .readOnly, forRoom: room.token, forAccount: activeAccount)
+        var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).readOnlyState, .readOnly)
+
+        try await NCAPIController.sharedInstance().setReadOnlyState(state: .readWrite, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).readOnlyState, .readWrite)
+
+        // Lobby state
+        try await NCAPIController.sharedInstance().setLobbyState(state: .moderatorsOnly, withTimer: 0, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyState, .moderatorsOnly)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyTimer, 0)
+
+        let timestamp = Int(Date().timeIntervalSince1970 + 3600)
+        try await NCAPIController.sharedInstance().setLobbyState(state: .moderatorsOnly, withTimer: timestamp, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyState, .moderatorsOnly)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyTimer, timestamp)
+
+        try await NCAPIController.sharedInstance().setLobbyState(state: .allParticipants, withTimer: 0, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyState, .allParticipants)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyTimer, 0)
+    }
+
+    func testRoomListable() async throws {
+        try skipWithoutCapability(capability: kCapabilityListableRooms)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "ListableConversation", withAccount: activeAccount)
+
+        try await NCAPIController.sharedInstance().setListableScope(scope: .regularUsersOnly, forRoom: room.token, forAccount: activeAccount)
+        var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).listable, .regularUsersOnly)
+
+        try await NCAPIController.sharedInstance().setListableScope(scope: .participantsOnly, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).listable, .participantsOnly)
+    }
+
+    func testRoomMessageExpiration() async throws {
+        try skipWithoutCapability(capability: kCapabilityMessageExpiration)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "ExpirationConversation", withAccount: activeAccount)
+
+        try await NCAPIController.sharedInstance().setMessageExpiration(messageExpiration: .expiration1Day, forRoom: room.token, forAccount: activeAccount)
+        var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).messageExpiration, .expiration1Day)
+
+        try await NCAPIController.sharedInstance().setMessageExpiration(messageExpiration: .expirationOff, forRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).messageExpiration, .expirationOff)
+    }
+
+    func testRoomParticipants() async throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "ParticipantConversation", withAccount: activeAccount)
+
+        try await NCAPIController.sharedInstance().addParticipant("alice", ofType: "users", toRoom: room.token, forAccount: activeAccount)
+        let participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
+
+        XCTAssertTrue(participants.contains { $0.displayName == "alice" })
+
+        do {
+            try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: activeAccount)
+            XCTFail("OcsError expected")
+        } catch {
+            let error = try XCTUnwrap(error as? OcsError)
+            XCTAssertEqual(error.responseStatusCode, 400)
+        }
+    }
 }

@@ -12,7 +12,6 @@
 #import "AuthenticationViewController.h"
 #import "LoginViewController.h"
 #import "NCAppBranding.h"
-#import "NCConnectionController.h"
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
@@ -50,8 +49,8 @@
     self = [super init];
     if (self) {
         [self configureToasts];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NCAppStateHasChangedNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NCConnectionStateHasChangedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NSNotification.NCAppStateHasChangedNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NSNotification.NCConnectionStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkNotInstalledWarningAlert) name:NCTalkNotInstalledNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkOutdatedWarningAlert) name:NCOutdatedTalkVersionNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentServerMaintenanceModeWarning:) name:NCServerMaintenanceModeNotification object:nil];
@@ -124,7 +123,7 @@
                                style:UIAlertActionStyleDefault
                                handler:^(UIAlertAction * _Nonnull action) {
         // Check the app state here, as this alert may have blocked the login view from being presented (if no other accounts are configured)
-        [[NCConnectionController sharedInstance] checkAppState];
+        [[NCConnectionController shared] checkAppState];
     }];
 
     [alert addAction:okButton];
@@ -218,7 +217,7 @@
 {
     [[NCSettingsController sharedInstance] logoutAccountWithAccountId:accountId withCompletionBlock:^(NSError *error) {
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
-        [[NCConnectionController sharedInstance] checkAppState];
+        [[NCConnectionController shared] checkAppState];
     }];
 }
 
@@ -230,7 +229,7 @@
 
 - (void)presentChatForLocalNotification:(NSDictionary *)userInfo
 {
-    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+    if ([NCConnectionController shared].appState != AppStateReady) {
         _waitingForServerCapabilities = YES;
         _pendingLocalNotification = userInfo;
         return;
@@ -242,7 +241,7 @@
 
 - (void)presentChatForPushNotification:(NCPushNotification *)pushNotification
 {
-    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+    if ([NCConnectionController shared].appState != AppStateReady) {
         _waitingForServerCapabilities = YES;
         _pendingPushNotification = pushNotification;
         return;
@@ -255,7 +254,7 @@
 
 - (void)presentAlertForPushNotification:(NCPushNotification *)pushNotification
 {
-    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+    if ([NCConnectionController shared].appState != AppStateReady) {
         _waitingForServerCapabilities = YES;
         _pendingPushNotification = pushNotification;
         return;
@@ -368,7 +367,7 @@
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
     [userInfo setValue:@(video) forKey:@"isVideoEnabled"];
-    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+    if ([NCConnectionController shared].appState != AppStateReady) {
         _waitingForServerCapabilities = YES;
         _pendingCallKitCall = userInfo;
         return;
@@ -385,7 +384,7 @@
 
 - (void)presentChatForURL:(NSURLComponents *)urlComponents
 {
-    if ([NCConnectionController sharedInstance].appState != kAppStateReady) {
+    if ([NCConnectionController shared].appState != AppStateReady) {
         _waitingForServerCapabilities = YES;
         _pendingURL = urlComponents;
         return;
@@ -439,12 +438,16 @@
     [controller setValue:emailSubject forKey:@"subject"];
 
     // Presentation on iPads
-    if (indexPath) {
+    if (viewController && indexPath) {
         controller.popoverPresentationController.sourceView = viewController.tableView;
         controller.popoverPresentationController.sourceRect = [viewController.tableView rectForRowAtIndexPath:indexPath];
     }
 
-    [viewController presentViewController:controller animated:YES completion:nil];
+    if (viewController) {
+        [viewController presentViewController:controller animated:YES completion:nil];
+    } else {
+        [self.mainViewController presentViewController:controller animated:YES completion:nil];
+    }
 
     controller.completionWithItemsHandler = ^(NSString *activityType,
                                               BOOL completed,
@@ -461,7 +464,7 @@
 - (void)appStateHasChanged:(NSNotification *)notification
 {
     AppState appState = [[notification.userInfo objectForKey:@"appState"] intValue];
-    if (appState == kAppStateReady && _waitingForServerCapabilities) {
+    if (appState == AppStateReady && _waitingForServerCapabilities) {
         _waitingForServerCapabilities = NO;
         if (_pendingPushNotification) {
             if (_pendingPushNotification.type == NCPushNotificationTypeCall) {
@@ -481,11 +484,11 @@
 {
     ConnectionState connectionState = [[notification.userInfo objectForKey:@"connectionState"] intValue];
     switch (connectionState) {
-        case kConnectionStateDisconnected:
+        case ConnectionStateDisconnected:
             [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Network not available", nil) dismissAfterDelay:4.0f includedStyle:JDStatusBarNotificationIncludedStyleError];
             break;
             
-        case kConnectionStateConnected:
+        case ConnectionStateConnected:
             [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Network available", nil) dismissAfterDelay:4.0f includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
             break;
             
@@ -499,7 +502,7 @@
 - (void)loginViewControllerDidFinish:(LoginViewController *)viewController
 {
     [_mainViewController dismissViewControllerAnimated:YES completion:^{
-        [[NCConnectionController sharedInstance] checkAppState];
+        [[NCConnectionController shared] checkAppState];
         // Get server capabilities again to check if user is allowed to use Nextcloud Talk
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:activeAccount.accountId withCompletionBlock:nil];
@@ -511,7 +514,7 @@
 - (void)authenticationViewControllerDidFinish:(AuthenticationViewController *)viewController
 {
     [_mainViewController dismissViewControllerAnimated:YES completion:^{
-        [[NCConnectionController sharedInstance] checkAppState];
+        [[NCConnectionController shared] checkAppState];
         // Get server capabilities again to check if user is allowed to use Nextcloud Talk
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:activeAccount.accountId withCompletionBlock:nil];

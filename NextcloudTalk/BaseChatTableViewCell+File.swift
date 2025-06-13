@@ -199,7 +199,8 @@ extension BaseChatTableViewCell {
         self.filePreviewImageView?.setImageWith(previewRequest, placeholderImage: placeholderImage, success: {  [weak self] _, _, image in
             guard let self, let imageView = self.filePreviewImageView else { return }
 
-            imageView.image = image
+            // Use SwiftyGif extension method, to ensure that the gif ImageView is removed, in case there's any
+            imageView.setImage(image)
             self.adjustImageView(toImageSize: image, ofMessage: message)
         }, failure: { _, _, _ in
             self.showFallbackIcon(for: message)

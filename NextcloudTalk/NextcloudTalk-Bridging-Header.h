@@ -14,7 +14,6 @@
 #import "HeaderWithButton.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
-#import "NCConnectionController.h"
 #import "NCContactsManager.h"
 #import "NCDatabaseManager.h"
 #import "NCChatFileController.h"
@@ -42,7 +41,6 @@
 #import "SLKTextViewController.h"
 #import "NCMessageTextView.h"
 #import "ReplyMessageView.h"
-#import "BarButtonItemWithActivity.h"
 #import "VoiceMessageRecordingView.h"
 #import "CallKitManager.h"
 
@@ -66,7 +64,6 @@
 #import "VoiceMessageTranscribeViewController.h"
 #import "AppDelegate.h"
 #import "DateHeaderView.h"
-#import "RoomInfoTableViewController.h"
 #import "AutoCompletionTableViewCell.h"
 #import "NCKeyChainController.h"
 #import "NCIntentController.h"
@@ -84,6 +81,7 @@
 #import "CallConstants.h"
 #import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
+#import "ContactsTableViewCell.h"
 
 #import "DRCellSlideGestureRecognizer.h"
 

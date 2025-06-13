@@ -27,7 +27,7 @@ struct ScheduleMeetingSwiftUIView: View {
     var onMeetingCreationSuccess: (() -> Void)?
 
     var areAllParticipantsSelected: Bool {
-        selectedParticipants.map { $0.actorId }.sorted() == roomParticipants.map { $0.actorId }.sorted()
+        selectedParticipants.map { $0.actorId ?? "" }.sorted() == roomParticipants.map { $0.actorId ?? "" }.sorted()
     }
 
     var canCreateMeeting: Bool {
@@ -47,19 +47,10 @@ struct ScheduleMeetingSwiftUIView: View {
                     }
 
                     Section(header: Text("Description")) {
-                        if #available(iOS 16.0, *) {
-                            TextField("Description", text: $description, axis: .vertical)
-                        } else {
-                            // Work around for auto-expanding TextField in iOS < 16
-                            ZStack {
-                                TextEditor(text: $description)
-                                Text(description).opacity(0).padding(.all, 8)
-                                    .multilineTextAlignment(.leading)
-                            }
-                        }
+                        TextField("Description", text: $description, axis: .vertical)
                     }
 
-                    Section(header: Text("Schedule")) {
+                    Section(header: Text("Schedule", comment: "Noun. 'Schedule' of a meeting")) {
                         DatePicker("From", selection: $start, in: Date()..., displayedComponents: [.date, .hourAndMinute])
                         DatePicker("To", selection: $end, in: start.addingTimeInterval(60 * 15)..., displayedComponents: [.date, .hourAndMinute])
                     }
@@ -223,8 +214,10 @@ struct ScheduleMeetingSwiftUIView: View {
     }
 
     private func fetchParticipants() {
-        NCAPIController.sharedInstance().getParticipantsFromRoom(room.token, for: account) { participants, _ in
-            guard let participants = participants as? [NCRoomParticipant] else { return }
+        Task {
+            guard let participants = try? await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: account)
+            else { return }
+
             let filteredParticipants = participants.filter { $0.actorId != account.userId }
             self.roomParticipants = filteredParticipants
             self.selectedParticipants = isSwitchEnabled ? filteredParticipants : []
@@ -317,7 +310,7 @@ struct ParticipantCellView: View {
 
     var body: some View {
         HStack {
-            AvatarImageViewWrapper(actorId: Binding.constant(participant.actorId), actorType: Binding.constant(participant.actorType))
+            AvatarImageViewWrapper(actorId: Binding.constant(participant.actorId), actorType: Binding.constant(participant.actorType?.rawValue))
                 .frame(width: 28, height: 28)
                 .clipShape(Capsule())
             Text(participant.displayName)

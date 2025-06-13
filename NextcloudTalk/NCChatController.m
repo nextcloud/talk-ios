@@ -147,7 +147,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         
         NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", message.internalId].firstObject;
         if (managedMessage) {
-            [NCChatMessage updateChatMessage:managedMessage withChatMessage:message];
+            [NCChatMessage updateChatMessage:managedMessage withChatMessage:message isRoomLastMessage:NO];
         } else if (message) {
             [realm addObject:message];
         }
@@ -156,7 +156,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         NCChatMessage *managedParentMessage = [NCChatMessage objectsWhere:@"internalId = %@", parent.internalId].firstObject;
         if (managedParentMessage) {
             // updateChatMessage takes care of not setting a parentId to nil if there was one before
-            [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent];
+            [NCChatMessage updateChatMessage:managedParentMessage withChatMessage:parent isRoomLastMessage:NO];
         } else if (parent) {
             [realm addObject:parent];
         }
@@ -597,40 +597,57 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
     if (lastChatBlock && lastChatBlock.oldestMessageId < messageId) {
         NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO ensureIncludesMessageId:0];
-        [userInfo setObject:storedMessages forKey:@"messages"];
+
+        // getBatchOfMessagesInBlock already ensures, that we return some visible messages. In case we only got update messages
+        // we still want to retrieve additional messages from the server, to ensure we have the full history stored.
+        // Since BaseChatViewController in internalAppendMessages skips update messages, "lastChatBlock.oldestMessageId < messageId"
+        // can always be true and we never retrieve any more history.
+        for (NSDictionary *messageDict in storedMessages) {
+            NCChatMessage *message = [[NCChatMessage alloc] initWithValue:messageDict];
+
+            // Since the passed messageId might not be the lowest one, we update it here to ensure we request the missing messages
+            if (message.messageId < messageId) {
+                messageId = message.messageId;
+            }
+
+            if (![message isUpdateMessage]) {
+                [userInfo setObject:storedMessages forKey:@"messages"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+                return;
+            }
+        }
+    }
+
+    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        if (statusCode == 304) {
+            [self updateHistoryFlagInFirstBlock];
+        }
+        if (error) {
+            if ([self isChatBeingBlocked:statusCode]) {
+                [self notifyChatIsBlocked];
+                return;
+            }
+            [userInfo setObject:error forKey:@"error"];
+            if (statusCode != 304) {
+                NSLog(@"Could not get chat history. Error: %@", error.description);
+            }
+        } else {
+            // Update chat blocks
+            [self updateChatBlocksWithLastKnown:lastKnownMessage];
+            // Store new messages
+            if (messages.count > 0) {
+                [self storeMessages:messages];
+                NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+                NSArray *historyBatch = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO ensureIncludesMessageId:0];
+                [userInfo setObject:historyBatch forKey:@"messages"];
+            }
+        }
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
-    } else {
-        _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
-            if (statusCode == 304) {
-                [self updateHistoryFlagInFirstBlock];
-            }
-            if (error) {
-                if ([self isChatBeingBlocked:statusCode]) {
-                    [self notifyChatIsBlocked];
-                    return;
-                }
-                [userInfo setObject:error forKey:@"error"];
-                if (statusCode != 304) {
-                    NSLog(@"Could not get chat history. Error: %@", error.description);
-                }
-            } else {
-                // Update chat blocks
-                [self updateChatBlocksWithLastKnown:lastKnownMessage];
-                // Store new messages
-                if (messages.count > 0) {
-                    [self storeMessages:messages];
-                    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
-                    NSArray *historyBatch = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO ensureIncludesMessageId:0];
-                    [userInfo setObject:historyBatch forKey:@"messages"];
-                }
-            }
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-        }];
-    }
+    }];
 }
 
 - (void)getHistoryBatchOfflineFromMessagesId:(NSInteger)messageId
@@ -694,6 +711,12 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 [self notifyChatIsBlocked];
                 return;
             }
+
+            if (statusCode == 429) {
+                [NCUtils log:@"Brute-force protected, received 429 while receiving messages. No further polling."];
+                return;
+            }
+
             if (statusCode != 304) {
                 NSLog(@"Could not get new chat messages. Error: %@", error.description);
             }
