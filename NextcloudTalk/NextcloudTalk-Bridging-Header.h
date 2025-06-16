@@ -41,7 +41,6 @@
 #import "SLKTextViewController.h"
 #import "NCMessageTextView.h"
 #import "ReplyMessageView.h"
-#import "BarButtonItemWithActivity.h"
 #import "VoiceMessageRecordingView.h"
 #import "CallKitManager.h"
 

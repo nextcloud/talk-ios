@@ -114,7 +114,6 @@
 		1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */; };
 		1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C41A229EDF05700F58435 /* AvatarEditView.swift */; };
 		1F3C41A529EDF0B800F58435 /* AvatarEditView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */; };
-		1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */; };
 		1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1152A01D6EC005FE87D /* SDWebImage */; };
 		1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1192A01D70E005FE87D /* SDWebImage */; };
 		1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A11D2A01D719005FE87D /* SDWebImage */; };
@@ -672,6 +671,7 @@
 		2CC001CE24A37ACA00A20167 /* NCRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1CCC21F166CC5002FE6A2 /* NCRoom.m */; };
 		2CC001DB24A37AD000A20167 /* CCCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF82B11FCC7DBA00636459 /* CCCertificate.m */; };
 		2CC001DC24A37AD400A20167 /* NCAppBranding.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2A788D2359CC8800EEB797 /* NCAppBranding.m */; };
+		2CC0050F2DE9989D0066088C /* BarButtonItemWithActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC0050E2DE9989D0066088C /* BarButtonItemWithActivity.swift */; };
 		2CC007B420D7AE990096D91F /* ResultMultiSelectionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */; };
 		2CC007C620D90AE50096D91F /* RoomNameTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */; };
 		2CC007CE20E50B0A0096D91F /* MessageBodyTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC007CD20E50B0A0096D91F /* MessageBodyTextView.m */; };
@@ -862,8 +862,6 @@
 		1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoomAvatarInfoTableViewController.xib; sourceTree = "<group>"; };
 		1F3C41A229EDF05700F58435 /* AvatarEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarEditView.swift; sourceTree = "<group>"; };
 		1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AvatarEditView.xib; sourceTree = "<group>"; };
-		1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarButtonItemWithActivity.m; sourceTree = "<group>"; };
-		1F3D3B21255F109E00230DAE /* BarButtonItemWithActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarButtonItemWithActivity.h; sourceTree = "<group>"; };
 		1F468E7728DCC7310099597B /* EmojiTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiTextField.swift; sourceTree = "<group>"; };
 		1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDefaultView.swift; sourceTree = "<group>"; };
 		1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDefaultView.xib; sourceTree = "<group>"; };
@@ -1273,6 +1271,7 @@
 		2CBF82B01FCC7DBA00636459 /* CCCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCertificate.h; sourceTree = "<group>"; };
 		2CBF82B11FCC7DBA00636459 /* CCCertificate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCCertificate.m; sourceTree = "<group>"; };
 		2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CC0050E2DE9989D0066088C /* BarButtonItemWithActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarButtonItemWithActivity.swift; sourceTree = "<group>"; };
 		2CC007B220D7AE990096D91F /* ResultMultiSelectionTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResultMultiSelectionTableViewController.h; sourceTree = "<group>"; };
 		2CC007B320D7AE990096D91F /* ResultMultiSelectionTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResultMultiSelectionTableViewController.m; sourceTree = "<group>"; };
 		2CC007C420D90AE50096D91F /* RoomNameTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomNameTableViewCell.xib; sourceTree = "<group>"; };
@@ -1881,8 +1880,7 @@
 				2CC7158820B837140045C789 /* PlaceholderView.xib */,
 				2C1EF36925505DCE007C9768 /* NCNavigationController.h */,
 				2C1EF36A25505DCE007C9768 /* NCNavigationController.m */,
-				1F3D3B21255F109E00230DAE /* BarButtonItemWithActivity.h */,
-				1F3D3B20255F109E00230DAE /* BarButtonItemWithActivity.m */,
+				2CC0050E2DE9989D0066088C /* BarButtonItemWithActivity.swift */,
 				2C36A048261487BC0026F04A /* DetailedOptionsSelectorTableViewController.h */,
 				2C36A049261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m */,
 				1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */,
@@ -3338,7 +3336,6 @@
 				2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */,
 				2C13E4112D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
 				1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */,
-				1F3D3B22255F109E00230DAE /* BarButtonItemWithActivity.m in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
 				1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */,
 				2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */,
@@ -3499,6 +3496,7 @@
 				1F1F4F192DDE63550012AE37 /* UIViewExtensions.swift in Sources */,
 				1FB78E262B6AE5A600B0D69D /* FederationInvitation.swift in Sources */,
 				1F54991E2D346F9700E9AA9E /* UserStatusAbsenceSwiftUIView.swift in Sources */,
+				2CC0050F2DE9989D0066088C /* BarButtonItemWithActivity.swift in Sources */,
 				1FDFC94D2BA50B9100670DF4 /* UIFontExtension.swift in Sources */,
 				1F468E7828DCC7310099597B /* EmojiTextField.swift in Sources */,
 				80832B762A822E5100195A97 /* UserStatusSwiftUIView.swift in Sources */,
