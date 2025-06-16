@@ -32,16 +32,31 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
+
     self.view.backgroundColor = [NCAppBranding brandColor];
-    
+
+    self.appLogo.image = [UIImage imageNamed:@"loginLogo"];
+
     NSString *serverUrlPlaceholderText = NSLocalizedString(@"Server address https://…", nil);
     self.serverUrl.textColor = [NCAppBranding brandTextColor];
     self.serverUrl.tintColor = [NCAppBranding brandTextColor];
+    self.serverUrl.layer.borderColor = [NCAppBranding brandTextColor].CGColor;
+    self.serverUrl.layer.borderWidth = 0.5;
+    self.serverUrl.layer.cornerRadius = 8;
+    self.serverUrl.layer.masksToBounds = YES;
+    UIView *paddingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 10, 40)];
+    self.serverUrl.leftView = paddingView;
+    self.serverUrl.leftViewMode = UITextFieldViewModeAlways;
+    self.serverUrl.rightView = paddingView;
+    self.serverUrl.rightViewMode = UITextFieldViewModeAlways;
     self.serverUrl.attributedPlaceholder = [[NSAttributedString alloc] initWithString:serverUrlPlaceholderText
                                                                            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding brandTextColor] colorWithAlphaComponent:0.5]}];
     
+    self.serverUrlNote.textColor = [NCAppBranding brandTextColor];
+    self.serverUrlNote.text = NSLocalizedString(@"This is the web address you use to access your server in your web browser.", nil);
+    self.qrCodeLoginNote.textColor = [NCAppBranding brandTextColor];
+    self.qrCodeLoginNote.text = NSLocalizedString(@"To log in with a QR code, access your server in your web browser, go to Settings > Security > Create new app password, and scan the QR code shown there.", nil);
+
     self.login.backgroundColor = [NCAppBranding brandColor];
     self.login.layer.borderColor = [NCAppBranding brandTextColor].CGColor;
     [self.login setTitleColor:[NCAppBranding brandTextColor] forState:UIControlStateNormal];
@@ -51,8 +66,8 @@
     self.login.titleLabel.minimumScaleFactor = 0.5f;
     self.login.titleLabel.numberOfLines = 1;
     self.login.titleLabel.adjustsFontSizeToFitWidth = YES;
-    self.login.layer.borderWidth = 1.0;
-    
+    self.login.layer.borderWidth = 2.0;
+
     [self.login setTitle:NSLocalizedString(@"Log in", nil) forState:UIControlStateNormal];
     
     self.importButton.backgroundColor = [NCAppBranding brandColor];
@@ -64,16 +79,16 @@
     self.importButton.titleLabel.minimumScaleFactor = 0.5f;
     self.importButton.titleLabel.numberOfLines = 1;
     self.importButton.titleLabel.adjustsFontSizeToFitWidth = YES;
-    self.importButton.layer.borderWidth = 1.0;
+    self.importButton.layer.borderWidth = 2.0;
 
     [self.importButton setTitle:NSLocalizedString(@"Import account", nil) forState:UIControlStateNormal];
 
     self.activityIndicatorView.color = [NCAppBranding brandTextColor];
     self.activityIndicatorView.hidden = YES;
     
-    self.imageBaseUrl.image = [self.imageBaseUrl.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [self.imageBaseUrl setTintColor:[NCAppBranding brandTextColor]];
-    
+    [self.qrCodeLogin setImage:[[UIImage imageNamed:@"qrcode-scan"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.qrCodeLogin setTintColor:[NCAppBranding brandTextColor]];
+
     self.cancel.hidden = !(multiAccountEnabled && [[NCDatabaseManager sharedInstance] numberOfAccounts] > 0);
     [self.cancel setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
     [self.cancel setTitleColor:[NCAppBranding brandTextColor] forState:UIControlStateNormal];
