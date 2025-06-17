@@ -98,17 +98,15 @@
                         <action selector="importAccounts:" destination="-1" eventType="touchUpInside" id="CpK-hk-8aW"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AEd-IT-8im">
-                    <rect key="frame" x="162.5" y="530.5" width="50" height="50"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AEd-IT-8im" userLabel="QRCode">
+                    <rect key="frame" x="162.5" y="531" width="50" height="48.5"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="50" id="Xec-Ua-x8g"/>
                         <constraint firstAttribute="height" constant="50" id="etr-8G-wQ1"/>
                     </constraints>
                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                    <state key="normal" title="QRButton" image="qrcode-scan">
-                        <preferredSymbolConfiguration key="preferredSymbolConfiguration"/>
-                    </state>
+                    <state key="normal" backgroundImage="qrcode.viewfinder" catalog="system"/>
                     <connections>
                         <action selector="qrCodeLogin:" destination="-1" eventType="touchUpInside" id="UqH-Qt-03q"/>
                     </connections>
@@ -151,7 +149,7 @@
     </objects>
     <resources>
         <image name="loginLogo" width="250" height="125"/>
-        <image name="qrcode-scan" width="50" height="50"/>
+        <image name="qrcode.viewfinder" catalog="system" width="128" height="115"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
