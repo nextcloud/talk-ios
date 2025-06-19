@@ -19,7 +19,7 @@ extern NSString * const NCChatFileControllerDidChangeDownloadProgressNotificatio
 @protocol NCChatFileControllerDelegate<NSObject>
 
 - (void)fileControllerDidLoadFile:(NCChatFileController *)fileController withFileStatus:(NCChatFileStatus *)fileStatus;
-- (void)fileControllerDidFailLoadingFile:(NCChatFileController *)fileController withErrorDescription:(NSString *)errorDescription;
+- (void)fileControllerDidFailLoadingFile:(NCChatFileController *)fileController withFileId:(NSString *)fileId withErrorDescription:(NSString *)errorDescription;
 
 @end
 

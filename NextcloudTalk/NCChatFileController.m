@@ -166,7 +166,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
             [self startDownload];
         } else {
             NSLog(@"An error occurred while getting file with fileId %@: %@", fileId, error.errorDescription);
-            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:error.errorDescription];
+            [self.delegate fileControllerDidFailLoadingFile:self withFileId:fileId withErrorDescription:error.errorDescription];
         }
     }];
 }
@@ -239,7 +239,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
                     [self.delegate fileControllerDidLoadFile:self withFileStatus:self->_fileStatus];
                 } else {
                     NSLog(@"Error downloading file: %ld - %@", error.errorCode, error.errorDescription);
-                    [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:error.errorDescription];
+                    [self.delegate fileControllerDidFailLoadingFile:self withFileId:self->_fileStatus.fileId withErrorDescription:error.errorDescription];
                 }
 
                 [self didChangeIsDownloadingNotification:NO];
@@ -248,7 +248,7 @@ int const kNCChatFileControllerDeleteFilesOlderThanDays = 7;
             [self didChangeIsDownloadingNotification:NO];
             
             NSLog(@"Error downloading file: %ld - %@", error.errorCode, error.errorDescription);
-            [self.delegate fileControllerDidFailLoadingFile:self withErrorDescription:error.errorDescription];
+            [self.delegate fileControllerDidFailLoadingFile:self withFileId:self->_fileStatus.fileId withErrorDescription:error.errorDescription];
         }
     }];
 }

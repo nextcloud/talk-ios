@@ -180,10 +180,7 @@ extension BaseChatTableViewCell {
             return
         }
 
-        let fileControllerWrapper = NCChatFileControllerWrapper()
-        self.fileControllerWrapper = fileControllerWrapper
-
-        fileControllerWrapper.downloadFile(withFileId: fileId) { fileLocalPath in
+        NCChatFileControllerWrapper.shared.downloadFile(withFileId: fileId) { fileLocalPath in
             // Check if we are still on the same cell
             guard let cellMessage = self.message, let imageView = self.filePreviewImageView, cellMessage.file().parameterId == fileId
             else {
