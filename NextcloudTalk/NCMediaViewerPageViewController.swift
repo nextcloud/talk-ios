@@ -252,6 +252,10 @@ import SwiftyGif
         playerViewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         playerViewController.didMove(toParent: self)
 
+        // Automatically start video playback with sound muted
+        player.isMuted = true
+        player.play()
+
         self.zoomableView.contentViewSize = playerViewController.view.bounds.size
         self.zoomableView.resizeContentView()
         self.zoomableView.isHidden = false
