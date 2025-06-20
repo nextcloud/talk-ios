@@ -7,7 +7,7 @@ import Foundation
 
 @objcMembers public class DirectoryTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var fileImageView: UIImageView!
+    @IBOutlet weak var fileImageView: FilePreviewImageView!
     @IBOutlet weak var fileNameLabel: UILabel!
     @IBOutlet weak var fileInfoLabel: UILabel!
 
@@ -29,7 +29,7 @@ import Foundation
         super.prepareForReuse()
 
         // Fix problem of rendering downloaded image in a reused cell
-        self.fileImageView.cancelImageDownloadTask()
+        self.fileImageView.currentRequest?.cancel()
 
         self.fileImageView.image = nil
         self.fileNameLabel.text = ""

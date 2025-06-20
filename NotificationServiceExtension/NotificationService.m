@@ -14,7 +14,6 @@
 #import "NCPushNotification.h"
 #import "NCPushNotificationsUtils.h"
 
-#import "AFImageDownloader.h"
 #import "NextcloudTalk-Swift.h"
 
 #import <SDWebImage/SDWebImage.h>
@@ -199,29 +198,28 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
                                     NSString *fileId = [fileDict objectForKey:@"id"];
                                     NSString *urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, 512L];
 
-                                    AFImageDownloader *downloader = [[AFImageDownloader alloc]
-                                                                     initWithSessionManager:[NCImageSessionManager shared]
-                                                                     downloadPrioritization:AFImageDownloadPrioritizationFIFO
-                                                                     maximumActiveDownloads:1
-                                                                     imageCache:nil];
-                                    
+                                    NSURL *url = [NSURL URLWithString:urlString];
+
                                     NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
-                                                  [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+                                                           [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
 
-                                    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-                                    [request setValue:authorizationHeader forHTTPHeaderField:@"Authorization"];
-                                    [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
-                                    [request setTimeoutInterval:25];
+                                    [[SDWebImageDownloader sharedDownloader] setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+                                    [SDWebImageDownloader sharedDownloader].config.downloadTimeout = 25.0;
 
-                                    [downloader downloadImageForURLRequest:request success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
-                                        UNNotificationAttachment *attachment = [self getNotificationAttachmentFromImage:image forAccountId:account.accountId];
+                                    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;
 
-                                        if (attachment) {
-                                            self.bestAttemptContent.attachments = @[attachment];
+                                    NSDictionary *headerDictionary = @{@"Authorization" : authorizationHeader};
+                                    SDWebImageDownloaderRequestModifier *requestModifier = [[SDWebImageDownloaderRequestModifier alloc] initWithHeaders:headerDictionary];
+
+                                    [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                                        if (error == nil && image) {
+                                            UNNotificationAttachment *attachment = [self getNotificationAttachmentFromImage:image forAccountId:account.accountId];
+
+                                            if (attachment) {
+                                                self.bestAttemptContent.attachments = @[attachment];
+                                            }
                                         }
 
-                                        [self showBestAttemptNotification];
-                                    } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
                                         [self showBestAttemptNotification];
                                     }];
                                 }];

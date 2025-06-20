@@ -202,7 +202,6 @@ import SwiftUI
         self.tableView?.estimatedSectionHeaderHeight = 0
         self.tableView?.prefetchDataSource = self
 
-        FilePreviewImageView.setSharedImageDownloader(NCAPIController.sharedInstance().imageDownloader)
         NotificationCenter.default.addObserver(self, selector: #selector(willShowKeyboard(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willHideKeyboard(notification:)), name: UIWindow.keyboardWillHideNotification, object: nil)
 
