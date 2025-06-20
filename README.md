@@ -54,7 +54,7 @@ You got stuck while working on a issue or need some pointers? Feel free to ask i
 
 We are using our own builds of the WebRTC library. They can be found in this [repository](https://github.com/nextcloud-releases/talk-clients-webrtc).
 
-Current version: [121.6167.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/121.6167.0).
+Current version: [137.7151.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/137.7151.0).
 
 ## Running tests locally
 
