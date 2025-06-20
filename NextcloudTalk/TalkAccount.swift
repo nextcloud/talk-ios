@@ -32,4 +32,8 @@ import SwiftyAttributes
 
         return emojis
     }
+
+    public static var active: TalkAccount {
+        return NCDatabaseManager.sharedInstance().activeAccount()
+    }
 }

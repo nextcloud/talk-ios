@@ -73,11 +73,11 @@ import Foundation
             referenceDescription.isHidden = true
         }
 
-        if let thumbUrlString = reference["thumb"] as? String,
-           let request = NCAPIController.sharedInstance().createReferenceThumbnailRequest(forUrl: thumbUrlString) {
-
-            referenceThumbnailView.setImageWith(request, placeholderImage: nil, success: nil) { _, _, _ in
-                self.setPlaceholderThumbnail()
+        if let thumbUrlString = reference["thumb"] as? String, let thumbUrl = URL(string: thumbUrlString) {
+            referenceThumbnailView.sd_setImage(with: thumbUrl, placeholderImage: nil, options: [.retryFailed, .refreshCached]) { _, error, _, _ in
+                if error != nil {
+                    self.setPlaceholderThumbnail()
+                }
             }
         } else {
             setPlaceholderThumbnail()

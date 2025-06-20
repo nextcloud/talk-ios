@@ -543,8 +543,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             preferredStyle: .alert)
 
         let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
-            NCImageSessionManager.shared.cache.removeAllCachedResponses()
-
             URLCache.shared.removeAllCachedResponses()
             SDImageCache.shared.clearMemory()
             SDImageCache.shared.clearDisk {
@@ -1028,10 +1026,9 @@ extension SettingsTableViewController {
     }
 
     func updateTotalImageCacheSize() {
-        let imageCacheSize = NCImageSessionManager.shared.cache.currentDiskUsage
         let sharedUrlCache = URLCache.shared.currentDiskUsage
         let sdImageCacheSize = SDImageCache.shared.totalDiskSize()
-        self.totalImageCacheSize = imageCacheSize + sharedUrlCache + Int(sdImageCacheSize)
+        self.totalImageCacheSize = sharedUrlCache + Int(sdImageCacheSize)
     }
 
     func updateTotalFileCacheSize() {
@@ -1040,10 +1037,8 @@ extension SettingsTableViewController {
         let fileController = NCChatFileController()
         let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
 
-        if let talkAccounts = talkAccounts as? [TalkAccount] {
-            for account in talkAccounts {
-                self.totalFileCacheSize += Int(fileController.getDiskUsage(for: account))
-            }
+        for account in talkAccounts {
+            self.totalFileCacheSize += Int(fileController.getDiskUsage(for: account))
         }
     }
 }
