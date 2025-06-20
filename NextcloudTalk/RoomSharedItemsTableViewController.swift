@@ -291,7 +291,7 @@ import QuickLook
         }
     }
 
-    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withErrorDescription errorDescription: String) {
+    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String) {
         let alertTitle = NSLocalizedString("Unable to load file", comment: "")
         let alert = UIAlertController(
             title: alertTitle,

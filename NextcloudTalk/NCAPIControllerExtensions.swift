@@ -1099,6 +1099,7 @@ import NextcloudKit
                     <d:getetag />\
                     <d:quota-used-bytes />\
                     <d:quota-available-bytes />\
+                    <oc:fileid xmlns:oc=\"http://owncloud.org/ns\" />\
                     <oc:permissions xmlns:oc=\"http://owncloud.org/ns\" />\
                     <oc:id xmlns:oc=\"http://owncloud.org/ns\" />\
                     <oc:size xmlns:oc=\"http://owncloud.org/ns\" />\
