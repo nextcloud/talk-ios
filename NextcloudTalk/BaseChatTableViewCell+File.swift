@@ -28,8 +28,8 @@ extension BaseChatTableViewCell {
             self.filePreviewPlayIconImageView = filePreviewPlayIconImageView
 
             filePreviewPlayIconImageView.isHidden = true
-            filePreviewPlayIconImageView.tintColor = .init(white: 1.0, alpha: 0.8)
-            filePreviewPlayIconImageView.image = .init(systemName: "play.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .black))
+            let configuration = UIImage.SymbolConfiguration(paletteColors: [UIColor.white.withAlphaComponent(0.8), UIColor.black.withAlphaComponent(0.6)])
+            filePreviewPlayIconImageView.image = UIImage(systemName: "play.circle.fill")?.withConfiguration(configuration)
 
             filePreviewImageView.addSubview(filePreviewPlayIconImageView)
             filePreviewImageView.bringSubviewToFront(filePreviewPlayIconImageView)
