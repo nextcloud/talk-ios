@@ -2035,6 +2035,9 @@
 /* No comment provided by engineer. */
 "This conversation will be automatically deleted for everyone in %ld days of no activity." = "This conversation will be automatically deleted for everyone in %ld days of no activity.";
 
+/* No comment provided by engineer. */
+"This is the web address you use to access your server in your web browser." = "This is the web address you use to access your server in your web browser.";
+
 /* The meeting start time will be displayed after this text e.g (This meeting is scheduled for tomorrow at 10:00) */
 "This meeting is scheduled for" = "This meeting is scheduled for";
 
@@ -2061,6 +2064,9 @@
 
 /* 'To' which language user wants to translate text */
 "To" = "To";
+
+/* No comment provided by engineer. */
+"To log in with a QR code, access your server in your web browser, go to Settings > Security > Create new app password, and scan the QR code shown there." = "To log in with a QR code, access your server in your web browser, go to Settings > Security > Create new app password, and scan the QR code shown there.";
 
 /* No comment provided by engineer. */
 "To resolve this issue, use the web interface and go to \"Settings -> Security\"." = "To resolve this issue, use the web interface and go to \"Settings -> Security\".";
