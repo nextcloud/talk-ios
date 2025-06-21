@@ -3709,7 +3709,7 @@ import SwiftUI
         }
     }
 
-    public func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withErrorDescription errorDescription: String) {
+    public func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String) {
         let alert = UIAlertController(title: NSLocalizedString("Unable to load file", comment: ""),
                                       message: errorDescription,
                                       preferredStyle: .alert)

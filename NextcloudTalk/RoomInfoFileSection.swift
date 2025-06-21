@@ -18,7 +18,6 @@ struct RoomInfoFileSection: View {
     @State private var isFetchingFileId: Bool = false
 
     private let openInText = String(format: NSLocalizedString("Open in %@", comment: ""), filesAppName)
-    @State private var fileControllerWrapper: NCChatFileControllerWrapper?
 
     var body: (some View)? {
         guard room.objectType == NCRoomObjectTypeFile else {
@@ -63,10 +62,7 @@ struct RoomInfoFileSection: View {
     func previewFile() {
         self.isDownloadingPreview = true
 
-        let downloader = NCChatFileControllerWrapper()
-        self.fileControllerWrapper = downloader
-
-        downloader.downloadFile(withFileId: room.objectId) { @MainActor fileLocalPath in
+        NCChatFileControllerWrapper.shared.downloadFile(withFileId: room.objectId) { @MainActor fileLocalPath in
             self.isDownloadingPreview = false
 
             guard let fileLocalPath else { return }

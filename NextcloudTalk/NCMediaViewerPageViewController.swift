@@ -172,7 +172,7 @@ import SwiftyGif
         }
     }
 
-    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withErrorDescription errorDescription: String) {
+    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String) {
         self.activityIndicator.stopAnimating()
         self.activityIndicator.isHidden = true
 

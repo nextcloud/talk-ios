@@ -96,7 +96,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     internal var fileActivityIndicator: MDCActivityIndicator?
     internal var filePreviewActivityIndicator: MDCActivityIndicator?
     internal var filePreviewPlayIconImageView: UIImageView?
-    internal var fileControllerWrapper: NCChatFileControllerWrapper?
     internal var fileCurrentRequest: SDWebImageCombinedOperation?
 
     // Location cell
