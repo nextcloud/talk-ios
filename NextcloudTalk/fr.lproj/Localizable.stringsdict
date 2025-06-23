@@ -158,6 +158,19 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Cette conversation sera automatiquement supprimée pour tout le monde après %ld jour d'inactivité.</string>
+            <key>many</key>
+            <string>Cette conversation sera automatiquement supprimée pour tout le monde après %ld jours d'inactivité.</string>
+            <key>other</key>
+            <string>Cette conversation sera automatiquement supprimée pour tout le monde après %ld jours d'inactivité.</string>
+        </dict>
     </dict>
 </dict>
 </plist>
