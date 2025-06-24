@@ -13,9 +13,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d voto</string>
+            <string>%d stem</string>
             <key>other</key>
-            <string>%d votos</string>
+            <string>%d stemmen</string>
         </dict>
     </dict>
     
@@ -30,9 +30,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>ld</string>
             <key>one</key>
-            <string>%ld participante</string>
+            <string>%ld deelnemer</string>
             <key>other</key>
-            <string>%ld participantes</string>
+            <string>%ld deelnemers</string>
         </dict>
     </dict>
     
@@ -47,9 +47,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>hai %d minuto</string>
+            <string>%d minuut geleden</string>
             <key>other</key>
-            <string>hai %d minutos</string>
+            <string>%d minuten geleden</string>
         </dict>
     </dict>
     
@@ -64,9 +64,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>hai %d hora</string>
+            <string>%d uur geleden</string>
             <key>other</key>
-            <string>hai %d horas</string>
+            <string>%d uren geleden</string>
         </dict>
     </dict>
     
@@ -81,9 +81,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>hai %d día</string>
+            <string>%d dag geleden</string>
             <key>other</key>
-            <string>hai %d días</string>
+            <string>%d dagen geleden</string>
         </dict>
     </dict>
 
@@ -98,9 +98,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%ld notificación</string>
+			<string>%ld melding</string>
 			<key>other</key>
-			<string>%ld notificacións</string>
+			<string>%ld meldingen</string>
 		</dict>
 	</dict>
 
@@ -115,9 +115,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>Vde. ten %ld convite pendente</string>
+            <string>U heeft %ld uitstaande uitnodiging</string>
             <key>other</key>
-            <string>Vde. ten %ld convites pendentes</string>
+            <string>U heeft %ld uitstaande uitnodigingen</string>
         </dict>
     </dict>
 
@@ -132,9 +132,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d opción</string>
+            <string>%d optie</string>
             <key>other</key>
-            <string>%d opcións</string>
+            <string>%d opties</string>
         </dict>
     </dict>
 
@@ -149,9 +149,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>Esta conversa eliminarase automaticamente para todos con %ld día sen actividade.</string>
+            <string>Dit gesprek wordt voor iedereen automatisch verwijderd na %ld dag zonder activiteit.</string>
             <key>other</key>
-            <string>Esta conversa eliminarase automaticamente para todos aos %ld días sen actividade.</string>
+            <string>Dit gesprek wordt voor iedereen automatisch verwijderd na %ld dagen zonder activiteit.</string>
         </dict>
     </dict>
 </dict>

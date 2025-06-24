@@ -167,7 +167,7 @@
             <key>one</key>
             <string>Esta conversa será excluída automaticamente para todos em %ld dia sem atividade.</string>
             <key>many</key>
-            <string>Esta conversa será excluída automaticamente para todos em %ld dias sem atividade.</string>
+            <string>Esta conversa será excluída automaticamente para todos em %ld de dias sem atividade.</string>
             <key>other</key>
             <string>Esta conversa será excluída automaticamente para todos em %ld dias sem atividade.</string>
         </dict>
