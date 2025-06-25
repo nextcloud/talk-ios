@@ -7,7 +7,7 @@
 
 echo 'Generating Localizable.strings file...'
 
-STABLE_BRANCH=stable21.1
+STABLE_BRANCH=$(<.tx/backport)
 
 FILE_PATHS=(
   "NextcloudTalk/*.m"
