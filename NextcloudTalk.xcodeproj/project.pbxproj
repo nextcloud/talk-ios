@@ -151,7 +151,6 @@
 		1F605D492DD14A1700DF50DC /* RoomInfoConversationSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F605D482DD14A1700DF50DC /* RoomInfoConversationSettingsSection.swift */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
-		1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F628CB92842BAAF0083A425 /* QRCodeReader */; };
 		1F66B71F29FA703B003FB168 /* TypingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */; };
 		1F66B72129FA7089003FB168 /* TypingIndicatorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */; };
 		1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */; };
@@ -161,7 +160,6 @@
 		1F759C0B2B63B9A7000534AB /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0A2B63B9A7000534AB /* SDWebImageSVGKitPlugin */; };
 		1F759C0E2B63B9BA000534AB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0D2B63B9BA000534AB /* WebRTC */; };
 		1F759C102B63B9D9000534AB /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0F2B63B9D9000534AB /* OpenSSL */; };
-		1F759C142B63B9D9000534AB /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C132B63B9D9000534AB /* QRCodeReader */; };
 		1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C152B63B9D9000534AB /* NextcloudKit */; };
 		1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C172B63B9D9000534AB /* SwiftyAttributes */; };
 		1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C192B63B9D9000534AB /* CDMarkdownKit */; };
@@ -334,7 +332,6 @@
 		1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */; };
 		1FADECD82B82269E007AD94B /* FederationInvitationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */; };
 		1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */; };
-		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
 		1FB78E202B6ADBB600B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
@@ -935,7 +932,6 @@
 		1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationTableViewController.swift; sourceTree = "<group>"; };
 		1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationCell.swift; sourceTree = "<group>"; };
 		1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FederationInvitationCell.xib; sourceTree = "<group>"; };
-		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPIControllerExtensions.swift; sourceTree = "<group>"; };
 		1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FederationInvitation.swift; sourceTree = "<group>"; };
@@ -1473,7 +1469,6 @@
 				1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */,
 				1F759C0B2B63B9A7000534AB /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F759C102B63B9D9000534AB /* OpenSSL in Frameworks */,
-				1F759C142B63B9D9000534AB /* QRCodeReader in Frameworks */,
 				1F759C342B63CBAA000534AB /* Realm in Frameworks */,
 				1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */,
 				1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */,
@@ -1533,7 +1528,6 @@
 				1F90EFC725FE4BE700F3FA55 /* IntentsUI.framework in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
-				1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */,
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
 				1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
@@ -2018,7 +2012,6 @@
 				2CE5F4A02E0D38EC00B2136A /* LoginViewController.swift */,
 				2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */,
 				1FA20C89284001D80062B4F3 /* DebounceWebView.swift */,
-				1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */,
 			);
 			name = Login;
 			sourceTree = "<group>";
@@ -2413,7 +2406,6 @@
 				1F759C0A2B63B9A7000534AB /* SDWebImageSVGKitPlugin */,
 				1F759C0D2B63B9BA000534AB /* WebRTC */,
 				1F759C0F2B63B9D9000534AB /* OpenSSL */,
-				1F759C132B63B9D9000534AB /* QRCodeReader */,
 				1F759C152B63B9D9000534AB /* NextcloudKit */,
 				1F759C172B63B9D9000534AB /* SwiftyAttributes */,
 				1F759C192B63B9D9000534AB /* CDMarkdownKit */,
@@ -2535,7 +2527,6 @@
 			packageProductDependencies = (
 				2CCCD21C2835088F00F076CE /* OpenSSL */,
 				1F468E7528DCC6C60099597B /* Dynamic */,
-				1F628CB92842BAAF0083A425 /* QRCodeReader */,
 				1F7AE07729142CA1009F72AD /* NextcloudKit */,
 				1F66B72E29FABD01003FB168 /* SwiftyAttributes */,
 				1F45A1152A01D6EC005FE87D /* SDWebImage */,
@@ -2709,7 +2700,6 @@
 			packageReferences = (
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
-				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
 				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
@@ -3403,7 +3393,6 @@
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
 				1F205C502CEF903000AAA673 /* UserAbsence.swift in Sources */,
 				1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */,
-				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */,
 				807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */,
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
@@ -4777,14 +4766,6 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.1.1;
-			};
-		};
 		1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/eddiekaiger/SwiftyAttributes.git";
@@ -4952,11 +4933,6 @@
 			package = 1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */;
 			productName = DebouncedOnChange;
 		};
-		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
-			productName = QRCodeReader;
-		};
 		1F66B72E29FABD01003FB168 /* SwiftyAttributes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
@@ -4981,11 +4957,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */;
 			productName = OpenSSL;
-		};
-		1F759C132B63B9D9000534AB /* QRCodeReader */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
-			productName = QRCodeReader;
 		};
 		1F759C152B63B9D9000534AB /* NextcloudKit */ = {
 			isa = XCSwiftPackageProductDependency;
