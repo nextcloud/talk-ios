@@ -46,7 +46,10 @@ class QRScannerViewController: UIViewController, DataScannerViewControllerDelega
         instructionsTextView.font = UIFont.systemFont(ofSize: 17)
         instructionsTextView.layer.cornerRadius = 8
         instructionsTextView.translatesAutoresizingMaskIntoConstraints = false
-        instructionsTextView.text = NSLocalizedString("To log in with a QR code, access your server in your web browser, go to Settings > Security > Create new app password, and scan the QR code shown there.", comment: "")
+        let step1 = NSLocalizedString("1. Access your server in a web browser", comment: "First step in scanning QR code instructions")
+        let step2 = NSLocalizedString("2. Go to Settings > Security > Create new app password", comment: "Second step in scanning QR code instructions")
+        let step3 = NSLocalizedString("3. Scan the QR code shown there", comment: "Third step in scanning QR code instructions")
+        instructionsTextView.text = String(format: "%@\n\n%@\n\n%@", step1, step2, step3)
         instructionsTextView.textContainerInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
         instructionsTextView.textContainer.lineFragmentPadding = 0
         view.addSubview(instructionsTextView)
