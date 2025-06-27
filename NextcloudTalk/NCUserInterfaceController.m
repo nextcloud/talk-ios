@@ -10,7 +10,6 @@
 #import "UIView+Toast.h"
 
 #import "AuthenticationViewController.h"
-#import "LoginViewController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCRoomsManager.h"
@@ -106,7 +105,7 @@
         }
         
         if (serverURL) {
-            [_loginViewController startLoginProcessWithServerURL:serverURL withUser:user];
+            [_loginViewController startLoginProcessWithServerURL:serverURL user:user];
         }
     }
 }
@@ -499,7 +498,7 @@
 
 #pragma mark - LoginViewControllerDelegate
 
-- (void)loginViewControllerDidFinish:(LoginViewController *)viewController
+- (void)loginViewControllerDidFinish
 {
     [_mainViewController dismissViewControllerAnimated:YES completion:^{
         [[NCConnectionController shared] checkAppState];

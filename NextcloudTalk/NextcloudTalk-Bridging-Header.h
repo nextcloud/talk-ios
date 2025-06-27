@@ -8,6 +8,7 @@
 
 #import "ARDSettingsModel.h"
 #import "AddParticipantsTableViewController.h"
+#import "AuthenticationViewController.h"
 #import "CallParticipantViewCell.h"
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
