@@ -72,31 +72,28 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
 
         // Login button
         loginButton.setTitle(NSLocalizedString("Log in", comment: ""), for: .normal)
-        loginButton.backgroundColor = NCAppBranding.brandColor()
-        loginButton.layer.borderColor = NCAppBranding.brandTextColor().cgColor
-        loginButton.setTitleColor(NCAppBranding.brandTextColor(), for: .normal)
-        loginButton.layer.cornerRadius = 8
-        loginButton.layer.borderWidth = 2
-        loginButton.clipsToBounds = true
 
         // QR code button
         qrCodeButton.setTitle(NSLocalizedString("Scan QR code", comment: ""), for: .normal)
         qrCodeButton.isHidden = !QRScannerViewController.isDataScannerSupported()
-        qrCodeButton.backgroundColor = NCAppBranding.brandColor()
-        qrCodeButton.layer.borderColor = NCAppBranding.brandTextColor().cgColor
-        qrCodeButton.setTitleColor(NCAppBranding.brandTextColor(), for: .normal)
-        qrCodeButton.layer.cornerRadius = 8
-        qrCodeButton.layer.borderWidth = 2
-        qrCodeButton.clipsToBounds = true
 
         // Import account button
         importAccountButton.setTitle(NSLocalizedString("Import account", comment: ""), for: .normal)
-        importAccountButton.backgroundColor = NCAppBranding.brandColor()
-        importAccountButton.layer.borderColor = NCAppBranding.brandTextColor().cgColor
-        importAccountButton.setTitleColor(NCAppBranding.brandTextColor(), for: .normal)
-        importAccountButton.layer.cornerRadius = 8
-        importAccountButton.layer.borderWidth = 2
-        importAccountButton.clipsToBounds = true
+
+        // Buttons style
+        [loginButton, qrCodeButton, importAccountButton].forEach { button in
+            button.backgroundColor = NCAppBranding.brandColor()
+            button.layer.borderColor = NCAppBranding.brandTextColor().cgColor
+            button.layer.cornerRadius = 12
+            button.layer.borderWidth = 1
+            button.clipsToBounds = true
+
+            // Highlighted style
+            button.setTitleColor(NCAppBranding.brandTextColor().withAlphaComponent(0.5), for: .highlighted)
+            if let buttonImage = button.image(for: .normal) {
+                button.setImage(buttonImage.withTintColor(NCAppBranding.brandTextColor().withAlphaComponent(0.5), renderingMode: .alwaysOriginal), for: .highlighted)
+            }
+        }
 
         // Activity indicator
         activityIndicatorView.color = NCAppBranding.brandTextColor()

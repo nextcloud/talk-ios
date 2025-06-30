@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -69,48 +70,50 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Drk-al-ltc">
-                    <rect key="frame" x="98.5" y="369.5" width="178" height="167.5"/>
+                    <rect key="frame" x="100.5" y="369.5" width="174.5" height="167.5"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WaC-p3-cE0">
-                            <rect key="frame" x="0.0" y="0.0" width="178" height="45"/>
-                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WaC-p3-cE0">
+                            <rect key="frame" x="0.0" y="0.0" width="174.5" height="45"/>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <inset key="contentEdgeInsets" minX="16" minY="12" maxX="16" maxY="12"/>
                             <inset key="imageEdgeInsets" minX="-6" minY="0.0" maxX="6" maxY="0.0"/>
-                            <state key="normal" title="Log in" image="arrow.right" catalog="system">
+                            <state key="normal" title="Log in">
+                                <imageReference key="image" image="arrow.right" catalog="system"/>
                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="font">
-                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                 </preferredSymbolConfiguration>
                             </state>
                             <connections>
                                 <action selector="loginButtonPressed:" destination="-1" eventType="touchUpInside" id="Lg0-Lz-PoV"/>
                             </connections>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AEd-IT-8im" userLabel="QRCode">
-                            <rect key="frame" x="0.0" y="61" width="178" height="45"/>
-                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AEd-IT-8im" userLabel="QRCode">
+                            <rect key="frame" x="0.0" y="61" width="174.5" height="45"/>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <inset key="contentEdgeInsets" minX="16" minY="12" maxX="16" maxY="12"/>
                             <inset key="imageEdgeInsets" minX="-6" minY="0.0" maxX="6" maxY="0.0"/>
-                            <state key="normal" title="Scan QR code" image="qrcode.viewfinder" catalog="system">
+                            <state key="normal" title="Scan QR code">
+                                <imageReference key="image" image="qrcode.viewfinder" catalog="system"/>
                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="font">
-                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                 </preferredSymbolConfiguration>
                             </state>
                             <connections>
                                 <action selector="qrCodeButtonPressed:" destination="-1" eventType="touchUpInside" id="fo6-As-g9s"/>
                             </connections>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Djk-FQ-pNA">
-                            <rect key="frame" x="0.0" y="122" width="178" height="45.5"/>
-                            <color key="backgroundColor" systemColor="systemPurpleColor"/>
-                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Djk-FQ-pNA">
+                            <rect key="frame" x="0.0" y="122" width="174.5" height="45.5"/>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <inset key="contentEdgeInsets" minX="16" minY="12" maxX="16" maxY="12"/>
                             <inset key="imageEdgeInsets" minX="-6" minY="0.0" maxX="6" maxY="0.0"/>
-                            <state key="normal" title="Import account" image="person.circle" catalog="system">
+                            <state key="normal" title="Import account">
+                                <imageReference key="image" image="person.circle" catalog="system"/>
                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="font">
-                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                 </preferredSymbolConfiguration>
                             </state>
                             <connections>
@@ -149,9 +152,6 @@
         <image name="qrcode.viewfinder" catalog="system" width="128" height="115"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemPurpleColor">
-            <color red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

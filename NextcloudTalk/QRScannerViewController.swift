@@ -75,7 +75,7 @@ class QRScannerViewController: UIViewController, DataScannerViewControllerDelega
 
         NSLayoutConstraint.activate([
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
         ])
     }
 
