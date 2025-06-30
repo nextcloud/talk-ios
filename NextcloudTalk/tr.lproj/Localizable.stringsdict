@@ -149,9 +149,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>Bu sohbet, %ld gün boyunca etkileşim olmazsa herkesten otomatik olarak silinecek.</string>
+            <string>Bu görüşme, %ld gün boyunca etkileşim olmazsa herkesten otomatik olarak silinecek.</string>
             <key>other</key>
-            <string>Bu sohbet, %ld gün boyunca etkileşim olmazsa herkesten otomatik olarak silinecek.</string>
+            <string>Bu görüşme, %ld gün boyunca etkileşim olmazsa herkesten otomatik olarak silinecek.</string>
         </dict>
     </dict>
 </dict>
