@@ -31,7 +31,8 @@ import SwiftUI
                                                   SystemMessageTableViewCellDelegate,
                                                   BaseChatTableViewCellDelegate,
                                                   UITableViewDataSourcePrefetching,
-                                                  MessageSeparatorTableViewCellDelegate {
+                                                  MessageSeparatorTableViewCellDelegate,
+                                                  DateHeaderViewDelegate {
 
     // MARK: - Internal var
     internal var messages: [Date: [NCChatMessage]] = [:]
@@ -2699,6 +2700,18 @@ import SwiftUI
         }
     }
 
+    // MARK: - DateHeaderView delegate
+
+    func dateHeaderViewTapped(inSection section: Int) {
+        guard let tableView = tableView,
+              section < tableView.numberOfSections,
+              tableView.numberOfRows(inSection: section) > 0 else {
+            return
+        }
+
+        tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: .none, animated: true)
+    }
+
     // MARK: - UITableViewDataSource methods
 
     public override func numberOfSections(in tableView: UITableView) -> Int {
@@ -2745,7 +2758,11 @@ import SwiftUI
             return 0
         }
 
-        return kDateHeaderViewHeight
+        if let headerText = self.tableView(tableView, titleForHeaderInSection: section) {
+            return DateHeaderView.height(for: headerText, fittingWidth: tableView.frame.width)
+        }
+
+        return 0
     }
 
     public override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -2754,12 +2771,10 @@ import SwiftUI
         }
 
         let headerView = DateHeaderView()
-        headerView.dateLabel.text = self.tableView(tableView, titleForHeaderInSection: section)
-        headerView.dateLabel.layer.cornerRadius = 12
-        headerView.dateLabel.clipsToBounds = true
-
-        if let headerLabel = headerView.dateLabel as? DateLabelCustom {
-            headerLabel.tableView = tableView
+        if let headerText = self.tableView(tableView, titleForHeaderInSection: section) {
+            headerView.titleLabel.text = headerText
+            headerView.section = section
+            headerView.delegate = self
         }
 
         return headerView
