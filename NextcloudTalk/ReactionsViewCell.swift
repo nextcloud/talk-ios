@@ -11,22 +11,33 @@ import UIKit
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        label.layer.borderWidth = 1.0
-        label.layer.borderColor = self.borderColor()
-        label.layer.cornerRadius = 15.0
+        label.layer.cornerRadius = 8
         label.clipsToBounds = true
-        label.backgroundColor = NCAppBranding.backgroundColor()
+        label.textColor = defaultTextColor()
+        label.backgroundColor = defaultBackgroundColor()
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
         label.text = ""
-        label.layer.borderColor = self.borderColor()
-        label.backgroundColor = NCAppBranding.backgroundColor()
+        label.textColor = defaultTextColor()
+        label.backgroundColor = defaultBackgroundColor()
     }
 
-    func borderColor() -> CGColor {
-        return UIColor.tertiaryLabel.cgColor
+    func defaultTextColor() -> UIColor {
+        return .label
+    }
+
+    func defaultBackgroundColor() -> UIColor {
+        return .secondarySystemBackground
+    }
+
+    func highlightedTextColor() -> UIColor {
+        return NCAppBranding.themeTextColor()
+    }
+
+    func highlightedBackgroundColor() -> UIColor {
+        return NCAppBranding.elementColor()
     }
 
     func sizeForReaction(reaction: NCChatReaction) -> CGSize {
@@ -42,8 +53,8 @@ import UIKit
 
     func setReaction(reaction: NCChatReaction) {
         label.text = textForReaction(reaction: reaction)
-        label.backgroundColor = reaction.userReacted ? NCAppBranding.elementColor().withAlphaComponent(0.15) : NCAppBranding.backgroundColor()
-        label.layer.borderColor = reaction.userReacted ? NCAppBranding.elementColor().cgColor : self.borderColor()
+        label.textColor = reaction.userReacted ? highlightedTextColor() : defaultTextColor()
+        label.backgroundColor = reaction.userReacted ? highlightedBackgroundColor() : defaultBackgroundColor()
     }
 
 }
