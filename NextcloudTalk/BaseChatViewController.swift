@@ -129,17 +129,17 @@ import SwiftUI
     }()
 
     private lazy var unreadMessageButton: UIButton = {
-        let unreadMessageButton = UIButton(frame: .init(x: 0, y: 0, width: 126, height: 24))
+        let unreadMessageButton = UIButton(frame: .init(x: 0, y: 0, width: 280, height: 60))
 
         unreadMessageButton.backgroundColor = NCAppBranding.themeColor()
         unreadMessageButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
-        unreadMessageButton.titleLabel?.font = UIFont.systemFont(ofSize: 12)
-        unreadMessageButton.layer.cornerRadius = 12
+        unreadMessageButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .footnote)
+        unreadMessageButton.layer.cornerRadius = 8
         unreadMessageButton.clipsToBounds = true
         unreadMessageButton.isHidden = true
         unreadMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        unreadMessageButton.contentEdgeInsets = .init(top: 0, left: 10, bottom: 0, right: 10)
-        unreadMessageButton.titleLabel?.minimumScaleFactor = 0.9
+        unreadMessageButton.contentEdgeInsets = .init(top: 6, left: 12, bottom: 6, right: 12)
+        unreadMessageButton.titleLabel?.minimumScaleFactor = 0.7
         unreadMessageButton.titleLabel?.numberOfLines = 1
         unreadMessageButton.titleLabel?.adjustsFontSizeToFitWidth = true
         unreadMessageButton.setTitle(NSLocalizedString("↓ New messages", comment: ""), for: .normal)
@@ -165,7 +165,7 @@ import SwiftUI
 
         button.backgroundColor = .secondarySystemBackground
         button.tintColor = .systemBlue
-        button.layer.cornerRadius = button.frame.size.height / 2
+        button.layer.cornerRadius = 8
         button.clipsToBounds = true
         button.alpha = 0
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -283,9 +283,9 @@ import SwiftUI
         let newMessagesButtonText = NSLocalizedString("↓ New messages", comment: "")
 
         // Need to move down to NSLayout
-        let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)]
-        let textSize = NSString(string: newMessagesButtonText).boundingRect(with: .init(width: 300, height: 24), options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
-        let buttonWidth = textSize.size.width + 20
+        let attributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .footnote)]
+        let textSize = NSString(string: newMessagesButtonText).boundingRect(with: .init(width: 280, height: 60), options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+        let buttonWidth = textSize.size.width + 24
 
         let views = [
             "unreadMessageButton": self.unreadMessageButton,
@@ -299,7 +299,7 @@ import SwiftUI
             "buttonWidth": buttonWidth
         ]
 
-        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:[unreadMessageButton(24)]-5-[autoCompletionView]", metrics: metrics, views: views))
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:[unreadMessageButton]-10-[autoCompletionView]", metrics: metrics, views: views))
         self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-(>=0)-[unreadMessageButton(buttonWidth)]-(>=0)-|", metrics: metrics, views: views))
 
         if let view = self.view {
