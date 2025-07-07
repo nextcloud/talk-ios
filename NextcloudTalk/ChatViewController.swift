@@ -1163,6 +1163,7 @@ import SwiftUI
 
         DispatchQueue.main.async {
             if notification.object as? NCChatController != self.chatController || notification.userInfo?["error"] != nil {
+                bgTask.stopBackgroundTask()
                 return
             }
 
