@@ -463,8 +463,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
 
         // Use an uncached provider so local time is not cached
-        let deferredMenuElement = UIDeferredMenuElement.uncached { completion in
-            self.getMenuUserAction(for: message) { items in
+        let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
+            self?.getMenuUserAction(for: message) { items in
                 completion(items)
             }
         }
