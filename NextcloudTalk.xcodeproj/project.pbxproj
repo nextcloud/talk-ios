@@ -151,7 +151,6 @@
 		1F605D492DD14A1700DF50DC /* RoomInfoConversationSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F605D482DD14A1700DF50DC /* RoomInfoConversationSettingsSection.swift */; };
 		1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C766285E35A6004D74D8 /* DiagnosticsTableViewController.swift */; };
 		1F61C76B285F65E1004D74D8 /* SimpleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F61C76A285F65E1004D74D8 /* SimpleTableViewController.swift */; };
-		1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F628CB92842BAAF0083A425 /* QRCodeReader */; };
 		1F66B71F29FA703B003FB168 /* TypingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B71E29FA703B003FB168 /* TypingIndicatorView.swift */; };
 		1F66B72129FA7089003FB168 /* TypingIndicatorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F66B72029FA7089003FB168 /* TypingIndicatorView.xib */; };
 		1F66B72929FA936E003FB168 /* SLKDefaultReplyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B72829FA936E003FB168 /* SLKDefaultReplyView.m */; };
@@ -161,7 +160,6 @@
 		1F759C0B2B63B9A7000534AB /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0A2B63B9A7000534AB /* SDWebImageSVGKitPlugin */; };
 		1F759C0E2B63B9BA000534AB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0D2B63B9BA000534AB /* WebRTC */; };
 		1F759C102B63B9D9000534AB /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C0F2B63B9D9000534AB /* OpenSSL */; };
-		1F759C142B63B9D9000534AB /* QRCodeReader in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C132B63B9D9000534AB /* QRCodeReader */; };
 		1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C152B63B9D9000534AB /* NextcloudKit */; };
 		1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C172B63B9D9000534AB /* SwiftyAttributes */; };
 		1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C192B63B9D9000534AB /* CDMarkdownKit */; };
@@ -334,7 +332,6 @@
 		1FADECD62B821E24007AD94B /* FederationInvitationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */; };
 		1FADECD82B82269E007AD94B /* FederationInvitationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */; };
 		1FADECDA2B8227B1007AD94B /* FederationInvitationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */; };
-		1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */; };
 		1FB6678F28CE381300D29F8D /* SubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */; };
 		1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
 		1FB78E202B6ADBB600B0D69D /* NCAPIControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */; };
@@ -462,7 +459,6 @@
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
-		2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */; };
 		2C0574A51EDDA2E300D9E7F2 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */; };
 		2C06330F2046CC8B0043481A /* NCUserInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */; };
 		2C06BF5D20A89F510031EB46 /* NCRoomsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C06BF5C20A89F510031EB46 /* NCRoomsManager.m */; };
@@ -694,6 +690,8 @@
 		2CD4F6B72C11C80600ED594F /* ContactsSearchResultTableViewContoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD4F6B62C11C80600ED594F /* ContactsSearchResultTableViewContoller.swift */; };
 		2CD5F3242142781A006B71BF /* NCExternalSignalingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */; };
 		2CD80F482A4304AD00919057 /* OpenConversationsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */; };
+		2CE5F11B2E0BFD5E00B2136A /* QRScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE5F11A2E0BFD5E00B2136A /* QRScannerViewController.swift */; };
+		2CE5F4A12E0D38EC00B2136A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE5F4A02E0D38EC00B2136A /* LoginViewController.swift */; };
 		2CEDA88C26F492610044552B /* NSMutableAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */; };
 		2CF338E12CED388B0029CACC /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF338E02CED388B0029CACC /* AvatarView.swift */; };
 		2CF338E22CED388B0029CACC /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF338E02CED388B0029CACC /* AvatarView.swift */; };
@@ -933,7 +931,6 @@
 		1FADECD52B821E24007AD94B /* FederationInvitationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationTableViewController.swift; sourceTree = "<group>"; };
 		1FADECD72B82269E007AD94B /* FederationInvitationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FederationInvitationCell.swift; sourceTree = "<group>"; };
 		1FADECD92B8227B1007AD94B /* FederationInvitationCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FederationInvitationCell.xib; sourceTree = "<group>"; };
-		1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeLoginController.swift; sourceTree = "<group>"; };
 		1FB6678E28CE381300D29F8D /* SubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTableViewCell.swift; sourceTree = "<group>"; };
 		1FB78E1E2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAPIControllerExtensions.swift; sourceTree = "<group>"; };
 		1FB78E252B6AE5A600B0D69D /* FederationInvitation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FederationInvitation.swift; sourceTree = "<group>"; };
@@ -1005,8 +1002,6 @@
 		2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		2C05748D1EDD9E8E00D9E7F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2C0574941EDD9E8E00D9E7F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
-		2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
 		2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
 		2C06330D2046CC8B0043481A /* NCUserInterfaceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCUserInterfaceController.h; sourceTree = "<group>"; };
 		2C06330E2046CC8B0043481A /* NCUserInterfaceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCUserInterfaceController.m; sourceTree = "<group>"; };
@@ -1295,6 +1290,8 @@
 		2CD5F3222142781A006B71BF /* NCExternalSignalingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCExternalSignalingController.h; sourceTree = "<group>"; };
 		2CD5F3232142781A006B71BF /* NCExternalSignalingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCExternalSignalingController.m; sourceTree = "<group>"; };
 		2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenConversationsTableViewController.swift; sourceTree = "<group>"; };
+		2CE5F11A2E0BFD5E00B2136A /* QRScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerViewController.swift; sourceTree = "<group>"; };
+		2CE5F4A02E0D38EC00B2136A /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		2CEA990828B8B5780029216A /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header.h"; sourceTree = "<group>"; };
 		2CEDA88B26F492610044552B /* NSMutableAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+Extensions.swift"; sourceTree = "<group>"; };
@@ -1469,7 +1466,6 @@
 				1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */,
 				1F759C0B2B63B9A7000534AB /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F759C102B63B9D9000534AB /* OpenSSL in Frameworks */,
-				1F759C142B63B9D9000534AB /* QRCodeReader in Frameworks */,
 				1F759C342B63CBAA000534AB /* Realm in Frameworks */,
 				1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */,
 				1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */,
@@ -1529,7 +1525,6 @@
 				1F90EFC725FE4BE700F3FA55 /* IntentsUI.framework in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
-				1F628CBA2842BAAF0083A425 /* QRCodeReader in Frameworks */,
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
 				1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
@@ -2009,13 +2004,12 @@
 		2C5521681F7D481C0077E587 /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				2CE5F11A2E0BFD5E00B2136A /* QRScannerViewController.swift */,
 				2C90E5D01EE80C870093D85A /* AuthenticationViewController.h */,
 				2C90E5D11EE80C870093D85A /* AuthenticationViewController.m */,
-				2C0574A11EDDA2E300D9E7F2 /* LoginViewController.h */,
-				2C0574A21EDDA2E300D9E7F2 /* LoginViewController.m */,
+				2CE5F4A02E0D38EC00B2136A /* LoginViewController.swift */,
 				2C0574A31EDDA2E300D9E7F2 /* LoginViewController.xib */,
 				1FA20C89284001D80062B4F3 /* DebounceWebView.swift */,
-				1FB52E752842C75E00AC741B /* QRCodeLoginController.swift */,
 			);
 			name = Login;
 			sourceTree = "<group>";
@@ -2407,7 +2401,6 @@
 				1F759C0A2B63B9A7000534AB /* SDWebImageSVGKitPlugin */,
 				1F759C0D2B63B9BA000534AB /* WebRTC */,
 				1F759C0F2B63B9D9000534AB /* OpenSSL */,
-				1F759C132B63B9D9000534AB /* QRCodeReader */,
 				1F759C152B63B9D9000534AB /* NextcloudKit */,
 				1F759C172B63B9D9000534AB /* SwiftyAttributes */,
 				1F759C192B63B9D9000534AB /* CDMarkdownKit */,
@@ -2529,7 +2522,6 @@
 			packageProductDependencies = (
 				2CCCD21C2835088F00F076CE /* OpenSSL */,
 				1F468E7528DCC6C60099597B /* Dynamic */,
-				1F628CB92842BAAF0083A425 /* QRCodeReader */,
 				1F7AE07729142CA1009F72AD /* NextcloudKit */,
 				1F66B72E29FABD01003FB168 /* SwiftyAttributes */,
 				1F45A1152A01D6EC005FE87D /* SDWebImage */,
@@ -2703,7 +2695,6 @@
 			packageReferences = (
 				2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */,
-				1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */,
 				1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 				1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */,
 				1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */,
@@ -3322,6 +3313,7 @@
 				2C13E4112D5DF3D500590959 /* NCAPIController+CalDAV.swift in Sources */,
 				1FB78E1F2B6ADBAA00B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */,
+				2CE5F11B2E0BFD5E00B2136A /* QRScannerViewController.swift in Sources */,
 				1FDE7C9A28DE14A200CB718E /* ReferenceView.swift in Sources */,
 				2CC32E9827F5D9BD00BB8C39 /* NCChatReaction.m in Sources */,
 				2C40281522832EED0000DDFC /* NCDatabaseManager.m in Sources */,
@@ -3344,6 +3336,7 @@
 				2C9B0B98217F6DBA00A4752C /* NCNotificationController.m in Sources */,
 				2CC3166E2CC698E1007CBE16 /* TextFieldTableViewCell.swift in Sources */,
 				2C36A04A261487BC0026F04A /* DetailedOptionsSelectorTableViewController.m in Sources */,
+				2CE5F4A12E0D38EC00B2136A /* LoginViewController.swift in Sources */,
 				2CA52ACB2670D02800619610 /* VoiceMessageRecordingView.m in Sources */,
 				2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */,
 				1FF4DA872C02626D00C1B952 /* NCBaseSessionManager.swift in Sources */,
@@ -3358,7 +3351,6 @@
 				1FA8AB162DC950F5005B3157 /* RoomInfoSwiftUIView.swift in Sources */,
 				1FA8AB172DC950F5005B3157 /* ActionPicker.swift in Sources */,
 				2C78E9E325120DE600E3D4CA /* NCUserStatus.m in Sources */,
-				2C0574A41EDDA2E300D9E7F2 /* LoginViewController.m in Sources */,
 				2C78EFA51F86FF4A008AFA74 /* CallParticipantViewCell.m in Sources */,
 				1F66B72C29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m in Sources */,
 				1FC18FC22CB7EA5C0058F621 /* RPSystemBroadcastPickerViewExtension.swift in Sources */,
@@ -3396,7 +3388,6 @@
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
 				1F205C502CEF903000AAA673 /* UserAbsence.swift in Sources */,
 				1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */,
-				1FB52E762842C75E00AC741B /* QRCodeLoginController.swift in Sources */,
 				1F5A24332ADA77DA009939FE /* InputbarViewController.swift in Sources */,
 				807E30762A83A90F00089D28 /* UserStatusOptionsSwiftUI.swift in Sources */,
 				2C4446D8265814D100DF1DBC /* ServerCapabilities.m in Sources */,
@@ -4769,14 +4760,6 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/yannickl/QRCodeReader.swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.1.1;
-			};
-		};
 		1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/eddiekaiger/SwiftyAttributes.git";
@@ -4944,11 +4927,6 @@
 			package = 1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */;
 			productName = DebouncedOnChange;
 		};
-		1F628CB92842BAAF0083A425 /* QRCodeReader */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
-			productName = QRCodeReader;
-		};
 		1F66B72E29FABD01003FB168 /* SwiftyAttributes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
@@ -4973,11 +4951,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2CCCD21B2835088F00F076CE /* XCRemoteSwiftPackageReference "OpenSSL" */;
 			productName = OpenSSL;
-		};
-		1F759C132B63B9D9000534AB /* QRCodeReader */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F628CB82842BAAF0083A425 /* XCRemoteSwiftPackageReference "QRCodeReader" */;
-			productName = QRCodeReader;
 		};
 		1F759C152B63B9D9000534AB /* NextcloudKit */ = {
 			isa = XCSwiftPackageProductDependency;
