@@ -152,7 +152,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
     }
 
     func startLoginProcess(serverURL: String, user: String?) {
-        var normalizedServerURL = serverURL
+        var normalizedServerURL = serverURL.lowercased()
 
         // Check whether baseUrl contain protocol. If not add https:// by default.
         if !normalizedServerURL.hasPrefix("https://"), !normalizedServerURL.hasPrefix("http://") {
