@@ -5,8 +5,6 @@
 
 @objcMembers class NCSplitViewController: UISplitViewController, UISplitViewControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
-    var placeholderViewController = UIViewController()
-
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
@@ -20,8 +18,6 @@
                 navController.delegate = self
             }
         }
-
-        placeholderViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "placeholderChatViewController")
     }
 
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
@@ -41,13 +37,14 @@
             // MovingFromParentViewController is always false in case of a rootViewController,
             // because of this, the chat will never be left in NCChatViewController
             // (see viewDidDisappear). So we have to leave the chat here, if collapsed
-            if let chatViewController = getActiveChatViewController() {
-                chatViewController.leaveChat()
-            }
+            getActiveChatViewController()?.leaveChat()
 
             // Make sure the chatViewController gets properly deallocated
-            setViewController(placeholderViewController, for: .secondary)
+            let placeholderViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "placeholderChatViewController")
             navController.setViewControllers([placeholderViewController], animated: false)
+
+            let navController = UINavigationController(rootViewController: placeholderViewController)
+            setViewController(navController, for: .secondary)
 
             // Instead of always allowing a gesture to be recognized, we need more control here.
             // See gestureRecognizerShouldBegin.
@@ -75,50 +72,12 @@
 
     override func showDetailViewController(_ vc: UIViewController, sender: Any?) {
         self.internalExecuteAfterTransition {
-            if !self.isCollapsed {
-                // When another room is selected while there's still an active chatViewController
-                // we need to make sure the active one is removed (applies to expanded mode only)
-                if let navController = self.viewController(for: .secondary) as? UINavigationController {
-                    navController.popToRootViewController(animated: false)
-                }
-            }
-
-            super.showDetailViewController(vc, sender: sender)
-
-            if self.isCollapsed {
-                // Make sure we don't have accidentally a placeholderView in our navigation
-                // while in collapsed mode
-                if let navController = self.viewController(for: .secondary) as? UINavigationController,
-                   vc is ChatViewController {
-
-                    // Only set the viewController if there's actually an active one shown by showDetailViewController
-                    // Otherwise UI might break or crash (view not loaded correctly)
-                    // This might happen if a chatViewController is shown by a push notification
-                    if self.hasActiveChatViewController() {
-                        // First set the placeholderViewController, to make sure it is only referencing one navController
-                        navController.setViewControllers([self.placeholderViewController], animated: false)
-                        navController.setViewControllers([vc], animated: false)
-                    }
-                }
-            }
-        }
-    }
-
-    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-
-        coordinator.animate(alongsideTransition: nil) { _ in
-            guard self.isCollapsed else { return }
-
-            if let navController = self.viewController(for: .secondary) as? UINavigationController,
-               let chatViewController = self.getActiveChatViewController() {
-
-                // Make sure the navigationController has the correct reference to the chatViewController.
-                // After a transition (eg. portrait to landscape) the navigationController still references the
-                // the placeholderViewController in the navigationBar. When navigating back the app crashes in iOS 17,
-                // because the navigationBar is referenced twice.
-                navController.setViewControllers([self.placeholderViewController, chatViewController], animated: false)
-                navController.setViewControllers([chatViewController], animated: false)
+            if let vc = vc as? UINavigationController {
+                super.showDetailViewController(vc, sender: sender)
+            } else {
+                // Create a new UINavigationController, to not stack up multiple view controllers
+                let navController = UINavigationController(rootViewController: vc)
+                super.showDetailViewController(navController, sender: sender)
             }
         }
     }
@@ -138,6 +97,16 @@
                 }
             })
         }
+    }
+
+    func showPlaceholderView() {
+        // Safe-guard to not show a placeholder view while in collapsed mode
+        if self.isCollapsed {
+            return
+        }
+
+        let placeholderViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "placeholderChatViewController")
+        self.showDetailViewController(placeholderViewController, sender: nil)
     }
 
     func hasActiveChatViewController() -> Bool {
@@ -181,26 +150,10 @@
     }
 
     func splitViewControllerDidExpand(_ svc: UISplitViewController) {
-        if let navController = self.viewController(for: .secondary) as? UINavigationController {
-            if hasActiveChatViewController() {
-
-                // When we expand (show the second columns) and there's a active chatViewController
-                // make sure we can drop back to the placeholderView
-                navController.setViewControllers([placeholderViewController, getActiveChatViewController()!], animated: false)
-
-            } else {
-                navController.setViewControllers([placeholderViewController], animated: false)
-            }
-        }
-    }
-
-    func splitViewControllerDidCollapse(_ svc: UISplitViewController) {
-        if hasActiveChatViewController() {
-            // If we collapse (only show one column) and there's a active chatViewController
-            // make sure only have the chatViewController in the stack
-            if let navController = self.viewController(for: .secondary) as? UINavigationController {
-                navController.setViewControllers([getActiveChatViewController()!], animated: false)
-            }
+        if !hasActiveChatViewController() {
+            // Set the placeholder view on expand again, to make sure the navigation bar is visible
+            // E.g. Regular -> Join chat, move to compact, leave chat, move to regular again
+            self.showPlaceholderView()
         }
     }
 
@@ -214,12 +167,8 @@
                 // No animation -> animated would interfere with room highlighting
                 navController.popToRootViewController(animated: false)
 
-                // We also need to make sure, that the popToRootViewController animation is finished before setting the placeholderVC
-                self.internalExecuteAfterTransition {
-                    // Make sure the chatViewController gets properly deallocated
-                    self.setViewController(self.placeholderViewController, for: .secondary)
-                    navController.setViewControllers([self.placeholderViewController], animated: false)
-                }
+                // This is needed, e.g. when leaving a room on an iPad to remove the chat view on the secondary column
+                self.showPlaceholderView()
             }
         }
     }
