@@ -16,6 +16,7 @@ class DiagnosticsTableViewController: UITableViewController {
         case kDiagnosticsSectionServer
         case kDiagnosticsSectionTalk
         case kDiagnosticsSectionSignaling
+        case kDiagnosticsSectionReset
         case kDiagnosticsSectionCount
     }
 
@@ -66,6 +67,11 @@ class DiagnosticsTableViewController: UITableViewController {
         case kSignalingSectionStunServers
         case kSignalingSectionTurnServers
         case kSignalingSectionCount
+    }
+
+    enum ResetSections: Int {
+        case kResetSectionStoredMessages = 0
+        case kResetSectionCount
     }
 
     var signalingSections: [Int] = []
@@ -206,6 +212,9 @@ class DiagnosticsTableViewController: UITableViewController {
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
             return signalingSections.count
 
+        case DiagnosticsSections.kDiagnosticsSectionReset.rawValue:
+            return ResetSections.kResetSectionCount.rawValue
+
         default:
             return 1
         }
@@ -227,6 +236,9 @@ class DiagnosticsTableViewController: UITableViewController {
 
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
             return NSLocalizedString("Signaling", comment: "")
+
+        case DiagnosticsSections.kDiagnosticsSectionReset.rawValue:
+            return NSLocalizedString("Reset", comment: "Title for a section where different reset options are shown")
 
         default:
             return nil
@@ -250,6 +262,9 @@ class DiagnosticsTableViewController: UITableViewController {
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
             return signalingCell(for: indexPath)
 
+        case DiagnosticsSections.kDiagnosticsSectionReset.rawValue:
+            return resetCell(for: indexPath)
+
         default:
             break
         }
@@ -272,6 +287,11 @@ class DiagnosticsTableViewController: UITableViewController {
                   indexPath.row == TalkSections.kTalkSectionVersion.rawValue {
 
             presentCapabilitiesDetails()
+
+        } else if indexPath.section == DiagnosticsSections.kDiagnosticsSectionReset.rawValue,
+                  indexPath.row == ResetSections.kResetSectionStoredMessages.rawValue {
+
+            resetStoredMessages()
         }
 
         self.tableView.deselectRow(at: indexPath, animated: true)
@@ -637,6 +657,20 @@ class DiagnosticsTableViewController: UITableViewController {
         return cell
     }
 
+    func resetCell(for indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.row == ResetSections.kResetSectionStoredMessages.rawValue {
+            let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierAction, for: indexPath)
+
+            cell.textLabel?.text = NSLocalizedString("Reset stored chat messages", comment: "")
+            cell.textLabel?.textAlignment = .center
+            cell.textLabel?.textColor = UIColor.systemRed
+
+            return cell
+        }
+
+        return UITableViewCell()
+    }
+
     // MARK: Test push notifications
 
     func testPushNotifications() {
@@ -701,6 +735,12 @@ class DiagnosticsTableViewController: UITableViewController {
                                                        withTitle: NSLocalizedString("Capabilities", comment: ""))
 
         self.navigationController?.pushViewController(capabilitiesVC, animated: true)
+    }
+
+    // MARK: Reset actions
+
+    func resetStoredMessages() {
+        NCDatabaseManager.sharedInstance().removeStoredMessages(forAccountId: account.accountId)
     }
 
     // MARK: Utils
