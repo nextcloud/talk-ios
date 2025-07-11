@@ -275,6 +275,16 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     [realm commitWriteTransaction];
 }
 
+- (void)removeStoredMessagesForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
+    [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+    [realm commitWriteTransaction];
+}
+
 - (void)increaseUnreadBadgeNumberForAccountId:(NSString *)accountId
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
