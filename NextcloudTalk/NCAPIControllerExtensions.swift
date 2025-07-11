@@ -1156,4 +1156,69 @@ import NextcloudKit
             completionBlock(ProfileInfo(dictionary: dataDict))
         }
     }
+
+    // MARK: - Threads
+
+    @nonobjc
+    public func getThreads(for accountId: String, in roomToken: String, completionBlock: @escaping (_ threads: [ThreadInfo]?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/recent", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: Any] = [
+            "limit": 50
+        ]
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
+            let threads = ocs?.dataArrayDict?.map { ThreadInfo(dictionary: $0) }
+            completionBlock(threads)
+        }
+    }
+
+    @nonobjc
+    public func getThread(for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: ThreadInfo?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/thread/\(threadId)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: nil) { ocs, _ in
+            guard let thread = ocs?.dataDict as? [String: Any] else {
+                completionBlock(nil)
+                return
+            }
+            completionBlock(ThreadInfo(dictionary: thread))
+        }
+    }
+
+    @nonobjc
+    public func createThread(for accountId: String, in roomToken: String, messageId: Int, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(messageId)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
 }
