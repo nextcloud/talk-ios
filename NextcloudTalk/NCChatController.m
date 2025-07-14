@@ -151,7 +151,13 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         } else if (message) {
             [realm addObject:message];
         }
-        
+
+        if (message.isThreadCreatedMessage) {
+            [self updateMessagesOnThreadCreation:message];
+            // Do not use parent message for updating already stored message
+            continue;
+        }
+
         NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
         NCChatMessage *managedParentMessage = [NCChatMessage objectsWhere:@"internalId = %@", parent.internalId].firstObject;
         if (managedParentMessage) {
@@ -327,6 +333,14 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     [sortedMessages sortUsingDescriptors:descriptors];
     
     return sortedMessages;
+}
+
+- (void)updateMessagesOnThreadCreation:(NCChatMessage *)message
+{
+    RLMResults *managedMessages = [NCChatMessage objectsWhere:@"accountId = %@ AND token = %@ AND threadId = %ld", _account.accountId, message.token, message.threadId];
+    for (NCChatMessage *managedMessage in managedMessages) {
+        managedMessage.isThread = YES;
+    }
 }
 
 #pragma mark - Chat
