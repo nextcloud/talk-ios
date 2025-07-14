@@ -22,7 +22,12 @@ import SwiftyAttributes
                self.systemMessage == "reaction_revoked" ||
                self.systemMessage == "reaction_deleted" ||
                self.systemMessage == "poll_voted" ||
-               self.systemMessage == "message_edited"
+               self.systemMessage == "message_edited" ||
+               self.systemMessage == "thread_created"
+    }
+
+    public var isThreadCreatedMessage: Bool {
+        return self.systemMessage == "thread_created"
     }
 
     public var isDeletedMessage: Bool {
