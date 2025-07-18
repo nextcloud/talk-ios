@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 79;
+uint64_t const kTalkDatabaseSchemaVersion           = 80;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -272,6 +272,16 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     if (isLastAccount) {
         [realm deleteObjects:[ABContact allObjects]];
     }
+    [realm commitWriteTransaction];
+}
+
+- (void)removeStoredMessagesForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
+    [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
     [realm commitWriteTransaction];
 }
 
