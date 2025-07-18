@@ -969,6 +969,18 @@ import SwiftUI
         }
     }
 
+    func didPressCreateThread(for message: NCChatMessage) {
+        NCAPIController.sharedInstance().createThread(for: account.accountId, in: room.token, messageId: message.messageId) { error in
+            if error != nil {
+                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while creating a thread", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            }
+        }
+    }
+
+    func didPressShowThread(for message: NCChatMessage) {
+        NotificationPresenter.shared().present(text: NSLocalizedString("Not available yet", comment: ""), dismissAfterDelay: 5.0, includedStyle: .matrix)
+    }
+
     func didPressReply(for message: NCChatMessage) {
         // Make sure we get a smooth animation after dismissing the context menu
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -3039,7 +3051,7 @@ import SwiftUI
             height -= ceil(bodyBounds.height)
         }
 
-        if !message.reactionsArray().isEmpty {
+        if !message.reactionsArray().isEmpty || message.isThreadOriginalMessage() {
             height += 40 // reactionsView(40)
         }
 
@@ -3112,8 +3124,8 @@ import SwiftUI
 
         if let cell = cell as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
-            let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })
+            let pointInReactionsContainerView = cell.convert(pointInCell, to: cell.reactionsContainerView)
+            let reactionView = cell.reactionsContainerView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionsContainerView) })
 
             if reactionView != nil, let message = cell.message {
                 self.showReactionsSummary(of: message)
@@ -3662,6 +3674,11 @@ import SwiftUI
                 pollVC.updatePoll(poll: poll)
             }
         }
+    }
+
+    // MARK: - Thread messages
+    public func cellWants(toShowThread message: NCChatMessage) {
+        self.didPressShowThread(for: message)
     }
 
     // MARK: - SystemMessageTableViewCellDelegate

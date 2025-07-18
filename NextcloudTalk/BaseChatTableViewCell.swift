@@ -23,6 +23,8 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellWants(toChangeProgress progress: CGFloat, fromAudioFile fileParameter: NCMessageFileParameter)
 
     func cellWants(toOpenPoll poll: NCMessageParameter)
+
+    func cellWants(toShowThread message: NCChatMessage)
 }
 
 // Common elements
@@ -74,10 +76,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var statusView: UIStackView!
     @IBOutlet weak var messageBodyView: UIView!
     @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var threadRepliesButton: NCButton!
+    @IBOutlet weak var reactionsContainerView: UIView!
+    @IBOutlet weak var reactionsContainerViewLeadingConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var headerPart: UIView!
     @IBOutlet weak var quotePart: UIView!
-    @IBOutlet weak var reactionPart: UIView!
     @IBOutlet weak var referencePart: UIView!
     @IBOutlet weak var footerPart: UIView!
 
@@ -145,7 +149,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.headerPart.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
-        self.reactionPart.isHidden = true
+        self.footerPart.isHidden = true
+
+        self.configureThreadRepliesButton()
     }
 
     override func prepareForReuse() {
@@ -162,7 +168,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.avatarButton.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
-        self.reactionPart.isHidden = true
+        self.footerPart.isHidden = true
+
+        self.hideThreadRepliesButton()
 
         self.messageBodyViewTopConstraint.constant = 5
 
@@ -308,6 +316,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if !reactionsArray.isEmpty {
             self.showReactionsPart()
             self.reactionView?.updateReactions(reactions: reactionsArray)
+        }
+
+        if message.isThreadOriginalMessage() {
+            self.showThreadRepliesButton()
         }
 
         if message.containsURL() {
@@ -500,8 +512,39 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     // MARK: - ReactionsPart
 
+    func configureThreadRepliesButton() {
+        self.threadRepliesButton.setTitle(NSLocalizedString("Go to thread", comment: ""), for: .normal)
+        self.threadRepliesButton.setButtonStyle(style: .tertiary)
+        self.threadRepliesButton.tintColor = .label
+        self.threadRepliesButton.configuration?.image = UIImage(systemName: "bubble.left.and.bubble.right")
+        self.threadRepliesButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .small)
+        self.threadRepliesButton.configuration?.imagePadding = 8
+
+        self.threadRepliesButton.addAction { [weak self] in
+            guard let self, let message else { return }
+            self.delegate?.cellWants(toShowThread: message)
+        }
+
+        self.hideThreadRepliesButton()
+    }
+
+    func hideThreadRepliesButton() {
+        self.threadRepliesButton.isHidden = true
+        self.reactionsContainerViewLeadingConstraint.isActive = false
+        self.reactionsContainerViewLeadingConstraint = reactionsContainerView.leadingAnchor.constraint(equalTo: footerPart.leadingAnchor, constant: 50)
+        self.reactionsContainerViewLeadingConstraint.isActive = true
+    }
+
+    func showThreadRepliesButton() {
+        self.footerPart.isHidden = false
+        self.threadRepliesButton.isHidden = false
+        self.reactionsContainerViewLeadingConstraint.isActive = false
+        self.reactionsContainerViewLeadingConstraint = reactionsContainerView.leadingAnchor.constraint(equalTo: threadRepliesButton.trailingAnchor, constant: 10)
+        self.reactionsContainerViewLeadingConstraint.isActive = true
+    }
+
     func showReactionsPart() {
-        self.reactionPart.isHidden = false
+        self.footerPart.isHidden = false
 
         if self.reactionView == nil {
             let flowLayout = UICollectionViewFlowLayout()
@@ -513,13 +556,13 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             reactionView.translatesAutoresizingMaskIntoConstraints = false
 
-            self.reactionPart.addSubview(reactionView)
+            self.reactionsContainerView.addSubview(reactionView)
 
             NSLayoutConstraint.activate([
-                reactionView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
-                reactionView.rightAnchor.constraint(equalTo: self.reactionPart.rightAnchor, constant: -10),
-                reactionView.topAnchor.constraint(equalTo: self.reactionPart.topAnchor),
-                reactionView.bottomAnchor.constraint(equalTo: self.reactionPart.bottomAnchor, constant: -10)
+                reactionView.leftAnchor.constraint(equalTo: self.reactionsContainerView.leftAnchor, constant: 0),
+                reactionView.rightAnchor.constraint(equalTo: self.reactionsContainerView.rightAnchor, constant: 0),
+                reactionView.topAnchor.constraint(equalTo: self.reactionsContainerView.topAnchor, constant: 0),
+                reactionView.bottomAnchor.constraint(equalTo: self.reactionsContainerView.bottomAnchor, constant: 0)
             ])
         }
     }
