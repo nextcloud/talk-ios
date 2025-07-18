@@ -1922,8 +1922,8 @@ import SwiftUI
 
         if let cell = cell as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
-            let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })
+            let pointInReactionsContainerView = cell.convert(pointInCell, to: cell.reactionsContainerView)
+            let reactionView = cell.reactionsContainerView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionsContainerView) })
 
             if reactionView != nil, let message = cell.message {
                 self.showReactionsSummary(of: message)
@@ -1966,6 +1966,17 @@ import SwiftUI
 
         if !informationalActions.isEmpty {
             actions.append(UIMenu(options: [.displayInline], children: informationalActions))
+        }
+
+        // Thread options
+        if message.isThread {
+            actions.append(UIAction(title: NSLocalizedString("Go to thread", comment: "Button to see a message thread"), image: .init(systemName: "bubble.left.and.bubble.right")) { _ in
+                self.didPressShowThread(for: message)
+            })
+        } else {
+            actions.append(UIAction(title: NSLocalizedString("Create a thread", comment: "Button to create a message thread"), image: .init(systemName: "bubble.left.and.bubble.right")) { _ in
+                self.didPressCreateThread(for: message)
+            })
         }
 
         // Reply option
