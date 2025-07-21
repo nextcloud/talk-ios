@@ -155,7 +155,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         if (message.isThreadCreatedMessage) {
             [self updateMessagesOnThreadCreation:message];
             // Do not use parent message for updating already stored message
-            return;
+            continue;
         }
 
         NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
