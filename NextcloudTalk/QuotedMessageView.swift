@@ -1,0 +1,68 @@
+//
+// SPDX-FileCopyrightText: 2025 Nextcloud GmbH and Nextcloud contributors
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+
+import Foundation
+
+@objcMembers class QuotedMessageView: UIView {
+
+    @IBOutlet var contentView: UIView!
+    @IBOutlet weak var quoteBarView: UIView!
+    @IBOutlet weak var avatarImageView: AvatarImageView!
+    @IBOutlet weak var actorLabel: UILabel!
+    @IBOutlet weak var messageLabel: UILabel!
+    @IBOutlet weak var actionButton: UIButton!
+
+    var highlighted: Bool = false {
+        didSet {
+            quoteBarView.backgroundColor = highlighted ? NCAppBranding.themeColor() : .systemFill
+        }
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        commonInit()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        commonInit()
+    }
+
+    func commonInit() {
+        Bundle.main.loadNibNamed("QuotedMessageView", owner: self, options: nil)
+        addSubview(contentView)
+        contentView.frame = frame
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        // Quoted message view
+        backgroundColor = NCAppBranding.backgroundColor()
+        layer.borderColor = NCAppBranding.placeholderColor().cgColor
+        layer.borderWidth = 1
+        layer.cornerRadius = 8
+
+        // Quote bar
+        quoteBarView.backgroundColor = .systemFill
+        quoteBarView.layer.cornerRadius = quoteBarView.frame.width / 2
+
+        // Action button
+        actionButton.isHidden = true
+        actionButton.tintColor = .label
+        var config = UIButton.Configuration.plain()
+        config.image = UIImage(systemName: "bubble.left.and.bubble.right")
+        config.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .medium)
+        actionButton.configuration = config
+
+        // Avatar
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
+        avatarImageView.layer.masksToBounds = true
+
+        // Labels
+        actorLabel.textColor = .secondaryLabel
+        actorLabel.font = .preferredFont(forTextStyle: .body)
+
+        messageLabel.textColor = NCAppBranding.chatForegroundColor()
+        messageLabel.font = .preferredFont(forTextStyle: .body)
+    }
+}

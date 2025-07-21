@@ -49,7 +49,6 @@
 #import "NCChatMessage.h"
 #import "NCChatTitleView.h"
 #import "NCMessageParameter.h"
-#import "QuotedMessageView.h"
 #import "ReplyMessageView.h"
 #import "SystemMessageTableViewCell.h"
 

@@ -107,7 +107,6 @@
 		1F35F9052AEEDF0E00044BDA /* AutoCompletionTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F35F9032AEEDF0E00044BDA /* AutoCompletionTableViewCell.m */; };
 		1F35F9062AEEE3C400044BDA /* NCMessageTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */; };
 		1F35F9072AEEE3EC00044BDA /* NCUserStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C78E9E225120DE500E3D4CA /* NCUserStatus.m */; };
-		1F35F90A2AEEE76A00044BDA /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		1F35F90B2AEEE76C00044BDA /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
 		1F371A372A7B921A006CBFB3 /* DatePickerTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F371A362A7B921A006CBFB3 /* DatePickerTextField.swift */; };
 		1F3C419F29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C419E29EDAC7D00F58435 /* RoomAvatarInfoTableViewController.swift */; };
@@ -486,6 +485,10 @@
 		2C177C302E1FE38100BD426D /* ThreadInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C177C232E1FD15600BD426D /* ThreadInfo.swift */; };
 		2C177C312E1FE38100BD426D /* ThreadAttendee.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C177C252E1FD16F00BD426D /* ThreadAttendee.swift */; };
 		2C177C322E1FE38100BD426D /* MessageThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C177C212E1FD11E00BD426D /* MessageThread.swift */; };
+		2C177C342E2E826300BD426D /* QuotedMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C177C332E2E826300BD426D /* QuotedMessageView.swift */; };
+		2C177C352E2E826300BD426D /* QuotedMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C177C332E2E826300BD426D /* QuotedMessageView.swift */; };
+		2C177C372E2E827E00BD426D /* QuotedMessageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C177C362E2E827E00BD426D /* QuotedMessageView.xib */; };
+		2C177C382E2E827E00BD426D /* QuotedMessageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C177C362E2E827E00BD426D /* QuotedMessageView.xib */; };
 		2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
 		2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
 		2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
@@ -593,7 +596,6 @@
 		2C6955152B0CE1A30070F6E1 /* NCUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */; };
 		2C6D1A992D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */; };
 		2C6E74462386D33200AE396C /* ReplyMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E74452386D33200AE396C /* ReplyMessageView.m */; };
-		2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E7448238C1A0800AE396C /* QuotedMessageView.m */; };
 		2C6F0D6C2CDE26B0005E0812 /* BadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6F0D6B2CDE26B0005E0812 /* BadgeView.swift */; };
 		2C7381562106136000CDB8DB /* NCChatTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7381552106136000CDB8DB /* NCChatTitleView.m */; };
 		2C738158210613A200CDB8DB /* NCChatTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C738157210613A200CDB8DB /* NCChatTitleView.xib */; };
@@ -1028,6 +1030,8 @@
 		2C177C212E1FD11E00BD426D /* MessageThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageThread.swift; sourceTree = "<group>"; };
 		2C177C232E1FD15600BD426D /* ThreadInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadInfo.swift; sourceTree = "<group>"; };
 		2C177C252E1FD16F00BD426D /* ThreadAttendee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadAttendee.swift; sourceTree = "<group>"; };
+		2C177C332E2E826300BD426D /* QuotedMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotedMessageView.swift; sourceTree = "<group>"; };
+		2C177C362E2E827E00BD426D /* QuotedMessageView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QuotedMessageView.xib; sourceTree = "<group>"; };
 		2C1ABDC4257A7CF000AEDFB6 /* NCContactsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCContactsManager.h; sourceTree = "<group>"; };
 		2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCContactsManager.m; sourceTree = "<group>"; };
 		2C1ABDCC257E939600AEDFB6 /* NCContact.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCContact.h; sourceTree = "<group>"; };
@@ -1144,8 +1148,6 @@
 		2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingSwiftUIView.swift; sourceTree = "<group>"; };
 		2C6E74442386D33200AE396C /* ReplyMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReplyMessageView.h; sourceTree = "<group>"; };
 		2C6E74452386D33200AE396C /* ReplyMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReplyMessageView.m; sourceTree = "<group>"; };
-		2C6E7447238C1A0800AE396C /* QuotedMessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuotedMessageView.h; sourceTree = "<group>"; };
-		2C6E7448238C1A0800AE396C /* QuotedMessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuotedMessageView.m; sourceTree = "<group>"; };
 		2C6F0D6B2CDE26B0005E0812 /* BadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeView.swift; sourceTree = "<group>"; };
 		2C7381542106136000CDB8DB /* NCChatTitleView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCChatTitleView.h; sourceTree = "<group>"; };
 		2C7381552106136000CDB8DB /* NCChatTitleView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCChatTitleView.m; sourceTree = "<group>"; };
@@ -2153,8 +2155,6 @@
 				2C738157210613A200CDB8DB /* NCChatTitleView.xib */,
 				2CA15549208F2E5700CE8EF0 /* NCMessageTextView.h */,
 				2CA1554A208F2E5700CE8EF0 /* NCMessageTextView.m */,
-				2C6E7447238C1A0800AE396C /* QuotedMessageView.h */,
-				2C6E7448238C1A0800AE396C /* QuotedMessageView.m */,
 				2C6E74442386D33200AE396C /* ReplyMessageView.h */,
 				2C6E74452386D33200AE396C /* ReplyMessageView.m */,
 				2CA52AC92670D02800619610 /* VoiceMessageRecordingView.h */,
@@ -2172,6 +2172,8 @@
 				1F549E2C2D45695D00E9AA9E /* MessageTextViewController.swift */,
 				1F549E2A2D45695C00E9AA9E /* MessageTextViewController.xib */,
 				2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */,
+				2C177C332E2E826300BD426D /* QuotedMessageView.swift */,
+				2C177C362E2E827E00BD426D /* QuotedMessageView.xib */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -2818,6 +2820,7 @@
 				2CA1CCD71F1E664C002FE6A2 /* ContactsTableViewCell.xib in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
 				1F785DDE2707865F00AC4B40 /* VoiceMessageTranscribeViewController.xib in Resources */,
+				2C177C372E2E827E00BD426D /* QuotedMessageView.xib in Resources */,
 				1FFF41642C70938700162F4D /* ReferenceZammadView.xib in Resources */,
 				2CB6ACBF26385A3800D3D641 /* ShareLocationViewController.xib in Resources */,
 				2C5BFBFC2891598A00E75118 /* PollResultTableViewCell.xib in Resources */,
@@ -2849,6 +2852,7 @@
 				1F35F8E42AEEBBE500044BDA /* NCChatTitleView.xib in Resources */,
 				2C3195BC24C599130066F221 /* PlaceholderView.xib in Resources */,
 				2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */,
+				2C177C382E2E827E00BD426D /* QuotedMessageView.xib in Resources */,
 				1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */,
 				2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */,
 				1FE7DE342BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
@@ -3412,6 +3416,7 @@
 				2CBD0D5A2C8770A40013C089 /* UIImageExtension.swift in Sources */,
 				1F90DA0429E9A28E00E81E3D /* AvatarManager.swift in Sources */,
 				2CC3166A2CC26194007CBE16 /* UITableViewExtension.swift in Sources */,
+				2C177C342E2E826300BD426D /* QuotedMessageView.swift in Sources */,
 				1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
@@ -3450,7 +3455,6 @@
 				1FFF41622C70937B00162F4D /* ReferenceZammadView.swift in Sources */,
 				1F98DF9C28E7484700E05174 /* ReferenceDeckView.swift in Sources */,
 				DA66582F27B6B19C00B46B11 /* UserProfileTableViewController+Actions.swift in Sources */,
-				2C6E7449238C1A0800AE396C /* QuotedMessageView.m in Sources */,
 				2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */,
 				1FBEA1182D31B42F00C0968C /* AbsenceLabelView.swift in Sources */,
 				2C7A12422017872600864818 /* AddParticipantsTableViewController.m in Sources */,
@@ -3557,7 +3561,6 @@
 				1F35F8E82AEEBC0800044BDA /* SLKTextView+SLKAdditions.m in Sources */,
 				1F35F9052AEEDF0E00044BDA /* AutoCompletionTableViewCell.m in Sources */,
 				2C24ED852D9C14F8004F48CF /* NSAttributedStringExtension.swift in Sources */,
-				1F35F90A2AEEE76A00044BDA /* QuotedMessageView.m in Sources */,
 				2C62B02E24C1BDD7007E460A /* PlaceholderView.m in Sources */,
 				1F7CCC262D552D2000F3FB77 /* Mention.swift in Sources */,
 				2C62B01024C1BDC5007E460A /* NCRoom.m in Sources */,
@@ -3584,6 +3587,7 @@
 				1FB78E212B6ADBB700B0D69D /* NCAPIControllerExtensions.swift in Sources */,
 				2C62B00724C1BDBD007E460A /* NCAPIController.m in Sources */,
 				2C1ABDD0257E939600AEDFB6 /* NCContact.m in Sources */,
+				2C177C352E2E826300BD426D /* QuotedMessageView.swift in Sources */,
 				2C4446FE265D5DFA00DF1DBC /* ABContact.m in Sources */,
 				1F35F8EF2AEEBC1A00044BDA /* SLKDefaultReplyView.m in Sources */,
 				1F35F8E22AEEBAF900044BDA /* InputbarViewController.swift in Sources */,

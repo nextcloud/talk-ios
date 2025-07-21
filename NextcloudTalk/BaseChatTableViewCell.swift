@@ -161,8 +161,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.avatarButton.cancelCurrentRequest()
         self.avatarButton.setImage(nil, for: .normal)
 
-        self.quotedMessageView?.avatarView.cancelCurrentRequest()
-        self.quotedMessageView?.avatarView.image = nil
+        self.quotedMessageView?.avatarImageView.cancelCurrentRequest()
+        self.quotedMessageView?.avatarImageView.image = nil
 
         self.headerPart.isHidden = false
         self.avatarButton.isHidden = false
@@ -237,7 +237,17 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.messageLabel.text = quoteString
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
-            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent, withAccount: account)
+            self.quotedMessageView?.avatarImageView.setActorAvatar(forMessage: parent, withAccount: account)
+
+            if message.isThread {
+                self.quotedMessageView?.actionButton.isHidden = false
+                self.quotedMessageView?.actionButton.addAction { [weak self] in
+                    guard let self else { return }
+                    self.delegate?.cellWants(toShowThread: message)
+                }
+            } else {
+                self.quotedMessageView?.actionButton.isHidden = true
+            }
         }
 
         if message.isGroupMessage, message.parent == nil {
