@@ -23,20 +23,10 @@
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationBar.isTranslucent = false
+
+        NCAppBranding.styleViewController(self)
+
         self.navigationItem.title = NSLocalizedString("Banned users and guests", comment: "")
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
-        let themeColor: UIColor = NCAppBranding.themeColor()
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = themeColor
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
 
         self.tableView.register(UINib(nibName: bannedActorCellIdentifier, bundle: nil), forCellReuseIdentifier: bannedActorCellIdentifier)
         self.tableView.backgroundView = backgroundView

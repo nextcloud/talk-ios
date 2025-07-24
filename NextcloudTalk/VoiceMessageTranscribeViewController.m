@@ -30,21 +30,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    self.navigationItem.title = NSLocalizedString(@"Transcript", @"TRANSLATORS transcript of a voice-message");
-    [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
 
-    UIColor *themeColor = [NCAppBranding themeColor];
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = themeColor;
-    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-    self.navigationItem.standardAppearance = appearance;
-    self.navigationItem.compactAppearance = appearance;
-    self.navigationItem.scrollEdgeAppearance = appearance;
+    [NCAppBranding styleViewController:self];
+
+    self.navigationItem.title = NSLocalizedString(@"Transcript", @"TRANSLATORS transcript of a voice-message");
 
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(closeViewController)];

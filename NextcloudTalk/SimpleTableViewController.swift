@@ -20,20 +20,8 @@ class SimpleTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationItem.title = navigationTitle
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
-        let themeColor: UIColor = NCAppBranding.themeColor()
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = themeColor
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
+
+        NCAppBranding.styleViewController(self)
     }
 
     // MARK: Table view data source

@@ -16,19 +16,9 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationItem.title = NSLocalizedString("Open conversations", comment: "")
+        NCAppBranding.styleViewController(self)
 
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        appearance.backgroundColor = NCAppBranding.themeColor()
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
+        self.navigationItem.title = NSLocalizedString("Open conversations", comment: "")
         self.navigationItem.preferredSearchBarPlacement = .stacked
 
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)

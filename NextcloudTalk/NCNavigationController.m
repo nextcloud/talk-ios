@@ -18,20 +18,8 @@
     [super viewDidLoad];
     
     self.interactivePopGestureRecognizer.delegate = self;
-    
-    [self.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
-    self.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.navigationBar.barTintColor = [NCAppBranding themeColor];
-    self.navigationBar.translucent = NO;
 
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = [NCAppBranding themeColor];
-    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-    self.navigationItem.standardAppearance = appearance;
-    self.navigationItem.compactAppearance = appearance;
-    self.navigationItem.scrollEdgeAppearance = appearance;
+    [NCAppBranding styleViewController:self];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle

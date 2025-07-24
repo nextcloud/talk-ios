@@ -90,24 +90,12 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
     UIColor *themeColor = [NCAppBranding themeColor];
     [self.view setBackgroundColor:themeColor];
 
-    [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.navigationController.navigationBar.translucent = YES;
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
+    [NCAppBranding styleViewController:self];
 
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     cancelButton.accessibilityHint = NSLocalizedString(@"Double tap to dismiss authentication dialog", nil);
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
-
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = themeColor;
-    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-    self.navigationItem.standardAppearance = appearance;
-    self.navigationItem.compactAppearance = appearance;
-    self.navigationItem.scrollEdgeAppearance = appearance;
 }
 
 - (void)cancelButtonPressed

@@ -24,22 +24,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    self.navigationItem.title = NSLocalizedString(@"Shared location", nil);
-    [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
-    self.navigationController.navigationBar.translucent = NO;
 
-    UIColor *themeColor = [NCAppBranding themeColor];
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = themeColor;
-    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-    self.navigationItem.standardAppearance = appearance;
-    self.navigationItem.compactAppearance = appearance;
-    self.navigationItem.scrollEdgeAppearance = appearance;
+    [NCAppBranding styleViewController:self];
+
+    self.navigationItem.title = NSLocalizedString(@"Shared location", nil);
 
     _locationManager = [[CLLocationManager alloc] init];
     _locationManager.delegate = self;

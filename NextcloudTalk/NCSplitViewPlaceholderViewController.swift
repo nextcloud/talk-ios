@@ -30,18 +30,7 @@ import UIKit
     }
 
     func adjustTheming() {
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.navigationController?.navigationBar.isTranslucent = false
-
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        appearance.backgroundColor = NCAppBranding.themeColor()
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
+        NCAppBranding.styleViewController(self)
     }
 
     func appStateChanged(notification: Notification) {

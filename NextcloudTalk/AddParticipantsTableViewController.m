@@ -82,17 +82,10 @@
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
 
-    UIColor *themeColor = [NCAppBranding themeColor];
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = themeColor;
-    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-    self.navigationItem.standardAppearance = appearance;
-    self.navigationItem.compactAppearance = appearance;
-    self.navigationItem.scrollEdgeAppearance = appearance;
+    [NCAppBranding styleViewController:self];
 
     self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
     self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];

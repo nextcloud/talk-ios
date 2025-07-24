@@ -52,19 +52,11 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        NCAppBranding.styleViewController(self)
+
         self.navigationItem.title = NSLocalizedString("Profile", comment: "")
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
-        let themeColor: UIColor = NCAppBranding.themeColor()
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = themeColor
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
+
         self.tableView.tableHeaderView = self.avatarHeaderView()
         self.showEditButton()
         self.getUserProfileEditableFields()

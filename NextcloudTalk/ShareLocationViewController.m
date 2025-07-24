@@ -42,14 +42,11 @@ typedef enum ShareLocationSection {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
+    [NCAppBranding styleViewController:self];
+
     self.navigationItem.title = NSLocalizedString(@"Share location", nil);
-    [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
-    self.navigationController.navigationBar.translucent = NO;
-    
+
     _iconsConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:20];
 
     _locationManager = [[CLLocationManager alloc] init];
@@ -81,17 +78,8 @@ typedef enum ShareLocationSection {
     _searchController.hidesNavigationBarDuringPresentation = NO;
     [_searchController.searchBar sizeToFit];
 
-    UIColor *themeColor = [NCAppBranding themeColor];
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = themeColor;
-    appearance.titleTextAttributes = @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]};
-    self.navigationItem.standardAppearance = appearance;
-    self.navigationItem.compactAppearance = appearance;
-    self.navigationItem.scrollEdgeAppearance = appearance;
-
     self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
     self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
