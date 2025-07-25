@@ -181,13 +181,13 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %1$d dniu braku aktywności.</string>
+            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %ld dniu braku aktywności.</string>
             <key>few</key>
-            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %1$d dniach braku aktywności.</string>
+            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %ld dniach braku aktywności.</string>
             <key>many</key>
-            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %1$d dniach braku aktywności.</string>
+            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %ld dniach braku aktywności.</string>
             <key>other</key>
-            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %1$d dniach braku aktywności.</string>
+            <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %ld dniach braku aktywności.</string>
         </dict>
     </dict>
 </dict>
