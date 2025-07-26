@@ -114,6 +114,7 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server;
 - (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
 - (void)removeAccountWithAccountId:(NSString *)accountId;
+- (void)removeStoredMessagesForAccountId:(NSString *)accountId;
 - (void)increaseUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (void)decreaseUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId;

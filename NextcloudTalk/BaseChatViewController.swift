@@ -667,6 +667,28 @@ import SwiftUI
         }
     }
 
+    internal func updateMessages(withThreadId threadId: Int) {
+        DispatchQueue.main.async {
+            guard let (indexPaths, messages) = self.indexPathsAndMessages(forThreadId: threadId) else { return }
+
+            messages.forEach { message in
+                message.isThread = true
+            }
+
+            self.tableView?.beginUpdates()
+            self.tableView?.reloadRows(at: indexPaths, with: .none)
+            self.tableView?.endUpdates()
+
+            if self.shouldScrollOnNewMessages() {
+                // Make sure we're really at the bottom after updating a message
+                DispatchQueue.main.async {
+                    self.tableView?.slk_scrollToBottom(animated: false)
+                    self.updateToolbar(animated: false)
+                }
+            }
+        }
+    }
+
     // MARK: - User interface
 
     func showVoiceMessageRecordButton() {
@@ -945,6 +967,18 @@ import SwiftUI
                 self.updateToolbar(animated: false)
             }
         }
+    }
+
+    func didPressCreateThread(for message: NCChatMessage) {
+        NCAPIController.sharedInstance().createThread(for: account.accountId, in: room.token, messageId: message.messageId) { error in
+            if error != nil {
+                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while creating a thread", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            }
+        }
+    }
+
+    func didPressShowThread(for message: NCChatMessage) {
+        NotificationPresenter.shared().present(text: NSLocalizedString("Not available yet", comment: ""), dismissAfterDelay: 5.0, includedStyle: .matrix)
     }
 
     func didPressReply(for message: NCChatMessage) {
@@ -2987,7 +3021,7 @@ import SwiftUI
             }
         }
 
-        if !message.reactionsArray().isEmpty {
+        if !message.reactionsArray().isEmpty || message.isThreadOriginalMessage() {
             height += 40 // reactionsView(40)
         }
 
@@ -3060,8 +3094,8 @@ import SwiftUI
 
         if let cell = cell as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
-            let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })
+            let pointInReactionsContainerView = cell.convert(pointInCell, to: cell.reactionsContainerView)
+            let reactionView = cell.reactionsContainerView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionsContainerView) })
 
             if reactionView != nil, let message = cell.message {
                 self.showReactionsSummary(of: message)
@@ -3344,12 +3378,38 @@ import SwiftUI
         return nil
     }
 
+    private func indexPathsAndMessages(with predicate: (NCChatMessage) -> Bool) -> (indexPaths: [IndexPath], messages: [NCChatMessage])? {
+        var predicateIndexPaths: [IndexPath] = []
+        var predicateMessages: [NCChatMessage] = []
+
+        for sectionIndex in dateSections.indices {
+            let section = dateSections[sectionIndex]
+
+            guard let messages = messages[section] else { continue }
+
+            for messageIndex in messages.indices {
+                let message = messages[messageIndex]
+
+                if predicate(message) {
+                    predicateIndexPaths.append(IndexPath(row: messageIndex, section: sectionIndex))
+                    predicateMessages.append(message)
+                }
+            }
+        }
+
+        return (predicateIndexPaths, predicateMessages)
+    }
+
     internal func indexPathAndMessage(forMessageId messageId: Int) -> (indexPath: IndexPath, message: NCChatMessage)? {
         return self.indexPathAndMessageFromEnd(with: { $0.messageId == messageId })
     }
 
     internal func indexPathAndMessage(forReferenceId referenceId: String) -> (indexPath: IndexPath, message: NCChatMessage)? {
         return self.indexPathAndMessageFromEnd(with: { $0.referenceId == referenceId })
+    }
+
+    internal func indexPathsAndMessages(forThreadId threadId: Int) -> (indexPaths: [IndexPath], messages: [NCChatMessage])? {
+        return self.indexPathsAndMessages(with: { $0.threadId == threadId })
     }
 
     internal func indexPathForUnreadMessageSeparator() -> IndexPath? {
@@ -3580,6 +3640,11 @@ import SwiftUI
                 pollVC.updatePoll(poll: poll)
             }
         }
+    }
+
+    // MARK: - Thread messages
+    public func cellWants(toShowThread message: NCChatMessage) {
+        self.didPressShowThread(for: message)
     }
 
     // MARK: - SystemMessageTableViewCellDelegate

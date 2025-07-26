@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -100,10 +101,34 @@
                                     <constraint firstAttribute="height" constant="105" id="9Ar-Lj-ucO"/>
                                 </constraints>
                             </view>
-                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xJ1-vA-lap" userLabel="ReactionsPart">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dvd-Qh-Fak" userLabel="FooterPart">
                                 <rect key="frame" x="0.0" y="462" width="422" height="40"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LLV-DD-Qty" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
+                                        <rect key="frame" x="50" y="0.0" width="92" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="7oW-wr-poO"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Button">
+                                            <imageReference key="image" image="arrowshape.turn.up.left" catalog="system" symbolScale="small"/>
+                                        </buttonConfiguration>
+                                    </button>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TeE-6F-Ath" userLabel="Reactions Container View">
+                                        <rect key="frame" x="152" y="0.0" width="260" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="3yr-NZ-1QA"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="WP6-65-H6V"/>
+                                    <constraint firstAttribute="bottom" secondItem="TeE-6F-Ath" secondAttribute="bottom" constant="10" id="4K6-BI-OaD"/>
+                                    <constraint firstItem="TeE-6F-Ath" firstAttribute="top" secondItem="dvd-Qh-Fak" secondAttribute="top" id="MIP-f4-55L"/>
+                                    <constraint firstAttribute="height" constant="40" id="SDx-d4-6Iq"/>
+                                    <constraint firstAttribute="trailing" secondItem="TeE-6F-Ath" secondAttribute="trailing" constant="10" id="YL0-7o-ZAv"/>
+                                    <constraint firstItem="TeE-6F-Ath" firstAttribute="leading" secondItem="LLV-DD-Qty" secondAttribute="trailing" constant="10" id="Z8V-oc-dUf"/>
+                                    <constraint firstItem="LLV-DD-Qty" firstAttribute="top" secondItem="dvd-Qh-Fak" secondAttribute="top" id="fd2-tl-Qjt"/>
+                                    <constraint firstItem="LLV-DD-Qty" firstAttribute="leading" secondItem="dvd-Qh-Fak" secondAttribute="leading" constant="50" id="qkH-FG-R8u"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -121,18 +146,22 @@
             <connections>
                 <outlet property="avatarButton" destination="PCA-MF-seG" id="iaG-3y-X5d"/>
                 <outlet property="dateLabel" destination="obv-lg-PWE" id="Fl9-sa-2eI"/>
+                <outlet property="footerPart" destination="dvd-Qh-Fak" id="r8t-0l-zrD"/>
                 <outlet property="headerPart" destination="3wA-Cg-eLo" id="elk-yT-DZf"/>
                 <outlet property="messageBodyView" destination="THT-eK-wa0" id="EyQ-45-MFn"/>
                 <outlet property="quotePart" destination="Ei6-XM-uBR" id="EAa-7W-KZx"/>
-                <outlet property="reactionPart" destination="xJ1-vA-lap" id="2BH-GI-dXQ"/>
+                <outlet property="reactionsContainerView" destination="TeE-6F-Ath" id="S97-ct-b3Z"/>
+                <outlet property="reactionsContainerViewLeadingConstraint" destination="Z8V-oc-dUf" id="FPm-e4-shL"/>
                 <outlet property="referencePart" destination="rpi-JE-I3o" id="8wJ-p7-cEh"/>
                 <outlet property="statusView" destination="TkE-V6-ePd" id="NcS-Q2-IjU"/>
+                <outlet property="threadRepliesButton" destination="LLV-DD-Qty" id="FKY-2W-gjb"/>
                 <outlet property="titleLabel" destination="lOK-xG-raw" id="efR-bE-d0j"/>
             </connections>
             <point key="canvasLocation" x="121.73913043478262" y="79.017857142857139"/>
         </tableViewCell>
     </objects>
     <resources>
+        <image name="arrowshape.turn.up.left" catalog="system" width="128" height="104"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
