@@ -29,20 +29,10 @@ class FederationInvitationTableViewController: UITableViewController, Federation
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationBar.isTranslucent = false
+
+        NCAppBranding.styleViewController(self)
+
         self.navigationItem.title = NSLocalizedString("Pending invitations", comment: "")
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
-        let themeColor: UIColor = NCAppBranding.themeColor()
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = themeColor
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
 
         let barButtonItem = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
         barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in

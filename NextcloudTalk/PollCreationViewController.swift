@@ -55,20 +55,9 @@ import UIKit
 
         self.setMoreOptionsButton()
 
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.navigationController?.navigationBar.isTranslucent = false
+        NCAppBranding.styleViewController(self)
+
         self.setNavigationBarTitle()
-
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        appearance.backgroundColor = NCAppBranding.themeColor()
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
-
         self.tableView.isEditing = true
 
         // Configure footer buttons

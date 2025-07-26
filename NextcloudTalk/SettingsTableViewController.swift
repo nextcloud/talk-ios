@@ -87,10 +87,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        NCAppBranding.styleViewController(self)
+
         self.navigationItem.title = NSLocalizedString("Settings", comment: "")
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeColor()
-        self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
+
         self.cancelButton.tintColor = NCAppBranding.themeTextColor()
         contactSyncSwitch.frame = .zero
         contactSyncSwitch.addTarget(self, action: #selector(contactSyncValueChanged(_:)), for: .valueChanged)
@@ -103,17 +103,6 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         typingIndicatorSwitch.frame = .zero
         typingIndicatorSwitch.addTarget(self, action: #selector(typingIndicatorValueChanged(_:)), for: .valueChanged)
-
-        let themeColor: UIColor = NCAppBranding.themeColor()
-        let themeTextColor: UIColor = NCAppBranding.themeTextColor()
-
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.titleTextAttributes = [.foregroundColor: themeTextColor]
-        appearance.backgroundColor = themeColor
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
 
         NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChangedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsHaveBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsUpdated, object: nil)

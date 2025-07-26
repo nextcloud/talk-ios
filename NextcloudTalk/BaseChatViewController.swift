@@ -3708,17 +3708,7 @@ import SwiftUI
             preview.dataSource = self
             preview.delegate = self
 
-            preview.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-            preview.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-            preview.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
-
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-            appearance.backgroundColor = NCAppBranding.themeColor()
-            self.navigationItem.standardAppearance = appearance
-            self.navigationItem.compactAppearance = appearance
-            self.navigationItem.scrollEdgeAppearance = appearance
+            NCAppBranding.styleViewController(preview)
 
             self.present(preview, animated: true)
         }

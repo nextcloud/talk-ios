@@ -52,19 +52,9 @@ import UIKit
 
         self.setMoreOptionsButton()
 
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationItem.title = NSLocalizedString("Poll", comment: "")
+        NCAppBranding.styleViewController(self)
 
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        appearance.backgroundColor = NCAppBranding.themeColor()
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
+        self.navigationItem.title = NSLocalizedString("Poll", comment: "")
 
         pollBackgroundView.placeholderView.isHidden = true
         pollBackgroundView.loadingView.startAnimating()

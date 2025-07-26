@@ -130,21 +130,7 @@ import UIKit
         self.textInputbar.editorLeftButton.setTitle("", for: .normal)
         self.textInputbar.editorRightButton.setTitle("", for: .normal)
 
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.tabBarController?.tabBar.tintColor = NCAppBranding.themeColor()
-
-        let themeColor: UIColor = NCAppBranding.themeColor()
-        let themeTextColor: UIColor = NCAppBranding.themeTextColor()
-
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.titleTextAttributes = [.foregroundColor: themeTextColor]
-        appearance.backgroundColor = themeColor
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
+        NCAppBranding.styleViewController(self)
 
         // Ensure that we only show an error and not the full "Back" text
         self.navigationItem.backButtonDisplayMode = .minimal

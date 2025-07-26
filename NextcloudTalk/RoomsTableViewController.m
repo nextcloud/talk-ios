@@ -176,20 +176,10 @@ typedef enum RoomsSections {
     [self createNewConversationButton];
     [self createRefreshControl];
 
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
-
-    UIColor *themeColor = [NCAppBranding themeColor];
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = themeColor;
-    self.navigationItem.standardAppearance = appearance;
-    self.navigationItem.compactAppearance = appearance;
-    self.navigationItem.scrollEdgeAppearance = appearance;
+    [NCAppBranding styleViewController:self];
 
     self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
     self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
     
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];

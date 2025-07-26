@@ -19,19 +19,9 @@ class CallsFromOldAccountViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor()]
-        self.navigationController?.navigationBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationController?.navigationBar.barTintColor = NCAppBranding.themeColor()
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationItem.title = NSLocalizedString("Calls from old accounts", comment: "")
+        NCAppBranding.styleViewController(self)
 
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-        appearance.backgroundColor = NCAppBranding.themeColor()
-        self.navigationItem.standardAppearance = appearance
-        self.navigationItem.compactAppearance = appearance
-        self.navigationItem.scrollEdgeAppearance = appearance
+        self.navigationItem.title = NSLocalizedString("Calls from old accounts", comment: "")
 
         acknowledgeWarningButton.setTitle(NSLocalizedString("Confirm and hide warning", comment: ""), for: .normal)
         acknowledgeWarningButton.setButtonStyle(style: .primary)
