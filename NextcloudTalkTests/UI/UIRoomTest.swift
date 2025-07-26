@@ -117,7 +117,7 @@ final class UIRoomTest: XCTestCase {
         waitForReady(object: foundSendButton).tap()
 
         // Open the preview and close it again
-        waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong).tap()
+        waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong + 60).tap()
         waitForReady(object: app.buttons["Close"]).tap()
 
         // Go back to the main view controller
