@@ -1200,7 +1200,16 @@ typedef enum RoomsSections {
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [self roomForIndexPath:indexPath];
-    
+    ChatViewController *currentChatViewController = [NCRoomsManager sharedInstance].chatViewController;
+
+    // When a room is selected, that is currently displayed, leave that room and optionally show the placeholder view again
+    if (currentChatViewController && [room.token isEqualToString:currentChatViewController.room.token]) {
+        [currentChatViewController leaveChat];
+        [[NCUserInterfaceController sharedInstance].mainViewController showPlaceholderView];
+
+        return;
+    }
+
     [[NCRoomsManager sharedInstance] startChatInRoom:room];
 }
 
