@@ -2971,6 +2971,9 @@ import SwiftUI
             // Avatar is already subtracted, but we need to take padding of left(10) into account
             width -= 10.0
 
+            // MessageTextView has padding of 2*10
+            width -= 20.0
+
             if isOwnMessage {
                 // For own messages we have a padding of 40 to the avatar view and 10 to the right superview
                 width -= 50.0
