@@ -158,17 +158,6 @@ BOOL const useServerThemimg = YES;
     return [self getDynamicColor:light withDarkMode:dark];
 }
 
-+ (UIColor *)chatForegroundColor
-{
-    static UIColor *color;
-
-    if (!color) {
-        color = [self getDynamicColor:[UIColor darkGrayColor] withDarkMode:[UIColor labelColor]];
-    }
-
-    return color;
-}
-
 + (UIStatusBarStyle)statusBarStyleForBrandColor
 {
     return [self statusBarStyleForTextColorStyle:[self brandTextColorStyle]];

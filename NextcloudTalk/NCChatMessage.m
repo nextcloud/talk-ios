@@ -367,7 +367,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         }
     }
 
-    UIColor *defaultColor = [NCAppBranding chatForegroundColor];
+    UIColor *defaultColor = [UIColor labelColor];
 
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
     [attributedMessage addAttribute:NSForegroundColorAttributeName value:defaultColor range:NSMakeRange(0, parsedMessage.length)];

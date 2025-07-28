@@ -70,11 +70,17 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var statusView: UIStackView!
     @IBOutlet weak var messageBodyView: UIView!
+    @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var headerPart: UIView!
     @IBOutlet weak var quotePart: UIView!
     @IBOutlet weak var reactionPart: UIView!
     @IBOutlet weak var referencePart: UIView!
+    @IBOutlet weak var footerPart: UIView!
+
+    @IBOutlet weak var bubbleView: UIView!
+    @IBOutlet weak var bubbleViewLeftConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bubbleViewRightConstraint: NSLayoutConstraint!
 
     public var message: NCChatMessage?
     public var room: NCRoom?
@@ -134,9 +140,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotedMessageView?.avatarView.image = nil
 
         self.headerPart.isHidden = false
+        self.avatarButton.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
+
+        self.messageBodyViewTopConstraint.constant = 5
 
         self.referenceView?.prepareForReuse()
 
@@ -191,6 +200,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             shouldShowReadStatus = !(roomCapabilities.readStatusPrivacy)
         }
 
+        let isOwnMessage = message.isMessage(from: account.userId)
+
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
         if let parent = message.parent {
             self.showQuotePart()
@@ -204,10 +215,42 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
+            self.avatarButton.isHidden = true
+            self.messageBodyViewTopConstraint.constant = 10
+        }
+
+        if isOwnMessage {
+            self.bubbleViewLeftConstraint.constant = 40
+            self.bubbleViewRightConstraint.constant = -10
+
+            var lightColor: UIColor
+            var darkColor: UIColor
+
+            if #available(iOS 18.0, *) {
+                lightColor = NCAppBranding.themeColor().withProminence(.quaternary)
+                darkColor = NCAppBranding.themeColor().withProminence(.secondary)
+            } else {
+                lightColor = NCAppBranding.themeColor().withAlphaComponent(0.1)
+                darkColor = NCAppBranding.themeColor().withAlphaComponent(0.2)
+            }
+
+            self.bubbleView.backgroundColor = NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
+
+            self.headerPart.isHidden = true
+            self.avatarButton.isHidden = true
+            self.messageBodyViewTopConstraint.constant = 10
+        } else {
+            self.bubbleViewLeftConstraint.constant = 10
+            self.bubbleViewRightConstraint.constant = -64
+            self.bubbleView.backgroundColor = .secondarySystemGroupedBackground
         }
 
         // Make sure the status view is empty, when no delivery state should be set
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
+        self.statusView.subviews.forEach {
+            if $0 != dateLabel {
+                $0.removeFromSuperview()
+            }
+        }
 
         if message.isDeleting {
             self.setDeliveryState(to: .deleting)
@@ -221,8 +264,18 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             } else {
                 self.setDeliveryState(to: .sent)
             }
-        } else if message.isSilent {
-            self.setDeliveryState(to: .silent)
+        }
+
+        if message.isSilent {
+            let silentView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 14))
+            let silentImage = UIImage(systemName: "bell.slash")?.withTintColor(.secondaryLabel).withRenderingMode(.alwaysOriginal)
+
+            silentView.image = NCUtils.renderAspectImage(image: silentImage, ofSize: .init(width: 20, height: 12), centerImage: true)
+            silentView.contentMode = .scaleAspectFit
+            silentView.widthAnchor.constraint(equalToConstant: 20).isActive = true
+            silentView.heightAnchor.constraint(equalToConstant: 14).isActive = true
+
+            self.statusView.addArrangedSubview(silentView)
         }
 
         let reactionsArray = message.reactionsArray()
@@ -317,33 +370,23 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if deliveryState == .sending || deliveryState == .deleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
-            activityIndicator.radius = 7.0
-            activityIndicator.cycleColors = [.systemGray2]
+            activityIndicator.radius = 6.0
+            activityIndicator.strokeWidth = 1.5
+            activityIndicator.cycleColors = [.secondaryLabel]
             activityIndicator.startAnimating()
-            activityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            activityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(activityIndicator)
 
         } else if deliveryState == .failed {
             let errorView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-            let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.red).withRenderingMode(.alwaysOriginal)
+            let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.systemRed).withRenderingMode(.alwaysOriginal)
 
             errorView.image = errorImage
             errorView.contentMode = .scaleAspectFit
-            errorView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            errorView.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(errorView)
-
-        } else if deliveryState == .silent {
-            let silentView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-            var silentImage = UIImage(systemName: "bell.slash")?.withTintColor(.systemGray2).withRenderingMode(.alwaysOriginal)
-            silentImage = silentImage?.withConfiguration(UIImage.SymbolConfiguration(textStyle: .subheadline))
-
-            silentView.image = silentImage
-            silentView.contentMode = .center
-            silentView.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-            self.statusView.addArrangedSubview(silentView)
 
         } else if deliveryState == .sent || deliveryState == .read {
             var checkImageName = "check"
@@ -357,9 +400,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             checkView.image = checkImage
             checkView.contentMode = .scaleAspectFit
-            checkView.tintColor = .systemGray2
+            checkView.tintColor = .secondaryLabel
             checkView.accessibilityIdentifier = "MessageSent"
-            checkView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            checkView.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(checkView)
         }

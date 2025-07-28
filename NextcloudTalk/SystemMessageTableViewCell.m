@@ -22,7 +22,7 @@ static CGFloat kChatCellDateLabelWidth      = 40.0;
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        self.backgroundColor = [NCAppBranding backgroundColor];
+        self.backgroundColor = [UIColor secondarySystemBackgroundColor];
     }
     return self;
 }
@@ -60,7 +60,7 @@ static CGFloat kChatCellDateLabelWidth      = 40.0;
     }
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.backgroundColor = [NCAppBranding backgroundColor];
+    self.backgroundColor = [UIColor secondarySystemBackgroundColor];
 
     self.bodyTextView.text = @"";
     self.dateLabel.text = @"";
@@ -131,9 +131,9 @@ static CGFloat kChatCellDateLabelWidth      = 40.0;
     }
 
     if (!message.isCollapsed && (message.collapsedBy > 0 || message.collapsedMessages.count > 0)) {
-        self.backgroundColor = [UIColor tertiarySystemFillColor];
+        self.backgroundColor = [UIColor secondarySystemGroupedBackgroundColor];
     } else {
-        self.backgroundColor = [NCAppBranding backgroundColor];
+        self.backgroundColor = [UIColor systemGroupedBackgroundColor];
     }
 
     if (message.collapsedMessages.count > 0) {

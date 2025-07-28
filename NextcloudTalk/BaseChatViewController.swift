@@ -69,7 +69,7 @@ import SwiftUI
     }()
 
     internal lazy var chatBackgroundView: PlaceholderView = {
-        let chatBackgroundView = PlaceholderView()
+        let chatBackgroundView = PlaceholderView(for: .insetGrouped)!
         chatBackgroundView.placeholderView.isHidden = true
         chatBackgroundView.loadingView.startAnimating()
         chatBackgroundView.placeholderTextView.text = NSLocalizedString("No messages yet, start the conversation!", comment: "")
@@ -122,7 +122,7 @@ import SwiftUI
         inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
         inputbarBorderView.frame = .init(x: 0, y: 0, width: self.textInputbar.frame.size.width, height: 1)
         inputbarBorderView.isHidden = true
-        inputbarBorderView.backgroundColor = .systemGray6
+        inputbarBorderView.backgroundColor = .quaternarySystemFill
 
         self.textInputbar.addSubview(inputbarBorderView)
 
@@ -164,7 +164,7 @@ import SwiftUI
             self?.tableView?.slk_scrollToBottom(animated: true)
         })
 
-        button.backgroundColor = .secondarySystemBackground
+        button.backgroundColor = .secondarySystemGroupedBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = 8
         button.clipsToBounds = true
@@ -2655,7 +2655,7 @@ import SwiftUI
             message.removeReactionFromTemporaryReactions(reaction)
 
             self.tableView?.beginUpdates()
-            self.tableView?.reloadRows(at: [indexPath], with: .none)
+            self.tableView?.reloadRows(at: [indexPath], with: .automatic)
             self.tableView?.endUpdates()
         }
     }
@@ -2669,7 +2669,7 @@ import SwiftUI
             message.setOrUpdateTemporaryReaction(reaction, state: state)
 
             self.tableView?.performBatchUpdates({
-                self.tableView?.reloadRows(at: [indexPath], with: .none)
+                self.tableView?.reloadRows(at: [indexPath], with: .automatic)
             }, completion: { _ in
                 if !isAtBottom {
                     return
@@ -2959,9 +2959,26 @@ import SwiftUI
         }
 
         // Chat messages
+        let isOwnMessage = message.isMessage(from: self.account.userId)
         let messageString = message.parsedMarkdownForChat() ?? NSMutableAttributedString()
         var width = originalWidth
-        width -= message.isSystemMessage ? 80.0 : 30.0 // *right(10) + dateLabel(40) : 3*right(10)
+
+        if message.isSystemMessage {
+            // TODO: Is 80 still correct for system message cells? Avatar is already subtracted in the calling method
+            // 4 * right(10) + dateLabel(40)
+            width -= 80.0
+        } else {
+            // Avatar is already subtracted, but we need to take padding of left(10) into account
+            width -= 10.0
+
+            if isOwnMessage {
+                // For own messages we have a padding of 40 to the avatar view and 10 to the right superview
+                width -= 50.0
+            } else {
+                // For others messages, we have a padding of 10 to the avatar view und 64 to the right superview
+                width -= 74.0
+            }
+        }
 
         self.textViewForSizing.attributedText = messageString
 
@@ -2972,15 +2989,14 @@ import SwiftUI
             height = PollMessageView().pollMessageBodyHeight(with: messageString.string, width: width)
         }
 
-        if (message.isGroupMessage && message.parent == nil) || message.isSystemMessage {
-            height += 10 // 2*left(5)
+        if (message.isGroupMessage && message.parent == nil) || message.isSystemMessage || isOwnMessage {
+            height += 15 // MessageTextTop(10) + MessageTextBottom(5)
 
             if height < chatGroupedMessageCellMinimumHeight {
                 height = chatGroupedMessageCellMinimumHeight
             }
         } else {
-            height += kChatCellAvatarHeight
-            height += 20.0 // right(10) + 2*left(5)
+            height += 40.0 // HeaderPart(30) + MessageTextTop(5) + MessageTextBottom(5)
 
             if height < chatMessageCellMinimumHeight {
                 height = chatMessageCellMinimumHeight
@@ -3027,6 +3043,14 @@ import SwiftUI
 
         if message.geoLocation() != nil {
             height += locationMessageCellPreviewHeight + 10 // right(10)
+        }
+
+        if !message.isSystemMessage {
+            // Bubble top(8) + bottom(8)
+            height += 16
+
+            // Footer height
+            height += 20
         }
 
         return height
@@ -3173,7 +3197,7 @@ import SwiftUI
         maskLayer.path = CGPath(rect: maskRect, transform: nil)
 
         previewMessageView.layer.mask = maskLayer
-        previewMessageView.backgroundColor = .systemBackground
+        previewMessageView.backgroundColor = .systemGroupedBackground
         self.contextMenuMessageView = previewMessageView
 
         // Restore grouped-status
