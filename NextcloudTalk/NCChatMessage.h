@@ -37,8 +37,7 @@ typedef NS_ENUM(NSInteger, ChatMessageDeliveryState) {
     ChatMessageDeliveryStateRead,
     ChatMessageDeliveryStateSending,
     ChatMessageDeliveryStateDeleting,
-    ChatMessageDeliveryStateFailed,
-    ChatMessageDeliveryStateSilent
+    ChatMessageDeliveryStateFailed
 };
 
 @class NCChatMessage;

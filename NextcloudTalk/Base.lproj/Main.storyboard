@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
     <device id="ipad12_9rounded" orientation="landscape" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -41,28 +42,24 @@
         <scene sceneID="ss6-np-6pN">
             <objects>
                 <viewController storyboardIdentifier="placeholderChatViewController" id="Mvl-Nd-ZXL" customClass="NCSplitViewPlaceholderViewController" customModule="NextcloudTalk" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="gR4-1Y-UnZ"/>
-                        <viewControllerLayoutGuide type="bottom" id="PYN-Yc-Nt1"/>
-                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ufw-Yg-V9l">
-                        <rect key="frame" x="0.0" y="0.0" width="1045.5" height="1024"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1046" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" axis="vertical" distribution="fillProportionally" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4je-R6-T4G">
-                                <rect key="frame" x="40" y="460.5" width="965.5" height="103.5"/>
+                                <rect key="frame" x="346" y="460.5" width="354" height="103.5"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="app-logo-callkit" translatesAutoresizingMaskIntoConstraints="NO" id="p23-aq-R5e">
-                                        <rect key="frame" x="463" y="0.0" width="40" height="40"/>
+                                        <rect key="frame" x="157" y="0.0" width="40" height="40"/>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join a conversation or start a new one" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pLM-th-fh4">
-                                        <rect key="frame" x="306" y="50" width="354" height="24"/>
+                                        <rect key="frame" x="0.0" y="50" width="354" height="24"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Say hi to your friends and colleagues!" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rFf-QX-ZN4">
-                                        <rect key="frame" x="347.5" y="84" width="271" height="19.5"/>
+                                        <rect key="frame" x="41.5" y="84" width="271" height="19.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                         <color key="textColor" systemColor="secondaryLabelColor"/>
                                         <nil key="highlightedColor"/>
@@ -70,11 +67,11 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <viewLayoutGuide key="safeArea" id="xeI-iD-HmE"/>
+                        <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="4je-R6-T4G" firstAttribute="leading" secondItem="ufw-Yg-V9l" secondAttribute="leadingMargin" constant="20" id="IG1-bN-NoI"/>
                             <constraint firstItem="4je-R6-T4G" firstAttribute="centerY" secondItem="ufw-Yg-V9l" secondAttribute="centerY" id="Jvy-Ac-6TQ"/>
-                            <constraint firstItem="4je-R6-T4G" firstAttribute="centerX" secondItem="ufw-Yg-V9l" secondAttribute="centerX" id="KTw-qM-i9Y"/>
+                            <constraint firstItem="4je-R6-T4G" firstAttribute="centerX" secondItem="xeI-iD-HmE" secondAttribute="centerX" id="bR3-20-HYx"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="dMP-bU-p4J"/>
@@ -93,11 +90,11 @@
             <objects>
                 <navigationController id="cEs-8p-AhA" customClass="NCNavigationController" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="u19-wP-Dh8">
-                        <rect key="frame" x="0.0" y="24" width="1045.5" height="50"/>
+                        <rect key="frame" x="0.0" y="24" width="1046" height="50"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="VtL-b4-wDm">
-                        <rect key="frame" x="-320.5" y="0.0" width="0.0" height="0.0"/>
+                        <rect key="frame" x="-320" y="0.0" width="0.0" height="0.0"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>
@@ -200,10 +197,10 @@
     <resources>
         <image name="app-logo-callkit" width="40" height="40"/>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        <systemColor name="systemGroupedBackgroundColor">
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

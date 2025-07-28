@@ -26,8 +26,8 @@
 
 - (void)configureSubviews
 {
-    self.backgroundColor = [NCAppBranding backgroundColor];
-    self.layer.borderColor = [NCAppBranding placeholderColor].CGColor;
+    self.backgroundColor = [UIColor clearColor];
+    self.layer.borderColor = [UIColor secondarySystemFillColor].CGColor;
     self.layer.borderWidth = 1.0;
     self.layer.cornerRadius = 8.0;
 
@@ -96,7 +96,7 @@
         _messageLabel.contentMode = UIViewContentModeLeft;
         
         _messageLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-        _messageLabel.textColor = [NCAppBranding chatForegroundColor];
+        _messageLabel.textColor = [UIColor labelColor];
     }
     return _messageLabel;
 }
