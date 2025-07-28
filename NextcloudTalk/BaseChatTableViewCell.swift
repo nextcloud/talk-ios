@@ -586,8 +586,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         let fileActivityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
         self.fileActivityIndicator = fileActivityIndicator
 
-        fileActivityIndicator.radius = 7
-        fileActivityIndicator.cycleColors = [.systemGray2]
+        fileActivityIndicator.radius = 6
+        fileActivityIndicator.strokeWidth = 1.5
+        fileActivityIndicator.cycleColors = [.secondaryLabel]
 
         if progress > 0 {
             fileActivityIndicator.indicatorMode = .determinate
@@ -595,7 +596,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
 
         fileActivityIndicator.startAnimating()
-        fileActivityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        fileActivityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
         self.statusView.addArrangedSubview(fileActivityIndicator)
     }
 
