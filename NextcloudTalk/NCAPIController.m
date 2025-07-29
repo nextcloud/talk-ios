@@ -630,7 +630,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Chat Controller
 
-- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId inThread:(NSInteger)threadId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"chat/%@", encodedToken];
@@ -643,8 +643,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"lastCommonReadId" : @(lastCommonReadMessage),
                                  @"setReadMarker" : setReadMarker ? @(1) : @(0),
                                  @"includeLastKnown" : include ? @(1) : @(0),
-                                 @"markNotificationsAsRead" : markNotificationsAsRead ? @(1) : @(0)};
-    
+                                 @"markNotificationsAsRead" : markNotificationsAsRead ? @(1) : @(0),
+                                 @"threadId" : @(threadId)};
+
     NCAPISessionManager *apiSessionManager;
 
     if (timeout) {
