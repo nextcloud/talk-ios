@@ -28,9 +28,11 @@ extern NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotificati
 @interface NCChatController : NSObject
 
 @property (nonatomic, strong) NCRoom *room;
+@property (nonatomic, assign) NSInteger threadId;
 @property (nonatomic, assign) BOOL hasReceivedMessagesFromServer;
 
 - (instancetype)initForRoom:(NCRoom *)room;
+- (instancetype)initForThreadId:(NSInteger)threadId inRoom:(NCRoom *)room;
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently;
 - (void)sendChatMessage:(NCChatMessage *)message;
 - (NSArray<NCChatMessage *> * _Nonnull)getTemporaryMessages;

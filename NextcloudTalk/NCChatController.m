@@ -50,6 +50,20 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     return self;
 }
 
+- (instancetype)initForThreadId:(NSInteger)threadId inRoom:(NCRoom *)room
+{
+    self = [super init];
+    if (self) {
+        _room = room;
+        _threadId = threadId;
+        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
+
+        [[AllocationTracker shared] addAllocation:@"NCChatController"];
+    }
+
+    return self;
+}
+
 - (void)dealloc
 {
     [[AllocationTracker shared] removeAllocation:@"NCChatController"];
@@ -57,17 +71,26 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
 #pragma mark - Database
 
-- (NSArray *)chatBlocksForRoom
+- (RLMResults *)managedSortedBlocksForRoomOrThread
 {
-    RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
-    RLMResults *managedSortedBlocks = [managedBlocks sortedResultsUsingKeyPath:@"newestMessageId" ascending:YES];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"internalId = %@", _room.internalId];
+    if (_threadId > 0) {
+        predicate = [NSPredicate predicateWithFormat:@"internalId = %@ AND threadId = %ld", _room.internalId, (long)_threadId];
+    }
+    RLMResults *managedBlocks = [NCChatBlock objectsWithPredicate:predicate];
+    return [managedBlocks sortedResultsUsingKeyPath:@"newestMessageId" ascending:YES];
+}
+
+- (NSArray *)chatBlocksForRoomOrThread
+{
+    RLMResults *managedSortedBlocks = [self managedSortedBlocksForRoomOrThread];
     // Create an unmanaged copy of the blocks
     NSMutableArray *sortedBlocks = [NSMutableArray new];
     for (NCChatBlock *managedBlock in managedSortedBlocks) {
         NCChatBlock *sortedBlock = [[NCChatBlock alloc] initWithValue:managedBlock];
         [sortedBlocks addObject:sortedBlock];
     }
-    
+
     return sortedBlocks;
 }
 
@@ -78,6 +101,15 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     if (included) {
         query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId >= %ld AND messageId <= %ld", _account.accountId, _room.token, (long)chatBlock.oldestMessageId, (long)fromMessageId];
     }
+
+    // Thread
+    if (_threadId > 0) {
+        query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND threadId = %ld AND messageId >= %ld AND messageId < %ld", _account.accountId, _room.token, _threadId, (long)chatBlock.oldestMessageId, (long)fromMessageId];
+        if (included) {
+            query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND threadId = %ld AND messageId >= %ld AND messageId <= %ld", _account.accountId, _room.token, _threadId, (long)chatBlock.oldestMessageId, (long)fromMessageId];
+        }
+    }
+
     RLMResults *managedMessages = [NCChatMessage objectsWithPredicate:query];
     RLMResults *managedSortedMessages = [managedMessages sortedResultsUsingKeyPath:@"messageId" ascending:YES];
     // Create an unmanaged copy of the messages
@@ -120,6 +152,11 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 - (NSArray *)getNewStoredMessagesInBlock:(NCChatBlock *)chatBlock sinceMessageId:(NSInteger)messageId
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId > %ld AND messageId <= %ld", _account.accountId, _room.token, (long)messageId, (long)chatBlock.newestMessageId];
+
+    if (_threadId > 0) {
+        query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND threadId = %ld AND messageId > %ld AND messageId <= %ld", _account.accountId, _room.token, _threadId, (long)messageId, (long)chatBlock.newestMessageId];
+    }
+
     RLMResults *managedMessages = [NCChatMessage objectsWithPredicate:query];
     RLMResults *managedSortedMessages = [managedMessages sortedResultsUsingKeyPath:@"messageId" ascending:YES];
     // Create an unmanaged copy of the messages
@@ -207,8 +244,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
-        RLMResults *managedSortedBlocks = [managedBlocks sortedResultsUsingKeyPath:@"newestMessageId" ascending:YES];
+        RLMResults *managedSortedBlocks = [self managedSortedBlocksForRoomOrThread];
         NCChatBlock *lastBlock = managedSortedBlocks.lastObject;
         if (newestKnown > 0) {
             lastBlock.newestMessageId = newestKnown;
@@ -224,8 +260,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
-        RLMResults *managedSortedBlocks = [managedBlocks sortedResultsUsingKeyPath:@"newestMessageId" ascending:YES];
+        RLMResults *managedSortedBlocks = [self managedSortedBlocksForRoomOrThread];
         NCChatBlock *lastBlock = managedSortedBlocks.lastObject;
         // There is more than one chat block stored
         if (managedSortedBlocks.count > 1) {
@@ -262,14 +297,14 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
-        RLMResults *managedSortedBlocks = [managedBlocks sortedResultsUsingKeyPath:@"newestMessageId" ascending:YES];
-        
+        RLMResults *managedSortedBlocks = [self managedSortedBlocksForRoomOrThread];
+
         // Create new chat block
         NCChatBlock *newBlock = [[NCChatBlock alloc] init];
         newBlock.internalId = _room.internalId;
         newBlock.accountId = _room.accountId;
         newBlock.token = _room.token;
+        newBlock.threadId = _threadId;
         newBlock.oldestMessageId = lastKnown;
         newBlock.newestMessageId = newestMessageKnown;
         newBlock.hasHistory = YES;
@@ -304,8 +339,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        RLMResults *managedBlocks = [NCChatBlock objectsWhere:@"internalId = %@", _room.internalId];
-        RLMResults *managedSortedBlocks = [managedBlocks sortedResultsUsingKeyPath:@"newestMessageId" ascending:YES];
+        RLMResults *managedSortedBlocks = [self managedSortedBlocksForRoomOrThread];
         NCChatBlock *firstChatBlock = managedSortedBlocks.firstObject;
         firstChatBlock.hasHistory = NO;
     }];
@@ -386,7 +420,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         return;
     }
 
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
     __block BOOL expired = NO;
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateHistoryInBackgroundWithCompletionBlock" expirationHandler:^(BGTaskHelper *task) {
@@ -397,7 +431,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         [self->_pullMessagesTask cancel];
     }];
 
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId history:NO includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (expired) {
             if (block) {
                 block(error);
@@ -453,7 +487,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
 - (void)checkForNewMessagesFromMessageId:(NSInteger)messageId
 {
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
     NSArray *storedMessages = [self getNewStoredMessagesInBlock:lastChatBlock sinceMessageId:messageId];
 
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
@@ -516,7 +550,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         lastReadMessageId = _room.lastReadMessage;
     }
     
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
     if (lastChatBlock.newestMessageId > 0 && lastReadMessageId >= lastChatBlock.oldestMessageId && lastChatBlock.newestMessageId >= lastReadMessageId) {
         NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES ensureIncludesMessageId:lastReadMessageId];
         [userInfo setObject:storedMessages forKey:@"messages"];
@@ -526,7 +560,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
         [self updateLastMessageIfNeededFromMessages:storedMessages];
     } else {
-        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId inThread:_threadId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
             if (self->_stopChatMessagesPoll) {
                 return;
             }
@@ -543,7 +577,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 // Store new messages
                 if (messages.count > 0) {
                     [self storeMessages:messages];
-                    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+                    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
                     NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessageId included:YES ensureIncludesMessageId:lastReadMessageId];
                     [userInfo setObject:storedMessages forKey:@"messages"];
                 }
@@ -595,7 +629,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         lastReadMessageId = _room.lastReadMessage;
     }
 
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
     NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES ensureIncludesMessageId:lastReadMessageId];
     [userInfo setObject:storedMessages forKey:@"messages"];
     [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryOfflineNotification
@@ -608,7 +642,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_room.token forKey:@"room"];
     
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
     if (lastChatBlock && lastChatBlock.oldestMessageId < messageId) {
         NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO ensureIncludesMessageId:0];
 
@@ -634,7 +668,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         }
     }
 
-    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (statusCode == 304) {
             [self updateHistoryFlagInFirstBlock];
         }
@@ -653,7 +687,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             // Store new messages
             if (messages.count > 0) {
                 [self storeMessages:messages];
-                NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+                NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
                 NSArray *historyBatch = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO ensureIncludesMessageId:0];
                 [userInfo setObject:historyBatch forKey:@"messages"];
             }
@@ -669,7 +703,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_room.token forKey:@"room"];
     
-    NSArray *chatBlocks = [self chatBlocksForRoom];
+    NSArray *chatBlocks = [self chatBlocksForRoomOrThread];
     NSMutableArray *historyBatch = [NSMutableArray new];
     if (chatBlocks.count > 0) {
         for (NSInteger i = chatBlocks.count - 1; i >= 0; i--) {
@@ -715,7 +749,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
@@ -760,7 +794,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         [self checkLastCommonReadMessage:lastCommonReadMessage];
         
         if (error.code != -999) {
-            NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+            NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
             [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
         }
     }];
@@ -768,7 +802,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
 - (void)startReceivingNewChatMessages
 {
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoom].lastObject;
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
     [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:NO];
 }
 
@@ -936,7 +970,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId
 {
-    NCChatBlock *firstChatBlock = [self chatBlocksForRoom].firstObject;
+    NCChatBlock *firstChatBlock = [self chatBlocksForRoomOrThread].firstObject;
     if (firstChatBlock && firstChatBlock.oldestMessageId == messageId) {
         return firstChatBlock.hasHistory;
     }
