@@ -10,6 +10,7 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
+#import "NCThread.h"
 #import "NCUserStatus.h"
 #import "TalkAccount.h"
 #import "NotificationCenterNotifications.h"

@@ -1160,7 +1160,7 @@ import NextcloudKit
     // MARK: - Threads
 
     @nonobjc
-    public func getThreads(for accountId: String, in roomToken: String, completionBlock: @escaping (_ threads: [ThreadInfo]?) -> Void) {
+    public func getThreads(for accountId: String, in roomToken: String, completionBlock: @escaping (_ threads: [NCThread]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1177,13 +1177,13 @@ import NextcloudKit
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
-            let threads = ocs?.dataArrayDict?.map { ThreadInfo(dictionary: $0) }
+            let threads = ocs?.dataArrayDict?.map { NCThread(dictionary: $0, andAccountId: accountId) }
             completionBlock(threads)
         }
     }
 
     @nonobjc
-    public func getThread(for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: ThreadInfo?) -> Void) {
+    public func getThread(for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1200,7 +1200,7 @@ import NextcloudKit
                 completionBlock(nil)
                 return
             }
-            completionBlock(ThreadInfo(dictionary: thread))
+            completionBlock(NCThread(dictionary: thread, andAccountId: accountId))
         }
     }
 
