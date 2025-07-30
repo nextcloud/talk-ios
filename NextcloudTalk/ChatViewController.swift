@@ -257,6 +257,20 @@ import SwiftUI
 
         super.init(forRoom: room, withAccount: account)
 
+        self.addCommonNotificationObservers()
+    }
+
+    public init?(forThread thread: NCThread, inRoom room: NCRoom, withAccount account: TalkAccount) {
+        self.chatController = NCChatController(forThreadId: thread.threadId, in: room)
+
+        super.init(forRoom: room, withAccount: account)
+
+        self.thread = thread
+
+        self.addCommonNotificationObservers()
+    }
+
+    func addCommonNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(didUpdateRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidUpdateRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidJoinRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didLeaveRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidLeaveRoom, object: nil)
@@ -775,6 +789,16 @@ import SwiftUI
         self.showSendMessageButton()
 
         return canPress
+    }
+
+    public override func didPressShowThread(for message: NCChatMessage) {
+        guard let account = self.room.account,
+              let thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId),
+              let chatViewController = ChatViewController(forThread: thread, inRoom: room, withAccount: account)
+        else { return }
+
+        let navController = NCNavigationController(rootViewController: chatViewController)
+        self.present(navController, animated: true)
     }
 
     // MARK: - Voice message player

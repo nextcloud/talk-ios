@@ -978,7 +978,7 @@ import SwiftUI
     }
 
     func didPressShowThread(for message: NCChatMessage) {
-        NotificationPresenter.shared().present(text: NSLocalizedString("Not available yet", comment: ""), dismissAfterDelay: 5.0, includedStyle: .matrix)
+        // Overridden in sub class
     }
 
     func didPressReply(for message: NCChatMessage) {
