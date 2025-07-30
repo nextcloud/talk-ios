@@ -61,7 +61,7 @@
             <key>many</key>
             <string>%d минут назад</string>
             <key>other</key>
-            <string>%d минуты назад</string>
+            <string>%d минут назад</string>
         </dict>
     </dict>
     
@@ -159,6 +159,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Данное обсуждение будет автоматически удалено для всех через %ld день отсутствия активности.</string>
+            <key>few</key>
+            <string>Данное обсуждение будет автоматически удалено для всех через %ld дня отсутствия активности.</string>
+            <key>many</key>
+            <string>Данное обсуждение будет автоматически удалено для всех через %ld дней отсутствия активности.</string>
+            <key>other</key>
+            <string>Данное обсуждение будет автоматически удалено для всех через %ld дней отсутствия активности.</string>
+        </dict>
     </dict>
 </dict>
 </plist>
