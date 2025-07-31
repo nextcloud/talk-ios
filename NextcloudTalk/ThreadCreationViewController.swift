@@ -92,7 +92,7 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
             if error == nil {
                 self.dismiss(animated: true)
             } else {
-                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while creating thread", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while creating the thread", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
             }
         }
     }

@@ -311,6 +311,9 @@
 "An error occurred while creating the poll" = "An error occurred while creating the poll";
 
 /* No comment provided by engineer. */
+"An error occurred while creating the thread" = "An error occurred while creating the thread";
+
+/* No comment provided by engineer. */
 "An error occurred while deleting the message" = "An error occurred while deleting the message";
 
 /* No comment provided by engineer. */
@@ -540,6 +543,9 @@
 
 /* No comment provided by engineer. */
 "Clear cache" = "Clear cache";
+
+/* No comment provided by engineer. */
+"Clear cached chat messages" = "Clear cached chat messages";
 
 /* No comment provided by engineer. */
 "Clear reminder" = "Clear reminder";
@@ -1110,6 +1116,9 @@
 
 /* Give consent to the recording of the call and join that call */
 "Give consent and join call" = "Give consent and join call";
+
+/* No comment provided by engineer. */
+"Go to thread" = "Go to thread";
 
 /* No comment provided by engineer. */
 "guest" = "guest";
@@ -1756,6 +1765,9 @@
 /* No comment provided by engineer. */
 "Resend invitations" = "Resend invitations";
 
+/* Title for a section where different reset options are shown */
+"Reset" = "Reset";
+
 /* Replacement in case of out of office */
 "Reset replacement" = "Reset replacement";
 
@@ -2070,6 +2082,12 @@
 
 /* No comment provided by engineer. */
 "This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";
+
+/* No comment provided by engineer. */
+"Thread" = "Thread";
+
+/* No comment provided by engineer. */
+"Thread title" = "Thread title";
 
 /* No comment provided by engineer. */
 "Title" = "Title";

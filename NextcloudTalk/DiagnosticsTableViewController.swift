@@ -661,7 +661,7 @@ class DiagnosticsTableViewController: UITableViewController {
         if indexPath.row == ResetSections.kResetSectionStoredMessages.rawValue {
             let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierAction, for: indexPath)
 
-            cell.textLabel?.text = NSLocalizedString("Reset stored chat messages", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Clear cached chat messages", comment: "")
             cell.textLabel?.textAlignment = .center
             cell.textLabel?.textColor = UIColor.systemRed
 
