@@ -1203,22 +1203,4 @@ import NextcloudKit
             completionBlock(NCThread(dictionary: thread, andAccountId: accountId))
         }
     }
-
-    @nonobjc
-    public func createThread(for accountId: String, in roomToken: String, messageId: Int, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
-              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        else {
-            completionBlock(nil)
-            return
-        }
-
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(messageId)", withAPIVersion: apiVersion, for: account)
-
-        apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
-        }
-    }
 }

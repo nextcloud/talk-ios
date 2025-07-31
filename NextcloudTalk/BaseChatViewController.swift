@@ -986,14 +986,6 @@ import SwiftUI
         }
     }
 
-    func didPressCreateThread(for message: NCChatMessage) {
-        NCAPIController.sharedInstance().createThread(for: account.accountId, in: room.token, messageId: message.messageId) { error in
-            if error != nil {
-                NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while creating a thread", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
-            }
-        }
-    }
-
     func didPressShowThread(for message: NCChatMessage) {
         // Overridden in sub class
     }
