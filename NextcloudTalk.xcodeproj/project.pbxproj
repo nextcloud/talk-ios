@@ -479,6 +479,7 @@
 		2C1782C42E3AA94800BD426D /* NCThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1782C12E3AA94800BD426D /* NCThread.m */; };
 		2C1782C52E3AA94800BD426D /* NCThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1782C12E3AA94800BD426D /* NCThread.m */; };
 		2C1782C62E3AA94800BD426D /* NCThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1782C12E3AA94800BD426D /* NCThread.m */; };
+		2C1782C82E3B74CB00BD426D /* ThreadCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1782C72E3B74CB00BD426D /* ThreadCreationViewController.swift */; };
 		2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */; };
 		2C1ABDCE257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
 		2C1ABDCF257E939600AEDFB6 /* NCContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1ABDCD257E939600AEDFB6 /* NCContact.m */; };
@@ -1021,6 +1022,7 @@
 		2C177C362E2E827E00BD426D /* QuotedMessageView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QuotedMessageView.xib; sourceTree = "<group>"; };
 		2C1782C02E3AA94800BD426D /* NCThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCThread.h; sourceTree = "<group>"; };
 		2C1782C12E3AA94800BD426D /* NCThread.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCThread.m; sourceTree = "<group>"; };
+		2C1782C72E3B74CB00BD426D /* ThreadCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadCreationViewController.swift; sourceTree = "<group>"; };
 		2C1ABDC4257A7CF000AEDFB6 /* NCContactsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCContactsManager.h; sourceTree = "<group>"; };
 		2C1ABDC5257A7CF000AEDFB6 /* NCContactsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NCContactsManager.m; sourceTree = "<group>"; };
 		2C1ABDCC257E939600AEDFB6 /* NCContact.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCContact.h; sourceTree = "<group>"; };
@@ -2165,6 +2167,7 @@
 				2C6D1A982D55116F009A93AB /* ScheduleMeetingSwiftUIView.swift */,
 				2C177C332E2E826300BD426D /* QuotedMessageView.swift */,
 				2C177C362E2E827E00BD426D /* QuotedMessageView.xib */,
+				2C1782C72E3B74CB00BD426D /* ThreadCreationViewController.swift */,
 			);
 			name = "Chat views";
 			sourceTree = "<group>";
@@ -3235,6 +3238,7 @@
 				1F205D412CFC6DD300AAA673 /* AvatarProtocol.swift in Sources */,
 				1FDCC3F029ECB4CE00DEB39B /* AvatarButton.swift in Sources */,
 				2CB6ACDA2641483800D3D641 /* NCMessageLocationParameter.m in Sources */,
+				2C1782C82E3B74CB00BD426D /* ThreadCreationViewController.swift in Sources */,
 				1FC18FC02CB7EA300058F621 /* AVRoutePickerViewExtension.swift in Sources */,
 				1F61C767285E35A6004D74D8 /* DiagnosticsTableViewController.swift in Sources */,
 				1F1B0F472BE047CE003FD766 /* StandardInteractionController.swift in Sources */,

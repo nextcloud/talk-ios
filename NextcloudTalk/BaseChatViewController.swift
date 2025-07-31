@@ -815,6 +815,11 @@ import SwiftUI
             self.presentPollCreation()
         }
 
+        let threadAction = UIAction(title: NSLocalizedString("Thread", comment: ""), image: UIImage(systemName: "bubble.left.and.bubble.right")) { [unowned self] _ in
+            self.textView.resignFirstResponder()
+            self.presentThreadCreation()
+        }
+
         // Add actions (inverted)
         var objectItems = [UIMenuElement]()
         objectItems.append(contactShareAction)
@@ -827,6 +832,12 @@ import SwiftUI
             self.room.type != .oneToOne, self.room.type != .noteToSelf {
 
             objectItems.append(pollAction)
+        }
+
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityThreads, for: self.room),
+           self.thread == nil {
+
+            objectItems.append(threadAction)
         }
 
         items.append(UIMenu(options: .displayInline, children: objectItems))
@@ -924,6 +935,12 @@ import SwiftUI
                 photoPicker.delegate = self
                 self.present(photoPicker, animated: true)
             }
+        }
+    }
+
+    func presentThreadCreation() {
+        if let threadCreationVC = ThreadCreationViewController(room: room, account: account) {
+            self.present(threadCreationVC, animated: true)
         }
     }
 
@@ -1054,7 +1071,7 @@ import SwiftUI
                         }
                     }
                 } else {
-                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
+                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
