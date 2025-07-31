@@ -26,7 +26,7 @@ struct SendTalkMessageIntent: AppIntent {
                 return
             }
 
-            NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: talkAccount) { error in
+            NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: talkAccount) { error in
                 if error != nil {
                     let intentError = TalkIntentError.message(NSLocalizedString("An error occurred while sending the message", comment: ""))
 

@@ -827,7 +827,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         }];
     }
 
-    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token displayName:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token threadTitle:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account withCompletionBlock:^(NSError *error) {
         if (referenceId) {
             [userInfo setObject:referenceId forKey:@"referenceId"];
         }

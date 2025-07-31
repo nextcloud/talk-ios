@@ -85,6 +85,7 @@ NSString * const kCapabilityScheduleMeeting         = @"schedule-meeting";
 NSString * const kCapabilityConversationCreationAll = @"conversation-creation-all";
 NSString * const kCapabilityImportantConversations  = @"important-conversations";
 NSString * const kCapabilitySensitiveConversations  = @"sensitive-conversations";
+NSString * const kCapabilityThreads                 = @"threads";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";

@@ -684,7 +684,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token threadTitle:(NSString *)threadTitle replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"chat/%@", encodedToken];
@@ -701,7 +701,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     if (silently) {
         [parameters setObject:@(silently) forKey:@"silent"];
     }
-    
+    if (threadTitle) {
+        [parameters setObject:threadTitle forKey:@"threadTitle"];
+    }
+
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     // Workaround: When sendChatMessage is called from Share Extension session managers are not initialized.
     if (!apiSessionManager) {
