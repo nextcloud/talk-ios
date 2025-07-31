@@ -36,7 +36,7 @@ class ReferenceView: UIView {
         layer.cornerRadius = 8.0
         layer.masksToBounds = true
         layer.borderWidth = 1.0
-        layer.borderColor = NCAppBranding.placeholderColor().cgColor
+        layer.borderColor = UIColor.secondarySystemFill.cgColor
 
         self.addSubview(contentView)
     }

@@ -10,7 +10,7 @@ import UIKit
 @objcMembers class SwiftMarkdownObjCBridge: NSObject {
 
     static let markdownParser: CDMarkdownParser = {
-        let markdownParser = CDMarkdownParser(font: .preferredFont(forTextStyle: .body), fontColor: NCAppBranding.chatForegroundColor())
+        let markdownParser = CDMarkdownParser(font: .preferredFont(forTextStyle: .body), fontColor: .label)
 
         markdownParser.code.backgroundColor = .secondarySystemBackground
         markdownParser.code.font = .monospacedPreferredFont(forTextStyle: .body)
