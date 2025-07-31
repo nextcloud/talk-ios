@@ -182,11 +182,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     managedChatMessage.lastEditActorType = chatMessage.lastEditActorType;
     managedChatMessage.lastEditActorDisplayName = chatMessage.lastEditActorDisplayName;
     managedChatMessage.lastEditTimestamp = chatMessage.lastEditTimestamp;
-    managedChatMessage.threadId = chatMessage.threadId;
-    managedChatMessage.isThread = chatMessage.isThread;
 
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
+        managedChatMessage.threadId = chatMessage.threadId;
+        managedChatMessage.isThread = chatMessage.isThread;
     }
 
     if (fileParameterDict) {
