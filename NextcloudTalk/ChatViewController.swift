@@ -1992,17 +1992,6 @@ import SwiftUI
             actions.append(UIMenu(options: [.displayInline], children: informationalActions))
         }
 
-        // Thread options
-        if message.isThread {
-            actions.append(UIAction(title: NSLocalizedString("Go to thread", comment: "Button to see a message thread"), image: .init(systemName: "bubble.left.and.bubble.right")) { _ in
-                self.didPressShowThread(for: message)
-            })
-        } else {
-            actions.append(UIAction(title: NSLocalizedString("Create a thread", comment: "Button to create a message thread"), image: .init(systemName: "bubble.left.and.bubble.right")) { _ in
-                self.didPressCreateThread(for: message)
-            })
-        }
-
         // Reply option
         if self.isMessageReplyable(message: message), hasChatPermissions, !self.textInputbar.isEditing {
             actions.append(UIAction(title: NSLocalizedString("Reply", comment: ""), image: .init(systemName: "arrowshape.turn.up.left")) { _ in
