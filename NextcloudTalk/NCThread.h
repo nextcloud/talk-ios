@@ -28,5 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable instancetype)threadWithThreadId:(NSInteger)threadId inRoom:(NSString *)roomToken forAccountId:(NSString *)accountId;
 + (void)storeOrUpdateThreads:(NSArray *)threads;
 
+- (NCChatMessage *)firstMessage;
+
 @end
 NS_ASSUME_NONNULL_END
