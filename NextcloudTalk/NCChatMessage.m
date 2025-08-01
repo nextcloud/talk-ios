@@ -70,6 +70,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     message.lastEditActorDisplayName = [messageDict objectForKey:@"lastEditActorDisplayName"];
     message.lastEditTimestamp = [[messageDict objectForKey:@"lastEditTimestamp"] integerValue];
     message.isSilent = [[messageDict objectForKey:@"silent"] boolValue];
+    message.threadId = [[messageDict objectForKey:@"threadId"] integerValue];
+    message.isThread = [[messageDict objectForKey:@"isThread"] boolValue];
 
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -183,6 +185,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
+        managedChatMessage.threadId = chatMessage.threadId;
+        managedChatMessage.isThread = chatMessage.isThread;
     }
 
     if (fileParameterDict) {
@@ -247,6 +251,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     messageCopy.lastEditActorType = _lastEditActorType;
     messageCopy.lastEditActorDisplayName = _lastEditActorDisplayName;
     messageCopy.lastEditTimestamp = _lastEditTimestamp;
+    messageCopy.threadId = _threadId;
+    messageCopy.isThread = _isThread;
 
     return messageCopy;
 }
@@ -693,6 +699,11 @@ NSString * const kSharedItemTypeRecording   = @"recording";
             }];
         }
     }
+}
+
+- (BOOL)isThreadOriginalMessage
+{
+    return self.threadId > 0 && self.isThread && self.threadId == self.messageId;
 }
 
 @end

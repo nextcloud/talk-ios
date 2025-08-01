@@ -15,6 +15,7 @@ import UIKit
     public var account: TalkAccount
 
     // MARK: - Internal var
+    internal var thread: NCThread?
     internal var titleView: NCChatTitleView?
     internal var autocompletionUsers: [MentionSuggestion] = []
     internal var mentionsDict: [String: NCMessageParameter] = [:]

@@ -252,11 +252,33 @@ import SwiftUI
 
     private var messageExpirationTimer: Timer?
 
+    override func setTitleView() {
+        super.setTitleView()
+
+        if thread != nil {
+            self.titleView?.longPressGestureRecognizer.isEnabled = false
+        }
+    }
+
     public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
         self.chatController = NCChatController(for: room)
 
         super.init(forRoom: room, withAccount: account)
 
+        self.addCommonNotificationObservers()
+    }
+
+    public init?(forThread thread: NCThread, inRoom room: NCRoom, withAccount account: TalkAccount) {
+        self.chatController = NCChatController(forThreadId: thread.threadId, in: room)
+
+        super.init(forRoom: room, withAccount: account)
+
+        self.thread = thread
+
+        self.addCommonNotificationObservers()
+    }
+
+    func addCommonNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(didUpdateRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidUpdateRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidJoinRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didLeaveRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidLeaveRoom, object: nil)
@@ -303,18 +325,18 @@ import SwiftUI
 
         var barButtonsItems: [UIBarButtonItem] = []
         // Call options
-        if room.supportsCalling {
+        if room.supportsCalling && thread == nil {
             barButtonsItems.append(callOptionsButton)
         }
         // Upcoming events
-        if room.supportsUpcomingEvents {
+        if room.supportsUpcomingEvents && thread == nil {
             barButtonsItems.append(eventsButton)
         }
 
         self.navigationItem.rightBarButtonItems = barButtonsItems
 
-        // No sharing options in federation v1
-        if room.isFederated {
+        // No sharing options in federation v1 (or thread view until implemented)
+        if room.isFederated || thread != nil {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
             self.leftButton.setImage(nil, for: .normal)
@@ -744,8 +766,15 @@ import SwiftUI
     // MARK: - Action methods
 
     override func sendChatMessage(message: String, withParentMessage parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) {
+        var replyTo = parentMessage
+
+        // On thread view, include original thread message as parent message (if there is not parent)
+        if let thread = thread, replyTo == nil {
+            replyTo = thread.firstMessage()
+        }
+
         // Create temporary message
-        guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: parentMessage, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
+        guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: replyTo, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
             self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
@@ -775,6 +804,16 @@ import SwiftUI
         self.showSendMessageButton()
 
         return canPress
+    }
+
+    public override func didPressShowThread(for message: NCChatMessage) {
+        guard let account = self.room.account,
+              let thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId),
+              let chatViewController = ChatViewController(forThread: thread, inRoom: room, withAccount: account)
+        else { return }
+
+        let navController = NCNavigationController(rootViewController: chatViewController)
+        self.present(navController, animated: true)
     }
 
     // MARK: - Voice message player
@@ -1372,6 +1411,11 @@ import SwiftUI
               let updateMessage = message.parent
         else { return }
 
+        if message.isThreadCreatedMessage {
+            self.updateMessages(withThreadId: message.threadId)
+            return
+        }
+
         self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
     }
 
@@ -1917,8 +1961,8 @@ import SwiftUI
 
         if let cell = cell as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
-            let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })
+            let pointInReactionsContainerView = cell.convert(pointInCell, to: cell.reactionsContainerView)
+            let reactionView = cell.reactionsContainerView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionsContainerView) })
 
             if reactionView != nil, let message = cell.message {
                 self.showReactionsSummary(of: message)
