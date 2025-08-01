@@ -766,8 +766,15 @@ import SwiftUI
     // MARK: - Action methods
 
     override func sendChatMessage(message: String, withParentMessage parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) {
+        var replyTo = parentMessage
+
+        // On thread view, include original thread message as parent message (if there is not parent)
+        if let thread = thread, replyTo == nil {
+            replyTo = thread.firstMessage()
+        }
+
         // Create temporary message
-        guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: parentMessage, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
+        guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: replyTo, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
             self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
