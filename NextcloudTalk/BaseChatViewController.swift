@@ -2890,7 +2890,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
+                cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
 
                 if let playerAudioFileStatus = self.playerAudioFileStatus,
                    let voiceMessagesPlayer = self.voiceMessagesPlayer {
@@ -2913,7 +2913,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
+                cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
 
                 return cell
             }
@@ -2924,7 +2924,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
+                cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
 
                 return cell
             }
@@ -2935,7 +2935,7 @@ import SwiftUI
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
-                cell.setup(for: message, inRoom: self.room, withAccount: self.account)
+                cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
 
                 return cell
             }
@@ -2945,13 +2945,13 @@ import SwiftUI
 
         if message.isGroupMessage {
             cellIdentifier = chatGroupedMessageCellIdentifier
-        } else if message.parent != nil {
+        } else if message.willShowParentMessageInThread(thread) {
             cellIdentifier = chatReplyMessageCellIdentifier
         }
 
         if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
             cell.delegate = self
-            cell.setup(for: message, inRoom: self.room, withAccount: self.account)
+            cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
 
             return cell
         }
@@ -3015,7 +3015,7 @@ import SwiftUI
             height = PollMessageView().pollMessageBodyHeight(with: messageString.string, width: width)
         }
 
-        if (message.isGroupMessage && message.parent == nil) || message.isSystemMessage {
+        if (message.isGroupMessage && !message.willShowParentMessageInThread(thread)) || message.isSystemMessage {
             height += 10 // 2*left(5)
 
             if height < chatGroupedMessageCellMinimumHeight {
@@ -3030,7 +3030,7 @@ import SwiftUI
             }
         }
 
-        if !message.reactionsArray().isEmpty || message.isThreadOriginalMessage() {
+        if !message.reactionsArray().isEmpty || (thread == nil && message.isThreadOriginalMessage()) {
             height += 40 // reactionsView(40)
         }
 
@@ -3038,7 +3038,7 @@ import SwiftUI
             height += 105
         }
 
-        if message.parent != nil {
+        if message.willShowParentMessageInThread(thread) {
             height += 60 // quoteView(60)
         }
 
