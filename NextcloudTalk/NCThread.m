@@ -96,4 +96,14 @@
     }];
 }
 
+- (NCChatMessage *)firstMessage
+{
+    NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.firstMessageId].firstObject;
+    if (managedMessage) {
+        return [[NCChatMessage alloc] initWithValue:managedMessage];
+    }
+
+    return nil;
+}
+
 @end
