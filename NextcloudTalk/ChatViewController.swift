@@ -252,6 +252,14 @@ import SwiftUI
 
     private var messageExpirationTimer: Timer?
 
+    override func setTitleView() {
+        super.setTitleView()
+
+        if thread != nil {
+            self.titleView?.longPressGestureRecognizer.isEnabled = false
+        }
+    }
+
     public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
         self.chatController = NCChatController(for: room)
 
@@ -317,18 +325,18 @@ import SwiftUI
 
         var barButtonsItems: [UIBarButtonItem] = []
         // Call options
-        if room.supportsCalling {
+        if room.supportsCalling && thread == nil {
             barButtonsItems.append(callOptionsButton)
         }
         // Upcoming events
-        if room.supportsUpcomingEvents {
+        if room.supportsUpcomingEvents && thread == nil {
             barButtonsItems.append(eventsButton)
         }
 
         self.navigationItem.rightBarButtonItems = barButtonsItems
 
-        // No sharing options in federation v1
-        if room.isFederated {
+        // No sharing options in federation v1 (or thread view until implemented)
+        if room.isFederated || thread != nil {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
             self.leftButton.setImage(nil, for: .normal)
