@@ -29,7 +29,7 @@ final class IntegrationChatTest: TestBase {
 
         // Send a message
         exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().sendChatMessage(chatMessage, toRoom: roomToken, displayName: "", replyTo: 0, referenceId: "", silently: false, for: activeAccount) { error in
+        NCAPIController.sharedInstance().sendChatMessage(chatMessage, toRoom: roomToken, threadTitle: "", replyTo: 0, referenceId: "", silently: false, for: activeAccount) { error in
             XCTAssertNil(error)
 
             exp.fulfill()
@@ -40,6 +40,7 @@ final class IntegrationChatTest: TestBase {
         exp = expectation(description: "\(#function)\(#line)")
         NCAPIController.sharedInstance().receiveChatMessages(ofRoom: roomToken,
                                                              fromLastMessageId: 0,
+                                                             inThread: 0,
                                                              history: true,
                                                              includeLastMessage: true,
                                                              timeout: false,
