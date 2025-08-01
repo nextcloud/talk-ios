@@ -308,7 +308,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         newBlock.accountId = _room.accountId;
         newBlock.token = _room.token;
         newBlock.threadId = _threadId;
-        newBlock.oldestMessageId = lastKnown;
+        newBlock.oldestMessageId = _threadId > 0 ? _threadId : lastKnown;
         newBlock.newestMessageId = newestMessageKnown;
         newBlock.hasHistory = YES;
         
