@@ -187,7 +187,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    public func setup(for message: NCChatMessage, inRoom room: NCRoom, withAccount account: TalkAccount) {
+    public func setup(for message: NCChatMessage, inRoom room: NCRoom, forThread thread: NCThread?, withAccount account: TalkAccount) {
         self.message = message
         self.room = room
         self.account = account
@@ -230,7 +230,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         let isOwnMessage = message.isMessage(from: account.userId)
 
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
-        if let parent = message.parent {
+        if let parent = message.parent, message.willShowParentMessageInThread(thread) {
             self.showQuotePart()
 
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
@@ -239,7 +239,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarImageView.setActorAvatar(forMessage: parent, withAccount: account)
 
-            if message.isThread {
+            if thread == nil, message.isThread {
                 self.quotedMessageView?.actionButton.isHidden = false
                 self.quotedMessageView?.actionButton.addAction { [weak self] in
                     guard let self else { return }
@@ -250,7 +250,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             }
         }
 
-        if message.isGroupMessage, message.parent == nil {
+        if message.isGroupMessage, !message.willShowParentMessageInThread(thread) {
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
             self.messageBodyViewTopConstraint.constant = 10
@@ -328,7 +328,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.reactionView?.updateReactions(reactions: reactionsArray)
         }
 
-        if message.isThreadOriginalMessage() {
+        if thread == nil, message.isThreadOriginalMessage() {
             self.showThreadRepliesButton()
         }
 

@@ -214,6 +214,20 @@ import SwiftyAttributes
         return self.parent?.messageId ?? -1
     }
 
+    public func willShowParentMessageInThread(_ thread: NCThread?) -> Bool {
+        if parent == nil {
+            return false
+        }
+
+        if let parent = parent,
+           let thread = thread,
+           parent.internalId == thread.firstMessageId {
+            return false
+        }
+
+        return true
+    }
+
     public func isReactionBeingModified(_ reaction: String) -> Bool {
         if let reaction = temporaryReactions().compactMap({ $0 as? NCChatReaction }).first(where: { $0.reaction == reaction }) {
             return reaction.state == .adding || reaction.state == .removing
