@@ -4738,10 +4738,10 @@
 		};
 		1F45A11F2A01D8BA005FE87D /* XCRemoteSwiftPackageReference "SDWebImageSVGKitPlugin" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSVGKitPlugin.git";
+			repositoryURL = "https://github.com/nextcloud-deps/SDWebImageSVGKitPlugin.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.4.0;
+				kind = revision;
+				revision = 96e726d65e1894fff44df55c6d53e3b9c373ca78;
 			};
 		};
 		1F468E7428DCC6C60099597B /* XCRemoteSwiftPackageReference "Dynamic" */ = {
