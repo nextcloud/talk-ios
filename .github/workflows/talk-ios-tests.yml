@@ -29,7 +29,7 @@ permissions:
 
 env:
   WORKSPACE: NextcloudTalk.xcworkspace
-  DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.0
+  DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.5
   SCHEME: NextcloudTalk
 
 jobs:
@@ -69,6 +69,11 @@ jobs:
     - name: Set up dependencies talk-ios
       run: |
         pod install
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+      with:
+        xcode-version: latest-stable
 
     - name: Build NextcloudTalk iOS for testing
       run: |
@@ -180,6 +185,11 @@ jobs:
     - name: Setup test-specific rooms
       run: |
         source ./ci-setup-rooms.sh
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+      with:
+        xcode-version: latest-stable
 
     - name: Test NextcloudTalk iOS
       run: |
