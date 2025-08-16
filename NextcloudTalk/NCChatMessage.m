@@ -436,6 +436,13 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         return nil;
     }
 
+    // Hide the filename for image and video files, in case there's no caption
+    if (self.file && self.file.previewAvailable && ([NCUtils isImageWithFileType:self.file.mimetype] || [NCUtils isVideoWithFileType:self.file.mimetype])) {
+        if ([self.message isEqualToString:@"{file}"]) {
+            return nil;
+        }
+    }
+
     NSMutableAttributedString *parsedMessage = self.parsedMessage;
 
     if (!parsedMessage) {
