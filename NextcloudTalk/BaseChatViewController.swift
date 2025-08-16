@@ -2964,7 +2964,6 @@ import SwiftUI
         var width = originalWidth
 
         if message.isSystemMessage {
-            // TODO: Is 80 still correct for system message cells? Avatar is already subtracted in the calling method
             // 4 * right(10) + dateLabel(40)
             width -= 80.0
         } else {
@@ -3015,7 +3014,7 @@ import SwiftUI
         }
 
         if message.parent != nil {
-            height += 60 // quoteView(60)
+            height += 70 // quoteView(70)
         }
 
         // Voice message should be before message.file check since it contains a file

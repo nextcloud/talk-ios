@@ -53,16 +53,16 @@
                                         </constraints>
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ei6-XM-uBR" userLabel="QuotePart">
-                                        <rect key="frame" x="0.0" y="30" width="683" height="60"/>
+                                        <rect key="frame" x="0.0" y="30" width="683" height="70"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="60" id="MNH-XL-wpW"/>
+                                            <constraint firstAttribute="height" constant="70" id="MNH-XL-wpW"/>
                                         </constraints>
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X2q-XX-H1j" userLabel="ContentPart">
-                                        <rect key="frame" x="0.0" y="90" width="683" height="359"/>
+                                        <rect key="frame" x="0.0" y="100" width="683" height="349"/>
                                         <subviews>
                                             <view opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="THT-eK-wa0" userLabel="MessageBodyView">
-                                                <rect key="frame" x="10" y="5" width="663" height="349"/>
+                                                <rect key="frame" x="10" y="5" width="663" height="339"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" id="wmP-Zf-X0i"/>
                                                 </constraints>
@@ -162,13 +162,13 @@
     </objects>
     <resources>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

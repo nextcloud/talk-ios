@@ -265,6 +265,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                 BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
             }
 
+            // Ensure titleLabel does not interfere with width calculation (only on devices, not simulator)
+            self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
             self.messageBodyViewTopConstraint.constant = 10
@@ -451,7 +453,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             NSLayoutConstraint.activate([
                 quotedMessageView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
                 quotedMessageView.rightAnchor.constraint(equalTo: self.quotePart.rightAnchor, constant: -10),
-                quotedMessageView.topAnchor.constraint(equalTo: self.quotePart.topAnchor),
+                quotedMessageView.topAnchor.constraint(equalTo: self.quotePart.topAnchor, constant: 10),
                 quotedMessageView.bottomAnchor.constraint(equalTo: self.quotePart.bottomAnchor)
             ])
 
