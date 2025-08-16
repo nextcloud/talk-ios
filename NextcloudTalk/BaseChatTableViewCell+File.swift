@@ -69,6 +69,7 @@ extension BaseChatTableViewCell {
             NSLayoutConstraint.activate([
                 filePreviewImageView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
                 filePreviewImageView.topAnchor.constraint(equalTo: self.messageBodyView.topAnchor),
+                filePreviewImageView.rightAnchor.constraint(lessThanOrEqualTo: self.messageBodyView.rightAnchor),
                 heightConstraint,
                 widthConstraint,
                 messageTextView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
