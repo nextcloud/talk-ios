@@ -74,6 +74,37 @@ import SwiftyGif
         return errorView
     }()
 
+    private lazy var downscaledWarningView = {
+        let warningView = UIView()
+        warningView.translatesAutoresizingMaskIntoConstraints = false
+
+        let warningImage = UIImageView()
+        warningImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
+        warningImage.contentMode = .scaleAspectFit
+        warningImage.translatesAutoresizingMaskIntoConstraints = false
+        warningImage.tintColor = .systemYellow
+        warningImage.setContentHuggingPriority(.required, for: .horizontal)
+
+        let warningText = UILabel()
+        warningText.translatesAutoresizingMaskIntoConstraints = false
+        warningText.text = NSLocalizedString("A low resolution version is displayed", comment: "")
+
+        warningView.addSubview(warningImage)
+        warningView.addSubview(warningText)
+
+        NSLayoutConstraint.activate([
+            warningImage.leftAnchor.constraint(equalTo: warningView.leftAnchor),
+            warningImage.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
+            warningImage.centerYAnchor.constraint(equalTo: warningView.centerYAnchor),
+            warningText.leadingAnchor.constraint(equalTo: warningImage.trailingAnchor, constant: 10),
+            warningText.bottomAnchor.constraint(equalTo: warningView.bottomAnchor),
+            warningText.centerYAnchor.constraint(equalTo: warningView.centerYAnchor),
+            warningText.trailingAnchor.constraint(equalTo: warningView.trailingAnchor, constant: -10)
+        ])
+
+        return warningView
+    }()
+
     public var currentImage: UIImage? {
         return self.imageView.image
     }
@@ -153,6 +184,16 @@ import SwiftyGif
         ])
     }
 
+    func showWarningView() {
+        self.view.addSubview(self.downscaledWarningView)
+
+        NSLayoutConstraint.activate([
+            self.downscaledWarningView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
+            self.downscaledWarningView.trailingAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
+            self.downscaledWarningView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
+        ])
+    }
+
     // MARK: - NCChatFileController delegate
     func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
         self.activityIndicator.stopAnimating()
@@ -206,12 +247,25 @@ import SwiftyGif
     }
 
     private func displayImage(from localPath: String) {
-        guard let image = UIImage(contentsOfFile: localPath) else {
+        guard var image = UIImage(contentsOfFile: localPath) else {
             self.showErrorView()
             return
         }
 
-        if let file = message.file(), message.isAnimatableGif,
+        // Downscale images that are too large and require too much memory
+        if image.size.width > 2048 ||  image.size.height > 2048 {
+            let newSize = AVMakeRect(aspectRatio: image.size, insideRect: .init(x: 0, y: 0, width: 2048, height: 2048)).size
+            guard let scaledImage = NCUtils.renderAspectImage(image: image, ofSize: newSize, centerImage: false)
+            else {
+                self.showErrorView()
+                return
+            }
+
+            image = scaledImage
+            self.showWarningView()
+        }
+
+        if message.file() != nil, message.isAnimatableGif,
            let data = try? Data(contentsOf: URL(fileURLWithPath: localPath)),
            let gifImage = try? UIImage(gifData: data) {
 
