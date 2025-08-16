@@ -82,13 +82,11 @@ final class UIRoomTest: XCTestCase {
         sendMessageButton.tap()
 
         // Wait for temporary message to be replaced
-        XCTAssert(app.images["MessageSent"].waitForExistence(timeout: TestConstants.timeoutShort))
+        let messageSentImage = app.images["MessageSent"]
+        XCTAssert(messageSentImage.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Open context menu
-        let tables = app.tables
-        XCTAssert(tables.staticTexts[TestConstants.username].waitForExistence(timeout: TestConstants.timeoutShort))
-        let message = tables.staticTexts[TestConstants.username]
-        message.press(forDuration: 2.0)
+        messageSentImage.press(forDuration: 2.0)
 
         // Add a reaction to close the context menu
         // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
