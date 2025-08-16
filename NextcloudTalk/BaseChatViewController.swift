@@ -2655,8 +2655,8 @@ import SwiftUI
             message.removeReactionFromTemporaryReactions(reaction)
 
             self.tableView?.beginUpdates()
-            self.tableView?.reloadRows(at: [indexPath], with: .automatic)
             self.tableView?.endUpdates()
+            self.tableView?.reloadRows(at: [indexPath], with: .none)
         }
     }
 
@@ -2668,18 +2668,24 @@ import SwiftUI
 
             message.setOrUpdateTemporaryReaction(reaction, state: state)
 
-            self.tableView?.performBatchUpdates({
-                self.tableView?.reloadRows(at: [indexPath], with: .automatic)
-            }, completion: { _ in
-                if !isAtBottom {
-                    return
-                }
+            CATransaction.begin()
+            CATransaction.setCompletionBlock {
+                DispatchQueue.main.async {
+                    if !isAtBottom {
+                        return
+                    }
 
-                if let (indexPath, _) = self.getLastNonUpdateMessage() {
-                    self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    if let (indexPath, _) = self.getLastNonUpdateMessage() {
+                        self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    }
                 }
-            })
+            }
 
+            self.tableView?.beginUpdates()
+            self.tableView?.endUpdates()
+            self.tableView?.reloadRows(at: [indexPath], with: .none)
+
+            CATransaction.commit()
         }
     }
 
