@@ -41,7 +41,7 @@ class DateHeaderView: UIView {
         titleLabel.textAlignment = .center
         titleLabel.font = DateHeaderView.labelFont
         titleLabel.adjustsFontForContentSizeCategory = true
-        titleLabel.backgroundColor = .secondarySystemBackground
+        titleLabel.backgroundColor = .secondarySystemGroupedBackground
         titleLabel.textColor = .secondaryLabel
         titleLabel.layer.cornerRadius = 8
         titleLabel.clipsToBounds = true

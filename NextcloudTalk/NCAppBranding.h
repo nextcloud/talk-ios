@@ -38,10 +38,10 @@ extern BOOL const customNavigationLogo;
 + (UIColor *)placeholderColor;
 + (UIColor *)backgroundColor;
 + (UIColor *)avatarPlaceholderColor;
-+ (UIColor *)chatForegroundColor;
 + (UIStatusBarStyle)statusBarStyleForBrandColor;
 + (UIStatusBarStyle)statusBarStyleForThemeColor;
 + (void)styleViewController:(UIViewController *)controller;
++ (UIColor *)getDynamicColor:(UIColor *)lightModeColor withDarkMode:(UIColor *)darkModeColor;
 
 @end
 
