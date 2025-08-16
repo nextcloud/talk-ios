@@ -27,16 +27,16 @@
                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                     </button>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YkE-8o-ls1">
-                        <rect key="frame" x="50" y="8" width="685" height="614"/>
+                        <rect key="frame" x="50" y="8" width="683" height="614"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="jvd-Fb-cKa">
-                                <rect key="frame" x="0.0" y="0.0" width="685" height="614"/>
+                                <rect key="frame" x="0.0" y="0.0" width="683" height="614"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3wA-Cg-eLo" userLabel="HeaderPart">
-                                        <rect key="frame" x="0.0" y="0.0" width="685" height="30"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="683" height="30"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="A very long author name that does not fit into this cell" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lOK-xG-raw" userLabel="TitleLabel">
-                                                <rect key="frame" x="10" y="10" width="665" height="20"/>
+                                                <rect key="frame" x="10" y="10" width="663" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="tqA-5v-zvS"/>
                                                 </constraints>
@@ -53,16 +53,16 @@
                                         </constraints>
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ei6-XM-uBR" userLabel="QuotePart">
-                                        <rect key="frame" x="0.0" y="30" width="685" height="60"/>
+                                        <rect key="frame" x="0.0" y="30" width="683" height="60"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="60" id="MNH-XL-wpW"/>
                                         </constraints>
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X2q-XX-H1j" userLabel="ContentPart">
-                                        <rect key="frame" x="0.0" y="90" width="685" height="359"/>
+                                        <rect key="frame" x="0.0" y="90" width="683" height="359"/>
                                         <subviews>
                                             <view opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="THT-eK-wa0" userLabel="MessageBodyView">
-                                                <rect key="frame" x="10" y="5" width="665" height="349"/>
+                                                <rect key="frame" x="10" y="5" width="663" height="349"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" id="wmP-Zf-X0i"/>
                                                 </constraints>
@@ -77,22 +77,22 @@
                                         </constraints>
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rpi-JE-I3o" userLabel="ReferencePart">
-                                        <rect key="frame" x="0.0" y="449" width="685" height="105"/>
+                                        <rect key="frame" x="0.0" y="449" width="683" height="105"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="105" id="9Ar-Lj-ucO"/>
                                         </constraints>
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xJ1-vA-lap" userLabel="ReactionsPart">
-                                        <rect key="frame" x="0.0" y="554" width="685" height="40"/>
+                                        <rect key="frame" x="0.0" y="554" width="683" height="40"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="40" id="WP6-65-H6V"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="coC-95-bYv" userLabel="FooterPart">
-                                        <rect key="frame" x="0.0" y="594" width="685" height="20"/>
+                                        <rect key="frame" x="0.0" y="594" width="683" height="20"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="firstBaseline" translatesAutoresizingMaskIntoConstraints="NO" id="TkE-V6-ePd" userLabel="StatusView">
-                                                <rect key="frame" x="580" y="0.0" width="99" height="14"/>
+                                                <rect key="frame" x="578" y="0.0" width="99" height="14"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="An artificial date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YZe-JE-Hfm" userLabel="DateLabel">
                                                         <rect key="frame" x="0.0" y="0.0" width="99" height="14"/>
@@ -110,6 +110,7 @@
                                             <constraint firstAttribute="height" constant="20" id="2fj-J3-5PD"/>
                                             <constraint firstAttribute="trailing" secondItem="TkE-V6-ePd" secondAttribute="trailing" constant="6" id="aaF-IB-abt"/>
                                             <constraint firstAttribute="bottom" secondItem="TkE-V6-ePd" secondAttribute="bottom" constant="6" id="bvc-9d-52c"/>
+                                            <constraint firstItem="TkE-V6-ePd" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="coC-95-bYv" secondAttribute="leading" constant="10" id="fYW-bA-Mq5"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -136,16 +137,15 @@
                     <constraint firstItem="YkE-8o-ls1" firstAttribute="bottom" secondItem="ML2-GP-tWC" secondAttribute="bottom" constant="-8" id="2Th-AG-Cdf"/>
                     <constraint firstItem="PCA-MF-seG" firstAttribute="leading" secondItem="ML2-GP-tWC" secondAttribute="leading" constant="10" id="LnM-15-nOb"/>
                     <constraint firstItem="PCA-MF-seG" firstAttribute="top" secondItem="ML2-GP-tWC" secondAttribute="top" constant="8" id="UTD-bt-hLZ"/>
-                    <constraint firstItem="YkE-8o-ls1" firstAttribute="trailing" secondItem="ML2-GP-tWC" secondAttribute="trailing" constant="-8" id="fSS-1U-8Au"/>
-                    <constraint firstItem="YkE-8o-ls1" firstAttribute="leading" secondItem="PCA-MF-seG" secondAttribute="trailing" constant="10" id="rY8-0W-HNQ"/>
+                    <constraint firstItem="YkE-8o-ls1" firstAttribute="trailing" secondItem="ML2-GP-tWC" secondAttribute="trailing" constant="-10" placeholder="YES" id="fSS-1U-8Au"/>
+                    <constraint firstItem="YkE-8o-ls1" firstAttribute="leading" secondItem="PCA-MF-seG" secondAttribute="trailing" constant="10" placeholder="YES" id="rY8-0W-HNQ"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
+            <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
             <connections>
                 <outlet property="avatarButton" destination="PCA-MF-seG" id="iaG-3y-X5d"/>
                 <outlet property="bubbleView" destination="YkE-8o-ls1" id="i70-JV-58t"/>
-                <outlet property="bubbleViewLeftConstraint" destination="rY8-0W-HNQ" id="zHs-7Z-bmU"/>
-                <outlet property="bubbleViewRightConstraint" destination="fSS-1U-8Au" id="p11-Lv-NeP"/>
                 <outlet property="dateLabel" destination="YZe-JE-Hfm" id="Uuc-gI-EWf"/>
                 <outlet property="footerPart" destination="coC-95-bYv" id="l7s-9X-N2U"/>
                 <outlet property="headerPart" destination="3wA-Cg-eLo" id="elk-yT-DZf"/>
@@ -162,13 +162,13 @@
     </objects>
     <resources>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

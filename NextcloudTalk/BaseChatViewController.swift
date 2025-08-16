@@ -3192,14 +3192,18 @@ import SwiftUI
         let previewMessageView = previewTableViewCell.contentView
         previewMessageView.frame = CGRect(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight)
         previewMessageView.layer.masksToBounds = true
+        previewMessageView.backgroundColor = .clear
 
         // Create a mask to not show the avatar part when showing a grouped messages while animating
         // The mask will be reset in willDisplayContextMenuWithConfiguration so the avatar is visible when the context menu is shown
-        let maskLayer = CAShapeLayer()
-        let maskRect = CGRect(x: 0, y: heightDifferenceGroupedToNonGrouped, width: previewMessageView.frame.size.width, height: cellHeight)
-        maskLayer.path = CGPath(rect: maskRect, transform: nil)
+        if heightDifferenceGroupedToNonGrouped > 0 {
+            let maskLayer = CAShapeLayer()
+            let maskRect = CGRect(x: 0, y: heightDifferenceGroupedToNonGrouped + 16, width: previewMessageView.frame.size.width, height: cellHeight - 8)
+            maskLayer.path = CGPath(rect: maskRect, transform: nil)
 
-        previewMessageView.layer.mask = maskLayer
+            previewMessageView.layer.mask = maskLayer
+        }
+
         previewMessageView.backgroundColor = .systemGroupedBackground
         self.contextMenuMessageView = previewMessageView
 

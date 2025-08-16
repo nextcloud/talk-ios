@@ -63,6 +63,9 @@ public let pollGroupedMessageCellIdentifier = "pollGroupedMessageCellIdentifier"
 
 class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, ReactionsViewDelegate {
 
+    // TODO: Reset cache when theming changes
+    static var bubbleColorCache = NSCache<NSString, UIColor>()
+
     public weak var delegate: BaseChatTableViewCellDelegate?
 
     @IBOutlet weak var avatarButton: AvatarButton!
@@ -79,8 +82,24 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var footerPart: UIView!
 
     @IBOutlet weak var bubbleView: UIView!
-    @IBOutlet weak var bubbleViewLeftConstraint: NSLayoutConstraint!
-    @IBOutlet weak var bubbleViewRightConstraint: NSLayoutConstraint!
+
+    // Since we use different relations depending on the bubble (other user or app user) we setup
+    // the constraints programmatically instead of in interface builder
+    lazy var bubbleViewLeftConstraintEqual: NSLayoutConstraint = {
+        return bubbleView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10)
+    }()
+
+    lazy var bubbleViewLeftConstraintGreaterThan: NSLayoutConstraint = {
+        return bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40)
+    }()
+
+    lazy var bubbleViewRightConstraintEqual: NSLayoutConstraint = {
+        return bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+    }()
+
+    lazy var bubbleViewRightConstraintLessThan: NSLayoutConstraint = {
+        return bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64)
+    }()
 
     public var message: NCChatMessage?
     public var room: NCRoom?
@@ -219,31 +238,39 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.messageBodyViewTopConstraint.constant = 10
         }
 
+        self.bubbleViewLeftConstraintEqual.isActive = !isOwnMessage
+        self.bubbleViewLeftConstraintGreaterThan.isActive = isOwnMessage
+
+        self.bubbleViewRightConstraintEqual.isActive = isOwnMessage
+        self.bubbleViewRightConstraintLessThan.isActive = !isOwnMessage
+
+        var backgroundColor: UIColor? = .secondarySystemGroupedBackground
+
         if isOwnMessage {
-            self.bubbleViewLeftConstraint.constant = 40
-            self.bubbleViewRightConstraint.constant = -10
+            backgroundColor = BaseChatTableViewCell.bubbleColorCache.object(forKey: account.accountId as NSString)
 
-            var lightColor: UIColor
-            var darkColor: UIColor
+            if backgroundColor == nil {
+                var lightColor: UIColor
+                var darkColor: UIColor
 
-            if #available(iOS 18.0, *) {
-                lightColor = NCAppBranding.themeColor().withProminence(.quaternary)
-                darkColor = NCAppBranding.themeColor().withProminence(.secondary)
-            } else {
-                lightColor = NCAppBranding.themeColor().withAlphaComponent(0.1)
-                darkColor = NCAppBranding.themeColor().withAlphaComponent(0.2)
+                if #available(iOS 18.0, *) {
+                    lightColor = NCAppBranding.themeColor().withProminence(.quaternary)
+                    darkColor = NCAppBranding.themeColor().withProminence(.secondary)
+                } else {
+                    lightColor = NCAppBranding.themeColor().withAlphaComponent(0.1)
+                    darkColor = NCAppBranding.themeColor().withAlphaComponent(0.2)
+                }
+
+                backgroundColor = NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
+                BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
             }
-
-            self.bubbleView.backgroundColor = NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
 
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
             self.messageBodyViewTopConstraint.constant = 10
-        } else {
-            self.bubbleViewLeftConstraint.constant = 10
-            self.bubbleViewRightConstraint.constant = -64
-            self.bubbleView.backgroundColor = .secondarySystemGroupedBackground
         }
+
+        self.bubbleView.backgroundColor = backgroundColor
 
         // Make sure the status view is empty, when no delivery state should be set
         self.statusView.subviews.forEach {
