@@ -180,7 +180,7 @@ import SwiftUI
     private lazy var voiceRecordingLockButton: UIButton = {
         let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
 
-        button.backgroundColor = .secondarySystemBackground
+        button.backgroundColor = .secondarySystemGroupedBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = button.frame.size.height / 2
         button.clipsToBounds = true
