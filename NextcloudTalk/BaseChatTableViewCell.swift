@@ -296,15 +296,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
 
         if message.isSilent {
-            let silentView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 14))
-            let silentImage = UIImage(systemName: "bell.slash")?.withTintColor(.secondaryLabel).withRenderingMode(.alwaysOriginal)
+            addSystemImageToStatus("bell.slash")
+        }
 
-            silentView.image = NCUtils.renderAspectImage(image: silentImage, ofSize: .init(width: 20, height: 12), centerImage: true)
-            silentView.contentMode = .scaleAspectFit
-            silentView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-            silentView.heightAnchor.constraint(equalToConstant: 14).isActive = true
-
-            self.statusView.addArrangedSubview(silentView)
+        if isOwnMessage, message.lastEditTimestamp > 0 {
+            addSystemImageToStatus("pencil")
         }
 
         let reactionsArray = message.reactionsArray()
@@ -363,6 +359,18 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
+    }
+
+    func addSystemImageToStatus(_ systemName: String) {
+        let view = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 14))
+        let image = UIImage(systemName: systemName)?.withTintColor(.secondaryLabel).withRenderingMode(.alwaysOriginal)
+
+        view.image = NCUtils.renderAspectImage(image: image, ofSize: .init(width: 20, height: 12), centerImage: true)
+        view.contentMode = .scaleAspectFit
+        view.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        view.heightAnchor.constraint(equalToConstant: 14).isActive = true
+
+        self.statusView.addArrangedSubview(view)
     }
 
     func addSlideToReplyGestureRecognizer(for message: NCChatMessage) {
