@@ -46,13 +46,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="1046" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" axis="vertical" distribution="fillProportionally" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4je-R6-T4G">
+                            <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4je-R6-T4G">
                                 <rect key="frame" x="346" y="460.5" width="354" height="103.5"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="app-logo-callkit" translatesAutoresizingMaskIntoConstraints="NO" id="p23-aq-R5e">
                                         <rect key="frame" x="157" y="0.0" width="40" height="40"/>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join a conversation or start a new one" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pLM-th-fh4">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join a conversation or start a new one" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pLM-th-fh4">
                                         <rect key="frame" x="0.0" y="50" width="354" height="24"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                         <nil key="textColor"/>
@@ -70,8 +70,10 @@
                         <viewLayoutGuide key="safeArea" id="xeI-iD-HmE"/>
                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="4je-R6-T4G" firstAttribute="centerY" secondItem="ufw-Yg-V9l" secondAttribute="centerY" id="Jvy-Ac-6TQ"/>
+                            <constraint firstItem="xeI-iD-HmE" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="4je-R6-T4G" secondAttribute="trailing" id="0mc-dV-MKM"/>
+                            <constraint firstItem="4je-R6-T4G" firstAttribute="centerY" secondItem="xeI-iD-HmE" secondAttribute="centerY" constant="-11.75" id="Jvy-Ac-6TQ"/>
                             <constraint firstItem="4je-R6-T4G" firstAttribute="centerX" secondItem="xeI-iD-HmE" secondAttribute="centerX" id="bR3-20-HYx"/>
+                            <constraint firstItem="4je-R6-T4G" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="xeI-iD-HmE" secondAttribute="leading" id="gar-7U-pCX"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="dMP-bU-p4J"/>
