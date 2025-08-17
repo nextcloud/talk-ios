@@ -132,11 +132,12 @@ import UIKit
 
         NCAppBranding.styleViewController(self)
 
-        // Ensure that we only show an error and not the full "Back" text
+        // Ensure that we only show an arrow and not the full "Back" text
         self.navigationItem.backButtonDisplayMode = .minimal
 
-        self.view.backgroundColor = .systemBackground
-        self.textInputbar.backgroundColor = .systemBackground
+        self.view.backgroundColor = .systemGroupedBackground
+        self.tableView?.backgroundColor = .systemGroupedBackground
+        self.textInputbar.backgroundColor = .systemGroupedBackground
 
         self.textInputbar.editorTitle.textColor = .label
         self.textView.layer.borderWidth = 1.0

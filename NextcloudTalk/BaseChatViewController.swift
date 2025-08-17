@@ -69,7 +69,7 @@ import SwiftUI
     }()
 
     internal lazy var chatBackgroundView: PlaceholderView = {
-        let chatBackgroundView = PlaceholderView()
+        let chatBackgroundView = PlaceholderView(for: .insetGrouped)!
         chatBackgroundView.placeholderView.isHidden = true
         chatBackgroundView.loadingView.startAnimating()
         chatBackgroundView.placeholderTextView.text = NSLocalizedString("No messages yet, start the conversation!", comment: "")
@@ -122,7 +122,7 @@ import SwiftUI
         inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
         inputbarBorderView.frame = .init(x: 0, y: 0, width: self.textInputbar.frame.size.width, height: 1)
         inputbarBorderView.isHidden = true
-        inputbarBorderView.backgroundColor = .systemGray6
+        inputbarBorderView.backgroundColor = .quaternarySystemFill
 
         self.textInputbar.addSubview(inputbarBorderView)
 
@@ -164,7 +164,7 @@ import SwiftUI
             self?.tableView?.slk_scrollToBottom(animated: true)
         })
 
-        button.backgroundColor = .secondarySystemBackground
+        button.backgroundColor = .secondarySystemGroupedBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = 8
         button.clipsToBounds = true
@@ -180,7 +180,7 @@ import SwiftUI
     private lazy var voiceRecordingLockButton: UIButton = {
         let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
 
-        button.backgroundColor = .secondarySystemBackground
+        button.backgroundColor = .secondarySystemGroupedBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = button.frame.size.height / 2
         button.clipsToBounds = true
@@ -2655,8 +2655,8 @@ import SwiftUI
             message.removeReactionFromTemporaryReactions(reaction)
 
             self.tableView?.beginUpdates()
-            self.tableView?.reloadRows(at: [indexPath], with: .none)
             self.tableView?.endUpdates()
+            self.tableView?.reloadRows(at: [indexPath], with: .none)
         }
     }
 
@@ -2668,18 +2668,24 @@ import SwiftUI
 
             message.setOrUpdateTemporaryReaction(reaction, state: state)
 
-            self.tableView?.performBatchUpdates({
-                self.tableView?.reloadRows(at: [indexPath], with: .none)
-            }, completion: { _ in
-                if !isAtBottom {
-                    return
-                }
+            CATransaction.begin()
+            CATransaction.setCompletionBlock {
+                DispatchQueue.main.async {
+                    if !isAtBottom {
+                        return
+                    }
 
-                if let (indexPath, _) = self.getLastNonUpdateMessage() {
-                    self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    if let (indexPath, _) = self.getLastNonUpdateMessage() {
+                        self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    }
                 }
-            })
+            }
 
+            self.tableView?.beginUpdates()
+            self.tableView?.endUpdates()
+            self.tableView?.reloadRows(at: [indexPath], with: .none)
+
+            CATransaction.commit()
         }
     }
 
@@ -2959,9 +2965,28 @@ import SwiftUI
         }
 
         // Chat messages
+        let isOwnMessage = message.isMessage(from: self.account.userId)
         let messageString = message.parsedMarkdownForChat() ?? NSMutableAttributedString()
         var width = originalWidth
-        width -= message.isSystemMessage ? 80.0 : 30.0 // *right(10) + dateLabel(40) : 3*right(10)
+
+        if message.isSystemMessage {
+            // 4 * right(10) + dateLabel(40)
+            width -= 80.0
+        } else {
+            // Avatar is already subtracted, but we need to take padding of left(10) into account
+            width -= 10.0
+
+            // MessageTextView has padding of 2*10
+            width -= 20.0
+
+            if isOwnMessage {
+                // For own messages we have a padding of 40 to the avatar view and 10 to the right superview
+                width -= 50.0
+            } else {
+                // For others messages, we have a padding of 10 to the avatar view und 64 to the right superview
+                width -= 74.0
+            }
+        }
 
         self.textViewForSizing.attributedText = messageString
 
@@ -2972,19 +2997,24 @@ import SwiftUI
             height = PollMessageView().pollMessageBodyHeight(with: messageString.string, width: width)
         }
 
-        if (message.isGroupMessage && message.parent == nil) || message.isSystemMessage {
-            height += 10 // 2*left(5)
+        if (message.isGroupMessage && message.parent == nil) || message.isSystemMessage || isOwnMessage {
+            height += 15 // MessageTextTop(10) + MessageTextBottom(5)
 
             if height < chatGroupedMessageCellMinimumHeight {
                 height = chatGroupedMessageCellMinimumHeight
             }
         } else {
-            height += kChatCellAvatarHeight
-            height += 20.0 // right(10) + 2*left(5)
+            height += 40.0 // HeaderPart(30) + MessageTextTop(5) + MessageTextBottom(5)
 
             if height < chatMessageCellMinimumHeight {
                 height = chatMessageCellMinimumHeight
             }
+        }
+
+        // E.g. For media files we hide the filename if there's no caption, so there's no height here
+        // but we always have a default height measured, so we subtract the height again
+        if messageString.string.isEmpty {
+            height -= ceil(bodyBounds.height)
         }
 
         if !message.reactionsArray().isEmpty {
@@ -2996,7 +3026,7 @@ import SwiftUI
         }
 
         if message.parent != nil {
-            height += 60 // quoteView(60)
+            height += 70 // quoteView(70)
         }
 
         // Voice message should be before message.file check since it contains a file
@@ -3015,18 +3045,18 @@ import SwiftUI
             }
 
             height += 10 // right(10)
-
-            // if the message is a media file, reduce the message height by the bodyTextView height to hide it since it usually just contains an autogenerated file name (e.g. IMG_1234.jpg)
-            if NCUtils.isImage(fileType: file.mimetype) || NCUtils.isVideo(fileType: file.mimetype) {
-                // Only hide the filename if there's a preview available and we didn't receive a file caption
-                if file.previewAvailable && message.message == "{file}" {
-                    height -= ceil(bodyBounds.height)
-                }
-            }
         }
 
         if message.geoLocation() != nil {
             height += locationMessageCellPreviewHeight + 10 // right(10)
+        }
+
+        if !message.isSystemMessage {
+            // Bubble top(8) + bottom(8)
+            height += 16
+
+            // Footer height
+            height += 20
         }
 
         return height
@@ -3165,15 +3195,19 @@ import SwiftUI
         let previewMessageView = previewTableViewCell.contentView
         previewMessageView.frame = CGRect(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight)
         previewMessageView.layer.masksToBounds = true
+        previewMessageView.backgroundColor = .clear
 
         // Create a mask to not show the avatar part when showing a grouped messages while animating
         // The mask will be reset in willDisplayContextMenuWithConfiguration so the avatar is visible when the context menu is shown
-        let maskLayer = CAShapeLayer()
-        let maskRect = CGRect(x: 0, y: heightDifferenceGroupedToNonGrouped, width: previewMessageView.frame.size.width, height: cellHeight)
-        maskLayer.path = CGPath(rect: maskRect, transform: nil)
+        if heightDifferenceGroupedToNonGrouped > 0 {
+            let maskLayer = CAShapeLayer()
+            let maskRect = CGRect(x: 0, y: heightDifferenceGroupedToNonGrouped + 16, width: previewMessageView.frame.size.width, height: cellHeight - 8)
+            maskLayer.path = CGPath(rect: maskRect, transform: nil)
 
-        previewMessageView.layer.mask = maskLayer
-        previewMessageView.backgroundColor = .systemBackground
+            previewMessageView.layer.mask = maskLayer
+        }
+
+        previewMessageView.backgroundColor = .systemGroupedBackground
         self.contextMenuMessageView = previewMessageView
 
         // Restore grouped-status

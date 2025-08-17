@@ -41,11 +41,11 @@ import SwiftyAttributes
         addSubview(contentView)
         contentView.frame = frame
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        contentView.backgroundColor = .systemBackground
+        contentView.backgroundColor = .systemGroupedBackground
 
         leftIndicator.backgroundColor = NCAppBranding.themeColor()
         backgroundView.backgroundColor = NCAppBranding.themeColor().withAlphaComponent(0.3)
-        wrapperView.backgroundColor = .systemBackground
+        wrapperView.backgroundColor = .systemGroupedBackground
         wrapperView.layer.cornerRadius = 8
         wrapperView.layer.masksToBounds = true
 

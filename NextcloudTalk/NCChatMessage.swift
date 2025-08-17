@@ -155,7 +155,10 @@ import SwiftyAttributes
     public var systemMessageFormat: NSMutableAttributedString {
         guard let message = self.parsedMessage() else { return NSMutableAttributedString(string: "") }
 
-        return message.withTextColor(.tertiaryLabel)
+        let paragraphStyle: NSMutableParagraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = NSTextAlignment.center
+
+        return message.withTextColor(.tertiaryLabel).withParagraphStyle(paragraphStyle)
     }
 
     // TODO: Should probably be an optional?

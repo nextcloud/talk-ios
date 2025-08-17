@@ -63,6 +63,9 @@ public let pollGroupedMessageCellIdentifier = "pollGroupedMessageCellIdentifier"
 
 class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, ReactionsViewDelegate {
 
+    // TODO: Reset cache when theming changes
+    static var bubbleColorCache = NSCache<NSString, UIColor>()
+
     public weak var delegate: BaseChatTableViewCellDelegate?
 
     @IBOutlet weak var avatarButton: AvatarButton!
@@ -70,11 +73,33 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var statusView: UIStackView!
     @IBOutlet weak var messageBodyView: UIView!
+    @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var headerPart: UIView!
     @IBOutlet weak var quotePart: UIView!
     @IBOutlet weak var reactionPart: UIView!
     @IBOutlet weak var referencePart: UIView!
+    @IBOutlet weak var footerPart: UIView!
+
+    @IBOutlet weak var bubbleView: UIView!
+
+    // Since we use different relations depending on the bubble (other user or app user) we setup
+    // the constraints programmatically instead of in interface builder
+    lazy var bubbleViewLeftConstraintEqual: NSLayoutConstraint = {
+        return bubbleView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10)
+    }()
+
+    lazy var bubbleViewLeftConstraintGreaterThan: NSLayoutConstraint = {
+        return bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40)
+    }()
+
+    lazy var bubbleViewRightConstraintEqual: NSLayoutConstraint = {
+        return bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+    }()
+
+    lazy var bubbleViewRightConstraintLessThan: NSLayoutConstraint = {
+        return bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64)
+    }()
 
     public var message: NCChatMessage?
     public var room: NCRoom?
@@ -134,9 +159,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotedMessageView?.avatarView.image = nil
 
         self.headerPart.isHidden = false
+        self.avatarButton.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
+
+        self.messageBodyViewTopConstraint.constant = 5
 
         self.referenceView?.prepareForReuse()
 
@@ -191,6 +219,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             shouldShowReadStatus = !(roomCapabilities.readStatusPrivacy)
         }
 
+        let isOwnMessage = message.isMessage(from: account.userId)
+
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
         if let parent = message.parent {
             self.showQuotePart()
@@ -204,10 +234,52 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         if message.isGroupMessage, message.parent == nil {
             self.headerPart.isHidden = true
+            self.avatarButton.isHidden = true
+            self.messageBodyViewTopConstraint.constant = 10
         }
 
+        self.bubbleViewLeftConstraintEqual.isActive = !isOwnMessage
+        self.bubbleViewLeftConstraintGreaterThan.isActive = isOwnMessage
+
+        self.bubbleViewRightConstraintEqual.isActive = isOwnMessage
+        self.bubbleViewRightConstraintLessThan.isActive = !isOwnMessage
+
+        var backgroundColor: UIColor? = .secondarySystemGroupedBackground
+
+        if isOwnMessage {
+            backgroundColor = BaseChatTableViewCell.bubbleColorCache.object(forKey: account.accountId as NSString)
+
+            if backgroundColor == nil {
+                var lightColor: UIColor
+                var darkColor: UIColor
+
+                if #available(iOS 18.0, *) {
+                    lightColor = NCAppBranding.themeColor().withProminence(.quaternary)
+                    darkColor = NCAppBranding.themeColor().withProminence(.secondary)
+                } else {
+                    lightColor = NCAppBranding.themeColor().withAlphaComponent(0.1)
+                    darkColor = NCAppBranding.themeColor().withAlphaComponent(0.2)
+                }
+
+                backgroundColor = NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
+                BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
+            }
+
+            // Ensure titleLabel does not interfere with width calculation (only on devices, not simulator)
+            self.titleLabel.text = ""
+            self.headerPart.isHidden = true
+            self.avatarButton.isHidden = true
+            self.messageBodyViewTopConstraint.constant = 10
+        }
+
+        self.bubbleView.backgroundColor = backgroundColor
+
         // Make sure the status view is empty, when no delivery state should be set
-        self.statusView.subviews.forEach { $0.removeFromSuperview() }
+        self.statusView.subviews.forEach {
+            if $0 != dateLabel {
+                $0.removeFromSuperview()
+            }
+        }
 
         if message.isDeleting {
             self.setDeliveryState(to: .deleting)
@@ -221,8 +293,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             } else {
                 self.setDeliveryState(to: .sent)
             }
-        } else if message.isSilent {
-            self.setDeliveryState(to: .silent)
+        }
+
+        if message.isSilent {
+            addSystemImageToStatus("bell.slash")
+        }
+
+        if isOwnMessage, message.lastEditTimestamp > 0 {
+            addSystemImageToStatus("pencil")
         }
 
         let reactionsArray = message.reactionsArray()
@@ -283,6 +361,18 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
     }
 
+    func addSystemImageToStatus(_ systemName: String) {
+        let view = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 14))
+        let image = UIImage(systemName: systemName)?.withTintColor(.secondaryLabel).withRenderingMode(.alwaysOriginal)
+
+        view.image = NCUtils.renderAspectImage(image: image, ofSize: .init(width: 20, height: 12), centerImage: true)
+        view.contentMode = .scaleAspectFit
+        view.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        view.heightAnchor.constraint(equalToConstant: 14).isActive = true
+
+        self.statusView.addArrangedSubview(view)
+    }
+
     func addSlideToReplyGestureRecognizer(for message: NCChatMessage) {
         if let action = DRCellSlideAction(forFraction: 0.2) {
             action.behavior = .pullBehavior
@@ -317,33 +407,23 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if deliveryState == .sending || deliveryState == .deleting {
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
-            activityIndicator.radius = 7.0
-            activityIndicator.cycleColors = [.systemGray2]
+            activityIndicator.radius = 6.0
+            activityIndicator.strokeWidth = 1.5
+            activityIndicator.cycleColors = [.secondaryLabel]
             activityIndicator.startAnimating()
-            activityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            activityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(activityIndicator)
 
         } else if deliveryState == .failed {
             let errorView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-            let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.red).withRenderingMode(.alwaysOriginal)
+            let errorImage = UIImage(systemName: "exclamationmark.circle")?.withTintColor(.systemRed).withRenderingMode(.alwaysOriginal)
 
             errorView.image = errorImage
             errorView.contentMode = .scaleAspectFit
-            errorView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            errorView.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(errorView)
-
-        } else if deliveryState == .silent {
-            let silentView = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 20))
-            var silentImage = UIImage(systemName: "bell.slash")?.withTintColor(.systemGray2).withRenderingMode(.alwaysOriginal)
-            silentImage = silentImage?.withConfiguration(UIImage.SymbolConfiguration(textStyle: .subheadline))
-
-            silentView.image = silentImage
-            silentView.contentMode = .center
-            silentView.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-            self.statusView.addArrangedSubview(silentView)
 
         } else if deliveryState == .sent || deliveryState == .read {
             var checkImageName = "check"
@@ -357,9 +437,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             checkView.image = checkImage
             checkView.contentMode = .scaleAspectFit
-            checkView.tintColor = .systemGray2
+            checkView.tintColor = .secondaryLabel
             checkView.accessibilityIdentifier = "MessageSent"
-            checkView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            checkView.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(checkView)
         }
@@ -381,7 +461,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             NSLayoutConstraint.activate([
                 quotedMessageView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
                 quotedMessageView.rightAnchor.constraint(equalTo: self.quotePart.rightAnchor, constant: -10),
-                quotedMessageView.topAnchor.constraint(equalTo: self.quotePart.topAnchor),
+                quotedMessageView.topAnchor.constraint(equalTo: self.quotePart.topAnchor, constant: 10),
                 quotedMessageView.bottomAnchor.constraint(equalTo: self.quotePart.bottomAnchor)
             ])
 
@@ -543,8 +623,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         let fileActivityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
         self.fileActivityIndicator = fileActivityIndicator
 
-        fileActivityIndicator.radius = 7
-        fileActivityIndicator.cycleColors = [.systemGray2]
+        fileActivityIndicator.radius = 6
+        fileActivityIndicator.strokeWidth = 1.5
+        fileActivityIndicator.cycleColors = [.secondaryLabel]
 
         if progress > 0 {
             fileActivityIndicator.indicatorMode = .determinate
@@ -552,7 +633,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
 
         fileActivityIndicator.startAnimating()
-        fileActivityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        fileActivityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
         self.statusView.addArrangedSubview(fileActivityIndicator)
     }
 

@@ -367,7 +367,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         }
     }
 
-    UIColor *defaultColor = [NCAppBranding chatForegroundColor];
+    UIColor *defaultColor = [UIColor labelColor];
 
     NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithString:parsedMessage];
     [attributedMessage addAttribute:NSForegroundColorAttributeName value:defaultColor range:NSMakeRange(0, parsedMessage.length)];
@@ -434,6 +434,13 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     // In some circumstances we want/need to hide the message in the chat, but still want to show it in other parts like the conversation list
     if ([self getDeckCardUrlForReferenceProvider]) {
         return nil;
+    }
+
+    // Hide the filename for image and video files, in case there's no caption
+    if (self.file && self.file.previewAvailable && ([NCUtils isImageWithFileType:self.file.mimetype] || [NCUtils isVideoWithFileType:self.file.mimetype])) {
+        if ([self.message isEqualToString:@"{file}"]) {
+            return nil;
+        }
     }
 
     NSMutableAttributedString *parsedMessage = self.parsedMessage;

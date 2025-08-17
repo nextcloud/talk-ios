@@ -104,7 +104,7 @@ import MBProgressHUD
         let toolbar = UIToolbar(frame: .init(x: 0, y: 0, width: 100, height: 44))
         let flexibleSpace = UIBarButtonItem(systemItem: .flexibleSpace)
 
-        toolbar.barTintColor = .systemBackground
+        toolbar.barTintColor = .systemGroupedBackground
         toolbar.isTranslucent = false
         toolbar.setItems([removeItemButton, flexibleSpace, cropItemButton, previewItemButton, addItemButton], animated: false)
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -193,6 +193,7 @@ import MBProgressHUD
         collectionView.dataSource = self
         collectionView.isPagingEnabled = true
         collectionView.showsVerticalScrollIndicator = false
+        collectionView.backgroundColor = .systemGroupedBackground
         return collectionView
     }()
 

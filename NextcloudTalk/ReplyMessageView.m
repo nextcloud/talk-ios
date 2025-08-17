@@ -33,7 +33,7 @@
 
 - (void)configureSubviews
 {
-    self.backgroundColor = [NCAppBranding backgroundColor];
+    self.backgroundColor = [UIColor systemGroupedBackgroundColor];
     
     [self addSubview:self.quoteContainerView];
     [self addSubview:self.cancelButton];
@@ -85,7 +85,7 @@
 {
     if (_topBorder && [self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
         // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
-        _topBorder.backgroundColor = [UIColor systemGray6Color].CGColor;
+        _topBorder.backgroundColor = [UIColor quaternarySystemFillColor].CGColor;
     }
 }
 
@@ -138,7 +138,7 @@
     if (!_topBorder) {
         _topBorder = [CAGradientLayer layer];
         _topBorder.frame = CGRectMake(0.0, 0.0, self.frame.size.width, 1);
-        _topBorder.backgroundColor = [UIColor systemGray6Color].CGColor;
+        _topBorder.backgroundColor = [UIColor quaternarySystemFillColor].CGColor;
     }
     return _topBorder;
 }
