@@ -526,7 +526,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     // MARK: - ReactionsPart
 
     func configureThreadRepliesButton() {
-        self.threadRepliesButton.setTitle(NSLocalizedString("Go to thread", comment: ""), for: .normal)
         self.threadRepliesButton.setButtonStyle(style: .tertiary)
         self.threadRepliesButton.tintColor = .label
         self.threadRepliesButton.configuration?.image = UIImage(systemName: "bubble.left.and.bubble.right")
