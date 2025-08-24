@@ -7,6 +7,13 @@
 
 #import "NCChatMessage.h"
 
+@interface NCThread () {
+    NCChatMessage *firstMessageFromDict;
+    NCChatMessage *lastMessageFromDict;
+}
+
+@end
+
 @implementation NCThread
 
 + (NSString *)primaryKey {
@@ -33,8 +40,11 @@
     thread.notificationLevel = [[threadAttendeeDict objectForKey:@"notificationLevel"] integerValue];
 
     NCChatMessage *firstMessage = [NCChatMessage messageWithDictionary:[threadInfoDict objectForKey:@"first"] andAccountId:accountId];
+    thread->firstMessageFromDict = firstMessage;
     thread.firstMessageId = firstMessage.internalId;
+
     NCChatMessage *lastMessage = [NCChatMessage messageWithDictionary:[threadInfoDict objectForKey:@"last"] andAccountId:accountId];
+    thread->lastMessageFromDict = lastMessage;
     thread.lastMessageId = lastMessage.internalId;
 
     return thread;
@@ -103,7 +113,17 @@
         return [[NCChatMessage alloc] initWithValue:managedMessage];
     }
 
-    return nil;
+    return self->firstMessageFromDict;
+}
+
+- (NCChatMessage *)lastMessage
+{
+    NCChatMessage *managedMessage = [NCChatMessage objectsWhere:@"internalId = %@", self.lastMessageId].firstObject;
+    if (managedMessage) {
+        return [[NCChatMessage alloc] initWithValue:managedMessage];
+    }
+
+    return self->lastMessageFromDict;
 }
 
 @end

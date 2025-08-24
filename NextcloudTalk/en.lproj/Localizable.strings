@@ -901,8 +901,8 @@
 /* No comment provided by engineer. */
 "Double tap to display call options" = "Double tap to display call options";
 
-/* No comment provided by engineer. */
-"Double tap to display events menu" = "Double tap to display events menu";
+/* A menu to show additional options for the current conversation */
+"Double tap to display option menu" = "Double tap to display option menu";
 
 /* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
@@ -1027,9 +1027,6 @@
 /* No comment provided by engineer. */
 "Error occurred while editing a message" = "Error occurred while editing a message";
 
-/* No comment provided by engineer. */
-"Events menu" = "Events menu";
-
 /* External signaling used */
 "External" = "External";
 
@@ -1116,9 +1113,6 @@
 
 /* Give consent to the recording of the call and join that call */
 "Give consent and join call" = "Give consent and join call";
-
-/* No comment provided by engineer. */
-"Go to thread" = "Go to thread";
 
 /* No comment provided by engineer. */
 "guest" = "guest";
@@ -1333,6 +1327,9 @@
 /* No comment provided by engineer. */
 "Meeting settings" = "Meeting settings";
 
+/* Headline for a 'meeting section' */
+"Meetings" = "Meetings";
+
 /* 'Mentioned' meaning 'Mentioned conversations' */
 "Mentioned" = "Mentioned";
 
@@ -1481,6 +1478,9 @@
 "No poll drafts saved yet" = "No poll drafts saved yet";
 
 /* No comment provided by engineer. */
+"No recent threads" = "No recent threads";
+
+/* No comment provided by engineer. */
 "No response from server" = "No response from server";
 
 /* No comment provided by engineer. */
@@ -1572,6 +1572,9 @@
 
 /* No comment provided by engineer. */
 "Open in %@" = "Open in %@";
+
+/* A menu to show additional options for the current conversation */
+"Option menu" = "Option menu";
 
 /* No comment provided by engineer. */
 "Other Accounts" = "Other Accounts";
@@ -1683,6 +1686,9 @@
 
 /* No comment provided by engineer. */
 "Received call from an old account" = "Received call from an old account";
+
+/* No comment provided by engineer. */
+"Recent threads" = "Recent threads";
 
 /* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
