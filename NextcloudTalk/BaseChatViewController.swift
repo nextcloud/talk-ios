@@ -3138,7 +3138,7 @@ import SwiftUI
             let pointInCell = tableView.convert(point, to: cell)
             let pointInBubbleView = cell.convert(pointInCell, to: cell.bubbleView)
 
-            if let reactionPart = cell.reactionPart, reactionPart.frame.contains(pointInBubbleView), let message = cell.message {
+            if let reactionPart = cell.reactionPart, reactionPart.frame.contains(pointInBubbleView), let message = cell.message, !message.reactionsArray().isEmpty {
                 self.showReactionsSummary(of: message)
                 return nil
             }
