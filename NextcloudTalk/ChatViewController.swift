@@ -164,19 +164,84 @@ import SwiftUI
         return callOptionsButton
     }()
 
-    private lazy var eventsButton: BarButtonItemWithActivity = {
+    private lazy var optionMenuButton: BarButtonItemWithActivity = {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
-        let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration) ?? UIImage()
-        let eventsButton = BarButtonItemWithActivity(image: buttonImage)
+        let buttonImage = UIImage(systemName: "ellipsis", withConfiguration: symbolConfiguration) ?? UIImage()
+        let button = BarButtonItemWithActivity(image: buttonImage)
 
-        eventsButton.innerButton.menu = createEventsMenu()
-        eventsButton.innerButton.showsMenuAsPrimaryAction = true
+        button.innerButton.menu = createOptionsRoomMenu()
+        button.innerButton.showsMenuAsPrimaryAction = true
 
-        eventsButton.accessibilityLabel = NSLocalizedString("Events menu", comment: "")
-        eventsButton.accessibilityHint = NSLocalizedString("Double tap to display events menu", comment: "")
+        button.accessibilityLabel = NSLocalizedString("Option menu", comment: "A menu to show additional options for the current conversation")
+        button.accessibilityHint = NSLocalizedString("Double tap to display option menu", comment: "A menu to show additional options for the current conversation")
 
-        return eventsButton
+        return button
     }()
+
+    private func createOptionsRoomMenu() -> UIMenu {
+        var menuElements: [UIMenuElement] = []
+
+        if room.supportsUpcomingEvents {
+            menuElements.append(self.createEventsMenu())
+        }
+
+        if room.supportsThreading {
+            menuElements.append(self.createThreadingRoomMenu())
+        }
+
+        return UIMenu(options: [.displayInline], children: menuElements)
+    }
+
+    private func createThreadingRoomMenu() -> UIMenu {
+        let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
+            guard let self else { return }
+
+            NCAPIController.sharedInstance().getThreads(for: self.account.accountId, in: self.room.token, withLimit: 5) { threads in
+                guard let threads, !threads.isEmpty else {
+                    completion([UIAction(title: NSLocalizedString("No recent threads", comment: ""), attributes: .disabled, handler: { _ in })])
+                    return
+                }
+
+                var actions: [UIAction] = []
+                let menuCreationGroup = DispatchGroup()
+
+                for thread in threads {
+                    menuCreationGroup.enter()
+
+                    let message = thread.lastMessage() ?? thread.firstMessage()
+
+                    let action = UIAction(title: thread.title, handler: { _ in
+                        guard let message else { return }
+                        self.didPressShowThread(for: message)
+                    })
+
+                    actions.append(action)
+
+                    guard let message else {
+                        menuCreationGroup.leave()
+                        continue
+                    }
+
+                    action.subtitle = message.parsedMarkdownForChat().string
+                    AvatarManager.shared.getActorAvatar(forId: message.actorId, withType: message.actorType, withDisplayName: nil, withRoomToken: self.room.token, withStyle: self.traitCollection.userInterfaceStyle, usingAccount: self.account) { image in
+                        if let image {
+                            action.image = NCUtils.roundedImage(fromImage: image)
+                        }
+
+                        menuCreationGroup.leave()
+                    }
+                }
+
+                // TODO: Add a "More threads" button if the limit was returned and open a dedicated view?
+
+                menuCreationGroup.notify(queue: .main) {
+                    completion(actions)
+                }
+            }
+        }
+
+        return UIMenu(title: NSLocalizedString("Recent threads", comment: ""), options: [.displayInline], children: [deferredMenuElement])
+    }
 
     private func createEventsMenu() -> UIMenu {
         if self.room.isEvent {
@@ -206,7 +271,7 @@ import SwiftUI
             menuElements.append(deleteMenu)
         }
 
-        return UIMenu(children: menuElements)
+        return UIMenu(title: "", options: [.displayInline], children: menuElements)
     }
 
     private func createUpcomingEventsMenu() -> UIMenu {
@@ -238,16 +303,15 @@ import SwiftUI
                 self.present(hostingController, animated: true)
             }
 
-            let scheduleMeetingMenu = UIMenu(title: "", options: [.displayInline], children: [scheduleMeetingAction])
-            menuElements.append(scheduleMeetingMenu)
+            menuElements.append(scheduleMeetingAction)
         }
 
-        return UIMenu(children: menuElements)
+        return UIMenu(title: NSLocalizedString("Meetings", comment: "Headline for a 'meeting section'"), options: [.displayInline], children: menuElements)
     }
 
     private func handleMeetingCreationSuccess() {
         // Re-create menu so upcoming events are refetched
-        eventsButton.innerButton.menu = createEventsMenu()
+        optionMenuButton.innerButton.menu = createOptionsRoomMenu()
     }
 
     private var messageExpirationTimer: Timer?
@@ -324,13 +388,13 @@ import SwiftUI
         super.viewDidLoad()
 
         var barButtonsItems: [UIBarButtonItem] = []
+        // Option menu
+        if thread == nil, room.supportsUpcomingEvents || room.supportsThreading {
+            barButtonsItems.append(optionMenuButton)
+        }
         // Call options
         if room.supportsCalling && thread == nil {
             barButtonsItems.append(callOptionsButton)
-        }
-        // Upcoming events
-        if room.supportsUpcomingEvents && thread == nil {
-            barButtonsItems.append(eventsButton)
         }
 
         self.navigationItem.rightBarButtonItems = barButtonsItems
@@ -1245,6 +1309,11 @@ import SwiftUI
                             }
                         }
 
+                        continue
+                    }
+
+                    if self.thread == nil, newMessage.isThreadMessage() {
+                        // Thread messages should not be displayed outside of threads
                         continue
                     }
 

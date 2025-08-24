@@ -139,6 +139,15 @@ import SwiftyAttributes
             self.type != .changelog && self.type != .noteToSelf
     }
 
+    public var supportsThreading: Bool {
+        if self.isFederated {
+            return false
+        }
+
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityThreads, forAccountId: self.accountId) &&
+        self.type != .changelog && self.type != .noteToSelf
+    }
+
     public var supportsUpcomingEvents: Bool {
         if self.type == .formerOneToOne || self.type == .changelog || self.type == .noteToSelf {
             return false

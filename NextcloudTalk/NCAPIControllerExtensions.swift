@@ -1160,7 +1160,7 @@ import NextcloudKit
     // MARK: - Threads
 
     @nonobjc
-    public func getThreads(for accountId: String, in roomToken: String, completionBlock: @escaping (_ threads: [NCThread]?) -> Void) {
+    public func getThreads(for accountId: String, in roomToken: String, withLimit limit: Int = 50, completionBlock: @escaping (_ threads: [NCThread]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1173,7 +1173,7 @@ import NextcloudKit
         let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/recent", withAPIVersion: apiVersion, for: account)
 
         let parameters: [String: Any] = [
-            "limit": 50
+            "limit": limit
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
