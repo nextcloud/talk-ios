@@ -78,6 +78,7 @@ import SDWebImage
     // MARK: - Actor avatars
 
     // swiftlint:disable:next function_parameter_count
+    @discardableResult
     public func getActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
         if let actorId {
             if actorType == "bots" {

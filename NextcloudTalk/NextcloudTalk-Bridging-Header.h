@@ -47,9 +47,9 @@
 
 #import "GeoLocationRichObject.h"
 #import "NCChatMessage.h"
+#import "NCThread.h"
 #import "NCChatTitleView.h"
 #import "NCMessageParameter.h"
-#import "QuotedMessageView.h"
 #import "ReplyMessageView.h"
 #import "SystemMessageTableViewCell.h"
 
