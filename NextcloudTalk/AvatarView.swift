@@ -147,11 +147,15 @@ import SDWebImage
 
     private func setUserStatus(_ userStatus: String, with backgroundColor: UIColor) {
         if userStatus == "online" {
-            if let statusImage = statusImageWith(name: "circle.fill", color: .systemGreen, padding: 2) {
+            if let statusImage = statusImageWith(name: "checkmark.circle.fill", color: .systemGreen, padding: 2) {
                 setUserStatusImage(statusImage, with: backgroundColor)
             }
         } else if userStatus == "away" {
-            if let statusImage = statusImageWith(name: "moon.fill", color: .systemYellow, padding: 2) {
+            if let statusImage = statusImageWith(name: "clock.fill", color: .systemYellow, padding: 2) {
+                setUserStatusImage(statusImage, with: backgroundColor)
+            }
+        } else if userStatus == "busy" {
+            if let statusImage = statusImageWith(name: "circle.fill", color: .systemRed, padding: 2) {
                 setUserStatusImage(statusImage, with: backgroundColor)
             }
         } else if userStatus == "dnd" {

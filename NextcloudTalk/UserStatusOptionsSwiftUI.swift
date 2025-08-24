@@ -82,6 +82,10 @@ struct UserStatusOptionsSwiftUI: View {
         awayOption.identifier = kUserStatusAway
         awayOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusAway)
 
+        let busyOption = DetailedOption()
+        busyOption.identifier = kUserStatusBusy
+        busyOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusBusy)
+
         let dndOption = DetailedOption()
         dndOption.identifier = kUserStatusDND
         dndOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusDND)
@@ -94,6 +98,7 @@ struct UserStatusOptionsSwiftUI: View {
 
         options.append(onlineOption)
         options.append(awayOption)
+        options.append(busyOption)
         options.append(dndOption)
         options.append(invisibleOption)
     }
