@@ -170,9 +170,15 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
-
         self.threadRepliesButton.isHidden = true
-        self.reactionView?.updateReactions(reactions: [])
+
+        // There might be a better way to do this, but for now we remove the elements so they don't mess
+        // with autolayout even when they are hidden
+        self.reactionView?.removeFromSuperview()
+        self.reactionView = nil
+
+        self.quotedMessageView?.removeFromSuperview()
+        self.quotedMessageView = nil
 
         self.messageBodyViewTopConstraint.constant = 5
 
