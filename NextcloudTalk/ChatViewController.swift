@@ -1961,10 +1961,9 @@ import SwiftUI
 
         if let cell = cell as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let pointInReactionsContainerView = cell.convert(pointInCell, to: cell.reactionsContainerView)
-            let reactionView = cell.reactionsContainerView.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionsContainerView) })
+            let pointInBubbleView = cell.convert(pointInCell, to: cell.bubbleView)
 
-            if reactionView != nil, let message = cell.message {
+            if let reactionPart = cell.reactionPart, reactionPart.frame.contains(pointInBubbleView), let message = cell.message {
                 self.showReactionsSummary(of: message)
                 return nil
             }
