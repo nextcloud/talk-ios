@@ -2291,6 +2291,9 @@ import SwiftUI
             // Processing of update messages still happens when receiving new messages, so safe to skip here
             guard !newMessage.isUpdateMessage else { continue }
 
+            // Hide messages of threads when not displaying a thread
+            guard self.thread != nil || !newMessage.isThreadMessage() else { continue }
+
             let newMessageDate = Date(timeIntervalSince1970: TimeInterval(newMessage.timestamp))
             let keyDate = self.getKeyForDate(date: newMessageDate, inDictionary: dictionary)
 

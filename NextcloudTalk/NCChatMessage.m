@@ -713,4 +713,9 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     return self.threadId > 0 && self.isThread && self.threadId == self.messageId;
 }
 
+- (BOOL)isThreadMessage
+{
+    return self.threadId > 0 && self.isThread && self.threadId != self.messageId;
+}
+
 @end

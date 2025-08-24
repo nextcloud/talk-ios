@@ -104,6 +104,7 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock _Nullable)block;
 - (void)setPreviewImageSize:(CGSize)size;
 - (BOOL)isThreadOriginalMessage;
+- (BOOL)isThreadMessage;
 
 // Public for swift extension
 - (NSMutableArray * _Nonnull)temporaryReactions;
