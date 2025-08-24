@@ -10,7 +10,6 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="QuotedMessageView" customModule="NextcloudTalk" customModuleProvider="target">
             <connections>
-                <outlet property="actionButton" destination="TB2-iA-Q7T" id="g7S-hO-EwY"/>
                 <outlet property="actorLabel" destination="Og8-UX-Pfb" id="ZAp-d2-8fO"/>
                 <outlet property="avatarImageView" destination="SXt-4d-cE7" id="6UG-nG-P05"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="Ik6-lp-huC"/>
@@ -27,7 +26,7 @@
                     <rect key="frame" x="0.0" y="0.0" width="492" height="243"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EWA-By-s4w">
-                            <rect key="frame" x="0.0" y="89.666666666666671" width="440" height="64.000000000000014"/>
+                            <rect key="frame" x="0.0" y="89.666666666666671" width="492" height="64.000000000000014"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b8J-o3-1gN">
                                     <rect key="frame" x="8" y="8" width="8" height="48"/>
@@ -44,7 +43,7 @@
                                     </constraints>
                                 </imageView>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Og8-UX-Pfb">
-                                    <rect key="frame" x="52" y="8" width="368" height="20"/>
+                                    <rect key="frame" x="52" y="8" width="420" height="20"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="20" id="sKA-Ho-qJw"/>
                                     </constraints>
@@ -53,7 +52,7 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L4f-gk-5pb">
-                                    <rect key="frame" x="24" y="36" width="396" height="20"/>
+                                    <rect key="frame" x="24" y="36" width="448" height="20"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="20" id="kCI-5U-gIm"/>
                                     </constraints>
@@ -77,15 +76,6 @@
                                 <constraint firstItem="SXt-4d-cE7" firstAttribute="top" secondItem="EWA-By-s4w" secondAttribute="top" constant="8" id="z4x-SX-6y4"/>
                             </constraints>
                         </view>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TB2-iA-Q7T">
-                            <rect key="frame" x="448" y="99.666666666666671" width="44" height="44.000000000000014"/>
-                            <constraints>
-                                <constraint firstAttribute="width" constant="44" id="G0X-iN-KO7"/>
-                                <constraint firstAttribute="height" constant="44" id="zSx-4K-kRR"/>
-                            </constraints>
-                            <state key="normal" title="Button"/>
-                            <buttonConfiguration key="configuration" style="plain" image="bubble.left.and.bubble.right" catalog="system"/>
-                        </button>
                     </subviews>
                 </stackView>
             </subviews>
@@ -100,7 +90,6 @@
         </view>
     </objects>
     <resources>
-        <image name="bubble.left.and.bubble.right" catalog="system" width="128" height="96"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

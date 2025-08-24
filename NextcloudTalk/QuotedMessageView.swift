@@ -12,7 +12,6 @@ import Foundation
     @IBOutlet weak var avatarImageView: AvatarImageView!
     @IBOutlet weak var actorLabel: UILabel!
     @IBOutlet weak var messageLabel: UILabel!
-    @IBOutlet weak var actionButton: UIButton!
 
     var highlighted: Bool = false {
         didSet {
@@ -45,14 +44,6 @@ import Foundation
         // Quote bar
         quoteBarView.backgroundColor = .systemFill
         quoteBarView.layer.cornerRadius = quoteBarView.frame.width / 2
-
-        // Action button
-        actionButton.isHidden = true
-        actionButton.tintColor = .label
-        var config = UIButton.Configuration.plain()
-        config.image = UIImage(systemName: "bubble.left.and.bubble.right")
-        config.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .medium)
-        actionButton.configuration = config
 
         // Avatar
         avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2

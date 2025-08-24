@@ -240,16 +240,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarImageView.setActorAvatar(forMessage: parent, withAccount: account)
-
-            if thread == nil, message.isThread {
-                self.quotedMessageView?.actionButton.isHidden = false
-                self.quotedMessageView?.actionButton.addAction { [weak self] in
-                    guard let self else { return }
-                    self.delegate?.cellWants(toShowThread: message)
-                }
-            } else {
-                self.quotedMessageView?.actionButton.isHidden = true
-            }
         }
 
         if message.isGroupMessage, !message.willShowParentMessageInThread(thread) {
