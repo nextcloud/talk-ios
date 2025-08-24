@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -84,8 +85,31 @@
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xJ1-vA-lap" userLabel="ReactionsPart">
                                         <rect key="frame" x="0.0" y="554" width="683" height="40"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="sl2-Ye-qSv">
+                                                <rect key="frame" x="10" y="0.0" width="92" height="30"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="luL-wD-gBD" userLabel="Thread replies button" customClass="NCButton" customModule="NextcloudTalk" customModuleProvider="target">
+                                                        <rect key="frame" x="0.0" y="0.0" width="92" height="30"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="30" id="z7p-jQ-HKK"/>
+                                                        </constraints>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="plain" title="Button">
+                                                            <imageReference key="image" image="arrowshape.turn.up.left" catalog="system" symbolScale="small"/>
+                                                        </buttonConfiguration>
+                                                    </button>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="30" id="uez-A1-7KN"/>
+                                                </constraints>
+                                            </stackView>
+                                        </subviews>
                                         <constraints>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="sl2-Ye-qSv" secondAttribute="trailing" constant="10" id="B7f-b5-xLD"/>
                                             <constraint firstAttribute="height" constant="40" id="WP6-65-H6V"/>
+                                            <constraint firstItem="sl2-Ye-qSv" firstAttribute="top" secondItem="xJ1-vA-lap" secondAttribute="top" id="ayl-O1-vDp"/>
+                                            <constraint firstItem="sl2-Ye-qSv" firstAttribute="leading" secondItem="xJ1-vA-lap" secondAttribute="leading" constant="10" id="oXL-DW-XGb"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="coC-95-bYv" userLabel="FooterPart">
@@ -153,14 +177,17 @@
                 <outlet property="messageBodyViewTopConstraint" destination="ZJ3-BO-VvU" id="tWD-GI-evG"/>
                 <outlet property="quotePart" destination="Ei6-XM-uBR" id="EAa-7W-KZx"/>
                 <outlet property="reactionPart" destination="xJ1-vA-lap" id="2BH-GI-dXQ"/>
+                <outlet property="reactionStackView" destination="sl2-Ye-qSv" id="MF8-G4-EcJ"/>
                 <outlet property="referencePart" destination="rpi-JE-I3o" id="8wJ-p7-cEh"/>
                 <outlet property="statusView" destination="TkE-V6-ePd" id="NcS-Q2-IjU"/>
+                <outlet property="threadRepliesButton" destination="luL-wD-gBD" id="uGh-no-zpv"/>
                 <outlet property="titleLabel" destination="lOK-xG-raw" id="efR-bE-d0j"/>
             </connections>
             <point key="canvasLocation" x="354.34782608695656" y="121.875"/>
         </tableViewCell>
     </objects>
     <resources>
+        <image name="arrowshape.turn.up.left" catalog="system" width="128" height="104"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

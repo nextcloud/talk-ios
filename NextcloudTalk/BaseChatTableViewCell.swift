@@ -76,13 +76,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var statusView: UIStackView!
     @IBOutlet weak var messageBodyView: UIView!
     @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
+
     @IBOutlet weak var threadRepliesButton: NCButton!
-    @IBOutlet weak var reactionsContainerView: UIView!
-    @IBOutlet weak var reactionsContainerViewLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var reactionStackView: UIStackView!
 
     @IBOutlet weak var headerPart: UIView!
     @IBOutlet weak var quotePart: UIView!
     @IBOutlet weak var referencePart: UIView!
+    @IBOutlet weak var reactionPart: UIView!
     @IBOutlet weak var footerPart: UIView!
 
     @IBOutlet weak var bubbleView: UIView!
@@ -149,7 +150,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.headerPart.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
-        self.footerPart.isHidden = true
+        self.reactionPart.isHidden = true
 
         self.configureThreadRepliesButton()
     }
@@ -168,9 +169,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.avatarButton.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
-        self.footerPart.isHidden = true
+        self.reactionPart.isHidden = true
 
-        self.hideThreadRepliesButton()
+        self.threadRepliesButton.isHidden = true
+        self.reactionView?.updateReactions(reactions: [])
 
         self.messageBodyViewTopConstraint.constant = 5
 
@@ -251,6 +253,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
 
         if message.isGroupMessage, !message.willShowParentMessageInThread(thread) {
+            self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
             self.messageBodyViewTopConstraint.constant = 10
@@ -535,45 +538,28 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.delegate?.cellWants(toShowThread: message)
         }
 
-        self.hideThreadRepliesButton()
-    }
-
-    func hideThreadRepliesButton() {
         self.threadRepliesButton.isHidden = true
-        self.reactionsContainerViewLeadingConstraint.isActive = false
-        self.reactionsContainerViewLeadingConstraint = reactionsContainerView.leadingAnchor.constraint(equalTo: footerPart.leadingAnchor, constant: 50)
-        self.reactionsContainerViewLeadingConstraint.isActive = true
     }
 
     func showThreadRepliesButton() {
-        self.footerPart.isHidden = false
+        self.reactionPart.isHidden = false
         self.threadRepliesButton.isHidden = false
-        self.reactionsContainerViewLeadingConstraint.isActive = false
-        self.reactionsContainerViewLeadingConstraint = reactionsContainerView.leadingAnchor.constraint(equalTo: threadRepliesButton.trailingAnchor, constant: 10)
-        self.reactionsContainerViewLeadingConstraint.isActive = true
     }
 
     func showReactionsPart() {
-        self.footerPart.isHidden = false
+        self.reactionPart.isHidden = false
 
         if self.reactionView == nil {
             let flowLayout = UICollectionViewFlowLayout()
             flowLayout.scrollDirection = .horizontal
 
-            let reactionView = ReactionsView(frame: .init(x: 0, y: 0, width: 50, height: 40), collectionViewLayout: flowLayout)
+            let reactionView = ReactionsView(frame: .init(x: 0, y: 0, width: 50, height: 30), collectionViewLayout: flowLayout)
             reactionView.reactionsDelegate = self
             self.reactionView = reactionView
 
             reactionView.translatesAutoresizingMaskIntoConstraints = false
 
-            self.reactionsContainerView.addSubview(reactionView)
-
-            NSLayoutConstraint.activate([
-                reactionView.leftAnchor.constraint(equalTo: self.reactionsContainerView.leftAnchor, constant: 0),
-                reactionView.rightAnchor.constraint(equalTo: self.reactionsContainerView.rightAnchor, constant: 0),
-                reactionView.topAnchor.constraint(equalTo: self.reactionsContainerView.topAnchor, constant: 0),
-                reactionView.bottomAnchor.constraint(equalTo: self.reactionsContainerView.bottomAnchor, constant: 0)
-            ])
+            self.reactionStackView.addArrangedSubview(reactionView)
         }
     }
 

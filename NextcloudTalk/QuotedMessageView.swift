@@ -37,8 +37,8 @@ import Foundation
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         // Quoted message view
-        backgroundColor = NCAppBranding.backgroundColor()
-        layer.borderColor = NCAppBranding.placeholderColor().cgColor
+        backgroundColor = .clear
+        layer.borderColor = UIColor.secondarySystemFill.cgColor
         layer.borderWidth = 1
         layer.cornerRadius = 8
 
@@ -62,7 +62,7 @@ import Foundation
         actorLabel.textColor = .secondaryLabel
         actorLabel.font = .preferredFont(forTextStyle: .body)
 
-        messageLabel.textColor = NCAppBranding.chatForegroundColor()
+        messageLabel.textColor = .label
         messageLabel.font = .preferredFont(forTextStyle: .body)
     }
 }
