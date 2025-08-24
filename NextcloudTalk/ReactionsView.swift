@@ -73,4 +73,8 @@ import UIKit
             self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row])
         }
     }
+
+    override var intrinsicContentSize: CGSize {
+        return .init(width: self.collectionViewLayout.collectionViewContentSize.width, height: UICollectionView.noIntrinsicMetric)
+    }
 }
