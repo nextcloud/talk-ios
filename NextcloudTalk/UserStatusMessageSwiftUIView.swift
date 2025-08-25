@@ -284,6 +284,7 @@ struct UserStatusMessageSwiftUIView: View {
         }
 
         // Period
+        // TODO: Use calendar here...
         if clearAtTime != nil && clearAtType == "period" {
             switch clearAtTime {
             case "14400":
@@ -292,6 +293,8 @@ struct UserStatusMessageSwiftUIView: View {
                 return NSLocalizedString("an hour", comment: "")
             case "1800":
                 return NSLocalizedString("30 minutes", comment: "")
+            case "900":
+                return NSLocalizedString("15 minutes", comment: "")
             default:
                 return clearAtTime!
             }

@@ -79,6 +79,9 @@
 /* First step in scanning QR code instructions */
 "1. Access your server in a web browser" = "1. Access your server in a web browser";
 
+/* No comment provided by engineer. */
+"15 minutes" = "15 minutes";
+
 /* Second step in scanning QR code instructions */
 "2. Go to Settings > Security > Create new app password" = "2. Go to Settings > Security > Create new app password";
 
@@ -441,6 +444,9 @@
 
 /* No comment provided by engineer. */
 "Browse poll drafts" = "Browse poll drafts";
+
+/* No comment provided by engineer. */
+"Busy" = "Busy";
 
 /* No comment provided by engineer. */
 "Cached files" = "Cached files";

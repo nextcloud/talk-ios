@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSString * const kUserStatusOnline;
 extern NSString * const kUserStatusAway;
+extern NSString * const kUserStatusBusy;
 extern NSString * const kUserStatusDND;
 extern NSString * const kUserStatusInvisible;
 extern NSString * const kUserStatusOffline;
@@ -29,6 +30,7 @@ extern NSString * const kUserStatusOffline;
 + (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus;
 + (UIImage *)getOnlineSFIcon;
 + (UIImage *)getAwaySFIcon;
++ (UIImage *)getBusySFIcon;
 + (UIImage *)getDoNotDisturbSFIcon;
 + (UIImage *)getInvisibleSFIcon;
 - (NSString *)readableUserStatus;

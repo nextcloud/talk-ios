@@ -7,6 +7,7 @@
 
 NSString * const kUserStatusOnline      = @"online";
 NSString * const kUserStatusAway        = @"away";
+NSString * const kUserStatusBusy        = @"busy";
 NSString * const kUserStatusDND         = @"dnd";
 NSString * const kUserStatusInvisible   = @"invisible";
 NSString * const kUserStatusOffline     = @"offline";
@@ -54,6 +55,8 @@ NSString * const kUserStatusOffline     = @"offline";
         readableUserStatus = NSLocalizedString(@"Online", nil);
     } else if ([userStatus isEqualToString:kUserStatusAway]) {
         readableUserStatus = NSLocalizedString(@"Away", nil);
+    } else if ([userStatus isEqualToString:kUserStatusBusy]) {
+        readableUserStatus = NSLocalizedString(@"Busy", nil);
     } else if ([userStatus isEqualToString:kUserStatusDND]) {
         readableUserStatus = NSLocalizedString(@"Do not disturb", nil);
     } else if ([userStatus isEqualToString:kUserStatusInvisible]) {
@@ -67,12 +70,17 @@ NSString * const kUserStatusOffline     = @"offline";
 
 + (UIImage *)getOnlineSFIcon
 {
-    return [[UIImage systemImageNamed:@"circle.fill"] imageWithTintColor:[UIColor systemGreenColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+    return [[UIImage systemImageNamed:@"checkmark.circle.fill"] imageWithTintColor:[UIColor systemGreenColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (UIImage *)getAwaySFIcon
 {
-    return [[UIImage systemImageNamed:@"moon.fill"] imageWithTintColor:[UIColor systemYellowColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+    return [[UIImage systemImageNamed:@"clock.fill"] imageWithTintColor:[UIColor systemYellowColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+}
+
++ (UIImage *)getBusySFIcon
+{
+    return [[UIImage systemImageNamed:@"circle.fill"] imageWithTintColor:[UIColor systemRedColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (UIImage *)getDoNotDisturbSFIcon
@@ -129,6 +137,8 @@ NSString * const kUserStatusOffline     = @"offline";
         return [NCUserStatus getOnlineSFIcon];
     } else if ([_status isEqualToString:kUserStatusAway]) {
         return [NCUserStatus getAwaySFIcon];
+    } else if ([_status isEqualToString:kUserStatusBusy]) {
+        return [NCUserStatus getBusySFIcon];
     } else if ([_status isEqualToString:kUserStatusDND]) {
         return [NCUserStatus getDoNotDisturbSFIcon];
     } else if ([_status isEqualToString:kUserStatusInvisible]) {
@@ -142,6 +152,7 @@ NSString * const kUserStatusOffline     = @"offline";
 {
     return [_status isEqualToString:kUserStatusOnline] ||
     [_status isEqualToString:kUserStatusAway] ||
+    [_status isEqualToString:kUserStatusBusy] ||
     [_status isEqualToString:kUserStatusDND] ||
     [_status isEqualToString:kUserStatusInvisible];
 }
