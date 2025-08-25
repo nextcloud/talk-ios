@@ -122,11 +122,13 @@
 {
     UIImage *statusImage = nil;
     if ([userStatus isEqualToString:@"online"]) {
-        statusImage = [UIImage imageNamed:@"user-status-online-10"];
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getOnlineSFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
     } else if ([userStatus isEqualToString:@"away"]) {
-        statusImage = [UIImage imageNamed:@"user-status-away-10"];
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getAwaySFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
+    } else if ([userStatus isEqualToString:@"busy"]) {
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getBusySFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
     } else if ([userStatus isEqualToString:@"dnd"]) {
-        statusImage = [UIImage imageNamed:@"user-status-dnd-10"];
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getDoNotDisturbSFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
     }
 
     if (statusImage) {

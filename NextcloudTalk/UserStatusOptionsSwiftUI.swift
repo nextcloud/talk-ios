@@ -82,6 +82,10 @@ struct UserStatusOptionsSwiftUI: View {
         awayOption.identifier = kUserStatusAway
         awayOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusAway)
 
+        let busyOption = DetailedOption()
+        busyOption.identifier = kUserStatusBusy
+        busyOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusBusy)
+
         let dndOption = DetailedOption()
         dndOption.identifier = kUserStatusDND
         dndOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusDND)
@@ -92,8 +96,14 @@ struct UserStatusOptionsSwiftUI: View {
         invisibleOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusInvisible)
         invisibleOption.subtitle = NSLocalizedString("Appear offline", comment: "")
 
+        let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+
         options.append(onlineOption)
         options.append(awayOption)
+        if let serverCapabilities, serverCapabilities.userStatusSupportsBusy {
+            options.append(busyOption)
+        }
         options.append(dndOption)
         options.append(invisibleOption)
     }

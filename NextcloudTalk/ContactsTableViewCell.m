@@ -55,13 +55,15 @@ CGFloat const kContactsTableCellTitleFontSize = 17.0f;
 {
     UIImage *statusImage = nil;
     if ([userStatus isEqualToString:@"online"]) {
-        statusImage = [UIImage imageNamed:@"user-status-online"];
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getOnlineSFIcon] ofSize:CGSizeMake(16, 16) centerImage:NO];
     } else if ([userStatus isEqualToString:@"away"]) {
-        statusImage = [UIImage imageNamed:@"user-status-away"];
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getAwaySFIcon] ofSize:CGSizeMake(16, 16) centerImage:NO];
+    } else if ([userStatus isEqualToString:@"busy"]) {
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getBusySFIcon] ofSize:CGSizeMake(16, 16) centerImage:NO];
     } else if ([userStatus isEqualToString:@"dnd"]) {
-        statusImage = [UIImage imageNamed:@"user-status-dnd"];
+        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getDoNotDisturbSFIcon] ofSize:CGSizeMake(16, 16) centerImage:NO];
     }
-    
+
     if (statusImage) {
         [self setUserStatusIconWithImage:statusImage];
     }
