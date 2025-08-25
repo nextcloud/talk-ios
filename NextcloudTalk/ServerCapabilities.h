@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSInteger versionMicro;
 @property NSString *edition;
 @property BOOL userStatus;
+@property BOOL userStatusSupportsBusy;
 @property BOOL extendedSupport;
 @property BOOL accountPropertyScopesVersion2;
 @property BOOL accountPropertyScopesFederationEnabled;

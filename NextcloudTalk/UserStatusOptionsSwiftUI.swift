@@ -96,9 +96,14 @@ struct UserStatusOptionsSwiftUI: View {
         invisibleOption.title = NCUserStatus.readableUserStatus(fromUserStatus: kUserStatusInvisible)
         invisibleOption.subtitle = NSLocalizedString("Appear offline", comment: "")
 
+        let activeAccount: TalkAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+
         options.append(onlineOption)
         options.append(awayOption)
-        options.append(busyOption)
+        if let serverCapabilities, serverCapabilities.userStatusSupportsBusy {
+            options.append(busyOption)
+        }
         options.append(dndOption)
         options.append(invisibleOption)
     }

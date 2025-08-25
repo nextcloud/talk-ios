@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 79;
+uint64_t const kTalkDatabaseSchemaVersion           = 80;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -664,6 +664,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.versionMicro = [[version objectForKey:@"micro"] integerValue];
     capabilities.edition = [version objectForKey:@"edition"];
     capabilities.userStatus = [[userStatusCaps objectForKey:@"enabled"] boolValue];
+    capabilities.userStatusSupportsBusy = [[userStatusCaps objectForKey:@"supports_busy"] boolValue];
     capabilities.extendedSupport = [[version objectForKey:@"extendedSupport"] boolValue];
     capabilities.accountPropertyScopesVersion2 = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesVersion"] integerValue] == 2;
     capabilities.accountPropertyScopesFederationEnabled = [[provisioningAPICaps objectForKey:@"AccountPropertyScopesFederationEnabled"] boolValue];
