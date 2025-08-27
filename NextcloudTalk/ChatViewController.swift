@@ -166,7 +166,7 @@ import SwiftUI
 
     private lazy var optionMenuButton: BarButtonItemWithActivity = {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
-        let buttonImage = UIImage(systemName: "ellipsis", withConfiguration: symbolConfiguration) ?? UIImage()
+        let buttonImage = UIImage(systemName: "ellipsis.circle", withConfiguration: symbolConfiguration) ?? UIImage()
         let button = BarButtonItemWithActivity(image: buttonImage)
 
         button.innerButton.menu = createOptionsRoomMenu()
