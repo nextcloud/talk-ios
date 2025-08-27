@@ -34,6 +34,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     NCMessageLocationParameter *_locationParameter;
     NCDeckCardParameter *_deckCardParameter;
     NSString *_objectShareLink;
+    NSString *_threadTitle;
     NSMutableArray *_temporaryReactions;
     BOOL _urlDetectionDone;
     NSString *_urlDetected;
@@ -716,6 +717,15 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 - (BOOL)isThreadMessage
 {
     return self.threadId > 0 && self.isThread && self.threadId != self.messageId;
+}
+
+- (NSString *)threadTitle;
+{
+    if (!_threadTitle && [self isThreadMessage]) {
+        _threadTitle = [[self.messageParameters objectForKey:@"title"] objectForKey:@"name"];
+    }
+
+    return _threadTitle;
 }
 
 @end

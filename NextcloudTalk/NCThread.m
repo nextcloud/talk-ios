@@ -65,6 +65,7 @@
     thread.accountId = message.accountId;
     thread.roomToken = message.token;
     thread.threadId = message.threadId;
+    thread.title = message.threadTitle;
     thread.internalId = [NSString stringWithFormat:@"%@@%@@%ld", accountId, thread.roomToken, (long)thread.threadId];
 
     thread.firstMessageId = message.parentId;
