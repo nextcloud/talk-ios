@@ -268,6 +268,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+    [realm deleteObjects:[NCThread objectsWithPredicate:query]];
     [realm deleteObjects:[NCContact objectsWithPredicate:query]];
     [realm deleteObjects:[FederatedCapabilities objectsWithPredicate:query]];
     if (isLastAccount) {
@@ -283,6 +284,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+    [realm deleteObjects:[NCThread objectsWithPredicate:query]];
     [realm commitWriteTransaction];
 }
 

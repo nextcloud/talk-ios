@@ -189,11 +189,12 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                     // Delete old rooms
                     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND lastUpdate != %ld", activeAccount.accountId, (long)updateTimestamp];
                     RLMResults *managedRoomsToBeDeleted = [NCRoom objectsWithPredicate:query];
-                    // Delete messages and chat blocks from old rooms
+                    // Delete messages, chat blocks and threads from old rooms
                     for (NCRoom *managedRoom in managedRoomsToBeDeleted) {
                         NSPredicate *query2 = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@", activeAccount.accountId, managedRoom.token];
                         [realm deleteObjects:[NCChatMessage objectsWithPredicate:query2]];
                         [realm deleteObjects:[NCChatBlock objectsWithPredicate:query2]];
+                        [realm deleteObjects:[NCThread objectsWithPredicate:query2]];
 
                         if ([managedRoom isFederated]) {
                             NSPredicate *federatedCapabilities = [NSPredicate predicateWithFormat:@"accountId = %@ AND remoteServer = %@ AND roomToken = %@", activeAccount.accountId, managedRoom.remoteServer, managedRoom.token];
