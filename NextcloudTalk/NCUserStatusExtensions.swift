@@ -25,7 +25,7 @@ extension NCUserStatus {
     }
 
     static func getInvisibleIcon() -> some View {
-        return Image(systemName: "circle").font(.system(size: 16, weight: .black)).foregroundColor(.primary)
+        return Image(systemName: "circle").font(.system(size: 16, weight: .bold)).foregroundColor(.primary)
     }
 
     static func getUserStatusIcon(userStatus: String) -> any View {

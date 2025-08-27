@@ -90,7 +90,7 @@ NSString * const kUserStatusOffline     = @"offline";
 
 + (UIImage *)getInvisibleSFIcon
 {
-    UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightBlack];
+    UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightBold];
     return [[[UIImage systemImageNamed:@"circle"] imageByApplyingSymbolConfiguration:conf] imageWithTintColor:[UIColor labelColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
