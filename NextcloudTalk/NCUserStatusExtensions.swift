@@ -21,11 +21,7 @@ extension NCUserStatus {
     }
 
     static func getDoNotDisturbIcon() -> some View {
-        if #available(iOS 16.1, *) {
-            return Image(systemName: "wrongwaysign.fill").font(.system(size: 16)).symbolRenderingMode(.palette).foregroundStyle(.white, .red)
-        }
-
-        return Image(systemName: "minus.circle.fill").font(.system(size: 16)).symbolRenderingMode(.palette).foregroundStyle(.white, .red)
+        return Image(systemName: "minus.circle.fill").font(.system(size: 16)).symbolRenderingMode(.monochrome).foregroundStyle(.red)
     }
 
     static func getInvisibleIcon() -> some View {

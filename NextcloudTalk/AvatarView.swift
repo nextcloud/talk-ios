@@ -159,11 +159,7 @@ import SDWebImage
                 setUserStatusImage(statusImage, with: backgroundColor)
             }
         } else if userStatus == "dnd" {
-            var dndImageName = "minus.circle.fill"
-            if #available(iOS 16.1, *) {
-                dndImageName = "wrongwaysign.fill"
-            }
-            if let statusImage = statusImageWith(name: dndImageName, color: .systemRed, secondaryColor: .white, padding: 2) {
+            if let statusImage = statusImageWith(name: "minus.circle.fill", color: .systemRed, padding: 2) {
                 setUserStatusImage(statusImage, with: backgroundColor)
             }
         }

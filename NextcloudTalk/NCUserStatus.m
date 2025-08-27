@@ -85,13 +85,7 @@ NSString * const kUserStatusOffline     = @"offline";
 
 + (UIImage *)getDoNotDisturbSFIcon
 {
-    UIImageSymbolConfiguration *conf = [UIImageSymbolConfiguration configurationWithPaletteColors:@[[UIColor whiteColor], [UIColor systemRedColor]]];
-
-    if (@available(iOS 16.1, *)) {
-        return [[UIImage systemImageNamed:@"wrongwaysign.fill"] imageByApplyingSymbolConfiguration:conf];
-    }
-
-    return [[UIImage systemImageNamed:@"minus.circle.fill"] imageByApplyingSymbolConfiguration:conf];
+    return [[UIImage systemImageNamed:@"minus.circle.fill"] imageWithTintColor:[UIColor systemRedColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (UIImage *)getInvisibleSFIcon
