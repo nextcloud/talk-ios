@@ -62,7 +62,7 @@ final class UICallTest: XCTestCase {
         toggleChatButton.tap()
 
         // Close chat again
-        let closeButton = app.buttons["closeInCallChatView"]
+        let closeButton = app.buttons["closeChatButton"]
         XCTAssert(closeButton.waitForExistence(timeout: TestConstants.timeoutShort))
         closeButton.tap()
 

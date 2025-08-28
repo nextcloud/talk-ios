@@ -58,6 +58,10 @@ import SwiftUI
 
     private var lobbyCheckTimer: Timer?
 
+    public var isThreadViewController: Bool {
+        return thread != nil
+    }
+
     // MARK: - Buttons in NavigationBar
 
     func getCallOptionsBarButton() -> BarButtonItemWithActivity {
@@ -154,6 +158,22 @@ import SwiftUI
             CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, asInitiator: !self.room.hasCall, silently: silently, recordingConsent: false, withAccountId: self.room.accountId)
         }
     }
+
+    private lazy var closeButton: UIBarButtonItem = {
+        let closeButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+
+        closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { _ in
+            if self.presentedInCall {
+                NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
+            } else {
+                self.dismiss(animated: true)
+            }
+        })
+
+        closeButton.accessibilityIdentifier = "closeChatButton"
+
+        return closeButton
+    }()
 
     private lazy var callOptionsButton: BarButtonItemWithActivity = {
         let callOptionsButton = self.getCallOptionsBarButton()
@@ -319,7 +339,7 @@ import SwiftUI
     override func setTitleView() {
         super.setTitleView()
 
-        if thread != nil {
+        if isThreadViewController {
             self.titleView?.update(for: thread)
             self.titleView?.longPressGestureRecognizer.isEnabled = false
         }
@@ -388,20 +408,28 @@ import SwiftUI
     public override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Right bar button items
         var barButtonsItems: [UIBarButtonItem] = []
-        // Option menu
-        if thread == nil, room.supportsUpcomingEvents || room.supportsThreading {
-            barButtonsItems.append(optionMenuButton)
-        }
-        // Call options
-        if room.supportsCalling && thread == nil {
-            barButtonsItems.append(callOptionsButton)
+
+        if presentedInCall {
+            barButtonsItems = [closeButton]
+        } else if isThreadViewController {
+            barButtonsItems = [closeButton]
+        } else {
+            // Option menu
+            if room.supportsUpcomingEvents || room.supportsThreading {
+                barButtonsItems.append(optionMenuButton)
+            }
+            // Call options
+            if room.supportsCalling {
+                barButtonsItems.append(callOptionsButton)
+            }
         }
 
         self.navigationItem.rightBarButtonItems = barButtonsItems
 
         // No sharing options in federation v1 (or thread view until implemented)
-        if room.isFederated || thread != nil {
+        if room.isFederated || isThreadViewController {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
             self.leftButton.setImage(nil, for: .normal)
@@ -580,16 +608,6 @@ import SwiftUI
 
         // Rebuild the call menu to reflect the current call state
         self.setupCallOptionsBarButtonMenu(button: self.callOptionsButton)
-
-        if self.presentedInCall {
-            // Create a close button and remove the call buttons
-            let barButtonItem = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
-            barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { _ in
-                NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
-            })
-            barButtonItem.accessibilityIdentifier = "closeInCallChatView"
-            self.navigationItem.rightBarButtonItems = [barButtonItem]
-        }
     }
 
     func checkLobbyState() {
@@ -1313,7 +1331,7 @@ import SwiftUI
                         continue
                     }
 
-                    if self.thread == nil, newMessage.isThreadMessage() {
+                    if !self.isThreadViewController, newMessage.isThreadMessage() {
                         // Thread messages should not be displayed outside of threads
                         continue
                     }
