@@ -62,6 +62,48 @@ import SwiftUI
         return thread != nil
     }
 
+    // MARK: - Thread notification levels
+
+    enum NotificationLevelOption: Int, CaseIterable {
+        case room
+        case allMessages
+        case mentions
+        case off
+
+        var value: Int { rawValue }
+
+        var title: String {
+            switch self {
+            case .room:
+                return NSLocalizedString("Default", comment: "")
+            case .allMessages:
+                return NSLocalizedString("All messages", comment: "")
+            case .mentions:
+                return NSLocalizedString("@-mentions only", comment: "")
+            case .off:
+                return NSLocalizedString("Off", comment: "")
+            }
+        }
+
+        var subtitle: String? {
+            switch self {
+            case .room:
+                return NSLocalizedString("Follow conversation settings", comment: "")
+            default:
+                return nil
+            }
+        }
+
+        var image: UIImage? {
+            switch self {
+            case .room: return UIImage(systemName: "bell")
+            case .allMessages: return UIImage(systemName: "bell.and.waves.left.and.right")
+            case .mentions: return UIImage(systemName: "bell")
+            case .off: return UIImage(systemName: "bell.slash")
+            }
+        }
+    }
+
     // MARK: - Buttons in NavigationBar
 
     func getCallOptionsBarButton() -> BarButtonItemWithActivity {
@@ -174,6 +216,57 @@ import SwiftUI
 
         return closeButton
     }()
+
+    private lazy var threadNotificationButton: UIBarButtonItem = {
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let buttonImage = UIImage(systemName: "bell", withConfiguration: symbolConfiguration) ?? UIImage()
+        let button = BarButtonItemWithActivity(image: buttonImage)
+
+        self.setupThreadNotificationButtonMenu(button: button)
+
+        button.accessibilityLabel = NSLocalizedString("Thread notification level button", comment: "")
+        button.accessibilityHint = NSLocalizedString("Double tap to display thread notification level options", comment: "")
+
+        return button
+    }()
+
+    func setupThreadNotificationButtonMenu(button: BarButtonItemWithActivity) {
+        guard let thread = thread else { return }
+
+        let options = NotificationLevelOption.allCases.map { option in
+            UIAction(
+                title: option.title,
+                subtitle: option.subtitle,
+                image: option.image,
+                state: option.value == thread.notificationLevel ? .on : .off
+            ) { [weak self] _ in
+                guard let self else { return }
+                button.showIndicator()
+                NCAPIController.sharedInstance().setNotificationLevelForThread(
+                    for: self.account.accountId,
+                    in: self.room.token,
+                    threadId: thread.threadId,
+                    level: option.value
+                ) { updatedThread in
+                    DispatchQueue.main.async {
+                        button.hideIndicator()
+                        if let updatedThread {
+                            self.thread = updatedThread
+                            self.setupThreadNotificationButtonMenu(button: button)
+                        }
+                    }
+                }
+            }
+        }
+
+        if let currentOption = NotificationLevelOption.allCases.first(where: { $0.value == thread.notificationLevel }),
+           let currentOptionImage = currentOption.image {
+            button.setImage(currentOptionImage)
+        }
+
+        button.innerButton.menu = UIMenu(options: .displayInline, children: options)
+        button.innerButton.showsMenuAsPrimaryAction = true
+    }
 
     private lazy var callOptionsButton: BarButtonItemWithActivity = {
         let callOptionsButton = self.getCallOptionsBarButton()
@@ -414,7 +507,7 @@ import SwiftUI
         if presentedInCall {
             barButtonsItems = [closeButton]
         } else if isThreadViewController {
-            barButtonsItems = [closeButton]
+            barButtonsItems = [closeButton, threadNotificationButton]
         } else {
             // Option menu
             if room.supportsUpcomingEvents || room.supportsThreading {
