@@ -630,7 +630,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Chat Controller
 
-- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId inThread:(NSInteger)threadId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"chat/%@", encodedToken];
@@ -643,8 +643,9 @@ NSInteger const kReceivedChatMessagesLimit = 100;
                                  @"lastCommonReadId" : @(lastCommonReadMessage),
                                  @"setReadMarker" : setReadMarker ? @(1) : @(0),
                                  @"includeLastKnown" : include ? @(1) : @(0),
-                                 @"markNotificationsAsRead" : markNotificationsAsRead ? @(1) : @(0)};
-    
+                                 @"markNotificationsAsRead" : markNotificationsAsRead ? @(1) : @(0),
+                                 @"threadId" : @(threadId)};
+
     NCAPISessionManager *apiSessionManager;
 
     if (timeout) {
@@ -683,7 +684,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token displayName:(NSString *)displayName replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token threadTitle:(NSString *)threadTitle replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"chat/%@", encodedToken];
@@ -700,7 +701,10 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     if (silently) {
         [parameters setObject:@(silently) forKey:@"silent"];
     }
-    
+    if (threadTitle) {
+        [parameters setObject:threadTitle forKey:@"threadTitle"];
+    }
+
     NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
     // Workaround: When sendChatMessage is called from Share Extension session managers are not initialized.
     if (!apiSessionManager) {

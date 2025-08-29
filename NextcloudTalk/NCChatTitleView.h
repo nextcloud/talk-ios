@@ -9,6 +9,8 @@
 
 @class AvatarImageView;
 @class NCChatTitleView;
+@class NCThread;
+
 @protocol NCChatTitleViewDelegate <NSObject>
 
 - (void)chatTitleViewTapped:(NCChatTitleView *)titleView;
@@ -27,5 +29,6 @@
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizer;
 
 - (void)updateForRoom:(NCRoom *)room;
+- (void)updateForThread:(NCThread *)thread;
 
 @end

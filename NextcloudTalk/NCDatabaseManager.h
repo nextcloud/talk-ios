@@ -84,6 +84,7 @@ extern NSString * const kCapabilityScheduleMeeting;
 extern NSString * const kCapabilityConversationCreationAll;
 extern NSString * const kCapabilityImportantConversations;
 extern NSString * const kCapabilitySensitiveConversations;
+extern NSString * const kCapabilityThreads;
 
 extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kNotificationsCapabilityTestPush;
@@ -114,6 +115,7 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server;
 - (void)createAccountForUser:(NSString *)user inServer:(NSString *)server;
 - (void)removeAccountWithAccountId:(NSString *)accountId;
+- (void)removeStoredMessagesForAccountId:(NSString *)accountId;
 - (void)increaseUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (void)decreaseUnreadBadgeNumberForAccountId:(NSString *)accountId;
 - (void)resetUnreadBadgeNumberForAccountId:(NSString *)accountId;

@@ -118,6 +118,15 @@
     [self setTitle:room.displayName withSubtitle:subtitle];
 }
 
+- (void)updateForThread:(NCThread *)thread
+{
+    // Set thread image
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:thread.accountId];
+    [self.avatarimage setActorAvatarForMessage:thread.firstMessage withAccount:account];
+
+    [self setTitle:thread.title withSubtitle:nil];
+}
+
 - (void)setStatusImageForUserStatus:(NSString *)userStatus
 {
     UIImage *statusImage = nil;

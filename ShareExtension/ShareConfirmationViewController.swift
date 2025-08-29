@@ -513,7 +513,7 @@ import MBProgressHUD
     // MARK: - Actions
 
     func sendSharedText() {
-        NCAPIController.sharedInstance().sendChatMessage(self.shareTextView.text, toRoom: self.room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
+        NCAPIController.sharedInstance().sendChatMessage(self.shareTextView.text, toRoom: self.room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
             if let error {
                 NCUtils.log(String(format: "Failed to share text. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFail(self)

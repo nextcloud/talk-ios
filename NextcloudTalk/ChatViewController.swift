@@ -58,6 +58,57 @@ import SwiftUI
 
     private var lobbyCheckTimer: Timer?
 
+    public var isThreadViewController: Bool {
+        return thread != nil
+    }
+
+    // MARK: - Thread notification levels
+
+    enum NotificationLevelOption: Int, CaseIterable {
+        case room
+        case allMessages
+        case mentions
+        case off
+
+        var value: Int { rawValue }
+
+        var title: String {
+            switch self {
+            case .room:
+                return NSLocalizedString("Default", comment: "")
+            case .allMessages:
+                return NSLocalizedString("All messages", comment: "")
+            case .mentions:
+                return NSLocalizedString("@-mentions only", comment: "")
+            case .off:
+                return NSLocalizedString("Off", comment: "")
+            }
+        }
+
+        var subtitle: String? {
+            switch self {
+            case .room:
+                return NSLocalizedString("Follow conversation settings", comment: "")
+            default:
+                return nil
+            }
+        }
+
+        var image: UIImage? {
+            let config = UIImage.SymbolConfiguration(pointSize: 16)
+            switch self {
+            case .room:
+                return UIImage(systemName: "bell", withConfiguration: config)
+            case .allMessages:
+                return UIImage(systemName: "bell.and.waves.left.and.right", withConfiguration: config)
+            case .mentions:
+                return UIImage(systemName: "bell", withConfiguration: config)
+            case .off:
+                return UIImage(systemName: "bell.slash", withConfiguration: config)
+            }
+        }
+    }
+
     // MARK: - Buttons in NavigationBar
 
     func getCallOptionsBarButton() -> BarButtonItemWithActivity {
@@ -155,6 +206,73 @@ import SwiftUI
         }
     }
 
+    private lazy var closeButton: UIBarButtonItem = {
+        let closeButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+
+        closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
+            if self.presentedInCall {
+                NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
+            } else {
+                self.dismiss(animated: true)
+            }
+        })
+
+        closeButton.accessibilityIdentifier = "closeChatButton"
+
+        return closeButton
+    }()
+
+    private lazy var threadNotificationButton: UIBarButtonItem = {
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let buttonImage = UIImage(systemName: "bell", withConfiguration: symbolConfiguration) ?? UIImage()
+        let button = BarButtonItemWithActivity(image: buttonImage)
+
+        self.setupThreadNotificationButtonMenu(button: button)
+
+        button.accessibilityLabel = NSLocalizedString("Thread notification level button", comment: "")
+        button.accessibilityHint = NSLocalizedString("Double tap to display thread notification level options", comment: "")
+
+        return button
+    }()
+
+    func setupThreadNotificationButtonMenu(button: BarButtonItemWithActivity) {
+        guard let thread = thread else { return }
+
+        let options = NotificationLevelOption.allCases.map { option in
+            UIAction(
+                title: option.title,
+                subtitle: option.subtitle,
+                image: option.image,
+                state: option.value == thread.notificationLevel ? .on : .off
+            ) { [weak self] _ in
+                guard let self else { return }
+                button.showIndicator()
+                NCAPIController.sharedInstance().setNotificationLevelForThread(
+                    for: self.account.accountId,
+                    in: self.room.token,
+                    threadId: thread.threadId,
+                    level: option.value
+                ) { updatedThread in
+                    DispatchQueue.main.async {
+                        button.hideIndicator()
+                        if let updatedThread {
+                            self.thread = updatedThread
+                            self.setupThreadNotificationButtonMenu(button: button)
+                        }
+                    }
+                }
+            }
+        }
+
+        if let currentOption = NotificationLevelOption.allCases.first(where: { $0.value == thread.notificationLevel }),
+           let currentOptionImage = currentOption.image {
+            button.setImage(currentOptionImage)
+        }
+
+        button.innerButton.menu = UIMenu(options: .displayInline, children: options)
+        button.innerButton.showsMenuAsPrimaryAction = true
+    }
+
     private lazy var callOptionsButton: BarButtonItemWithActivity = {
         let callOptionsButton = self.getCallOptionsBarButton()
 
@@ -164,19 +282,84 @@ import SwiftUI
         return callOptionsButton
     }()
 
-    private lazy var eventsButton: BarButtonItemWithActivity = {
+    private lazy var optionMenuButton: BarButtonItemWithActivity = {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
-        let buttonImage = UIImage(systemName: "calendar", withConfiguration: symbolConfiguration) ?? UIImage()
-        let eventsButton = BarButtonItemWithActivity(image: buttonImage)
+        let buttonImage = UIImage(systemName: "ellipsis.circle", withConfiguration: symbolConfiguration) ?? UIImage()
+        let button = BarButtonItemWithActivity(image: buttonImage)
 
-        eventsButton.innerButton.menu = createEventsMenu()
-        eventsButton.innerButton.showsMenuAsPrimaryAction = true
+        button.innerButton.menu = createOptionsRoomMenu()
+        button.innerButton.showsMenuAsPrimaryAction = true
 
-        eventsButton.accessibilityLabel = NSLocalizedString("Events menu", comment: "")
-        eventsButton.accessibilityHint = NSLocalizedString("Double tap to display events menu", comment: "")
+        button.accessibilityLabel = NSLocalizedString("Option menu", comment: "A menu to show additional options for the current conversation")
+        button.accessibilityHint = NSLocalizedString("Double tap to display option menu", comment: "A menu to show additional options for the current conversation")
 
-        return eventsButton
+        return button
     }()
+
+    private func createOptionsRoomMenu() -> UIMenu {
+        var menuElements: [UIMenuElement] = []
+
+        if room.supportsUpcomingEvents {
+            menuElements.append(self.createEventsMenu())
+        }
+
+        if room.supportsThreading {
+            menuElements.append(self.createThreadingRoomMenu())
+        }
+
+        return UIMenu(options: [.displayInline], children: menuElements)
+    }
+
+    private func createThreadingRoomMenu() -> UIMenu {
+        let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
+            guard let self else { return }
+
+            NCAPIController.sharedInstance().getThreads(for: self.account.accountId, in: self.room.token, withLimit: 5) { threads in
+                guard let threads, !threads.isEmpty else {
+                    completion([UIAction(title: NSLocalizedString("No recent threads", comment: ""), attributes: .disabled, handler: { _ in })])
+                    return
+                }
+
+                var actions: [UIAction] = []
+                let menuCreationGroup = DispatchGroup()
+
+                for thread in threads {
+                    menuCreationGroup.enter()
+
+                    let message = thread.lastMessage() ?? thread.firstMessage()
+
+                    let action = UIAction(title: thread.title, handler: { _ in
+                        guard let message else { return }
+                        self.didPressShowThread(for: message)
+                    })
+
+                    actions.append(action)
+
+                    guard let message else {
+                        menuCreationGroup.leave()
+                        continue
+                    }
+
+                    action.subtitle = message.parsedMarkdownForChat().string
+                    AvatarManager.shared.getActorAvatar(forId: message.actorId, withType: message.actorType, withDisplayName: nil, withRoomToken: self.room.token, withStyle: self.traitCollection.userInterfaceStyle, usingAccount: self.account) { image in
+                        if let image {
+                            action.image = NCUtils.roundedImage(fromImage: image)
+                        }
+
+                        menuCreationGroup.leave()
+                    }
+                }
+
+                // TODO: Add a "More threads" button if the limit was returned and open a dedicated view?
+
+                menuCreationGroup.notify(queue: .main) {
+                    completion(actions)
+                }
+            }
+        }
+
+        return UIMenu(title: NSLocalizedString("Recent threads", comment: ""), options: [.displayInline], children: [deferredMenuElement])
+    }
 
     private func createEventsMenu() -> UIMenu {
         if self.room.isEvent {
@@ -206,7 +389,7 @@ import SwiftUI
             menuElements.append(deleteMenu)
         }
 
-        return UIMenu(children: menuElements)
+        return UIMenu(title: "", options: [.displayInline], children: menuElements)
     }
 
     private func createUpcomingEventsMenu() -> UIMenu {
@@ -238,25 +421,47 @@ import SwiftUI
                 self.present(hostingController, animated: true)
             }
 
-            let scheduleMeetingMenu = UIMenu(title: "", options: [.displayInline], children: [scheduleMeetingAction])
-            menuElements.append(scheduleMeetingMenu)
+            menuElements.append(scheduleMeetingAction)
         }
 
-        return UIMenu(children: menuElements)
+        return UIMenu(title: NSLocalizedString("Meetings", comment: "Headline for a 'meeting section'"), options: [.displayInline], children: menuElements)
     }
 
     private func handleMeetingCreationSuccess() {
         // Re-create menu so upcoming events are refetched
-        eventsButton.innerButton.menu = createEventsMenu()
+        optionMenuButton.innerButton.menu = createOptionsRoomMenu()
     }
 
     private var messageExpirationTimer: Timer?
+
+    override func setTitleView() {
+        super.setTitleView()
+
+        if isThreadViewController {
+            self.titleView?.update(for: thread)
+            self.titleView?.longPressGestureRecognizer.isEnabled = false
+        }
+    }
 
     public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
         self.chatController = NCChatController(for: room)
 
         super.init(forRoom: room, withAccount: account)
 
+        self.addCommonNotificationObservers()
+    }
+
+    public init?(forThread thread: NCThread, inRoom room: NCRoom, withAccount account: TalkAccount) {
+        self.chatController = NCChatController(forThreadId: thread.threadId, in: room)
+
+        super.init(forRoom: room, withAccount: account)
+
+        self.thread = thread
+
+        self.addCommonNotificationObservers()
+    }
+
+    func addCommonNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(didUpdateRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidUpdateRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidJoinRoom, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didLeaveRoom(notification:)), name: NSNotification.Name.NCRoomsManagerDidLeaveRoom, object: nil)
@@ -301,20 +506,28 @@ import SwiftUI
     public override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Right bar button items
         var barButtonsItems: [UIBarButtonItem] = []
-        // Call options
-        if room.supportsCalling {
-            barButtonsItems.append(callOptionsButton)
-        }
-        // Upcoming events
-        if room.supportsUpcomingEvents {
-            barButtonsItems.append(eventsButton)
+
+        if presentedInCall {
+            barButtonsItems = [closeButton]
+        } else if isThreadViewController {
+            barButtonsItems = [closeButton, threadNotificationButton]
+        } else {
+            // Option menu
+            if room.supportsUpcomingEvents || room.supportsThreading {
+                barButtonsItems.append(optionMenuButton)
+            }
+            // Call options
+            if room.supportsCalling {
+                barButtonsItems.append(callOptionsButton)
+            }
         }
 
         self.navigationItem.rightBarButtonItems = barButtonsItems
 
-        // No sharing options in federation v1
-        if room.isFederated {
+        // No sharing options in federation v1 (or thread view until implemented)
+        if room.isFederated || isThreadViewController {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
             self.leftButton.setImage(nil, for: .normal)
@@ -493,16 +706,6 @@ import SwiftUI
 
         // Rebuild the call menu to reflect the current call state
         self.setupCallOptionsBarButtonMenu(button: self.callOptionsButton)
-
-        if self.presentedInCall {
-            // Create a close button and remove the call buttons
-            let barButtonItem = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
-            barButtonItem.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { _ in
-                NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
-            })
-            barButtonItem.accessibilityIdentifier = "closeInCallChatView"
-            self.navigationItem.rightBarButtonItems = [barButtonItem]
-        }
     }
 
     func checkLobbyState() {
@@ -744,8 +947,15 @@ import SwiftUI
     // MARK: - Action methods
 
     override func sendChatMessage(message: String, withParentMessage parentMessage: NCChatMessage?, messageParameters: String, silently: Bool) {
+        var replyTo = parentMessage
+
+        // On thread view, include original thread message as parent message (if there is not parent)
+        if let thread = thread, replyTo == nil {
+            replyTo = thread.firstMessage()
+        }
+
         // Create temporary message
-        guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: parentMessage, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
+        guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: replyTo, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
 
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
             self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
@@ -775,6 +985,16 @@ import SwiftUI
         self.showSendMessageButton()
 
         return canPress
+    }
+
+    public override func didPressShowThread(for message: NCChatMessage) {
+        guard let account = self.room.account,
+              let thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId),
+              let chatViewController = ChatViewController(forThread: thread, inRoom: room, withAccount: account)
+        else { return }
+
+        let navController = NCNavigationController(rootViewController: chatViewController)
+        self.present(navController, animated: true)
     }
 
     // MARK: - Voice message player
@@ -1209,6 +1429,11 @@ import SwiftUI
                         continue
                     }
 
+                    if !self.isThreadViewController, newMessage.isThreadMessage() {
+                        // Thread messages should not be displayed outside of threads
+                        continue
+                    }
+
                     // If we don't get an indexPath here, something is wrong with our appendMessages function
                     let indexPath = self.indexPath(for: newMessage)!
 
@@ -1371,6 +1596,11 @@ import SwiftUI
         guard let message = notification.userInfo?["updateMessage"] as? NCChatMessage,
               let updateMessage = message.parent
         else { return }
+
+        if message.isThreadCreatedMessage {
+            self.updateMessages(withThreadId: message.threadId)
+            return
+        }
 
         self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
     }
@@ -1917,10 +2147,9 @@ import SwiftUI
 
         if let cell = cell as? BaseChatTableViewCell {
             let pointInCell = tableView.convert(point, to: cell)
-            let pointInReactionPart = cell.convert(pointInCell, to: cell.reactionPart)
-            let reactionView = cell.reactionPart.subviews.first(where: { $0 is ReactionsView && $0.frame.contains(pointInReactionPart) })
+            let pointInBubbleView = cell.convert(pointInCell, to: cell.bubbleView)
 
-            if reactionView != nil, let message = cell.message {
+            if let reactionPart = cell.reactionPart, reactionPart.frame.contains(pointInBubbleView), let message = cell.message, !message.reactionsArray().isEmpty {
                 self.showReactionsSummary(of: message)
                 return nil
             }

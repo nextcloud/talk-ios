@@ -9,7 +9,6 @@
 
 #import "NCAppBranding.h"
 #import "NCChatMessage.h"
-#import "QuotedMessageView.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -159,7 +158,7 @@
 
     TalkAccount *account = message.account;
     if (account) {
-        [self.quotedMessageView.avatarView setActorAvatarForMessage:message withAccount:account];
+        [self.quotedMessageView.avatarImageView setActorAvatarForMessage:message withAccount:account];
     }
 
     [self.cancelButton setHidden:NO];

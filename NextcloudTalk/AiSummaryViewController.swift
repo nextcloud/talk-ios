@@ -56,7 +56,7 @@ class AiSummaryViewController: UIViewController {
         NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: activeAccount) { roomDict, error in
             if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
 
-                NCAPIController.sharedInstance().sendChatMessage(self.summaryTextView.text, toRoom: room.token, displayName: nil, replyTo: -1, referenceId: nil, silently: false, for: activeAccount) { error in
+                NCAPIController.sharedInstance().sendChatMessage(self.summaryTextView.text, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: activeAccount) { error in
                     if error == nil {
                         NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                     } else {

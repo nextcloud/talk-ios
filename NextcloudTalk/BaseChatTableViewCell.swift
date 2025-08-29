@@ -23,6 +23,8 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellWants(toChangeProgress progress: CGFloat, fromAudioFile fileParameter: NCMessageFileParameter)
 
     func cellWants(toOpenPoll poll: NCMessageParameter)
+
+    func cellWants(toShowThread message: NCChatMessage)
 }
 
 // Common elements
@@ -75,10 +77,13 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var messageBodyView: UIView!
     @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
 
+    @IBOutlet weak var threadRepliesButton: NCButton!
+    @IBOutlet weak var reactionStackView: UIStackView!
+
     @IBOutlet weak var headerPart: UIView!
     @IBOutlet weak var quotePart: UIView!
-    @IBOutlet weak var reactionPart: UIView!
     @IBOutlet weak var referencePart: UIView!
+    @IBOutlet weak var reactionPart: UIView!
     @IBOutlet weak var footerPart: UIView!
 
     @IBOutlet weak var bubbleView: UIView!
@@ -146,6 +151,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
+
+        self.configureThreadRepliesButton()
     }
 
     override func prepareForReuse() {
@@ -155,14 +162,23 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.avatarButton.cancelCurrentRequest()
         self.avatarButton.setImage(nil, for: .normal)
 
-        self.quotedMessageView?.avatarView.cancelCurrentRequest()
-        self.quotedMessageView?.avatarView.image = nil
+        self.quotedMessageView?.avatarImageView.cancelCurrentRequest()
+        self.quotedMessageView?.avatarImageView.image = nil
 
         self.headerPart.isHidden = false
         self.avatarButton.isHidden = false
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
+        self.threadRepliesButton.isHidden = true
+
+        // There might be a better way to do this, but for now we remove the elements so they don't mess
+        // with autolayout even when they are hidden
+        self.reactionView?.removeFromSuperview()
+        self.reactionView = nil
+
+        self.quotedMessageView?.removeFromSuperview()
+        self.quotedMessageView = nil
 
         self.messageBodyViewTopConstraint.constant = 5
 
@@ -179,7 +195,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    public func setup(for message: NCChatMessage, inRoom room: NCRoom, withAccount account: TalkAccount) {
+    public func setup(for message: NCChatMessage, inRoom room: NCRoom, forThread thread: NCThread?, withAccount account: TalkAccount) {
         self.message = message
         self.room = room
         self.account = account
@@ -222,17 +238,18 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         let isOwnMessage = message.isMessage(from: account.userId)
 
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
-        if let parent = message.parent {
+        if let parent = message.parent, message.willShowParentMessageInThread(thread) {
             self.showQuotePart()
 
             let quoteString = parent.parsedMarkdownForChat()?.string ?? ""
             self.quotedMessageView?.messageLabel.text = quoteString
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
-            self.quotedMessageView?.avatarView.setActorAvatar(forMessage: parent, withAccount: account)
+            self.quotedMessageView?.avatarImageView.setActorAvatar(forMessage: parent, withAccount: account)
         }
 
-        if message.isGroupMessage, message.parent == nil {
+        if message.isGroupMessage, !message.willShowParentMessageInThread(thread) {
+            self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
             self.messageBodyViewTopConstraint.constant = 10
@@ -308,6 +325,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if !reactionsArray.isEmpty {
             self.showReactionsPart()
             self.reactionView?.updateReactions(reactions: reactionsArray)
+        }
+
+        // Show thread replies button for the thread-start-message, when not already displaying a thread
+        if thread == nil, message.isThreadOriginalMessage() {
+            self.showThreadRepliesButton()
         }
 
         if message.containsURL() {
@@ -500,6 +522,26 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     // MARK: - ReactionsPart
 
+    func configureThreadRepliesButton() {
+        self.threadRepliesButton.setButtonStyle(style: .tertiary)
+        self.threadRepliesButton.tintColor = .label
+        self.threadRepliesButton.configuration?.image = UIImage(systemName: "bubble.left.and.bubble.right")
+        self.threadRepliesButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .small)
+        self.threadRepliesButton.configuration?.imagePadding = 8
+
+        self.threadRepliesButton.addAction { [weak self] in
+            guard let self, let message else { return }
+            self.delegate?.cellWants(toShowThread: message)
+        }
+
+        self.threadRepliesButton.isHidden = true
+    }
+
+    func showThreadRepliesButton() {
+        self.reactionPart.isHidden = false
+        self.threadRepliesButton.isHidden = false
+    }
+
     func showReactionsPart() {
         self.reactionPart.isHidden = false
 
@@ -507,20 +549,13 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             let flowLayout = UICollectionViewFlowLayout()
             flowLayout.scrollDirection = .horizontal
 
-            let reactionView = ReactionsView(frame: .init(x: 0, y: 0, width: 50, height: 40), collectionViewLayout: flowLayout)
+            let reactionView = ReactionsView(frame: .init(x: 0, y: 0, width: 50, height: 30), collectionViewLayout: flowLayout)
             reactionView.reactionsDelegate = self
             self.reactionView = reactionView
 
             reactionView.translatesAutoresizingMaskIntoConstraints = false
 
-            self.reactionPart.addSubview(reactionView)
-
-            NSLayoutConstraint.activate([
-                reactionView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
-                reactionView.rightAnchor.constraint(equalTo: self.reactionPart.rightAnchor, constant: -10),
-                reactionView.topAnchor.constraint(equalTo: self.reactionPart.topAnchor),
-                reactionView.bottomAnchor.constraint(equalTo: self.reactionPart.bottomAnchor, constant: -10)
-            ])
+            self.reactionStackView.addArrangedSubview(reactionView)
         }
     }
 

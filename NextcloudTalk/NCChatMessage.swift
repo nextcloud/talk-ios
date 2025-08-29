@@ -22,7 +22,12 @@ import SwiftyAttributes
                self.systemMessage == "reaction_revoked" ||
                self.systemMessage == "reaction_deleted" ||
                self.systemMessage == "poll_voted" ||
-               self.systemMessage == "message_edited"
+               self.systemMessage == "message_edited" ||
+               self.systemMessage == "thread_created"
+    }
+
+    public var isThreadCreatedMessage: Bool {
+        return self.systemMessage == "thread_created"
     }
 
     public var isDeletedMessage: Bool {
@@ -207,6 +212,20 @@ import SwiftyAttributes
 
     public var parentMessageId: Int {
         return self.parent?.messageId ?? -1
+    }
+
+    public func willShowParentMessageInThread(_ thread: NCThread?) -> Bool {
+        if parent == nil {
+            return false
+        }
+
+        if let parent = parent,
+           let thread = thread,
+           parent.internalId == thread.firstMessageId {
+            return false
+        }
+
+        return true
     }
 
     public func isReactionBeingModified(_ reaction: String) -> Bool {

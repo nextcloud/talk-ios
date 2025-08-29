@@ -314,6 +314,9 @@
 "An error occurred while creating the poll" = "An error occurred while creating the poll";
 
 /* No comment provided by engineer. */
+"An error occurred while creating the thread" = "An error occurred while creating the thread";
+
+/* No comment provided by engineer. */
 "An error occurred while deleting the message" = "An error occurred while deleting the message";
 
 /* No comment provided by engineer. */
@@ -543,6 +546,9 @@
 
 /* No comment provided by engineer. */
 "Clear cache" = "Clear cache";
+
+/* No comment provided by engineer. */
+"Clear cached chat messages" = "Clear cached chat messages";
 
 /* No comment provided by engineer. */
 "Clear reminder" = "Clear reminder";
@@ -898,8 +904,11 @@
 /* No comment provided by engineer. */
 "Double tap to display call options" = "Double tap to display call options";
 
+/* A menu to show additional options for the current conversation */
+"Double tap to display option menu" = "Double tap to display option menu";
+
 /* No comment provided by engineer. */
-"Double tap to display events menu" = "Double tap to display events menu";
+"Double tap to display thread notification level options" = "Double tap to display thread notification level options";
 
 /* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
@@ -1024,9 +1033,6 @@
 /* No comment provided by engineer. */
 "Error occurred while editing a message" = "Error occurred while editing a message";
 
-/* No comment provided by engineer. */
-"Events menu" = "Events menu";
-
 /* External signaling used */
 "External" = "External";
 
@@ -1074,6 +1080,9 @@
 
 /* No comment provided by engineer. */
 "First day" = "First day";
+
+/* No comment provided by engineer. */
+"Follow conversation settings" = "Follow conversation settings";
 
 /* No comment provided by engineer. */
 "For password reset and notifications" = "For password reset and notifications";
@@ -1327,6 +1336,9 @@
 /* No comment provided by engineer. */
 "Meeting settings" = "Meeting settings";
 
+/* Headline for a 'meeting section' */
+"Meetings" = "Meetings";
+
 /* 'Mentioned' meaning 'Mentioned conversations' */
 "Mentioned" = "Mentioned";
 
@@ -1475,6 +1487,9 @@
 "No poll drafts saved yet" = "No poll drafts saved yet";
 
 /* No comment provided by engineer. */
+"No recent threads" = "No recent threads";
+
+/* No comment provided by engineer. */
 "No response from server" = "No response from server";
 
 /* No comment provided by engineer. */
@@ -1566,6 +1581,9 @@
 
 /* No comment provided by engineer. */
 "Open in %@" = "Open in %@";
+
+/* A menu to show additional options for the current conversation */
+"Option menu" = "Option menu";
 
 /* No comment provided by engineer. */
 "Other Accounts" = "Other Accounts";
@@ -1679,6 +1697,9 @@
 "Received call from an old account" = "Received call from an old account";
 
 /* No comment provided by engineer. */
+"Recent threads" = "Recent threads";
+
+/* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
 
 /* No comment provided by engineer. */
@@ -1758,6 +1779,9 @@
 
 /* No comment provided by engineer. */
 "Resend invitations" = "Resend invitations";
+
+/* Title for a section where different reset options are shown */
+"Reset" = "Reset";
 
 /* Replacement in case of out of office */
 "Reset replacement" = "Reset replacement";
@@ -2073,6 +2097,15 @@
 
 /* No comment provided by engineer. */
 "This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";
+
+/* No comment provided by engineer. */
+"Thread" = "Thread";
+
+/* No comment provided by engineer. */
+"Thread notification level button" = "Thread notification level button";
+
+/* No comment provided by engineer. */
+"Thread title" = "Thread title";
 
 /* No comment provided by engineer. */
 "Title" = "Title";

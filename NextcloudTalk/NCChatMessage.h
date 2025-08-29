@@ -85,6 +85,8 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, strong, nullable) NSString *lastEditActorId;
 @property (nonatomic, strong, nullable) NSString *lastEditActorDisplayName;
 @property (nonatomic, assign) NSInteger lastEditTimestamp;
+@property (nonatomic, assign) NSInteger threadId;
+@property (nonatomic, assign) BOOL isThread;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
@@ -101,6 +103,9 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (BOOL)containsURL;
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock _Nullable)block;
 - (void)setPreviewImageSize:(CGSize)size;
+- (BOOL)isThreadOriginalMessage;
+- (BOOL)isThreadMessage;
+- (NSString *)threadTitle;
 
 // Public for swift extension
 - (NSMutableArray * _Nonnull)temporaryReactions;

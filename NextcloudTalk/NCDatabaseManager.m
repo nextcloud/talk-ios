@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 80;
+uint64_t const kTalkDatabaseSchemaVersion           = 81;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -85,6 +85,7 @@ NSString * const kCapabilityScheduleMeeting         = @"schedule-meeting";
 NSString * const kCapabilityConversationCreationAll = @"conversation-creation-all";
 NSString * const kCapabilityImportantConversations  = @"important-conversations";
 NSString * const kCapabilitySensitiveConversations  = @"sensitive-conversations";
+NSString * const kCapabilityThreads                 = @"threads";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";
@@ -134,7 +135,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         configuration.schemaVersion = kTalkDatabaseSchemaVersion;
         configuration.objectClasses = @[
             TalkAccount.class, NCRoom.class, ServerCapabilities.class, FederatedCapabilities.class,
-            NCChatMessage.class, NCChatBlock.class, NCContact.class, ABContact.class
+            NCChatMessage.class, NCChatBlock.class, NCContact.class, ABContact.class, NCThread.class
         ];
         configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
             // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
@@ -267,11 +268,23 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     [realm deleteObjects:[NCRoom objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
     [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+    [realm deleteObjects:[NCThread objectsWithPredicate:query]];
     [realm deleteObjects:[NCContact objectsWithPredicate:query]];
     [realm deleteObjects:[FederatedCapabilities objectsWithPredicate:query]];
     if (isLastAccount) {
         [realm deleteObjects:[ABContact allObjects]];
     }
+    [realm commitWriteTransaction];
+}
+
+- (void)removeStoredMessagesForAccountId:(NSString *)accountId
+{
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
+    [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+    [realm deleteObjects:[NCThread objectsWithPredicate:query]];
     [realm commitWriteTransaction];
 }
 
