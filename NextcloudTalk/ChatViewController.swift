@@ -204,7 +204,7 @@ import SwiftUI
     private lazy var closeButton: UIBarButtonItem = {
         let closeButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
 
-        closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { _ in
+        closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
             if self.presentedInCall {
                 NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
             } else {
