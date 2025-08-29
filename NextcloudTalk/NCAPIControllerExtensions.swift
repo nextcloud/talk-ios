@@ -1177,8 +1177,12 @@ import NextcloudKit
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
-            let threads = ocs?.dataArrayDict?.map { NCThread(dictionary: $0, andAccountId: accountId) }
-            completionBlock(threads)
+            if let threads = ocs?.dataArrayDict?.map({ NCThread(dictionary: $0, andAccountId: accountId) }), !threads.isEmpty {
+                NCThread.storeOrUpdateThreads(threads)
+                completionBlock(threads)
+            } else {
+                completionBlock(nil)
+            }
         }
     }
 
@@ -1196,11 +1200,14 @@ import NextcloudKit
         let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, for: account)
 
         apiSessionManager.getOcs(urlString, account: account, parameters: nil) { ocs, _ in
-            guard let thread = ocs?.dataDict as? [String: Any] else {
+            guard let threadDict = ocs?.dataDict as? [String: Any] else {
                 completionBlock(nil)
                 return
             }
-            completionBlock(NCThread(dictionary: thread, andAccountId: accountId))
+
+            let thread = NCThread(dictionary: threadDict, andAccountId: accountId)
+            NCThread.storeOrUpdateThreads([thread])
+            completionBlock(thread)
         }
     }
 
@@ -1222,11 +1229,14 @@ import NextcloudKit
         ]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocs, _ in
-            guard let thread = ocs?.dataDict as? [String: Any] else {
+            guard let threadDict = ocs?.dataDict as? [String: Any] else {
                 completionBlock(nil)
                 return
             }
-            completionBlock(NCThread(dictionary: thread, andAccountId: accountId))
+
+            let thread = NCThread(dictionary: threadDict, andAccountId: accountId)
+            NCThread.storeOrUpdateThreads([thread])
+            completionBlock(thread)
         }
     }
 }
