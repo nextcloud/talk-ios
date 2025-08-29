@@ -95,11 +95,16 @@ import SwiftUI
         }
 
         var image: UIImage? {
+            let config = UIImage.SymbolConfiguration(pointSize: 16)
             switch self {
-            case .room: return UIImage(systemName: "bell")
-            case .allMessages: return UIImage(systemName: "bell.and.waves.left.and.right")
-            case .mentions: return UIImage(systemName: "bell")
-            case .off: return UIImage(systemName: "bell.slash")
+            case .room:
+                return UIImage(systemName: "bell", withConfiguration: config)
+            case .allMessages:
+                return UIImage(systemName: "bell.and.waves.left.and.right", withConfiguration: config)
+            case .mentions:
+                return UIImage(systemName: "bell", withConfiguration: config)
+            case .off:
+                return UIImage(systemName: "bell.slash", withConfiguration: config)
             }
         }
     }
