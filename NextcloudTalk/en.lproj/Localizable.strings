@@ -905,6 +905,9 @@
 "Double tap to display option menu" = "Double tap to display option menu";
 
 /* No comment provided by engineer. */
+"Double tap to display thread notification level options" = "Double tap to display thread notification level options";
+
+/* No comment provided by engineer. */
 "Double tap to edit profile" = "Double tap to edit profile";
 
 /* No comment provided by engineer. */
@@ -1074,6 +1077,9 @@
 
 /* No comment provided by engineer. */
 "First day" = "First day";
+
+/* No comment provided by engineer. */
+"Follow conversation settings" = "Follow conversation settings";
 
 /* No comment provided by engineer. */
 "For password reset and notifications" = "For password reset and notifications";
@@ -2091,6 +2097,9 @@
 
 /* No comment provided by engineer. */
 "Thread" = "Thread";
+
+/* No comment provided by engineer. */
+"Thread notification level button" = "Thread notification level button";
 
 /* No comment provided by engineer. */
 "Thread title" = "Thread title";
