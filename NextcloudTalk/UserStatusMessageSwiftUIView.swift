@@ -43,17 +43,17 @@ struct UserStatusMessageSwiftUIView: View {
                                 .onChange(of: selectedIcon) { _ in
                                     selectedPredefinedMessageId = nil
                                 }
-                                .tint(.primary)
                                 .focused($textFieldIsFocused)
                             Divider()
                             TextField(NSLocalizedString("What is your status?", comment: ""), text: $selectedMessage)
                                 .onChange(of: selectedMessage) { _ in
                                     selectedPredefinedMessageId = nil
                                 }
-                                .tint(.primary)
                                 .focused($textFieldIsFocused)
                         }
                     }
+                    .tint(.primary)
+
                     Section {
                         ForEach(predefinedStatuses, id: \.id) { status in
                             Button(action: {
@@ -148,6 +148,7 @@ struct UserStatusMessageSwiftUIView: View {
                 setClearAt(clearAt: NSLocalizedString("This week", comment: ""))
             }
         }
+        .tint(.blue)
         .alert(isPresented: $showErrorAlert) {
             Alert(title: Text(errorAlertTitle), message: Text(errorAlertMessage), dismissButton: .cancel())
         }
