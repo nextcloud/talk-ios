@@ -184,12 +184,47 @@ import UIKit
     // MARK: - Configuration
 
     func setTitleView() {
+        /*
+        // This is uses the native iOS 26 navigationItem properties, but currently misses tap action
+        if #available(iOS 26.0, *) {
+            self.navigationItem.style = .editor
+
+            let avatarView = AvatarButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
+
+            if let thread = self.thread, let firstMessage = thread.firstMessage() {
+                avatarView.setActorAvatar(forMessage: firstMessage, withAccount: self.account)
+                self.navigationItem.title = thread.title
+            } else {
+                avatarView.setAvatar(for: room)
+                self.navigationItem.title = room.displayName
+                self.navigationItem.subtitle = room.roomDescription
+            }
+
+            avatarView.widthAnchor.constraint(equalToConstant: 44).isActive = true
+            avatarView.heightAnchor.constraint(equalToConstant: 44).isActive = true
+
+            let avatarBarButton = UIBarButtonItem(customView: avatarView)
+            avatarBarButton.tintColor = .clear
+            avatarBarButton.hidesSharedBackground = true
+
+            self.navigationItem.leftItemsSupplementBackButton = true
+            self.navigationItem.leftBarButtonItems = [avatarBarButton]
+
+            return
+        }
+        */
+
         let titleView = NCChatTitleView()
 
         // Int.max is problematic when running on MacOS, so we use Int32.max here
         titleView.frame = .init(x: 0, y: 0, width: Int(Int32.max), height: 30)
         titleView.delegate = self
         titleView.titleTextView.accessibilityHint = NSLocalizedString("Double tap to go to conversation information", comment: "")
+
+        if #available(iOS 26.0, *) {
+            // Need to constraint the height here, otherwise we render way too large
+            titleView.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        }
 
         if self.navigationController?.traitCollection.verticalSizeClass == .compact {
             titleView.showSubtitle = false
