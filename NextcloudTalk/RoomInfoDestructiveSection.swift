@@ -79,6 +79,7 @@ struct RoomInfoDestructiveSection: View {
 
             NCRoomsManager.sharedInstance().chatViewController?.leaveChat()
             NCUserInterfaceController.sharedInstance().presentConversationsList()
+            NCRoomsManager.sharedInstance().updateRoomsUpdatingUserStatus(false, onlyLastModified: false)
         } catch {
             if let error = error as? OcsError, error.responseStatusCode == 400 {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("You need to promote a new moderator before you can leave this conversation", comment: ""), withMessage: nil)
