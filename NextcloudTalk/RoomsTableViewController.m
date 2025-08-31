@@ -1819,6 +1819,7 @@ typedef enum RoomsSections {
     // Use a snapshot here to not interfere with room refresh
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     UIView *previewView = [cell.contentView snapshotViewAfterScreenUpdates:NO];
+    previewView.backgroundColor = UIColor.systemBackgroundColor;
 
     // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
     CGFloat cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2;
