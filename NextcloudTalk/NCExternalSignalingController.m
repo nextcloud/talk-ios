@@ -656,6 +656,11 @@ NSString * const NCExternalSignalingControllerDidReceiveStoppedTypingNotificatio
 - (void)processRoomListEvent:(NSDictionary *)eventDict
 {
     NSLog(@"Refresh room list.");
+    NSDictionary *updateDict = [eventDict objectForKey:@"update"];
+    NSString *roomToken = [updateDict objectForKey:@"roomid"];
+    if (roomToken) {
+        [[NCRoomsManager sharedInstance] updateRoom:roomToken withCompletionBlock:nil];
+    }
 }
 
 - (void)processRoomParticipantsEvent:(NSDictionary *)eventDict
