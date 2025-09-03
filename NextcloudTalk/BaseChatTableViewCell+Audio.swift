@@ -8,7 +8,7 @@ extension BaseChatTableViewCell {
     func setupForAudioCell(with message: NCChatMessage) {
         if self.audioPlayerView == nil {
             // Audio player view
-            let audioPlayerView = AudioPlayerView(frame: CGRect(x: 0, y: 0, width: 0, height: voiceMessageCellPlayerHeight))
+            let audioPlayerView = AudioPlayerView(frame: CGRect(x: 0, y: 0, width: voiceMessageCellPlayerWidth, height: voiceMessageCellPlayerHeight))
             self.audioPlayerView = audioPlayerView
             self.audioPlayerView?.delegate = self
 
@@ -18,8 +18,8 @@ extension BaseChatTableViewCell {
 
             NSLayoutConstraint.activate([
                 audioPlayerView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
-                audioPlayerView.rightAnchor.constraint(equalTo: self.messageBodyView.rightAnchor),
-                audioPlayerView.topAnchor.constraint(equalTo: self.messageBodyView.topAnchor)
+                audioPlayerView.topAnchor.constraint(equalTo: self.messageBodyView.topAnchor),
+                audioPlayerView.rightAnchor.constraint(lessThanOrEqualTo: self.messageBodyView.rightAnchor)
             ])
         }
     }

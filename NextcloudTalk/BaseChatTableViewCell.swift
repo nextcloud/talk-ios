@@ -58,6 +58,7 @@ public let locationMessageCellPreviewWidth = 240.0
 public let voiceMessageCellIdentifier = "voiceMessageCellIdentifier"
 public let voiceGroupedMessageCellIdentifier = "voiceGroupedMessageCellIdentifier"
 public let voiceMessageCellPlayerHeight = 52.0
+public let voiceMessageCellPlayerWidth = 450.0
 
 // Poll cell
 public let pollMessageCellIdentifier = "pollMessageCellIdentifier"

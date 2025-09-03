@@ -33,6 +33,10 @@ class AudioPlayerView: UIView {
         commonInit()
     }
 
+    override var intrinsicContentSize: CGSize {
+        return bounds.size
+    }
+
     func commonInit() {
         Bundle.main.loadNibNamed("AudioPlayerView", owner: self, options: nil)
 
@@ -61,7 +65,7 @@ class AudioPlayerView: UIView {
         // Duration label
         hideDurationLabel()
 
-        backgroundColor = .secondarySystemBackground
+        backgroundColor = .systemGray5
         layer.cornerRadius = 8.0
         layer.masksToBounds = true
 
