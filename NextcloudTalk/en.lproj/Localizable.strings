@@ -1628,6 +1628,9 @@
 "Please check that you entered the correct Nextcloud server address." = "Please check that you entered the correct Nextcloud server address.";
 
 /* No comment provided by engineer. */
+"Please check that you entered the correct server address." = "Please check that you entered the correct server address.";
+
+/* No comment provided by engineer. */
 "Please contact your system administrator." = "Please contact your system administrator.";
 
 /* Please update your server with the latest {app name} version available. */
@@ -1866,6 +1869,9 @@
 
 /* No comment provided by engineer. */
 "Server is currently in maintenance mode" = "Server is currently in maintenance mode";
+
+/* No comment provided by engineer. */
+"Server not found" = "Server not found";
 
 /* No comment provided by engineer. */
 "Set" = "Set";
