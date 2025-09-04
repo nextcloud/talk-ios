@@ -199,9 +199,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
                                 delegate: self)
                     }
                 } else {
-                    self.showAlert(
-                        title: NSLocalizedString("Nextcloud server not found", comment: ""),
-                        message: String(format: "%@\n%@", error.localizedDescription, NSLocalizedString("Please check that you entered the correct Nextcloud server address.", comment: "")))
+                    self.showServerNotFoundAlert(withError: error.localizedDescription)
                 }
             } else {
                 if let serverCapabilities = serverCapabilities as? [String: Any] {
@@ -221,9 +219,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
                         }
                     }
                 } else {
-                    self.showAlert(
-                        title: NSLocalizedString("Nextcloud server not found", comment: ""),
-                        message: NSLocalizedString("Please check that you entered the correct Nextcloud server address.", comment: ""))
+                    self.showServerNotFoundAlert(withError: nil)
                 }
             }
         }
@@ -315,6 +311,32 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
             self?.serverTextField.becomeFirstResponder()
         }))
         self.present(alert, animated: true)
+    }
+
+    func showServerNotFoundAlert(withError error: String?) {
+        if isBrandedApp.boolValue {
+            if let error {
+                self.showAlert(
+                    title: NSLocalizedString("Server not found", comment: ""),
+                    message: String(format: "%@\n%@", error, NSLocalizedString("Please check that you entered the correct server address.", comment: "")))
+
+            } else {
+                self.showAlert(
+                    title: NSLocalizedString("Server not found", comment: ""),
+                    message: NSLocalizedString("Please check that you entered the correct server address.", comment: ""))
+            }
+        } else {
+            if let error {
+                self.showAlert(
+                    title: NSLocalizedString("Nextcloud server not found", comment: ""),
+                    message: String(format: "%@\n%@", error, NSLocalizedString("Please check that you entered the correct Nextcloud server address.", comment: "")))
+
+            } else {
+                self.showAlert(
+                    title: NSLocalizedString("Nextcloud server not found", comment: ""),
+                    message: NSLocalizedString("Please check that you entered the correct Nextcloud server address.", comment: ""))
+            }
+        }
     }
 
     // MARK: - AuthenticationViewController delegate
