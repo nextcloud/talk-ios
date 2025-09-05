@@ -216,6 +216,11 @@ typedef enum RoomsSections {
 
         _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] style:UIBarButtonItemStylePlain target:self action:@selector(presentNewRoomViewController)];
         _newConversationButton.accessibilityLabel = NSLocalizedString(@"Create or join a conversation", nil);
+
+        if (@available(iOS 26.0, *)) {
+            _newConversationButton.hidesSharedBackground = YES;
+        }
+
         [self.navigationItem setRightBarButtonItem:_newConversationButton];
     }
 }
@@ -947,6 +952,11 @@ typedef enum RoomsSections {
     _profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
 
     _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:_profileButton];
+
+    if (@available(iOS 26.0, *)) {
+        _settingsButton.hidesSharedBackground = YES;
+    }
+
     [self.navigationItem setLeftBarButtonItem:_settingsButton];
 
     [self updateProfileButtonImage];
