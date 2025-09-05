@@ -183,6 +183,7 @@
     self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
 
     self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
+    self.navigationItem.hidesSearchBarWhenScrolling = NO;
 
     _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
     UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
