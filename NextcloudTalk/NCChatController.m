@@ -134,7 +134,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         }
 
         // We only count visible messages and we only count, if we already found the message that we need to ensure
-        if (reachedEnsuredMessageId && ![sortedMessage isUpdateMessage]) {
+        if (reachedEnsuredMessageId && ![sortedMessage isUpdateMessage] && !(_threadId == 0 && [sortedMessage isThreadMessage])) {
             numberOfStoredVisibleMessages += 1;
         }
 
@@ -656,7 +656,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 messageId = message.messageId;
             }
 
-            if (![message isUpdateMessage]) {
+            if (![message isUpdateMessage] && !(_threadId == 0 && [message isThreadMessage])) {
                 [userInfo setObject:storedMessages forKey:@"messages"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                                     object:self
