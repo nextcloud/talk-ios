@@ -74,6 +74,24 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     return _threadId > 0;
 }
 
+- (BOOL)willBeVisibleMessage:(NCChatMessage *)message
+{
+    // Update messages are not visible in normal chats or thread views
+    if ([message isUpdateMessage]) {
+        return NO;
+    }
+
+    // Thread messages are not visible in normal chat views.
+    if (![self isThreadController] && [message isThreadMessage]) {
+        return NO;
+    }
+
+    // In thread controller mode we only receive thread messages,
+    // so no check for non-thread messages is needed
+
+    return YES;
+}
+
 #pragma mark - Database
 
 - (RLMResults *)managedSortedBlocksForRoomOrThread
@@ -139,7 +157,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         }
 
         // We only count visible messages and we only count, if we already found the message that we need to ensure
-        if (reachedEnsuredMessageId && ![sortedMessage isUpdateMessage] && !(![self isThreadController] && [sortedMessage isThreadMessage])) {
+        if (reachedEnsuredMessageId && [self willBeVisibleMessage:sortedMessage]) {
             numberOfStoredVisibleMessages += 1;
         }
 
@@ -661,7 +679,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 messageId = message.messageId;
             }
 
-            if (![message isUpdateMessage] && !(![self isThreadController] && [message isThreadMessage])) {
+            if ([self willBeVisibleMessage:message]) {
                 [userInfo setObject:storedMessages forKey:@"messages"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                                     object:self
