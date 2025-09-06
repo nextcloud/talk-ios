@@ -69,12 +69,17 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     [[AllocationTracker shared] removeAllocation:@"NCChatController"];
 }
 
+- (BOOL)isThreadController
+{
+    return _threadId > 0;
+}
+
 #pragma mark - Database
 
 - (RLMResults *)managedSortedBlocksForRoomOrThread
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"internalId = %@", _room.internalId];
-    if (_threadId > 0) {
+    if ([self isThreadController]) {
         predicate = [NSPredicate predicateWithFormat:@"internalId = %@ AND threadId = %ld", _room.internalId, (long)_threadId];
     }
     RLMResults *managedBlocks = [NCChatBlock objectsWithPredicate:predicate];
@@ -103,7 +108,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     }
 
     // Thread
-    if (_threadId > 0) {
+    if ([self isThreadController]) {
         query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND threadId = %ld AND messageId >= %ld AND messageId < %ld", _account.accountId, _room.token, _threadId, (long)chatBlock.oldestMessageId, (long)fromMessageId];
         if (included) {
             query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND threadId = %ld AND messageId >= %ld AND messageId <= %ld", _account.accountId, _room.token, _threadId, (long)chatBlock.oldestMessageId, (long)fromMessageId];
@@ -134,7 +139,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         }
 
         // We only count visible messages and we only count, if we already found the message that we need to ensure
-        if (reachedEnsuredMessageId && ![sortedMessage isUpdateMessage] && !(_threadId == 0 && [sortedMessage isThreadMessage])) {
+        if (reachedEnsuredMessageId && ![sortedMessage isUpdateMessage] && !(![self isThreadController] && [sortedMessage isThreadMessage])) {
             numberOfStoredVisibleMessages += 1;
         }
 
@@ -153,7 +158,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 {
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId > %ld AND messageId <= %ld", _account.accountId, _room.token, (long)messageId, (long)chatBlock.newestMessageId];
 
-    if (_threadId > 0) {
+    if ([self isThreadController]) {
         query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND threadId = %ld AND messageId > %ld AND messageId <= %ld", _account.accountId, _room.token, _threadId, (long)messageId, (long)chatBlock.newestMessageId];
     }
 
@@ -261,7 +266,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         return;
     }
 
-    NSInteger oldestMessageKnown = _threadId > 0 && lastKnown < _threadId ? _threadId : lastKnown;
+    NSInteger oldestMessageKnown = [self isThreadController] && lastKnown < _threadId ? _threadId : lastKnown;
 
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
@@ -299,7 +304,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     NSArray *sortedMessages = [self sortedMessagesFromMessageArray:messages];
     NCChatMessage *newestMessageReceived = sortedMessages.lastObject;
     NSInteger newestMessageKnown = newestKnown > 0 ? newestKnown : newestMessageReceived.messageId;
-    NSInteger oldestMessageKnown = _threadId > 0 && lastKnown < _threadId ? _threadId : lastKnown;
+    NSInteger oldestMessageKnown = [self isThreadController] && lastKnown < _threadId ? _threadId : lastKnown;
 
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
@@ -656,7 +661,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                 messageId = message.messageId;
             }
 
-            if (![message isUpdateMessage] && !(_threadId == 0 && [message isThreadMessage])) {
+            if (![message isUpdateMessage] && !(![self isThreadController] && [message isThreadMessage])) {
                 [userInfo setObject:storedMessages forKey:@"messages"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                                     object:self
