@@ -260,7 +260,9 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     if (lastKnown <= 0) {
         return;
     }
-    
+
+    NSInteger oldestMessageKnown = _threadId > 0 && lastKnown < _threadId ? _threadId : lastKnown;
+
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         RLMResults *managedSortedBlocks = [self managedSortedBlocksForRoomOrThread];
@@ -276,7 +278,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                     break;
                 // Update lastBlock if the lastKnown message is between the 2 blocks
                 } else if (lastKnown > block.newestMessageId) {
-                    lastBlock.oldestMessageId = lastKnown;
+                    lastBlock.oldestMessageId = oldestMessageKnown;
                     break;
                 // The current block is completely included in the retrieved history
                 // This could happen if we vary the message limit when fetching messages
@@ -287,7 +289,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             }
         // There is just one chat block stored
         } else {
-            lastBlock.oldestMessageId = lastKnown;
+            lastBlock.oldestMessageId = oldestMessageKnown;
         }
     }];
 }
@@ -297,7 +299,8 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     NSArray *sortedMessages = [self sortedMessagesFromMessageArray:messages];
     NCChatMessage *newestMessageReceived = sortedMessages.lastObject;
     NSInteger newestMessageKnown = newestKnown > 0 ? newestKnown : newestMessageReceived.messageId;
-    
+    NSInteger oldestMessageKnown = _threadId > 0 && lastKnown < _threadId ? _threadId : lastKnown;
+
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         RLMResults *managedSortedBlocks = [self managedSortedBlocksForRoomOrThread];
@@ -308,7 +311,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         newBlock.accountId = _room.accountId;
         newBlock.token = _room.token;
         newBlock.threadId = _threadId;
-        newBlock.oldestMessageId = _threadId > 0 ? _threadId : lastKnown;
+        newBlock.oldestMessageId = oldestMessageKnown;
         newBlock.newestMessageId = newestMessageKnown;
         newBlock.hasHistory = YES;
         
