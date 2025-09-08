@@ -136,6 +136,13 @@ BOOL const useServerThemimg = YES;
         } else if ([self brandTextColorStyle] == NCTextColorStyleDark) {
             imageName = @"navigationLogoDark";
         }
+
+        if (@available(iOS 26.0, *)) {
+            // Since we don't have the theme color as background color in iOS 26 anymore, we need to check the trait collection
+            if ([UITraitCollection currentTraitCollection].userInterfaceStyle == UIUserInterfaceStyleLight) {
+                imageName = @"navigationLogoDark";
+            }
+        }
     }
     return imageName;
 }
@@ -204,13 +211,20 @@ BOOL const useServerThemimg = YES;
 }
 
 + (void)styleViewController:(UIViewController *)controller {
+    UIColor *themeColor = [NCAppBranding themeColor];
+
+    if (@available(iOS 26.0, *)) {
+        [controller.view setBackgroundColor:[UIColor systemGroupedBackgroundColor]];
+
+        return;
+    }
+
     [controller.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
     controller.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     controller.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     controller.navigationController.navigationBar.translucent = NO;
     controller.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
 
-    UIColor *themeColor = [NCAppBranding themeColor];
     UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
     [appearance configureWithOpaqueBackground];
     appearance.backgroundColor = themeColor;
