@@ -558,60 +558,6 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     }
 }
 
-- (void)getInitialChatHistory
-{
-    NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    [userInfo setObject:_room.token forKey:@"room"];
-    
-    // Clear expired messages
-    [self removeExpiredMessages];
-    
-    NSInteger lastReadMessageId = 0;
-    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityChatReadMarker forRoom:self.room]) {
-        lastReadMessageId = _room.lastReadMessage;
-    }
-    
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
-    if (lastChatBlock.newestMessageId > 0 && lastReadMessageId >= lastChatBlock.oldestMessageId && lastChatBlock.newestMessageId >= lastReadMessageId) {
-        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastChatBlock.newestMessageId included:YES ensureIncludesMessageId:lastReadMessageId];
-        [userInfo setObject:storedMessages forKey:@"messages"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-
-        [self updateLastMessageIfNeededFromMessages:storedMessages];
-    } else {
-        _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastReadMessageId inThread:_threadId history:YES includeLastMessage:YES timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
-            if (self->_stopChatMessagesPoll) {
-                return;
-            }
-            if (error) {
-                if ([self isChatBeingBlocked:statusCode]) {
-                    [self notifyChatIsBlocked];
-                    return;
-                }
-                [userInfo setObject:error forKey:@"error"];
-                NSLog(@"Could not get initial chat history. Error: %@", error.description);
-            } else {
-                // Update chat blocks
-                [self updateChatBlocksWithReceivedMessages:messages newestKnown:lastReadMessageId andLastKnown:lastKnownMessage];
-                // Store new messages
-                if (messages.count > 0) {
-                    [self storeMessages:messages];
-                    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
-                    NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:lastReadMessageId included:YES ensureIncludesMessageId:lastReadMessageId];
-                    [userInfo setObject:storedMessages forKey:@"messages"];
-                }
-            }
-            [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-            
-            [self checkLastCommonReadMessage:lastCommonReadMessage];
-        }];
-    }
-}
-
 - (void)updateLastMessageIfNeededFromMessages:(NSArray *)storedMessages
 {
     // Try to find the last non-update message - Messages are already sorted by messageId here
@@ -658,38 +604,46 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
                                                       userInfo:userInfo];
 }
 
+- (void)getInitialChatHistory
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    [userInfo setObject:_room.token forKey:@"room"];
+
+    // Clear expired messages
+    [self removeExpiredMessages];
+
+    NSInteger lastReadMessageId = 0;
+    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityChatReadMarker forRoom:self.room]) {
+        lastReadMessageId = _room.lastReadMessage;
+    }
+
+    [self fetchHistoryUntilVisibleFromMessageId:lastReadMessageId forInitialChatHistory:YES isFirstIteration:YES completion:^(NSArray *messages, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        if (error) {
+            if ([self isChatBeingBlocked:statusCode]) {
+                [self notifyChatIsBlocked];
+                return;
+            }
+            [userInfo setObject:error forKey:@"error"];
+            NSLog(@"Could not get initial chat history. Error: %@", error.description);
+        } else if (messages.count > 0) {
+            [userInfo setObject:messages forKey:@"messages"];
+            [self updateLastMessageIfNeededFromMessages:messages];
+        }
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveInitialChatHistoryNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+
+        [self checkLastCommonReadMessage:lastCommonReadMessage];
+    }];
+}
+
 - (void)getHistoryBatchFromMessagesId:(NSInteger)messageId
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_room.token forKey:@"room"];
-    
-    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
-    if (lastChatBlock && lastChatBlock.oldestMessageId < messageId) {
-        NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO ensureIncludesMessageId:0];
 
-        // getBatchOfMessagesInBlock already ensures, that we return some visible messages. In case we only got update messages
-        // we still want to retrieve additional messages from the server, to ensure we have the full history stored.
-        // Since BaseChatViewController in internalAppendMessages skips update messages, "lastChatBlock.oldestMessageId < messageId"
-        // can always be true and we never retrieve any more history.
-        for (NSDictionary *messageDict in storedMessages) {
-            NCChatMessage *message = [[NCChatMessage alloc] initWithValue:messageDict];
-
-            // Since the passed messageId might not be the lowest one, we update it here to ensure we request the missing messages
-            if (message.messageId < messageId) {
-                messageId = message.messageId;
-            }
-
-            if ([self willBeVisibleMessage:message]) {
-                [userInfo setObject:storedMessages forKey:@"messages"];
-                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
-                                                                    object:self
-                                                                  userInfo:userInfo];
-                return;
-            }
-        }
-    }
-
-    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:YES includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    [self fetchHistoryUntilVisibleFromMessageId:messageId forInitialChatHistory:NO isFirstIteration:YES completion:^(NSArray *messages, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (statusCode == 304) {
             [self updateHistoryFlagInFirstBlock];
         }
@@ -702,20 +656,114 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             if (statusCode != 304) {
                 NSLog(@"Could not get chat history. Error: %@", error.description);
             }
-        } else {
-            // Update chat blocks
-            [self updateChatBlocksWithLastKnown:lastKnownMessage];
-            // Store new messages
-            if (messages.count > 0) {
-                [self storeMessages:messages];
-                NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
-                NSArray *historyBatch = [self getBatchOfMessagesInBlock:lastChatBlock fromMessageId:messageId included:NO ensureIncludesMessageId:0];
-                [userInfo setObject:historyBatch forKey:@"messages"];
-            }
+        } else if (messages.count > 0) {
+            [userInfo setObject:messages forKey:@"messages"];
         }
+
         [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveChatHistoryNotification
                                                             object:self
                                                           userInfo:userInfo];
+    }];
+}
+
+
+- (void)fetchHistoryUntilVisibleFromMessageId:(NSInteger)messageId forInitialChatHistory:(BOOL)forInitialChatHistory isFirstIteration:(BOOL)isFirstIteration completion:(void (^)(NSArray *messages, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode))completion
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
+
+    // First, try to load messages from local storage (DB)
+    if (lastChatBlock) {
+        BOOL canUseLocalStorage = NO;
+
+        if (forInitialChatHistory) {
+            canUseLocalStorage = (lastChatBlock.newestMessageId > 0 &&
+                                  messageId >= lastChatBlock.oldestMessageId &&
+                                  lastChatBlock.newestMessageId >= messageId);
+        } else {
+            canUseLocalStorage = (lastChatBlock.newestMessageId > 0 &&
+                                  messageId >= lastChatBlock.oldestMessageId);
+        }
+
+        if (canUseLocalStorage) {
+            NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock
+                                                        fromMessageId:forInitialChatHistory ? lastChatBlock.newestMessageId : messageId
+                                                             included:forInitialChatHistory
+                                              ensureIncludesMessageId:forInitialChatHistory ? messageId : 0];
+
+            for (NCChatMessage *message in storedMessages) {
+                // Since the passed messageId might not be the lowest one, we update it here to ensure we request the missing messages
+                if (message.messageId < messageId) {
+                    messageId = message.messageId;
+                }
+
+                // If there is at least one visible message, we can stop fetching messages and pass them
+                if ([self willBeVisibleMessage:message]) {
+                    completion(storedMessages, 0, nil, 0);
+                    return;
+                }
+            }
+        }
+    }
+
+    // If no messages are found or visible in last chat block, fall back to fetching them from the server
+    _getHistoryTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token
+                                                                fromLastMessageId:messageId
+                                                                         inThread:_threadId
+                                                                          history:YES
+                                                               includeLastMessage:forInitialChatHistory
+                                                                          timeout:NO
+                                                            lastCommonReadMessage:_room.lastCommonReadMessage
+                                                                    setReadMarker:YES
+                                                          markNotificationsAsRead:YES
+                                                                       forAccount:_account
+                                                              withCompletionBlock:^(NSArray *messages,
+                                                                                    NSInteger lastKnownMessage,
+                                                                                    NSInteger lastCommonReadMessage,
+                                                                                    NSError *error,
+                                                                                    NSInteger statusCode) {
+        if (self->_stopChatMessagesPoll) {
+            return;
+        }
+
+        // Error handling
+        if (error) {
+            completion(nil, 0, error, statusCode);
+            return;
+        }
+
+        // Store new messages
+        if (forInitialChatHistory && isFirstIteration) {
+            [self updateChatBlocksWithReceivedMessages:messages newestKnown:messageId andLastKnown:lastKnownMessage];
+        } else {
+            [self updateChatBlocksWithLastKnown:lastKnownMessage];
+        }
+
+        // Store new messages
+        if (messages.count > 0) {
+            [self storeMessages:messages];
+
+            NCChatBlock *block = [self chatBlocksForRoomOrThread].lastObject;
+            NSArray *history = [self getBatchOfMessagesInBlock:block
+                                                 fromMessageId:messageId
+                                                      included:forInitialChatHistory
+                                       ensureIncludesMessageId:forInitialChatHistory ? messageId : 0];
+
+            for (NCChatMessage *message in history) {
+                if ([self willBeVisibleMessage:message]) {
+                    completion(history, lastCommonReadMessage, nil, 0);
+                    return;
+                }
+            }
+
+            // Recursively fetch messages until finding visible ones
+            [self fetchHistoryUntilVisibleFromMessageId:lastKnownMessage
+                                  forInitialChatHistory:forInitialChatHistory
+                                       isFirstIteration:NO
+                                             completion:completion];
+            return;
+        }
+
+        completion(@[], 0, nil, 0);
     }];
 }
 
