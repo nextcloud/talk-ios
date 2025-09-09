@@ -213,6 +213,7 @@ import SwiftUI
             if self.presentedInCall {
                 NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
             } else {
+                self.leaveChat()
                 self.dismiss(animated: true)
             }
         })
@@ -1096,6 +1097,11 @@ import SwiftUI
         // In case we're typing when we leave the chat, make sure we notify everyone
         // The 'stopTyping' method makes sure to only send signaling messages when we were typing before
         self.stopTyping(force: false)
+
+        // If this is a thread view, we can leave at this point
+        if self.isThreadViewController {
+            return
+        }
 
         // If this chat view controller is for the same room as the one owned by the rooms manager
         // then we should not try to leave the chat. Since we will leave the chat when the
