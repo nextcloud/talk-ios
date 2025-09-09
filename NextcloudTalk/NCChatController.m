@@ -96,7 +96,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
 
 - (RLMResults *)managedSortedBlocksForRoomOrThread
 {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"internalId = %@", _room.internalId];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"internalId = %@ AND threadId = 0", _room.internalId];
     if ([self isThreadController]) {
         predicate = [NSPredicate predicateWithFormat:@"internalId = %@ AND threadId = %ld", _room.internalId, (long)_threadId];
     }
