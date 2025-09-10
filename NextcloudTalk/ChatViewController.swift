@@ -995,6 +995,7 @@ import SwiftUI
         else { return }
 
         let navController = NCNavigationController(rootViewController: chatViewController)
+        navController.presentationController?.delegate = chatViewController
         self.present(navController, animated: true)
     }
 
@@ -2386,5 +2387,16 @@ import SwiftUI
 
         // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden
         self.dismissKeyboard(true)
+    }
+
+    // MARK: - Presentation controller delegate
+
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        self.leaveChat()
+    }
+
+    public func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+        // Allow swipe down to dismiss
+        return true
     }
 }
