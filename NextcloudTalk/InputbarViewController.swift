@@ -224,6 +224,7 @@ import UIKit
         if #available(iOS 26.0, *) {
             // Need to constraint the height here, otherwise we render way too large
             titleView.heightAnchor.constraint(equalToConstant: 44).isActive = true
+            titleView.widthAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude).isActive = true
         }
 
         if self.navigationController?.traitCollection.verticalSizeClass == .compact {
