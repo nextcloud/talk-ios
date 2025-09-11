@@ -23,7 +23,8 @@ import SwiftyAttributes
                self.systemMessage == "reaction_deleted" ||
                self.systemMessage == "poll_voted" ||
                self.systemMessage == "message_edited" ||
-               self.systemMessage == "thread_created"
+               self.systemMessage == "thread_created" ||
+               self.systemMessage == "thread_renamed"
     }
 
     public var isThreadCreatedMessage: Bool {
