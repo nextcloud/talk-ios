@@ -46,6 +46,13 @@ class DateHeaderView: UIView {
         titleLabel.layer.cornerRadius = 8
         titleLabel.clipsToBounds = true
 
+        if #available(iOS 26.0, *) {
+            // When backgroundColor is set to secondarySystemGroupedBackground, the whole view is adjusted
+            // when the header is displayed at the top of the scroll view, touching the glass effect
+            // making the label unreadable (backgroundColor then equals textColor)
+            titleLabel.backgroundColor = .clear
+        }
+
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
     }
