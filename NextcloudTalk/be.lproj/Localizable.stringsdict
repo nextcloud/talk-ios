@@ -132,6 +132,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@pendinginvitations@</string>
+        <key>pendinginvitations</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>У вас %ld запрашэнне ў чарзе</string>
+            <key>few</key>
+            <string>У вас %ld запрашэнні ў чарзе</string>
+            <key>many</key>
+            <string>У вас %ld запрашэнняў у чарзе</string>
+            <key>other</key>
+            <string>У вас %ld запрашэнняў у чарзе</string>
+        </dict>
     </dict>
 
     <key>%d options</key>
@@ -145,13 +160,13 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d параметр</string>
+            <string>%d варыянт</string>
             <key>few</key>
-            <string>%d параметры</string>
+            <string>%d варыянты</string>
             <key>many</key>
-            <string>%d параметраў</string>
+            <string>%d варыянтаў</string>
             <key>other</key>
-            <string>%d параметраў</string>
+            <string>%d варыянтаў</string>
         </dict>
     </dict>
 
@@ -159,6 +174,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Гэтая размова будзе аўтаматычна выдалена для ўсіх праз %ld дзень бяздзейнасці.</string>
+            <key>few</key>
+            <string>Гэтая размова будзе аўтаматычна выдалена для ўсіх праз %ld дні бяздзейнасці.</string>
+            <key>many</key>
+            <string>Гэтая размова будзе аўтаматычна выдалена для ўсіх праз %ld дзён бяздзейнасці.</string>
+            <key>other</key>
+            <string>Гэтая размова будзе аўтаматычна выдалена для ўсіх праз %ld дзён бяздзейнасці.</string>
+        </dict>
     </dict>
 </dict>
 </plist>
