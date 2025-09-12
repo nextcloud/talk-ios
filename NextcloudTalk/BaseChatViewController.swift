@@ -15,6 +15,7 @@ import SwiftUI
 @objcMembers public class BaseChatViewController: InputbarViewController,
                                                   UITextFieldDelegate,
                                                   UIImagePickerControllerDelegate,
+                                                  UIAdaptivePresentationControllerDelegate,
                                                   PHPickerViewControllerDelegate,
                                                   UINavigationControllerDelegate,
                                                   ShareLocationViewControllerDelegate,

@@ -213,6 +213,7 @@ import SwiftUI
             if self.presentedInCall {
                 NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
             } else {
+                self.leaveChat()
                 self.dismiss(animated: true)
             }
         })
@@ -994,6 +995,7 @@ import SwiftUI
         else { return }
 
         let navController = NCNavigationController(rootViewController: chatViewController)
+        navController.presentationController?.delegate = chatViewController
         self.present(navController, animated: true)
     }
 
@@ -1096,6 +1098,11 @@ import SwiftUI
         // In case we're typing when we leave the chat, make sure we notify everyone
         // The 'stopTyping' method makes sure to only send signaling messages when we were typing before
         self.stopTyping(force: false)
+
+        // If this is a thread view, we can leave at this point
+        if self.isThreadViewController {
+            return
+        }
 
         // If this chat view controller is for the same room as the one owned by the rooms manager
         // then we should not try to leave the chat. Since we will leave the chat when the
@@ -2380,5 +2387,16 @@ import SwiftUI
 
         // When returning from RoomInfoTableViewController the default keyboard will be shown, so the height might be wrong -> make sure the keyboard is hidden
         self.dismissKeyboard(true)
+    }
+
+    // MARK: - Presentation controller delegate
+
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        self.leaveChat()
+    }
+
+    public func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+        // Allow swipe down to dismiss
+        return true
     }
 }
