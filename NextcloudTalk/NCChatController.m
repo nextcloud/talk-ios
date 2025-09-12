@@ -615,7 +615,10 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     [self removeExpiredMessages];
 
     NSInteger lastReadMessageId = 0;
-    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityChatReadMarker forRoom:self.room]) {
+    // If the chat supports read markers and this is not a thread controller, start from the room's last read message.
+    // In thread controllers, always start from the latest message (lastReadMessageId = 0) because the room's last read message
+    // might be outdated and older than the thread's first message, which would lead to a 304 response.
+    if ([[NCDatabaseManager sharedInstance] roomHasTalkCapability:kCapabilityChatReadMarker forRoom:self.room] && ![self isThreadController]) {
         lastReadMessageId = _room.lastReadMessage;
     }
 
