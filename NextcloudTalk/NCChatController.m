@@ -284,6 +284,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         return;
     }
 
+    // Safety check: prevent storing a messageId older than the thread's first message as block's oldestMessageId when in a thread controller
     NSInteger oldestMessageKnown = [self isThreadController] && lastKnown < _threadId ? _threadId : lastKnown;
 
     RLMRealm *realm = [RLMRealm defaultRealm];
@@ -322,6 +323,7 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
     NSArray *sortedMessages = [self sortedMessagesFromMessageArray:messages];
     NCChatMessage *newestMessageReceived = sortedMessages.lastObject;
     NSInteger newestMessageKnown = newestKnown > 0 ? newestKnown : newestMessageReceived.messageId;
+    // Safety check: prevent storing a messageId older than the thread's first message as block's oldestMessageId when in a thread controller
     NSInteger oldestMessageKnown = [self isThreadController] && lastKnown < _threadId ? _threadId : lastKnown;
 
     RLMRealm *realm = [RLMRealm defaultRealm];
@@ -676,15 +678,20 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         BOOL canUseLocalStorage = NO;
 
         if (forInitialChatHistory) {
+            // For initial chat history: make sure messageId is inside the last chat block
             canUseLocalStorage = (lastChatBlock.newestMessageId > 0 &&
                                   messageId >= lastChatBlock.oldestMessageId &&
                                   lastChatBlock.newestMessageId >= messageId);
         } else {
+            // For history batch: just make sure messageId is newer than last chat block's oldest message
             canUseLocalStorage = (lastChatBlock.newestMessageId > 0 &&
                                   messageId >= lastChatBlock.oldestMessageId);
         }
 
         if (canUseLocalStorage) {
+            // For initial chat history: always get batch from last chat block's newest message, even if it's not the first iteration.
+            // For history batch: get batch from the passed messageId. If it's not the first iteration, we will just skip invisible messages
+            // from previous iterations and not pass them to the chat view.
             NSArray *storedMessages = [self getBatchOfMessagesInBlock:lastChatBlock
                                                         fromMessageId:forInitialChatHistory ? lastChatBlock.newestMessageId : messageId
                                                              included:forInitialChatHistory
@@ -731,7 +738,9 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             return;
         }
 
-        // Store new messages
+        // Update chat blocks
+        // Only store a new block when getting initial history and we are in the first iteration.
+        // Otherwise, only update the chat blocks with history messages ("backwards").
         if (forInitialChatHistory && isFirstIteration) {
             [self updateChatBlocksWithReceivedMessages:messages newestKnown:messageId andLastKnown:lastKnownMessage];
         } else {
