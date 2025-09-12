@@ -751,9 +751,12 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
         if (messages.count > 0) {
             [self storeMessages:messages];
 
-            NCChatBlock *block = [self chatBlocksForRoomOrThread].lastObject;
-            NSArray *history = [self getBatchOfMessagesInBlock:block
-                                                 fromMessageId:messageId
+            NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
+            // For initial chat history: always get batch from last chat block's newest message, even if it's not the first iteration.
+            // For history batch: get batch from the passed messageId. If it's not the first iteration, we will just skip invisible messages
+            // from previous iterations and not pass them to the chat view.
+            NSArray *history = [self getBatchOfMessagesInBlock:lastChatBlock
+                                                 fromMessageId:forInitialChatHistory ? lastChatBlock.newestMessageId : messageId
                                                       included:forInitialChatHistory
                                        ensureIncludesMessageId:forInitialChatHistory ? messageId : 0];
 
