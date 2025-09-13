@@ -2477,7 +2477,7 @@ class CallViewController: UIViewController,
 
     // MARK: - NCChatTitleViewDelegate
 
-    func chatTitleViewTapped(_ chatTitleView: NCChatTitleView) {
+    func chatTitleViewTapped(_ chatTitleView: NCChatTitleView?) {
         let roomInfoVC = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: false)
         roomInfoVC.modalPresentationStyle = .pageSheet
 
