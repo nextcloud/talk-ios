@@ -139,13 +139,13 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>У вас %ld запрашэнне ў чарзе</string>
+            <string>У вас %ld запрашэнне ў чаканні</string>
             <key>few</key>
-            <string>У вас %ld запрашэнні ў чарзе</string>
+            <string>У вас %ld запрашэнні ў чаканні</string>
             <key>many</key>
-            <string>У вас %ld запрашэнняў у чарзе</string>
+            <string>У вас %ld запрашэнняў у чаканні</string>
             <key>other</key>
-            <string>У вас %ld запрашэнняў у чарзе</string>
+            <string>У вас %ld запрашэнняў у чаканні</string>
         </dict>
     </dict>
 
