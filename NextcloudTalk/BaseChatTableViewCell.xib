@@ -53,17 +53,23 @@
                                             <constraint firstAttribute="trailing" secondItem="lOK-xG-raw" secondAttribute="trailing" constant="10" id="fDp-QE-cu4"/>
                                         </constraints>
                                     </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wd8-59-ahZ" userLabel="SubheaderPart">
+                                        <rect key="frame" x="0.0" y="30" width="683" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="dtI-uu-kfC"/>
+                                        </constraints>
+                                    </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ei6-XM-uBR" userLabel="QuotePart">
-                                        <rect key="frame" x="0.0" y="30" width="683" height="70"/>
+                                        <rect key="frame" x="0.0" y="60" width="683" height="70"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="MNH-XL-wpW"/>
                                         </constraints>
                                     </view>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X2q-XX-H1j" userLabel="ContentPart">
-                                        <rect key="frame" x="0.0" y="100" width="683" height="349"/>
+                                        <rect key="frame" x="0.0" y="130" width="683" height="319"/>
                                         <subviews>
                                             <view opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="THT-eK-wa0" userLabel="MessageBodyView">
-                                                <rect key="frame" x="10" y="5" width="663" height="339"/>
+                                                <rect key="frame" x="10" y="5" width="663" height="309"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" id="wmP-Zf-X0i"/>
                                                 </constraints>
@@ -180,6 +186,7 @@
                 <outlet property="reactionStackView" destination="sl2-Ye-qSv" id="MF8-G4-EcJ"/>
                 <outlet property="referencePart" destination="rpi-JE-I3o" id="8wJ-p7-cEh"/>
                 <outlet property="statusView" destination="TkE-V6-ePd" id="NcS-Q2-IjU"/>
+                <outlet property="subheaderPart" destination="Wd8-59-ahZ" id="V4s-Lb-44b"/>
                 <outlet property="threadRepliesButton" destination="luL-wD-gBD" id="uGh-no-zpv"/>
                 <outlet property="titleLabel" destination="lOK-xG-raw" id="efR-bE-d0j"/>
             </connections>

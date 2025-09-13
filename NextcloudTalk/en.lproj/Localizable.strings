@@ -55,6 +55,9 @@
 /* Number of options in a poll */
 "%d options" = "%d options";
 
+/* Replies in a thread */
+"%d replies" = "%d replies";
+
 /* Votes in a poll */
 "%d votes" = "%d votes";
 

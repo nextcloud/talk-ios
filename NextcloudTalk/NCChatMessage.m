@@ -73,6 +73,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     message.isSilent = [[messageDict objectForKey:@"silent"] boolValue];
     message.threadId = [[messageDict objectForKey:@"threadId"] integerValue];
     message.isThread = [[messageDict objectForKey:@"isThread"] boolValue];
+    message.threadTitle = [messageDict objectForKey:@"threadTitle"];
+    message.threadReplies = [[messageDict objectForKey:@"threadReplies"] integerValue];
 
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -188,6 +190,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
         managedChatMessage.threadId = chatMessage.threadId;
         managedChatMessage.isThread = chatMessage.isThread;
+        managedChatMessage.threadTitle = chatMessage.threadTitle;
+        managedChatMessage.threadReplies = chatMessage.threadReplies;
     }
 
     if (fileParameterDict) {
@@ -254,6 +258,8 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     messageCopy.lastEditTimestamp = _lastEditTimestamp;
     messageCopy.threadId = _threadId;
     messageCopy.isThread = _isThread;
+    messageCopy.threadTitle = _threadTitle;
+    messageCopy.threadReplies = _threadReplies;
 
     return messageCopy;
 }

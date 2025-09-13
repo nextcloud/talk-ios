@@ -3065,7 +3065,7 @@ import SwiftUI
         }
 
         if !message.reactionsArray().isEmpty || (thread == nil && message.isThreadOriginalMessage()) {
-            height += 40 // reactionsView(40)
+            height += 70 // subheaderView(30) + reactionsView(40)
         }
 
         if message.containsURL() {

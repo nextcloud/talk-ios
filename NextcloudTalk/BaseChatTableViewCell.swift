@@ -82,6 +82,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var reactionStackView: UIStackView!
 
     @IBOutlet weak var headerPart: UIView!
+    @IBOutlet weak var subheaderPart: UIView!
     @IBOutlet weak var quotePart: UIView!
     @IBOutlet weak var referencePart: UIView!
     @IBOutlet weak var reactionPart: UIView!
@@ -111,6 +112,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     public var room: NCRoom?
     public var account: TalkAccount?
 
+    internal var threadTitleLabel: UILabel?
     internal var quotedMessageView: QuotedMessageView?
     internal var reactionView: ReactionsView?
     internal var referenceView: ReferenceView?
@@ -149,6 +151,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     func commonInit() {
         self.headerPart.isHidden = false
+        self.subheaderPart.isHidden = true
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
@@ -168,6 +171,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.headerPart.isHidden = false
         self.avatarButton.isHidden = false
+        self.subheaderPart.isHidden = true
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
@@ -180,6 +184,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.quotedMessageView?.removeFromSuperview()
         self.quotedMessageView = nil
+
+        self.threadTitleLabel?.removeFromSuperview()
+        self.threadTitleLabel = nil
 
         self.messageBodyViewTopConstraint.constant = 5
 
@@ -330,6 +337,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         // Show thread replies button for the thread-start-message, when not already displaying a thread
         if thread == nil, message.isThreadOriginalMessage() {
+            self.showThreadTitle()
             self.showThreadRepliesButton()
         }
 
@@ -468,6 +476,40 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
     }
 
+    // MARK: - SubheaderPart
+
+    func showThreadTitle() {
+        self.subheaderPart.isHidden = false
+
+        if self.threadTitleLabel == nil, let threadTitle = message?.threadTitle {
+            let threadTitleLabel = UILabel()
+            threadTitleLabel.font = .preferredFont(for: .body, weight: .semibold)
+            self.threadTitleLabel = threadTitleLabel
+
+            let config = UIImage.SymbolConfiguration(font: threadTitleLabel.font, scale: .small)
+            let attachment = NSTextAttachment()
+            attachment.image = UIImage(systemName: "bubble.left.and.bubble.right", withConfiguration: config)?
+                .withRenderingMode(.alwaysTemplate)
+
+            let text = NSMutableAttributedString(attachment: attachment)
+            text.append(NSAttributedString(string: " \(threadTitle)"))
+            text.addAttribute(.foregroundColor, value: UIColor.label,
+                              range: NSRange(location: 0, length: text.length))
+            threadTitleLabel.attributedText = text
+
+            threadTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+            self.subheaderPart.addSubview(threadTitleLabel)
+
+            NSLayoutConstraint.activate([
+                threadTitleLabel.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
+                threadTitleLabel.rightAnchor.constraint(equalTo: self.subheaderPart.rightAnchor, constant: -10),
+                threadTitleLabel.topAnchor.constraint(equalTo: self.subheaderPart.topAnchor, constant: 10),
+                threadTitleLabel.bottomAnchor.constraint(equalTo: self.subheaderPart.bottomAnchor)
+            ])
+        }
+    }
+
     // MARK: - QuotePart
 
     func showQuotePart() {
@@ -526,9 +568,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     func configureThreadRepliesButton() {
         self.threadRepliesButton.setButtonStyle(style: .tertiary)
         self.threadRepliesButton.tintColor = .label
-        self.threadRepliesButton.configuration?.image = UIImage(systemName: "bubble.left.and.bubble.right")
+        self.threadRepliesButton.configuration?.image = UIImage(systemName: "arrowshape.turn.up.left")
         self.threadRepliesButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .small)
-        self.threadRepliesButton.configuration?.imagePadding = 8
+        self.threadRepliesButton.configuration?.imagePadding = 4
 
         self.threadRepliesButton.addAction { [weak self] in
             guard let self, let message else { return }
@@ -539,6 +581,15 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func showThreadRepliesButton() {
+
+        let replies = message?.threadReplies ?? 0
+        if replies > 0 {
+            let repliesString = String.localizedStringWithFormat(NSLocalizedString("%d replies", comment: "Replies in a thread"), replies)
+            self.threadRepliesButton.setTitle(repliesString, for: .normal)
+        } else {
+            self.threadRepliesButton.setTitle("Reply", for: .normal)
+        }
+
         self.reactionPart.isHidden = false
         self.threadRepliesButton.isHidden = false
     }

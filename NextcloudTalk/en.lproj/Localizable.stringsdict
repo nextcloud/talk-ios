@@ -154,5 +154,22 @@
             <string>This conversation will be automatically deleted for everyone in %ld days of no activity.</string>
         </dict>
     </dict>
+
+    <key>%d replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+        <key>replies</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d reply</string>
+            <key>other</key>
+            <string>%d replies</string>
+        </dict>
+    </dict>
 </dict>
 </plist>
