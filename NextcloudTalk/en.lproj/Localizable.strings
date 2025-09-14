@@ -67,6 +67,9 @@
 /* No comment provided by engineer. */
 "%ld participants" = "%ld participants";
 
+/* Replies in a thread */
+"%ld replies" = "%ld replies";
+
 /* No comment provided by engineer. */
 "'Do not disturb' user status is ignored for important conversations" = "'Do not disturb' user status is ignored for important conversations";
 

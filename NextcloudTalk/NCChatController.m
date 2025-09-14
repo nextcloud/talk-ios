@@ -25,6 +25,7 @@ NSString * const NCChatControllerDidReceiveHistoryClearedNotification           
 NSString * const NCChatControllerDidReceiveCallStartedMessageNotification           = @"NCChatControllerDidReceiveCallStartedMessageNotification";
 NSString * const NCChatControllerDidReceiveCallEndedMessageNotification             = @"NCChatControllerDidReceiveCallEndedMessageNotification";
 NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification         = @"NCChatControllerDidReceiveMessagesInBackgroundNotification";
+NSString * const NCChatControllerDidReceiveThreadMessageNotification                = @"NCChatControllerDidReceiveThreadMessageNotification";
 
 @interface NCChatController ()
 
@@ -219,6 +220,10 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             }
             // Do not use parent message for updating already stored message
             continue;
+        }
+
+        if (message.isThreadMessage) {
+            [NCThread updateThreadWithThreadMessage:message];
         }
 
         NCChatMessage *parent = [NCChatMessage messageWithDictionary:[messageDict objectForKey:@"parent"] andAccountId:_account.accountId];
@@ -537,6 +542,13 @@ NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification     
             if ([message isUpdateMessage]) {
                 [userInfo setObject:message forKey:@"updateMessage"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+            }
+            // Notify if a "thread messages" have been received
+            if ([message isThreadMessage]) {
+                [userInfo setObject:message forKey:@"threadMessage"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveThreadMessageNotification
                                                                     object:self
                                                                   userInfo:userInfo];
             }

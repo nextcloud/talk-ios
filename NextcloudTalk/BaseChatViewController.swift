@@ -690,6 +690,19 @@ import SwiftUI
         }
     }
 
+    internal func updateThreadOriginalMessage(withMessage message: NCChatMessage) {
+        DispatchQueue.main.async {
+            guard let (indexPath, originalThreadMessage) = self.getThreadOriginalMessage(forThreadId: message.threadId) else { return }
+
+            originalThreadMessage.threadTitle = message.threadTitle
+            originalThreadMessage.threadReplies = message.threadReplies
+
+            self.tableView?.beginUpdates()
+            self.tableView?.reloadRows(at: [indexPath], with: .none)
+            self.tableView?.endUpdates()
+        }
+    }
+
     // MARK: - User interface
 
     func showVoiceMessageRecordButton() {
@@ -3462,6 +3475,10 @@ import SwiftUI
         return self.indexPathAndMessageFromEnd(with: {
             $0.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId || $0.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId
         })?.indexPath
+    }
+
+    internal func getThreadOriginalMessage(forThreadId threadId: Int) -> (indexPath: IndexPath, message: NCChatMessage)? {
+        return self.indexPathAndMessageFromEnd(with: { $0.threadId == threadId && $0.isThreadOriginalMessage() })
     }
 
     internal func getLastNonUpdateMessage() -> (indexPath: IndexPath, message: NCChatMessage)? {

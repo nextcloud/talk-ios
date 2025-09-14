@@ -70,6 +70,8 @@
 
     thread.firstMessageId = message.parentId;
 
+    thread.updatedWithMessageId = message.messageId;
+
     return thread;
 }
 
@@ -81,6 +83,20 @@
     managedThread.notificationLevel = thread.notificationLevel;
     managedThread.firstMessageId = thread.firstMessageId;
     managedThread.lastMessageId = thread.lastMessageId;
+}
+
++ (void)updateThreadWithThreadMessage:(NCChatMessage *)message
+{
+    NCThread *managedThread = [NCThread objectsWhere:@"accountId = %@ AND roomToken = %@ AND threadId = %ld", message.accountId, message.token, (long)message.threadId].firstObject;
+
+    // Do not update if there is no thread stored yet or the thread has been updated by a newer message
+    if (!managedThread || managedThread.updatedWithMessageId > message.messageId) {
+        return;
+    }
+
+    managedThread.title = message.threadTitle;
+    managedThread.numReplies = message.threadReplies;
+    managedThread.updatedWithMessageId = message.messageId;
 }
 
 + (nullable instancetype)threadWithThreadId:(NSInteger)threadId inRoom:(NSString *)roomToken forAccountId:(NSString *)accountId

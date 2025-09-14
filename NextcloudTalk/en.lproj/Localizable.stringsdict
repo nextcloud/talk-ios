@@ -155,7 +155,7 @@
         </dict>
     </dict>
 
-    <key>%d replies</key>
+    <key>%ld replies</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@replies@</string>
@@ -166,9 +166,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>%d reply</string>
+            <string>%ld reply</string>
             <key>other</key>
-            <string>%d replies</string>
+            <string>%ld replies</string>
         </dict>
     </dict>
 </dict>
