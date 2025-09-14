@@ -668,28 +668,6 @@ import SwiftUI
         }
     }
 
-    internal func updateMessages(withThreadId threadId: Int) {
-        DispatchQueue.main.async {
-            guard let (indexPaths, messages) = self.indexPathsAndMessages(forThreadId: threadId) else { return }
-
-            messages.forEach { message in
-                message.isThread = true
-            }
-
-            self.tableView?.beginUpdates()
-            self.tableView?.reloadRows(at: indexPaths, with: .none)
-            self.tableView?.endUpdates()
-
-            if self.shouldScrollOnNewMessages() {
-                // Make sure we're really at the bottom after updating a message
-                DispatchQueue.main.async {
-                    self.tableView?.slk_scrollToBottom(animated: false)
-                    self.updateToolbar(animated: false)
-                }
-            }
-        }
-    }
-
     internal func updateThreadOriginalMessage(withMessage message: NCChatMessage) {
         DispatchQueue.main.async {
             guard let (indexPath, originalThreadMessage) = self.getThreadOriginalMessage(forThreadId: message.threadId) else { return }
@@ -3469,10 +3447,6 @@ import SwiftUI
 
     internal func indexPathAndMessage(forReferenceId referenceId: String) -> (indexPath: IndexPath, message: NCChatMessage)? {
         return self.indexPathAndMessageFromEnd(with: { $0.referenceId == referenceId })
-    }
-
-    internal func indexPathsAndMessages(forThreadId threadId: Int) -> (indexPaths: [IndexPath], messages: [NCChatMessage])? {
-        return self.indexPathsAndMessages(with: { $0.threadId == threadId })
     }
 
     internal func indexPathForUnreadMessageSeparator() -> IndexPath? {

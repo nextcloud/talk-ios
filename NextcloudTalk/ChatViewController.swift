@@ -1605,11 +1605,6 @@ import SwiftUI
               let updateMessage = message.parent
         else { return }
 
-        if message.isThreadCreatedMessage {
-            self.updateMessages(withThreadId: message.threadId)
-            return
-        }
-
         self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
     }
 
