@@ -335,7 +335,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.reactionView?.updateReactions(reactions: reactionsArray)
         }
 
-        // Show thread replies button for the thread-start-message, when not already displaying a thread
+        // Show thread title and replies button for the thread original message (if not in a thread view)
         if thread == nil, message.isThreadOriginalMessage() {
             self.showThreadTitle()
             self.showThreadRepliesButton()

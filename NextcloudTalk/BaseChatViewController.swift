@@ -3077,8 +3077,12 @@ import SwiftUI
             height -= ceil(bodyBounds.height)
         }
 
-        if !message.reactionsArray().isEmpty || (thread == nil && message.isThreadOriginalMessage()) {
-            height += 70 // subheaderView(30) + reactionsView(40)
+        let willShowCompleteThreadOriginalMessage = (thread == nil && message.isThreadOriginalMessage())
+        if !message.reactionsArray().isEmpty || willShowCompleteThreadOriginalMessage {
+            height += 40 // reactionsView(40)
+            if willShowCompleteThreadOriginalMessage {
+                height += 30 // SubheaderPart(30)
+            }
         }
 
         if message.containsURL() {
