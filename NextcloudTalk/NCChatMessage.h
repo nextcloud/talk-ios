@@ -87,6 +87,8 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) NSInteger lastEditTimestamp;
 @property (nonatomic, assign) NSInteger threadId;
 @property (nonatomic, assign) BOOL isThread;
+@property (nonatomic, strong, nullable) NSString *threadTitle;
+@property (nonatomic, assign) NSInteger threadReplies;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;

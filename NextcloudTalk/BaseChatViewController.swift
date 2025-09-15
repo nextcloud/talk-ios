@@ -668,25 +668,16 @@ import SwiftUI
         }
     }
 
-    internal func updateMessages(withThreadId threadId: Int) {
+    internal func updateThreadOriginalMessage(withMessage message: NCChatMessage) {
         DispatchQueue.main.async {
-            guard let (indexPaths, messages) = self.indexPathsAndMessages(forThreadId: threadId) else { return }
+            guard let (indexPath, originalThreadMessage) = self.getThreadOriginalMessage(forThreadId: message.threadId) else { return }
 
-            messages.forEach { message in
-                message.isThread = true
-            }
+            originalThreadMessage.threadTitle = message.threadTitle
+            originalThreadMessage.threadReplies = message.threadReplies
 
             self.tableView?.beginUpdates()
-            self.tableView?.reloadRows(at: indexPaths, with: .none)
+            self.tableView?.reloadRows(at: [indexPath], with: .none)
             self.tableView?.endUpdates()
-
-            if self.shouldScrollOnNewMessages() {
-                // Make sure we're really at the bottom after updating a message
-                DispatchQueue.main.async {
-                    self.tableView?.slk_scrollToBottom(animated: false)
-                    self.updateToolbar(animated: false)
-                }
-            }
         }
     }
 
@@ -3064,8 +3055,12 @@ import SwiftUI
             height -= ceil(bodyBounds.height)
         }
 
-        if !message.reactionsArray().isEmpty || (thread == nil && message.isThreadOriginalMessage()) {
+        let willShowCompleteThreadOriginalMessage = (thread == nil && message.isThreadOriginalMessage())
+        if !message.reactionsArray().isEmpty || willShowCompleteThreadOriginalMessage {
             height += 40 // reactionsView(40)
+            if willShowCompleteThreadOriginalMessage {
+                height += 30 // SubheaderPart(30)
+            }
         }
 
         if message.containsURL() {
@@ -3454,14 +3449,14 @@ import SwiftUI
         return self.indexPathAndMessageFromEnd(with: { $0.referenceId == referenceId })
     }
 
-    internal func indexPathsAndMessages(forThreadId threadId: Int) -> (indexPaths: [IndexPath], messages: [NCChatMessage])? {
-        return self.indexPathsAndMessages(with: { $0.threadId == threadId })
-    }
-
     internal func indexPathForUnreadMessageSeparator() -> IndexPath? {
         return self.indexPathAndMessageFromEnd(with: {
             $0.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId || $0.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId
         })?.indexPath
+    }
+
+    internal func getThreadOriginalMessage(forThreadId threadId: Int) -> (indexPath: IndexPath, message: NCChatMessage)? {
+        return self.indexPathAndMessageFromEnd(with: { $0.threadId == threadId && $0.isThreadOriginalMessage() })
     }
 
     internal func getLastNonUpdateMessage() -> (indexPath: IndexPath, message: NCChatMessage)? {

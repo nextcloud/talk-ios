@@ -55,6 +55,9 @@
 /* Number of options in a poll */
 "%d options" = "%d options";
 
+/* Replies in a thread */
+"%d replies" = "%d replies";
+
 /* Votes in a poll */
 "%d votes" = "%d votes";
 
@@ -63,6 +66,9 @@
 
 /* No comment provided by engineer. */
 "%ld participants" = "%ld participants";
+
+/* Replies in a thread */
+"%ld replies" = "%ld replies";
 
 /* No comment provided by engineer. */
 "'Do not disturb' user status is ignored for important conversations" = "'Do not disturb' user status is ignored for important conversations";
