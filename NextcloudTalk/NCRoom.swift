@@ -261,46 +261,7 @@ import SwiftyAttributes
             lastMessage = NCChatMessage(dictionary: lastMessageDictionary)
         }
 
-        guard let lastMessage,
-              let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: self.accountId)
-        else { return nil }
-
-        let ownMessage = lastMessage.actorId == account.userId
-        var actorName = lastMessage.actorDisplayName.components(separatedBy: " ").first ?? ""
-
-        // For own messages
-        if ownMessage {
-            actorName = NSLocalizedString("You", comment: "")
-        }
-
-        // For guests
-        if lastMessage.actorDisplayName.isEmpty {
-            actorName = NSLocalizedString("Guest", comment: "")
-        }
-
-        // No actor name cases
-        if lastMessage.isSystemMessage || (self.type == .oneToOne && !ownMessage) {
-            actorName = ""
-        }
-
-        // Add separator
-        if !actorName.isEmpty {
-            actorName = "\(actorName): "
-        }
-
-        let lastMessageString = NSMutableAttributedString(string: actorName)
-
-        if let messageIconName = lastMessage.messageIconName, let messageIcon = UIImage(systemName: messageIconName) {
-            let attachmentString = NSMutableAttributedString(attachment: NSTextAttachment(image: messageIcon))
-            attachmentString.append(NSAttributedString(string: " "))
-
-            lastMessageString.append(attachmentString)
-        }
-
-        let parsedMarkdownString = String(lastMessage.parsedMarkdown().string.prefix(80))
-        lastMessageString.append(NSAttributedString(string: parsedMarkdownString))
-
-        return lastMessageString.withFont(.preferredFont(forTextStyle: .callout)).withTextColor(.secondaryLabel)
+        return lastMessage?.messagePreview(forOneToOneRoom: self.type == .oneToOne)
     }
 
     private var lastMessageProxiedDictionary: [AnyHashable: Any] {

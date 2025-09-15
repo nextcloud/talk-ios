@@ -122,7 +122,7 @@
 {
     // Set thread image
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:thread.accountId];
-    [self.avatarimage setActorAvatarForMessage:thread.firstMessage withAccount:account];
+    [self.avatarimage setThreadAvatarForThread:thread];
 
     // Set thread title and number of replies
     NSString *repliesString = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld replies", @"Replies in a thread"), (long)thread.numReplies];

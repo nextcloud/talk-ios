@@ -79,6 +79,12 @@ struct AvatarImageViewWrapper: UIViewRepresentable {
         }
     }
 
+    public func setThreadAvatar(forThread thread: NCThread) {
+        if let image = AvatarManager.shared.getThreadAvatar(for: thread, with: self.traitCollection.userInterfaceStyle) {
+            self.image = image
+        }
+    }
+
     // MARK: - User avatars
 
     public func setActorAvatar(forMessage message: NCChatMessage, withAccount account: TalkAccount) {
