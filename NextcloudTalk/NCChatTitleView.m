@@ -122,7 +122,7 @@
 {
     // Set thread image
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:thread.accountId];
-    [self.avatarimage setActorAvatarForMessage:thread.firstMessage withAccount:account];
+    [self.avatarimage setThreadAvatarForThread:thread];
 
     [self setTitle:thread.title withSubtitle:nil];
 }

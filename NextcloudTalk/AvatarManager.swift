@@ -42,6 +42,48 @@ import SDWebImage
         return UIImage(named: "mail-avatar", in: nil, compatibleWith: traitCollection)
     }
 
+    public func getThreadAvatar(for thread: NCThread, with style: UIUserInterfaceStyle) -> UIImage? {
+        let traitCollection = UITraitCollection(userInterfaceStyle: style)
+        let symbolName = "bubble.left.and.bubble.right"
+        let symbolColor = ColorGenerator.shared.usernameToColor(thread.title)
+        let pointSize: CGFloat = 40
+        let backgroundSize = CGSize(width: 100, height: 100)
+        let baseBackgroundColor: UIColor = (style == .dark) ? .black : .white
+        let overlayBackgroundColor = symbolColor.withAlphaComponent(0.20)
+
+        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: .medium)
+        guard let baseSymbol = UIImage(systemName: symbolName, compatibleWith: traitCollection)?
+                .withConfiguration(config) else {
+            return nil
+        }
+
+        let symbol = baseSymbol.withTintColor(symbolColor, renderingMode: .alwaysOriginal)
+
+        let renderer = UIGraphicsImageRenderer(size: backgroundSize)
+        let image = renderer.image { _ in
+            let rect = CGRect(origin: .zero, size: backgroundSize)
+
+            // Base background
+            baseBackgroundColor.setFill()
+            UIRectFill(rect)
+
+            // Overlay background (with alpha component)
+            overlayBackgroundColor.setFill()
+            UIRectFillUsingBlendMode(rect, .normal)
+
+            // Place symbol centered
+            let symbolRect = CGRect(
+                x: (backgroundSize.width - symbol.size.width) / 2,
+                y: (backgroundSize.height - symbol.size.height) / 2,
+                width: symbol.size.width,
+                height: symbol.size.height
+            )
+            symbol.draw(in: symbolRect)
+        }
+
+        return image
+    }
+
     private func getFallbackAvatar(for room: NCRoom,
                                    with style: UIUserInterfaceStyle,
                                    completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {

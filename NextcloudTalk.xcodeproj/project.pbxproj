@@ -550,6 +550,8 @@
 		2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4D7D751F30F7B600FF4A0D /* ARDUtilities.m */; };
 		2C4DE9F221F732B40096940D /* NCAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4DE9F121F732B40096940D /* NCAudioController.m */; };
 		2C57CD8428C2255000B22E03 /* PollCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C57CD8328C2255000B22E03 /* PollCreationViewController.swift */; };
+		2C5920CC2E77F21A00FEC7E6 /* ColorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B22970644C00CABA33 /* ColorGenerator.swift */; };
+		2C5920CD2E77F21A00FEC7E6 /* ColorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8995B22970644C00CABA33 /* ColorGenerator.swift */; };
 		2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBE928772A9A00E75118 /* NCUnifiedSearchController.swift */; };
 		2C5BFBEF288A947900E75118 /* PollVotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBEE288A947800E75118 /* PollVotingView.swift */; };
 		2C5BFBF2288A97D800E75118 /* NCPoll.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5BFBF1288A97D800E75118 /* NCPoll.m */; };
@@ -3586,6 +3588,7 @@
 				2C4446F5265D583200DF1DBC /* NCKeyChainController.m in Sources */,
 				1F96D8702D9369B20088331F /* DateExtension.swift in Sources */,
 				1FC4B3442CCE671800D28138 /* OcsError.swift in Sources */,
+				2C5920CD2E77F21A00FEC7E6 /* ColorGenerator.swift in Sources */,
 				2C62AFFA24C1BDA5007E460A /* NCChatMessage.m in Sources */,
 				1FC940BA2A5F21FD00FFFADE /* SwiftMarkdownObjCBridge.swift in Sources */,
 				2C13E2EB2D5C978E00590959 /* NCCalDAVSessionManager.swift in Sources */,
@@ -3630,6 +3633,7 @@
 				2C4446F4265D51A600DF1DBC /* NCPushNotificationsUtils.m in Sources */,
 				1FA38C9129A4B3C6008871B8 /* NCNotificationAction.swift in Sources */,
 				1F1DF83D2C5C17AF00E5EA86 /* TalkActor.swift in Sources */,
+				2C5920CC2E77F21A00FEC7E6 /* ColorGenerator.swift in Sources */,
 				1F1B504D2B90CF0C00B0F2F4 /* FederatedCapabilities.m in Sources */,
 				2C4446DE2658158000DF1DBC /* NCChatBlock.m in Sources */,
 				2C5BFBF3288AA37F00E75118 /* NCPoll.m in Sources */,
