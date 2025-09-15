@@ -332,4 +332,46 @@ import SwiftyAttributes
 
         return file.size <= maxGifSize
     }
+
+    public func messagePreview(forOneToOneRoom: Bool = false) -> NSMutableAttributedString? {
+        guard let account = self.account
+        else { return nil }
+
+        let ownMessage = self.actorId == account.userId
+        var actorName = self.actorDisplayName.components(separatedBy: " ").first ?? ""
+
+        // For own messages
+        if ownMessage {
+            actorName = NSLocalizedString("You", comment: "")
+        }
+
+        // For guests
+        if self.actorDisplayName.isEmpty {
+            actorName = NSLocalizedString("Guest", comment: "")
+        }
+
+        // No actor name cases
+        if self.isSystemMessage || (forOneToOneRoom && !ownMessage) {
+            actorName = ""
+        }
+
+        // Add separator
+        if !actorName.isEmpty {
+            actorName = "\(actorName): "
+        }
+
+        let lastMessageString = NSMutableAttributedString(string: actorName)
+
+        if let messageIconName = self.messageIconName, let messageIcon = UIImage(systemName: messageIconName) {
+            let attachmentString = NSMutableAttributedString(attachment: NSTextAttachment(image: messageIcon))
+            attachmentString.append(NSAttributedString(string: " "))
+
+            lastMessageString.append(attachmentString)
+        }
+
+        let parsedMarkdownString = String(self.parsedMarkdown().string.prefix(80))
+        lastMessageString.append(NSAttributedString(string: parsedMarkdownString))
+
+        return lastMessageString.withFont(.preferredFont(forTextStyle: .callout)).withTextColor(.secondaryLabel)
+    }
 }

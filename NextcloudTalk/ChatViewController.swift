@@ -341,14 +341,12 @@ import SwiftUI
                         continue
                     }
 
-                    action.subtitle = message.parsedMarkdownForChat().string
-                    AvatarManager.shared.getActorAvatar(forId: message.actorId, withType: message.actorType, withDisplayName: nil, withRoomToken: self.room.token, withStyle: self.traitCollection.userInterfaceStyle, usingAccount: self.account) { image in
-                        if let image {
-                            action.image = NCUtils.roundedImage(fromImage: image)
-                        }
-
-                        menuCreationGroup.leave()
+                    action.subtitle = message.messagePreview()?.string
+                    if let image = AvatarManager.shared.getThreadAvatar(for: thread, with: self.traitCollection.userInterfaceStyle) {
+                        action.image = NCUtils.roundedImage(fromImage: image)
                     }
+
+                    menuCreationGroup.leave()
                 }
 
                 // TODO: Add a "More threads" button if the limit was returned and open a dedicated view?
