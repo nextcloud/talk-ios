@@ -172,5 +172,11 @@
             <string>Esta conversa será excluída automaticamente para todos em %ld dias sem atividade.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

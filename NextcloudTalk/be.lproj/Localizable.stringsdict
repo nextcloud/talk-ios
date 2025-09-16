@@ -190,5 +190,11 @@
             <string>Гэтая размова будзе аўтаматычна выдалена для ўсіх праз %ld дзён бяздзейнасці.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

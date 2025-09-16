@@ -154,5 +154,11 @@
             <string>See vestlus kustub automaatselt kõigi osalejate jaoks, kui siin pole olnud tegevust %ld päeva jooksul.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

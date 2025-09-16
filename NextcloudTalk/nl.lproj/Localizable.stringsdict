@@ -154,5 +154,11 @@
             <string>Dit gesprek wordt voor iedereen automatisch verwijderd na %ld dagen zonder activiteit.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

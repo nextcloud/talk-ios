@@ -154,5 +154,11 @@
             <string>Mazungumzo haya yatafutwa kiotomatiki kwa kila mtu ndani ya %ld siku zisizokuwa na shughuli yoyote.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

@@ -172,5 +172,11 @@
             <string>Cette conversation sera automatiquement supprimée pour tout le monde après %ld jours d'inactivité.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

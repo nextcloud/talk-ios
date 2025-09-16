@@ -175,5 +175,11 @@
             <string>Данное обсуждение будет автоматически удалено для всех через %ld дней отсутствия активности.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

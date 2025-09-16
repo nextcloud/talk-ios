@@ -136,5 +136,11 @@
             <string>此對話如無人於%ld天內互動，將會自動為所有人刪除。</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

@@ -143,5 +143,11 @@
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

@@ -154,5 +154,11 @@
             <string>Bu görüşme, %ld gün boyunca etkileşim olmazsa herkesten otomatik olarak silinecek.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

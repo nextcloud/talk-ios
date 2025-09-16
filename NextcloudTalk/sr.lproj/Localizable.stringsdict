@@ -172,5 +172,11 @@
             <string>Овај разговор ће се аутоматски обрисати за све након %ld дана неактивности.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

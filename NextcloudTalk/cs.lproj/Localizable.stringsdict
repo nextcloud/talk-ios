@@ -190,5 +190,11 @@
             <string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnech bez jakékoli aktivity.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

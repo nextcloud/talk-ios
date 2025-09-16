@@ -154,5 +154,11 @@
             <string>Den här konversationen kommer automatiskt att tas bort för alla om %ld dagar utan aktivitet.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

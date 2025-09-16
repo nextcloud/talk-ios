@@ -190,5 +190,11 @@
             <string>Ta konwersacja zostanie automatycznie usunięta dla wszystkich po %ld dniach braku aktywności.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

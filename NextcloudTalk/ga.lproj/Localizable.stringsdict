@@ -208,5 +208,11 @@
             <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

@@ -154,5 +154,11 @@
             <string>Esta conversa eliminarase automaticamente para todos aos %ld días sen actividade.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>

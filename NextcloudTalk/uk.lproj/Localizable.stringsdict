@@ -190,5 +190,11 @@
             <string>Ця розмова буде автоматично видалена для всіх через %ld днів без активності.</string>
         </dict>
     </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+    </dict>
 </dict>
 </plist>
