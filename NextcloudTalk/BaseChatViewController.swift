@@ -978,7 +978,7 @@ import SwiftUI
         }
     }
 
-    func didPressShowThread(for message: NCChatMessage) {
+    func didPressShowThread(for message: NCChatMessage, toReply: Bool = false) {
         // Overridden in sub class
     }
 
@@ -987,7 +987,7 @@ import SwiftUI
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             // If user press reply on the thread original message (in a normal chat view), open the thread view
             if self.thread == nil && message.isThreadOriginalMessage() {
-                self.didPressShowThread(for: message)
+                self.didPressShowThread(for: message, toReply: true)
                 return
             }
 
