@@ -179,34 +179,38 @@ typedef enum RoomsSections {
     [NCAppBranding styleViewController:self];
 
     self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
     self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    
-    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-    [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
-    [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
-    _searchController.searchBar.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
 
-    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-    searchTextField.tintColor = [NCAppBranding themeTextColor];
-    searchTextField.textColor = [NCAppBranding themeTextColor];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Search bar placeholder
-        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-        // Search bar search icon
-        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-        // Search bar search clear button
-        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-        [clearButton setTintColor:[NCAppBranding themeTextColor]];
-    });
-    
-    [self setNeedsStatusBarAppearanceUpdate];
+    if (@available(iOS 26.0, *)) {
+        // Nothing to do here for iOS 26
+    } else {
+        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
+        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+        [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
+        [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+        _searchController.searchBar.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
+
+        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Search bar placeholder
+            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
+            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+            // Search bar search icon
+            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+            // Search bar search clear button
+            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+            [clearButton setTintColor:[NCAppBranding themeTextColor]];
+        });
+
+        [self setNeedsStatusBarAppearanceUpdate];
+    }
 }
 
 - (void)createNewConversationButton
@@ -216,6 +220,11 @@ typedef enum RoomsSections {
 
         _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] style:UIBarButtonItemStylePlain target:self action:@selector(presentNewRoomViewController)];
         _newConversationButton.accessibilityLabel = NSLocalizedString(@"Create or join a conversation", nil);
+
+        if (@available(iOS 26.0, *)) {
+            _newConversationButton.hidesSharedBackground = YES;
+        }
+
         [self.navigationItem setRightBarButtonItem:_newConversationButton];
     }
 }
@@ -947,6 +956,11 @@ typedef enum RoomsSections {
     _profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
 
     _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:_profileButton];
+
+    if (@available(iOS 26.0, *)) {
+        _settingsButton.hidesSharedBackground = YES;
+    }
+
     [self.navigationItem setLeftBarButtonItem:_settingsButton];
 
     [self updateProfileButtonImage];
@@ -1819,6 +1833,7 @@ typedef enum RoomsSections {
     // Use a snapshot here to not interfere with room refresh
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     UIView *previewView = [cell.contentView snapshotViewAfterScreenUpdates:NO];
+    previewView.backgroundColor = UIColor.systemBackgroundColor;
 
     // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
     CGFloat cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2;

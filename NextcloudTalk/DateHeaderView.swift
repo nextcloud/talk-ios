@@ -46,6 +46,13 @@ class DateHeaderView: UIView {
         titleLabel.layer.cornerRadius = 8
         titleLabel.clipsToBounds = true
 
+        if #available(iOS 26.0, *) {
+            // When backgroundColor is set to secondarySystemGroupedBackground, the whole view is adjusted
+            // when the header is displayed at the top of the scroll view, touching the glass effect
+            // making the label unreadable (backgroundColor then equals textColor)
+            titleLabel.backgroundColor = .clear
+        }
+
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -56,9 +63,9 @@ class DateHeaderView: UIView {
             titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -DateHeaderView.verticalPadding / 2),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
 
-            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: DateHeaderView.horizontalPadding / 2),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -DateHeaderView.horizontalPadding / 2),
-            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.leadingAnchor, constant: DateHeaderView.horizontalPadding / 2),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.trailingAnchor, constant: -DateHeaderView.horizontalPadding / 2),
+            titleLabel.centerXAnchor.constraint(equalTo: safeAreaLayoutGuide.centerXAnchor),
 
             heightAnchor.constraint(lessThanOrEqualToConstant: DateHeaderView.maxHeight)
         ])

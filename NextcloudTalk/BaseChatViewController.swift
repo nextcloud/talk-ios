@@ -3202,6 +3202,17 @@ import SwiftUI
         return nil
     }
 
+    private class ContextMenuContainerView: UIView {
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+
+            if #available(iOS 26.0, *) {
+                // Make our context menu accessoryView user interactive
+                self.superview?.isUserInteractionEnabled = true
+            }
+        }
+    }
+
     public override func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         guard let indexPath = configuration.identifier as? NSIndexPath,
               let message = self.message(for: indexPath as IndexPath)
@@ -3254,7 +3265,7 @@ import SwiftUI
         // Restore grouped-status
         message.isGroupMessage = isGroupMessage
 
-        var containerView: UIView
+        var containerView: ContextMenuContainerView
         var cellCenter = CGPoint()
 
         if let accessoryView = self.getContextMenuAccessoryView(forMessage: message, forIndexPath: indexPath as IndexPath, withCellHeight: cellHeight) {
@@ -3263,7 +3274,7 @@ import SwiftUI
             // maxY = height + y
             let totalAccessoryFrameHeight = accessoryView.frame.maxY - cellHeight
 
-            containerView = UIView(frame: .init(x: 0, y: 0, width: Int(maxPreviewWidth), height: Int(cellHeight + totalAccessoryFrameHeight)))
+            containerView = ContextMenuContainerView(frame: .init(x: 0, y: 0, width: Int(maxPreviewWidth), height: Int(cellHeight + totalAccessoryFrameHeight)))
             containerView.backgroundColor = .clear
             containerView.addSubview(previewMessageView)
             containerView.addSubview(accessoryView)
@@ -3275,7 +3286,7 @@ import SwiftUI
                 cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
             }
         } else {
-            containerView = UIView(frame: .init(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight))
+            containerView = ContextMenuContainerView(frame: .init(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight))
             containerView.backgroundColor = .clear
             containerView.addSubview(previewMessageView)
 
