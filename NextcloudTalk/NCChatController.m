@@ -977,7 +977,9 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
                                                                forAccount:activeAccount
                                                       withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
             if (fileServerURL && fileServerPath) {
-                NSDictionary *talkMetaData = @{@"messageType": @"voice-message"};
+                NSMutableDictionary *talkMetaData = [NSMutableDictionary new];
+                [talkMetaData setObject:@"voice-message" forKey:@"messageType"];
+                [talkMetaData setObject:@(message.parentMessageId) forKey:@"replyTo"];
 
                 [ChatFileUploader uploadFileWithLocalPath:message.file.fileStatus.fileLocalPath
                                             fileServerURL:fileServerURL
@@ -1001,7 +1003,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
                             NSLog(@"User storage quota exceeded.");
                             break;
                         default:
-                            NSLog(@"Failed to upload voice message with error code: %d", statusCode);
+                            NSLog(@"Failed to upload voice message with error code: %ld", (long)statusCode);
                             break;
                     }
                 }];

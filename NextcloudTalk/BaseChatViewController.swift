@@ -1809,9 +1809,14 @@ import SwiftUI
         let tempDirectoryURL = URL(fileURLWithPath: chatFileController.tempDirectoryPath)
         let destinationFilePath = tempDirectoryURL.appendingPathComponent(audioFileName).path
 
+        var replyToMessage: NCChatMessage? = nil
+        if let replyMessageView, replyMessageView.isVisible {
+            replyToMessage = replyMessageView.message
+        }
+
         if let temporaryMessage = self.createTemporaryMessage(
             message: audioFileName,
-            replyTo: nil,
+            replyTo: replyToMessage,
             messageParameters: "\(destinationFilePath)",
             silently: false,
             isVoiceMessage: true
@@ -1832,7 +1837,10 @@ import SwiftUI
 
             NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
-                    let talkMetaData: [String: String] = ["messageType": "voice-message"]
+                    var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+                    if let replyToMessageId = replyToMessage?.messageId {
+                        talkMetaData["replyTo"] = replyToMessageId
+                    }
 
                     self.uploadFileAtPath(localPath: destinationFilePath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: temporaryMessage)
                 } else {
@@ -1844,7 +1852,7 @@ import SwiftUI
         }
     }
 
-    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: String]?, temporaryMessage: NCChatMessage?) {
+    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: Any]?, temporaryMessage: NCChatMessage?) {
 
         ChatFileUploader.uploadFile(localPath: localPath,
                                     fileServerURL: fileServerURL,

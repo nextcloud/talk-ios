@@ -11,7 +11,7 @@ import NextcloudKit
     public static func uploadFile(localPath: String,
                                   fileServerURL: String,
                                   fileServerPath: String,
-                                  talkMetaData: [String: String]?,
+                                  talkMetaData: [String: Any]?,
                                   temporaryMessage: NCChatMessage?,
                                   room: NCRoom,
                                   completion: @escaping (Int, NSString?) -> Void) {
