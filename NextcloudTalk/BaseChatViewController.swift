@@ -524,6 +524,8 @@ import SwiftUI
         temporaryMessage.actorType = "users"
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
+        temporaryMessage.threadId = thread?.threadId ?? 0
+        temporaryMessage.isThread = thread != nil ? true : false
 
         let referenceId = "temp-\(Date().timeIntervalSince1970 * 1000)"
         temporaryMessage.referenceId = NCUtils.sha1(fromString: referenceId)
@@ -1086,7 +1088,12 @@ import SwiftUI
             }
             NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
-                    let talkMetaData: [String: String] = ["messageType": "voice-message"]
+                    var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+                    talkMetaData["replyTo"] = message.parentMessageId
+
+                    if let thread = self.thread {
+                        talkMetaData["threadId"] = thread.threadId
+                    }
 
                     self.uploadFileAtPath(localPath: message.file().fileStatus!.fileLocalPath!, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: message)
                 } else {
