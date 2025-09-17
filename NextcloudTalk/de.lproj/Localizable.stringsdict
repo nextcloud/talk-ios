@@ -159,6 +159,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@replies@</string>
+        <key>replies</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%ld Antwort</string>
+            <key>other</key>
+            <string>%ld Antworten</string>
+        </dict>
     </dict>
 </dict>
 </plist>
