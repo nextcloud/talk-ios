@@ -1838,8 +1838,13 @@ import SwiftUI
             NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+
                     if let replyToMessageId = replyToMessage?.messageId {
                         talkMetaData["replyTo"] = replyToMessageId
+                    }
+
+                    if let thread = self.thread {
+                        talkMetaData["threadId"] = thread.threadId
                     }
 
                     self.uploadFileAtPath(localPath: destinationFilePath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: temporaryMessage)
