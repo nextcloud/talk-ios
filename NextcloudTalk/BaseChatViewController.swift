@@ -250,7 +250,7 @@ import SwiftUI
         self.isInverted = false
 
         self.showSendMessageButton()
-        self.leftButton.setImage(UIImage(systemName: "paperclip"), for: .normal)
+        self.leftButton.setImage(UIImage(systemName: "plus"), for: .normal)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
         self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
         self.leftButton.accessibilityIdentifier = "shareButton"
