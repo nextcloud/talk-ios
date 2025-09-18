@@ -195,6 +195,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@replies@</string>
+        <key>replies</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%ld odpověď</string>
+            <key>few</key>
+            <string>%ld odpovědi</string>
+            <key>many</key>
+            <string>%ld odpovědí</string>
+            <key>other</key>
+            <string>%ld odpovědi</string>
+        </dict>
     </dict>
 </dict>
 </plist>
