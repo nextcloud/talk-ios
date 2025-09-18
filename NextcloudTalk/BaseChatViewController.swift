@@ -2254,6 +2254,12 @@ import SwiftUI
 
     func insertMessages(messages: [NCChatMessage]) {
         for newMessage in messages {
+            // Skip thread messages when not in a thread view controller
+            // Skip non thread messages when in a normal chat view controller
+            guard (self.thread == nil && !newMessage.isThreadMessage())
+               || (self.thread != nil && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
+            else { continue }
+
             let newMessageDate = Date(timeIntervalSince1970: TimeInterval(newMessage.timestamp))
 
             if let keyDate = self.getKeyForDate(date: newMessageDate, inDictionary: self.messages),
@@ -2303,8 +2309,11 @@ import SwiftUI
             // Processing of update messages still happens when receiving new messages, so safe to skip here
             guard !newMessage.isUpdateMessage else { continue }
 
-            // Hide messages of threads when not displaying a thread
-            guard self.thread != nil || !newMessage.isThreadMessage() else { continue }
+            // Skip thread messages when not in a thread view controller
+            // Skip non thread messages when in a normal chat view controller
+            guard (self.thread == nil && !newMessage.isThreadMessage())
+               || (self.thread != nil && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
+            else { continue }
 
             let newMessageDate = Date(timeIntervalSince1970: TimeInterval(newMessage.timestamp))
             let keyDate = self.getKeyForDate(date: newMessageDate, inDictionary: dictionary)
