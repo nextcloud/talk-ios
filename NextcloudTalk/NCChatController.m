@@ -979,8 +979,14 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
             if (fileServerURL && fileServerPath) {
                 NSMutableDictionary *talkMetaData = [NSMutableDictionary new];
                 [talkMetaData setObject:@"voice-message" forKey:@"messageType"];
-                [talkMetaData setObject:@(message.parentMessageId) forKey:@"replyTo"];
-                [talkMetaData setObject:@(self.threadId) forKey:@"replyTo"];
+
+                if (message.parentMessageId > 0) {
+                    [talkMetaData setObject:@(message.parentMessageId) forKey:@"replyTo"];
+                }
+
+                if ([self isThreadController]) {
+                    [talkMetaData setObject:@(self.threadId) forKey:@"threadId"];
+                }
 
                 [ChatFileUploader uploadFileWithLocalPath:message.file.fileStatus.fileLocalPath
                                             fileServerURL:fileServerURL

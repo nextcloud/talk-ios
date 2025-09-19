@@ -1089,7 +1089,10 @@ import SwiftUI
             NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     var talkMetaData: [String: Any] = ["messageType": "voice-message"]
-                    talkMetaData["replyTo"] = message.parentMessageId
+
+                    if message.parentMessageId > 0 {
+                        talkMetaData["replyTo"] = message.parentMessageId
+                    }
 
                     if let thread = self.thread {
                         talkMetaData["threadId"] = thread.threadId
