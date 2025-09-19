@@ -219,10 +219,11 @@ import MBProgressHUD
 
     // MARK: - Init.
 
-    public init?(room: NCRoom, account: TalkAccount, serverCapabilities: ServerCapabilities) {
+    public init?(room: NCRoom, thread: NCThread?, account: TalkAccount, serverCapabilities: ServerCapabilities) {
         self.serverCapabilities = serverCapabilities
 
         super.init(forRoom: room, withAccount: account, withView: self.shareContentView)
+        self.thread = thread
 
         self.shareContentView.addSubview(self.toLabelView)
         NSLayoutConstraint.activate([
@@ -646,6 +647,10 @@ import MBProgressHUD
 
                 if self.shareSilently {
                     talkMetaData["silent"] = self.shareSilently
+                }
+
+                if let thread = self.thread {
+                    talkMetaData["threadId"] = thread.threadId
                 }
 
                 NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: filePath, toRoom: self.room.token, talkMetaData: talkMetaData, referenceId: nil) { error in

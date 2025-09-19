@@ -1442,7 +1442,7 @@ import SwiftUI
 
     internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController)? {
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.account.accountId)
-        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: self.account, serverCapabilities: serverCapabilities!)!
+        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, thread: self.thread, account: self.account, serverCapabilities: serverCapabilities!)!
         shareConfirmationVC.delegate = self
         shareConfirmationVC.isModal = true
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)
