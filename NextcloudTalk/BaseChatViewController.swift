@@ -873,7 +873,7 @@ import SwiftUI
     }
 
     func presentNextcloudFilesBrowser() {
-        let directoryVC = DirectoryTableViewController(path: "", inRoom: self.room.token)
+        let directoryVC = DirectoryTableViewController(path: "", inRoom: self.room.token, andThread: self.thread?.threadId ?? 0)
         self.presentWithNavigation(directoryVC, animated: true)
     }
 
