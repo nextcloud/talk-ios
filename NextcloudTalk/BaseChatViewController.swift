@@ -834,7 +834,10 @@ import SwiftUI
             objectItems.append(threadAction)
         }
 
-        items.append(UIMenu(options: .displayInline, children: objectItems))
+        // TODO: Remove this check when rich objects and polls can be shared in threads
+        if thread == nil {
+            items.append(UIMenu(options: .displayInline, children: objectItems))
+        }
 
         items.append(ncFilesAction)
         items.append(filesAction)
