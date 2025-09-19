@@ -525,7 +525,7 @@ import SwiftUI
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
         temporaryMessage.threadId = thread?.threadId ?? 0
-        temporaryMessage.isThread = thread != nil ? true : false
+        temporaryMessage.isThread = thread != nil
 
         let referenceId = "temp-\(Date().timeIntervalSince1970 * 1000)"
         temporaryMessage.referenceId = NCUtils.sha1(fromString: referenceId)
