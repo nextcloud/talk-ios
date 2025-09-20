@@ -43,6 +43,14 @@ typedef enum ShareLocationSection {
 {
     [super viewDidLoad];
 
+    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
+    _searchController.delegate = self;
+    _searchController.searchResultsUpdater = self;
+    _searchController.hidesNavigationBarDuringPresentation = NO;
+    [_searchController.searchBar sizeToFit];
+
+    self.navigationItem.searchController = _searchController;
+
     [NCAppBranding styleViewController:self];
 
     self.navigationItem.title = NSLocalizedString(@"Share location", nil);
@@ -71,36 +79,6 @@ typedef enum ShareLocationSection {
     _resultTableViewController.tableView.delegate = self;
     _resultTableViewController.tableView.dataSource = self;
     _resultTableViewController.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-
-    _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
-    _searchController.delegate = self;
-    _searchController.searchResultsUpdater = self;
-    _searchController.hidesNavigationBarDuringPresentation = NO;
-    [_searchController.searchBar sizeToFit];
-
-    self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
-    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    
-    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-    searchTextField.tintColor = [NCAppBranding themeTextColor];
-    searchTextField.textColor = [NCAppBranding themeTextColor];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Search bar placeholder
-        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search for places", nil)
-        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-        // Search bar search icon
-        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-        // Search bar search clear button
-        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-        [clearButton setTintColor:[NCAppBranding themeTextColor]];
-    });
 
     // Place resultTableViewController correctly
     self.definesPresentationContext = YES;

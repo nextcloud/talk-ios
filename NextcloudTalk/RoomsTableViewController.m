@@ -176,41 +176,9 @@ typedef enum RoomsSections {
     [self createNewConversationButton];
     [self createRefreshControl];
 
-    [NCAppBranding styleViewController:self];
-
     self.navigationItem.searchController = _searchController;
-    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
 
-    if (@available(iOS 26.0, *)) {
-        // Nothing to do here for iOS 26
-    } else {
-        self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
-        _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-        [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
-        [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
-        _searchController.searchBar.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
-
-        UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-        searchTextField.tintColor = [NCAppBranding themeTextColor];
-        searchTextField.textColor = [NCAppBranding themeTextColor];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // Search bar placeholder
-            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-            attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-            // Search bar search icon
-            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-            // Search bar search clear button
-            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-            [clearButton setTintColor:[NCAppBranding themeTextColor]];
-        });
-
-        [self setNeedsStatusBarAppearanceUpdate];
-    }
+    [NCAppBranding styleViewController:self];
 }
 
 - (void)createNewConversationButton

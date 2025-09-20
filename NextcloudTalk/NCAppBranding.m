@@ -235,6 +235,38 @@ BOOL const useServerThemimg = YES;
 
     // Fix uisearchcontroller animation
     controller.extendedLayoutIncludesOpaqueBars = YES;
+
+    UISearchController *searchController = controller.navigationItem.searchController;
+
+    if (searchController) {
+        searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+        searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+        [searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
+        [searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+        searchController.searchBar.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
+        controller.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
+
+        UITextField *searchTextField = [searchController.searchBar valueForKey:@"searchField"];
+        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Search bar placeholder
+            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
+                                                                                    attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+            // Search bar search icon
+            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+            // Search bar search clear button
+            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+            [clearButton setTintColor:[NCAppBranding themeTextColor]];
+        });
+
+        [controller setNeedsStatusBarAppearanceUpdate];
+    }
 }
 
 @end
