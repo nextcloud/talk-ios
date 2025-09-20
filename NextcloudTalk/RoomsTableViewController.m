@@ -83,9 +83,7 @@ typedef enum RoomsSections {
     [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
     [self.tableView registerClass:InfoLabelTableViewCell.class forCellReuseIdentifier:InfoLabelTableViewCell.identifier];
 
-    // Align header's title to ContactsTableViewCell's label
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
-    self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
@@ -1429,7 +1427,6 @@ typedef enum RoomsSections {
         [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
 
         cell.label.attributedText = resultString;
-        cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;
     }
@@ -1465,7 +1462,6 @@ typedef enum RoomsSections {
         }
 
         cell.label.attributedText = resultString;
-        cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;
     }
