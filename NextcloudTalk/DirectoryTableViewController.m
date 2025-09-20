@@ -22,6 +22,7 @@
     NSString *_path;
     NSString *_userHomePath;
     NSString *_token;
+    NSInteger _threadId;
     NSMutableArray *_itemsInDirectory;
     NSIndexPath *_selectedItem;
     UIBarButtonItem *_sortingButton;
@@ -33,13 +34,14 @@
 
 @implementation DirectoryTableViewController
 
-- (instancetype)initWithPath:(NSString *)path inRoom:(nonnull NSString *)token
+- (instancetype)initWithPath:(NSString *)path inRoom:(NSString *)token andThread:(NSInteger)threadId
 {
     self = [super init];
     
     if (self) {
         _path = path;
         _token = token;
+        _threadId = threadId;
     }
     
     return self;
@@ -176,7 +178,13 @@
 - (void)shareFileWithPath:(NSString *)path
 {
     [self setSharingFileUI];
-    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token talkMetaData:nil referenceId: nil withCompletionBlock:^(NSError *error) {
+
+    NSMutableDictionary *talkMetaData = [NSMutableDictionary new];
+    if (_threadId > 0) {
+        [talkMetaData setObject:@(_threadId) forKey:@"threadId"];
+    }
+
+    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token talkMetaData:talkMetaData referenceId: nil withCompletionBlock:^(NSError *error) {
         if (!error) {
             [self dismissViewControllerAnimated:YES completion:nil];
         } else {
@@ -326,7 +334,7 @@
     NSString *selectedItemPath = [NSString stringWithFormat:@"%@/%@", _path, item.fileName];
     
     if (item.directory) {
-        DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:selectedItemPath inRoom:_token];
+        DirectoryTableViewController *directoryVC = [[DirectoryTableViewController alloc] initWithPath:selectedItemPath inRoom:_token andThread:_threadId];
         [self.navigationController pushViewController:directoryVC animated:YES];
     } else {
         [self showConfirmationDialogForSharingItemWithPath:selectedItemPath andName:item.fileName];

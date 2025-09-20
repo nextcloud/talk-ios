@@ -527,7 +527,7 @@ import SwiftUI
         self.navigationItem.rightBarButtonItems = barButtonsItems
 
         // No sharing options in federation v1 (or thread view until implemented)
-        if room.isFederated || isThreadViewController {
+        if room.isFederated {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
             self.leftButton.setImage(nil, for: .normal)

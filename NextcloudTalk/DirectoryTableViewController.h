@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DirectoryTableViewController : UITableViewController
 
-- (instancetype)initWithPath:(NSString *)path inRoom:(NSString *)token;
+- (instancetype)initWithPath:(NSString *)path inRoom:(NSString *)token andThread:(NSInteger)threadId;
 
 @end
 
