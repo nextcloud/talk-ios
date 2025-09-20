@@ -109,12 +109,7 @@
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     self.navigationItem.title = NSLocalizedString(@"Add participants", nil);
-    [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
-    
+
     // Fix uisearchcontroller animation
     self.extendedLayoutIncludesOpaqueBars = YES;
 }
