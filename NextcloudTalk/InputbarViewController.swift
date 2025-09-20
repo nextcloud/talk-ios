@@ -168,6 +168,8 @@ import UIKit
             self.textView.registerMarkdownFormattingSymbol("`", withTitle: NSLocalizedString("Code", comment: "Code block"))
         }
 
+        self.tableView?.clipsToBounds = true
+
         self.restorePendingMessage()
     }
 
