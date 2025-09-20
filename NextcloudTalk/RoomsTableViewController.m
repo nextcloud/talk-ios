@@ -934,13 +934,20 @@ typedef enum RoomsSections {
         // Crop the profile image into a circle
         profileImage = [profileImage cropToCircleWithSize:CGSizeMake(30, 30)];
         // Increase the profile image size to leave space for the status
-        profileImage = [profileImage withCircularBackgroundWithBackgroundColor:[UIColor clearColor] diameter:38.0 padding:4.0];
+        profileImage = [profileImage withCircularBackgroundWithBackgroundColor:[UIColor separatorColor] diameter:32.0 padding:1.0];
+        profileImage = [profileImage withCircularBackgroundWithBackgroundColor:[UIColor clearColor] diameter:38.0 padding:3.0];
 
         // Online status icon
         UIImage *statusImage = nil;
         if ([_activeUserStatus hasVisibleStatusIcon]) {
-            statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:self.navigationController.navigationBar.barTintColor
-                                                                                                    diameter:14.0 padding:1.0];
+            if (@available(iOS 26.0, *)) {
+                // TODO: Also cut out the avatar as we do in AvatarView?
+                statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:[UIColor clearColor]
+                                                                                                        diameter:14.0 padding:1.0];
+            } else {
+                statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:self.navigationController.navigationBar.barTintColor
+                                                                                                        diameter:14.0 padding:1.0];
+            }
         }
 
         // Status message icon
