@@ -1800,6 +1800,11 @@ typedef enum RoomsSections {
         return nil;
     }
 
+    if (@available(iOS 26.0, *)) {
+        // Don't provide a preview here in case of iOS 26 as it just looks bad
+        return nil;
+    }
+
     NSIndexPath *indexPath = (NSIndexPath *)configuration.identifier;
 
     // Use a snapshot here to not interfere with room refresh
