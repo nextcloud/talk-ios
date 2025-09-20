@@ -1540,8 +1540,7 @@ typedef enum RoomsSections {
     RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
-    UIColor *backgroundColor = cell.backgroundConfiguration.backgroundColor ? cell.backgroundConfiguration.backgroundColor : cell.backgroundColor;
-    [cell.avatarView setStatusFor:room with:backgroundColor];
+    [cell.avatarView setStatusFor:room];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
