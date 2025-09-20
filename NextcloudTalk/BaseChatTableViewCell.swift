@@ -275,18 +275,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             backgroundColor = BaseChatTableViewCell.bubbleColorCache.object(forKey: account.accountId as NSString)
 
             if backgroundColor == nil {
-                var lightColor: UIColor
-                var darkColor: UIColor
-
-                if #available(iOS 18.0, *) {
-                    lightColor = NCAppBranding.themeColor().withProminence(.quaternary)
-                    darkColor = NCAppBranding.themeColor().withProminence(.secondary)
-                } else {
-                    lightColor = NCAppBranding.themeColor().withAlphaComponent(0.1)
-                    darkColor = NCAppBranding.themeColor().withAlphaComponent(0.2)
-                }
-
-                backgroundColor = NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
+                backgroundColor = NCAppBranding.themeColorBackground()
                 BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
             }
 
