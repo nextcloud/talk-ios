@@ -170,7 +170,6 @@ typedef enum RoomsSections {
 
 - (void)setupNavigationBar
 {
-    [self setNavigationLogoButton];
     [self createNewConversationButton];
     [self createRefreshControl];
 
@@ -417,13 +416,6 @@ typedef enum RoomsSections {
 }
 
 #pragma mark - Title menu
-
-- (void)setNavigationLogoButton
-{
-    UIImage *logoImage = [UIImage imageNamed:[NCAppBranding navigationLogoImageName]];
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
-    self.navigationItem.titleView.accessibilityLabel = talkAppName;
-}
 
 - (UIMenu *)getActiveAccountMenuOptions
 {
@@ -832,7 +824,6 @@ typedef enum RoomsSections {
 - (void)setOnlineAppearance
 {
     _newConversationButton.enabled = YES;
-    [self setNavigationLogoButton];
 }
 
 #pragma mark - UIScrollViewDelegate Methods
