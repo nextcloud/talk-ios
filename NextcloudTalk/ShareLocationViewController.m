@@ -53,6 +53,9 @@ typedef enum ShareLocationSection {
 
     [NCAppBranding styleViewController:self];
 
+    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
+    searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search for places", nil)];
+
     self.navigationItem.title = NSLocalizedString(@"Share location", nil);
 
     _iconsConfiguration = [UIImageSymbolConfiguration configurationWithPointSize:20];
