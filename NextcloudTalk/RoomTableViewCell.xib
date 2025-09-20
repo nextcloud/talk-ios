@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,78 +11,89 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="98" id="2e5-Ls-me0" customClass="RoomTableViewCell" customModule="NextcloudTalk" customModuleProvider="target">
+        <tableViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="98" id="2e5-Ls-me0" customClass="RoomTableViewCell" customModule="NextcloudTalk" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="375" height="72"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="2e5-Ls-me0" id="eba-Du-dTo">
                 <rect key="frame" x="0.0" y="0.0" width="375" height="72"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xcw-pC-kPV" customClass="AvatarView" customModule="NextcloudTalk" customModuleProvider="target">
-                        <rect key="frame" x="16" y="12" width="48" height="48"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="48" id="BFT-jl-6Wp"/>
-                            <constraint firstAttribute="width" constant="48" id="jyi-6z-FTf"/>
-                        </constraints>
-                    </view>
-                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="Lqk-NC-ZkP">
-                        <rect key="frame" x="72" y="10" width="287" height="52"/>
+                    <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="82I-YL-3ga" userLabel="Container View">
+                        <rect key="frame" x="8" y="0.0" width="359" height="72"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="zrV-ZF-Sc4">
-                                <rect key="frame" x="0.0" y="0.0" width="287" height="20.5"/>
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xcw-pC-kPV" customClass="AvatarView" customModule="NextcloudTalk" customModuleProvider="target">
+                                <rect key="frame" x="8" y="12" width="48" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="BFT-jl-6Wp"/>
+                                    <constraint firstAttribute="width" constant="48" id="jyi-6z-FTf"/>
+                                </constraints>
+                            </view>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Lqk-NC-ZkP">
+                                <rect key="frame" x="64" y="10" width="287" height="52"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4oj-Ge-nSq">
-                                        <rect key="frame" x="0.0" y="0.0" width="223" height="20.5"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" text="Yesterday" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DEV-Kr-Vlw">
-                                        <rect key="frame" x="227" y="2.5" width="60" height="16"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                                        <color key="textColor" systemColor="secondaryLabelColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
+                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="zrV-ZF-Sc4">
+                                        <rect key="frame" x="0.0" y="0.0" width="287" height="20.5"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4oj-Ge-nSq">
+                                                <rect key="frame" x="0.0" y="0.0" width="223" height="20.5"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" text="Yesterday" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DEV-Kr-Vlw">
+                                                <rect key="frame" x="227" y="2.5" width="60" height="16"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="ZXf-fc-Ylf">
+                                        <rect key="frame" x="0.0" y="22.5" width="287" height="29.5"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tc2-b5-oRl">
+                                                <rect key="frame" x="0.0" y="0.0" width="56" height="29.5"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <view contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="Xb6-vq-E0C" customClass="BadgeView" customModule="NextcloudTalk" customModuleProvider="target">
+                                                <rect key="frame" x="60" y="0.0" width="227" height="29.5"/>
+                                            </view>
+                                        </subviews>
+                                    </stackView>
                                 </subviews>
-                            </stackView>
-                            <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="ZXf-fc-Ylf">
-                                <rect key="frame" x="0.0" y="26.5" width="287" height="25.5"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tc2-b5-oRl">
-                                        <rect key="frame" x="0.0" y="0.0" width="56" height="25.5"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
-                                        <color key="textColor" systemColor="secondaryLabelColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <view contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="Xb6-vq-E0C" customClass="BadgeView" customModule="NextcloudTalk" customModuleProvider="target">
-                                        <rect key="frame" x="60" y="0.0" width="227" height="25.5"/>
-                                    </view>
-                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="zrV-ZF-Sc4" firstAttribute="leading" secondItem="Lqk-NC-ZkP" secondAttribute="leading" id="0Cs-qf-uze"/>
+                                    <constraint firstAttribute="trailing" secondItem="ZXf-fc-Ylf" secondAttribute="trailing" id="1bb-Ds-9zv"/>
+                                    <constraint firstItem="ZXf-fc-Ylf" firstAttribute="leading" secondItem="Lqk-NC-ZkP" secondAttribute="leading" id="fRo-zz-n2x"/>
+                                    <constraint firstAttribute="trailing" secondItem="zrV-ZF-Sc4" secondAttribute="trailing" id="iZk-TF-0O2"/>
+                                </constraints>
                             </stackView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="zrV-ZF-Sc4" firstAttribute="leading" secondItem="Lqk-NC-ZkP" secondAttribute="leading" id="0Cs-qf-uze"/>
-                            <constraint firstAttribute="trailing" secondItem="ZXf-fc-Ylf" secondAttribute="trailing" id="1bb-Ds-9zv"/>
-                            <constraint firstItem="ZXf-fc-Ylf" firstAttribute="leading" secondItem="Lqk-NC-ZkP" secondAttribute="leading" id="fRo-zz-n2x"/>
-                            <constraint firstAttribute="trailing" secondItem="zrV-ZF-Sc4" secondAttribute="trailing" id="iZk-TF-0O2"/>
+                            <constraint firstItem="Lqk-NC-ZkP" firstAttribute="leading" secondItem="xcw-pC-kPV" secondAttribute="trailing" constant="8" symbolic="YES" id="8E6-On-aXQ"/>
+                            <constraint firstItem="xcw-pC-kPV" firstAttribute="leading" secondItem="82I-YL-3ga" secondAttribute="leading" constant="8" id="O5q-sh-tTf"/>
+                            <constraint firstItem="Lqk-NC-ZkP" firstAttribute="top" secondItem="82I-YL-3ga" secondAttribute="top" constant="10" id="hAa-xP-nbS"/>
+                            <constraint firstAttribute="bottom" secondItem="Lqk-NC-ZkP" secondAttribute="bottom" constant="10" id="iXF-N8-Raw"/>
+                            <constraint firstItem="xcw-pC-kPV" firstAttribute="top" relation="greaterThanOrEqual" secondItem="82I-YL-3ga" secondAttribute="top" constant="4" id="m8b-CT-gwK"/>
+                            <constraint firstAttribute="trailing" secondItem="Lqk-NC-ZkP" secondAttribute="trailing" constant="8" id="z7h-7J-W1I"/>
+                            <constraint firstItem="xcw-pC-kPV" firstAttribute="centerY" secondItem="82I-YL-3ga" secondAttribute="centerY" id="zcS-sG-8c4"/>
+                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="xcw-pC-kPV" secondAttribute="bottom" constant="4" id="zmI-Up-Wi0"/>
                         </constraints>
-                    </stackView>
+                    </view>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="hTO-u0-vdH"/>
                 <constraints>
-                    <constraint firstItem="xcw-pC-kPV" firstAttribute="top" relation="greaterThanOrEqual" secondItem="hTO-u0-vdH" secondAttribute="top" constant="4" id="561-Ji-QHz"/>
-                    <constraint firstItem="hTO-u0-vdH" firstAttribute="trailing" secondItem="Lqk-NC-ZkP" secondAttribute="trailing" constant="16" id="KP2-fw-gKC"/>
-                    <constraint firstItem="hTO-u0-vdH" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="xcw-pC-kPV" secondAttribute="bottom" constant="4" id="KmV-iR-o25"/>
-                    <constraint firstItem="Lqk-NC-ZkP" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" constant="10" id="TmT-mM-jYp"/>
-                    <constraint firstItem="Lqk-NC-ZkP" firstAttribute="leading" secondItem="xcw-pC-kPV" secondAttribute="trailing" constant="8" symbolic="YES" id="VtA-t2-m3Y"/>
-                    <constraint firstItem="xcw-pC-kPV" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="16" id="mPn-Ei-3FV"/>
-                    <constraint firstItem="hTO-u0-vdH" firstAttribute="bottom" secondItem="Lqk-NC-ZkP" secondAttribute="bottom" constant="10" id="pYN-iB-dun"/>
-                    <constraint firstItem="xcw-pC-kPV" firstAttribute="centerY" secondItem="eba-Du-dTo" secondAttribute="centerY" id="qbT-jS-yhG"/>
-                    <constraint firstItem="Lqk-NC-ZkP" firstAttribute="centerY" secondItem="eba-Du-dTo" secondAttribute="centerY" id="vKy-Cr-gbL"/>
+                    <constraint firstItem="hTO-u0-vdH" firstAttribute="trailing" secondItem="82I-YL-3ga" secondAttribute="trailing" constant="8" id="1h1-Gd-H7u"/>
+                    <constraint firstItem="82I-YL-3ga" firstAttribute="bottom" secondItem="hTO-u0-vdH" secondAttribute="bottom" id="8gu-hB-O03"/>
+                    <constraint firstItem="82I-YL-3ga" firstAttribute="top" secondItem="hTO-u0-vdH" secondAttribute="top" id="Buf-lM-ult"/>
+                    <constraint firstItem="82I-YL-3ga" firstAttribute="leading" secondItem="hTO-u0-vdH" secondAttribute="leading" constant="8" id="qVg-if-EHy"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
                 <outlet property="avatarView" destination="xcw-pC-kPV" id="KB2-ZV-7o9"/>
+                <outlet property="containerView" destination="82I-YL-3ga" id="B51-xa-qYb"/>
                 <outlet property="dateLabel" destination="DEV-Kr-Vlw" id="2t1-ib-Gfb"/>
                 <outlet property="subtitleLabel" destination="Tc2-b5-oRl" id="1mD-EQ-Jhs"/>
                 <outlet property="titleLabel" destination="4oj-Ge-nSq" id="SPq-KL-y2z"/>

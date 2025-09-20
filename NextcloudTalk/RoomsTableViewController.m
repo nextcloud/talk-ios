@@ -90,7 +90,7 @@ typedef enum RoomsSections {
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-    
+
     _resultTableViewController = [[RoomSearchTableViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
@@ -142,7 +142,7 @@ typedef enum RoomsSections {
     [self.view addSubview:_unreadMentionsBottomButton];
 
     // Set selection color for selected cells
-    [self.tableView setTintColor:UIColor.systemGray4Color];
+    [self.tableView setTintColor:[UIColor clearColor]];
 
     // Remove the backButtonTitle, otherwise when we transition to a conversation, "Back" is briefly visible
     self.navigationItem.backButtonTitle = @"";
@@ -1529,6 +1529,18 @@ typedef enum RoomsSections {
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView didHighlightRowAtIndexPath:(NSIndexPath *)indexPath {
+    RoomTableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    [cell setSelected:YES];
+}
+
+
+- (void)tableView:(UITableView *)tableView didUnhighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    RoomTableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    [cell setSelected:NO];
+}
+
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)rcell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (tableView != self.tableView ||
@@ -1545,9 +1557,7 @@ typedef enum RoomsSections {
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self setSelectedRoomToken:nil];
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-
+    [self removeRoomSelection];
     BOOL isAppInForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 
     if (!isAppInForeground) {
