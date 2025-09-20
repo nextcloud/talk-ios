@@ -2486,7 +2486,10 @@ class CallViewController: UIViewController,
             roomInfoVC.dismiss(animated: true)
         })
 
-        cancelButton.tintColor = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            cancelButton.tintColor = NCAppBranding.themeTextColor()
+        }
+
         navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
 
         self.present(navController, animated: true)

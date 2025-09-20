@@ -2387,7 +2387,10 @@ import SwiftUI
                 roomInfo.dismiss(animated: true)
             })
 
-            cancelButton.tintColor = NCAppBranding.themeTextColor()
+            if #unavailable(iOS 26.0) {
+                cancelButton.tintColor = NCAppBranding.themeTextColor()
+            }
+            
             roomInfo.modalPresentationStyle = .pageSheet
 
             let navController = UINavigationController(rootViewController: roomInfo)
