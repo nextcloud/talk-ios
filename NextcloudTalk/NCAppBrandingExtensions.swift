@@ -8,6 +8,7 @@ import SwiftUI
 
 extension NCAppBranding {
 
+    @objc
     static func themeColorBackground() -> UIColor {
         var lightColor: UIColor
         var darkColor: UIColor
