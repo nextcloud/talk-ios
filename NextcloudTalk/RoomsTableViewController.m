@@ -189,6 +189,7 @@ typedef enum RoomsSections {
 
         if (@available(iOS 26.0, *)) {
             _newConversationButton.hidesSharedBackground = YES;
+            _newConversationButton.tintColor = [NCAppBranding themeColor];
         }
 
         [self.navigationItem setRightBarButtonItem:_newConversationButton];
