@@ -62,11 +62,12 @@
     self.subtitleFont = [UIFont systemFontOfSize:13];
 
     self.showSubtitle = YES;
-    self.userStatusBackgroundColor = [NCAppBranding themeColor];
 
     if (@available(iOS 26.0, *)) {
+        self.userStatusBackgroundColor = [UIColor clearColor];
         self.titleTextColor = [UIColor labelColor];
     } else {
+        self.userStatusBackgroundColor = [NCAppBranding themeColor];
         self.titleTextColor = [NCAppBranding themeTextColor];
     }
 
