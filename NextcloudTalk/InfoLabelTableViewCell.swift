@@ -22,7 +22,7 @@
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
 
-        labelContainer.backgroundColor = .secondarySystemGroupedBackground
+        labelContainer.backgroundColor = .secondarySystemBackground
         labelContainer.layer.cornerRadius = 8
         labelContainer.layer.masksToBounds = true
         labelContainer.translatesAutoresizingMaskIntoConstraints = false
