@@ -15,7 +15,7 @@
 @interface ReplyMessageView ()
 @property (nonatomic, strong) UIView *quoteContainerView;
 @property (nonatomic, strong) UIButton *cancelButton;
-@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *hConstraints;
+@property (nonatomic, strong) NSLayoutConstraint *cancelButtonWidthConstraint;
 @end
 
 @implementation ReplyMessageView
@@ -39,29 +39,26 @@
     [self.layer addSublayer:self.topBorder];
 
     [_quoteContainerView addSubview:self.quotedMessageView];
-    
-    NSDictionary *views = @{
-        @"quoteContainerView": self.quoteContainerView,
-        @"quotedMessageView": self.quotedMessageView,
-        @"cancelButton": self.cancelButton
-    };
-    
-    self.hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-16-[quoteContainerView]-4-[cancelButton(44)]-4-|" options:0 metrics:nil views:views];
-    [self addConstraints:self.hConstraints];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quotedMessageView(quoteContainerView)]|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[quoteContainerView]|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cancelButton]|" options:0 metrics:nil views:views]];
 
-    // Center the quotedMessageView inside the container view (if we add a padding in the layout above, we need to break constraints when height is 0)
-    NSLayoutConstraint *centerConstraint = [NSLayoutConstraint constraintWithItem:self.quotedMessageView
-                                                                        attribute:NSLayoutAttributeCenterY
-                                                                        relatedBy:NSLayoutRelationEqual
-                                                                           toItem:self.quoteContainerView
-                                                                        attribute:NSLayoutAttributeCenterY
-                                                                       multiplier:1.0f
-                                                                         constant:0.0f];
+    self.cancelButtonWidthConstraint = [self.cancelButton.widthAnchor constraintEqualToConstant:44];
 
-    [self.quoteContainerView addConstraints:@[centerConstraint]];
+    [NSLayoutConstraint activateConstraints:@[
+        [self.quoteContainerView.leftAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.leftAnchor constant:16],
+
+        [self.cancelButton.leftAnchor constraintEqualToAnchor:self.quoteContainerView.rightAnchor constant:4],
+
+        [self.cancelButton.rightAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.rightAnchor constant:-4],
+        self.cancelButtonWidthConstraint,
+        [self.quotedMessageView.widthAnchor constraintEqualToAnchor:self.quoteContainerView.widthAnchor],
+
+        [self.quoteContainerView.topAnchor constraintEqualToAnchor:self.quoteContainerView.superview.topAnchor],
+        [self.quoteContainerView.bottomAnchor constraintEqualToAnchor:self.quoteContainerView.superview.bottomAnchor],
+
+        [self.cancelButton.topAnchor constraintEqualToAnchor:self.cancelButton.superview.topAnchor],
+        [self.cancelButton.bottomAnchor constraintEqualToAnchor:self.cancelButton.superview.bottomAnchor],
+
+        [self.quotedMessageView.centerYAnchor constraintEqualToAnchor:self.quoteContainerView.centerYAnchor]
+    ]];
 }
 
 #pragma mark - UIView
@@ -164,7 +161,7 @@
     [self.cancelButton setHidden:NO];
 
     // Reset button size to 44 in case it was hidden before
-    self.hConstraints[2].constant = 44;
+    self.cancelButtonWidthConstraint.constant = 44;
 
     self.visible = YES;
 }
@@ -173,7 +170,7 @@
 {
     [self.cancelButton setHidden:YES];
     // With 2*4 padding (left and right to the button) we add 8 to have 16 as we have on the left side of the quoteView
-    self.hConstraints[2].constant = 8;
+    self.cancelButtonWidthConstraint.constant = 8;
 }
 
 
