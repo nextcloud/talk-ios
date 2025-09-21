@@ -91,7 +91,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         self.navigationItem.title = NSLocalizedString("Settings", comment: "")
 
-        self.cancelButton.tintColor = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.cancelButton.tintColor = NCAppBranding.themeTextColor()
+        }
+
         contactSyncSwitch.frame = .zero
         contactSyncSwitch.addTarget(self, action: #selector(contactSyncValueChanged(_:)), for: .valueChanged)
 
