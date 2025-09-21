@@ -213,6 +213,23 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@replies@</string>
+        <key>replies</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%ld freagra</string>
+            <key>two</key>
+            <string>%ld freagraí</string>
+            <key>few</key>
+            <string>%ld freagraí</string>
+            <key>many</key>
+            <string>%ld freagraí</string>
+            <key>other</key>
+            <string>%ld freagraí</string>
+        </dict>
     </dict>
 </dict>
 </plist>
