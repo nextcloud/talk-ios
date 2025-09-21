@@ -70,23 +70,16 @@ struct UserStatusSwiftUIView: View {
                                 dismiss()
                             }) {
                                 Text("Close")
-                                    .foregroundColor(Color(NCAppBranding.themeTextColor()))
+                                    .foregroundColor(Color(getTintColor()))
                             }
                 }
             })
         }
         .introspect(.navigationView(style: .stack), on: .iOS(.v15...)) { navController in
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = NCAppBranding.themeColor()
-            appearance.titleTextAttributes = [.foregroundColor: NCAppBranding.themeTextColor()]
-            navController.navigationBar.tintColor = NCAppBranding.themeTextColor()
-            navController.navigationBar.standardAppearance = appearance
-            navController.navigationBar.compactAppearance = appearance
-            navController.navigationBar.scrollEdgeAppearance = appearance
+            NCAppBranding.styleViewController(navController)
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .tint(Color(NCAppBranding.themeTextColor()))
+        .tint(Color(getTintColor()))
         .onAppear {
             getUserStatus()
             getAbsenceStatus()
@@ -100,6 +93,14 @@ struct UserStatusSwiftUIView: View {
         }
         .onDisappear {
             delegate?.userStatusViewDidDisappear()
+        }
+    }
+
+    private func getTintColor() -> UIColor {
+        if #available(iOS 26.0, *) {
+            return .label
+        } else {
+            return NCAppBranding.themeTextColor()
         }
     }
 
