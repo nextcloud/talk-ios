@@ -1204,6 +1204,9 @@
 /* No comment provided by engineer. */
 "Invitations resent" = "Invitations resent";
 
+/* Invitation for a meeting */
+"Invite all users and emails" = "Invite all users and emails";
+
 /* It seems that {app name} is not installed in your server. */
 "It seems that %@ is not installed in your server." = "It seems that %@ is not installed in your server.";
 
