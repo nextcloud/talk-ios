@@ -22,26 +22,26 @@
                         <rect key="frame" x="8" y="0.0" width="359" height="72"/>
                         <subviews>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xcw-pC-kPV" customClass="AvatarView" customModule="NextcloudTalk" customModuleProvider="target">
-                                <rect key="frame" x="8" y="12" width="48" height="48"/>
+                                <rect key="frame" x="8" y="14" width="44" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="48" id="BFT-jl-6Wp"/>
-                                    <constraint firstAttribute="width" constant="48" id="jyi-6z-FTf"/>
+                                    <constraint firstAttribute="height" constant="44" id="BFT-jl-6Wp"/>
+                                    <constraint firstAttribute="width" constant="44" id="jyi-6z-FTf"/>
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Lqk-NC-ZkP">
-                                <rect key="frame" x="64" y="10" width="287" height="52"/>
+                                <rect key="frame" x="60" y="10" width="291" height="52"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="zrV-ZF-Sc4">
-                                        <rect key="frame" x="0.0" y="0.0" width="287" height="20.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="291" height="20.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4oj-Ge-nSq">
-                                                <rect key="frame" x="0.0" y="0.0" width="223" height="20.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="227" height="20.5"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" text="Yesterday" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DEV-Kr-Vlw">
-                                                <rect key="frame" x="227" y="2.5" width="60" height="16"/>
+                                                <rect key="frame" x="231" y="2.5" width="60" height="16"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                                 <color key="textColor" systemColor="secondaryLabelColor"/>
                                                 <nil key="highlightedColor"/>
@@ -49,16 +49,16 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="ZXf-fc-Ylf">
-                                        <rect key="frame" x="0.0" y="22.5" width="287" height="29.5"/>
+                                        <rect key="frame" x="0.0" y="22.5" width="291" height="29.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tc2-b5-oRl">
-                                                <rect key="frame" x="0.0" y="0.0" width="56" height="29.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="60" height="29.5"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
                                                 <color key="textColor" systemColor="secondaryLabelColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <view contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="Xb6-vq-E0C" customClass="BadgeView" customModule="NextcloudTalk" customModuleProvider="target">
-                                                <rect key="frame" x="60" y="0.0" width="227" height="29.5"/>
+                                                <rect key="frame" x="64" y="0.0" width="227" height="29.5"/>
                                             </view>
                                         </subviews>
                                     </stackView>
