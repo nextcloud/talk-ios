@@ -1869,8 +1869,12 @@ typedef enum RoomsSections {
         if (selectedRow != nil) {
             [self.tableView deselectRowAtIndexPath:selectedRow animated:YES];
 
-            // Needed to make sure the highlight is really removed
-            [self.tableView reloadRowsAtIndexPaths:@[selectedRow] withRowAnimation:UITableViewRowAnimationNone];
+            // It might happen that this is called while we are switching accounts, so wait for the reload to be finished.
+            // Example: Active account has 1 pending invitation, switch to an account with no pending invitation -> crash.
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Needed to make sure the highlight is really removed
+                [self.tableView reloadRowsAtIndexPaths:@[selectedRow] withRowAnimation:UITableViewRowAnimationNone];
+            });
         }
     }
 }
