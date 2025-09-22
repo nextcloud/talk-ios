@@ -90,7 +90,8 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
         [self configureDatabase];
         [self checkStoredDataInKechain];
-        
+        [self resetPerAppLaunchSettings];
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRevokedResponseReceived:) name:NCTokenRevokedResponseReceivedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(upgradeRequiredResponseReceived:) name:NCUpgradeRequiredResponseReceivedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(talkConfigurationHasChanged:) name:NCTalkConfigurationHashChangedNotification object:nil];
@@ -114,6 +115,17 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         NSLog(@"Removing all data stored in Keychain");
         [[NCKeyChainController sharedInstance] removeAllItems];
     }
+}
+
+- (void)resetPerAppLaunchSettings
+{
+    // Reset "threadsLastCheckTimestamp" on every app fresh launch
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    for (TalkAccount *account in [TalkAccount allObjects]) {
+        account.threadsLastCheckTimestamp = 0;
+    }
+    [realm commitWriteTransaction];
 }
 
 #pragma mark - User accounts

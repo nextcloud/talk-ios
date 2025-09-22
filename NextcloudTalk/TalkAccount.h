@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *frequentlyUsedEmojisJSONString;
 @property RLMArray<RLMString> *groupIds;
 @property RLMArray<RLMString> *teamIds;
+@property BOOL hasThreads;
+@property NSInteger threadsLastCheckTimestamp;
 
 @end
 

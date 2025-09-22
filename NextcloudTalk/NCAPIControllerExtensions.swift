@@ -1186,6 +1186,38 @@ import NextcloudKit
         }
     }
 
+    public func getSubscribedThreads(for accountId: String, withLimit limit: Int = 100, andOffset offset: Int = 0, completionBlock: @escaping (_ threads: [NCThread]?, _ error: Error?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))
+            return
+        }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/subscribed-threads", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: Any] = [
+            "limit": limit,
+            "offfset": offset
+        ]
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let error = ocsError?.error {
+                completionBlock(nil, error)
+            } else if let threads = ocsResponse?.dataArrayDict?.map({ NCThread(dictionary: $0, andAccountId: accountId) }) {
+                NCThread.storeOrUpdateThreads(threads)
+
+                NCDatabaseManager.sharedInstance().updateHasThreads(forAccountId: accountId, with: !threads.isEmpty)
+                NCDatabaseManager.sharedInstance().updateThreadsLastCheckTimestamp(forAccountId: accountId, with: Int(Date().timeIntervalSince1970))
+
+                completionBlock(threads, nil)
+            } else {
+                completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))
+            }
+        }
+    }
+
     @nonobjc
     public func getThread(for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),

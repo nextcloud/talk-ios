@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 82;
+uint64_t const kTalkDatabaseSchemaVersion           = 83;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -371,6 +371,30 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
     TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
     account.lastReceivedModifiedSince = modifiedSince;
+    [realm commitWriteTransaction];
+    [bgTask stopBackgroundTask];
+}
+
+- (void)updateHasThreadsForAccountId:(NSString *)accountId with:(BOOL)hasThreads
+{
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateHasThreadsForAccountId" expirationHandler:nil];
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.hasThreads = hasThreads;
+    [realm commitWriteTransaction];
+    [bgTask stopBackgroundTask];
+}
+
+- (void)updateThreadsLastCheckTimestampForAccountId:(NSString *)accountId with:(NSInteger)lastCheckTimestamp
+{
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateHasThreadsLastCheckTimestampForAccountId" expirationHandler:nil];
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", accountId];
+    TalkAccount *account = [TalkAccount objectsWithPredicate:query].firstObject;
+    account.threadsLastCheckTimestamp = lastCheckTimestamp;
     [realm commitWriteTransaction];
     [bgTask stopBackgroundTask];
 }
