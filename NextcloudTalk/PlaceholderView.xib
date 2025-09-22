@@ -59,7 +59,7 @@
                 </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="MQb-YF-lsB"/>
-            <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="FB3-Ig-rQB" firstAttribute="centerY" secondItem="MQb-YF-lsB" secondAttribute="centerY" id="JXb-4p-Q1n"/>
                 <constraint firstItem="Vla-vD-TGa" firstAttribute="leading" secondItem="MQb-YF-lsB" secondAttribute="leading" constant="16" id="O8w-gy-WDd"/>
@@ -77,8 +77,8 @@
         <systemColor name="placeholderTextColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
-        <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>
