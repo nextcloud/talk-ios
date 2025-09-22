@@ -14,6 +14,7 @@ import SwiftUI
 
     // MARK: - Public var
     public var presentedInCall = false
+    public var presentKeyboardOnAppear = false
     public var chatController: NCChatController
     public var highlightMessageId = 0
 
@@ -566,6 +567,15 @@ import SwiftUI
         }
     }
 
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if self.presentKeyboardOnAppear {
+            self.presentKeyboard(true)
+            self.presentKeyboardOnAppear = false
+        }
+    }
+
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
@@ -987,11 +997,13 @@ import SwiftUI
         return canPress
     }
 
-    public override func didPressShowThread(for message: NCChatMessage) {
+    public override func didPressShowThread(for message: NCChatMessage, toReply: Bool = false) {
         guard let account = self.room.account,
               let thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId),
               let chatViewController = ChatViewController(forThread: thread, inRoom: room, withAccount: account)
         else { return }
+
+        chatViewController.presentKeyboardOnAppear = toReply
 
         let navController = NCNavigationController(rootViewController: chatViewController)
         navController.presentationController?.delegate = chatViewController

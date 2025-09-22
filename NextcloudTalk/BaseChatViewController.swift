@@ -978,13 +978,19 @@ import SwiftUI
         }
     }
 
-    func didPressShowThread(for message: NCChatMessage) {
+    func didPressShowThread(for message: NCChatMessage, toReply: Bool = false) {
         // Overridden in sub class
     }
 
     func didPressReply(for message: NCChatMessage) {
         // Make sure we get a smooth animation after dismissing the context menu
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            // If user press reply on the thread original message (in a normal chat view), open the thread view
+            if self.thread == nil && message.isThreadOriginalMessage() {
+                self.didPressShowThread(for: message, toReply: true)
+                return
+            }
+
             self.showReplyView(for: message)
         }
     }
