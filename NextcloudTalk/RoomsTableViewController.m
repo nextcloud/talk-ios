@@ -171,6 +171,7 @@ typedef enum RoomsSections {
     _searchController.searchBar.scopeButtonTitles = [self getFilters];
     _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
 
+#if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
     if (@available(iOS 26, *)) {
         if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
             __weak typeof(self) weakSelf = self;
@@ -202,6 +203,7 @@ typedef enum RoomsSections {
             _searchController.scopeBarActivation = UISearchControllerScopeBarActivationManual;
         }
     }
+#endif
 }
 
 - (void)setupNavigationBar
