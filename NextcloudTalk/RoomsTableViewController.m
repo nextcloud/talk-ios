@@ -224,8 +224,16 @@ typedef enum RoomsSections {
 
 #if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
         if (@available(iOS 26.0, *)) {
-            _newConversationButton.hidesSharedBackground = YES;
             _newConversationButton.tintColor = [NCAppBranding themeColor];
+
+            if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone) {
+                // On non-iPhones we want to hide the shared background (glass effect)
+                _newConversationButton.hidesSharedBackground = YES;
+            } else {
+                // On iPhones we want to have a prominent glass button with non-filled icon
+                _newConversationButton.image = [UIImage systemImageNamed:@"plus"];
+                _newConversationButton.style = UIBarButtonItemStyleProminent;
+            }
         }
 #endif
 
@@ -955,7 +963,10 @@ typedef enum RoomsSections {
 
 #if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
     if (@available(iOS 26.0, *)) {
-        _settingsButton.hidesSharedBackground = YES;
+        if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone) {
+            // On non-iPhones we want to hide the shared background (glass effect)
+            _settingsButton.hidesSharedBackground = YES;
+        }
     }
 #endif
 
