@@ -299,19 +299,23 @@ import SwiftyAttributes
 
     public var messageIconName: String? {
         if let file = self.file() {
-            if NCUtils.isImage(fileType: file.mimetype) {
-                return "photo"
-            } else if NCUtils.isVideo(fileType: file.mimetype) {
-                return "movieclapper"
-            } else if NCUtils.isVCard(fileType: file.mimetype) {
-                return "person.text.rectangle"
-            } else if self.isVoiceMessage {
-                return "mic"
-            } else if NCUtils.isAudio(fileType: file.mimetype) {
-                return "music.note"
-            } else {
-                return "doc"
+            if let mimetype = file.mimetype {
+                if NCUtils.isImage(fileType: mimetype) {
+                    return "photo"
+                } else if NCUtils.isVideo(fileType: mimetype) {
+                    return "movieclapper"
+                } else if NCUtils.isVCard(fileType: mimetype) {
+                    return "person.text.rectangle"
+                } else if NCUtils.isAudio(fileType: mimetype) {
+                    return "music.note"
+                }
             }
+
+            if self.isVoiceMessage {
+                return "mic"
+            }
+
+            return "doc"
         } else if poll != nil {
             return "chart.bar"
         } else if deckCard() != nil {
@@ -324,11 +328,11 @@ import SwiftyAttributes
     }
 
     public var isAnimatableGif: Bool {
-        guard let accountId, let file = self.file() else { return false }
+        guard let accountId, let file = self.file(), let mimetype = file.mimetype else { return false }
 
         let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)
 
-        guard NCUtils.isGif(fileType: file.mimetype), let maxGifSize = capabilities?.maxGifSize, maxGifSize > 0 else { return false }
+        guard NCUtils.isGif(fileType: mimetype), let maxGifSize = capabilities?.maxGifSize, maxGifSize > 0 else { return false }
 
         return file.size <= maxGifSize
     }

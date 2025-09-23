@@ -3558,7 +3558,7 @@ import SwiftUI
     // MARK: - FileMessageTableViewCellDelegate
 
     public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter, for message: NCChatMessage) {
-        if NCUtils.isImage(fileType: fileParameter.mimetype) {
+        if NCUtils.isImage(fileType: fileParameter.mimetype ?? "") {
             let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)
             let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
@@ -3570,7 +3570,7 @@ import SwiftUI
         let filePath = fileParameter.path ?? ""
         let fileExtension = URL(fileURLWithPath: filePath).pathExtension.lowercased()
 
-        if NCUtils.isVideo(fileType: fileParameter.mimetype) {
+        if NCUtils.isVideo(fileType: fileParameter.mimetype ?? "") {
             // Skip unsupported formats here ("webm" and "mkv") and use VLC later
             if !fileExtension.isEmpty, !VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
                 let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)

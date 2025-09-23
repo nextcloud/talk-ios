@@ -151,7 +151,7 @@ import UIKit
                 return self.getPreviousFileMessage(from: message)
             }
 
-            let fileType = message.file().mimetype
+            let fileType = message.file()?.mimetype ?? ""
             let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
             let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
 
@@ -175,7 +175,7 @@ import UIKit
                 return self.getNextFileMessage(from: message)
             }
 
-            let fileType = message.file().mimetype
+            let fileType = message.file()?.mimetype ?? ""
             let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
             let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
 

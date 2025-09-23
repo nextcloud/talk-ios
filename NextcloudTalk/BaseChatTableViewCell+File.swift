@@ -227,10 +227,10 @@ extension BaseChatTableViewCell {
     }
 
     func adjustImageView(toImageSize image: UIImage, ofMessage message: NCChatMessage) {
-        guard let imageView = self.filePreviewImageView, let file = message.file() else { return }
+        guard let imageView = self.filePreviewImageView, let file = message.file(), let mimetype = file.mimetype else { return }
 
-        let isVideoFile = NCUtils.isVideo(fileType: file.mimetype)
-        let isMediaFile = isVideoFile || NCUtils.isImage(fileType: file.mimetype)
+        let isVideoFile = NCUtils.isVideo(fileType: mimetype)
+        let isMediaFile = isVideoFile || NCUtils.isImage(fileType: mimetype)
 
         self.filePreviewActivityIndicator?.isHidden = true
         self.filePreviewActivityIndicator?.stopAnimating()
@@ -321,7 +321,7 @@ extension BaseChatTableViewCell {
     }
 
     static func getEstimatedPreviewSize(for message: NCChatMessage?) -> CGSize {
-        guard let message, let fileParameter = message.file() else { return .zero }
+        guard let message, let fileParameter = message.file(), let mimetype = fileParameter.mimetype else { return .zero }
 
         // We don't have any information about the image to display
         if fileParameter.width == 0 && fileParameter.height == 0 {
@@ -329,7 +329,7 @@ extension BaseChatTableViewCell {
         }
 
         // We can only estimate the height for images and videos
-        if !NCUtils.isVideo(fileType: fileParameter.mimetype), !NCUtils.isImage(fileType: fileParameter.mimetype) {
+        if !NCUtils.isVideo(fileType: mimetype), !NCUtils.isImage(fileType: mimetype) {
             return .zero
         }
 

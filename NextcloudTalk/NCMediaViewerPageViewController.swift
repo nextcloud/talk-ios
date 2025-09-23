@@ -199,14 +199,14 @@ import SwiftyGif
         self.activityIndicator.stopAnimating()
         self.activityIndicator.isHidden = true
 
-        guard let localPath = fileStatus.fileLocalPath else {
+        guard let localPath = fileStatus.fileLocalPath, let mimetype = message.file()?.mimetype else {
             self.showErrorView()
             return
         }
 
-        if NCUtils.isImage(fileType: message.file().mimetype) {
+        if NCUtils.isImage(fileType: mimetype) {
             displayImage(from: localPath)
-        } else if NCUtils.isVideo(fileType: message.file().mimetype) {
+        } else if NCUtils.isVideo(fileType: mimetype) {
             playVideo(from: localPath)
         } else {
             self.showErrorView()
