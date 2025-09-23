@@ -94,9 +94,7 @@ typedef enum RoomsSections {
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
 
-    _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
-    _searchController.searchBar.scopeButtonTitles = [self getFilters];
-
+    [self setupSearchBar];
     [self setupNavigationBar];
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
@@ -166,6 +164,44 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activeAccountDidChange:) name:NCSettingsControllerDidChangeActiveAccountNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingInvitationsDidUpdate:) name:NCDatabaseManagerPendingFederationInvitationsDidChange object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inviationDidAccept:) name:NSNotification.FederationInvitationDidAcceptNotification object:nil];
+}
+
+- (void)setupSearchBar
+{
+    _searchController.searchBar.scopeButtonTitles = [self getFilters];
+    _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
+
+    if (@available(iOS 26, *)) {
+        if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+            __weak typeof(self) weakSelf = self;
+            NSMutableArray *menuItems = [[NSMutableArray alloc] init];
+
+            for (NSNumber *filterId in [self availableFilters]) {
+                [menuItems addObject:[UIAction actionWithTitle:[self filterName:filterId.intValue] image:nil identifier:nil handler:^(UIAction *action) {
+                    weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
+                    [self filterRooms];
+                }]];
+            }
+
+            UIMenu *menu = [UIMenu menuWithTitle:@""
+                                           image:nil
+                                      identifier:nil
+                                         options:UIMenuOptionsDisplayInline
+                                        children:menuItems];
+
+            UIBarButtonItem *filterBarButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease"] menu:menu];
+
+            self.toolbarItems = @[
+                self.navigationItem.searchBarPlacementBarButtonItem,
+                [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                filterBarButton
+            ];
+
+            [self.navigationController setToolbarHidden:NO];
+
+            _searchController.scopeBarActivation = UISearchControllerScopeBarActivationManual;
+        }
+    }
 }
 
 - (void)setupNavigationBar
