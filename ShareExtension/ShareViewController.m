@@ -138,7 +138,7 @@
             if (managedAccount) {
                 TalkAccount *intentAccount = [[TalkAccount alloc] initWithValue:managedAccount];
                 [self setupShareViewForAccount:intentAccount];
-                ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:intentAccount serverCapabilities:_serverCapabilities];
+                ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room thread:nil account:intentAccount serverCapabilities:_serverCapabilities];
                 shareConfirmationVC.delegate = self;
                 shareConfirmationVC.isModal = YES;
                 [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
@@ -534,7 +534,7 @@
         return;
     }
 
-    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room account:_shareAccount serverCapabilities:_serverCapabilities];
+    ShareConfirmationViewController *shareConfirmationVC = [[ShareConfirmationViewController alloc] initWithRoom:room thread:nil account:_shareAccount serverCapabilities:_serverCapabilities];
     shareConfirmationVC.delegate = self;
     if (_forwardMessage) {
         shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;

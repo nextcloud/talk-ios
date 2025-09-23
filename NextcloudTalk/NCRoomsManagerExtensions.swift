@@ -401,9 +401,14 @@ import Foundation
                 NotificationCenter.default.post(name: .NCChatControllerDidSendChatMessage, object: self, userInfo: userInfo)
             } else {
                 if let accountId = offlineMessage.accountId,
-                   let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: accountId),
-                   let chatController = NCChatController(for: room) {
-                    chatController.send(offlineMessage)
+                   let room = NCDatabaseManager.sharedInstance().room(withToken: offlineMessage.token, forAccountId: accountId) {
+                    if offlineMessage.threadId > 0 && offlineMessage.isThread {
+                        guard let chatController = NCChatController(forThreadId: offlineMessage.threadId, in: room) else { return }
+                        chatController.send(offlineMessage)
+                    } else {
+                        guard let chatController = NCChatController(for: room) else { return }
+                        chatController.send(offlineMessage)
+                    }
                 }
             }
         }

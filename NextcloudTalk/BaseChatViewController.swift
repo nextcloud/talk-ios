@@ -524,6 +524,8 @@ import SwiftUI
         temporaryMessage.actorType = "users"
         temporaryMessage.timestamp = Int(Date().timeIntervalSince1970)
         temporaryMessage.token = room.token
+        temporaryMessage.threadId = thread?.threadId ?? 0
+        temporaryMessage.isThread = thread != nil
 
         let referenceId = "temp-\(Date().timeIntervalSince1970 * 1000)"
         temporaryMessage.referenceId = NCUtils.sha1(fromString: referenceId)
@@ -832,7 +834,10 @@ import SwiftUI
             objectItems.append(threadAction)
         }
 
-        items.append(UIMenu(options: .displayInline, children: objectItems))
+        // TODO: Remove this check when rich objects and polls can be shared in threads
+        if thread == nil {
+            items.append(UIMenu(options: .displayInline, children: objectItems))
+        }
 
         items.append(ncFilesAction)
         items.append(filesAction)
@@ -871,7 +876,7 @@ import SwiftUI
     }
 
     func presentNextcloudFilesBrowser() {
-        let directoryVC = DirectoryTableViewController(path: "", inRoom: self.room.token)
+        let directoryVC = DirectoryTableViewController(path: "", inRoom: self.room.token, andThread: self.thread?.threadId ?? 0)
         self.presentWithNavigation(directoryVC, animated: true)
     }
 
@@ -1092,7 +1097,15 @@ import SwiftUI
             }
             NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
-                    let talkMetaData: [String: String] = ["messageType": "voice-message"]
+                    var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+
+                    if message.parentMessageId > 0 {
+                        talkMetaData["replyTo"] = message.parentMessageId
+                    }
+
+                    if let thread = self.thread {
+                        talkMetaData["threadId"] = thread.threadId
+                    }
 
                     self.uploadFileAtPath(localPath: message.file().fileStatus!.fileLocalPath!, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: message)
                 } else {
@@ -1438,7 +1451,7 @@ import SwiftUI
 
     internal func createShareConfirmationViewController() -> (shareConfirmationVC: ShareConfirmationViewController, navController: NCNavigationController)? {
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.account.accountId)
-        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, account: self.account, serverCapabilities: serverCapabilities!)!
+        let shareConfirmationVC = ShareConfirmationViewController(room: self.room, thread: self.thread, account: self.account, serverCapabilities: serverCapabilities!)!
         shareConfirmationVC.delegate = self
         shareConfirmationVC.isModal = true
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)
@@ -1815,9 +1828,14 @@ import SwiftUI
         let tempDirectoryURL = URL(fileURLWithPath: chatFileController.tempDirectoryPath)
         let destinationFilePath = tempDirectoryURL.appendingPathComponent(audioFileName).path
 
+        var replyToMessage: NCChatMessage? = nil
+        if let replyMessageView, replyMessageView.isVisible {
+            replyToMessage = replyMessageView.message
+        }
+
         if let temporaryMessage = self.createTemporaryMessage(
             message: audioFileName,
-            replyTo: nil,
+            replyTo: replyToMessage,
             messageParameters: "\(destinationFilePath)",
             silently: false,
             isVoiceMessage: true
@@ -1838,7 +1856,15 @@ import SwiftUI
 
             NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
-                    let talkMetaData: [String: String] = ["messageType": "voice-message"]
+                    var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+
+                    if let replyToMessageId = replyToMessage?.messageId {
+                        talkMetaData["replyTo"] = replyToMessageId
+                    }
+
+                    if let thread = self.thread {
+                        talkMetaData["threadId"] = thread.threadId
+                    }
 
                     self.uploadFileAtPath(localPath: destinationFilePath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: temporaryMessage)
                 } else {
@@ -1850,7 +1876,7 @@ import SwiftUI
         }
     }
 
-    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: String]?, temporaryMessage: NCChatMessage?) {
+    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: Any]?, temporaryMessage: NCChatMessage?) {
 
         ChatFileUploader.uploadFile(localPath: localPath,
                                     fileServerURL: fileServerURL,
@@ -2240,6 +2266,12 @@ import SwiftUI
 
     func insertMessages(messages: [NCChatMessage]) {
         for newMessage in messages {
+            // Skip thread messages when not in a thread view controller
+            // Skip non thread messages when in a normal chat view controller
+            guard (self.thread == nil && !newMessage.isThreadMessage())
+               || (self.thread != nil && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
+            else { continue }
+
             let newMessageDate = Date(timeIntervalSince1970: TimeInterval(newMessage.timestamp))
 
             if let keyDate = self.getKeyForDate(date: newMessageDate, inDictionary: self.messages),
@@ -2289,8 +2321,11 @@ import SwiftUI
             // Processing of update messages still happens when receiving new messages, so safe to skip here
             guard !newMessage.isUpdateMessage else { continue }
 
-            // Hide messages of threads when not displaying a thread
-            guard self.thread != nil || !newMessage.isThreadMessage() else { continue }
+            // Skip thread messages when not in a thread view controller
+            // Skip non thread messages when in a normal chat view controller
+            guard (self.thread == nil && !newMessage.isThreadMessage())
+               || (self.thread != nil && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
+            else { continue }
 
             let newMessageDate = Date(timeIntervalSince1970: TimeInterval(newMessage.timestamp))
             let keyDate = self.getKeyForDate(date: newMessageDate, inDictionary: dictionary)
