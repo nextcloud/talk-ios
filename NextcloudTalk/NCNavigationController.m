@@ -24,6 +24,10 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
+    if (@available(iOS 26, *)) {
+        return UIStatusBarStyleDefault;
+    }
+
     return [NCAppBranding statusBarStyleForThemeColor];
 }
 
