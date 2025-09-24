@@ -58,7 +58,7 @@ import Foundation
         }
 
         if selected {
-            self.containerView.backgroundColor = NCAppBranding.themeColorBackground()
+            self.containerView.backgroundColor = NCAppBranding.elementColorBackground()
         } else {
             self.containerView.backgroundColor = .clear
         }

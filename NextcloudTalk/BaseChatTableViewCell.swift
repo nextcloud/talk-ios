@@ -275,7 +275,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             backgroundColor = BaseChatTableViewCell.bubbleColorCache.object(forKey: account.accountId as NSString)
 
             if backgroundColor == nil {
-                backgroundColor = NCAppBranding.themeColorBackground()
+                backgroundColor = NCAppBranding.elementColorBackground()
                 BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
             }
 
