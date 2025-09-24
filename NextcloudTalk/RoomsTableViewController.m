@@ -875,9 +875,6 @@ typedef enum RoomsSections {
 - (void)setOfflineAppearance
 {
     _newConversationButton.enabled = NO;
-    if (!customNavigationLogo) {
-        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
-    }
 }
 
 - (void)setOnlineAppearance
