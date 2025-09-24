@@ -273,7 +273,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 
     @objc func userProfileImageUpdated(notification: NSNotification) {
-        self.tableView.reloadSections(IndexSet(integer: SettingsSection.kSettingsSectionUser.rawValue), with: .none)
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
 
     // MARK: - User Interface
