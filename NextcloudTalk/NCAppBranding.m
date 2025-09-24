@@ -127,8 +127,14 @@ BOOL const useServerThemimg = YES;
     }];
 }
 
-+ (NSString *)navigationLogoImageName
++ (UIImage *)navigationLogoImage
 {
+    if (@available(iOS 26.0, *)) {
+        if (!customNavigationLogo) {
+            return [[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        }
+    }
+
     NSString *imageName = @"navigationLogo";
     if (!customNavigationLogo) {
         if (useServerThemimg && [self textColorStyleForBackgroundColor:[self themeColor]] == NCTextColorStyleDark) {
@@ -136,15 +142,8 @@ BOOL const useServerThemimg = YES;
         } else if ([self brandTextColorStyle] == NCTextColorStyleDark) {
             imageName = @"navigationLogoDark";
         }
-
-        if (@available(iOS 26.0, *)) {
-            // Since we don't have the theme color as background color in iOS 26 anymore, we need to check the trait collection
-            if ([UITraitCollection currentTraitCollection].userInterfaceStyle == UIUserInterfaceStyleLight) {
-                imageName = @"navigationLogoDark";
-            }
-        }
     }
-    return imageName;
+    return [UIImage imageNamed:imageName];
 }
 
 + (UIColor *)placeholderColor

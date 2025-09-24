@@ -208,12 +208,23 @@ typedef enum RoomsSections {
 
 - (void)setupNavigationBar
 {
+    [self setNavigationLogoButton];
     [self createNewConversationButton];
     [self createRefreshControl];
 
     self.navigationItem.searchController = _searchController;
 
     [NCAppBranding styleViewController:self];
+}
+
+- (void)setNavigationLogoButton
+{
+    UIImageView *logoImageView = [[UIImageView alloc] initWithImage:[NCAppBranding navigationLogoImage]];
+    if (!customNavigationLogo) {
+        logoImageView.tintColor = [UIColor labelColor];
+    }
+    self.navigationItem.titleView = logoImageView;
+    self.navigationItem.titleView.accessibilityLabel = talkAppName;
 }
 
 - (void)createNewConversationButton
