@@ -37,8 +37,8 @@ typedef enum RoomsFilter {
 
 typedef enum RoomsSections {
     kRoomsSectionPendingFederationInvitation = 0,
-    kRoomsSectionArchivedConversations,
     kRoomsSectionThreads,
+    kRoomsSectionArchivedConversations,
     kRoomsSectionRoomList
 } RoomsSections;
 
