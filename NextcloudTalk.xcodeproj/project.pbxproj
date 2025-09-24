@@ -656,6 +656,7 @@
 		2CB6ACEC2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CB6ACED2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
 		2CB6ACEE2641954700D3D641 /* MapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB6ACE82641954700D3D641 /* MapViewController.xib */; };
+		2CB7393A2E8158E60003512B /* ThreadsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB739392E8158E60003512B /* ThreadsTableViewController.swift */; };
 		2CB997C52A052449003C41AC /* EmojiAvatarPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */; };
 		2CB997C62A052449003C41AC /* EmojiAvatarPickerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */; };
 		2CBD0D5A2C8770A40013C089 /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBD0D592C8770A40013C089 /* UIImageExtension.swift */; };
@@ -1263,6 +1264,7 @@
 		2CB6ACE62641954700D3D641 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		2CB6ACE72641954700D3D641 /* MapViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		2CB6ACE82641954700D3D641 /* MapViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MapViewController.xib; sourceTree = "<group>"; };
+		2CB739392E8158E60003512B /* ThreadsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadsTableViewController.swift; sourceTree = "<group>"; };
 		2CB997C32A052449003C41AC /* EmojiAvatarPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiAvatarPickerViewController.swift; sourceTree = "<group>"; };
 		2CB997C42A052449003C41AC /* EmojiAvatarPickerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EmojiAvatarPickerViewController.xib; sourceTree = "<group>"; };
 		2CBD0D592C8770A40013C089 /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
@@ -1985,6 +1987,7 @@
 				2CD80F472A4304AD00919057 /* OpenConversationsTableViewController.swift */,
 				2C2D7A162B8C9C0000642373 /* RoomCreationTableViewController.swift */,
 				2C2145672BF6B8E900470C0C /* NewRoomTableViewController.swift */,
+				2CB739392E8158E60003512B /* ThreadsTableViewController.swift */,
 			);
 			name = Rooms;
 			sourceTree = "<group>";
@@ -3408,6 +3411,7 @@
 				2C177C342E2E826300BD426D /* QuotedMessageView.swift in Sources */,
 				1F1DF8432C64006E00E5EA86 /* SignalingParticipant.swift in Sources */,
 				2CC1FF4428147F11009F7288 /* RoomSharedItemsTableViewController.swift in Sources */,
+				2CB7393A2E8158E60003512B /* ThreadsTableViewController.swift in Sources */,
 				2CC1C38629C0945700C8436B /* DRCellSlideGestureRecognizer.m in Sources */,
 				1F205C502CEF903000AAA673 /* UserAbsence.swift in Sources */,
 				1FF4DA9B2C032AAC00C1B952 /* RoomTableViewCell.swift in Sources */,

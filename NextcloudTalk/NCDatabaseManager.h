@@ -124,6 +124,8 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (void)removeUnreadNotificationForInactiveAccounts;
 - (void)updateTalkConfigurationHashForAccountId:(NSString *)accountId withHash:(NSString *)hash;
 - (void)updateLastModifiedSinceForAccountId:(NSString *)accountId with:(nonnull NSString *)modifiedSince;
+- (void)updateHasThreadsForAccountId:(NSString *)accountId with:(BOOL)hasThreads;
+- (void)updateThreadsLastCheckTimestampForAccountId:(NSString *)accountId with:(NSInteger)lastCheckTimestamp;
 
 // Rooms
 - (NCRoom * _Nullable)roomWithToken:(NSString *)token forAccountId:(NSString *)accountId;

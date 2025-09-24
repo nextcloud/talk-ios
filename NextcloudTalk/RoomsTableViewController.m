@@ -38,6 +38,7 @@ typedef enum RoomsFilter {
 typedef enum RoomsSections {
     kRoomsSectionPendingFederationInvitation = 0,
     kRoomsSectionArchivedConversations,
+    kRoomsSectionThreads,
     kRoomsSectionRoomList
 } RoomsSections;
 
@@ -46,6 +47,7 @@ typedef enum RoomsSections {
     RLMNotificationToken *_rlmNotificationToken;
     NSMutableArray *_rooms;
     NSMutableArray *_allRooms;
+    NSArray *_threads;
     BOOL _showingArchivedRooms;
     UIRefreshControl *_refreshControl;
     BOOL _allowEmptyGroupRooms;
@@ -815,6 +817,7 @@ typedef enum RoomsSections {
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
             [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:isAppActive onlyLastModified:NO];
             [self getUserStatusWithCompletionBlock:nil];
+            [self getUserThreads];
             [self startRefreshRoomsTimer];
             [self setupNavigationBar];
         }
@@ -1015,6 +1018,27 @@ typedef enum RoomsSections {
     NSInteger numberOfInactiveAccountsWithUnreadNotifications = [[NCDatabaseManager sharedInstance] numberOfInactiveAccountsWithUnreadNotifications];
     if (numberOfInactiveAccountsWithUnreadNotifications > 0) {
         _settingsButton.badgeValue = [NSString stringWithFormat:@"%ld", numberOfInactiveAccountsWithUnreadNotifications];
+    }
+}
+
+#pragma mark - Threads
+
+- (void)getUserThreads
+{
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSInteger lastCheckTimestamp = activeAccount.threadsLastCheckTimestamp;
+    NSInteger currentTimestamp = [[NSDate date] timeIntervalSince1970];
+
+    // Check if user has threads on app fresh launch or if last check was over 2 hours ago
+    if ((currentTimestamp - activeAccount.threadsLastCheckTimestamp) > (2 * 60 * 60)) {
+        [[NCAPIController sharedInstance] getSubscribedThreadsFor:activeAccount.accountId withLimit:100 andOffset:0 completionBlock:^(NSArray<NCThread *> * _Nullable threads, NSError * _Nullable error ) {
+            if (error) {
+                return;
+            } else {
+                self->_threads = threads;
+                [self.tableView reloadData];
+            }
+        }];
     }
 }
 
@@ -1317,7 +1341,7 @@ typedef enum RoomsSections {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 3;
+    return 4;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -1331,13 +1355,20 @@ typedef enum RoomsSections {
         return [self archivedRooms].count > 0 || _showingArchivedRooms ? 1 : 0;
     }
 
+    if (section == kRoomsSectionThreads) {
+        TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+        return (account.hasThreads || _threads.count > 0) ? 1 : 0;
+    }
+
     return _rooms.count;
 }
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (tableView == self.tableView &&
-        (indexPath.section == kRoomsSectionPendingFederationInvitation || indexPath.section == kRoomsSectionArchivedConversations)) {
+        (indexPath.section == kRoomsSectionPendingFederationInvitation ||
+         indexPath.section == kRoomsSectionArchivedConversations ||
+         indexPath.section == kRoomsSectionThreads)) {
         // No swipe action for pending invitations or archived conversations
         return nil;
     }
@@ -1371,7 +1402,9 @@ typedef enum RoomsSections {
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
     if (tableView == self.tableView &&
-        (indexPath.section == kRoomsSectionPendingFederationInvitation || indexPath.section == kRoomsSectionArchivedConversations)) {
+        (indexPath.section == kRoomsSectionPendingFederationInvitation ||
+         indexPath.section == kRoomsSectionArchivedConversations ||
+         indexPath.section == kRoomsSectionThreads)) {
         // No swipe action for pending invitations or archived conversations
         return nil;
     }
@@ -1488,6 +1521,30 @@ typedef enum RoomsSections {
         return cell;
     }
 
+    if (indexPath.section == kRoomsSectionThreads) {
+        InfoLabelTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:InfoLabelTableViewCell.identifier];
+        if (!cell) {
+            cell = [[InfoLabelTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:InfoLabelTableViewCell.identifier];
+        }
+
+        UIFont *resultFont = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
+        NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
+        attachment.image = [[UIImage systemImageNamed:@"bubble.left.and.bubble.right"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        attachment.bounds = CGRectMake(0, roundf(resultFont.capHeight - 20) / 2, 24, 20);
+
+        NSMutableAttributedString *resultString = [[NSMutableAttributedString alloc] initWithAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
+        [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:@"  "]];
+        [resultString appendAttributedString:[[NSAttributedString alloc] initWithString:NSLocalizedString(@"Threads", nil)]];
+
+        NSRange range = NSMakeRange(0, [resultString length]);
+        [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
+
+        cell.label.attributedText = resultString;
+        cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
+
+        return cell;
+    }
+
     RoomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:RoomTableViewCell.identifier];
     if (!cell) {
         cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomTableViewCell.identifier];
@@ -1551,7 +1608,8 @@ typedef enum RoomsSections {
 {
     if (tableView != self.tableView ||
         indexPath.section == kRoomsSectionPendingFederationInvitation ||
-        indexPath.section == kRoomsSectionArchivedConversations) {
+        indexPath.section == kRoomsSectionArchivedConversations ||
+        indexPath.section == kRoomsSectionThreads) {
         return;
     }
 
@@ -1592,6 +1650,15 @@ typedef enum RoomsSections {
         return;
     }
 
+    if (tableView == self.tableView && indexPath.section == kRoomsSectionThreads) {
+        [UIView transitionWithView:self.tableView duration:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            ThreadsTableViewController *threadsVC = [[ThreadsTableViewController alloc] initWithThreads:self->_threads];
+            NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:threadsVC];
+            [self presentViewController:navigationController animated:YES completion:nil];
+        } completion:nil];
+        return;
+    }
+
     if (tableView == _resultTableViewController.tableView) {
         // Messages
         NKSearchEntry *message = [_resultTableViewController messageForIndexPath:indexPath];
@@ -1616,7 +1683,8 @@ typedef enum RoomsSections {
 {
     if (tableView != self.tableView ||
         indexPath.section == kRoomsSectionPendingFederationInvitation ||
-        indexPath.section == kRoomsSectionArchivedConversations) {
+        indexPath.section == kRoomsSectionArchivedConversations ||
+        indexPath.section == kRoomsSectionThreads) {
         return nil;
     }
 
