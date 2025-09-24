@@ -37,9 +37,10 @@ typedef enum RoomsFilter {
 
 typedef enum RoomsSections {
     kRoomsSectionPendingFederationInvitation = 0,
-    kRoomsSectionArchivedConversations,
     kRoomsSectionThreads,
-    kRoomsSectionRoomList
+    kRoomsSectionArchivedConversations,
+    kRoomsSectionRoomList,
+    kRoomsSectionsCount
 } RoomsSections;
 
 @interface RoomsTableViewController () <CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UserStatusViewDelegate>
@@ -1381,7 +1382,7 @@ typedef enum RoomsSections {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 4;
+    return kRoomsSectionsCount;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
