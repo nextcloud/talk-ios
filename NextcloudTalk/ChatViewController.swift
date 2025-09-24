@@ -126,7 +126,13 @@ import SwiftUI
         button.setImage(image)
 
         let callButtonColor: UIColor = inCall ? .systemGreen : .clear
-        button.setBackgroundColor(callButtonColor)
+
+        if #available(iOS 26.0, *) {
+            button.tintColor = callButtonColor
+            button.style = inCall ? .prominent : .plain
+        } else {
+            button.setBackgroundColor(callButtonColor)
+        }
     }
 
     func setupCallOptionsBarButtonMenu(button: BarButtonItemWithActivity) {
