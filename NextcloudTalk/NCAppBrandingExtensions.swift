@@ -9,16 +9,16 @@ import SwiftUI
 extension NCAppBranding {
 
     @objc
-    static func themeColorBackground() -> UIColor {
+    static func elementColorBackground() -> UIColor {
         var lightColor: UIColor
         var darkColor: UIColor
 
         if #available(iOS 18.0, *) {
-            lightColor = NCAppBranding.themeColor().withProminence(.quaternary)
-            darkColor = NCAppBranding.themeColor().withProminence(.secondary)
+            lightColor = NCAppBranding.elementColor().withProminence(.quaternary)
+            darkColor = NCAppBranding.elementColor().withProminence(.secondary)
         } else {
-            lightColor = NCAppBranding.themeColor().withAlphaComponent(0.1)
-            darkColor = NCAppBranding.themeColor().withAlphaComponent(0.2)
+            lightColor = NCAppBranding.elementColor().withAlphaComponent(0.1)
+            darkColor = NCAppBranding.elementColor().withAlphaComponent(0.2)
         }
 
         return NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
