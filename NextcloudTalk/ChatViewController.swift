@@ -129,7 +129,10 @@ import SwiftUI
 
         if #available(iOS 26.0, *) {
             button.tintColor = callButtonColor
+
+#if swift(>=6.2)
             button.style = inCall ? .prominent : .plain
+#endif
         } else {
             button.setBackgroundColor(callButtonColor)
         }
