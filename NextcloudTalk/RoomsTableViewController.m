@@ -447,7 +447,12 @@ typedef enum RoomsSections {
 - (void)createRefreshControl
 {
     _refreshControl = [UIRefreshControl new];
-    _refreshControl.tintColor = [NCAppBranding themeTextColor];
+
+    if (@available(iOS 26.0, *)) {
+        _refreshControl.tintColor = [UIColor labelColor];
+    } else {
+        _refreshControl.tintColor = [NCAppBranding themeTextColor];
+    }
 
     [_refreshControl addTarget:self action:@selector(refreshControlTarget) forControlEvents:UIControlEventValueChanged];
     self.tableView.refreshControl = _refreshControl;
