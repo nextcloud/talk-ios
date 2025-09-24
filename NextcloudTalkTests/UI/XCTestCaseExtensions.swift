@@ -106,7 +106,7 @@ extension XCTestCase {
     }
 
     func createConversation(for app: XCUIApplication, with newConversationName: String) {
-        waitForReady(object: app.navigationBars["Nextcloud Talk"].buttons["Create or join a conversation"]).tap()
+        waitForReady(object: app.buttons["Create or join a conversation"]).tap()
         waitForReady(object: app.tables.cells.staticTexts["Create a new conversation"]).tap()
 
         let newConversationNavBar = app.navigationBars["New conversation"]

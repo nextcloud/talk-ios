@@ -7,6 +7,7 @@ import Foundation
 
 @objcMembers public class RoomTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var avatarView: AvatarView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
@@ -31,6 +32,10 @@ import Foundation
         } else {
             self.dateLabel.textAlignment = .right
         }
+
+        self.containerView.layer.cornerRadius = 8
+        self.containerView.layer.masksToBounds = true
+        self.selectionStyle = .none
     }
 
     public override func prepareForReuse() {
@@ -52,7 +57,11 @@ import Foundation
             return
         }
 
-        super.setSelected(selected, animated: animated)
+        if selected {
+            self.containerView.backgroundColor = NCAppBranding.themeColorBackground()
+        } else {
+            self.containerView.backgroundColor = .clear
+        }
     }
 
     public func setUnread(messages number: Int, mentioned: Bool, groupMentioned: Bool) {

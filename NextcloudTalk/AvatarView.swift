@@ -9,6 +9,7 @@ import SDWebImage
 @objcMembers class AvatarView: UIView, AvatarProtocol {
 
     private let userStatusSizePercentage = 0.38
+    private let userStatusImageViewMargin = 2.0
 
     public let avatarImageView = AvatarImageView(frame: .zero)
     public let favoriteImageView = UIImageView()
@@ -59,8 +60,8 @@ import SDWebImage
 
             userStatusImageView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: userStatusSizePercentage),
             userStatusImageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: userStatusSizePercentage),
-            userStatusImageView.rightAnchor.constraint(equalTo: rightAnchor, constant: 2),
-            userStatusImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 2),
+            userStatusImageView.rightAnchor.constraint(equalTo: rightAnchor, constant: userStatusImageViewMargin),
+            userStatusImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: userStatusImageViewMargin),
 
             userStatusLabel.widthAnchor.constraint(equalTo: widthAnchor, multiplier: userStatusSizePercentage),
             userStatusLabel.heightAnchor.constraint(equalTo: heightAnchor, multiplier: userStatusSizePercentage),
@@ -83,6 +84,7 @@ import SDWebImage
         // Fix problem of rendering downloaded image in a reused cell
         avatarImageView.cancelCurrentRequest()
         avatarImageView.image = nil
+        avatarImageView.layer.mask = nil
 
         favoriteImageView.image = nil
 
@@ -122,58 +124,85 @@ import SDWebImage
 
     // MARK: - User status
 
-    public func setStatus(for room: NCRoom, with backgroundColor: UIColor) {
+    public func setStatus(for room: NCRoom) {
         if room.type == .oneToOne, let roomStatus = room.status {
             if roomStatus != "dnd", let roomStatusIcon = room.statusIcon {
-                setUserStatusIcon(roomStatusIcon, with: backgroundColor)
+                setUserStatusIcon(roomStatusIcon)
             } else {
-                setUserStatus(roomStatus, with: backgroundColor)
+                setUserStatus(roomStatus)
             }
         } else if room.isPublic {
             if let statusImage = UIImage(named: "link") {
                 let diameter = statusImageSize(padding: 2)
                 let size = CGSize(width: diameter, height: diameter)
-                if let configuredImage = NCUtils.renderAspectImage(image: statusImage, ofSize: size, centerImage: true)?.withRenderingMode(.alwaysTemplate) {
-                    setUserStatusImage(configuredImage, with: backgroundColor)
-                    userStatusImageView.tintColor = .label
+                if let configuredImage = NCUtils.renderAspectImage(image: statusImage, ofSize: size, centerImage: true)?.withTintColor(.label, renderingMode: .alwaysOriginal) {
+                    setUserStatusImage(configuredImage)
+                    setUserStatusImageViewCutoutLayer()
                 }
             }
         } else if room.isFederated {
             if let statusImage = statusImageWith(name: "globe", color: .label, padding: 3) {
-                setUserStatusImage(statusImage, with: backgroundColor)
+                setUserStatusImage(statusImage)
+                setUserStatusImageViewCutoutLayer()
             }
         }
     }
 
-    private func setUserStatus(_ userStatus: String, with backgroundColor: UIColor) {
+    private func setUserStatusImageViewCutoutLayer() {
+        // Create a cutout path from the userStatusImageView
+        let statusWidth = userStatusImageView.bounds.width
+        let cutoutRect = CGRect(x: avatarImageView.bounds.maxX - statusWidth + userStatusImageViewMargin, y: avatarImageView.bounds.maxY - statusWidth + userStatusImageViewMargin, width: statusWidth, height: statusWidth)
+        let cutoutPath = UIBezierPath(roundedRect: cutoutRect, cornerRadius: (statusWidth) / 2)
+
+        // Create a path of the whole view and subtract the cutout path
+        let avatarPath = UIBezierPath(roundedRect: avatarImageView.bounds, cornerRadius: 0)
+        avatarPath.append(cutoutPath.reversing())
+
+        // Create a shape layer of the avatarPath, to be used as a sublayer in the final CALayer
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.frame = avatarImageView.bounds
+        shapeLayer.path = avatarPath.cgPath
+
+        let maskLayer = CALayer()
+        maskLayer.frame = avatarImageView.bounds
+        maskLayer.addSublayer(shapeLayer)
+
+        avatarImageView.layer.mask = maskLayer
+    }
+
+    private func setUserStatus(_ userStatus: String) {
         if userStatus == "online" {
             if let statusImage = statusImageWith(name: "checkmark.circle.fill", color: .systemGreen, padding: 2) {
-                setUserStatusImage(statusImage, with: backgroundColor)
+                setUserStatusImage(statusImage)
+                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "away" {
             if let statusImage = statusImageWith(name: "clock.fill", color: .systemYellow, padding: 2) {
-                setUserStatusImage(statusImage, with: backgroundColor)
+                setUserStatusImage(statusImage)
+                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "busy" {
             if let statusImage = statusImageWith(name: "circle.fill", color: .systemRed, padding: 2) {
-                setUserStatusImage(statusImage, with: backgroundColor)
+                setUserStatusImage(statusImage)
+                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "dnd" {
             if let statusImage = statusImageWith(name: "minus.circle.fill", color: .systemRed, padding: 2) {
-                setUserStatusImage(statusImage, with: backgroundColor)
+                setUserStatusImage(statusImage)
+                setUserStatusImageViewCutoutLayer()
             }
         }
     }
 
-    private func setUserStatusImage(_ userStatusImage: UIImage, with backgroundColor: UIColor) {
-        userStatusImageView.backgroundColor = backgroundColor
+    private func setUserStatusImage(_ userStatusImage: UIImage) {
+        userStatusImageView.backgroundColor = .clear
         userStatusImageView.image = userStatusImage
 
         userStatusImageView.isHidden = false
         userStatusLabel.isHidden = true
     }
 
-    private func setUserStatusIcon(_ userStatusIcon: String, with backgroundColor: UIColor) {
+    private func setUserStatusIcon(_ userStatusIcon: String) {
         userStatusLabel.text = userStatusIcon
         userStatusLabel.font = .systemFont(ofSize: userStatusLabel.frame.height - 6)
 

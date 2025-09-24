@@ -62,8 +62,14 @@
     self.subtitleFont = [UIFont systemFontOfSize:13];
 
     self.showSubtitle = YES;
-    self.titleTextColor = [NCAppBranding themeTextColor];
-    self.userStatusBackgroundColor = [NCAppBranding themeColor];
+
+    if (@available(iOS 26.0, *)) {
+        self.userStatusBackgroundColor = [UIColor clearColor];
+        self.titleTextColor = [UIColor labelColor];
+    } else {
+        self.userStatusBackgroundColor = [NCAppBranding themeColor];
+        self.titleTextColor = [NCAppBranding themeTextColor];
+    }
 
     // Set empty title on init to prevent showing a placeholder on iPhones in landscape
     [self setTitle:@"" withSubtitle:nil];

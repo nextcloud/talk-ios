@@ -85,22 +85,18 @@ typedef enum RoomsSections {
     [self.tableView registerNib:[UINib nibWithNibName:RoomTableViewCell.nibName bundle:nil] forCellReuseIdentifier:RoomTableViewCell.identifier];
     [self.tableView registerClass:InfoLabelTableViewCell.class forCellReuseIdentifier:InfoLabelTableViewCell.identifier];
 
-    // Align header's title to ContactsTableViewCell's label
-    self.tableView.separatorInset = UIEdgeInsetsMake(0, 52, 0, 0);
-    self.tableView.separatorInsetReference = UITableViewSeparatorInsetFromAutomaticInsets;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = UITableViewAutomaticDimension;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-    
+
     _resultTableViewController = [[RoomSearchTableViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
     _searchController = [[UISearchController alloc] initWithSearchResultsController:_resultTableViewController];
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
 
-    _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
-    _searchController.searchBar.scopeButtonTitles = [self getFilters];
-
+    [self setupSearchBar];
     [self setupNavigationBar];
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
@@ -144,7 +140,7 @@ typedef enum RoomsSections {
     [self.view addSubview:_unreadMentionsBottomButton];
 
     // Set selection color for selected cells
-    [self.tableView setTintColor:UIColor.systemGray4Color];
+    [self.tableView setTintColor:[UIColor clearColor]];
 
     // Remove the backButtonTitle, otherwise when we transition to a conversation, "Back" is briefly visible
     self.navigationItem.backButtonTitle = @"";
@@ -172,43 +168,65 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inviationDidAccept:) name:NSNotification.FederationInvitationDidAcceptNotification object:nil];
 }
 
+- (void)setupSearchBar
+{
+    _searchController.searchBar.scopeButtonTitles = [self getFilters];
+    _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
+
+#if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
+    if (@available(iOS 26, *)) {
+        if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+            __weak typeof(self) weakSelf = self;
+            NSMutableArray *menuItems = [[NSMutableArray alloc] init];
+
+            for (NSNumber *filterId in [self availableFilters]) {
+                [menuItems addObject:[UIAction actionWithTitle:[self filterName:filterId.intValue] image:nil identifier:nil handler:^(UIAction *action) {
+                    weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
+                    [self filterRooms];
+                }]];
+            }
+
+            UIMenu *menu = [UIMenu menuWithTitle:@""
+                                           image:nil
+                                      identifier:nil
+                                         options:UIMenuOptionsDisplayInline
+                                        children:menuItems];
+
+            UIBarButtonItem *filterBarButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease"] menu:menu];
+
+            self.toolbarItems = @[
+                self.navigationItem.searchBarPlacementBarButtonItem,
+                [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                filterBarButton
+            ];
+
+            [self.navigationController setToolbarHidden:NO];
+
+            _searchController.scopeBarActivation = UISearchControllerScopeBarActivationManual;
+        }
+    }
+#endif
+}
+
 - (void)setupNavigationBar
 {
     [self setNavigationLogoButton];
     [self createNewConversationButton];
     [self createRefreshControl];
 
-    [NCAppBranding styleViewController:self];
-
     self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
-    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    
-    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-    [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
-    [_searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
-    _searchController.searchBar.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
 
-    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-    searchTextField.tintColor = [NCAppBranding themeTextColor];
-    searchTextField.textColor = [NCAppBranding themeTextColor];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Search bar placeholder
-        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-        // Search bar search icon
-        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-        // Search bar search clear button
-        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-        [clearButton setTintColor:[NCAppBranding themeTextColor]];
-    });
-    
-    [self setNeedsStatusBarAppearanceUpdate];
+    [NCAppBranding styleViewController:self];
+}
+
+- (void)setNavigationLogoButton
+{
+    UIImageView *logoImageView = [[UIImageView alloc] initWithImage:[NCAppBranding navigationLogoImage]];
+    if (!customNavigationLogo) {
+        logoImageView.tintColor = [UIColor labelColor];
+    }
+    self.navigationItem.titleView = logoImageView;
+    self.navigationItem.titleView.accessibilityLabel = talkAppName;
 }
 
 - (void)createNewConversationButton
@@ -218,6 +236,22 @@ typedef enum RoomsSections {
 
         _newConversationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] style:UIBarButtonItemStylePlain target:self action:@selector(presentNewRoomViewController)];
         _newConversationButton.accessibilityLabel = NSLocalizedString(@"Create or join a conversation", nil);
+
+#if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
+        if (@available(iOS 26.0, *)) {
+            _newConversationButton.tintColor = [NCAppBranding themeColor];
+
+            if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone) {
+                // On non-iPhones we want to hide the shared background (glass effect)
+                _newConversationButton.hidesSharedBackground = YES;
+            } else {
+                // On iPhones we want to have a prominent glass button with non-filled icon
+                _newConversationButton.image = [UIImage systemImageNamed:@"plus"];
+                _newConversationButton.style = UIBarButtonItemStyleProminent;
+            }
+        }
+#endif
+
         [self.navigationItem setRightBarButtonItem:_newConversationButton];
     }
 }
@@ -443,13 +477,6 @@ typedef enum RoomsSections {
 }
 
 #pragma mark - Title menu
-
-- (void)setNavigationLogoButton
-{
-    UIImage *logoImage = [UIImage imageNamed:[NCAppBranding navigationLogoImageName]];
-    self.navigationItem.titleView = [[UIImageView alloc] initWithImage:logoImage];
-    self.navigationItem.titleView.accessibilityLabel = talkAppName;
-}
 
 - (UIMenu *)getActiveAccountMenuOptions
 {
@@ -851,15 +878,11 @@ typedef enum RoomsSections {
 - (void)setOfflineAppearance
 {
     _newConversationButton.enabled = NO;
-    if (!customNavigationLogo) {
-        self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"navigationLogoOffline"]];
-    }
 }
 
 - (void)setOnlineAppearance
 {
     _newConversationButton.enabled = YES;
-    [self setNavigationLogoButton];
 }
 
 #pragma mark - UIScrollViewDelegate Methods
@@ -950,6 +973,16 @@ typedef enum RoomsSections {
     _profileButton.accessibilityLabel = NSLocalizedString(@"User profile and settings", nil);
 
     _settingsButton = [[UIBarButtonItem alloc] initWithCustomView:_profileButton];
+
+#if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
+    if (@available(iOS 26.0, *)) {
+        if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone) {
+            // On non-iPhones we want to hide the shared background (glass effect)
+            _settingsButton.hidesSharedBackground = YES;
+        }
+    }
+#endif
+
     [self.navigationItem setLeftBarButtonItem:_settingsButton];
 
     [self updateProfileButtonImage];
@@ -965,13 +998,20 @@ typedef enum RoomsSections {
         // Crop the profile image into a circle
         profileImage = [profileImage cropToCircleWithSize:CGSizeMake(30, 30)];
         // Increase the profile image size to leave space for the status
-        profileImage = [profileImage withCircularBackgroundWithBackgroundColor:[UIColor clearColor] diameter:38.0 padding:4.0];
+        profileImage = [profileImage withCircularBackgroundWithBackgroundColor:[UIColor separatorColor] diameter:32.0 padding:1.0];
+        profileImage = [profileImage withCircularBackgroundWithBackgroundColor:[UIColor clearColor] diameter:38.0 padding:3.0];
 
         // Online status icon
         UIImage *statusImage = nil;
         if ([_activeUserStatus hasVisibleStatusIcon]) {
-            statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:self.navigationController.navigationBar.barTintColor
-                                                                                                    diameter:14.0 padding:1.0];
+            if (@available(iOS 26.0, *)) {
+                // TODO: Also cut out the avatar as we do in AvatarView?
+                statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:[UIColor clearColor]
+                                                                                                        diameter:14.0 padding:1.0];
+            } else {
+                statusImage = [[_activeUserStatus getSFUserStatusIcon] withCircularBackgroundWithBackgroundColor:self.navigationController.navigationBar.barTintColor
+                                                                                                        diameter:14.0 padding:1.0];
+            }
         }
 
         // Status message icon
@@ -1480,7 +1520,6 @@ typedef enum RoomsSections {
         [resultString addAttribute:NSFontAttributeName value:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] range:range];
 
         cell.label.attributedText = resultString;
-        cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;
     }
@@ -1516,7 +1555,6 @@ typedef enum RoomsSections {
         }
 
         cell.label.attributedText = resultString;
-        cell.separatorInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, CGFLOAT_MAX);
 
         return cell;
     }
@@ -1604,6 +1642,18 @@ typedef enum RoomsSections {
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView didHighlightRowAtIndexPath:(NSIndexPath *)indexPath {
+    RoomTableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    [cell setSelected:YES];
+}
+
+
+- (void)tableView:(UITableView *)tableView didUnhighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    RoomTableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    [cell setSelected:NO];
+}
+
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)rcell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (tableView != self.tableView ||
@@ -1616,15 +1666,12 @@ typedef enum RoomsSections {
     RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
-    UIColor *backgroundColor = cell.backgroundConfiguration.backgroundColor ? cell.backgroundConfiguration.backgroundColor : cell.backgroundColor;
-    [cell.avatarView setStatusFor:room with:backgroundColor];
+    [cell.avatarView setStatusFor:room];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self setSelectedRoomToken:nil];
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-
+    [self removeRoomSelection];
     BOOL isAppInForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 
     if (!isAppInForeground) {
@@ -1882,11 +1929,17 @@ typedef enum RoomsSections {
         return nil;
     }
 
+    if (@available(iOS 26.0, *)) {
+        // Don't provide a preview here in case of iOS 26 as it just looks bad
+        return nil;
+    }
+
     NSIndexPath *indexPath = (NSIndexPath *)configuration.identifier;
 
     // Use a snapshot here to not interfere with room refresh
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     UIView *previewView = [cell.contentView snapshotViewAfterScreenUpdates:NO];
+    previewView.backgroundColor = UIColor.systemBackgroundColor;
 
     // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
     CGFloat cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2;
@@ -1945,8 +1998,12 @@ typedef enum RoomsSections {
         if (selectedRow != nil) {
             [self.tableView deselectRowAtIndexPath:selectedRow animated:YES];
 
-            // Needed to make sure the highlight is really removed
-            [self.tableView reloadRowsAtIndexPaths:@[selectedRow] withRowAnimation:UITableViewRowAnimationNone];
+            // It might happen that this is called while we are switching accounts, so wait for the reload to be finished.
+            // Example: Active account has 1 pending invitation, switch to an account with no pending invitation -> crash.
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Needed to make sure the highlight is really removed
+                [self.tableView reloadRowsAtIndexPaths:@[selectedRow] withRowAnimation:UITableViewRowAnimationNone];
+            });
         }
     }
 }

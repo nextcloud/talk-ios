@@ -34,8 +34,8 @@ class TextFieldTableViewCell: UITableViewCell {
         contentView.addSubview(textField)
 
         NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            textField.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 14),
+            textField.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -14),
             textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             textField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         ])

@@ -127,8 +127,14 @@ BOOL const useServerThemimg = YES;
     }];
 }
 
-+ (NSString *)navigationLogoImageName
++ (UIImage *)navigationLogoImage
 {
+    if (@available(iOS 26.0, *)) {
+        if (!customNavigationLogo) {
+            return [[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        }
+    }
+
     NSString *imageName = @"navigationLogo";
     if (!customNavigationLogo) {
         if (useServerThemimg && [self textColorStyleForBackgroundColor:[self themeColor]] == NCTextColorStyleDark) {
@@ -137,7 +143,7 @@ BOOL const useServerThemimg = YES;
             imageName = @"navigationLogoDark";
         }
     }
-    return imageName;
+    return [UIImage imageNamed:imageName];
 }
 
 + (UIColor *)placeholderColor
@@ -204,13 +210,20 @@ BOOL const useServerThemimg = YES;
 }
 
 + (void)styleViewController:(UIViewController *)controller {
+    UIColor *themeColor = [NCAppBranding themeColor];
+
+    if (@available(iOS 26.0, *)) {
+        [controller.view setBackgroundColor:[UIColor systemGroupedBackgroundColor]];
+
+        return;
+    }
+
     [controller.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
     controller.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
     controller.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
     controller.navigationController.navigationBar.translucent = NO;
     controller.tabBarController.tabBar.tintColor = [NCAppBranding themeColor];
 
-    UIColor *themeColor = [NCAppBranding themeColor];
     UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
     [appearance configureWithOpaqueBackground];
     appearance.backgroundColor = themeColor;
@@ -221,6 +234,38 @@ BOOL const useServerThemimg = YES;
 
     // Fix uisearchcontroller animation
     controller.extendedLayoutIncludesOpaqueBars = YES;
+
+    UISearchController *searchController = controller.navigationItem.searchController;
+
+    if (searchController) {
+        searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:themeColor];
+        searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
+        [searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
+        [searchController.searchBar setScopeBarButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NCAppBranding themeTextColor], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+        searchController.searchBar.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
+        controller.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
+
+        UITextField *searchTextField = [searchController.searchBar valueForKey:@"searchField"];
+        UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
+        searchTextField.tintColor = [NCAppBranding themeTextColor];
+        searchTextField.textColor = [NCAppBranding themeTextColor];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Search bar placeholder
+            searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
+                                                                                    attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
+            // Search bar search icon
+            UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
+            searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
+            // Search bar search clear button
+            UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
+            [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
+            [clearButton setTintColor:[NCAppBranding themeTextColor]];
+        });
+
+        [controller setNeedsStatusBarAppearanceUpdate];
+    }
 }
 
 @end

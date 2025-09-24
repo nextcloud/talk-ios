@@ -45,42 +45,20 @@ enum NewRoomOption: Int {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.searchController = searchController
+        
         NCAppBranding.styleViewController(self)
 
         self.navigationItem.title = NSLocalizedString("New conversation", comment: "")
 
         self.resultTableViewController.tableView.delegate = self
         self.searchController.searchResultsUpdater = self
-        self.searchController.searchBar.tintColor = NCAppBranding.themeTextColor()
-        self.navigationItem.searchController = searchController
-        self.navigationItem.searchController?.searchBar.searchTextField.backgroundColor = NCUtils.searchbarBGColor(forColor: NCAppBranding.themeColor())
-        self.navigationItem.preferredSearchBarPlacement = .stacked
-
-        if let searchTextField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
-            searchTextField.tintColor = NCAppBranding.themeTextColor()
-            searchTextField.textColor = NCAppBranding.themeTextColor()
-
-            DispatchQueue.main.async {
-                // Search bar placeholder
-                searchTextField.attributedPlaceholder = NSAttributedString(string: NSLocalizedString("Search", comment: ""),
-                                                                           attributes: [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor().withAlphaComponent(0.5)])
-                // Search bar search icon
-                if let searchImageView = searchTextField.leftView as? UIImageView {
-                    searchImageView.image = searchImageView.image?.withRenderingMode(.alwaysTemplate)
-                    searchImageView.tintColor = NCAppBranding.themeTextColor().withAlphaComponent(0.5)
-                }
-                // Search bar search clear button
-                if let clearButton = searchTextField.value(forKey: "_clearButton") as? UIButton {
-                    let clearButtonImage = clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
-                    clearButton.setImage(clearButtonImage, for: .normal)
-                    clearButton.setImage(clearButtonImage, for: .highlighted)
-                    clearButton.tintColor = NCAppBranding.themeTextColor()
-                }
-            }
-        }
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
-        self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+
+        if #unavailable(iOS 26.0) {
+            self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+        }
 
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
     }

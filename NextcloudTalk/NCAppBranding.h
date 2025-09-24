@@ -34,7 +34,7 @@ extern BOOL const customNavigationLogo;
 + (UIColor *)themeColor;
 + (UIColor *)themeTextColor;
 + (UIColor *)elementColor;
-+ (NSString *)navigationLogoImageName;
++ (UIImage *)navigationLogoImage;
 + (UIColor *)placeholderColor;
 + (UIColor *)backgroundColor;
 + (UIColor *)avatarPlaceholderColor;

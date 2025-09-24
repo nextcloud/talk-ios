@@ -2477,7 +2477,7 @@ class CallViewController: UIViewController,
 
     // MARK: - NCChatTitleViewDelegate
 
-    func chatTitleViewTapped(_ chatTitleView: NCChatTitleView) {
+    func chatTitleViewTapped(_ chatTitleView: NCChatTitleView?) {
         let roomInfoVC = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: false)
         roomInfoVC.modalPresentationStyle = .pageSheet
 
@@ -2486,7 +2486,10 @@ class CallViewController: UIViewController,
             roomInfoVC.dismiss(animated: true)
         })
 
-        cancelButton.tintColor = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            cancelButton.tintColor = NCAppBranding.themeTextColor()
+        }
+
         navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
 
         self.present(navController, animated: true)

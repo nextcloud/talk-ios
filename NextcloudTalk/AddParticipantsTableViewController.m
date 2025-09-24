@@ -82,32 +82,9 @@
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
 
-    [NCAppBranding styleViewController:self];
-
     self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
-    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    
-    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-    searchTextField.tintColor = [NCAppBranding themeTextColor];
-    searchTextField.textColor = [NCAppBranding themeTextColor];
-    searchTextField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Search bar placeholder
-        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-        // Search bar search icon
-        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-        // Search bar search clear button
-        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-        [clearButton setTintColor:[NCAppBranding themeTextColor]];
-    });
+
+    [NCAppBranding styleViewController:self];
 
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     // Contacts placeholder view
@@ -132,12 +109,7 @@
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     self.navigationItem.title = NSLocalizedString(@"Add participants", nil);
-    [self.navigationController.navigationBar setTitleTextAttributes:
-     @{NSForegroundColorAttributeName:[NCAppBranding themeTextColor]}];
-    self.navigationController.navigationBar.tintColor = [NCAppBranding themeTextColor];
-    self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.barTintColor = [NCAppBranding themeColor];
-    
+
     // Fix uisearchcontroller animation
     self.extendedLayoutIncludesOpaqueBars = YES;
 }

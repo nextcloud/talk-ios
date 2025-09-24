@@ -13,13 +13,21 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
     let tableBackgroundView: PlaceholderView = PlaceholderView()
     let searchController: UISearchController = UISearchController(searchResultsController: nil)
 
+    init() {
+        super.init(style: .insetGrouped)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.searchController = searchController
         NCAppBranding.styleViewController(self)
 
         self.navigationItem.title = NSLocalizedString("Open conversations", comment: "")
-        self.navigationItem.preferredSearchBarPlacement = .stacked
 
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
         self.tableView.register(UINib(nibName: kContactsTableCellNibName, bundle: nil), forCellReuseIdentifier: kContactCellIdentifier)
@@ -35,7 +43,6 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
         searchController.searchBar.sizeToFit()
         searchController.hidesNavigationBarDuringPresentation = false
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.tintColor = NCAppBranding.themeTextColor()
 
         if navigationController?.viewControllers.first == self {
             let barButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: nil)
@@ -45,31 +52,6 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
             self.navigationItem.leftBarButtonItems = [barButtonItem]
         }
 
-        if let searchTextField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
-            searchTextField.tintColor = NCAppBranding.themeTextColor()
-            searchTextField.textColor = NCAppBranding.themeTextColor()
-
-            DispatchQueue.main.async {
-                // Search bar placeholder
-                searchTextField.attributedPlaceholder = NSAttributedString(string: NSLocalizedString("Search", comment: ""),
-                                                                           attributes: [NSAttributedString.Key.foregroundColor: NCAppBranding.themeTextColor().withAlphaComponent(0.5)])
-                // Search bar search icon
-                if let searchImageView = searchTextField.leftView as? UIImageView {
-                    searchImageView.image = searchImageView.image?.withRenderingMode(.alwaysTemplate)
-                    searchImageView.tintColor = NCAppBranding.themeTextColor().withAlphaComponent(0.5)
-                }
-                // Search bar search clear button
-                if let clearButton = searchTextField.value(forKey: "_clearButton") as? UIButton {
-                    let clearButtonImage = clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
-                    clearButton.setImage(clearButtonImage, for: .normal)
-                    clearButton.setImage(clearButtonImage, for: .highlighted)
-                    clearButton.tintColor = NCAppBranding.themeTextColor()
-                }
-            }
-        }
-
-        self.navigationItem.searchController = searchController
-        self.navigationItem.searchController?.searchBar.searchTextField.backgroundColor = NCUtils.searchbarBGColor(forColor: NCAppBranding.themeColor())
         // Fix uisearchcontroller animation
         self.extendedLayoutIncludesOpaqueBars = true
     }

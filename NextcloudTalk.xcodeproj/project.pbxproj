@@ -113,6 +113,7 @@
 		1F3C41A129EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */; };
 		1F3C41A329EDF05700F58435 /* AvatarEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3C41A229EDF05700F58435 /* AvatarEditView.swift */; };
 		1F3C41A529EDF0B800F58435 /* AvatarEditView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */; };
+		1F409B7D2E7F2ECF0043732E /* NCAppBrandingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F409B7C2E7F2ECF0043732E /* NCAppBrandingExtensions.swift */; };
 		1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1152A01D6EC005FE87D /* SDWebImage */; };
 		1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1192A01D70E005FE87D /* SDWebImage */; };
 		1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A11D2A01D719005FE87D /* SDWebImage */; };
@@ -865,6 +866,7 @@
 		1F3C41A029EDAC8800F58435 /* RoomAvatarInfoTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoomAvatarInfoTableViewController.xib; sourceTree = "<group>"; };
 		1F3C41A229EDF05700F58435 /* AvatarEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarEditView.swift; sourceTree = "<group>"; };
 		1F3C41A429EDF0B800F58435 /* AvatarEditView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AvatarEditView.xib; sourceTree = "<group>"; };
+		1F409B7C2E7F2ECF0043732E /* NCAppBrandingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCAppBrandingExtensions.swift; sourceTree = "<group>"; };
 		1F468E7728DCC7310099597B /* EmojiTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiTextField.swift; sourceTree = "<group>"; };
 		1F46CE2828E05B3200E7D88E /* ReferenceDefaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceDefaultView.swift; sourceTree = "<group>"; };
 		1F46CE2A28E05B3C00E7D88E /* ReferenceDefaultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReferenceDefaultView.xib; sourceTree = "<group>"; };
@@ -2064,6 +2066,7 @@
 				2CC3166B2CC2A849007CBE16 /* SettingsTableViewCell.swift */,
 				2C2A788C2359CC8800EEB797 /* NCAppBranding.h */,
 				2C2A788D2359CC8800EEB797 /* NCAppBranding.m */,
+				1F409B7C2E7F2ECF0043732E /* NCAppBrandingExtensions.swift */,
 				2CA1CC931F014EF9002FE6A2 /* NCSettingsController.h */,
 				2CA1CC941F014EF9002FE6A2 /* NCSettingsController.m */,
 				1FDDB0E42AFD046600FBAFB7 /* NCUtils.swift */,
@@ -3297,6 +3300,7 @@
 				2C3780C3210F49DC003F9AE8 /* HeaderWithButton.m in Sources */,
 				1FB7B9952BF0DF1C0093CE98 /* BannedActorTableViewController.swift in Sources */,
 				2C1ABDC6257A7CF000AEDFB6 /* NCContactsManager.m in Sources */,
+				1F409B7D2E7F2ECF0043732E /* NCAppBrandingExtensions.swift in Sources */,
 				2C5BFBEA28772A9A00E75118 /* NCUnifiedSearchController.swift in Sources */,
 				1F205BA02CEE1B8F00AAA673 /* AiSummaryController.swift in Sources */,
 				1F4DD3EB2571C688007DC98E /* EmojiUtils.swift in Sources */,

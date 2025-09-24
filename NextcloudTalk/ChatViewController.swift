@@ -127,7 +127,16 @@ import SwiftUI
         button.setImage(image)
 
         let callButtonColor: UIColor = inCall ? .systemGreen : .clear
-        button.setBackgroundColor(callButtonColor)
+
+        if #available(iOS 26.0, *) {
+            button.tintColor = callButtonColor
+
+#if swift(>=6.2)
+            button.style = inCall ? .prominent : .plain
+#endif
+        } else {
+            button.setBackgroundColor(callButtonColor)
+        }
     }
 
     func setupCallOptionsBarButtonMenu(button: BarButtonItemWithActivity) {
@@ -2399,7 +2408,10 @@ import SwiftUI
                 roomInfo.dismiss(animated: true)
             })
 
-            cancelButton.tintColor = NCAppBranding.themeTextColor()
+            if #unavailable(iOS 26.0) {
+                cancelButton.tintColor = NCAppBranding.themeTextColor()
+            }
+            
             roomInfo.modalPresentationStyle = .pageSheet
 
             let navController = UINavigationController(rootViewController: roomInfo)

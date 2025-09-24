@@ -43,8 +43,8 @@ import UIKit
         textView.delegate = self
 
         NSLayoutConstraint.activate([
-            textView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            textView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            textView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 14),
+            textView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -14),
             textView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             textView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         ])

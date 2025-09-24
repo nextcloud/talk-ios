@@ -14,7 +14,13 @@
     self = [super initWithDictionary:parameterDict];
     if (self) {      
         self.path = [parameterDict objectForKey:@"path"];
-        self.mimetype = [parameterDict objectForKey:@"mimetype"];
+
+        NSString *mimetype = [parameterDict objectForKey:@"mimetype"];
+
+        if ([mimetype isKindOfClass:[NSString class]]) {
+            self.mimetype = mimetype;
+        }
+
         self.size = [[parameterDict objectForKey:@"size"] integerValue];
         self.previewAvailable = [[parameterDict objectForKey:@"preview-available"] boolValue];
         self.previewImageHeight = [[parameterDict objectForKey:@"preview-image-height"] intValue];

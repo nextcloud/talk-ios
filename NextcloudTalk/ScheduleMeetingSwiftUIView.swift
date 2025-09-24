@@ -76,7 +76,7 @@ struct ScheduleMeetingSwiftUIView: View {
                         header: Text("Attendees"),
                         footer: Text(footerString())
                     ) {
-                        Toggle("Invite all users and emails", isOn: $isSwitchEnabled)
+                        Toggle(NSLocalizedString("Invite all users and emails", comment: "Invitation for a meeting"), isOn: $isSwitchEnabled)
                             .tint(Color(NCAppBranding.elementColor()))
                             .onChange(of: isSwitchEnabled) { enabled in
                                 if !enabled && areAllParticipantsSelected {
@@ -116,7 +116,7 @@ struct ScheduleMeetingSwiftUIView: View {
                         dismiss()
                     }) {
                         Text("Close")
-                            .foregroundColor(Color(NCAppBranding.themeTextColor()))
+                            .foregroundColor(Color(getTintColor()))
                     }
                 }
 
@@ -136,11 +136,19 @@ struct ScheduleMeetingSwiftUIView: View {
             NCAppBranding.styleViewController(navController)
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .tint(Color(NCAppBranding.themeTextColor()))
+        .tint(Color(getTintColor()))
         .onAppear() {
             initStartEndTimes()
             fetchCalendars()
             fetchParticipants()
+        }
+    }
+
+    private func getTintColor() -> UIColor {
+        if #available(iOS 26.0, *) {
+            return .label
+        } else {
+            return NCAppBranding.themeTextColor()
         }
     }
 

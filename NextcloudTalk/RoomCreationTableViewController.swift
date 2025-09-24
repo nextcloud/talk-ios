@@ -78,7 +78,10 @@ enum RoomVisibilityOption: Int {
         self.navigationItem.title = NSLocalizedString("New conversation", comment: "")
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
-        self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+
+        if #unavailable(iOS 26.0) {
+            self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+        }
 
         self.tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
         self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)

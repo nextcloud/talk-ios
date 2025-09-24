@@ -168,7 +168,10 @@
     _searchController.delegate = self;
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
-    
+
+    self.navigationItem.searchController = _searchController;
+    self.navigationItem.hidesSearchBarWhenScrolling = NO;
+
     // Configure navigation bar
     [NCAppBranding styleViewController:self];
 
@@ -179,32 +182,6 @@
     cancelButton.accessibilityHint = NSLocalizedString(@"Double tap to dismiss sharing options", nil);
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
 
-    self.navigationItem.searchController = _searchController;
-    self.navigationItem.searchController.searchBar.searchTextField.backgroundColor = [NCUtils searchbarBGColorForColor:[NCAppBranding themeColor]];
-
-    self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
-    self.navigationItem.hidesSearchBarWhenScrolling = NO;
-
-    _searchController.searchBar.tintColor = [NCAppBranding themeTextColor];
-    UITextField *searchTextField = [_searchController.searchBar valueForKey:@"searchField"];
-    UIButton *clearButton = [searchTextField valueForKey:@"_clearButton"];
-    searchTextField.tintColor = [NCAppBranding themeTextColor];
-    searchTextField.textColor = [NCAppBranding themeTextColor];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Search bar placeholder
-        searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Search", nil)
-        attributes:@{NSForegroundColorAttributeName:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]}];
-        // Search bar search icon
-        UIImageView *searchImageView = (UIImageView *)searchTextField.leftView;
-        searchImageView.image = [searchImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [searchImageView setTintColor:[[NCAppBranding themeTextColor] colorWithAlphaComponent:0.5]];
-        // Search bar search clear button
-        UIImage *clearButtonImage = [clearButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [clearButton setImage:clearButtonImage forState:UIControlStateNormal];
-        [clearButton setImage:clearButtonImage forState:UIControlStateHighlighted];
-        [clearButton setTintColor:[NCAppBranding themeTextColor]];
-    });
-    
     // Place resultTableViewController correctly
     self.definesPresentationContext = YES;
     
