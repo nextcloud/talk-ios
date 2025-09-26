@@ -213,6 +213,7 @@ BOOL const useServerThemimg = YES;
     UIColor *themeColor = [NCAppBranding themeColor];
 
     if (@available(iOS 26.0, *)) {
+        controller.navigationController.navigationBar.translucent = YES;
         [controller.view setBackgroundColor:[UIColor systemGroupedBackgroundColor]];
 
         return;
