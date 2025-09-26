@@ -266,6 +266,9 @@ import SwiftUI
                         if let updatedThread {
                             self.thread = updatedThread
                             self.setupThreadNotificationButtonMenu(button: button)
+                            if updatedThread.notificationLevel != NotificationLevelOption.off.rawValue {
+                                NCDatabaseManager.sharedInstance().updateHasThreads(forAccountId: self.account.accountId, with: true)
+                            }
                         }
                     }
                 }

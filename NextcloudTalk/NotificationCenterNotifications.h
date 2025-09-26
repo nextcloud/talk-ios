@@ -19,5 +19,6 @@ extern NSString * const NCTalkConfigurationHashChangedNotification;
 extern NSString * const NCPresentChatHighlightingMessageNotification;
 extern NSString * const NCRoomCreatedNotification;
 extern NSString * const NCSelectedUserForChatNotification;
+extern NSString * const NCUserThreadsUpdatedNotification;
 
 NS_ASSUME_NONNULL_END

@@ -90,6 +90,7 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
 
         NCAPIController.sharedInstance().sendChatMessage(message.sendingMessage, toRoom: room.token, threadTitle: title, replyTo: -1, referenceId: nil, silently: false, for: account) { error in
             if error == nil {
+                NCDatabaseManager.sharedInstance().updateHasThreads(forAccountId: self.account.accountId, with: true)
                 self.dismiss(animated: true)
             } else {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while creating the thread", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
