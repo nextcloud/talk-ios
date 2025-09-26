@@ -1211,6 +1211,9 @@ import NextcloudKit
                 NCDatabaseManager.sharedInstance().updateHasThreads(forAccountId: accountId, with: !threads.isEmpty)
                 NCDatabaseManager.sharedInstance().updateThreadsLastCheckTimestamp(forAccountId: accountId, with: Int(Date().timeIntervalSince1970))
 
+                let userInfo: [AnyHashable: Any] = ["threads": threads]
+                NotificationCenter.default.post(name: .NCUserThreadsUpdated, object: self, userInfo: userInfo)
+
                 completionBlock(threads, nil)
             } else {
                 completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))

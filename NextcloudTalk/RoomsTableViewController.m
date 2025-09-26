@@ -167,6 +167,7 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activeAccountDidChange:) name:NCSettingsControllerDidChangeActiveAccountNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingInvitationsDidUpdate:) name:NCDatabaseManagerPendingFederationInvitationsDidChange object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inviationDidAccept:) name:NSNotification.FederationInvitationDidAcceptNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userThreadsUpdated:) name:NCUserThreadsUpdatedNotification object:nil];
 }
 
 - (void)setupSearchBar
@@ -364,6 +365,13 @@ typedef enum RoomsSections {
 {
     // We accepted an invitation, so we refresh the rooms from the API to show it directly
     [self refreshRooms];
+}
+
+- (void)userThreadsUpdated:(NSNotification *)notification
+{
+    NSArray *threads = [notification.userInfo objectForKey:@"threads"];
+    _threads = threads;
+    [self.tableView reloadData];
 }
 
 - (void)notificationWillBePresented:(NSNotification *)notification
@@ -1080,17 +1088,13 @@ typedef enum RoomsSections {
 - (void)getUserThreads
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    NSInteger lastCheckTimestamp = activeAccount.threadsLastCheckTimestamp;
     NSInteger currentTimestamp = [[NSDate date] timeIntervalSince1970];
 
     // Check if user has threads on app fresh launch or if last check was over 2 hours ago
     if ((currentTimestamp - activeAccount.threadsLastCheckTimestamp) > (2 * 60 * 60)) {
-        [[NCAPIController sharedInstance] getSubscribedThreadsFor:activeAccount.accountId withLimit:100 andOffset:0 completionBlock:^(NSArray<NCThread *> * _Nullable threads, NSError * _Nullable error ) {
+        [[NCAPIController sharedInstance] getSubscribedThreadsFor:activeAccount.accountId withLimit:100 andOffset:0 completionBlock:^(NSArray<NCThread *> * _Nullable threads, NSError * _Nullable error) {
             if (error) {
-                return;
-            } else {
-                self->_threads = threads;
-                [self.tableView reloadData];
+                NSLog(@"Error getting user threads: %@", error);
             }
         }];
     }
