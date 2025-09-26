@@ -673,6 +673,7 @@ typedef enum RoomsSections {
         _rooms = [[NSMutableArray alloc] initWithArray:filteredRooms];
         [self calculateLastRoomWithMention];
         [self.tableView reloadData];
+        [self highlightSelectedRoom];
     } else {
         _resultTableViewController.rooms = [self filterRooms:filteredRooms withString:searchString];
         [self calculateLastRoomWithMention];
@@ -1685,7 +1686,6 @@ typedef enum RoomsSections {
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self removeRoomSelection];
     BOOL isAppInForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 
     if (!isAppInForeground) {
@@ -1737,6 +1737,7 @@ typedef enum RoomsSections {
     }
     
     // Present room chat
+    [self removeRoomSelection];
     [self presentChatForRoomAtIndexPath:indexPath];
 }
 
