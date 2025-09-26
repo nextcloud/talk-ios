@@ -78,7 +78,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var messageBodyView: UIView!
     @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
 
-    @IBOutlet weak var threadRepliesButton: NCButton!
     @IBOutlet weak var reactionStackView: UIStackView!
 
     @IBOutlet weak var headerPart: UIView!
@@ -106,6 +105,19 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     lazy var bubbleViewRightConstraintLessThan: NSLayoutConstraint = {
         return bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64)
+    }()
+
+    lazy var threadRepliesButton: NCButton = {
+        let button = NCButton()
+        button.setButtonStyle(style: .tertiary)
+        button.tintColor = .label
+        button.configuration?.image = UIImage(systemName: "arrowshape.turn.up.left")
+        button.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .small)
+        button.configuration?.imagePadding = 4
+
+        self.reactionStackView.insertArrangedSubview(button, at: 0)
+
+        return button
     }()
 
     public var message: NCChatMessage?
@@ -155,8 +167,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.quotePart.isHidden = true
         self.referencePart.isHidden = true
         self.reactionPart.isHidden = true
-
-        self.configureThreadRepliesButton()
     }
 
     override func prepareForReuse() {
@@ -554,22 +564,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     // MARK: - ReactionsPart
 
-    func configureThreadRepliesButton() {
-        self.threadRepliesButton.setButtonStyle(style: .tertiary)
-        self.threadRepliesButton.tintColor = .label
-        self.threadRepliesButton.configuration?.image = UIImage(systemName: "arrowshape.turn.up.left")
-        self.threadRepliesButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .small)
-        self.threadRepliesButton.configuration?.imagePadding = 4
-
+    func showThreadRepliesButton() {
         self.threadRepliesButton.addAction { [weak self] in
             guard let self, let message else { return }
             self.delegate?.cellWants(toShowThread: message)
         }
-
-        self.threadRepliesButton.isHidden = true
-    }
-
-    func showThreadRepliesButton() {
 
         let replies = message?.threadReplies ?? 0
         if replies > 0 {
