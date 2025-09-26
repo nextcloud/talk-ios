@@ -184,6 +184,7 @@ typedef enum RoomsSections {
                 [menuItems addObject:[UIAction actionWithTitle:[self filterName:filterId.intValue] image:nil identifier:nil handler:^(UIAction *action) {
                     weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
                     [self filterRooms];
+                    [self setupSearchBar];
                 }]];
             }
 
@@ -195,11 +196,18 @@ typedef enum RoomsSections {
 
             UIBarButtonItem *filterBarButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease"] menu:menu];
 
-            self.toolbarItems = @[
+            RoomsFilter filter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
+
+            if (filter != kRoomsFilterAll) {
+                filterBarButton.style = UIBarButtonItemStyleProminent;
+                filterBarButton.tintColor = [NCAppBranding elementColor];
+            }
+
+            [self setToolbarItems:@[
                 self.navigationItem.searchBarPlacementBarButtonItem,
                 [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
                 filterBarButton
-            ];
+            ] animated:YES];
 
             [self.navigationController setToolbarHidden:NO];
 
