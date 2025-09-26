@@ -77,6 +77,7 @@ jobs:
 
     - name: Install iOS 18.5
       run: |
+        xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
         xcodebuild -downloadPlatform iOS -buildVersion 18.5
 
     - name: Build NextcloudTalk iOS for testing
@@ -197,6 +198,7 @@ jobs:
 
     - name: Install iOS 18.5
       run: |
+        xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
         xcodebuild -downloadPlatform iOS -buildVersion 18.5        
 
     - name: Test NextcloudTalk iOS
