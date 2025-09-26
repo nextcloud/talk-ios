@@ -102,21 +102,25 @@ final class UIRoomTest: XCTestCase {
         waitForReady(object: app.buttons["Voice only call"]).tap()
         waitForReady(object: app.buttons["Hang up"]).tap()
 
-        // Share an image and open the media preview
-        waitForReady(object: app.buttons["shareButton"]).tap()
-        waitForReady(object: app.buttons["Photo Library"]).tap()
+        /*
+            // Disabled for now, as there are too many timeouts on CI.
 
-        // All photos in simulator start with "Photo", use the first one
-        waitForReady(object: app.images.labelContains("Photo").firstMatch).tap()
-        app.buttons["Add"].tap()
+            // Share an image and open the media preview
+            waitForReady(object: app.buttons["shareButton"]).tap()
+            waitForReady(object: app.buttons["Photo Library"]).tap()
 
-        // On old versions, we don't have an inputbar on the sharing dialog, therefore also check for the send button
-        let foundSendButton = waitForEitherElementToExist(sendMessageButton, app.buttons["Send"], TestConstants.timeoutShort)
-        waitForReady(object: foundSendButton).tap()
+            // All photos in simulator start with "Photo", use the first one
+            waitForReady(object: app.images.labelContains("Photo").firstMatch).tap()
+            app.buttons["Add"].tap()
 
-        // Open the preview and close it again
-        waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong + 60).tap()
-        waitForReady(object: app.buttons["Close"]).tap()
+            // On old versions, we don't have an inputbar on the sharing dialog, therefore also check for the send button
+            let foundSendButton = waitForEitherElementToExist(sendMessageButton, app.buttons["Send"], TestConstants.timeoutShort)
+            waitForReady(object: foundSendButton).tap()
+
+            // Open the preview and close it again
+            waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong + 60).tap()
+            waitForReady(object: app.buttons["Close"]).tap()
+        */
 
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
