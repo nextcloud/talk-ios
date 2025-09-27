@@ -856,8 +856,9 @@ typedef enum RoomsSections {
         case AppStateMissingServerCapabilities:
         case AppStateMissingSignalingConfiguration:
         {
-            // Clear active user status when changing users
+            // Clear active user status and threads when changing users
             _activeUserStatus = nil;
+            _threads = nil;
             [self setProfileButton];
         }
             break;
