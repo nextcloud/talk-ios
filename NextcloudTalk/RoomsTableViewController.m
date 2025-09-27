@@ -168,6 +168,7 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingInvitationsDidUpdate:) name:NCDatabaseManagerPendingFederationInvitationsDidChange object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inviationDidAccept:) name:NSNotification.FederationInvitationDidAcceptNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userThreadsUpdated:) name:NCUserThreadsUpdatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userHasThreadsUpdated:) name:NCUserHasThreadsFlagUpdatedNotification object:nil];
 }
 
 - (void)setupSearchBar
@@ -369,9 +370,23 @@ typedef enum RoomsSections {
 
 - (void)userThreadsUpdated:(NSNotification *)notification
 {
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
     NSArray *threads = [notification.userInfo objectForKey:@"threads"];
-    _threads = threads;
-    [self.tableView reloadData];
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([activeAccount.accountId isEqualToString:accountId]) {
+        _threads = threads;
+        [self refreshRoomList];
+    }
+}
+
+- (void)userHasThreadsUpdated:(NSNotification *)notification
+{
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([activeAccount.accountId isEqualToString:accountId]) {
+        [self refreshRoomList];
+    }
 }
 
 - (void)notificationWillBePresented:(NSNotification *)notification
@@ -856,8 +871,9 @@ typedef enum RoomsSections {
         case AppStateMissingServerCapabilities:
         case AppStateMissingSignalingConfiguration:
         {
-            // Clear active user status when changing users
+            // Clear active user status and threads when changing users
             _activeUserStatus = nil;
+            _threads = nil;
             [self setProfileButton];
         }
             break;

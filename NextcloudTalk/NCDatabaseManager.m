@@ -385,6 +385,14 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     account.hasThreads = hasThreads;
     [realm commitWriteTransaction];
     [bgTask stopBackgroundTask];
+
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:accountId forKey:@"accountId"];
+    [userInfo setObject:@(hasThreads) forKey:@"hasThreads"];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:NCUserHasThreadsFlagUpdatedNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 - (void)updateThreadsLastCheckTimestampForAccountId:(NSString *)accountId with:(NSInteger)lastCheckTimestamp

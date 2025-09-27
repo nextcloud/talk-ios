@@ -18,4 +18,5 @@ NSString * const NCPresentChatHighlightingMessageNotification = @"NCPresentChatH
 NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 NSString * const NCSelectedUserForChatNotification = @"NCSelectedUserForChatNotification";
 NSString * const NCUserThreadsUpdatedNotification = @"NCUserThreadsUpdatedNotification";
+NSString * const NCUserHasThreadsFlagUpdatedNotification = @"NCUserHasThreadsFlagUpdatedNotification";
 
