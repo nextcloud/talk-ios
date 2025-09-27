@@ -369,9 +369,14 @@ typedef enum RoomsSections {
 
 - (void)userThreadsUpdated:(NSNotification *)notification
 {
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
     NSArray *threads = [notification.userInfo objectForKey:@"threads"];
-    _threads = threads;
-    [self.tableView reloadData];
+
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([activeAccount.accountId isEqualToString:accountId]) {
+        _threads = threads;
+        [self refreshRoomList];
+    }
 }
 
 - (void)notificationWillBePresented:(NSNotification *)notification
