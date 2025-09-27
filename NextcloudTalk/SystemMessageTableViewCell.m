@@ -72,6 +72,7 @@ static CGFloat kChatCellDateLabelWidth      = 40.0;
 {
     if (!_bodyTextView) {
         _bodyTextView = [MessageBodyTextView new];
+        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
     }
     return _bodyTextView;
 }
