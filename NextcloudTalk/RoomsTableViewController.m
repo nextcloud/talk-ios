@@ -168,6 +168,7 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingInvitationsDidUpdate:) name:NCDatabaseManagerPendingFederationInvitationsDidChange object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inviationDidAccept:) name:NSNotification.FederationInvitationDidAcceptNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userThreadsUpdated:) name:NCUserThreadsUpdatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userHasThreadsUpdated:) name:NCUserHasThreadsFlagUpdatedNotification object:nil];
 }
 
 - (void)setupSearchBar
@@ -375,6 +376,15 @@ typedef enum RoomsSections {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     if ([activeAccount.accountId isEqualToString:accountId]) {
         _threads = threads;
+        [self refreshRoomList];
+    }
+}
+
+- (void)userHasThreadsUpdated:(NSNotification *)notification
+{
+    NSString *accountId = [notification.userInfo objectForKey:@"accountId"];
+    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([activeAccount.accountId isEqualToString:accountId]) {
         [self refreshRoomList];
     }
 }
