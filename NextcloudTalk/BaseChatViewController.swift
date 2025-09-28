@@ -1828,9 +1828,10 @@ import SwiftUI
         let tempDirectoryURL = URL(fileURLWithPath: chatFileController.tempDirectoryPath)
         let destinationFilePath = tempDirectoryURL.appendingPathComponent(audioFileName).path
 
-        var replyToMessage: NCChatMessage? = nil
+        var replyToMessage: NCChatMessage?
         if let replyMessageView, replyMessageView.isVisible {
             replyToMessage = replyMessageView.message
+            replyMessageView.dismiss()
         }
 
         if let temporaryMessage = self.createTemporaryMessage(
