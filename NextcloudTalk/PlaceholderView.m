@@ -46,6 +46,7 @@
 {
     UIImage *placeholderImage = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [self.placeholderImage setImage:placeholderImage];
+    [self.placeholderImage setContentMode:UIViewContentModeScaleAspectFit];
     [self.placeholderImage setTintColor:[NCAppBranding placeholderColor]];
 }
 

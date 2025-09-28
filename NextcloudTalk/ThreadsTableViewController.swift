@@ -11,7 +11,6 @@ import UIKit
     private var threads: [NCThread]
 
     var backgroundView: PlaceholderView = PlaceholderView(for: .grouped)
-    var modifyingViewIndicator = UIActivityIndicatorView()
 
     init(threads: [NCThread]) {
         self.threads = threads
@@ -41,8 +40,8 @@ import UIKit
 
         self.backgroundView.placeholderView.isHidden = true
         self.backgroundView.loadingView.startAnimating()
-
-        self.modifyingViewIndicator.color = NCAppBranding.themeTextColor()
+        self.backgroundView.placeholderTextView.text = NSLocalizedString("No followed threads", comment: "")
+        self.backgroundView.setImage(UIImage(systemName: "bubble.left.and.bubble.right"))
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -62,21 +61,9 @@ import UIKit
             }
 
             self.backgroundView.loadingView.stopAnimating()
-            self.backgroundView.loadingView.isHidden = true
-
+            self.backgroundView.placeholderView.isHidden = !self.threads.isEmpty
             self.tableView.reloadData()
-            self.hideActivityIndicator()
         }
-    }
-
-    func showActivityIndicator() {
-        self.modifyingViewIndicator.startAnimating()
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: modifyingViewIndicator)
-    }
-
-    func hideActivityIndicator() {
-        self.modifyingViewIndicator.stopAnimating()
-        self.navigationItem.rightBarButtonItem = nil
     }
 
     // MARK: - Table view data source
