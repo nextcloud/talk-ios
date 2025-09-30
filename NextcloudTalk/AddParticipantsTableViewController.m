@@ -49,7 +49,11 @@
     _selectedParticipants = [[NSMutableArray alloc] init];
 
     _addingParticipantsIndicator = [[UIActivityIndicatorView alloc] init];
-    _addingParticipantsIndicator.color = [NCAppBranding themeTextColor];
+    if (@available(iOS 26.0, *)) {
+        _addingParticipantsIndicator.color = [UIColor labelColor];
+    } else {
+        _addingParticipantsIndicator.color = [NCAppBranding themeTextColor];
+    }
 
     return self;
 }
