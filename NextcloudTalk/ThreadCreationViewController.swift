@@ -10,7 +10,8 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = NSLocalizedString("Thread title", comment: "")
+        label.text = NSLocalizedString("Create a thread", comment: "")
+        label.font = UIFont.preferredFont(forTextStyle: .headline)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -18,6 +19,7 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
     private let titleTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = NSLocalizedString("Thread title", comment: "")
+        textField.font = UIFont.preferredFont(forTextStyle: .body)
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -26,6 +28,8 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
     // MARK: - Init
     public init?(room: NCRoom, account: TalkAccount) {
         super.init(forRoom: room, withAccount: account, withView: self.threadCreationContentView)
+
+        self.textView.maxNumberOfLines = 2
 
         self.threadCreationContentView.addSubview(self.titleLabel)
         NSLayoutConstraint.activate([
@@ -63,7 +67,7 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
         guard let sheet = sheetPresentationController else { return }
 
         sheet.detents = [
-            .custom { _ in 150 }
+            .custom { _ in 160 }
         ]
         sheet.prefersGrabberVisible = true
         sheet.prefersEdgeAttachedInCompactHeight = true
