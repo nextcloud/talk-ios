@@ -61,11 +61,18 @@ import SwiftyAttributes
         self.navigationItem.title = NSLocalizedString("Source code", comment: "")
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
-        self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+        }
 
         let githubButton = UIBarButtonItem(image: UIImage(named: "github")?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(githubButtonPressed))
         self.navigationItem.rightBarButtonItem = githubButton
-        self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+
+        if #unavailable(iOS 26.0) {
+            self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+        } else {
+            self.navigationItem.rightBarButtonItem?.tintColor = .label
+        }
 
         let font = Font.systemFont(ofSize: 16)
         let fontSemibold = Font.systemFont(ofSize: 16, weight: .semibold)

@@ -64,7 +64,10 @@ import UIKit
         configureFooterButtons()
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
-        self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+
+        if #unavailable(iOS 26.0) {
+            self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
