@@ -10,7 +10,13 @@ class BarButtonItemWithActivity: UIBarButtonItem {
     var innerButton = UIButton()
     var activityIndicator = UIActivityIndicatorView()
 
-    lazy var textColor: UIColor = NCAppBranding.themeTextColor()
+    var textColor: UIColor {
+        if #available(iOS 26.0, *) {
+            return .label
+        } else {
+            return NCAppBranding.themeTextColor()
+        }
+    }
 
     init(image: UIImage) {
         super.init()
