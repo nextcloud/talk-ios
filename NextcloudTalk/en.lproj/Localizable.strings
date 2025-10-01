@@ -731,6 +731,9 @@
 "Could not leave conversation" = "Could not leave conversation";
 
 /* No comment provided by engineer. */
+"Could not login with QR code" = "Could not login with QR code";
+
+/* No comment provided by engineer. */
 "Could not remove participant" = "Could not remove participant";
 
 /* No comment provided by engineer. */
@@ -2149,6 +2152,9 @@
 
 /* No comment provided by engineer. */
 "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call." = "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.";
+
+/* No comment provided by engineer. */
+"The token might be used already or is expired. Please generate a new QR code and retry." = "The token might be used already or is expired. Please generate a new QR code and retry.";
 
 /* No comment provided by engineer. */
 "There is no account for user %@ in server %@ configured in this app." = "There is no account for user %1$@ in server %2$@ configured in this app.";
