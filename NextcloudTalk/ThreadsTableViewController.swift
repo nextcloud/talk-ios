@@ -8,13 +8,11 @@ import UIKit
 @objcMembers class ThreadsTableViewController: UITableViewController {
 
     private let threadCellIdentifier = "ThreadCellIdentifier"
-    private var threads: [NCThread]
+    private var threads: [NCThread] = []
 
     var backgroundView: PlaceholderView = PlaceholderView(for: .grouped)
 
-    init(threads: [NCThread]) {
-        self.threads = threads
-
+    init(threads: [NCThread]?) {
         super.init(style: .insetGrouped)
     }
 
