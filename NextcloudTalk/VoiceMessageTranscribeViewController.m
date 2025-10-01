@@ -41,7 +41,11 @@
     self.navigationController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     
     _activityIndicator = [[UIActivityIndicatorView alloc] init];
-    _activityIndicator.color = [NCAppBranding themeTextColor];
+    if (@available(iOS 26.0, *)) {
+        _activityIndicator.color = [UIColor labelColor];
+    } else {
+        _activityIndicator.color = [NCAppBranding themeTextColor];
+    }
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self->_activityIndicator];
     

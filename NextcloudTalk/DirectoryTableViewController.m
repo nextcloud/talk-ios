@@ -57,8 +57,12 @@
     [self configureNavigationBar];
     
     _sharingFileView = [[UIActivityIndicatorView alloc] init];
-    _sharingFileView.color = [NCAppBranding themeTextColor];
-    
+    if (@available(iOS 26.0, *)) {
+        _sharingFileView.color = [UIColor labelColor];
+    } else {
+        _sharingFileView.color = [NCAppBranding themeTextColor];
+    }
+
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     // Directory placeholder view
@@ -213,10 +217,14 @@
         self.navigationItem.leftBarButtonItem = cancelButton;
         self.navigationItem.rightBarButtonItem = _sortingButton;
         
-        UIImage *navigationLogo = [UIImage imageNamed:@"navigation-home"];
+        UIImage *navigationLogo = [UIImage systemImageNamed:@"house"];
         UIImageView *navigationImageView = [[UIImageView alloc] initWithImage:navigationLogo];
         navigationImageView.image = [navigationImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [navigationImageView setTintColor:[NCAppBranding themeTextColor]];
+        if (@available(iOS 26.0, *)) {
+            [navigationImageView setTintColor:[UIColor labelColor]];
+        } else {
+            [navigationImageView setTintColor:[NCAppBranding themeTextColor]];
+        }
         self.navigationItem.titleView = navigationImageView;
         
         UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithImage:navigationLogo style:UIBarButtonItemStylePlain
