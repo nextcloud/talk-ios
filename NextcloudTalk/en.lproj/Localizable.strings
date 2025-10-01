@@ -181,9 +181,6 @@
 /* No comment provided by engineer. */
 "AirPlay button" = "AirPlay button";
 
-/* 'All' meaning 'All conversations' */
-"All" = "All";
-
 /* No comment provided by engineer. */
 "All messages" = "All messages";
 
@@ -1087,6 +1084,9 @@
 /* No comment provided by engineer. */
 "Files" = "Files";
 
+/* Title for available conversations filters */
+"Filters" = "Filters";
+
 /* No comment provided by engineer. */
 "First day" = "First day";
 
@@ -1333,9 +1333,6 @@
 /* No comment provided by engineer. */
 "Media" = "Media";
 
-/* 'Meeting' meaning 'Conversations that were created from a calendar event' */
-"Meeting" = "Meeting";
-
 /* No comment provided by engineer. */
 "Meeting created" = "Meeting created";
 
@@ -1348,7 +1345,8 @@
 /* No comment provided by engineer. */
 "Meeting settings" = "Meeting settings";
 
-/* Headline for a 'meeting section' */
+/* 'Meetings' meaning 'Conversations that were created from a calendar event'
+   Headline for a 'meeting section' */
 "Meetings" = "Meetings";
 
 /* 'Mentioned' meaning 'Mentioned conversations' */
@@ -1482,6 +1480,9 @@
 
 /* No comment provided by engineer. */
 "No files in here" = "No files in here";
+
+/* 'No filter' meaning 'No filter will be applied in conversations list' */
+"No filter" = "No filter";
 
 /* No comment provided by engineer. */
 "No followed threads" = "No followed threads";
@@ -2334,6 +2335,15 @@
 
 /* No comment provided by engineer. */
 "You have been muted by a moderator" = "You have been muted by a moderator";
+
+/* No comment provided by engineer. */
+"You have no meetings scheduled." = "You have no meetings scheduled.";
+
+/* No comment provided by engineer. */
+"You have no unread mentions." = "You have no unread mentions.";
+
+/* No comment provided by engineer. */
+"You have no unread messages." = "You have no unread messages.";
 
 /* No comment provided by engineer. */
 "You need to promote a new moderator before you can leave %@." = "You need to promote a new moderator before you can leave %@.";

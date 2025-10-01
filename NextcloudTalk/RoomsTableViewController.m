@@ -109,8 +109,6 @@ typedef enum RoomsSections {
     
     // Rooms placeholder view
     _roomsBackgroundView = [[PlaceholderView alloc] init];
-    [_roomsBackgroundView setImage:[UIImage imageNamed:@"conversations-placeholder"]];
-    [_roomsBackgroundView.placeholderTextView setText:NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil)];
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
@@ -182,14 +180,28 @@ typedef enum RoomsSections {
             NSMutableArray *menuItems = [[NSMutableArray alloc] init];
 
             for (NSNumber *filterId in [self availableFilters]) {
-                [menuItems addObject:[UIAction actionWithTitle:[self filterName:filterId.intValue] image:nil identifier:nil handler:^(UIAction *action) {
+                UIAction *action = [UIAction actionWithTitle:[self filterName:filterId.intValue]
+                                                       image:[self filterImage:filterId.intValue]
+                                                  identifier:nil
+                                                     handler:^(UIAction *action) {
                     weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
                     [self filterRooms];
                     [self setupSearchBar];
-                }]];
+                }];
+
+                if (filterId == [NSNumber numberWithInt:kRoomsFilterAll]) {
+                    UIMenu *noFilterMenu = [UIMenu menuWithTitle:@""
+                                                           image:nil
+                                                      identifier:nil
+                                                         options:UIMenuOptionsDisplayInline
+                                                        children:@[action]];
+                    [menuItems addObject:noFilterMenu];
+                } else {
+                    [menuItems addObject:action];
+                }
             }
 
-            UIMenu *menu = [UIMenu menuWithTitle:@""
+            UIMenu *menu = [UIMenu menuWithTitle:NSLocalizedString(@"Filters", @"Title for available conversations filters")
                                            image:nil
                                       identifier:nil
                                          options:UIMenuOptionsDisplayInline
@@ -686,6 +698,8 @@ typedef enum RoomsSections {
         _resultTableViewController.rooms = [self filterRooms:filteredRooms withString:searchString];
         [self calculateLastRoomWithMention];
     }
+
+    [self updatePlaceholderView];
 }
 
 - (void)searchListableRoomsAndMessages
@@ -800,15 +814,56 @@ typedef enum RoomsSections {
 {
     switch (filter) {
         case kRoomsFilterAll:
-            return NSLocalizedString(@"All", @"'All' meaning 'All conversations'");
+            return NSLocalizedString(@"No filter", @"'No filter' meaning 'No filter will be applied in conversations list'");
         case kRoomsFilterUnread:
             return NSLocalizedString(@"Unread", @"'Unread' meaning 'Unread conversations'");
         case kRoomsFilterMentioned:
             return NSLocalizedString(@"Mentioned", @"'Mentioned' meaning 'Mentioned conversations'");
         case kRoomsFilterEvent:
-            return NSLocalizedString(@"Meeting", @"'Meeting' meaning 'Conversations that were created from a calendar event'");
+            return NSLocalizedString(@"Meetings", @"'Meetings' meaning 'Conversations that were created from a calendar event'");
         default:
             return @"";
+    }
+}
+
+- (UIImage *)filterImage:(RoomsFilter)filter
+{
+    switch (filter) {
+        case kRoomsFilterAll:
+            return [UIImage imageNamed:@"custom.line.3.horizontal.decrease.slash"];
+        case kRoomsFilterUnread:
+            return [UIImage imageNamed:@"custom.bubble.badge"];
+        case kRoomsFilterMentioned:
+            return [UIImage systemImageNamed:@"at"];
+        case kRoomsFilterEvent:
+            return [UIImage systemImageNamed:@"calendar"];
+        default:
+            return nil;
+    }
+}
+
+- (UIImage *)filterPlaceholderImage:(RoomsFilter)filter
+{
+    if (filter == kRoomsFilterAll) {
+        return [UIImage imageNamed:@"conversations-placeholder"];
+    }
+
+    return [self filterImage:filter];
+}
+
+- (NSString *)filterPlaceholderText:(RoomsFilter)filter
+{
+    switch (filter) {
+        case kRoomsFilterAll:
+            return NSLocalizedString(@"You are not part of any conversation. Press + to start a new one.", nil);
+        case kRoomsFilterUnread:
+            return NSLocalizedString(@"You have no unread messages.", nil);
+        case kRoomsFilterMentioned:
+            return NSLocalizedString(@"You have no unread mentions.", nil);
+        case kRoomsFilterEvent:
+            return NSLocalizedString(@"You have no meetings scheduled.", nil);
+        default:
+            return nil;
     }
 }
 
@@ -830,15 +885,13 @@ typedef enum RoomsSections {
     NSArray *accountRooms = [[NCDatabaseManager sharedInstance] roomsForAccountId:account.accountId withRealm:nil];
     _allRooms = [[NSMutableArray alloc] initWithArray:accountRooms];
     _rooms = [[NSMutableArray alloc] initWithArray:accountRooms];
-    
-    // Show/Hide placeholder view
-    [_roomsBackgroundView.loadingView stopAnimating];
-    [_roomsBackgroundView.loadingView setHidden:YES];
-    [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
 
     // Filter rooms
     [self filterRooms];
-    
+
+    // Update placeholder view
+    [self updatePlaceholderView];
+
     // Reload room list
     [self.tableView reloadData];
     
@@ -846,6 +899,17 @@ typedef enum RoomsSections {
     [self updateMentionsIndicator];
 
     [self highlightSelectedRoom];
+}
+
+- (void)updatePlaceholderView
+{
+    [_roomsBackgroundView.loadingView stopAnimating];
+    [_roomsBackgroundView.loadingView setHidden:YES];
+
+    RoomsFilter filter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
+    [_roomsBackgroundView setImage:[self filterImage:filter]];
+    [_roomsBackgroundView.placeholderTextView setText:[self filterPlaceholderText:filter]];
+    [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
 }
 
 - (void)adaptInterfaceForAppState:(AppState)appState
