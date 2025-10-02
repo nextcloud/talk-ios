@@ -1147,8 +1147,14 @@
 /* No comment provided by engineer. */
 "Hang up" = "Hang up";
 
+/* TRANSLATORS this is a video quality option (Video quality : HD) */
+"HD" = "HD";
+
 /* No comment provided by engineer. */
 "Hide" = "Hide";
+
+/* TRANSLATORS this is a video quality option (Video quality : High) */
+"High" = "High";
 
 /* No comment provided by engineer. */
 "hours" = "hours";
@@ -1314,6 +1320,9 @@
 
 /* No comment provided by engineer. */
 "Long absence message" = "Long absence message";
+
+/* TRANSLATORS this is a video quality option (Video quality : Low) */
+"Low" = "Low";
 
 /* No comment provided by engineer. */
 "Lower hand" = "Lower hand";
@@ -1519,6 +1528,9 @@
 
 /* No comment provided by engineer. */
 "No user found" = "No user found";
+
+/* TRANSLATORS this is a video quality option (Video quality : Normal) */
+"Normal" = "Normal";
 
 /* '{Microphone, Camera, ...} access was not requested' */
 "Not requested" = "Not requested";
