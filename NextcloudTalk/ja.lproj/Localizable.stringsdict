@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>%d votes</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@votes@</string>
+        <key>votes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d vote</string>
+            <key>other</key>
+            <string>%d votes</string>
+        </dict>
+    </dict>
+    
+    <key>%ld participants</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@participants@</string>
+        <key>participants</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld participant</string>
+            <key>other</key>
+            <string>%ld participants</string>
+        </dict>
+    </dict>
+    
+    <key>%d minutes ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@minutes@</string>
+        <key>minutes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d minute ago</string>
+            <key>other</key>
+            <string>%d minutes ago</string>
+        </dict>
+    </dict>
+    
+    <key>%d hours ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@hours@</string>
+        <key>hours</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d hour ago</string>
+            <key>other</key>
+            <string>%d hours ago</string>
+        </dict>
+    </dict>
+    
+    <key>%d days ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d day ago</string>
+            <key>other</key>
+            <string>%d days ago</string>
+        </dict>
+    </dict>
+
+    <key>%ld notifications</key>
+    <dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@notifications@</string>
+		<key>notifications</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld notification</string>
+			<key>other</key>
+			<string>%ld notifications</string>
+		</dict>
+	</dict>
+
+    <key>You have %ld pending invitations</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@pendinginvitations@</string>
+        <key>pendinginvitations</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>You have %ld pending invitation</string>
+            <key>other</key>
+            <string>You have %ld pending invitations</string>
+        </dict>
+    </dict>
+
+    <key>%d options</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@options@</string>
+        <key>options</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d option</string>
+            <key>other</key>
+            <string>%d options</string>
+        </dict>
+    </dict>
+
+    <key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>This conversation will be automatically deleted for everyone in %ld day of no activity.</string>
+            <key>other</key>
+            <string>This conversation will be automatically deleted for everyone in %ld days of no activity.</string>
+        </dict>
+    </dict>
+
+    <key>%ld replies</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@replies@</string>
+        <key>replies</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%ld reply</string>
+            <key>other</key>
+            <string>%ld replies</string>
+        </dict>
+    </dict>
+</dict>
+</plist>
