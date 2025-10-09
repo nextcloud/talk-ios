@@ -91,30 +91,85 @@
     <dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@notifications@</string>
+		<key>notifications</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld ειδοποίηση</string>
+			<key>other</key>
+			<string>%ld ειδοποιήσεις</string>
+		</dict>
 	</dict>
 
     <key>You have %ld pending invitations</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@pendinginvitations@</string>
+        <key>pendinginvitations</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Έχετε %ld εκκρεμή πρόσκληση</string>
+            <key>other</key>
+            <string>Έχετε %ld εκκρεμείς προσκλήσεις</string>
+        </dict>
     </dict>
 
     <key>%d options</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@options@</string>
+        <key>options</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d επιλογή</string>
+            <key>other</key>
+            <string>%d επιλογές</string>
+        </dict>
     </dict>
 
     <key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Αυτή η συνομιλία θα διαγραφεί αυτόματα για όλους σε %ld ημέρα χωρίς δραστηριότητα.</string>
+            <key>other</key>
+            <string>Αυτή η συνομιλία θα διαγραφεί αυτόματα για όλους σε %ld ημέρες χωρίς δραστηριότητα.</string>
+        </dict>
     </dict>
 
     <key>%ld replies</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@replies@</string>
+        <key>replies</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%ld απάντηση</string>
+            <key>other</key>
+            <string>%ld απαντήσεις</string>
+        </dict>
     </dict>
 </dict>
 </plist>
