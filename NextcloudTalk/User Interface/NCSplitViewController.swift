@@ -78,6 +78,11 @@
                 // Create a new UINavigationController, to not stack up multiple view controllers
                 let navController = UINavigationController(rootViewController: vc)
                 super.showDetailViewController(navController, sender: sender)
+
+                if #available(iOS 26.0, *) {
+                    // Fix weird animation on iOS 26
+                    vc.view.layoutIfNeeded()
+                }
             }
         }
     }
