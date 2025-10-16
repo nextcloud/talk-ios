@@ -3360,7 +3360,7 @@
 			repositoryURL = "https://github.com/TimOliver/TOCropViewController";
 			requirement = {
 				kind = exactVersion;
-				version = 2.6.1;
+				version = 3.0.0;
 			};
 		};
 		1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */ = {
