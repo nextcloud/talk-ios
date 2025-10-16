@@ -366,6 +366,11 @@
                                               NSLog(@"Shared UIImage = %@", item);
                                               UIImage *image = (UIImage *)item;
                                               [shareConfirmationVC.shareItemController addItemWithImage:image];
+                                          } else if ([(NSObject *)item isKindOfClass:[NSData class]]) {
+                                              // Screenshots starting iOS 26
+                                              NSLog(@"Shared UIImage = %@", item);
+                                              UIImage *image = [UIImage imageWithData:(NSData *)item];
+                                              [shareConfirmationVC.shareItemController addItemWithImage:image];
                                           }
                                       }];
                 return;
