@@ -922,7 +922,7 @@ typedef enum RoomsSections {
     [_roomsBackgroundView.loadingView setHidden:YES];
 
     RoomsFilter filter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
-    [_roomsBackgroundView setImage:[self filterImage:filter]];
+    [_roomsBackgroundView setImage:[self filterPlaceholderImage:filter]];
     [_roomsBackgroundView.placeholderTextView setText:[self filterPlaceholderText:filter]];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
 }
