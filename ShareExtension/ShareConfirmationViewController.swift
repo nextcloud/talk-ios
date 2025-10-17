@@ -102,11 +102,16 @@ import MBProgressHUD
 
     private lazy var itemToolbar: UIToolbar = {
         let toolbar = UIToolbar(frame: .init(x: 0, y: 0, width: 100, height: 44))
-        let flexibleSpace = UIBarButtonItem(systemItem: .flexibleSpace)
 
         toolbar.barTintColor = .systemGroupedBackground
         toolbar.isTranslucent = false
-        toolbar.setItems([removeItemButton, flexibleSpace, cropItemButton, previewItemButton, addItemButton], animated: false)
+
+        if #unavailable(iOS 26) {
+            toolbar.setItems([removeItemButton, UIBarButtonItem(systemItem: .flexibleSpace), cropItemButton, previewItemButton, addItemButton], animated: false)
+        } else {
+            toolbar.setItems([UIBarButtonItem(systemItem: .flexibleSpace), removeItemButton, UIBarButtonItem(systemItem: .fixedSpace), cropItemButton, previewItemButton, addItemButton], animated: false)
+        }
+
         toolbar.translatesAutoresizingMaskIntoConstraints = false
 
         return toolbar
@@ -225,32 +230,45 @@ import MBProgressHUD
         super.init(forRoom: room, withAccount: account, withView: self.shareContentView)
         self.thread = thread
 
-        self.shareContentView.addSubview(self.toLabelView)
-        NSLayoutConstraint.activate([
-            self.toLabelView.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor),
-            self.toLabelView.rightAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.rightAnchor),
-            self.toLabelView.topAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.topAnchor),
-            self.toLabelView.heightAnchor.constraint(equalToConstant: 36)
-        ])
-
+        self.shareContentView.addSubview(self.shareCollectionView)
+        self.shareContentView.addSubview(self.pageControl)
         self.shareContentView.addSubview(self.shareTextView)
+        self.shareContentView.addSubview(self.itemToolbar)
+
         NSLayoutConstraint.activate([
             self.shareTextView.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor, constant: 20),
             self.shareTextView.rightAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.rightAnchor, constant: -20),
-            self.shareTextView.topAnchor.constraint(equalTo: self.toLabelView.bottomAnchor, constant: 20),
             self.shareTextView.bottomAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
 
-        self.shareContentView.addSubview(self.itemToolbar)
         NSLayoutConstraint.activate([
             self.itemToolbar.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor),
             self.itemToolbar.rightAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.rightAnchor),
-            self.itemToolbar.topAnchor.constraint(equalTo: self.toLabelView.bottomAnchor),
             self.itemToolbar.heightAnchor.constraint(equalToConstant: 44)
         ])
 
-        self.shareContentView.addSubview(self.shareCollectionView)
-        self.shareContentView.addSubview(self.pageControl)
+        if #unavailable(iOS 26) {
+            self.shareContentView.addSubview(self.toLabelView)
+
+            NSLayoutConstraint.activate([
+                self.toLabelView.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor),
+                self.toLabelView.rightAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.rightAnchor),
+                self.toLabelView.topAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.topAnchor),
+                self.toLabelView.heightAnchor.constraint(equalToConstant: 36),
+
+                self.shareTextView.topAnchor.constraint(equalTo: self.toLabelView.bottomAnchor, constant: 20),
+
+                self.itemToolbar.topAnchor.constraint(equalTo: self.toLabelView.bottomAnchor)
+            ])
+        } else {
+            // On iOS 26 we don't have a toLabel anymore, so we need to constraint to the safe area as well
+            NSLayoutConstraint.activate([
+                self.shareTextView.topAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.topAnchor),
+
+                self.itemToolbar.topAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.topAnchor)
+            ])
+        }
+
         NSLayoutConstraint.activate([
             self.shareCollectionView.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor),
             self.shareCollectionView.rightAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.rightAnchor),
@@ -320,10 +338,14 @@ import MBProgressHUD
                                   nextcloudVersion: self.serverCapabilities.versionMajor,
                                   delegate: self)
 
-        let localizedToString = NSLocalizedString("To:", comment: "TRANSLATORS this is for sending something 'to' a user. E.g. 'To: John Doe'")
-        let toString = localizedToString.withFont(.boldSystemFont(ofSize: 15)).withTextColor(.tertiaryLabel)
-        let roomString = self.room.displayName.withFont(.systemFont(ofSize: 15)).withTextColor(.label)
-        self.toLabel.attributedText = toString + NSAttributedString(string: " ") + roomString
+        if #unavailable(iOS 26) {
+            let localizedToString = NSLocalizedString("To:", comment: "TRANSLATORS this is for sending something 'to' a user. E.g. 'To: John Doe'")
+            let toString = localizedToString.withFont(.boldSystemFont(ofSize: 15)).withTextColor(.tertiaryLabel)
+            let roomString = self.room.displayName.withFont(.systemFont(ofSize: 15)).withTextColor(.label)
+            self.toLabel.attributedText = toString + NSAttributedString(string: " ") + roomString
+        } else {
+            self.navigationItem.title = self.room.displayName
+        }
 
         let bundle = Bundle(for: ShareConfirmationCollectionViewCell.self)
         self.shareCollectionView.register(UINib(nibName: kShareConfirmationTableCellNibName, bundle: bundle), forCellWithReuseIdentifier: kShareConfirmationCellIdentifier)
