@@ -11,7 +11,6 @@ end
 
 def main_dependencies
   common_dependencies_ext
-  pod 'DateTools'
   pod 'MaterialComponents/ActivityIndicator'
   pod 'Toast', '~> 4.0.0'
   pod 'MZTimerLabel'
