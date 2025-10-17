@@ -51,7 +51,6 @@ struct RoomInfoDestructiveSection: View {
                         }
                     })
                     .alert(NSLocalizedString("Delete all messages", comment: ""), isPresented: $showClearConfirmation, actions: {
-                        Text("Do you really want to delete all messages in this conversation?")
                         Button(role: .destructive, action: {
                             clearHistory()
                         }, label: {
@@ -60,7 +59,7 @@ struct RoomInfoDestructiveSection: View {
 
                         Button("Cancel", role: .cancel) {}
                     }, message: {
-                        Text("Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.")
+                        Text("Do you really want to delete all messages in this conversation?")
                     })
                 }
 
