@@ -215,14 +215,11 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
 
         if (message.isThreadCreatedMessage) {
             NCThread *thread = [NCThread createThreadFromMessage:message andAccountId:message.accountId];
+
             if (thread) {
                 [realm addObject:thread];
             }
-            // Do not use parent message for updating already stored message
-            continue;
-        }
-
-        if (message.isThreadMessage) {
+        } else if (message.isThreadMessage) {
             [NCThread updateThreadWithThreadMessage:message];
         }
 
