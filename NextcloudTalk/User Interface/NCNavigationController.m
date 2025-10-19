@@ -20,6 +20,7 @@
     self.interactivePopGestureRecognizer.delegate = self;
 
     [NCAppBranding styleViewController:self];
+    self.view.backgroundColor = [UIColor clearColor];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle

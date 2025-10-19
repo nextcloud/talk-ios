@@ -165,7 +165,7 @@ import SwiftUI
             self?.tableView?.slk_scrollToBottom(animated: true)
         })
 
-        button.backgroundColor = .secondarySystemGroupedBackground
+        button.backgroundColor = .secondarySystemBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = 8
         button.clipsToBounds = true
@@ -181,7 +181,7 @@ import SwiftUI
     private lazy var voiceRecordingLockButton: UIButton = {
         let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
 
-        button.backgroundColor = .secondarySystemGroupedBackground
+        button.backgroundColor = .secondarySystemBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = button.frame.size.height / 2
         button.clipsToBounds = true
@@ -3301,7 +3301,7 @@ import SwiftUI
             previewMessageView.layer.mask = maskLayer
         }
 
-        previewMessageView.backgroundColor = .systemGroupedBackground
+        previewMessageView.backgroundColor = .systemBackground
         self.contextMenuMessageView = previewMessageView
 
         // Restore grouped-status

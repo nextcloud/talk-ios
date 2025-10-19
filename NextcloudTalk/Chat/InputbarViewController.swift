@@ -136,9 +136,9 @@ import UIKit
         // Ensure that we only show an arrow and not the full "Back" text
         self.navigationItem.backButtonDisplayMode = .minimal
 
-        self.view.backgroundColor = .systemGroupedBackground
-        self.tableView?.backgroundColor = .systemGroupedBackground
-        self.textInputbar.backgroundColor = .systemGroupedBackground
+        self.view.backgroundColor = .systemBackground
+        self.tableView?.backgroundColor = .systemBackground
+        self.textInputbar.backgroundColor = .systemBackground
 
         self.textInputbar.editorTitle.textColor = .label
         self.textView.layer.borderWidth = 1.0
@@ -151,7 +151,7 @@ import UIKit
         self.autoCompletionView.register(AutoCompletionTableViewCell.self, forCellReuseIdentifier: AutoCompletionCellIdentifier)
         self.registerPrefixes(forAutoCompletion: ["@"])
 
-        self.autoCompletionView.backgroundColor = .secondarySystemBackground
+        self.autoCompletionView.backgroundColor = .systemBackground
         self.autoCompletionView.sectionHeaderTopPadding = 0
 
         // Align separators to ChatMessageTableViewCell's title label

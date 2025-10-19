@@ -34,11 +34,6 @@
 {
     self = [self init];
     
-    if (self && (style == UITableViewStyleGrouped || style == UITableViewStyleInsetGrouped )) {
-        self.contentView.backgroundColor = [UIColor systemGroupedBackgroundColor];
-        self.placeholderView.backgroundColor = [UIColor systemGroupedBackgroundColor];
-    }
-    
     return self;
 }
 

@@ -279,7 +279,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.bubbleViewRightConstraintEqual.isActive = isOwnMessage
         self.bubbleViewRightConstraintLessThan.isActive = !isOwnMessage
 
-        var backgroundColor: UIColor? = .secondarySystemGroupedBackground
+        var backgroundColor: UIColor? = .secondarySystemBackground
 
         if isOwnMessage {
             backgroundColor = BaseChatTableViewCell.bubbleColorCache.object(forKey: account.accountId as NSString)

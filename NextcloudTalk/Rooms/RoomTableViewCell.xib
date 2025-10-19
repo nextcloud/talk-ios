@@ -71,6 +71,7 @@
                                 </constraints>
                             </stackView>
                         </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="Lqk-NC-ZkP" firstAttribute="leading" secondItem="xcw-pC-kPV" secondAttribute="trailing" constant="8" symbolic="YES" id="8E6-On-aXQ"/>
                             <constraint firstItem="xcw-pC-kPV" firstAttribute="leading" secondItem="82I-YL-3ga" secondAttribute="leading" constant="8" id="O5q-sh-tTf"/>
@@ -84,6 +85,7 @@
                     </view>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="hTO-u0-vdH"/>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="hTO-u0-vdH" firstAttribute="trailing" secondItem="82I-YL-3ga" secondAttribute="trailing" constant="8" id="1h1-Gd-H7u"/>
                     <constraint firstItem="82I-YL-3ga" firstAttribute="bottom" secondItem="hTO-u0-vdH" secondAttribute="bottom" id="8gu-hB-O03"/>

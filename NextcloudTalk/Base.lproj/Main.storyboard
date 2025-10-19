@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ecK-na-6ig">
     <device id="ipad12_9rounded" orientation="landscape" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -14,15 +14,15 @@
             <objects>
                 <tableViewController title="RoomsTableViewController" extendedLayoutIncludesOpaqueBars="YES" id="d5a-it-gRL" customClass="RoomsTableViewController" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelectionDuringEditing="YES" rowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="pE7-Go-f5G">
-                        <rect key="frame" x="0.0" y="0.0" width="420" height="1024"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="960"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="lNr-59-sMg">
-                                <rect key="frame" x="0.0" y="50" width="420" height="52"/>
+                                <rect key="frame" x="0.0" y="50" width="320" height="60"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="lNr-59-sMg" id="WiD-wD-jK1">
-                                    <rect key="frame" x="100" y="0.0" width="320" height="52"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="60"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
@@ -43,11 +43,11 @@
             <objects>
                 <viewController storyboardIdentifier="placeholderChatViewController" id="Mvl-Nd-ZXL" customClass="NCSplitViewPlaceholderViewController" customModule="NextcloudTalk" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ufw-Yg-V9l">
-                        <rect key="frame" x="0.0" y="0.0" width="1046" height="1024"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4je-R6-T4G">
-                                <rect key="frame" x="346" y="460.5" width="354" height="103.5"/>
+                                <rect key="frame" x="671" y="462.5" width="354" height="103.5"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="app-logo-callkit" translatesAutoresizingMaskIntoConstraints="NO" id="p23-aq-R5e">
                                         <rect key="frame" x="157" y="0.0" width="40" height="40"/>
@@ -68,7 +68,7 @@
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="xeI-iD-HmE"/>
-                        <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="xeI-iD-HmE" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="4je-R6-T4G" secondAttribute="trailing" id="0mc-dV-MKM"/>
                             <constraint firstItem="4je-R6-T4G" firstAttribute="centerY" secondItem="xeI-iD-HmE" secondAttribute="centerY" constant="-11.75" id="Jvy-Ac-6TQ"/>
@@ -92,11 +92,10 @@
             <objects>
                 <navigationController id="cEs-8p-AhA" customClass="NCNavigationController" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="u19-wP-Dh8">
-                        <rect key="frame" x="0.0" y="24" width="1046" height="50"/>
+                        <rect key="frame" x="0.0" y="24" width="1366" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="VtL-b4-wDm">
-                        <rect key="frame" x="-320" y="0.0" width="0.0" height="0.0"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>
@@ -112,11 +111,11 @@
             <objects>
                 <navigationController id="Zgl-h4-MON" customClass="NCNavigationController" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="xyF-sn-ttH">
-                        <rect key="frame" x="0.0" y="24" width="420" height="50"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="OCT-Zu-7bm">
-                        <rect key="frame" x="100" y="0.0" width="0.0" height="0.0"/>
+                        <rect key="frame" x="-10" y="-24" width="0.0" height="0.0"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>
@@ -146,14 +145,14 @@
             <objects>
                 <tableViewController id="IZS-G3-LBe" customClass="SettingsTableViewController" customModule="NextcloudTalk" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="b5X-rI-l6i">
-                        <rect key="frame" x="0.0" y="0.0" width="1366" height="950"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1366" height="946"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="y90-mb-BxJ">
-                                <rect key="frame" x="20" y="55.5" width="1326" height="51.5"/>
+                                <rect key="frame" x="20" y="55.5" width="1326" height="59"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="y90-mb-BxJ" id="XO0-Yu-aVx">
-                                    <rect key="frame" x="0.0" y="0.0" width="1326" height="51.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="1326" height="59"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
@@ -184,7 +183,7 @@
                 <navigationController storyboardIdentifier="settingsNC" id="h6t-CT-B8r" customClass="NCNavigationController" sceneMemberID="viewController">
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="Mqg-tq-GRj">
-                        <rect key="frame" x="0.0" y="24" width="1366" height="50"/>
+                        <rect key="frame" x="0.0" y="24" width="1366" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -200,9 +199,6 @@
         <image name="app-logo-callkit" width="40" height="40"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -112,7 +112,7 @@ typedef enum RoomsSections {
     [_roomsBackgroundView.placeholderView setHidden:YES];
     [_roomsBackgroundView.loadingView startAnimating];
     self.tableView.backgroundView = _roomsBackgroundView;
-    
+
     // Unread mentions bottom indicator
     _unreadMentionsBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 126, 28)];
     _unreadMentionsBottomButton.backgroundColor = [NCAppBranding themeColor];
@@ -239,7 +239,19 @@ typedef enum RoomsSections {
 
     self.navigationItem.searchController = _searchController;
 
-    [NCAppBranding styleViewController:self];
+    if (@available(iOS 26.0, *)) {
+        self.tableView.backgroundColor = [UIColor clearColor];
+
+        // Set a solid background in collapsed mode, as otherwise we have a weird color transition
+        // when navigating back in light mode
+        if (self.splitViewController.isCollapsed) {
+            self.view.backgroundColor = [UIColor systemBackgroundColor];
+        } else {
+            self.view.backgroundColor = [UIColor clearColor];
+        }
+    } else {
+        [NCAppBranding styleViewController:self];
+    }
 }
 
 - (void)setNavigationLogoButton
@@ -329,6 +341,7 @@ typedef enum RoomsSections {
 {
     if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
         [self setProfileButton];
+        [self setupNavigationBar];
     }
 }
 
@@ -1686,6 +1699,8 @@ typedef enum RoomsSections {
     if (!cell) {
         cell = [[RoomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:RoomTableViewCell.identifier];
     }
+
+    cell.backgroundColor = [UIColor clearColor];
 
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
     

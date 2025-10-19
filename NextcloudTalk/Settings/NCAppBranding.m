@@ -214,7 +214,15 @@ BOOL const useServerThemimg = YES;
 
     if (@available(iOS 26.0, *)) {
         controller.navigationController.navigationBar.translucent = YES;
-        [controller.view setBackgroundColor:[UIColor systemGroupedBackgroundColor]];
+        [controller.view setBackgroundColor:[UIColor systemBackgroundColor]];
+
+        if ([controller isKindOfClass:[UITableViewController class]]) {
+            UITableViewController *tableViewController = (UITableViewController *)controller;
+
+            if (tableViewController.tableView.style == UITableViewStyleInsetGrouped) {
+                [controller.view setBackgroundColor:[UIColor systemGroupedBackgroundColor]];
+            }
+        }
 
         return;
     }

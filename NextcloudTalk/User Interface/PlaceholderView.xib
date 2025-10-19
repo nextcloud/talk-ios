@@ -19,7 +19,7 @@
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="iN0-l3-epB">
+        <view opaque="NO" contentMode="scaleToFill" id="iN0-l3-epB">
             <rect key="frame" x="0.0" y="0.0" width="350" height="350"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -27,7 +27,7 @@
                     <rect key="frame" x="165" y="175" width="20" height="20"/>
                     <color key="color" systemColor="placeholderTextColor"/>
                 </activityIndicatorView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vla-vD-TGa">
+                <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vla-vD-TGa">
                     <rect key="frame" x="16" y="40" width="318" height="290"/>
                     <subviews>
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chat-placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="VTo-Dp-QXn">
@@ -59,7 +59,7 @@
                 </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="MQb-YF-lsB"/>
-            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="FB3-Ig-rQB" firstAttribute="centerY" secondItem="MQb-YF-lsB" secondAttribute="centerY" id="JXb-4p-Q1n"/>
                 <constraint firstItem="Vla-vD-TGa" firstAttribute="leading" secondItem="MQb-YF-lsB" secondAttribute="leading" constant="16" id="O8w-gy-WDd"/>
@@ -76,9 +76,6 @@
         <image name="chat-placeholder" width="128" height="128"/>
         <systemColor name="placeholderTextColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>
