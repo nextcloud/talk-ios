@@ -103,7 +103,7 @@ import MBProgressHUD
     private lazy var itemToolbar: UIToolbar = {
         let toolbar = UIToolbar(frame: .init(x: 0, y: 0, width: 100, height: 44))
 
-        toolbar.barTintColor = .systemGroupedBackground
+        toolbar.barTintColor = .systemBackground
         toolbar.isTranslucent = false
 
         if #unavailable(iOS 26) {
