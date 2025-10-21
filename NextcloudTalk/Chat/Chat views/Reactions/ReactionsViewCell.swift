@@ -29,7 +29,7 @@ import UIKit
     }
 
     func defaultBackgroundColor() -> UIColor {
-        return .tertiarySystemGroupedBackground
+        return .tertiarySystemBackground
     }
 
     func highlightedTextColor() -> UIColor {

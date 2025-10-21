@@ -29,6 +29,7 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
 
 // Common elements
 public let chatMessageCellPreviewCornerRadius = 4.0
+public let chatMessageCellAvatarHeight = 30.0
 
 // Message cell
 public let chatMessageCellIdentifier = "chatMessageCellIdentifier"
@@ -279,7 +280,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.bubbleViewRightConstraintEqual.isActive = isOwnMessage
         self.bubbleViewRightConstraintLessThan.isActive = !isOwnMessage
 
-        var backgroundColor: UIColor? = .secondarySystemGroupedBackground
+        var backgroundColor: UIColor? = .secondarySystemBackground
 
         if isOwnMessage {
             backgroundColor = BaseChatTableViewCell.bubbleColorCache.object(forKey: account.accountId as NSString)

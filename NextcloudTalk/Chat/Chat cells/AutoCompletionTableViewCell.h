@@ -5,8 +5,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "SystemMessageTableViewCell.h"
-
+static CGFloat kChatCellAvatarHeight        = 30.0;
 static CGFloat kAutoCompletionCellHeight        = 50.0;
 
 static NSString *AutoCompletionCellIdentifier   = @"AutoCompletionCellIdentifier";

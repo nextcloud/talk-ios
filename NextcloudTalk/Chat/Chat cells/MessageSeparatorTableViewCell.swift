@@ -109,7 +109,7 @@ class MessageSeparatorTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         self.selectionStyle = .none
-        self.contentView.backgroundColor = .systemGroupedBackground
+        self.contentView.backgroundColor = .systemBackground
 
         contentStackView.addArrangedSubview(self.separatorLabel)
         contentStackView.addArrangedSubview(self.summaryButton)

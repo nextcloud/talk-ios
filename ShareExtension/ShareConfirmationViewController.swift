@@ -103,7 +103,7 @@ import MBProgressHUD
     private lazy var itemToolbar: UIToolbar = {
         let toolbar = UIToolbar(frame: .init(x: 0, y: 0, width: 100, height: 44))
 
-        toolbar.barTintColor = .systemGroupedBackground
+        toolbar.barTintColor = .systemBackground
         toolbar.isTranslucent = false
 
         if #unavailable(iOS 26) {
@@ -198,7 +198,7 @@ import MBProgressHUD
         collectionView.dataSource = self
         collectionView.isPagingEnabled = true
         collectionView.showsVerticalScrollIndicator = false
-        collectionView.backgroundColor = .systemGroupedBackground
+        collectionView.backgroundColor = .systemBackground
         return collectionView
     }()
 
@@ -359,7 +359,10 @@ import MBProgressHUD
             cancelButton.accessibilityHint = NSLocalizedString("Double tap to dismiss sharing options", comment: "")
 
             self.navigationItem.leftBarButtonItem = cancelButton
-            self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+
+            if #unavailable(iOS 26) {
+                self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+            }
         }
 
         var captionAllowed = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMediaCaption, forAccountId: account.accountId)

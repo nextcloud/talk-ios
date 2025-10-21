@@ -51,7 +51,6 @@
 #import "NCChatTitleView.h"
 #import "NCMessageParameter.h"
 #import "ReplyMessageView.h"
-#import "SystemMessageTableViewCell.h"
 
 #import "JDStatusBarNotificationPresenter.h"
 #import "UIResponder+SLKAdditions.h"

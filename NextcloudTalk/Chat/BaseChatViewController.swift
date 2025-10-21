@@ -165,7 +165,7 @@ import SwiftUI
             self?.tableView?.slk_scrollToBottom(animated: true)
         })
 
-        button.backgroundColor = .secondarySystemGroupedBackground
+        button.backgroundColor = .secondarySystemBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = 8
         button.clipsToBounds = true
@@ -181,7 +181,7 @@ import SwiftUI
     private lazy var voiceRecordingLockButton: UIButton = {
         let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
 
-        button.backgroundColor = .secondarySystemGroupedBackground
+        button.backgroundColor = .secondarySystemBackground
         button.tintColor = .systemBlue
         button.layer.cornerRadius = button.frame.size.height / 2
         button.clipsToBounds = true
@@ -279,7 +279,7 @@ import SwiftUI
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: pollMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: pollGroupedMessageCellIdentifier)
 
-        self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageCellIdentifier)
+        self.tableView?.register(SystemMessageTableViewCell.self, forCellReuseIdentifier: SystemMessageTableViewCell.identifier)
         self.tableView?.register(MessageSeparatorTableViewCell.self, forCellReuseIdentifier: MessageSeparatorTableViewCell.identifier)
 
         let newMessagesButtonText = NSLocalizedString("↓ New messages", comment: "")
@@ -2921,7 +2921,7 @@ import SwiftUI
         }
 
         if message.isSystemMessage,
-           let cell = self.tableView?.dequeueReusableCell(withIdentifier: SystemMessageCellIdentifier) as? SystemMessageTableViewCell {
+           let cell = self.tableView?.dequeueReusableCell(withIdentifier: SystemMessageTableViewCell.identifier) as? SystemMessageTableViewCell {
 
             cell.delegate = self
             cell.setup(for: message)
@@ -3017,7 +3017,7 @@ import SwiftUI
     func getCellHeight(for message: NCChatMessage) -> CGFloat {
         guard let tableView = self.tableView else { return chatMessageCellMinimumHeight }
 
-        var width = tableView.frame.width - kChatCellAvatarHeight
+        var width = tableView.frame.width - chatMessageCellAvatarHeight
         width -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right
 
         return self.getCellHeight(for: message, with: width)
@@ -3264,7 +3264,7 @@ import SwiftUI
         let maxPreviewHeight = self.view.bounds.size.height * 0.4
 
         // TODO: Take padding into account
-        let maxTextWidth = maxPreviewWidth - kChatCellAvatarHeight
+        let maxTextWidth = maxPreviewWidth - chatMessageCellAvatarHeight
 
         // We need to get the height of the original cell to center the preview correctly (as the preview is always non-grouped)
         let heightOfOriginalCell = self.getCellHeight(for: message, with: maxTextWidth)
@@ -3301,7 +3301,7 @@ import SwiftUI
             previewMessageView.layer.mask = maskLayer
         }
 
-        previewMessageView.backgroundColor = .systemGroupedBackground
+        previewMessageView.backgroundColor = .systemBackground
         self.contextMenuMessageView = previewMessageView
 
         // Restore grouped-status
@@ -3743,7 +3743,7 @@ import SwiftUI
 
     // MARK: - SystemMessageTableViewCellDelegate
 
-    public func cellWantsToCollapseMessages(with message: NCChatMessage!) {
+    public func cellWantsToCollapseMessages(with message: NCChatMessage) {
         DispatchQueue.main.async {
             guard let messageIds = message.collapsedMessages.value(forKey: "self") as? [NSNumber] else { return }
 

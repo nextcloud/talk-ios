@@ -32,7 +32,7 @@
 
 - (void)configureSubviews
 {
-    self.backgroundColor = [UIColor systemGroupedBackgroundColor];
+    self.backgroundColor = [UIColor systemBackgroundColor];
     
     [self addSubview:self.quoteContainerView];
     [self addSubview:self.cancelButton];

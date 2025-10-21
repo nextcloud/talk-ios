@@ -15,6 +15,9 @@
 
         selectionStyle = .none
 
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
+
         label.numberOfLines = 0
         label.textAlignment = .center
         label.layer.cornerRadius = 8

@@ -148,7 +148,7 @@
                     </view>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="ML2-GP-tWC"/>
-                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
+                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 <constraints>
                     <constraint firstItem="YkE-8o-ls1" firstAttribute="top" secondItem="ML2-GP-tWC" secondAttribute="top" constant="8" id="0aN-CL-bDm"/>
                     <constraint firstItem="YkE-8o-ls1" firstAttribute="bottom" secondItem="ML2-GP-tWC" secondAttribute="bottom" constant="-8" id="2Th-AG-Cdf"/>
@@ -159,7 +159,7 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
-            <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <connections>
                 <outlet property="avatarButton" destination="PCA-MF-seG" id="iaG-3y-X5d"/>
                 <outlet property="bubbleView" destination="YkE-8o-ls1" id="i70-JV-58t"/>
@@ -186,8 +186,8 @@
         <systemColor name="secondarySystemGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
-        <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>
