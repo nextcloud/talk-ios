@@ -29,6 +29,7 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
 
 // Common elements
 public let chatMessageCellPreviewCornerRadius = 4.0
+public let chatMessageCellAvatarHeight = 30.0
 
 // Message cell
 public let chatMessageCellIdentifier = "chatMessageCellIdentifier"
