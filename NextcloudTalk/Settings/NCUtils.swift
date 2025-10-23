@@ -169,17 +169,29 @@ import AVFoundation
     }
 
     public static func readableTimeOrDate(fromDate date: Date) -> String {
-        if Calendar.current.isDateInToday(date) {
+        let calendar = Calendar.current
+        let now = Date()
+
+        if calendar.isDateInToday(date) {
             return self.getTime(fromDate: date)
-        } else if Calendar.current.isDateInYesterday(date) {
+        } else if calendar.isDateInYesterday(date) {
             return NSLocalizedString("Yesterday", comment: "")
+        } else if isDateWithinLastDays(date: date, days: 6) {
+            // Within last 6 days (e.g. Monday)
+            let weekdayFormatter = DateFormatter()
+            weekdayFormatter.setLocalizedDateFormatFromTemplate("EEEE")
+            return weekdayFormatter.string(from: date)
+        } else if calendar.component(.year, from: date) == calendar.component(.year, from: now) {
+            // Within this year (e.g. Oct 23)
+            let monthDayFormatter = DateFormatter()
+            monthDayFormatter.setLocalizedDateFormatFromTemplate("MMMd")
+            return monthDayFormatter.string(from: date)
+        } else {
+            // Older than this year (e.g. Oct 23, 2024)
+            let dateFormatter = DateFormatter()
+            dateFormatter.setLocalizedDateFormatFromTemplate("yyyyMMMd")
+            return dateFormatter.string(from: date)
         }
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .none
-
-        return dateFormatter.string(from: date)
     }
 
     public static func readableTimeAndDate(fromDate date: Date) -> String {
@@ -245,6 +257,18 @@ import AVFoundation
     public static func setWeekday(_ weekday: Int, withDate date: Date) -> Date {
         let currentWeekday = Calendar.current.component(.weekday, from: date)
         return Calendar.current.date(byAdding: .day, value: (weekday - currentWeekday), to: date)!
+    }
+
+    public static func isDateWithinLastDays(date: Date, days: Int) -> Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let date = calendar.startOfDay(for: date)
+
+        guard let thresholdDate = calendar.date(byAdding: .day, value: -days, to: today) else {
+            return false
+        }
+
+        return date >= thresholdDate
     }
 
     // MARK: - Crypto utils
