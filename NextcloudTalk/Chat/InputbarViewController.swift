@@ -148,7 +148,7 @@ import UIKit
         self.textInputbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         self.textView.delegate = self
 
-        self.autoCompletionView.register(AutoCompletionTableViewCell.self, forCellReuseIdentifier: AutoCompletionCellIdentifier)
+        self.autoCompletionView.register(AutoCompletionTableViewCell.self, forCellReuseIdentifier: AutoCompletionTableViewCell.identifier)
         self.registerPrefixes(forAutoCompletion: ["@"])
 
         self.autoCompletionView.backgroundColor = .systemBackground
@@ -247,7 +247,7 @@ import UIKit
     }
 
     public override func heightForAutoCompletionView() -> CGFloat {
-        return kAutoCompletionCellHeight * CGFloat(self.autocompletionUsers.count) + (self.autoCompletionView.tableHeaderView?.frame.height ?? 0)
+        return AutoCompletionTableViewCell.cellHeight * CGFloat(self.autocompletionUsers.count) + (self.autoCompletionView.tableHeaderView?.frame.height ?? 0)
     }
 
     func showSuggestions(for string: String) {
@@ -352,9 +352,9 @@ import UIKit
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard tableView == self.autoCompletionView,
               indexPath.row < self.autocompletionUsers.count,
-              let cell = self.autoCompletionView.dequeueReusableCell(withIdentifier: AutoCompletionCellIdentifier) as? AutoCompletionTableViewCell
+              let cell = self.autoCompletionView.dequeueReusableCell(withIdentifier: AutoCompletionTableViewCell.identifier) as? AutoCompletionTableViewCell
         else {
-            return AutoCompletionTableViewCell(style: .default, reuseIdentifier: AutoCompletionCellIdentifier)
+            return AutoCompletionTableViewCell(style: .default, reuseIdentifier: AutoCompletionTableViewCell.identifier)
         }
 
         let suggestion = self.autocompletionUsers[indexPath.row]
@@ -388,7 +388,7 @@ import UIKit
             cell.layer.borderWidth = 0.0
         }
 
-        cell.accessibilityIdentifier = AutoCompletionCellIdentifier
+        cell.accessibilityIdentifier = AutoCompletionTableViewCell.identifier
         return cell
     }
 
@@ -412,7 +412,7 @@ import UIKit
     }
 
     public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return kAutoCompletionCellHeight
+        return AutoCompletionTableViewCell.cellHeight
     }
 
     // MARK: - TextView functiosn

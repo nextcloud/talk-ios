@@ -491,7 +491,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				CalendarEvent.swift,
-				"Chat cells/AutoCompletionTableViewCell.m",
+				"Chat cells/AutoCompletionTableViewCell.swift",
 				"Chat cells/EmojiUtils.swift",
 				"Chat cells/SwiftMarkdownObjCBridge.swift",
 				"Chat views/NCChatTitleView.m",
