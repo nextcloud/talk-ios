@@ -337,7 +337,23 @@ import SwiftyAttributes
         return file.size <= maxGifSize
     }
 
-    public func messagePreview(forOneToOneRoom: Bool = false) -> NSMutableAttributedString? {
+    public func lastMessagePreview(forOneToOneRoom: Bool = false) -> NSMutableAttributedString? {
+        guard let message = messageForLastMessagePreview()
+        else {return nil}
+
+        let lastMessageAttributedString = NSMutableAttributedString()
+        // Actor name (if needed)
+        if let actorName = actorNameForLastMessagePreview(forOneToOneRoom: forOneToOneRoom) {
+            let actorNameAttributedString = NSMutableAttributedString(string: actorName)
+            lastMessageAttributedString.append(actorNameAttributedString)
+        }
+        // Message
+        lastMessageAttributedString.append(message)
+
+        return lastMessageAttributedString.withFont(.preferredFont(forTextStyle: .callout)).withTextColor(.secondaryLabel)
+    }
+
+    internal func actorNameForLastMessagePreview(forOneToOneRoom: Bool = false) -> String? {
         guard let account = self.account
         else { return nil }
 
@@ -364,18 +380,23 @@ import SwiftyAttributes
             actorName = "\(actorName): "
         }
 
-        let lastMessageString = NSMutableAttributedString(string: actorName)
+        return actorName
+    }
 
+    public func messageForLastMessagePreview() -> NSAttributedString? {
+        let message = String(self.parsedMarkdown().string.prefix(80))
+        if message.isEmpty { return nil}
+
+        let messageAttributedString = NSMutableAttributedString()
+        // Icon
         if let messageIconName = self.messageIconName, let messageIcon = UIImage(systemName: messageIconName) {
-            let attachmentString = NSMutableAttributedString(attachment: NSTextAttachment(image: messageIcon))
-            attachmentString.append(NSAttributedString(string: " "))
-
-            lastMessageString.append(attachmentString)
+            let attachmentAttributedString = NSMutableAttributedString(attachment: NSTextAttachment(image: messageIcon))
+            attachmentAttributedString.append(NSAttributedString(string: " "))
+            messageAttributedString.append(attachmentAttributedString)
         }
+        // Message
+        messageAttributedString.append(NSAttributedString(string: message))
 
-        let parsedMarkdownString = String(self.parsedMarkdown().string.prefix(80))
-        lastMessageString.append(NSAttributedString(string: parsedMarkdownString))
-
-        return lastMessageString.withFont(.preferredFont(forTextStyle: .callout)).withTextColor(.secondaryLabel)
+        return messageAttributedString
     }
 }
