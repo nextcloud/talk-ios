@@ -150,7 +150,7 @@
     
     self.message = message;
     self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
-    self.quotedMessageView.messageLabel.text = message.parsedMarkdownForChat.string;
+    self.quotedMessageView.messageLabel.attributedText = [message messageForLastMessagePreview];
     self.quotedMessageView.highlighted = [message isMessageFrom:userId];
 
     TalkAccount *account = message.account;

@@ -85,7 +85,7 @@ import UIKit
         cell.roomToken = thread.roomToken
 
         let message = thread.lastMessage() ?? thread.firstMessage()
-        cell.subtitleLabel.text = message?.messagePreview()?.string
+        cell.subtitleLabel.text = message?.lastMessagePreview()?.string
 
         if let timestamp = message?.timestamp {
             let date = Date(timeIntervalSince1970: TimeInterval(timestamp))

@@ -351,7 +351,7 @@ import SwiftUI
                         continue
                     }
 
-                    action.subtitle = message.messagePreview()?.string
+                    action.subtitle = message.lastMessagePreview()?.string
                     if let image = AvatarManager.shared.getThreadAvatar(for: thread, with: self.traitCollection.userInterfaceStyle) {
                         action.image = NCUtils.roundedImage(fromImage: image)
                     }

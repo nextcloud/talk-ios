@@ -261,7 +261,7 @@ import SwiftyAttributes
             lastMessage = NCChatMessage(dictionary: lastMessageDictionary)
         }
 
-        return lastMessage?.messagePreview(forOneToOneRoom: self.type == .oneToOne)
+        return lastMessage?.lastMessagePreview(forOneToOneRoom: self.type == .oneToOne)
     }
 
     private var lastMessageProxiedDictionary: [AnyHashable: Any] {
