@@ -12,10 +12,10 @@ import UIKit
     static let markdownParser: CDMarkdownParser = {
         let markdownParser = CDMarkdownParser(font: .preferredFont(forTextStyle: .body), fontColor: .label)
 
-        markdownParser.code.backgroundColor = .tertiarySystemGroupedBackground
+        markdownParser.code.backgroundColor = .tertiarySystemBackground
         markdownParser.code.font = .monospacedPreferredFont(forTextStyle: .body)
 
-        markdownParser.syntax.backgroundColor = .tertiarySystemGroupedBackground
+        markdownParser.syntax.backgroundColor = .tertiarySystemBackground
         markdownParser.syntax.font = .monospacedPreferredFont(forTextStyle: .body)
 
         markdownParser.squashNewlines = false
