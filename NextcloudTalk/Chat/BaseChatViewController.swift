@@ -3227,6 +3227,8 @@ import SwiftUI
             self.contextMenuMessageView?.layer.cornerRadius = 10
             self.contextMenuMessageView?.layer.mask = nil
         }
+
+        self.textView.resignFirstResponder()
     }
 
     public override func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
