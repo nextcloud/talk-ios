@@ -188,6 +188,7 @@ typedef enum RoomsSections {
                     weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
                     [self filterRooms];
                     [self setupSearchBar];
+                    [self updateMentionsIndicator];
                 }];
 
                 if (filterId == [NSNumber numberWithInt:kRoomsFilterAll]) {
