@@ -20,7 +20,6 @@
 #import "NCMessageTextView.h"
 #import "ReplyMessageView.h"
 #import "NCSettingsController.h"
-#import "AutoCompletionTableViewCell.h"
 #import "NCKeyChainController.h"
 #import "CCCertificate.h"
 
