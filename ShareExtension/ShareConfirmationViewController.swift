@@ -72,7 +72,10 @@ import MBProgressHUD
 
     private lazy var sharingIndicatorView: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView()
-        indicator.color = NCAppBranding.themeTextColor()
+
+        if #unavailable(iOS 26.0) {
+            indicator.color = NCAppBranding.themeTextColor()
+        }
 
         return indicator
     }()
@@ -207,6 +210,8 @@ import MBProgressHUD
         textView.font = .preferredFont(forTextStyle: .body)
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isHidden = true
+        textView.backgroundColor = .secondarySystemBackground
+        textView.layer.cornerRadius = 8
         return textView
     }()
 
