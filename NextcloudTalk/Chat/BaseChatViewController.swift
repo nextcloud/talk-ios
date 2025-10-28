@@ -1923,6 +1923,11 @@ import SwiftUI
     func transcribeVoiceMessage(with fileStatus: NCChatFileStatus) {
         guard let fileLocalPath = fileStatus.fileLocalPath else { return }
 
+        // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+        // may be incorrect after dismissing a modal/context menu on iOS 26.
+        // TODO: Recheck if this behavior is fixed on iOS 26+.
+        self.textView.resignFirstResponder()
+
         DispatchQueue.main.async {
             let audioFileURL = URL(fileURLWithPath: fileLocalPath)
             let viewController = VoiceMessageTranscribeViewController(audiofileUrl: audioFileURL)
@@ -2773,6 +2778,11 @@ import SwiftUI
         // Actuate `Peek` feedback (weak boom)
         AudioServicesPlaySystemSound(1519)
 
+        // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+        // may be incorrect after dismissing a modal/context menu on iOS 26.
+        // TODO: Recheck if this behavior is fixed on iOS 26+.
+        self.textView.resignFirstResponder()
+
         let reactionsVC = ReactionsSummaryView(style: .insetGrouped)
         reactionsVC.room = self.room
         self.presentWithNavigation(reactionsVC, animated: true)
@@ -3228,6 +3238,9 @@ import SwiftUI
             self.contextMenuMessageView?.layer.mask = nil
         }
 
+        // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+        // may be incorrect after dismissing a modal/context menu on iOS 26.
+        // TODO: Recheck if this behavior is fixed on iOS 26+.
         self.textView.resignFirstResponder()
     }
 
@@ -3606,6 +3619,11 @@ import SwiftUI
             let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)
             let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
+            // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+            // may be incorrect after dismissing a modal/context menu on iOS 26.
+            // TODO: Recheck if this behavior is fixed on iOS 26+.
+            self.textView.resignFirstResponder()
+
             self.present(navController, interactiveDismissalType: .standard)
 
             return
@@ -3619,6 +3637,11 @@ import SwiftUI
             if !fileExtension.isEmpty, !VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
                 let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)
                 let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
+
+                // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+                // may be incorrect after dismissing a modal/context menu on iOS 26.
+                // TODO: Recheck if this behavior is fixed on iOS 26+.
+                self.textView.resignFirstResponder()
 
                 self.present(navController, interactiveDismissalType: .standard)
                 return
@@ -3720,6 +3743,11 @@ import SwiftUI
     // MARK: - LocationMessageTableViewCell
 
     public func cellWants(toOpenLocation geoLocationRichObject: GeoLocationRichObject) {
+        // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+        // may be incorrect after dismissing a modal/context menu on iOS 26.
+        // TODO: Recheck if this behavior is fixed on iOS 26+.
+        self.textView.resignFirstResponder()
+
         self.presentWithNavigation(MapViewController(geoLocationRichObject: geoLocationRichObject), animated: true)
     }
 
@@ -3731,6 +3759,11 @@ import SwiftUI
 
         guard let pollId = Int(poll.parameterId) else { return }
 
+        // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+        // may be incorrect after dismissing a modal/context menu on iOS 26.
+        // TODO: Recheck if this behavior is fixed on iOS 26+.
+        self.textView.resignFirstResponder()
+
         NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: self.account) { poll, error, _ in
             if error == nil, let poll {
                 pollVC.updatePoll(poll: poll)
@@ -3740,6 +3773,11 @@ import SwiftUI
 
     // MARK: - Thread messages
     public func cellWants(toShowThread message: NCChatMessage) {
+        // Hiding the keyboard due to a UIKit issue where the reported keyboard height
+        // may be incorrect after dismissing a modal/context menu on iOS 26.
+        // TODO: Recheck if this behavior is fixed on iOS 26+.
+        self.textView.resignFirstResponder()
+
         self.didPressShowThread(for: message)
     }
 
