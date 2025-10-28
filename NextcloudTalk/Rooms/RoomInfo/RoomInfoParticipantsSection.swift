@@ -121,7 +121,7 @@ struct RoomInfoParticipantsSection: View {
                         ContactsTableViewCellWrapper(room: $room, participant: $participant)
                             .frame(height: 72) // Height set in the XIB file
                     }
-                    .listRowInsets(.init())
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 12))
                     .alignmentGuide(.listRowSeparatorLeading) { _ in
                         72
                     }

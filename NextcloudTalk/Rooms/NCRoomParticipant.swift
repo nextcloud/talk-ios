@@ -44,7 +44,6 @@ public class NCRoomParticipant: NSObject {
         self.attendeeId = dictionary["attendeeId"] as? Int ?? 0
         self.actorId = dictionary["actorId"] as? String
         self.displayName = dictionary["displayName"] as? String ?? ""
-        self.inCall = dictionary["inCall"] as? CallFlag ?? []
         self.lastPing = dictionary["lastPing"] as? Int ?? 0
         self.sessionId = dictionary["sessionId"] as? String
         self.sessionIds = dictionary["sessionIds"] as? [String]
@@ -60,6 +59,10 @@ public class NCRoomParticipant: NSObject {
            let participantType = NCParticipantType(rawValue: participantTypeRaw) {
 
             self.participantType = participantType
+        }
+
+        if let callFlagRaw = dictionary["inCall"] as? Int {
+            self.inCall = CallFlag(rawValue: callFlagRaw)
         }
 
         // Optional attributes
