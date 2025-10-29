@@ -48,7 +48,9 @@ import UIKit
         super.viewDidLoad()
 
         self.activityIndicatorView = UIActivityIndicatorView()
-        self.activityIndicatorView.color = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.activityIndicatorView.color = NCAppBranding.themeTextColor()
+        }
 
         self.setMoreOptionsButton()
 

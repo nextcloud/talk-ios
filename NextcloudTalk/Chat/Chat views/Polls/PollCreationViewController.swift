@@ -51,7 +51,9 @@ import UIKit
         super.viewDidLoad()
 
         self.creatingPollIndicatorView = UIActivityIndicatorView()
-        self.creatingPollIndicatorView.color = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.creatingPollIndicatorView.color = NCAppBranding.themeTextColor()
+        }
 
         self.setMoreOptionsButton()
 

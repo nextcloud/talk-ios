@@ -46,7 +46,9 @@ class FederationInvitationTableViewController: UITableViewController, Federation
         self.backgroundView.placeholderView.isHidden = true
         self.backgroundView.loadingView.startAnimating()
 
-        self.modifyingViewIndicator.color = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.modifyingViewIndicator.color = NCAppBranding.themeTextColor()
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
