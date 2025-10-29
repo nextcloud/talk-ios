@@ -71,4 +71,51 @@ final class UnitNCRoomParticipantTest: TestBaseRealm {
 
         XCTAssertEqual(sorted, expectedParticipants)
     }
+
+    func testInitWithDictionary() throws {
+        let dataJson = """
+            {
+                    "roomToken": "tok3n",
+                    "inCall": 7,
+                    "lastPing": 1761683745,
+                    "sessionIds": [
+                        "session1",
+                        "session2"
+                    ],
+                    "participantType": 1,
+                    "attendeeId": 72,
+                    "actorId": "admin",
+                    "actorType": "users",
+                    "displayName": "admin",
+                    "permissions": 254,
+                    "attendeePermissions": 0,
+                    "attendeePin": "",
+                    "phoneNumber": "",
+                    "callId": "",
+                    "status": "busy",
+                    "statusIcon": "💬",
+                    "statusMessage": "In a call",
+                    "statusClearAt": null
+            }
+            """
+
+        // swiftlint:disable:next force_cast
+        let participantdict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
+        let participant = NCRoomParticipant(dictionary: participantdict)
+
+        XCTAssertEqual(participant.attendeeId, 72)
+        XCTAssertEqual(participant.actorId, "admin")
+        XCTAssertEqual(participant.actorType, .user)
+        XCTAssertEqual(participant.participantType, .owner)
+        XCTAssertEqual(participant.displayName, "admin")
+        XCTAssertEqual(participant.lastPing, 1761683745)
+        XCTAssertEqual(participant.sessionIds?[0], "session1")
+        XCTAssertEqual(participant.sessionIds?[1], "session2")
+        XCTAssertEqual(participant.inCall, [.inCall, .withAudio, .withVideo])
+        XCTAssertEqual(participant.status, "busy")
+        XCTAssertEqual(participant.statusIcon, "💬")
+        XCTAssertEqual(participant.statusMessage, "In a call")
+        XCTAssertNil(participant.userId)
+    }
+
 }
