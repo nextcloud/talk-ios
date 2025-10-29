@@ -141,6 +141,11 @@ import QuickLook
         itemTypeSelectorButton.setTitle(buttonTitle, for: .normal)
         itemTypeSelectorButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         itemTypeSelectorButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
+        if #available(iOS 26.0, *) {
+            itemTypeSelectorButton.setTitleColor(.label, for: .normal)
+        } else {
+            itemTypeSelectorButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
+        }
         self.navigationItem.titleView = itemTypeSelectorButton
 
         var menuActions: [UIAction] = []
