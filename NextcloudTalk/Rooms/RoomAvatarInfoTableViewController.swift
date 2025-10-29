@@ -209,6 +209,7 @@ enum RoomAvatarInfoSection: Int {
     func removeModifyingView() {
         modifyingView.stopAnimating()
         self.headerView.changeButtonState(to: true)
+        self.navigationItem.rightBarButtonItem = nil
         self.tableView.isUserInteractionEnabled = true
     }
 
