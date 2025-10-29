@@ -65,7 +65,9 @@ enum RoomAvatarInfoSection: Int {
         self.tableView.register(TextViewTableViewCell.self, forCellReuseIdentifier: TextViewTableViewCell.identifier)
         self.tableView.tableHeaderView = self.headerView
 
-        self.modifyingView.color = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.modifyingView.color = NCAppBranding.themeTextColor()
+        }
 
         if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId) {
             self.descriptionMaxLength = serverCapabilities.descriptionLength

@@ -69,7 +69,9 @@ import UIKit
         self.translateTextView.layer.cornerRadius = 8
 
         self.modifyingProfileView = UIActivityIndicatorView()
-        self.modifyingProfileView.color = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.modifyingProfileView.color = NCAppBranding.themeTextColor()
+        }
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         if #unavailable(iOS 26.0) {

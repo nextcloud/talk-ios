@@ -97,7 +97,9 @@ enum RoomVisibilityOption: Int {
         self.createButton.isEnabled = false
         self.navigationItem.rightBarButtonItem = self.createButton
 
-        self.modifyingView.color = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            self.modifyingView.color = NCAppBranding.themeTextColor()
+        }
 
         self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: self.account.accountId)
         // Need to have an explicit size here for the header view

@@ -66,7 +66,10 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         }
 
         modifyingProfileView = UIActivityIndicatorView()
-        modifyingProfileView.color = NCAppBranding.themeTextColor()
+        if #unavailable(iOS 26.0) {
+            modifyingProfileView.color = NCAppBranding.themeTextColor()
+        }
+
         tableView.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
         tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: TextFieldTableViewCell.identifier)
         NotificationCenter.default.addObserver(self, selector: #selector(userProfileImageUpdated), name: NSNotification.Name.NCUserProfileImageUpdated, object: nil)
