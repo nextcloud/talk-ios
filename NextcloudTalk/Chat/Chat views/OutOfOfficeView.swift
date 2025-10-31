@@ -41,11 +41,34 @@ import SwiftyAttributes
         addSubview(contentView)
         contentView.frame = frame
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        contentView.backgroundColor = .systemBackground
 
-        leftIndicator.backgroundColor = NCAppBranding.themeColor()
-        backgroundView.backgroundColor = NCAppBranding.themeColor().withAlphaComponent(0.3)
-        wrapperView.backgroundColor = .systemBackground
+        if #available(iOS 26.0, *) {
+            let effectView = UIVisualEffectView()
+            wrapperView.insertSubview(effectView, at: 0)
+
+            let glassEffect = UIGlassEffect(style: .regular)
+            effectView.effect = glassEffect
+            glassEffect.isInteractive = true
+
+            effectView.translatesAutoresizingMaskIntoConstraints = false
+
+            NSLayoutConstraint.activate([
+                effectView.leftAnchor.constraint(equalTo: wrapperView.leftAnchor),
+                effectView.rightAnchor.constraint(equalTo: wrapperView.rightAnchor),
+                effectView.topAnchor.constraint(equalTo: wrapperView.topAnchor),
+                effectView.bottomAnchor.constraint(equalTo: wrapperView.bottomAnchor)
+            ])
+
+            contentView.backgroundColor = .clear
+            backgroundView.backgroundColor = .clear
+            wrapperView.backgroundColor = .clear
+        } else {
+            contentView.backgroundColor = .systemBackground
+            backgroundView.backgroundColor = NCAppBranding.elementColorBackground()
+            wrapperView.backgroundColor = .systemBackground
+        }
+
+        leftIndicator.backgroundColor = NCAppBranding.elementColor()
         wrapperView.layer.cornerRadius = 8
         wrapperView.layer.masksToBounds = true
 
