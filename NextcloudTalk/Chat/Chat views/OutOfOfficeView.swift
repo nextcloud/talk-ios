@@ -48,8 +48,6 @@ import SwiftyAttributes
 
             let glassEffect = UIGlassEffect(style: .regular)
             effectView.effect = glassEffect
-            glassEffect.isInteractive = true
-
             effectView.translatesAutoresizingMaskIntoConstraints = false
 
             NSLayoutConstraint.activate([
