@@ -165,7 +165,12 @@ import SwiftUI
             self?.tableView?.slk_scrollToBottom(animated: true)
         })
 
-        button.backgroundColor = .secondarySystemBackground
+        if #available(iOS 26.0, *) {
+            button.configuration = .glass()
+        } else {
+            button.backgroundColor = .secondarySystemBackground
+        }
+
         button.tintColor = .systemBlue
         button.layer.cornerRadius = 8
         button.clipsToBounds = true
@@ -181,7 +186,12 @@ import SwiftUI
     private lazy var voiceRecordingLockButton: UIButton = {
         let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44))
 
-        button.backgroundColor = .secondarySystemBackground
+        if #available(iOS 26.0, *) {
+            button.configuration = .glass()
+        } else {
+            button.backgroundColor = .secondarySystemBackground
+        }
+        
         button.tintColor = .systemBlue
         button.layer.cornerRadius = button.frame.size.height / 2
         button.clipsToBounds = true
