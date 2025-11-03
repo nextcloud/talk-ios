@@ -85,6 +85,7 @@ extern NSString * const kCapabilityConversationCreationAll;
 extern NSString * const kCapabilityImportantConversations;
 extern NSString * const kCapabilitySensitiveConversations;
 extern NSString * const kCapabilityThreads;
+extern NSString * const kCapabilityPinnedMessages;
 
 extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kNotificationsCapabilityTestPush;
