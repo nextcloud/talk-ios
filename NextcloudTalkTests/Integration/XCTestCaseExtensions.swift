@@ -61,6 +61,47 @@ extension XCTestCase {
         }
     }
 
+    func sendMessage(message: String, inRoom token: String, withAccount account: TalkAccount) async throws -> NCChatMessage {
+        return try await withCheckedThrowingContinuation { continuation in
+            NCAPIController.sharedInstance().sendChatMessage(message, toRoom: token, threadTitle: "", replyTo: 0, referenceId: "", silently: false, for: account) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                NCAPIController.sharedInstance().receiveChatMessages(ofRoom: token,
+                                                                     fromLastMessageId: 0,
+                                                                     inThread: 0,
+                                                                     history: true,
+                                                                     includeLastMessage: true,
+                                                                     timeout: false,
+                                                                     limit: 0,
+                                                                     lastCommonReadMessage: 0,
+                                                                     setReadMarker: false,
+                                                                     markNotificationsAsRead: false,
+                                                                     for: account) { messages, _, _, error, _ in
+
+                    if let error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+
+                    for rawMessage in messages! {
+                        if let dictMessage = rawMessage as? [AnyHashable: Any] {
+                            let chatMessage = NCChatMessage(dictionary: dictMessage)!
+
+                            if chatMessage.message == message {
+                                continuation.resume(returning: chatMessage)
+
+                                return
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     func skipWithoutCapability(capability: String) throws {
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
 
