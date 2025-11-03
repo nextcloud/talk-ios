@@ -1277,4 +1277,32 @@ import NextcloudKit
             completionBlock(thread)
         }
     }
+
+    // MARK: - Core
+
+    @nonobjc
+    func getAppPasswordOnetime(forServer server: String, withUsername username: String, andOnetimeToken onetimeToken: String, completionBlock: @escaping (_ permanentAppToken: String?) -> Void) {
+        let appPasswordRoute = "\(server)/ocs/v2.php/core/getapppassword-onetime"
+
+        let credentialsString = "\(username):\(onetimeToken)"
+        let authHeader = "Basic \(credentialsString.data(using: .utf8)!.base64EncodedString())"
+
+        let configuration = URLSessionConfiguration.default
+        let apiSessionManager = NCAPISessionManager(configuration: configuration)
+        apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+
+        _ = apiSessionManager.get(appPasswordRoute, parameters: nil, progress: nil) { _, result in
+            if let resultDict = result as? [String: AnyObject],
+               let ocs = resultDict["ocs"] as? [String: AnyObject],
+               let data = ocs["data"] as? [String: AnyObject],
+               let apppassword = data["apppassword"] as? String {
+
+                completionBlock(apppassword)
+            }
+
+            completionBlock(nil)
+        } failure: { _, _ in
+            completionBlock(nil)
+        }
+    }
 }
