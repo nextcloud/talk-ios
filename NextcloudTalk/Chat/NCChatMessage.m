@@ -27,6 +27,7 @@ NSString * const kSharedItemTypeOther       = @"other";
 NSString * const kSharedItemTypeVoice       = @"voice";
 NSString * const kSharedItemTypePoll        = @"poll";
 NSString * const kSharedItemTypeRecording   = @"recording";
+NSString * const kSharedItemTypePinned      = @"pinned";
 
 @interface NCChatMessage ()
 {
@@ -75,6 +76,14 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     message.isThread = [[messageDict objectForKey:@"isThread"] boolValue];
     message.threadTitle = [messageDict objectForKey:@"threadTitle"];
     message.threadReplies = [[messageDict objectForKey:@"threadReplies"] integerValue];
+
+    id metaData = [messageDict objectForKey:@"metaData"];
+    if ([metaData isKindOfClass:[NSDictionary class]]) {
+        message.pinnedActorType = [metaData objectForKey:@"pinnedActorType"];
+        message.pinnedActorId = [metaData objectForKey:@"pinnedActorId"];
+        message.pinnedActorDisplayName = [metaData objectForKey:@"pinnedActorDisplayName"];
+        message.pinnedUntil = [[metaData objectForKey:@"pinnedUntil"] integerValue];
+    }
 
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
     if (!actorDisplayName) {
@@ -185,6 +194,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     managedChatMessage.lastEditActorType = chatMessage.lastEditActorType;
     managedChatMessage.lastEditActorDisplayName = chatMessage.lastEditActorDisplayName;
     managedChatMessage.lastEditTimestamp = chatMessage.lastEditTimestamp;
+    managedChatMessage.pinnedActorType = chatMessage.pinnedActorType;
+    managedChatMessage.pinnedActorId = chatMessage.pinnedActorId;
+    managedChatMessage.pinnedActorDisplayName = chatMessage.pinnedActorDisplayName;
+    managedChatMessage.pinnedUntil = chatMessage.pinnedUntil;
 
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
@@ -260,6 +273,10 @@ NSString * const kSharedItemTypeRecording   = @"recording";
     messageCopy.isThread = _isThread;
     messageCopy.threadTitle = _threadTitle;
     messageCopy.threadReplies = _threadReplies;
+    messageCopy.pinnedActorType = _pinnedActorType;
+    messageCopy.pinnedActorId = _pinnedActorId;
+    messageCopy.pinnedActorDisplayName = _pinnedActorDisplayName;
+    messageCopy.pinnedUntil = _pinnedUntil;
 
     return messageCopy;
 }

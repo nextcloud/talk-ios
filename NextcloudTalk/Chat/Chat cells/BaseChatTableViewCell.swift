@@ -327,6 +327,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             addSystemImageToStatus("pencil")
         }
 
+        if message.isPinned {
+            addSystemImageToStatus("pin")
+        }
+
         let reactionsArray = message.reactionsArray()
 
         if !reactionsArray.isEmpty {

@@ -456,7 +456,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
         [self->_pullMessagesTask cancel];
     }];
 
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO limit:0 lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (expired) {
             if (block) {
                 block(error);
@@ -536,7 +536,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
                                                                   userInfo:userInfo];
             }
             // Notify if an "update messages" have been received
-            if ([message isUpdateMessage]) {
+            if ([message isUpdateMessage] || [message isVisibleUpdateMessage]) {
                 [userInfo setObject:message forKey:@"updateMessage"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveUpdateMessageNotification
                                                                     object:self
@@ -731,6 +731,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
                                                                           history:YES
                                                                includeLastMessage:forInitialChatHistory
                                                                           timeout:NO
+                                                                            limit:0
                                                             lastCommonReadMessage:_room.lastCommonReadMessage
                                                                     setReadMarker:YES
                                                           markNotificationsAsRead:YES
@@ -842,7 +843,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout limit:0 lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
@@ -1110,6 +1111,36 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
 
         if (block) {
             block(chatMessages);
+        }
+    }];
+}
+
+- (void)getSingleMessageWithMessageId:(NSInteger)messageId withCompletionBlock:(GetSingleMessageCompletionBlock)block
+{
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId == %ld", _account.accountId, _room.token, (long)messageId];
+    RLMResults *managedMessages = [NCChatMessage objectsWithPredicate:query];
+    NCChatMessage *message = [managedMessages firstObject];
+
+    if (message) {
+        block(message);
+        return;
+    }
+
+    [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:0 history:YES includeLastMessage:YES timeout:NO limit:1 lastCommonReadMessage:0 setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+        if (error) {
+            NSLog(@"Could not get single message from server. Error: %@", error.description);
+            block(nil);
+        } else {
+            NCChatMessage* message = [NCChatMessage messageWithDictionary:[messages firstObject] andAccountId:self->_account.accountId];
+
+            // The API will return the previous available message in case the messageId is not found.
+            // Therefore we need to make sure, that we received the message we are looking for.
+            if (message && message.messageId == messageId) {
+                block(message);
+                return;
+            }
+
+            block(nil);
         }
     }];
 }
