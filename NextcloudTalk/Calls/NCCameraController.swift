@@ -332,6 +332,12 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             ciImage = ciImage.oriented(.left)
         }
 
+        // Mirror local image when using front camera
+        if usingFrontCamera {
+            let mirrorTransform = CGAffineTransform(translationX: ciImage.extent.width, y: 0).scaledBy(x: -1, y: 1)
+            ciImage = ciImage.transformed(by: mirrorTransform)
+        }
+
         // make sure the image is full screen
         let drawSize = localView.drawableSize
         let scaleX = drawSize.width / ciImage.extent.width
