@@ -111,7 +111,10 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         // We need to set the orientation again, because otherweise after switching the video is turned
         self.session?.outputs.first?.connections.first?.videoOrientation = .portrait
         self.session?.startRunning()
-        self.usingFrontCamera = !self.usingFrontCamera
+
+        // Toggle usingFrontCamera flag and update video rotation
+        self.usingFrontCamera.toggle()
+        self.updateVideoRotationBasedOnDeviceOrientation()
     }
 
     // See ARDCaptureController from the WebRTC project
