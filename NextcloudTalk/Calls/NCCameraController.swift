@@ -92,29 +92,32 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     }
 
     func switchCamera() {
-        var newInput: AVCaptureDeviceInput
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            var newInput: AVCaptureDeviceInput
 
-        if self.usingFrontCamera {
-            newInput = getBackCameraInput()
-        } else {
-            newInput = getFrontCameraInput()
+            if self.usingFrontCamera {
+                newInput = getBackCameraInput()
+            } else {
+                newInput = getFrontCameraInput()
+            }
+
+            if let firstInput = session?.inputs.first {
+                session?.removeInput(firstInput)
+            }
+
+            // Stop and restart the session to prevent a weird glitch when rotating our local view
+            self.session?.stopRunning()
+            self.session?.addInput(newInput)
+
+            // We need to set the orientation again, because otherweise after switching the video is turned
+            self.session?.outputs.first?.connections.first?.videoOrientation = .portrait
+            self.session?.startRunning()
+
+            // Toggle usingFrontCamera flag and update video rotation
+            self.usingFrontCamera.toggle()
+            self.updateVideoRotationBasedOnDeviceOrientation()
         }
-
-        if let firstInput = session?.inputs.first {
-            session?.removeInput(firstInput)
-        }
-
-        // Stop and restart the session to prevent a weird glitch when rotating our local view
-        self.session?.stopRunning()
-        self.session?.addInput(newInput)
-
-        // We need to set the orientation again, because otherweise after switching the video is turned
-        self.session?.outputs.first?.connections.first?.videoOrientation = .portrait
-        self.session?.startRunning()
-
-        // Toggle usingFrontCamera flag and update video rotation
-        self.usingFrontCamera.toggle()
-        self.updateVideoRotationBasedOnDeviceOrientation()
     }
 
     // See ARDCaptureController from the WebRTC project
