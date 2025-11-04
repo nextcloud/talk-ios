@@ -1679,6 +1679,9 @@
 /* Pin a message to be always visible in the chat */
 "Pin message" = "Pin message";
 
+/* Message was pinned at … */
+"Pinned at %@" = "Pinned at %@";
+
 /* A message was pinned by ... */
 "pinned by" = "pinned by";
 

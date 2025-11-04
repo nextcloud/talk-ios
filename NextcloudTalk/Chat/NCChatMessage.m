@@ -83,6 +83,7 @@ NSString * const kSharedItemTypePinned      = @"pinned";
         message.pinnedActorId = [metaData objectForKey:@"pinnedActorId"];
         message.pinnedActorDisplayName = [metaData objectForKey:@"pinnedActorDisplayName"];
         message.pinnedUntil = [[metaData objectForKey:@"pinnedUntil"] integerValue];
+        message.pinnedAt = [[metaData objectForKey:@"pinnedAt"] integerValue];
     }
 
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
@@ -198,6 +199,7 @@ NSString * const kSharedItemTypePinned      = @"pinned";
     managedChatMessage.pinnedActorId = chatMessage.pinnedActorId;
     managedChatMessage.pinnedActorDisplayName = chatMessage.pinnedActorDisplayName;
     managedChatMessage.pinnedUntil = chatMessage.pinnedUntil;
+    managedChatMessage.pinnedAt = chatMessage.pinnedAt;
 
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
@@ -277,6 +279,7 @@ NSString * const kSharedItemTypePinned      = @"pinned";
     messageCopy.pinnedActorId = _pinnedActorId;
     messageCopy.pinnedActorDisplayName = _pinnedActorDisplayName;
     messageCopy.pinnedUntil = _pinnedUntil;
+    messageCopy.pinnedAt = _pinnedAt;
 
     return messageCopy;
 }

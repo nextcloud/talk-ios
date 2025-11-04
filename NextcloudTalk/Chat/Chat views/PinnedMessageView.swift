@@ -124,13 +124,18 @@ protocol PinnedMessageViewDelegate: AnyObject {
         self.title.attributedText = titleLabel
         self.subtitle.attributedText = message.parsedMarkdownForChat()
 
+        var pinnedInfoText: String
+
         if message.pinnedUntil > 0 {
             let pinnedUntilDate = Date(timeIntervalSince1970: TimeInterval(message.pinnedUntil))
-            let pinnedUntilText = String(format: NSLocalizedString("Pinned until %@", comment: "Message is pinned until …"), NCUtils.readableTimeAndDate(fromDate: pinnedUntilDate))
-
-            let pinnedUntilAction = UIAction(title: pinnedUntilText, attributes: [.disabled], handler: {_ in })
-            menuActions.append(UIMenu(options: [.displayInline], children: [pinnedUntilAction]))
+            pinnedInfoText = String(format: NSLocalizedString("Pinned until %@", comment: "Message is pinned until …"), NCUtils.readableTimeAndDate(fromDate: pinnedUntilDate))
+        } else {
+            let pinnedAtDate = Date(timeIntervalSince1970: TimeInterval(message.pinnedAt))
+            pinnedInfoText = String(format: NSLocalizedString("Pinned at %@", comment: "Message was pinned at …"), NCUtils.readableTimeAndDate(fromDate: pinnedAtDate))
         }
+
+        let pinnedUntilAction = UIAction(title: pinnedInfoText, attributes: [.disabled], handler: {_ in })
+        menuActions.append(UIMenu(options: [.displayInline], children: [pinnedUntilAction]))
 
         let gotoAction = UIAction(title: NSLocalizedString("Go to message", comment: ""), image: UIImage(systemName: "text.bubble")) { [unowned self] _ in
             self.delegate?.wantsToScroll(to: message)
