@@ -2485,7 +2485,7 @@ import SwiftUI
         }
 
         // Pin message
-        if message.file() == nil, message.poll == nil, !message.isDeletedMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: room) {
+        if !message.isDeletedMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: room) {
             if message.isPinned {
                 moreMenuActions.append(UIAction(title: NSLocalizedString("Unpin message", comment: ""), image: .init(systemName: "pin.slash")) { _ in
                     Task {
