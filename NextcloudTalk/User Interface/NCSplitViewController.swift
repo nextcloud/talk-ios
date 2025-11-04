@@ -80,8 +80,10 @@
                 super.showDetailViewController(navController, sender: sender)
 
                 if #available(iOS 26.0, *) {
-                    // Fix weird animation on iOS 26
-                    vc.view.layoutIfNeeded()
+                    if #unavailable(iOS 26.1) {
+                        // Fix weird animation on iOS 26
+                        vc.view.layoutIfNeeded()
+                    }
                 }
             }
         }
