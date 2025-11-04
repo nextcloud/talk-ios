@@ -345,7 +345,7 @@ import SwiftyAttributes
     }
 
     public func lastMessagePreview(forOneToOneRoom: Bool = false) -> NSMutableAttributedString? {
-        guard let message = messageForLastMessagePreview()
+        guard let message = messageForLastMessagePreview()?.prefix(characters: 80)
         else {return nil}
 
         let lastMessageAttributedString = NSMutableAttributedString()
@@ -391,8 +391,7 @@ import SwiftyAttributes
     }
 
     public func messageForLastMessagePreview() -> NSAttributedString? {
-        let message = String(self.parsedMarkdown().string.prefix(80))
-        if message.isEmpty { return nil}
+        guard let message = self.parsedMarkdown(), message.length > 0 else { return nil }
 
         let messageAttributedString = NSMutableAttributedString()
         // Icon
@@ -402,7 +401,7 @@ import SwiftyAttributes
             messageAttributedString.append(attachmentAttributedString)
         }
         // Message
-        messageAttributedString.append(NSAttributedString(string: message))
+        messageAttributedString.append(message)
 
         return messageAttributedString
     }

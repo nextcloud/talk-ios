@@ -1688,6 +1688,11 @@ import SwiftUI
 
         self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
 
+        // Update pinned message if needed
+        if let pinnedMessageView = self.pinnedMessageView, pinnedMessageView.message?.messageId == updateMessage.messageId {
+            pinnedMessageView.setupPinnedMessage(withMessage: updateMessage, inRoom: self.room)
+        }
+
         if message.systemMessage == "message_pinned" {
             // When a message was pinned, we can directly set the message id and update the view
             self.room.lastPinnedId = updateMessage.messageId

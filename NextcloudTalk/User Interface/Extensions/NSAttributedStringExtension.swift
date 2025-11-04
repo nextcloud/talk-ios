@@ -67,4 +67,8 @@ extension NSAttributedString {
 
         self.init(attributedString: mutableAttributedString)
     }
+
+    public func prefix(characters: Int) -> NSAttributedString {
+        return self.attributedSubstring(from: .init(location: 0, length: min(characters, self.length)))
+    }
 }

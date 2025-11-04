@@ -122,7 +122,7 @@ protocol PinnedMessageViewDelegate: AnyObject {
         }
 
         self.title.attributedText = titleLabel
-        self.subtitle.attributedText = message.parsedMarkdownForChat()
+        self.subtitle.attributedText = message.messageForLastMessagePreview()
 
         var pinnedInfoText: String
 
