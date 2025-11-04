@@ -22,6 +22,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     // State
     private var backgroundBlurEnabled = NCUserDefaults.backgroundBlurEnabled()
     private var usingFrontCamera = true
+    private var previousOrientationBeforeUpsideDown: UIDeviceOrientation?
     private var deviceOrientation: UIDeviceOrientation = UIDevice.current.orientation
     private var videoRotation: RTCVideoRotation = ._0
     private var firstLocalViewFrameDrawn = false
@@ -338,6 +339,19 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             ciImage = ciImage.oriented(.left)
         }
 
+        // Rotate the local image on iPhones to match the previous landscape orientation when in UpsideDown.
+        // Since the localView frame doesn't change when transitioning from landscape to UpsideDown.
+        if videoRotation == ._180,
+           UIDevice.current.userInterfaceIdiom == .phone,
+           let previousLandscapeOrientation = previousOrientationBeforeUpsideDown {
+
+            if previousLandscapeOrientation == .landscapeLeft {
+                ciImage = ciImage.oriented(.left)
+            } else if previousLandscapeOrientation == .landscapeRight {
+                ciImage = ciImage.oriented(.right)
+            }
+        }
+
         // Mirror local image when using front camera
         if usingFrontCamera {
             let mirrorTransform = CGAffineTransform(translationX: ciImage.extent.width, y: 0).scaledBy(x: -1, y: 1)
@@ -378,8 +392,19 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     // MARK: - Notifications
 
     func deviceOrientationDidChangeNotification() {
-        self.deviceOrientation = UIDevice.current.orientation
-        self.updateVideoRotationBasedOnDeviceOrientation()
+        let currentOrientation = UIDevice.current.orientation
+
+        // The app doesn't support UpsideDown orientation on iPhones, so the local view stays in landscape when
+        // transitioning from a landscape orientation to UpsideDown.
+        // We need to track the last landscape orientation to rotate the local view correctly.
+        if currentOrientation == .portraitUpsideDown, deviceOrientation.isLandscape {
+            previousOrientationBeforeUpsideDown = deviceOrientation
+        } else if currentOrientation != .portraitUpsideDown {
+            previousOrientationBeforeUpsideDown = nil
+        }
+
+        deviceOrientation = currentOrientation
+        updateVideoRotationBasedOnDeviceOrientation()
     }
 
     func updateVideoRotationBasedOnDeviceOrientation() {
