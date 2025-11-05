@@ -333,23 +333,23 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         // Correctly rotate the local image
         if videoRotation == ._180 {
             ciImage = ciImage.oriented(.down)
+
+            // Rotate the local image on iPhones to match the previous landscape orientation when in UpsideDown.
+            // Since the localView frame doesn't change when transitioning from landscape to UpsideDown.
+            if UIDevice.current.userInterfaceIdiom == .phone,
+               let previousLandscapeOrientation = previousOrientationBeforeUpsideDown {
+
+                if previousLandscapeOrientation == .landscapeLeft {
+                    ciImage = usingFrontCamera ? ciImage.oriented(.left) : ciImage.oriented(.right)
+                } else if previousLandscapeOrientation == .landscapeRight {
+                    ciImage = usingFrontCamera ? ciImage.oriented(.right) : ciImage.oriented(.left)
+                }
+            }
+
         } else if videoRotation == ._90 {
             ciImage = ciImage.oriented(.right)
         } else if videoRotation == ._270 {
             ciImage = ciImage.oriented(.left)
-        }
-
-        // Rotate the local image on iPhones to match the previous landscape orientation when in UpsideDown.
-        // Since the localView frame doesn't change when transitioning from landscape to UpsideDown.
-        if videoRotation == ._180,
-           UIDevice.current.userInterfaceIdiom == .phone,
-           let previousLandscapeOrientation = previousOrientationBeforeUpsideDown {
-
-            if previousLandscapeOrientation == .landscapeLeft {
-                ciImage = ciImage.oriented(.left)
-            } else if previousLandscapeOrientation == .landscapeRight {
-                ciImage = ciImage.oriented(.right)
-            }
         }
 
         // Mirror local image when using front camera
