@@ -82,6 +82,7 @@ import SwiftyAttributes
 
         subtitle.addGestureRecognizer(tapGestureRecognizer)
         stackView.addGestureRecognizer(tapGestureRecognizer)
+        wrapperView.addGestureRecognizer(tapGestureRecognizer)
     }
 
     func tapTextView() {
