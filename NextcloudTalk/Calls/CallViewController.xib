@@ -339,7 +339,6 @@
                             </subviews>
                         </view>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fSY-ZT-xIC" userLabel="Sidebar View">
                     <rect key="frame" x="666" y="32" width="350" height="1306"/>
