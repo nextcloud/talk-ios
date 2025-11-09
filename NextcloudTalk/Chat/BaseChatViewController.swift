@@ -3097,14 +3097,14 @@ import SwiftUI
             height = PollMessageView().pollMessageBodyHeight(with: messageString.string, width: width)
         }
 
-        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
-            height += 15 // MessageTextTop(10) + MessageTextBottom(5)
+        height += 15.0 // MessageTextTop(10) + MessageTextBottom(5)
 
+        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
             if height < chatGroupedMessageCellMinimumHeight {
                 height = chatGroupedMessageCellMinimumHeight
             }
         } else {
-            height += 40.0 // HeaderPart(30) + MessageTextTop(5) + MessageTextBottom(5)
+            height += 20.0 // HeaderPart(15) + StackViewSpacing(5)
 
             if height < chatMessageCellMinimumHeight {
                 height = chatMessageCellMinimumHeight
@@ -3120,6 +3120,7 @@ import SwiftUI
         let willShowCompleteThreadOriginalMessage = (thread == nil && message.isThreadOriginalMessage())
         if !message.reactionsArray().isEmpty || willShowCompleteThreadOriginalMessage {
             height += 40 // reactionsView(40)
+
             if willShowCompleteThreadOriginalMessage {
                 height += 30 // SubheaderPart(30)
             }

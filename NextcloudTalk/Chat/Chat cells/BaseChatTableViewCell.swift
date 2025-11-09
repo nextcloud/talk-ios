@@ -77,7 +77,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var statusView: UIStackView!
     @IBOutlet weak var messageBodyView: UIView!
-    @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var reactionStackView: UIStackView!
 
@@ -89,23 +88,24 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var footerPart: UIView!
 
     @IBOutlet weak var bubbleView: UIView!
+    @IBOutlet weak var bubbleStackView: UIStackView!
 
     // Since we use different relations depending on the bubble (other user or app user) we setup
     // the constraints programmatically instead of in interface builder
     lazy var bubbleViewLeftConstraintEqual: NSLayoutConstraint = {
-        return bubbleView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10)
+        return bubbleStackView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10)
     }()
 
     lazy var bubbleViewLeftConstraintGreaterThan: NSLayoutConstraint = {
-        return bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40)
+        return bubbleStackView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40)
     }()
 
     lazy var bubbleViewRightConstraintEqual: NSLayoutConstraint = {
-        return bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+        return bubbleStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
     }()
 
     lazy var bubbleViewRightConstraintLessThan: NSLayoutConstraint = {
-        return bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64)
+        return bubbleStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64)
     }()
 
     lazy var threadRepliesButton: NCButton = {
@@ -199,8 +199,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.threadTitleLabel?.removeFromSuperview()
         self.threadTitleLabel = nil
 
-        self.messageBodyViewTopConstraint.constant = 5
-
         self.referenceView?.prepareForReuse()
 
         self.prepareForReuseFileCell()
@@ -270,7 +268,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
-            self.messageBodyViewTopConstraint.constant = 10
         }
 
         self.bubbleViewLeftConstraintEqual.isActive = !isOwnMessage
@@ -293,7 +290,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
-            self.messageBodyViewTopConstraint.constant = 10
         }
 
         self.bubbleView.backgroundColor = backgroundColor
