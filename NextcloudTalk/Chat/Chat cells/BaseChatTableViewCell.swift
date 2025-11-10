@@ -228,10 +228,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         let date = Date(timeIntervalSince1970: TimeInterval(message.timestamp))
         self.dateLabel.text = NCUtils.getTime(fromDate: date)
 
+        let isOwnMessage = message.isMessage(from: account.userId)
         let messageActor = message.actor
         let titleLabel = messageActor.attributedDisplayName
 
-        if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
+        if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0, !isOwnMessage {
             var editedString = ""
 
             if message.lastEditActorId == message.actorId, message.lastEditActorType == "users" {
@@ -255,8 +256,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room) {
             shouldShowReadStatus = !(roomCapabilities.readStatusPrivacy)
         }
-
-        let isOwnMessage = message.isMessage(from: account.userId)
 
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
         if let parent = message.parent, message.willShowParentMessageInThread(thread) {
