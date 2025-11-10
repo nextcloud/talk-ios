@@ -3099,7 +3099,7 @@ import SwiftUI
 
         height += 15.0 // MessageTextTop(10) + MessageTextBottom(5)
 
-        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
+        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage {
             if height < chatGroupedMessageCellMinimumHeight {
                 height = chatGroupedMessageCellMinimumHeight
             }

@@ -92,20 +92,24 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     // Since we use different relations depending on the bubble (other user or app user) we setup
     // the constraints programmatically instead of in interface builder
-    lazy var bubbleViewLeftConstraintEqual: NSLayoutConstraint = {
-        return bubbleStackView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10)
+    lazy var leftBubbleConstraints = {
+        return [
+            bubbleStackView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10),
+            bubbleStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64),
+
+            titleLabel.leadingAnchor.constraint(equalTo: headerPart.leadingAnchor, constant: 0),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: headerPart.trailingAnchor, constant: 0)
+        ]
     }()
 
-    lazy var bubbleViewLeftConstraintGreaterThan: NSLayoutConstraint = {
-        return bubbleStackView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40)
-    }()
+    lazy var rightBubbleConstraints = {
+        return [
+            bubbleStackView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40),
+            bubbleStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
 
-    lazy var bubbleViewRightConstraintEqual: NSLayoutConstraint = {
-        return bubbleStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-    }()
-
-    lazy var bubbleViewRightConstraintLessThan: NSLayoutConstraint = {
-        return bubbleStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64)
+            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: headerPart.leadingAnchor, constant: 0),
+            titleLabel.trailingAnchor.constraint(equalTo: headerPart.trailingAnchor, constant: 0)
+        ]
     }()
 
     lazy var threadRepliesButton: NCButton = {
@@ -270,11 +274,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.avatarButton.isHidden = true
         }
 
-        self.bubbleViewLeftConstraintEqual.isActive = !isOwnMessage
-        self.bubbleViewLeftConstraintGreaterThan.isActive = isOwnMessage
-
-        self.bubbleViewRightConstraintEqual.isActive = isOwnMessage
-        self.bubbleViewRightConstraintLessThan.isActive = !isOwnMessage
+        self.leftBubbleConstraints.forEach { $0.isActive = !isOwnMessage }
+        self.rightBubbleConstraints.forEach { $0.isActive = isOwnMessage }
 
         var backgroundColor: UIColor? = .secondarySystemBackground
 
@@ -286,9 +287,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                 BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
             }
 
-            // Ensure titleLabel does not interfere with width calculation (only on devices, not simulator)
-            self.titleLabel.text = ""
-            self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
         }
 

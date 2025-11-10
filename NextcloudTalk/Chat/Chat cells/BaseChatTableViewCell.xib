@@ -44,9 +44,9 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="lOK-xG-raw" secondAttribute="bottom" id="Yra-EG-Jgj"/>
-                                    <constraint firstItem="lOK-xG-raw" firstAttribute="leading" secondItem="3wA-Cg-eLo" secondAttribute="leading" id="cCh-sJ-wVs"/>
+                                    <constraint firstItem="lOK-xG-raw" firstAttribute="leading" secondItem="3wA-Cg-eLo" secondAttribute="leading" placeholder="YES" id="cCh-sJ-wVs"/>
                                     <constraint firstItem="lOK-xG-raw" firstAttribute="top" secondItem="3wA-Cg-eLo" secondAttribute="top" id="edY-hn-waS"/>
-                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lOK-xG-raw" secondAttribute="trailing" constant="10" id="fDp-QE-cu4"/>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lOK-xG-raw" secondAttribute="trailing" placeholder="YES" id="fDp-QE-cu4"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YkE-8o-ls1">
@@ -186,7 +186,7 @@
     </objects>
     <resources>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
