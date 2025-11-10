@@ -22,6 +22,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     // State
     private var backgroundBlurEnabled = NCUserDefaults.backgroundBlurEnabled()
     private var usingFrontCamera = true
+    private var previousOrientationBeforeUpsideDown: UIDeviceOrientation?
     private var deviceOrientation: UIDeviceOrientation = UIDevice.current.orientation
     private var videoRotation: RTCVideoRotation = ._0
     private var firstLocalViewFrameDrawn = false
@@ -92,26 +93,32 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     }
 
     func switchCamera() {
-        var newInput: AVCaptureDeviceInput
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            var newInput: AVCaptureDeviceInput
 
-        if self.usingFrontCamera {
-            newInput = getBackCameraInput()
-        } else {
-            newInput = getFrontCameraInput()
+            if self.usingFrontCamera {
+                newInput = getBackCameraInput()
+            } else {
+                newInput = getFrontCameraInput()
+            }
+
+            if let firstInput = session?.inputs.first {
+                session?.removeInput(firstInput)
+            }
+
+            // Stop and restart the session to prevent a weird glitch when rotating our local view
+            self.session?.stopRunning()
+            self.session?.addInput(newInput)
+
+            // We need to set the orientation again, because otherweise after switching the video is turned
+            self.session?.outputs.first?.connections.first?.videoOrientation = .portrait
+            self.session?.startRunning()
+
+            // Toggle usingFrontCamera flag and update video rotation
+            self.usingFrontCamera.toggle()
+            self.updateVideoRotationBasedOnDeviceOrientation()
         }
-
-        if let firstInput = session?.inputs.first {
-            session?.removeInput(firstInput)
-        }
-
-        // Stop and restart the session to prevent a weird glitch when rotating our local view
-        self.session?.stopRunning()
-        self.session?.addInput(newInput)
-
-        // We need to set the orientation again, because otherweise after switching the video is turned
-        self.session?.outputs.first?.connections.first?.videoOrientation = .portrait
-        self.session?.startRunning()
-        self.usingFrontCamera = !self.usingFrontCamera
     }
 
     // See ARDCaptureController from the WebRTC project
@@ -326,10 +333,29 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         // Correctly rotate the local image
         if videoRotation == ._180 {
             ciImage = ciImage.oriented(.down)
+
+            // Rotate the local image on iPhones to match the previous landscape orientation when in UpsideDown.
+            // Since the localView frame doesn't change when transitioning from landscape to UpsideDown.
+            if UIDevice.current.userInterfaceIdiom == .phone,
+               let previousLandscapeOrientation = previousOrientationBeforeUpsideDown {
+
+                if previousLandscapeOrientation == .landscapeLeft {
+                    ciImage = usingFrontCamera ? ciImage.oriented(.left) : ciImage.oriented(.right)
+                } else if previousLandscapeOrientation == .landscapeRight {
+                    ciImage = usingFrontCamera ? ciImage.oriented(.right) : ciImage.oriented(.left)
+                }
+            }
+
         } else if videoRotation == ._90 {
             ciImage = ciImage.oriented(.right)
         } else if videoRotation == ._270 {
             ciImage = ciImage.oriented(.left)
+        }
+
+        // Mirror local image when using front camera
+        if usingFrontCamera {
+            let mirrorTransform = CGAffineTransform(translationX: ciImage.extent.width, y: 0).scaledBy(x: -1, y: 1)
+            ciImage = ciImage.transformed(by: mirrorTransform)
         }
 
         // make sure the image is full screen
@@ -366,8 +392,19 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     // MARK: - Notifications
 
     func deviceOrientationDidChangeNotification() {
-        self.deviceOrientation = UIDevice.current.orientation
-        self.updateVideoRotationBasedOnDeviceOrientation()
+        let currentOrientation = UIDevice.current.orientation
+
+        // The app doesn't support UpsideDown orientation on iPhones, so the local view stays in landscape when
+        // transitioning from a landscape orientation to UpsideDown.
+        // We need to track the last landscape orientation to rotate the local view correctly.
+        if currentOrientation == .portraitUpsideDown, deviceOrientation.isLandscape {
+            previousOrientationBeforeUpsideDown = deviceOrientation
+        } else if currentOrientation != .portraitUpsideDown {
+            previousOrientationBeforeUpsideDown = nil
+        }
+
+        deviceOrientation = currentOrientation
+        updateVideoRotationBasedOnDeviceOrientation()
     }
 
     func updateVideoRotationBasedOnDeviceOrientation() {
