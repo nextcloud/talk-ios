@@ -73,7 +73,7 @@ jobs:
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
       with:
-        xcode-version: latest-stable
+        xcode-version: '26.0.1'
 
     - name: Install iOS 18.5
       run: |
@@ -194,12 +194,12 @@ jobs:
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
       with:
-        xcode-version: latest-stable
+        xcode-version: '26.0.1'
 
     - name: Install iOS 18.5
       run: |
         xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
-        xcodebuild -downloadPlatform iOS -buildVersion 18.5        
+        xcodebuild -downloadPlatform iOS -buildVersion 18.5
 
     - name: Test NextcloudTalk iOS
       run: |
