@@ -2126,7 +2126,10 @@ import SwiftUI
 
             emojiShortcutButton.titleLabel?.font = .systemFont(ofSize: 20)
             emojiShortcutButton.setTitle(emoji, for: .normal)
-            emojiShortcutButton.backgroundColor = .systemBackground
+
+            if #unavailable(iOS 26.0) {
+                emojiShortcutButton.backgroundColor = .systemBackground
+            }
 
             emojiShortcutButton.addAction { [weak self] in
                 guard let self else { return }
@@ -2157,7 +2160,11 @@ import SwiftUI
         addReactionButton.titleLabel?.font = .systemFont(ofSize: 22)
         addReactionButton.setImage(.init(systemName: "plus"), for: .normal)
         addReactionButton.tintColor = .label
-        addReactionButton.backgroundColor = .systemBackground
+
+        if #unavailable(iOS 26.0) {
+            addReactionButton.backgroundColor = .systemBackground
+        }
+
         addReactionButton.addAction { [weak self] in
             guard let self else { return }
             self.tableView?.contextMenuInteraction?.dismissMenu()
@@ -2171,8 +2178,14 @@ import SwiftUI
 
         // The reactionView will be shown after the animation finishes, otherwise we see the view already when animating and this looks odd
         reactionView.alpha = 0
-        reactionView.layer.cornerRadius = CGFloat(emojiButtonSize) / 2
-        reactionView.backgroundColor = .systemBackground
+
+        if #available(iOS 26.0, *) {
+            let effectView = reactionView.addGlassView()
+            effectView.layer.cornerRadius = CGFloat(emojiButtonSize) / 2
+        } else {
+            reactionView.layer.cornerRadius = CGFloat(emojiButtonSize) / 2
+            reactionView.backgroundColor = .systemBackground
+        }
 
         return reactionView
     }

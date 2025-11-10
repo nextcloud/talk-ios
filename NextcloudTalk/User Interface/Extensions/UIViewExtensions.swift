@@ -21,4 +21,26 @@ extension UIView {
             layer.render(in: rendererContext.cgContext)
         }
     }
+
+    @available(iOS 26.0, *)
+    @discardableResult
+    func addGlassView(withStyle style: UIGlassEffect.Style = .regular) -> UIVisualEffectView {
+        self.backgroundColor = .clear
+
+        let effectView = UIVisualEffectView()
+        self.insertSubview(effectView, at: 0)
+
+        let glassEffect = UIGlassEffect(style: style)
+        effectView.effect = glassEffect
+        effectView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            effectView.leftAnchor.constraint(equalTo: self.leftAnchor),
+            effectView.rightAnchor.constraint(equalTo: self.rightAnchor),
+            effectView.topAnchor.constraint(equalTo: self.topAnchor),
+            effectView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        ])
+
+        return effectView
+    }
 }
