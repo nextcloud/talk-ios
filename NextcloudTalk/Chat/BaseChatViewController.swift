@@ -3104,7 +3104,7 @@ import SwiftUI
                 height = chatGroupedMessageCellMinimumHeight
             }
         } else {
-            height += 20.0 // HeaderPart(15) + StackViewSpacing(5)
+            height += 30.0 // HeaderPart(30)
 
             if height < chatMessageCellMinimumHeight {
                 height = chatMessageCellMinimumHeight
