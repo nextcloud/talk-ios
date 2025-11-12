@@ -630,14 +630,25 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Chat Controller
 
-- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId inThread:(NSInteger)threadId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block
+- (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token
+                                  fromLastMessageId:(NSInteger)messageId
+                                           inThread:(NSInteger)threadId
+                                            history:(BOOL)history
+                                 includeLastMessage:(BOOL)include
+                                            timeout:(BOOL)timeout
+                                              limit:(NSInteger)limit
+                              lastCommonReadMessage:(NSInteger)lastCommonReadMessage
+                                      setReadMarker:(BOOL)setReadMarker
+                            markNotificationsAsRead:(BOOL)markNotificationsAsRead
+                                         forAccount:(TalkAccount *)account
+                                withCompletionBlock:(GetChatMessagesCompletionBlock)block
 {
     NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *endpoint = [NSString stringWithFormat:@"chat/%@", encodedToken];
     NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
     NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
-                                 @"limit" : @(kReceivedChatMessagesLimit),
+                                 @"limit" : @(MIN(kReceivedChatMessagesLimit, limit)),
                                  @"timeout" : timeout ? @(30) : @(0),
                                  @"lastKnownMessageId" : @(messageId),
                                  @"lastCommonReadId" : @(lastCommonReadMessage),
