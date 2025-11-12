@@ -47,6 +47,16 @@ NSString * const kSharedItemTypeRecording   = @"recording";
 
 @implementation NCChatMessage
 
++ (NSDataDetector *)urlDataDetector
+{
+    static dispatch_once_t once;
+    static NSDataDetector *urlDataDetector;
+    dispatch_once(&once, ^{
+        urlDataDetector = [[NSDataDetector alloc] initWithTypes:NSTextCheckingTypeLink error:nil];
+    });
+    return urlDataDetector;
+}
+
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict
 {
     if (!messageDict || ![messageDict isKindOfClass:[NSDictionary class]]) {
@@ -629,8 +639,7 @@ NSString * const kSharedItemTypeRecording   = @"recording";
         return YES;
     }
 
-    NSDataDetector *dataDetector = [[NSDataDetector alloc] initWithTypes:NSTextCheckingTypeLink error:nil];
-    NSArray *urlMatches = [dataDetector matchesInString:self.message options:0 range:NSMakeRange(0, [self.message length])];
+    NSArray *urlMatches = [[NCChatMessage urlDataDetector] matchesInString:self.message options:0 range:NSMakeRange(0, [self.message length])];
 
     _urlDetectionDone = YES;
 
