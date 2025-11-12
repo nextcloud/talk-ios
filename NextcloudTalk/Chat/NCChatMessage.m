@@ -10,7 +10,7 @@
 
 #import "NextcloudTalk-Swift.h"
 
-NSInteger const kChatMessageGroupTimeDifference = 30;
+NSInteger const kChatMessageGroupTimeDifference = 300;
 
 NSString * const kMessageTypeComment        = @"comment";
 NSString * const kMessageTypeCommentDeleted = @"comment_deleted";
