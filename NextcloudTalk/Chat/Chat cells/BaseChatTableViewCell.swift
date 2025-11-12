@@ -273,8 +273,13 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.avatarButton.isHidden = true
         }
 
-        self.leftBubbleConstraints.forEach { $0.isActive = !isOwnMessage }
-        self.rightBubbleConstraints.forEach { $0.isActive = isOwnMessage }
+        if isOwnMessage {
+            NSLayoutConstraint.deactivate(self.leftBubbleConstraints)
+            NSLayoutConstraint.activate(self.rightBubbleConstraints)
+        } else {
+            NSLayoutConstraint.deactivate(self.rightBubbleConstraints)
+            NSLayoutConstraint.activate(self.leftBubbleConstraints)
+        }
 
         var backgroundColor: UIColor? = .secondarySystemBackground
 
