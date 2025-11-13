@@ -612,6 +612,8 @@ typedef enum RoomsSections {
 
             if (account.unreadBadgeNumber > 0) {
                 switchAccountAction.subtitle = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld notifications", nil), (long)account.unreadBadgeNumber];
+            } else {
+                switchAccountAction.subtitle = [account.server stringByReplacingOccurrencesOfString:@"https://" withString:@""];
             }
 
             [inactiveAccounts addObject:switchAccountAction];
