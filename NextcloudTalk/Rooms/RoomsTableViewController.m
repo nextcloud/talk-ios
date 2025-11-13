@@ -624,6 +624,12 @@ typedef enum RoomsSections {
                                                   identifier:nil
                                                      options:UIMenuOptionsDisplayInline
                                                     children:inactiveAccounts];
+        if (@available(iOS 17.4, *)) {
+            UIMenuDisplayPreferences *displayPreferences = [[UIMenuDisplayPreferences alloc] init];
+            displayPreferences.maximumNumberOfTitleLines = 1;
+
+            inactiveAccountsMenu.displayPreferences = displayPreferences;
+        }
 
         completion(@[inactiveAccountsMenu]);
     }];
