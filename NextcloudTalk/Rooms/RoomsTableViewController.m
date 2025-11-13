@@ -619,6 +619,18 @@ typedef enum RoomsSections {
             [inactiveAccounts addObject:switchAccountAction];
         }
 
+        if (inactiveAccounts.count > 0) {
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle];
+            if (accountImage) {
+                accountImage = [NCUtils roundedImageFromImage:accountImage];
+            }
+            UIAction *activeAccountAction = [UIAction actionWithTitle:activeAccount.userDisplayName image:accountImage identifier:nil handler:^(UIAction *action) {}];
+            activeAccountAction.subtitle = [activeAccount.server stringByReplacingOccurrencesOfString:@"https://" withString:@""];
+            activeAccountAction.state = UIMenuElementStateOn;
+            [inactiveAccounts insertObject:activeAccountAction atIndex:0];
+        }
+
         UIMenu *inactiveAccountsMenu = [UIMenu menuWithTitle:@""
                                                        image:nil
                                                   identifier:nil
