@@ -496,10 +496,21 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     UNNotificationRequest *notificationRequest = response.notification.request;
     NSDictionary *userInfo = notificationRequest.content.userInfo;
 
+    // Local notification
     NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[userInfo objectForKey:@"localNotificationType"] integerValue];
+
+    // Push notification
     NSString *notificationString = [userInfo objectForKey:@"pushNotification"];
     NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:notificationString withAccountId:notificationAccountId];
+
+    // Server notification (only available if the Notification Service Extension was able to fetch it)
+    NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
+    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
+
+    // Update push notification with server notification
+    pushNotification.threadId = serverNotification.threadId;
 
     // Handle notification response
     if (pushNotification) {
@@ -509,11 +520,11 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             
             [self handlePushNotificationResponseWithUserText:pushNotification];
         } else if (pushNotification.type == NCPushNotificationTypeRecording) {
-            [self handlePushNotificationResponseForRecording:response];
+            [self handlePushNotificationResponseForRecording:serverNotification withActionIdentifier:response.actionIdentifier forAccount:account];
         } else if (pushNotification.type == NCPUshNotificationTypeFederation) {
-            [self handlePushNotificationResponseForFederation:response];
+            [self handlePushNotificationResponseForFederation:serverNotification withActionIdentifier:response.actionIdentifier forAccount:account];
         } else if (pushNotification.type == NCPushNotificationTypeReminder) {
-            [self handlePushNotificationResponseForReminder:response];
+            [self handlePushNotificationResponseForReminder:serverNotification withActionIdentifier:response.actionIdentifier forAccount:account];
         } else {
             [self handlePushNotificationResponse:pushNotification];
         }
@@ -565,34 +576,24 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     });
 }
 
-- (void)handlePushNotificationResponseForFederation:(UNNotificationResponse *)response
+- (void)handlePushNotificationResponseForFederation:(NCNotification *)serverNotification withActionIdentifier:(NSString *)actionIdentifier forAccount:(TalkAccount *)account
 {
+    if (!account || !serverNotification) {
+        return;
+    }
+
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForFederation" expirationHandler:^(BGTaskHelper *task) {
         [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForFederation"];
     }];
 
-    UNNotificationRequest *notificationRequest = response.notification.request;
-    NSDictionary *userInfo = notificationRequest.content.userInfo;
-
-    NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
-    NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
-
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
-    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
-
-    if (!account || !serverNotification) {
-        [bgTask stopBackgroundTask];
-        return;
-    }
-
-    if ([response.actionIdentifier isEqualToString:NCNotificationActionFederationInvitationAccept]) {
+    if ([actionIdentifier isEqualToString:NCNotificationActionFederationInvitationAccept]) {
         FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification for:account.accountId];
 
         [[NCAPIController sharedInstance] acceptFederationInvitationFor:account.accountId with:invitation.invitationId completionBlock:^(BOOL success) {
             if (!success) {
                 NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:serverNotification.roomToken forKey:@"roomToken"];
                 [userInfo setValue:@(kNCLocalNotificationTypeFailedToAcceptInvitation) forKey:@"localNotificationType"];
-                [userInfo setObject:notificationAccountId forKey:@"accountId"];
+                [userInfo setObject:account.accountId forKey:@"accountId"];
 
                 [self showLocalNotification:kNCLocalNotificationTypeFailedToAcceptInvitation withUserInfo:userInfo];
             }
@@ -602,7 +603,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             [bgTask stopBackgroundTask];
         }];
 
-    } else if ([response.actionIdentifier isEqualToString:NCNotificationActionFederationInvitationReject]) {
+    } else if ([actionIdentifier isEqualToString:NCNotificationActionFederationInvitationReject]) {
         FederationInvitation *invitation = [[FederationInvitation alloc] initWithNotification:serverNotification for:account.accountId];
 
         [[NCAPIController sharedInstance] rejectFederationInvitationFor:account.accountId with:invitation.invitationId completionBlock:^(BOOL success) {
@@ -633,30 +634,20 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }
 }
 
-- (void)handlePushNotificationResponseForRecording:(UNNotificationResponse *)response
+- (void)handlePushNotificationResponseForRecording:(NCNotification *)serverNotification withActionIdentifier:(NSString *)actionIdentifier forAccount:(TalkAccount *)account
 {
+    if (!account || !serverNotification) {
+        return;
+    }
+
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForRecording" expirationHandler:^(BGTaskHelper *task) {
         [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForRecording"];
     }];
 
-    UNNotificationRequest *notificationRequest = response.notification.request;
-    NSDictionary *userInfo = notificationRequest.content.userInfo;
-
-    NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
-    NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
-
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
-    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
-
-    if (!account || !serverNotification) {
-        [bgTask stopBackgroundTask];
-        return;
-    }
-
     NSTimeInterval notificationTimeInterval = [serverNotification.datetime timeIntervalSince1970];
     NSString *notificationTimestamp = [NSString stringWithFormat:@"%.0f", notificationTimeInterval];
 
-    if ([response.actionIdentifier isEqualToString:NCNotificationActionShareRecording]) {
+    if ([actionIdentifier isEqualToString:NCNotificationActionShareRecording]) {
         NSDictionary *fileParameters = [serverNotification.messageRichParameters objectForKey:@"file"];
 
         if (!fileParameters || ![fileParameters objectForKey:@"id"]) {
@@ -674,7 +665,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             if (error) {
                 NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:serverNotification.roomToken forKey:@"roomToken"];
                 [userInfo setValue:@(kNCLocalNotificationTypeFailedToShareRecording) forKey:@"localNotificationType"];
-                [userInfo setObject:notificationAccountId forKey:@"accountId"];
+                [userInfo setObject:account.accountId forKey:@"accountId"];
 
                 [self showLocalNotification:kNCLocalNotificationTypeFailedToShareRecording withUserInfo:userInfo];
             }
@@ -682,7 +673,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             [bgTask stopBackgroundTask];
         }];
 
-    } else if ([response.actionIdentifier isEqualToString:NCNotificationActionDismissRecordingNotification]) {
+    } else if ([actionIdentifier isEqualToString:NCNotificationActionDismissRecordingNotification]) {
         [[NCAPIController sharedInstance] dismissStoredRecordingNotificationWithTimestamp:notificationTimestamp
                                                                                   forRoom:serverNotification.roomToken
                                                                                forAccount:account
@@ -723,8 +714,12 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }
 }
 
-- (void)handlePushNotificationResponseForReminder:(UNNotificationResponse *)response
+- (void)handlePushNotificationResponseForReminder:(NCNotification *)serverNotification withActionIdentifier:(NSString *)actionIdentifier forAccount:(TalkAccount *)account
 {
+    if (!account || !serverNotification) {
+        return;
+    }
+
     if ([NCRoomsManager sharedInstance].callViewController) {
         return;
     }
@@ -732,20 +727,6 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForReminder" expirationHandler:^(BGTaskHelper *task) {
         [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForReminder"];
     }];
-
-    UNNotificationRequest *notificationRequest = response.notification.request;
-    NSDictionary *userInfo = notificationRequest.content.userInfo;
-
-    NSString *notificationAccountId = [userInfo objectForKey:@"accountId"];
-    NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
-
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
-    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
-
-    if (!account || !serverNotification) {
-        [bgTask stopBackgroundTask];
-        return;
-    }
 
     // Open the conversation for the reminder
     [[NCRoomsManager sharedInstance] startChatWithRoomToken:serverNotification.roomToken];

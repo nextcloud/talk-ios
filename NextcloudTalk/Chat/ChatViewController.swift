@@ -17,6 +17,7 @@ import SwiftUI
     public var presentKeyboardOnAppear = false
     public var chatController: NCChatController
     public var highlightMessageId = 0
+    public var presentThreadOnAppear = 0
 
     // MARK: - Private var
     private var hasPresentedLobby = false
@@ -583,6 +584,15 @@ import SwiftUI
             self.presentKeyboard(true)
             self.presentKeyboardOnAppear = false
         }
+
+        if self.presentThreadOnAppear != 0 {
+            guard let account = self.room.account,
+                  let thread = NCThread(threadId: presentThreadOnAppear, inRoom: room.token, forAccountId: account.accountId)
+            else { return }
+
+            self.presentThreadViewController(for: thread, inRoom: room, toReply: false, withAccount: account)
+            self.presentThreadOnAppear = 0
+        }
     }
 
     public override func viewWillDisappear(_ animated: Bool) {
@@ -1008,8 +1018,14 @@ import SwiftUI
 
     public override func didPressShowThread(for message: NCChatMessage, toReply: Bool = false) {
         guard let account = self.room.account,
-              let thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId),
-              let chatViewController = ChatViewController(forThread: thread, inRoom: room, withAccount: account)
+              let thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId)
+        else { return }
+
+        self.presentThreadViewController(for: thread, inRoom: room, toReply: toReply, withAccount: account)
+    }
+
+    func presentThreadViewController(for thread: NCThread, inRoom: NCRoom, toReply: Bool, withAccount account: TalkAccount) {
+        guard let chatViewController = ChatViewController(forThread: thread, inRoom: inRoom, withAccount: account)
         else { return }
 
         chatViewController.presentKeyboardOnAppear = toReply

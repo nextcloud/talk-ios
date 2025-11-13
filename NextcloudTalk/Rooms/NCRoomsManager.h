@@ -26,6 +26,7 @@ typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 
 @class ChatViewController;
 @class CallViewController;
+@class NCPushNotification;
 
 @interface NCRoomController : NSObject
 
@@ -52,6 +53,7 @@ typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 @property (nonatomic, strong) NSString *pendingToStartCallToken;
 @property (nonatomic, assign) BOOL pendingToStartCallHasVideo;
 @property (nonatomic, strong) NSDictionary *highlightMessageDict;
+@property (nonatomic, strong) NCPushNotification *showThreadPushNotification;
 
 - (void)checkForPendingToStartCalls;
 // END
