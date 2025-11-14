@@ -10,12 +10,16 @@ import Foundation
     override func setTitleView() {
         super.setTitleView()
 
+        if thread != nil {
+            self.titleView?.update(for: thread)
+        }
+
         self.titleView?.longPressGestureRecognizer.isEnabled = false
     }
 
     public func showContext(ofMessageId messageId: Int, withLimit limit: Int, withCloseButton closeButton: Bool) {
         // Fetch the context of the message and update the BaseChatViewController
-        NCChatController(for: self.room).getMessageContext(forMessageId: messageId, withLimit: limit) { [weak self] messages in
+        NCChatController(forThreadId: self.thread?.threadId ?? 0, in: self.room).getMessageContext(forMessageId: messageId, withLimit: limit) { [weak self] messages in
             guard let self else { return }
 
             guard let messages, messages.count > 0 else {
