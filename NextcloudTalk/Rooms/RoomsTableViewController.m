@@ -1436,17 +1436,20 @@ typedef enum RoomsSections {
 {
     NSString *roomToken = [message.attributes objectForKey:@"conversation"];
     NSString *messageIdString = [message.attributes objectForKey:@"messageId"];
+    NSString *threadIdString = [message.attributes objectForKey:@"threadId"];
     if (roomToken && messageIdString) {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
         NSInteger messageId = [messageIdString intValue];
         NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithToken:roomToken forAccountId:activeAccount.accountId];
+        NSInteger threadId = [threadIdString intValue];
+        NCThread *thread = [NCThread threadWithThreadId:threadId inRoom:roomToken forAccountId:activeAccount.accountId];
         if (room) {
-            [self presentContextChatInRoom:room forMessageId:messageId];
+            [self presentContextChatInRoom:room inThread:thread forMessageId:messageId];
         } else {
             [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken completionBlock:^(NSDictionary *roomDict, NSError *error) {
                 if (!error) {
                     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
-                    [self presentContextChatInRoom:room forMessageId:messageId];
+                    [self presentContextChatInRoom:room inThread:thread forMessageId:messageId];
                 } else {
                     NSString *errorMessage = NSLocalizedString(@"Unable to get conversation of the message", nil);
                     [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:errorMessage dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleDark];
@@ -1456,7 +1459,7 @@ typedef enum RoomsSections {
     }
 }
 
-- (void)presentContextChatInRoom:(NCRoom *)room forMessageId:(NSInteger)messageId
+- (void)presentContextChatInRoom:(NCRoom *)room inThread:(NCThread *)thread forMessageId:(NSInteger)messageId
 {
     TalkAccount *account = room.account;
 
@@ -1465,6 +1468,7 @@ typedef enum RoomsSections {
     }
 
     ContextChatViewController *contextChatViewController = [[ContextChatViewController alloc] initForRoom:room withAccount:account withMessage:@[] withHighlightId:0];
+    contextChatViewController.thread = thread;
     [contextChatViewController showContextOfMessageId:messageId withLimit:50 withCloseButton:YES];
 
     _contextChatNavigationController = [[NCNavigationController alloc] initWithRootViewController:contextChatViewController];
