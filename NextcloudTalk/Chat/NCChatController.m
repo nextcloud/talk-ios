@@ -1081,7 +1081,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
 
 - (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId withLimit:limit forAccount:self.account withCompletionBlock:^(NSArray *messages, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId inThread:_threadId withLimit:limit forAccount:self.account withCompletionBlock:^(NSArray *messages, NSError *error, NSInteger statusCode) {
         if (error) {
             if (block) {
                 block(nil);
