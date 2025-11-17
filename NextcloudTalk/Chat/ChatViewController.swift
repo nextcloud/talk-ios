@@ -284,6 +284,73 @@ import SwiftUI
         button.innerButton.showsMenuAsPrimaryAction = true
     }
 
+    private lazy var threadDetailsEditButton: UIBarButtonItem = {
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let buttonImage = UIImage(systemName: "ellipsis.circle", withConfiguration: symbolConfiguration) ?? UIImage()
+        let button = BarButtonItemWithActivity(image: buttonImage)
+
+        let editAction = UIAction(
+            title: NSLocalizedString("Edit thread details", comment: ""),
+            image: UIImage(systemName: "pencil")
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.presentThreadEditDialog()
+        }
+
+        button.innerButton.menu = UIMenu(children: [editAction])
+        button.innerButton.showsMenuAsPrimaryAction = true
+        return button
+    }()
+
+    private func presentThreadEditDialog() {
+        let alert = UIAlertController(
+            title: NSLocalizedString("Edit thread details", comment: ""),
+            message: NSLocalizedString("Thread title", comment: ""),
+            preferredStyle: .alert
+        )
+
+        alert.addTextField { [weak self] textField in
+            guard let self else { return }
+            textField.text = self.thread?.title
+            textField.placeholder = NSLocalizedString("Thread title", comment: "")
+        }
+
+        let saveAction = UIAlertAction(
+            title: NSLocalizedString("Save", comment: ""),
+            style: .default
+        ) { [weak self] _ in
+            guard let self,
+                  let thread,
+                  let title = alert.textFields?.first?.text,
+                  !title.isEmpty, title != thread.title
+            else { return }
+
+            NCAPIController.sharedInstance().renameThread(
+                with: title,
+                for: self.account.accountId,
+                in: self.room.token,
+                threadId: thread.threadId
+            ) { updatedThread in
+                DispatchQueue.main.async {
+                    if let updatedThread {
+                        self.thread = updatedThread
+                    }
+                }
+            }
+        }
+
+        let cancelAction = UIAlertAction(
+            title: NSLocalizedString("Cancel", comment: ""),
+            style: .cancel,
+            handler: nil
+        )
+
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
+
     private lazy var callOptionsButton: BarButtonItemWithActivity = {
         let callOptionsButton = self.getCallOptionsBarButton()
 
@@ -522,7 +589,13 @@ import SwiftUI
         if presentedInCall {
             barButtonsItems = [closeButton]
         } else if isThreadViewController {
-            barButtonsItems = [closeButton, threadNotificationButton]
+            barButtonsItems = [closeButton]
+            // Thread edit menu
+            if let thread, thread.isThreadOwner(NCDatabaseManager.sharedInstance().activeAccount()) || room.canModerate {
+                barButtonsItems.append(threadDetailsEditButton)
+            }
+            // Thread notifications
+            barButtonsItems.append(threadNotificationButton)
         } else {
             // Option menu
             if room.supportsUpcomingEvents || room.supportsThreading {

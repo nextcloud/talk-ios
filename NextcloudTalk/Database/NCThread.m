@@ -143,4 +143,9 @@
     return self->lastMessageFromDict;
 }
 
+- (BOOL)isThreadOwner:(TalkAccount *)account
+{
+    return [[[self firstMessage] actorId] isEqualToString:account.userId] && [[[self firstMessage] actorType] isEqualToString:@"users"];
+}
+
 @end
