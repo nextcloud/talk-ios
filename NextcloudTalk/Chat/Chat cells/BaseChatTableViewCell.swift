@@ -232,7 +232,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         let messageActor = message.actor
         let titleLabel = messageActor.attributedDisplayName
 
-        if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0, !isOwnMessage {
+        if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
             var editedString = ""
 
             if message.lastEditActorId == message.actorId, message.lastEditActorType == "users" {
@@ -291,6 +291,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                 BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
             }
 
+            // Ensure titleLabel does not interfere with width calculation (only on devices, not simulator)
+            self.titleLabel.text = ""
+            self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
         }
 
