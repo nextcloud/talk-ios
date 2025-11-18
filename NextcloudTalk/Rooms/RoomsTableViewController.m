@@ -612,9 +612,23 @@ typedef enum RoomsSections {
 
             if (account.unreadBadgeNumber > 0) {
                 switchAccountAction.subtitle = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld notifications", nil), (long)account.unreadBadgeNumber];
+            } else {
+                switchAccountAction.subtitle = [account.server stringByReplacingOccurrencesOfString:@"https://" withString:@""];
             }
 
             [inactiveAccounts addObject:switchAccountAction];
+        }
+
+        if (inactiveAccounts.count > 0) {
+            TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+            UIImage *accountImage = [[NCAPIController sharedInstance] userProfileImageForAccount:activeAccount withStyle:self.traitCollection.userInterfaceStyle];
+            if (accountImage) {
+                accountImage = [NCUtils roundedImageFromImage:accountImage];
+            }
+            UIAction *activeAccountAction = [UIAction actionWithTitle:activeAccount.userDisplayName image:accountImage identifier:nil handler:^(UIAction *action) {}];
+            activeAccountAction.subtitle = [activeAccount.server stringByReplacingOccurrencesOfString:@"https://" withString:@""];
+            activeAccountAction.state = UIMenuElementStateOn;
+            [inactiveAccounts insertObject:activeAccountAction atIndex:0];
         }
 
         UIMenu *inactiveAccountsMenu = [UIMenu menuWithTitle:@""
@@ -622,6 +636,12 @@ typedef enum RoomsSections {
                                                   identifier:nil
                                                      options:UIMenuOptionsDisplayInline
                                                     children:inactiveAccounts];
+        if (@available(iOS 17.4, *)) {
+            UIMenuDisplayPreferences *displayPreferences = [[UIMenuDisplayPreferences alloc] init];
+            displayPreferences.maximumNumberOfTitleLines = 1;
+
+            inactiveAccountsMenu.displayPreferences = displayPreferences;
+        }
 
         completion(@[inactiveAccountsMenu]);
     }];
