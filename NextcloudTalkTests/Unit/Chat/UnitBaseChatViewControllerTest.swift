@@ -52,14 +52,17 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
     func testCellHeight() throws {
         // Normal chat message
         testMessage.message = "test"
+        testMessage.messageId = 1
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 101.0)
 
         // Multiline chat message
         testMessage.message = "test\nasd\nasd"
+        testMessage.messageId = 2
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 141.0)
 
         // Normal chat message with reaction
         testMessage.message = "test"
+        testMessage.messageId = 3
         testMessage.setOrUpdateTemporaryReaction("👍", state: .added)
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 141.0)
     }
@@ -68,9 +71,11 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         // Grouped chat message
         testMessage.message = "test"
         testMessage.isGroupMessage = true
+        testMessage.messageId = 1
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 71.0)
 
         // Grouped chat message with reaction
+        testMessage.messageId = 2
         testMessage.setOrUpdateTemporaryReaction("👍", state: .added)
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 111.0)
     }
@@ -96,6 +101,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
     func testCellWithUrlHeight() throws {
         // Chat message with URL preview
         testMessage.message = "test - https://nextcloud.com"
+        testMessage.messageId = 1
 
         updateCapabilities { cap in
             cap.referenceApiSupported = true
@@ -105,6 +111,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
 
         // Test URL with grouped message
         testMessage.isGroupMessage = true
+        testMessage.messageId = 2
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 176.0)
     }
 
