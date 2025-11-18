@@ -105,10 +105,7 @@ import SwiftyGif
         return warningView
     }()
 
-    public var currentImage: UIImage? {
-        return self.imageView.image
-    }
-
+    public var currentImage: UIImage?
     public var currentVideoURL: URL?
 
     private var playerViewController: AVPlayerViewController?
@@ -252,6 +249,9 @@ import SwiftyGif
             return
         }
 
+        // Set original image as current image
+        self.currentImage = image
+
         // Downscale images that are too large and require too much memory
         if image.size.width > 2048 ||  image.size.height > 2048 {
             let newSize = AVMakeRect(aspectRatio: image.size, insideRect: .init(x: 0, y: 0, width: 2048, height: 2048)).size
@@ -270,6 +270,7 @@ import SwiftyGif
            let gifImage = try? UIImage(gifData: data) {
 
             self.imageView.setGifImage(gifImage)
+            self.currentImage = gifImage
         } else {
             self.imageView.image = image
         }
