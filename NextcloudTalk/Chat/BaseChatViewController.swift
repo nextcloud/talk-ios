@@ -118,6 +118,8 @@ import SwiftUI
 
     private var leftButtonLongPressGesture: UILongPressGestureRecognizer?
 
+    private var messageHeightCache = NCChatMessageHeightCache()
+
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
         inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
@@ -638,6 +640,8 @@ import SwiftUI
 
         block(message)
 
+        self.messageHeightCache.removeHeight(forMessage: message)
+
         self.tableView?.beginUpdates()
         self.tableView?.reloadRows(at: [indexPath], with: .none)
         self.tableView?.endUpdates()
@@ -666,6 +670,7 @@ import SwiftUI
                 reloadIndexPaths.append(contentsOf: referencingIndexPaths)
             }
 
+            self.messageHeightCache.removeHeight(forMessage: message)
             self.tableView?.beginUpdates()
             self.tableView?.reloadRows(at: reloadIndexPaths, with: .none)
             self.tableView?.endUpdates()
@@ -687,6 +692,7 @@ import SwiftUI
             originalThreadMessage.threadTitle = message.threadTitle
             originalThreadMessage.threadReplies = message.threadReplies
 
+            self.messageHeightCache.removeHeight(forMessage: originalThreadMessage)
             self.tableView?.beginUpdates()
             self.tableView?.reloadRows(at: [indexPath], with: .none)
             self.tableView?.endUpdates()
@@ -2748,6 +2754,7 @@ import SwiftUI
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: messageId) else { return }
 
             message.removeReactionFromTemporaryReactions(reaction)
+            self.messageHeightCache.removeHeight(forMessage: message)
 
             self.tableView?.beginUpdates()
             self.tableView?.endUpdates()
@@ -2776,6 +2783,7 @@ import SwiftUI
                 }
             }
 
+            self.messageHeightCache.removeHeight(forMessage: message)
             self.tableView?.beginUpdates()
             self.tableView?.endUpdates()
             self.tableView?.reloadRows(at: [indexPath], with: .none)
@@ -3049,6 +3057,10 @@ import SwiftUI
 
     // swiftlint:disable:next cyclomatic_complexity
     func getCellHeight(for message: NCChatMessage, with originalWidth: CGFloat) -> CGFloat {
+        if let cachedHeight = messageHeightCache.getHeight(forMessage: message, forWidth: originalWidth) {
+            return cachedHeight
+        }
+
         // Chat separators
         if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
             message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
@@ -3163,6 +3175,8 @@ import SwiftUI
             // Footer height
             height += 20
         }
+
+        messageHeightCache.setHeight(forMessage: message, forWidth: originalWidth, withHeight: height)
 
         return height
     }
@@ -3813,6 +3827,7 @@ import SwiftUI
                 }
             }
 
+            self.messageHeightCache.removeHeight(forMessage: message)
             self.tableView?.beginUpdates()
             self.tableView?.reloadRows(at: reloadIndexPath, with: .automatic)
             self.tableView?.endUpdates()
