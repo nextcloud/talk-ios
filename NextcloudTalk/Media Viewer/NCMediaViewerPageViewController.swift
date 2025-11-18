@@ -255,7 +255,7 @@ import SwiftyGif
         // Downscale images that are too large and require too much memory
         if image.size.width > 2048 ||  image.size.height > 2048 {
             let newSize = AVMakeRect(aspectRatio: image.size, insideRect: .init(x: 0, y: 0, width: 2048, height: 2048)).size
-            guard let scaledImage = NCUtils.renderAspectImage(image: image, ofSize: newSize, centerImage: false)
+            guard let scaledImage = NCUtils.renderAspectImage(image: image, ofSize: newSize, scale: image.scale, centerImage: false)
             else {
                 self.showErrorView()
                 return

@@ -326,10 +326,14 @@ import AVFoundation
     }
 
     public static func renderAspectImage(image: UIImage?, ofSize size: CGSize, centerImage center: Bool) -> UIImage? {
+        return renderAspectImage(image: image, ofSize: size, scale: 0.0, centerImage: center)
+    }
+
+    public static func renderAspectImage(image: UIImage?, ofSize size: CGSize, scale: CGFloat, centerImage center: Bool) -> UIImage? {
         guard let image else { return nil }
 
         let newRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        UIGraphicsBeginImageContextWithOptions(newRect.size, false, 0.0)
+        UIGraphicsBeginImageContextWithOptions(newRect.size, false, scale)
 
         let aspectRatio = AVMakeRect(aspectRatio: image.size, insideRect: newRect)
         var targetOrigin: CGPoint = .zero
