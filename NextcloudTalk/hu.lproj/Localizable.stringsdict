@@ -142,12 +142,34 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Ez a beszélgetés %ld nap tétlenség után mindenkinél törölve lesz.</string>
+            <key>other</key>
+            <string>Ez a beszélgetés %ld nap tétlenség után mindenkinél törölve lesz.</string>
+        </dict>
     </dict>
 
     <key>%ld replies</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@replies@</string>
+        <key>replies</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%ld válasz</string>
+            <key>other</key>
+            <string>%ld válasz</string>
+        </dict>
     </dict>
 </dict>
 </plist>
