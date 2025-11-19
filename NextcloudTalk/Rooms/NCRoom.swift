@@ -306,8 +306,7 @@ import SwiftyAttributes
     @nonobjc
     public var parsedRoomDescription: AttributedString? {
         guard
-            let account,
-            NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: account.accountId),
+            NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: accountId),
             let description = self.roomDescription,
             !description.isEmpty
         else { return nil }
@@ -315,6 +314,19 @@ import SwiftyAttributes
         let attributedDescription = description.withFont(.preferredFont(forTextStyle: .body)).withTextColor(.label)
 
         return AttributedString(SwiftMarkdownObjCBridge.parseMarkdown(markdownString: attributedDescription))
+    }
+
+    // TODO: Move to lazy
+    public var callReactions: [String] {
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)
+
+        // Disable swiftlint -> not supported on Realm object
+        // swiftlint:disable:next empty_count
+        if let serverCapabilities, serverCapabilities.callReactions.count > 0, let callReactions = serverCapabilities.callReactions.value(forKey: "self") as? [String] {
+            return callReactions
+        }
+
+        return []
     }
 
 }
