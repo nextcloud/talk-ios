@@ -77,7 +77,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var statusView: UIStackView!
     @IBOutlet weak var messageBodyView: UIView!
-    @IBOutlet weak var messageBodyViewTopConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var reactionStackView: UIStackView!
 
@@ -89,23 +88,28 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var footerPart: UIView!
 
     @IBOutlet weak var bubbleView: UIView!
+    @IBOutlet weak var bubbleStackView: UIStackView!
 
     // Since we use different relations depending on the bubble (other user or app user) we setup
     // the constraints programmatically instead of in interface builder
-    lazy var bubbleViewLeftConstraintEqual: NSLayoutConstraint = {
-        return bubbleView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10)
+    lazy var leftBubbleConstraints = {
+        return [
+            bubbleStackView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10),
+            bubbleStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64),
+
+            titleLabel.leadingAnchor.constraint(equalTo: headerPart.leadingAnchor, constant: 0),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: headerPart.trailingAnchor, constant: 0)
+        ]
     }()
 
-    lazy var bubbleViewLeftConstraintGreaterThan: NSLayoutConstraint = {
-        return bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40)
-    }()
+    lazy var rightBubbleConstraints = {
+        return [
+            bubbleStackView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40),
+            bubbleStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
 
-    lazy var bubbleViewRightConstraintEqual: NSLayoutConstraint = {
-        return bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-    }()
-
-    lazy var bubbleViewRightConstraintLessThan: NSLayoutConstraint = {
-        return bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64)
+            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: headerPart.leadingAnchor, constant: 0),
+            titleLabel.trailingAnchor.constraint(equalTo: headerPart.trailingAnchor, constant: 0)
+        ]
     }()
 
     lazy var threadRepliesButton: NCButton = {
@@ -199,8 +203,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.threadTitleLabel?.removeFromSuperview()
         self.threadTitleLabel = nil
 
-        self.messageBodyViewTopConstraint.constant = 5
-
         self.referenceView?.prepareForReuse()
 
         self.prepareForReuseFileCell()
@@ -226,6 +228,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         let date = Date(timeIntervalSince1970: TimeInterval(message.timestamp))
         self.dateLabel.text = NCUtils.getTime(fromDate: date)
 
+        let isOwnMessage = message.isMessage(from: account.userId)
         let messageActor = message.actor
         let titleLabel = messageActor.attributedDisplayName
 
@@ -254,8 +257,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             shouldShowReadStatus = !(roomCapabilities.readStatusPrivacy)
         }
 
-        let isOwnMessage = message.isMessage(from: account.userId)
-
         // This check is just a workaround to fix the issue with the deleted parents returned by the API.
         if let parent = message.parent, message.willShowParentMessageInThread(thread) {
             self.showQuotePart()
@@ -270,14 +271,15 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
-            self.messageBodyViewTopConstraint.constant = 10
         }
 
-        self.bubbleViewLeftConstraintEqual.isActive = !isOwnMessage
-        self.bubbleViewLeftConstraintGreaterThan.isActive = isOwnMessage
-
-        self.bubbleViewRightConstraintEqual.isActive = isOwnMessage
-        self.bubbleViewRightConstraintLessThan.isActive = !isOwnMessage
+        if isOwnMessage {
+            NSLayoutConstraint.deactivate(self.leftBubbleConstraints)
+            NSLayoutConstraint.activate(self.rightBubbleConstraints)
+        } else {
+            NSLayoutConstraint.deactivate(self.rightBubbleConstraints)
+            NSLayoutConstraint.activate(self.leftBubbleConstraints)
+        }
 
         var backgroundColor: UIColor? = .secondarySystemBackground
 
@@ -293,7 +295,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
-            self.messageBodyViewTopConstraint.constant = 10
         }
 
         self.bubbleView.backgroundColor = backgroundColor
