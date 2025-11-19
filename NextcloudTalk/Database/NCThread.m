@@ -6,6 +6,7 @@
 #import "NCThread.h"
 
 #import "NCChatMessage.h"
+#import "NextcloudTalk-Swift.h"
 
 @interface NCThread () {
     NCChatMessage *firstMessageFromDict;
@@ -141,6 +142,11 @@
     }
 
     return self->lastMessageFromDict;
+}
+
+- (BOOL)isThreadOwner:(TalkAccount *)account
+{
+    return [[self firstMessage] isMessageFrom:account.userId];
 }
 
 @end

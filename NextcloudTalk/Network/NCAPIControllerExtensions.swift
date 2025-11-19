@@ -1250,6 +1250,35 @@ import NextcloudKit
     }
 
     @nonobjc
+    public func renameThread(with threadTitle: String, for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: String] = [
+            "threadTitle": threadTitle
+        ]
+
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { ocs, _ in
+            guard let threadDict = ocs?.dataDict as? [String: Any] else {
+                completionBlock(nil)
+                return
+            }
+
+            let thread = NCThread(dictionary: threadDict, andAccountId: accountId)
+            NCThread.storeOrUpdateThreads([thread])
+            completionBlock(thread)
+        }
+    }
+
+    @nonobjc
     public func setNotificationLevelForThread(for accountId: String, in roomToken: String, threadId: Int, level: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,

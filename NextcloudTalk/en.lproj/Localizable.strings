@@ -982,6 +982,9 @@
 /* No comment provided by engineer. */
 "Edit attendees" = "Edit attendees";
 
+/* No comment provided by engineer. */
+"Edit thread details" = "Edit thread details";
+
 /* A message was edited */
 "edited" = "edited";
 

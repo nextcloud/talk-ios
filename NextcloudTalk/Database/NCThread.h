@@ -9,6 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class NCChatMessage;
+@class TalkAccount;
 
 @interface NCThread : RLMObject
 
@@ -32,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NCChatMessage * _Nullable)firstMessage;
 - (NCChatMessage * _Nullable)lastMessage;
+
+- (BOOL)isThreadOwner:(TalkAccount *)account;
 
 @end
 NS_ASSUME_NONNULL_END
