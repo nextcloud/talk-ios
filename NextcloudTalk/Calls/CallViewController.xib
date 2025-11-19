@@ -30,6 +30,7 @@
                 <outlet property="screenshareLabel" destination="jS8-GI-SJT" id="l5i-yo-wU9"/>
                 <outlet property="screenshareLabelContainer" destination="o1l-BI-9Qm" id="w1I-1t-qFm"/>
                 <outlet property="screensharingView" destination="Zzc-Pq-hMC" id="kaT-G4-IxS"/>
+                <outlet property="sideBarRightConstraint" destination="Fy0-ZW-aGG" id="Ugb-mi-gWj"/>
                 <outlet property="sideBarView" destination="fSY-ZT-xIC" id="4UK-JE-3Md"/>
                 <outlet property="sideBarWidthConstraint" destination="8kc-f3-P81" id="D7w-hK-6Hk"/>
                 <outlet property="speakerButton" destination="dgz-bL-PRr" id="WdG-PS-8Qa"/>

@@ -68,6 +68,7 @@ class CallViewController: UIViewController,
     @IBOutlet public var participantsLabel: UILabel!
 
     @IBOutlet private var sideBarWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var sideBarRightConstraint: NSLayoutConstraint!
 
     @IBOutlet private var audioMuteButton: UIButton!
     @IBOutlet private var speakerButton: UIButton!
@@ -1910,8 +1911,10 @@ class CallViewController: UIViewController,
         if visible {
             self.sideBarView.isHidden = false
             self.sideBarWidthConstraint.constant = sidebarWidth
+            self.sideBarRightConstraint.constant = 8
         } else {
             self.sideBarWidthConstraint.constant = 0
+            self.sideBarRightConstraint.constant = 0
         }
 
         self.adjustBars()
