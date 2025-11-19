@@ -482,6 +482,12 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
     } else {
         NSLog(@"Not creating new chat room: chatViewController for room %@ does already exist.", room.token);
 
+        // Open thread view
+        if (_showThreadPushNotification && [_showThreadPushNotification.roomToken isEqualToString:room.token]) {
+            [_chatViewController presentThreadViewFor:_showThreadPushNotification.threadId toReply:NO];
+            _showThreadPushNotification = nil;
+        }
+
         // Still make sure the current room is highlighted
         [[NCUserInterfaceController sharedInstance].roomsTableViewController setSelectedRoomToken:_chatViewController.room.token];
     }

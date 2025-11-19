@@ -586,11 +586,7 @@ import SwiftUI
         }
 
         if self.presentThreadOnAppear != 0 {
-            guard let account = self.room.account,
-                  let thread = NCThread(threadId: presentThreadOnAppear, inRoom: room.token, forAccountId: account.accountId)
-            else { return }
-
-            self.presentThreadViewController(for: thread, inRoom: room, toReply: false, withAccount: account)
+            self.presentThreadView(for: presentThreadOnAppear)
             self.presentThreadOnAppear = 0
         }
     }
@@ -1017,8 +1013,12 @@ import SwiftUI
     }
 
     public override func didPressShowThread(for message: NCChatMessage, toReply: Bool = false) {
+        self.presentThreadView(for: message.threadId, toReply: toReply)
+    }
+
+    public func presentThreadView(for threadId: NSInteger, toReply: Bool = false) {
         guard let account = self.room.account,
-              let thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId)
+              let thread = NCThread(threadId: threadId, inRoom: room.token, forAccountId: account.accountId)
         else { return }
 
         self.presentThreadViewController(for: thread, inRoom: room, toReply: toReply, withAccount: account)
