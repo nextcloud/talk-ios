@@ -76,11 +76,13 @@ class CallViewController: UIViewController,
     @IBOutlet private var hangUpButton: UIButton!
     @IBOutlet private var videoCallButton: UIButton!
     @IBOutlet private var recordingButton: UIButton!
+    @IBOutlet private var reactionButton: UIButton!
     @IBOutlet private var lowerHandButton: UIButton!
     @IBOutlet private var moreMenuButton: UIButton!
     @IBOutlet private var collectionView: UICollectionView!
     @IBOutlet private var topBarView: UIView!
-    @IBOutlet private var topBarButtonStackView: UIStackView!
+    @IBOutlet private var topBarMoreButton: UIButton!
+    @IBOutlet private var bottomBarButtonStackView: UIStackView!
     @IBOutlet private var sideBarView: UIView!
 
     private let sidebarWidth = 350.0
@@ -231,12 +233,33 @@ class CallViewController: UIViewController,
         self.moreMenuButton.accessibilityHint = NSLocalizedString("Double tap to show more actions", comment: "")
         self.moreMenuButton.accessibilityIdentifier = "moreMenuButton"
 
+        // More menu
         let deferredMoreMenu = UIDeferredMenuElement.uncached { [unowned self] completion in
             completion(self.getMoreButtonMenuItems())
         }
 
         self.moreMenuButton.showsMenuAsPrimaryAction = true
-        self.moreMenuButton.menu = UIMenu(title: "", children: [deferredMoreMenu])
+        self.moreMenuButton.menu = UIMenu(children: [deferredMoreMenu])
+
+        // Moderator action menu
+        if self.getModeratorButtonMenuItems().isEmpty {
+            self.topBarMoreButton.isHidden = true
+        } else {
+            let deferredModeratorMenu = UIDeferredMenuElement.uncached { [unowned self] completion in
+                completion(self.getModeratorButtonMenuItems())
+            }
+
+            self.topBarMoreButton.menu = UIMenu(children: [deferredModeratorMenu])
+            self.topBarMoreButton.showsMenuAsPrimaryAction = true
+        }
+
+        // Reaction menu
+        if let reactionMenu = self.getReactionMenu() {
+            self.reactionButton.menu = reactionMenu
+            self.reactionButton.showsMenuAsPrimaryAction = true
+        } else {
+            self.reactionButton.isHidden = true
+        }
 
         // Text color should be always white in the call view
         self.titleView.titleTextColor = .white
@@ -309,7 +332,7 @@ class CallViewController: UIViewController,
         coordinator.animate { _ in
             self.setLocalVideoRect()
             self.screensharingView.resizeContentView()
-            self.adjustTopBar()
+            self.adjustBars()
         }
     }
 
@@ -317,7 +340,7 @@ class CallViewController: UIViewController,
         super.viewSafeAreaInsetsDidChange()
 
         self.setLocalVideoRect()
-        self.adjustTopBar()
+        self.adjustBars()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -325,7 +348,7 @@ class CallViewController: UIViewController,
 
         self.setSideBarVisible(false, animated: false, withCompletion: nil)
         self.adjustSpeakerButton()
-        self.adjustTopBar()
+        self.adjustBars()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -883,7 +906,7 @@ class CallViewController: UIViewController,
     }
 
     func callControllerDidChangeRecording(_ callController: NCCallController!) {
-        self.adjustTopBar()
+        self.adjustBars()
 
         DispatchQueue.main.async {
             var notificationText = NSLocalizedString("Call recording stopped", comment: "")
@@ -948,7 +971,7 @@ class CallViewController: UIViewController,
     }
 
     func callControllerDidChangeScreenrecording(_ callController: NCCallController!) {
-        self.adjustTopBar()
+        self.adjustBars()
     }
 
     // MARK: - Local video
@@ -1207,7 +1230,7 @@ class CallViewController: UIViewController,
         }
     }
 
-    func adjustTopBar() {
+    func adjustBars() {
         DispatchQueue.main.async {
             // Enable/Disable video buttons
             self.videoDisableButton.isHidden = self.isAudioOnly
@@ -1215,6 +1238,8 @@ class CallViewController: UIViewController,
             self.videoCallButton.isHidden = !self.isAudioOnly
 
             self.lowerHandButton.isHidden = !self.isHandRaised
+
+            self.reactionButton.isHidden = self.room.callReactions.isEmpty
 
             // Only when the server supports recording-v1 we have access to callStartTime, otherwise hide the label
             self.callTimeLabel.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1)
@@ -1235,38 +1260,31 @@ class CallViewController: UIViewController,
             // Don't make assumptions about the device here, because with split screen even an iPad can have a compact width
             if self.traitCollection.horizontalSizeClass == .compact {
                 self.setHangUpButtonWithTitle(false)
+                self.titleView.isHidden = true
             } else {
                 self.setHangUpButtonWithTitle(true)
             }
 
-            // Make sure we get the correct frame for the stack view, after changing the visibility of buttons
-            self.topBarView.setNeedsLayout()
-            self.topBarView.layoutIfNeeded()
+            if !self.reactionButton.isHidden {
+                // Need to update the layout again, if we changed it here
+                self.topBarView.setNeedsLayout()
+                self.topBarView.layoutIfNeeded()
 
-            // Hide titleView if we don't have enough space
-            // Don't do it in one go, as then we will have some jumping
-            if self.topBarButtonStackView.frame.origin.x < 200 {
-                self.setHangUpButtonWithTitle(false)
-                self.titleView.isHidden = true
-            } else {
-                self.titleView.isHidden = false
+                if self.bottomBarButtonStackView.frame.origin.x < 0 {
+                    self.reactionButton.isHidden = true
+                }
             }
 
-            // Need to update the layout again, if we changed it here
-            self.topBarView.setNeedsLayout()
-            self.topBarView.layoutIfNeeded()
+            if !self.speakerButton.isHidden {
+                // Need to update the layout again, if we changed it here
+                self.topBarView.setNeedsLayout()
+                self.topBarView.layoutIfNeeded()
 
-            // Hide the speaker button to make some more room for higher priority buttons
-            // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
-            if self.topBarButtonStackView.frame.origin.x < 0 {
-                self.speakerButton.isHidden = true
-            }
-
-            self.topBarView.setNeedsLayout()
-            self.topBarView.layoutIfNeeded()
-
-            if self.topBarButtonStackView.frame.origin.x < 0 {
-                self.callTimeLabel.isHidden = true
+                // Hide the speaker button to make some more room for higher priority buttons
+                // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
+                if self.bottomBarButtonStackView.frame.origin.x < 0 {
+                    self.speakerButton.isHidden = true
+                }
             }
 
             if (self.room.canModerate || self.room.type == .oneToOne),
@@ -1311,6 +1329,95 @@ class CallViewController: UIViewController,
         broadcastPicker.preferredExtension = "\(bundleIdentifier).BroadcastUploadExtension"
         broadcastPicker.showsMicrophoneButton = false
         broadcastPicker.showPicker()
+    }
+
+    func getReactionMenu() -> UIMenu? {
+        let callReactions = room.callReactions
+
+        if !callReactions.isEmpty {
+            var reactionItems: [UIMenuElement] = []
+
+            for reaction in callReactions {
+                reactionItems.append(UIAction(title: String(reaction), handler: { [unowned self] _ in
+                    self.callController?.sendReaction(reaction)
+
+                    if let account = room.account {
+                        self.addReaction(reaction, fromUser: account.userDisplayName)
+                    }
+                }))
+            }
+
+            var currentItemsCount = 0
+            var temporaryReactionItems: [UIMenuElement] = []
+            var temporaryReactionMenus: [UIMenu] = []
+
+            for reactionAction in reactionItems {
+                currentItemsCount += 1
+                temporaryReactionItems.append(reactionAction)
+
+                if currentItemsCount >= 2 {
+                    let inlineReactionMenu = UIMenu(title: "", options: .displayInline, children: temporaryReactionItems)
+                    inlineReactionMenu.preferredElementSize = .small
+
+                    temporaryReactionMenus.append(inlineReactionMenu)
+                    temporaryReactionItems = []
+                    currentItemsCount = 0
+                }
+            }
+
+            if currentItemsCount > 0 {
+                // Add a last item, in case there's one
+                let inlineReactionMenu = UIMenu(title: "", options: .displayInline, children: temporaryReactionItems)
+                inlineReactionMenu.preferredElementSize = .small
+
+                temporaryReactionMenus.append(inlineReactionMenu)
+            }
+
+            return UIMenu(title: NSLocalizedString("Send a reaction", comment: ""), image: .init(systemName: "face.smiling"), children: temporaryReactionMenus)
+        }
+
+        return nil
+    }
+
+    func getModeratorButtonMenuItems() -> [UIMenuElement] {
+        var moderatorItems = [UIMenuElement]()
+
+        // Add participant to a one2one call
+        if self.room.type == .oneToOne && self.room.canAddParticipants {
+            moderatorItems.append(UIAction(title: NSLocalizedString("Add participants", comment: ""), subtitle: NSLocalizedString("Start a new group conversation", comment: ""), image: .init(systemName: "person.badge.plus"), handler: { [unowned self] _ in
+                if let addParticipantsVC = AddParticipantsTableViewController(for: self.room) {
+                    self.present(NCNavigationController(rootViewController: addParticipantsVC), animated: true)
+                }
+            }))
+        }
+
+        // Mute others
+        if self.room.canModerate {
+            moderatorItems.append(UIAction(title: NSLocalizedString("Mute others", comment: ""), image: .init(systemName: "mic.slash.fill"), handler: { [unowned self] _ in
+                self.callController?.forceMuteOthers()
+            }))
+        }
+
+        // Start/Stop recording
+        if self.room.isUserOwnerOrModerator, NCSettingsController.sharedInstance().isRecordingEnabled() {
+            var recordingImage = UIImage(systemName: "record.circle.fill")
+            var recordingActionTitle = NSLocalizedString("Start recording", comment: "")
+
+            if self.room.callRecordingIsInActiveState {
+                recordingImage = UIImage(systemName: "stop.circle.fill")
+                recordingActionTitle = NSLocalizedString("Stop recording", comment: "")
+            }
+
+            moderatorItems.append(UIAction(title: recordingActionTitle, image: recordingImage, handler: { [unowned self] _ in
+                if self.room.callRecordingIsInActiveState {
+                    self.showStopRecordingConfirmationDialog()
+                } else {
+                    self.callController?.startRecording()
+                }
+            }))
+        }
+
+        return moderatorItems
     }
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -1358,78 +1465,13 @@ class CallViewController: UIViewController,
             items.append(UIAction(title: raiseHandTitle, image: .init(systemName: "hand.raised.fill"), handler: { [unowned self] _ in
                 callController.raiseHand(!self.isHandRaised)
                 self.isHandRaised = !self.isHandRaised
-                self.adjustTopBar()
+                self.adjustBars()
             }))
         }
 
-        // Send a reaction
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: room.accountId)
-
-        // Disable swiftlint -> not supported on Realm object
-        // swiftlint:disable:next empty_count
-        if let serverCapabilities, serverCapabilities.callReactions.count > 0, let callReactions = serverCapabilities.callReactions.value(forKey: "self") as? [String] {
-            var reactionItems: [UIMenuElement] = []
-
-            for reaction in callReactions {
-                reactionItems.append(UIAction(title: String(reaction), handler: { [unowned self] _ in
-                    callController.sendReaction(reaction)
-
-                    if let account = room.account {
-                        self.addReaction(reaction, fromUser: account.userDisplayName)
-                    }
-                }))
-            }
-
-            var currentItemsCount = 0
-            var temporaryReactionItems: [UIMenuElement] = []
-            var temporaryReactionMenus: [UIMenu] = []
-
-            for reactionAction in reactionItems {
-                currentItemsCount += 1
-                temporaryReactionItems.append(reactionAction)
-
-                if currentItemsCount >= 2 {
-                    let inlineReactionMenu = UIMenu(title: "", options: .displayInline, children: temporaryReactionItems)
-                    inlineReactionMenu.preferredElementSize = .small
-
-                    temporaryReactionMenus.append(inlineReactionMenu)
-                    temporaryReactionItems = []
-                    currentItemsCount = 0
-                }
-            }
-
-            if currentItemsCount > 0 {
-                // Add a last item, in case there's one
-                let inlineReactionMenu = UIMenu(title: "", options: .displayInline, children: temporaryReactionItems)
-                inlineReactionMenu.preferredElementSize = .small
-
-                temporaryReactionMenus.append(inlineReactionMenu)
-            }
-
-            // Replace the plain actions with the newly create inline menus
-            reactionItems = temporaryReactionMenus
-
-            let reactionMenu = UIMenu(title: NSLocalizedString("Send a reaction", comment: ""), image: .init(systemName: "face.smiling"), children: reactionItems)
+        // Send a reaction. We only get a menu, when reactions are supported.
+        if self.reactionButton.isHidden, let reactionMenu = self.getReactionMenu() {
             items.append(reactionMenu)
-        }
-
-        // Start/Stop recording
-        if self.room.isUserOwnerOrModerator, NCSettingsController.sharedInstance().isRecordingEnabled() {
-            var recordingImage = UIImage(systemName: "record.circle.fill")
-            var recordingActionTitle = NSLocalizedString("Start recording", comment: "")
-
-            if self.room.callRecordingIsInActiveState {
-                recordingImage = UIImage(systemName: "stop.circle.fill")
-                recordingActionTitle = NSLocalizedString("Stop recording", comment: "")
-            }
-
-            items.append(UIAction(title: recordingActionTitle, image: recordingImage, handler: { [unowned self] _ in
-                if self.room.callRecordingIsInActiveState {
-                    self.showStopRecordingConfirmationDialog()
-                } else {
-                    callController.startRecording()
-                }
-            }))
         }
 
         // Background blur
@@ -1444,7 +1486,7 @@ class CallViewController: UIViewController,
 
             items.append(UIAction(title: blurActionTitle, image: blurActionImage, handler: { [unowned self] _ in
                 callController.enableBackgroundBlur(!callController.isBackgroundBlurEnabled())
-                self.adjustTopBar()
+                self.adjustBars()
             }))
         }
 
@@ -1461,26 +1503,6 @@ class CallViewController: UIViewController,
             self.showScreensharingPicker()
         }))
 
-        var moderatorItems: [UIMenuElement] = []
-
-        // Add participant to a one2one call
-        if self.room.type == .oneToOne && self.room.canAddParticipants {
-            moderatorItems.append(UIAction(title: NSLocalizedString("Add participants", comment: ""), subtitle: NSLocalizedString("Start a new group conversation", comment: ""), image: .init(systemName: "person.badge.plus"), handler: { [unowned self] _ in
-                if let addParticipantsVC = AddParticipantsTableViewController(for: self.room) {
-                    self.present(NCNavigationController(rootViewController: addParticipantsVC), animated: true)
-                }
-            }))
-        }
-
-        // Mute others
-        if self.room.canModerate {
-            moderatorItems.append(UIAction(title: NSLocalizedString("Mute others", comment: ""), image: .init(systemName: "mic.slash.fill"), handler: { [unowned self] _ in
-                self.callController?.forceMuteOthers()
-            }))
-        }
-
-        items.append(UIMenu(options: .displayInline, children: moderatorItems))
-
         return items
     }
 
@@ -1492,7 +1514,7 @@ class CallViewController: UIViewController,
             // If the visibility of the speaker button does not reflect the route changeability
             // we need to try and adjust the top bar
             if self.speakerButton.isHidden == audioController.isAudioRouteChangeable() {
-                self.adjustTopBar()
+                self.adjustBars()
             }
 
             // Show AirPlay  button if there are more audio routes available
@@ -1616,8 +1638,8 @@ class CallViewController: UIViewController,
             self.callTimeLabel.text = String(format: "%02lu:%02lu", minutes, seconds)
         }
 
-        if self.topBarButtonStackView.frame.origin.x < 0 {
-            self.adjustTopBar()
+        if self.bottomBarButtonStackView.frame.origin.x < 0 {
+            self.adjustBars()
         }
 
         if callDuration == oneHourInSeconds {
@@ -1890,7 +1912,7 @@ class CallViewController: UIViewController,
             self.sideBarWidthConstraint.constant = 0
         }
 
-        self.adjustTopBar()
+        self.adjustBars()
 
         var localVideoViewOrigin = self.localVideoViewWrapper.frame.origin
         // Check if localVideoView needs to be moved to the right when sidebar is being closed
@@ -2063,7 +2085,7 @@ class CallViewController: UIViewController,
 
         callController.raiseHand(false)
         self.isHandRaised = false
-        self.adjustTopBar()
+        self.adjustBars()
     }
 
     @IBAction func videoRecordingButtonPressed(_ sender: Any) {
