@@ -74,41 +74,7 @@ import SwiftyGif
         return errorView
     }()
 
-    private lazy var downscaledWarningView = {
-        let warningView = UIView()
-        warningView.translatesAutoresizingMaskIntoConstraints = false
-
-        let warningImage = UIImageView()
-        warningImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
-        warningImage.contentMode = .scaleAspectFit
-        warningImage.translatesAutoresizingMaskIntoConstraints = false
-        warningImage.tintColor = .systemYellow
-        warningImage.setContentHuggingPriority(.required, for: .horizontal)
-
-        let warningText = UILabel()
-        warningText.translatesAutoresizingMaskIntoConstraints = false
-        warningText.text = NSLocalizedString("A low resolution version is displayed", comment: "")
-
-        warningView.addSubview(warningImage)
-        warningView.addSubview(warningText)
-
-        NSLayoutConstraint.activate([
-            warningImage.leftAnchor.constraint(equalTo: warningView.leftAnchor),
-            warningImage.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
-            warningImage.centerYAnchor.constraint(equalTo: warningView.centerYAnchor),
-            warningText.leadingAnchor.constraint(equalTo: warningImage.trailingAnchor, constant: 10),
-            warningText.bottomAnchor.constraint(equalTo: warningView.bottomAnchor),
-            warningText.centerYAnchor.constraint(equalTo: warningView.centerYAnchor),
-            warningText.trailingAnchor.constraint(equalTo: warningView.trailingAnchor, constant: -10)
-        ])
-
-        return warningView
-    }()
-
-    public var currentImage: UIImage? {
-        return self.imageView.image
-    }
-
+    public var currentImage: UIImage?
     public var currentVideoURL: URL?
 
     private var playerViewController: AVPlayerViewController?
@@ -184,16 +150,6 @@ import SwiftyGif
         ])
     }
 
-    func showWarningView() {
-        self.view.addSubview(self.downscaledWarningView)
-
-        NSLayoutConstraint.activate([
-            self.downscaledWarningView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
-            self.downscaledWarningView.trailingAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
-            self.downscaledWarningView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
-        ])
-    }
-
     // MARK: - NCChatFileController delegate
     func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
         self.activityIndicator.stopAnimating()
@@ -252,17 +208,19 @@ import SwiftyGif
             return
         }
 
+        // Set original image as current image
+        self.currentImage = image
+
         // Downscale images that are too large and require too much memory
         if image.size.width > 2048 ||  image.size.height > 2048 {
             let newSize = AVMakeRect(aspectRatio: image.size, insideRect: .init(x: 0, y: 0, width: 2048, height: 2048)).size
-            guard let scaledImage = NCUtils.renderAspectImage(image: image, ofSize: newSize, centerImage: false)
+            guard let scaledImage = NCUtils.renderAspectImage(image: image, ofSize: newSize, scale: image.scale, centerImage: false)
             else {
                 self.showErrorView()
                 return
             }
 
             image = scaledImage
-            self.showWarningView()
         }
 
         if message.file() != nil, message.isAnimatableGif,
@@ -270,6 +228,7 @@ import SwiftyGif
            let gifImage = try? UIImage(gifData: data) {
 
             self.imageView.setGifImage(gifImage)
+            self.currentImage = gifImage
         } else {
             self.imageView.image = image
         }
