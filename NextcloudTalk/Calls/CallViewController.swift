@@ -67,15 +67,7 @@ class CallViewController: UIViewController,
     @IBOutlet public var participantsLabelContainer: UIView!
     @IBOutlet public var participantsLabel: UILabel!
 
-    @IBOutlet private var collectionViewLeftConstraint: NSLayoutConstraint!
-    @IBOutlet private var collectionViewBottomConstraint: NSLayoutConstraint!
-    @IBOutlet private var collectionViewRightConstraint: NSLayoutConstraint!
-    @IBOutlet private var topBarViewRightContraint: NSLayoutConstraint!
-    @IBOutlet private var screenshareViewRightContraint: NSLayoutConstraint!
-    @IBOutlet private var sideBarViewRightConstraint: NSLayoutConstraint!
-    @IBOutlet private var sideBarViewBottomConstraint: NSLayoutConstraint!
     @IBOutlet private var sideBarWidthConstraint: NSLayoutConstraint!
-    @IBOutlet private var stackViewToTitleViewConstraint: NSLayoutConstraint!
 
     @IBOutlet private var audioMuteButton: UIButton!
     @IBOutlet private var speakerButton: UIButton!
@@ -312,7 +304,6 @@ class CallViewController: UIViewController,
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        self.adjustConstraints()
         self.collectionView.collectionViewLayout.invalidateLayout()
 
         coordinator.animate { _ in
@@ -325,7 +316,6 @@ class CallViewController: UIViewController,
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
 
-        self.adjustConstraints()
         self.setLocalVideoRect()
         self.adjustTopBar()
     }
@@ -334,7 +324,6 @@ class CallViewController: UIViewController,
         super.viewWillAppear(animated)
 
         self.setSideBarVisible(false, animated: false, withCompletion: nil)
-        self.adjustConstraints()
         self.adjustSpeakerButton()
         self.adjustTopBar()
     }
@@ -995,8 +984,8 @@ class CallViewController: UIViewController,
         let localVideoResolution = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(videoResolution)
         let localVideoSize = self.getLocalVideoSize(forResolution: localVideoResolution)
 
-        let positionX = viewSize.width - localVideoSize.width - collectionViewRightConstraint.constant - safeAreaInsets.right - defaultPadding
-        let positionY = viewSize.height - localVideoSize.height - collectionViewBottomConstraint.constant - safeAreaInsets.bottom - extraPadding
+        let positionX = viewSize.width - localVideoSize.width - safeAreaInsets.right - defaultPadding
+        let positionY = viewSize.height - localVideoSize.height - safeAreaInsets.bottom - extraPadding
         self.localVideoOriginPosition = CGPoint(x: positionX, y: positionY)
 
         let localVideoRect = CGRect(x: localVideoOriginPosition.x, y: localVideoOriginPosition.y, width: localVideoSize.width, height: localVideoSize.height)
@@ -1259,10 +1248,8 @@ class CallViewController: UIViewController,
             if self.topBarButtonStackView.frame.origin.x < 200 {
                 self.setHangUpButtonWithTitle(false)
                 self.titleView.isHidden = true
-                self.stackViewToTitleViewConstraint.isActive = false
             } else {
                 self.titleView.isHidden = false
-                self.stackViewToTitleViewConstraint.isActive = true
             }
 
             // Need to update the layout again, if we changed it here
@@ -1314,25 +1301,6 @@ class CallViewController: UIViewController,
             self.hangUpButton.setTitle("", for: .normal)
             self.hangUpButton.contentEdgeInsets = .zero
             self.hangUpButton.titleEdgeInsets = .zero
-        }
-    }
-
-    func adjustConstraints() {
-        let rightConstraintConstant = self.getRightSideConstraintConstant()
-        self.collectionViewRightConstraint.constant = rightConstraintConstant
-
-        if self.traitCollection.horizontalSizeClass == .compact {
-            self.collectionViewLeftConstraint.constant = 0
-        } else {
-            self.collectionViewLeftConstraint.constant = 8
-        }
-
-        if self.traitCollection.verticalSizeClass == .compact {
-            self.collectionViewBottomConstraint.constant = 0
-            self.sideBarViewBottomConstraint.constant = 0
-        } else {
-            self.collectionViewBottomConstraint.constant = 8
-            self.sideBarViewBottomConstraint.constant = 8
         }
     }
 
@@ -1567,9 +1535,9 @@ class CallViewController: UIViewController,
         let safeAreaInsets = localVideoViewWrapper.superview?.safeAreaInsets ?? .zero
 
         let edgeInsetTop = 16 + topBarView.frame.origin.y + topBarView.frame.size.height
-        let edgeInsetLeft = 16 + safeAreaInsets.left + collectionViewLeftConstraint.constant
-        let edgeInsetBottom = 16 + safeAreaInsets.bottom + collectionViewBottomConstraint.constant
-        let edgeInsetRight = 16 + safeAreaInsets.right + collectionViewRightConstraint.constant
+        let edgeInsetLeft = 16 + safeAreaInsets.left
+        let edgeInsetBottom = 16 + safeAreaInsets.bottom
+        let edgeInsetRight = 16 + safeAreaInsets.right
 
         let edgeInsets = UIEdgeInsets(top: edgeInsetTop, left: edgeInsetLeft, bottom: edgeInsetBottom, right: edgeInsetRight)
 
@@ -1912,25 +1880,6 @@ class CallViewController: UIViewController,
         self.toggleChatView()
     }
 
-    func getRightSideConstraintConstant() -> CGFloat {
-        var constant: CGFloat = 0
-
-        if self.sideBarWidthConstraint.constant > 0 {
-            // Take sidebar width into account
-            constant += self.sideBarWidthConstraint.constant
-
-            // Add padding between the element and the sidebar
-            constant += 8
-        }
-
-        if self.traitCollection.horizontalSizeClass == .regular {
-            // On regular size classes, we also have a padding of 8 to the safe area
-            constant += 8
-        }
-
-        return constant
-    }
-
     func setSideBarVisible(_ visible: Bool, animated: Bool, withCompletion completionBlock: (() -> Void)?) {
         self.view.layoutIfNeeded()
 
@@ -1940,11 +1889,6 @@ class CallViewController: UIViewController,
         } else {
             self.sideBarWidthConstraint.constant = 0
         }
-
-        let rightConstraintConstant = self.getRightSideConstraintConstant()
-        self.topBarViewRightContraint.constant = rightConstraintConstant
-        self.screenshareViewRightContraint.constant = rightConstraintConstant
-        self.collectionViewRightConstraint.constant = rightConstraintConstant
 
         self.adjustTopBar()
 
