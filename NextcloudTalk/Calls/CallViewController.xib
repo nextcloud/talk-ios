@@ -14,6 +14,7 @@
                 <outlet property="audioMuteButton" destination="kDR-Ds-I7B" id="9NJ-iO-JMY"/>
                 <outlet property="avatarBackgroundImageView" destination="H1v-6g-V21" id="ASI-wy-zPa"/>
                 <outlet property="bottomBarButtonStackView" destination="FHx-ks-wEy" id="dZG-YF-m0q"/>
+                <outlet property="bottomBarView" destination="O9E-Kh-Lb4" id="zv3-nW-tY0"/>
                 <outlet property="callTimeLabel" destination="0Nb-8F-OJ2" id="uzu-FJ-A0H"/>
                 <outlet property="closeScreensharingButton" destination="N0N-Ny-Aeg" id="NrD-JV-Hec"/>
                 <outlet property="collectionView" destination="aUh-Z0-hO6" id="jmc-BV-dTa"/>
@@ -50,13 +51,13 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j66-vv-wB2" userLabel="MainContentView">
-                    <rect key="frame" x="0.0" y="24" width="1016" height="950"/>
+                    <rect key="frame" x="8" y="24" width="992" height="950"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC" userLabel="ScreenshareView" customClass="NCZoomableView" customModule="NextcloudTalk" customModuleProvider="target">
-                            <rect key="frame" x="0.0" y="64" width="1016" height="822"/>
+                            <rect key="frame" x="0.0" y="64" width="992" height="822"/>
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg" userLabel="CloseScreenshareView">
-                                    <rect key="frame" x="972" y="12" width="32" height="32"/>
+                                    <rect key="frame" x="948" y="12" width="32" height="32"/>
                                     <color key="backgroundColor" red="0.11764705882352941" green="0.11764705882352941" blue="0.11764705882352941" alpha="0.80088553523385764" colorSpace="custom" customColorSpace="displayP3"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
@@ -69,7 +70,7 @@
                                     </connections>
                                 </button>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o1l-BI-9Qm" userLabel="ScreenshareLabelContainer">
-                                    <rect key="frame" x="476" y="780" width="64.5" height="34"/>
+                                    <rect key="frame" x="464" y="780" width="64.5" height="34"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jS8-GI-SJT" userLabel="ScreenshareLabel">
                                             <rect key="frame" x="16" y="8" width="32.5" height="18"/>
@@ -100,10 +101,10 @@
                             </constraints>
                         </view>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="reh-cY-1Qv" userLabel="TopBar">
-                            <rect key="frame" x="0.0" y="0.0" width="1016" height="64"/>
+                            <rect key="frame" x="0.0" y="0.0" width="992" height="64"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="72j-eV-mgV">
-                                    <rect key="frame" x="813.5" y="0.0" width="202.5" height="64"/>
+                                    <rect key="frame" x="789.5" y="0.0" width="202.5" height="64"/>
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aQX-QQ-eLT" userLabel="RecordingButton">
                                             <rect key="frame" x="0.0" y="0.0" width="44" height="64"/>
@@ -153,7 +154,7 @@
                                     </subviews>
                                 </stackView>
                                 <view contentMode="left" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="NY0-IT-mMr" userLabel="TitleView" customClass="NCChatTitleView">
-                                    <rect key="frame" x="8" y="8" width="797.5" height="48"/>
+                                    <rect key="frame" x="8" y="8" width="773.5" height="48"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="48" id="TeG-Qy-adB"/>
@@ -179,7 +180,7 @@
                             </constraints>
                         </view>
                         <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="aUh-Z0-hO6">
-                            <rect key="frame" x="0.0" y="64" width="1016" height="822"/>
+                            <rect key="frame" x="0.0" y="64" width="992" height="822"/>
                             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" sectionInsetReference="safeArea" id="iSf-tu-VMU" customClass="CallFlowLayout" customModule="NextcloudTalk" customModuleProvider="target">
                                 <size key="itemSize" width="50" height="50"/>
@@ -193,10 +194,10 @@
                             </connections>
                         </collectionView>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O9E-Kh-Lb4" userLabel="BottomBar">
-                            <rect key="frame" x="0.0" y="886" width="1016" height="64"/>
+                            <rect key="frame" x="0.0" y="886" width="992" height="64"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="FHx-ks-wEy" userLabel="BottomBarButtons">
-                                    <rect key="frame" x="330" y="0.0" width="356" height="64"/>
+                                    <rect key="frame" x="318" y="0.0" width="356" height="64"/>
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-Ds-I7B" userLabel="AudioButton">
                                             <rect key="frame" x="0.0" y="19.5" width="44" height="25"/>
@@ -291,7 +292,7 @@
                                     </subviews>
                                 </stackView>
                                 <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl8-bS-FJ5" userLabel="HangupButton">
-                                    <rect key="frame" x="960" y="8" width="48" height="48"/>
+                                    <rect key="frame" x="936" y="8" width="48" height="48"/>
                                     <color key="backgroundColor" systemColor="systemRedColor"/>
                                     <constraints>
                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="48" id="aZ2-oa-X4M"/>
@@ -381,7 +382,7 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fSY-ZT-xIC" userLabel="Sidebar View">
-                    <rect key="frame" x="1016" y="24" width="350" height="950"/>
+                    <rect key="frame" x="1008" y="24" width="350" height="950"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="350" id="8kc-f3-P81"/>
@@ -392,10 +393,10 @@
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="j66-vv-wB2" firstAttribute="bottom" secondItem="bbs-K4-b33" secondAttribute="bottom" id="5ba-8W-wmu"/>
-                <constraint firstItem="fSY-ZT-xIC" firstAttribute="leading" secondItem="j66-vv-wB2" secondAttribute="trailing" id="7cs-Zt-Hev"/>
-                <constraint firstItem="j66-vv-wB2" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" id="C9A-xq-P35"/>
+                <constraint firstItem="fSY-ZT-xIC" firstAttribute="leading" secondItem="j66-vv-wB2" secondAttribute="trailing" constant="8" id="7cs-Zt-Hev"/>
+                <constraint firstItem="j66-vv-wB2" firstAttribute="leading" secondItem="bbs-K4-b33" secondAttribute="leading" constant="8" id="C9A-xq-P35"/>
                 <constraint firstItem="fSY-ZT-xIC" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" id="ENd-Oe-5YE"/>
-                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="fSY-ZT-xIC" secondAttribute="trailing" id="Fy0-ZW-aGG"/>
+                <constraint firstItem="bbs-K4-b33" firstAttribute="trailing" secondItem="fSY-ZT-xIC" secondAttribute="trailing" constant="8" id="Fy0-ZW-aGG"/>
                 <constraint firstItem="j66-vv-wB2" firstAttribute="top" secondItem="bbs-K4-b33" secondAttribute="top" id="aFi-6i-2e8"/>
                 <constraint firstItem="bbs-K4-b33" firstAttribute="bottom" secondItem="fSY-ZT-xIC" secondAttribute="bottom" id="cnF-xe-Mjs"/>
             </constraints>
