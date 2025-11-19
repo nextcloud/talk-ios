@@ -465,13 +465,28 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 
         NSLog(@"Creating new chat view controller.");
         _chatViewController = [[ChatViewController alloc] initForRoom:room withAccount:activeAccount];
+
+        // Highlight message
         if (_highlightMessageDict && [[_highlightMessageDict objectForKey:@"token"] isEqualToString:room.token]) {
             _chatViewController.highlightMessageId = [[_highlightMessageDict objectForKey:@"messageId"] integerValue];
             _highlightMessageDict = nil;
         }
+
+        // Open thread view on appear
+        if (_showThreadPushNotification && [_showThreadPushNotification.roomToken isEqualToString:room.token]) {
+            _chatViewController.presentThreadOnAppear = _showThreadPushNotification.threadId;
+            _showThreadPushNotification = nil;
+        }
+
         [[NCUserInterfaceController sharedInstance] presentChatViewController:_chatViewController];
     } else {
         NSLog(@"Not creating new chat room: chatViewController for room %@ does already exist.", room.token);
+
+        // Open thread view
+        if (_showThreadPushNotification && [_showThreadPushNotification.roomToken isEqualToString:room.token]) {
+            [_chatViewController presentThreadViewFor:_showThreadPushNotification.threadId toReply:NO];
+            _showThreadPushNotification = nil;
+        }
 
         // Still make sure the current room is highlighted
         [[NCUserInterfaceController sharedInstance].roomsTableViewController setSelectedRoomToken:_chatViewController.room.token];
@@ -773,6 +788,9 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
 {
     NCPushNotification *pushNotification = [notification.userInfo objectForKey:@"pushNotification"];
     [self checkForAccountChange:pushNotification.accountId];
+    if (pushNotification.threadId > 0) {
+        _showThreadPushNotification = pushNotification;
+    }
     [self startChatWithRoomToken:pushNotification.roomToken];
 }
 

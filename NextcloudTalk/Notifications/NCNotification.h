@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, NCNotificationType) {
 - (NSString *)chatMessageAuthor;
 - (NSString *)chatMessageTitle;
 - (NSString *)roomToken;
+- (NSInteger)threadId;
 - (NSArray *)notificationActions;
 
 @end

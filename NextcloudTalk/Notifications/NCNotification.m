@@ -68,6 +68,19 @@
     return _objectId;
 }
 
+- (NSInteger)threadId
+{
+    // Starting with Talk 22 objectId additionally contains the threadId: "{roomToken}/{messageId}/{threadId}"
+    if ([_objectId containsString:@"/"]) {
+        NSArray *objectIdComponents = [_objectId componentsSeparatedByString:@"/"];
+        if (objectIdComponents.count > 2) {
+            return [objectIdComponents[2] integerValue];
+        }
+    }
+
+    return -1;
+}
+
 - (NSString *)chatMessageAuthor
 {
     NSString *author = [[_subjectRichParameters objectForKey:@"user"] objectForKey:@"name"];

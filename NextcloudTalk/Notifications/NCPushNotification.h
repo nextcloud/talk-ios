@@ -41,6 +41,7 @@ extern NSString * const NCPushNotificationJoinVideoCallAcceptedNotification;
 @property (nonatomic, assign) NCPushNotificationType type;
 @property (nonatomic, copy) NSString *subject;
 @property (nonatomic, copy) NSString *roomToken;
+@property (nonatomic, assign) NSInteger threadId;
 @property (nonatomic, assign) NSInteger notificationId;
 @property (nonatomic, strong) NSArray *notificationIds;
 @property (nonatomic, copy) NSString *accountId;
