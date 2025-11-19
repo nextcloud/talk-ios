@@ -82,6 +82,7 @@ class CallViewController: UIViewController,
     @IBOutlet private var collectionView: UICollectionView!
     @IBOutlet private var topBarView: UIView!
     @IBOutlet private var topBarMoreButton: UIButton!
+    @IBOutlet private var bottomBarView: UIView!
     @IBOutlet private var bottomBarButtonStackView: UIStackView!
     @IBOutlet private var sideBarView: UIView!
 
@@ -998,8 +999,9 @@ class CallViewController: UIViewController,
     }
 
     public func setLocalVideoRect() {
-        let safeAreaInsets = self.view.safeAreaInsets
-        let viewSize = self.view.frame.size
+        let safeAreaInsets = localVideoViewWrapper.superview?.safeAreaInsets ?? .zero
+        let viewSize = localVideoViewWrapper.superview?.bounds.size ?? .zero
+
         let defaultPadding: CGFloat = 16
         let extraPadding: CGFloat = 60 // Padding to not cover participant name or mute indicator when there is only one other participant in the call
 
@@ -1008,7 +1010,7 @@ class CallViewController: UIViewController,
         let localVideoSize = self.getLocalVideoSize(forResolution: localVideoResolution)
 
         let positionX = viewSize.width - localVideoSize.width - safeAreaInsets.right - defaultPadding
-        let positionY = viewSize.height - localVideoSize.height - safeAreaInsets.bottom - extraPadding
+        let positionY = viewSize.height - localVideoSize.height - safeAreaInsets.bottom - bottomBarView.bounds.height - extraPadding
         self.localVideoOriginPosition = CGPoint(x: positionX, y: positionY)
 
         let localVideoRect = CGRect(x: localVideoOriginPosition.x, y: localVideoOriginPosition.y, width: localVideoSize.width, height: localVideoSize.height)
@@ -1558,7 +1560,7 @@ class CallViewController: UIViewController,
 
         let edgeInsetTop = 16 + topBarView.frame.origin.y + topBarView.frame.size.height
         let edgeInsetLeft = 16 + safeAreaInsets.left
-        let edgeInsetBottom = 16 + safeAreaInsets.bottom
+        let edgeInsetBottom = 16 + safeAreaInsets.bottom + bottomBarView.frame.size.height
         let edgeInsetRight = 16 + safeAreaInsets.right
 
         let edgeInsets = UIEdgeInsets(top: edgeInsetTop, left: edgeInsetLeft, bottom: edgeInsetBottom, right: edgeInsetRight)
