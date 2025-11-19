@@ -184,6 +184,15 @@ class CallFlowLayout: UICollectionViewFlowLayout {
         let marginsAndInsetsHeight = sectionInsetHeight + safeAreaInsetHeight + minimumLineSpacing * CGFloat(numberOfRows - 1)
         var itemHeight = ((contentSize.height - marginsAndInsetsHeight) / CGFloat(numberOfRows)).rounded(.down)
 
+        let numberOfAllCells = collectionView.numberOfItems(inSection: 0)
+
+        if numberOfAllCells > (numberOfColumns * numberOfRows) {
+            // In case we have more cells than we display on the display, shrink the cells a bit to show the user that there are more
+            // We want to have a total reduction of 15, distributed to all rows
+            let heightToReduce = itemHeight - ((contentSize.height - marginsAndInsetsHeight - 15) / CGFloat(numberOfRows)).rounded(.down)
+            itemHeight -= heightToReduce
+        }
+
         // Enfore minimum cell height
         if itemHeight < kCallParticipantCellMinHeight {
             itemHeight = kCallParticipantCellMinHeight
