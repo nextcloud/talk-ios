@@ -6,6 +6,7 @@
 #import "NCThread.h"
 
 #import "NCChatMessage.h"
+#import "NextcloudTalk-Swift.h"
 
 @interface NCThread () {
     NCChatMessage *firstMessageFromDict;
@@ -145,7 +146,7 @@
 
 - (BOOL)isThreadOwner:(TalkAccount *)account
 {
-    return [[[self firstMessage] actorId] isEqualToString:account.userId] && [[[self firstMessage] actorType] isEqualToString:@"users"];
+    return [[self firstMessage] isMessageFrom:account.userId];
 }
 
 @end
