@@ -54,53 +54,6 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j66-vv-wB2" userLabel="MainContentView">
                     <rect key="frame" x="8" y="24" width="992" height="950"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC" userLabel="ScreenshareView" customClass="NCZoomableView" customModule="NextcloudTalk" customModuleProvider="target">
-                            <rect key="frame" x="0.0" y="64" width="992" height="822"/>
-                            <subviews>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg" userLabel="CloseScreenshareView">
-                                    <rect key="frame" x="948" y="12" width="32" height="32"/>
-                                    <color key="backgroundColor" red="0.11764705882352941" green="0.11764705882352941" blue="0.11764705882352941" alpha="0.80088553523385764" colorSpace="custom" customColorSpace="displayP3"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
-                                        <constraint firstAttribute="width" constant="32" id="xCZ-QS-yDb"/>
-                                    </constraints>
-                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <state key="normal" image="xmark" catalog="system"/>
-                                    <connections>
-                                        <action selector="closeScreensharingButtonPressed:" destination="-1" eventType="touchUpInside" id="Pio-Dr-GaB"/>
-                                    </connections>
-                                </button>
-                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o1l-BI-9Qm" userLabel="ScreenshareLabelContainer">
-                                    <rect key="frame" x="464" y="780" width="64.5" height="34"/>
-                                    <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jS8-GI-SJT" userLabel="ScreenshareLabel">
-                                            <rect key="frame" x="16" y="8" width="32.5" height="18"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="fl4-VY-OBo"/>
-                                            </constraints>
-                                            <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
-                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                    </subviews>
-                                    <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="displayP3"/>
-                                    <constraints>
-                                        <constraint firstItem="jS8-GI-SJT" firstAttribute="leading" secondItem="o1l-BI-9Qm" secondAttribute="leading" constant="16" id="L7w-HG-xVj"/>
-                                        <constraint firstAttribute="bottom" secondItem="jS8-GI-SJT" secondAttribute="bottom" constant="8" id="TMQ-6H-QNh"/>
-                                        <constraint firstAttribute="trailing" secondItem="jS8-GI-SJT" secondAttribute="trailing" constant="16" id="dnd-lP-phb"/>
-                                        <constraint firstItem="jS8-GI-SJT" firstAttribute="top" secondItem="o1l-BI-9Qm" secondAttribute="top" constant="8" id="jNW-9o-AJP"/>
-                                    </constraints>
-                                </view>
-                            </subviews>
-                            <viewLayoutGuide key="safeArea" id="j53-tu-e0T"/>
-                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstItem="j53-tu-e0T" firstAttribute="trailing" secondItem="N0N-Ny-Aeg" secondAttribute="trailing" constant="12" id="Pxi-mX-3dC"/>
-                                <constraint firstItem="j53-tu-e0T" firstAttribute="bottom" secondItem="o1l-BI-9Qm" secondAttribute="bottom" constant="8" id="bNY-pf-A4h"/>
-                                <constraint firstItem="N0N-Ny-Aeg" firstAttribute="top" secondItem="j53-tu-e0T" secondAttribute="top" constant="12" id="pDR-Pt-2K8"/>
-                                <constraint firstItem="o1l-BI-9Qm" firstAttribute="centerX" secondItem="Zzc-Pq-hMC" secondAttribute="centerX" id="yHO-ZB-x8k"/>
-                            </constraints>
-                        </view>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="reh-cY-1Qv" userLabel="TopBar">
                             <rect key="frame" x="0.0" y="0.0" width="992" height="64"/>
                             <subviews>
@@ -339,6 +292,53 @@
                                 <constraint firstItem="jKC-M1-4EZ" firstAttribute="top" secondItem="cRK-6e-FFN" secondAttribute="top" constant="8" id="F3Z-XM-Igo"/>
                                 <constraint firstItem="jKC-M1-4EZ" firstAttribute="leading" secondItem="cRK-6e-FFN" secondAttribute="leading" constant="12" id="mb0-zM-Fqk"/>
                                 <constraint firstAttribute="trailing" secondItem="jKC-M1-4EZ" secondAttribute="trailing" constant="12" id="zhd-Ya-rRk"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zzc-Pq-hMC" userLabel="ScreenshareView" customClass="NCZoomableView" customModule="NextcloudTalk" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="64" width="992" height="822"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N0N-Ny-Aeg" userLabel="CloseScreenshareView">
+                                    <rect key="frame" x="948" y="12" width="32" height="32"/>
+                                    <color key="backgroundColor" red="0.11764705882352941" green="0.11764705882352941" blue="0.11764705882352941" alpha="0.80088553523385764" colorSpace="custom" customColorSpace="displayP3"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="32" id="uMi-V0-B3H"/>
+                                        <constraint firstAttribute="width" constant="32" id="xCZ-QS-yDb"/>
+                                    </constraints>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <state key="normal" image="xmark" catalog="system"/>
+                                    <connections>
+                                        <action selector="closeScreensharingButtonPressed:" destination="-1" eventType="touchUpInside" id="Pio-Dr-GaB"/>
+                                    </connections>
+                                </button>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o1l-BI-9Qm" userLabel="ScreenshareLabelContainer">
+                                    <rect key="frame" x="464" y="780" width="64.5" height="34"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jS8-GI-SJT" userLabel="ScreenshareLabel">
+                                            <rect key="frame" x="16" y="8" width="32.5" height="18"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" relation="greaterThanOrEqual" id="fl4-VY-OBo"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <color key="backgroundColor" red="0.1175515647" green="0.1187154416" blue="0.1187154416" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="displayP3"/>
+                                    <constraints>
+                                        <constraint firstItem="jS8-GI-SJT" firstAttribute="leading" secondItem="o1l-BI-9Qm" secondAttribute="leading" constant="16" id="L7w-HG-xVj"/>
+                                        <constraint firstAttribute="bottom" secondItem="jS8-GI-SJT" secondAttribute="bottom" constant="8" id="TMQ-6H-QNh"/>
+                                        <constraint firstAttribute="trailing" secondItem="jS8-GI-SJT" secondAttribute="trailing" constant="16" id="dnd-lP-phb"/>
+                                        <constraint firstItem="jS8-GI-SJT" firstAttribute="top" secondItem="o1l-BI-9Qm" secondAttribute="top" constant="8" id="jNW-9o-AJP"/>
+                                    </constraints>
+                                </view>
+                            </subviews>
+                            <viewLayoutGuide key="safeArea" id="j53-tu-e0T"/>
+                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstItem="j53-tu-e0T" firstAttribute="trailing" secondItem="N0N-Ny-Aeg" secondAttribute="trailing" constant="12" id="Pxi-mX-3dC"/>
+                                <constraint firstItem="j53-tu-e0T" firstAttribute="bottom" secondItem="o1l-BI-9Qm" secondAttribute="bottom" constant="8" id="bNY-pf-A4h"/>
+                                <constraint firstItem="N0N-Ny-Aeg" firstAttribute="top" secondItem="j53-tu-e0T" secondAttribute="top" constant="12" id="pDR-Pt-2K8"/>
+                                <constraint firstItem="o1l-BI-9Qm" firstAttribute="centerX" secondItem="Zzc-Pq-hMC" secondAttribute="centerX" id="yHO-ZB-x8k"/>
                             </constraints>
                         </view>
                         <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yOI-R5-PXh" userLabel="LocalVideoWrapper">

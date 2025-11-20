@@ -1933,6 +1933,8 @@ class CallViewController: UIViewController,
             self.titleView.layoutIfNeeded()
             self.view.layoutIfNeeded()
             self.adjustLocalVideoPositionFromOriginPosition(localVideoViewOrigin)
+            self.screensharingView.resizeContentView()
+            self.screensharingView.layoutIfNeeded()
         }
 
         let afterAnimations = {
