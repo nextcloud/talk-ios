@@ -85,6 +85,7 @@
     [NCRoomsManager sharedInstance];
     
     [self registerBackgroundFetchTask];
+    [self registerBackgroundProcessingTask];
 
     [NCUserInterfaceController sharedInstance].mainViewController = (NCSplitViewController *) self.window.rootViewController;
     [NCUserInterfaceController sharedInstance].roomsTableViewController = [NCUserInterfaceController sharedInstance].mainViewController.viewControllers.firstObject.childViewControllers.firstObject;
@@ -169,6 +170,7 @@
 
     [self keepExternalSignalingConnectionAliveTemporarily];
     [self scheduleAppRefresh];
+    [self scheduleBackgroundProcessing];
 }
 
 
@@ -417,6 +419,56 @@
     }
     
     return [token copy];
+}
+
+#pragma mark - BackgroundProcessing
+
+- (void)registerBackgroundProcessingTask {
+    NSString *processingTaskIdentifier = [NSString stringWithFormat:@"%@.processing", NSBundle.mainBundle.bundleIdentifier];
+
+    // see: https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler?language=objc
+    [[BGTaskScheduler sharedScheduler] registerForTaskWithIdentifier:processingTaskIdentifier
+                                                          usingQueue:nil
+                                                       launchHandler:^(__kindof BGTask * _Nonnull task) {
+        [self handleBackgroundProcessing:task];
+    }];
+}
+
+- (void)scheduleBackgroundProcessing
+{
+    NSString *processingTaskIdentifier = [NSString stringWithFormat:@"%@.processing", NSBundle.mainBundle.bundleIdentifier];
+
+    BGProcessingTaskRequest *request = [[BGProcessingTaskRequest alloc] initWithIdentifier:processingTaskIdentifier];
+    request.earliestBeginDate = [NSDate dateWithTimeIntervalSinceNow:UIApplicationBackgroundFetchIntervalMinimum];
+    request.requiresNetworkConnectivity = YES;
+    request.requiresExternalPower = NO;
+
+    NSError *error = nil;
+    [[BGTaskScheduler sharedScheduler] submitTaskRequest:request error:&error];
+
+    if (error) {
+        NSLog(@"Failed to submit background processing request: %@", error);
+    }
+}
+
+- (void)handleBackgroundProcessing:(BGTask *)task
+{
+    [NCUtils log:@"Performing background processing -> handleBackgroundProcessing"];
+
+    // With BGTasks (iOS >= 13) we need to schedule another task when running in background
+    [self scheduleBackgroundProcessing];
+
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCBackgroundProcessing" expirationHandler:^(BGTaskHelper *task) {
+        [NCUtils log:@"ExpirationHandler NCBackgroundProcessing called"];
+    }];
+
+    // Check if the shown notifications are still available on the server
+    [[NCNotificationController sharedInstance] checkNotificationExistanceWithCompletionBlock:^(NSError *error) {
+        [NCUtils log:@"CompletionHandler checkNotificationExistance"];
+
+        [task setTaskCompletedWithSuccess:YES];
+        [bgTask stopBackgroundTask];
+    }];
 }
 
 #pragma mark - BackgroundFetch / AppRefresh
