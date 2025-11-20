@@ -195,6 +195,8 @@ class CallViewController: UIViewController,
         self.audioMuteButton.addGestureRecognizer(pushToTalkRecognizer)
 
         self.participantsLabelContainer.isHidden = true
+        let participantsLabelTapGesture = UITapGestureRecognizer(target: self, action: #selector(showParticipantsInRoomInfo))
+        self.participantsLabelContainer.addGestureRecognizer(participantsLabelTapGesture)
 
         self.screensharingView.isHidden = true
         self.screensharingView.clipsToBounds = true
@@ -1991,6 +1993,28 @@ class CallViewController: UIViewController,
         }
     }
 
+    func showParticipantsInRoomInfo() {
+        self.showRoomInfo(scrollToParticipantsSection: true)
+    }
+
+    func showRoomInfo(scrollToParticipantsSection: Bool = false) {
+        let roomInfoVC = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: false, scrollToParticipantsSectionOnAppear: scrollToParticipantsSection)
+        roomInfoVC.modalPresentationStyle = .pageSheet
+
+        let navController = UINavigationController(rootViewController: roomInfoVC)
+        let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
+            roomInfoVC.dismiss(animated: true)
+        })
+
+        if #unavailable(iOS 26.0) {
+            cancelButton.tintColor = NCAppBranding.themeTextColor()
+        }
+
+        navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
+
+        self.present(navController, animated: true)
+    }
+
     func showChat() {
         if chatNavigationController == nil {
             guard let room = NCDatabaseManager.sharedInstance().room(withToken: room.token, forAccountId: room.accountId),
@@ -2451,20 +2475,6 @@ class CallViewController: UIViewController,
     // MARK: - NCChatTitleViewDelegate
 
     func chatTitleViewTapped(_ chatTitleView: NCChatTitleView?) {
-        let roomInfoVC = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: false)
-        roomInfoVC.modalPresentationStyle = .pageSheet
-
-        let navController = UINavigationController(rootViewController: roomInfoVC)
-        let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
-            roomInfoVC.dismiss(animated: true)
-        })
-
-        if #unavailable(iOS 26.0) {
-            cancelButton.tintColor = NCAppBranding.themeTextColor()
-        }
-
-        navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
-
-        self.present(navController, animated: true)
+        showRoomInfo()
     }
 }

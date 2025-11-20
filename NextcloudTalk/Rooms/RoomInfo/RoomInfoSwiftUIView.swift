@@ -21,6 +21,7 @@ class HostingControllerWrapper {
 
 struct RoomInfoSwiftUIView: View {
     let hostingWrapper: HostingControllerWrapper
+    let scrollToParticipantsSectionOnAppear: Bool
 
     @State var room: NCRoom
     @State var showDestructiveActions: Bool = true
@@ -28,26 +29,32 @@ struct RoomInfoSwiftUIView: View {
     @State var profileInfo: ProfileInfo?
 
     var body: some View {
-        List {
-            RoomInfoHeaderSection(hostingWrapper: hostingWrapper, room: $room, profileInfo: $profileInfo)
+        ScrollViewReader { proxy in
+            List {
+                RoomInfoHeaderSection(hostingWrapper: hostingWrapper, room: $room, profileInfo: $profileInfo)
 
-            RoomInfoFileSection(hostingWrapper: hostingWrapper, room: $room, quickLookUrl: $quickLookUrl)
-            RoomInfoSharedItemsSection(hostingWrapper: hostingWrapper, room: $room)
+                RoomInfoFileSection(hostingWrapper: hostingWrapper, room: $room, quickLookUrl: $quickLookUrl)
+                RoomInfoSharedItemsSection(hostingWrapper: hostingWrapper, room: $room)
 
-            RoomInfoNotificationSection(room: $room)
-            RoomInfoConversationSettingsSection(hostingWrapper: hostingWrapper, room: $room)
+                RoomInfoNotificationSection(room: $room)
+                RoomInfoConversationSettingsSection(hostingWrapper: hostingWrapper, room: $room)
 
-            RoomInfoGuestSection(room: $room)
-            RoomInfoWebinarSection(room: $room)
-            RoomInfoSIPInfoSection(room: $room)
+                RoomInfoGuestSection(room: $room)
+                RoomInfoWebinarSection(room: $room)
+                RoomInfoSIPInfoSection(room: $room)
 
-            RoomInfoParticipantsSection(hostingWrapper: hostingWrapper, room: $room)
+                RoomInfoParticipantsSection(hostingWrapper: hostingWrapper, room: $room).id("participantsSection")
 
-            RoomInfoNonDestructiveSection(room: $room)
+                RoomInfoNonDestructiveSection(room: $room)
 
-            if showDestructiveActions {
-                RoomInfoDestructiveSection(room: $room)
-            }
+                if showDestructiveActions {
+                    RoomInfoDestructiveSection(room: $room)
+                }
+            }.onAppear(perform: {
+                if scrollToParticipantsSectionOnAppear {
+                    proxy.scrollTo("participantsSection", anchor: .center)
+                }
+            })
         }
         .quickLookPreview($quickLookUrl)
         .environment(\.defaultMinListHeaderHeight, 1)
@@ -77,9 +84,9 @@ struct RoomInfoSwiftUIView: View {
 
 @objc class RoomInfoUIViewFactory: NSObject {
 
-    @objc static func create(room: NCRoom, showDestructiveActions: Bool) -> UIViewController {
+    @objc static func create(room: NCRoom, showDestructiveActions: Bool, scrollToParticipantsSectionOnAppear: Bool = false) -> UIViewController {
         let wrapper = HostingControllerWrapper()
-        let roomInfoView = RoomInfoSwiftUIView(hostingWrapper: wrapper, room: room, showDestructiveActions: showDestructiveActions)
+        let roomInfoView = RoomInfoSwiftUIView(hostingWrapper: wrapper, scrollToParticipantsSectionOnAppear: scrollToParticipantsSectionOnAppear, room: room, showDestructiveActions: showDestructiveActions)
         let hostingController = UIHostingController(rootView: roomInfoView)
         hostingController.title = NSLocalizedString("Conversation settings", comment: "")
         NCAppBranding.styleViewController(hostingController)
