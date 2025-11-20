@@ -155,7 +155,7 @@ import SDWebImage
         let cutoutPath = UIBezierPath(roundedRect: cutoutRect, cornerRadius: (statusWidth) / 2)
 
         // Create a path of the whole view and subtract the cutout path
-        let avatarPath = UIBezierPath(roundedRect: avatarImageView.bounds, cornerRadius: 0)
+        let avatarPath = UIBezierPath(rect: avatarImageView.bounds)
         avatarPath.append(cutoutPath.reversing())
 
         // Create a shape layer of the avatarPath, to be used as a sublayer in the final CALayer
