@@ -1478,7 +1478,7 @@ class CallViewController: UIViewController,
         }
 
         // Background blur
-        if !self.isAudioOnly {
+        if !self.isAudioOnly, self.room.canPublishVideo {
             var blurActionImage = UIImage(systemName: "person.and.background.dotted")
             var blurActionTitle = NSLocalizedString("Enable blur", comment: "")
 
@@ -1494,17 +1494,19 @@ class CallViewController: UIViewController,
         }
 
         // Screensharing
-        var screensharingImage = UIImage(systemName: "rectangle.inset.filled.on.rectangle")
-        var screensharingActionTitle = NSLocalizedString("Enable screensharing", comment: "")
-
-        if callController.screensharingActive {
-            screensharingImage = UIImage(systemName: "rectangle.on.rectangle.slash")
-            screensharingActionTitle = NSLocalizedString("Stop screensharing", comment: "")
+        if self.room.canPublishScreen {
+            var screensharingImage = UIImage(systemName: "rectangle.inset.filled.on.rectangle")
+            var screensharingActionTitle = NSLocalizedString("Enable screensharing", comment: "")
+            
+            if callController.screensharingActive {
+                screensharingImage = UIImage(systemName: "rectangle.on.rectangle.slash")
+                screensharingActionTitle = NSLocalizedString("Stop screensharing", comment: "")
+            }
+            
+            items.append(UIAction(title: screensharingActionTitle, image: screensharingImage, handler: { [unowned self] _ in
+                self.showScreensharingPicker()
+            }))
         }
-
-        items.append(UIAction(title: screensharingActionTitle, image: screensharingImage, handler: { [unowned self] _ in
-            self.showScreensharingPicker()
-        }))
 
         return items
     }

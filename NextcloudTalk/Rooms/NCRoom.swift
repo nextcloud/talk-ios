@@ -329,4 +329,24 @@ import SwiftyAttributes
         return []
     }
 
+    public var supportsConversationPermissions: Bool {
+        // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
+        // as a workaround.
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationPermissions, forAccountId: self.accountId) ||
+                NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag, forAccountId: self.accountId)
+    }
+
+    public var canPublishAudio: Bool {
+        return self.permissions.contains(.canPublishAudio) || !supportsConversationPermissions
+    }
+
+    public var canPublishVideo: Bool {
+        return self.permissions.contains(.canPublishVideo) || !supportsConversationPermissions
+    }
+
+    public var canPublishScreen: Bool {
+        return self.permissions.contains(.canPublishScreen) || !supportsConversationPermissions
+    }
+
+
 }

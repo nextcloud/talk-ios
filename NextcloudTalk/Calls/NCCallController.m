@@ -46,13 +46,11 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 @property (nonatomic, assign) BOOL preparedForRejoin;
 @property (nonatomic, assign) BOOL joinedCallOnce;
 @property (nonatomic, assign) BOOL shouldRejoinCallUsingInternalSignaling;
-@property (nonatomic, assign) BOOL serverSupportsConversationPermissions;
 @property (nonatomic, assign) NSInteger joinCallAttempts;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
 @property (nonatomic, strong) NSTimer *micAudioLevelTimer;
 @property (nonatomic, assign) BOOL speaking;
 @property (nonatomic, assign) NSInteger userInCall;
-@property (nonatomic, assign) NSInteger userPermissions;
 @property (nonatomic, strong) NSTimer *sendCurrentStateTimer;
 @property (nonatomic, strong) NSArray *usersInRoom;
 @property (nonatomic, strong) NSArray *sessionsInCall;
@@ -86,7 +84,6 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         _delegate = delegate;
         _room = room;
-        _userPermissions = _room.permissions;
         _isAudioOnly = audioOnly;
         _userSessionId = sessionId;
         _connectionsDict = [[NSMutableDictionary alloc] init];
@@ -104,12 +101,6 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         // an external signaling controller set, in case we are using external signaling.
         _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_account.accountId];
         _externalSignalingController.delegate = self;
-        
-        // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
-        // as a workaround.
-        _serverSupportsConversationPermissions =
-        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationPermissions forAccountId:_account.accountId] ||
-        [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityDirectMentionFlag forAccountId:_account.accountId];
 
         [[WebRTCCommon shared] dispatch:^{
             if (audioOnly || voiceChatMode) {
@@ -176,11 +167,11 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     NSInteger flags = CallFlagInCall;
     
-    if ((_userPermissions & NCPermissionCanPublishAudio) != 0 || !_serverSupportsConversationPermissions) {
+    if ([_room canPublishAudio]) {
         flags += CallFlagWithAudio;
     }
     
-    if (!_isAudioOnly && ((_userPermissions & NCPermissionCanPublishVideo) != 0 || !_serverSupportsConversationPermissions)) {
+    if (!_isAudioOnly && [_room canPublishVideo]) {
         flags += CallFlagWithVideo;
     }
     
@@ -882,17 +873,13 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         self->_localAudioTrack = nil;
         self->_localVideoTrack = nil;
 
-        BOOL hasPublishAudioPermission = ((self->_userPermissions & NCPermissionCanPublishAudio) != 0 || !self->_serverSupportsConversationPermissions);
-
-        if (hasPublishAudioPermission && [self isMicrophoneAccessAvailable]) {
+        if ([self->_room canPublishAudio] && [self isMicrophoneAccessAvailable]) {
             [self createLocalAudioTrack];
         } else {
             [self.delegate callController:self didCreateLocalAudioTrack:nil];
         }
 
-        BOOL hasPublishVideoPermission = ((self->_userPermissions & NCPermissionCanPublishVideo) != 0 || !self->_serverSupportsConversationPermissions);
-
-        if (!self->_isAudioOnly && hasPublishVideoPermission && [self isCameraAccessAvailable]) {
+        if (!self->_isAudioOnly && [self->_room canPublishVideo] && [self isCameraAccessAvailable]) {
             [self createLocalVideoTrack];
         } else {
             [self.delegate callController:self didCreateLocalVideoTrack:nil];
@@ -1534,10 +1521,8 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         [self getPeersForCall];
     }
     
-    if (_serverSupportsConversationPermissions) {
-        [self checkUserPermissionsChange];
-    }
-    
+    [self checkUserPermissionsChange];
+
     // Create new peer connections for new sessions in call
     for (NSString *sessionId in newSessions) {
         NSString *peerKey = [sessionId stringByAppendingString:kRoomTypeVideo];
@@ -1605,16 +1590,20 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)checkUserPermissionsChange
 {
+    if (![_room supportsConversationPermissions]) {
+        return;
+    }
+
     for (NSMutableDictionary *user in _usersInRoom) {
         NSString *userSession = [user objectForKey:@"sessionId"];
         id userPermissionValue = [user objectForKey:@"participantPermissions"];
         if ([userSession isEqualToString:[self signalingSessionId]] && [userPermissionValue isKindOfClass:[NSNumber class]]) {
             NSInteger userPermissions = [userPermissionValue integerValue];
-            NSInteger changedPermissions = userPermissions ^ _userPermissions;
-            if ((changedPermissions & NCPermissionCanPublishAudio) || (changedPermissions & NCPermissionCanPublishVideo)) {
+            NSInteger changedPermissions = userPermissions ^ _room.permissions;
+            if ((changedPermissions & NCPermissionCanPublishAudio) || (changedPermissions & NCPermissionCanPublishVideo) || (changedPermissions & NCPermissionCanPublishScreen)) {
                 [NCUtils log:@"User permissions changed"];
-                _userPermissions = userPermissions;
-                [self.delegate callController:self userPermissionsChanged:_userPermissions];
+                _room.permissions = userPermissions;
+                [self.delegate callController:self userPermissionsChanged:userPermissions];
                 [self forceReconnect];
             }
         }
