@@ -8,7 +8,7 @@ import SDWebImage
 
 @objcMembers class AvatarView: UIView, AvatarProtocol {
 
-    private let userStatusSizePercentage = 0.38
+    private let userStatusSizePercentage = 0.36
     private let userStatusImageViewMargin = 2.0
 
     public let avatarImageView = AvatarImageView(frame: .zero)
@@ -155,7 +155,7 @@ import SDWebImage
         let cutoutPath = UIBezierPath(roundedRect: cutoutRect, cornerRadius: (statusWidth) / 2)
 
         // Create a path of the whole view and subtract the cutout path
-        let avatarPath = UIBezierPath(roundedRect: avatarImageView.bounds, cornerRadius: 0)
+        let avatarPath = UIBezierPath(rect: avatarImageView.bounds)
         avatarPath.append(cutoutPath.reversing())
 
         // Create a shape layer of the avatarPath, to be used as a sublayer in the final CALayer
