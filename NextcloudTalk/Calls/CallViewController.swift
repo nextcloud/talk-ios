@@ -1270,8 +1270,8 @@ class CallViewController: UIViewController,
 
             if !self.reactionButton.isHidden {
                 // Need to update the layout again, if we changed it here
-                self.topBarView.setNeedsLayout()
-                self.topBarView.layoutIfNeeded()
+                self.bottomBarView.setNeedsLayout()
+                self.bottomBarView.layoutIfNeeded()
 
                 if self.bottomBarButtonStackView.frame.origin.x < 0 {
                     self.reactionButton.isHidden = true
@@ -1280,8 +1280,8 @@ class CallViewController: UIViewController,
 
             if !self.speakerButton.isHidden {
                 // Need to update the layout again, if we changed it here
-                self.topBarView.setNeedsLayout()
-                self.topBarView.layoutIfNeeded()
+                self.bottomBarView.setNeedsLayout()
+                self.bottomBarView.layoutIfNeeded()
 
                 // Hide the speaker button to make some more room for higher priority buttons
                 // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
