@@ -9,59 +9,40 @@ import Foundation
 
 final class IntegrationChatTest: TestBase {
 
-    func testSendMessage() throws {
+    func testSendMessage() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let roomName = "Integration Test Room 👍"
         let chatMessage = "Test Message 😀😆"
 
-        var exp = expectation(description: "\(#function)\(#line)")
-        var roomToken = ""
+        let room = try await createUniqueRoom(prefix: "Integration Test Room 👍", withAccount: activeAccount)
+        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
 
-        // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
-            XCTAssertNil(error)
-
-            roomToken = room?.token ?? ""
-
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
-        // Send a message
-        exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().sendChatMessage(chatMessage, toRoom: roomToken, threadTitle: "", replyTo: 0, referenceId: "", silently: false, for: activeAccount) { error in
-            XCTAssertNil(error)
-
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
-        // Try to receive the sent message
-        exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().receiveChatMessages(ofRoom: roomToken,
-                                                             fromLastMessageId: 0,
-                                                             inThread: 0,
-                                                             history: true,
-                                                             includeLastMessage: true,
-                                                             timeout: false,
-                                                             lastCommonReadMessage: 0,
-                                                             setReadMarker: false,
-                                                             markNotificationsAsRead: false,
-                                                             for: activeAccount) { messages, _, _, error, errorCode in
-
-            XCTAssertNil(error)
-            XCTAssertEqual(errorCode, 0)
-
-            for rawMessage in messages! {
-                if let message = rawMessage as? NSDictionary {
-                    // swiftlint:disable:next force_cast
-                    if message.object(forKey: "message") as! String == chatMessage {
-                        exp.fulfill()
-                        return
-                    }
-                }
-            }
-        }
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+        XCTAssertNotNil(message)
+        XCTAssertEqual(message.message, chatMessage)
+        XCTAssertEqual(message.token, room.token)
     }
+
+    func testPinMessage() async throws {
+        try skipWithoutCapability(capability: kCapabilityPinnedMessages)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let chatMessage = "Test Message 😀😆"
+
+        let room = try await createUniqueRoom(prefix: "Pin message room", withAccount: activeAccount)
+        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+
+        // Pin message
+        _ = try await NCAPIController.sharedInstance().pinMessage(message.messageId, inRoom: room.token, pinUntil: 0, forAccount: activeAccount)
+        var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lastPinnedId, message.messageId)
+
+        _ = try await NCAPIController.sharedInstance().unpinMessageForSelf(message.messageId, inRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lastPinnedId, message.messageId)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).hiddenPinnedId, message.messageId)
+
+        _ = try await NCAPIController.sharedInstance().unpinMessage(message.messageId, inRoom: room.token, forAccount: activeAccount)
+        updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
+        XCTAssertEqual(try XCTUnwrap(updatedRoom).lastPinnedId, 0)
+    }
+
 }

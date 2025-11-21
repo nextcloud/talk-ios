@@ -9,6 +9,7 @@
 
 typedef void (^UpdateHistoryInBackgroundCompletionBlock)(NSError *error);
 typedef void (^GetMessagesContextCompletionBlock)(NSArray<NCChatMessage *> * _Nullable messages);
+typedef void (^GetSingleMessageCompletionBlock)(NCChatMessage* _Nullable message);
 
 @class NCRoom;
 
@@ -52,5 +53,6 @@ extern NSString * const NCChatControllerDidReceiveThreadMessageNotification;
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId;
 - (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm;
 - (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block;
+- (void)getSingleMessageWithMessageId:(NSInteger)messageId withCompletionBlock:(_Nonnull GetSingleMessageCompletionBlock)block;
 
 @end

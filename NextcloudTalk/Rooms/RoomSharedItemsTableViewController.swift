@@ -224,26 +224,33 @@ import QuickLook
             return NSLocalizedString("Polls", comment: "")
         case kSharedItemTypeRecording:
             return NSLocalizedString("Recordings", comment: "")
+        case kSharedItemTypePinned:
+            return NSLocalizedString("Pinned messages", comment: "")
         default:
             return NSLocalizedString("Shared items", comment: "")
         }
     }
 
     func imageForMessage(message: NCChatMessage) -> UIImage {
-        var image = UIImage(named: "file")
+        var image = UIImage(systemName: "bubble")
+
         if message.file() != nil {
             let imageName = NCUtils.previewImage(forMimeType: message.file().mimetype)
             image = UIImage(named: imageName)
         }
+
         if message.geoLocation() != nil {
             image = UIImage(systemName: "mappin")
         }
+
         if message.deckCard() != nil {
             image = UIImage(named: "deck-item")
         }
+
         if message.poll != nil {
             image = UIImage(systemName: "chart.bar")
         }
+
         return image ?? UIImage()
     }
 
