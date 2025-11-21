@@ -24,7 +24,7 @@
 #import "NotificationCenterNotifications.h"
 #import "PlaceholderView.h"
 #import "RoomSearchTableViewController.h"
-#import "UIBarButtonItem+Badge.h"
+#import "UIBarButtonItem+LegacyBadge.h"
 
 typedef void (^FetchRoomsCompletionBlock)(BOOL success);
 
@@ -1194,7 +1194,11 @@ typedef enum RoomsSections {
 {
     NSInteger numberOfInactiveAccountsWithUnreadNotifications = [[NCDatabaseManager sharedInstance] numberOfInactiveAccountsWithUnreadNotifications];
     if (numberOfInactiveAccountsWithUnreadNotifications > 0) {
-        _settingsButton.badgeValue = [NSString stringWithFormat:@"%ld", numberOfInactiveAccountsWithUnreadNotifications];
+        if (@available(iOS 26.0, *)) {
+            [_settingsButton setBadge:[UIBarButtonItemBadge badgeWithCount:numberOfInactiveAccountsWithUnreadNotifications]];
+        } else {
+            _settingsButton.legacyBadgeValue = [NSString stringWithFormat:@"%ld", numberOfInactiveAccountsWithUnreadNotifications];
+        }
     }
 }
 

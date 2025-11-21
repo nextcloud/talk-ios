@@ -13,28 +13,28 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIBarButtonItem (Badge)
+@interface UIBarButtonItem (LegacyBadge)
 
-@property (strong, atomic) UILabel *badge;
+@property (strong, atomic) UILabel *legacyBadge;
 
 // Badge value to be display
-@property (nonatomic) NSString *badgeValue;
+@property (nonatomic) NSString *legacyBadgeValue;
 // Badge background color
-@property (nonatomic) UIColor *badgeBGColor;
+@property (nonatomic) UIColor *legacyBadgeBGColor;
 // Badge text color
-@property (nonatomic) UIColor *badgeTextColor;
+@property (nonatomic) UIColor *legacyBadgeTextColor;
 // Badge font
-@property (nonatomic) UIFont *badgeFont;
+@property (nonatomic) UIFont *legacyBadgeFont;
 // Padding value for the badge
-@property (nonatomic) CGFloat badgePadding;
+@property (nonatomic) CGFloat legacyBadgePadding;
 // Minimum size badge to small
-@property (nonatomic) CGFloat badgeMinSize;
+@property (nonatomic) CGFloat legacyBadgeMinSize;
 // Values for offseting the badge over the BarButtonItem you picked
-@property (nonatomic) CGFloat badgeOriginX;
-@property (nonatomic) CGFloat badgeOriginY;
+@property (nonatomic) CGFloat legacyBadgeOriginX;
+@property (nonatomic) CGFloat legacyBadgeOriginY;
 // In case of numbers, remove the badge when reaching zero
-@property BOOL shouldHideBadgeAtZero;
+@property BOOL shouldHideLegacyBadgeAtZero;
 // Badge has a bounce animation when value changes
-@property BOOL shouldAnimateBadge;
+@property BOOL shouldAnimateLegacyBadge;
 
 @end
