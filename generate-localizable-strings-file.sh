@@ -7,31 +7,8 @@
 
 echo 'Generating Localizable.strings file...'
 
-STABLE_BRANCH=$(<.tx/backport)
-
-FILE_PATHS=(
-  "NextcloudTalk/*.m"
-  "NextcloudTalk/*.swift"
-  "ShareExtension/*.m"
-  "ShareExtension/*.swift"
-  "NotificationServiceExtension/*.m"
-  "BroadcastUploadExtension/*.swift"
-  "TalkIntents/*.swift"
-  "ThirdParty/SlackTextViewController/Source/*.m"
-)
-
-STABLE_BRANCH_FILE_PATHS=(
-  "NextcloudTalk/*.m"
-  "NextcloudTalk/*.swift"
-  "ShareExtension/*.m"
-  "ShareExtension/*.swift"
-  "NotificationServiceExtension/*.m"
-  "BroadcastUploadExtension/*.swift"
-  "TalkIntents/*.swift"
-  "ThirdParty/SlackTextViewController/Source/*.m"
-)
-
 CURRENT_BRANCH=$(git branch --show-current)
+STABLE_BRANCH=$(<.tx/backport)
 
 if [ "$CURRENT_BRANCH" != $STABLE_BRANCH ]; then
   echo "Not on $STABLE_BRANCH branch, cloning $STABLE_BRANCH branch"
@@ -47,18 +24,14 @@ if [ "$CURRENT_BRANCH" != $STABLE_BRANCH ]; then
   git submodule update --init
   cd ..
 
-  STABLE_FILE_PATHS=()
-  for path in "${STABLE_BRANCH_FILE_PATHS[@]}"; do
-  	STABLE_FILE_PATHS+=("$STABLE_BRANCH/$path")
-  done
-
 else
   echo "On $STABLE_BRANCH branch"
 fi
 
-genstrings -o NextcloudTalk/en.lproj -SwiftUI ${FILE_PATHS[@]} ${STABLE_FILE_PATHS[@]}
-iconv -f UTF-16 -t UTF-8 NextcloudTalk/en.lproj/Localizable.strings > NextcloudTalk/en.lproj/Localizable-utf8.strings
-mv NextcloudTalk/en.lproj/Localizable-utf8.strings NextcloudTalk/en.lproj/Localizable.strings
+cd NextcloudTalk
+find ../ -name "*.swift" -print0 -or -name "*.m" -not -path "../Pods/*" -print0 | xargs -0 genstrings -o en.lproj -SwiftUI
+iconv -f UTF-16 -t UTF-8 en.lproj/Localizable.strings > en.lproj/Localizable-utf8.strings
+mv en.lproj/Localizable-utf8.strings en.lproj/Localizable.strings
+cd ..
 rm -rf "$STABLE_BRANCH"
 echo 'Localizable.strings file generated!'
-
