@@ -67,6 +67,9 @@
 /* No comment provided by engineer. */
 "%ld participants" = "%ld participants";
 
+/* No comment provided by engineer. */
+"%ld participants in the call" = "%ld participants in the call";
+
 /* Replies in a thread */
 "%ld replies" = "%ld replies";
 
@@ -1615,6 +1618,9 @@
 
 /* No comment provided by engineer. */
 "Other Accounts" = "Other Accounts";
+
+/* No comment provided by engineer. */
+"Other participants" = "Other participants";
 
 /* No comment provided by engineer. */
 "Others" = "Others";
