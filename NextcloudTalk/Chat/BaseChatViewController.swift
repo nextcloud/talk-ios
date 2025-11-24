@@ -1349,9 +1349,11 @@ import SwiftUI
         }
 
         if let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId) {
-            let mySessionId = signalingController.sessionId()
-            let message = NCStartedTypingMessage(from: mySessionId, sendTo: sessionId, withPayload: [:], forRoomType: "")
-            signalingController.sendCall(message)
+            let mySessionId = signalingController.sessionId
+
+            if let message = NCStartedTypingMessage(from: mySessionId, sendTo: sessionId, withPayload: [:], forRoomType: "") {
+                signalingController.sendCallMessage(message)
+            }
         }
     }
 
@@ -1363,13 +1365,12 @@ import SwiftUI
               let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId)
         else { return }
 
-        let participantMap = signalingController.getParticipantMap()
-        let mySessionId = signalingController.sessionId()
+        // TODO: This should be part of the external signaling controller
+        let mySessionId = signalingController.sessionId
 
-        for (key, _) in participantMap {
-            if let sessionId = key as? String {
-                let message = NCStartedTypingMessage(from: mySessionId, sendTo: sessionId, withPayload: [:], forRoomType: "")
-                signalingController.sendCall(message)
+        for (sessionId, _) in signalingController.participantsMap {
+            if let message = NCStartedTypingMessage(from: mySessionId, sendTo: sessionId, withPayload: [:], forRoomType: "") {
+                signalingController.sendCallMessage(message)
             }
         }
     }
@@ -1380,13 +1381,12 @@ import SwiftUI
               let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: self.room.accountId)
         else { return }
 
-        let participantMap = signalingController.getParticipantMap()
-        let mySessionId = signalingController.sessionId()
+        // TODO: This should be part of the external signaling controller
+        let mySessionId = signalingController.sessionId
 
-        for (key, _) in participantMap {
-            if let sessionId = key as? String {
-                let message = NCStoppedTypingMessage(from: mySessionId, sendTo: sessionId, withPayload: [:], forRoomType: "")
-                signalingController.sendCall(message)
+        for (sessionId, _) in signalingController.participantsMap {
+            if let message = NCStoppedTypingMessage(from: mySessionId, sendTo: sessionId, withPayload: [:], forRoomType: "") {
+                signalingController.sendCallMessage(message)
             }
         }
     }
