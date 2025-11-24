@@ -10,7 +10,7 @@ public class NCChatMessageHeightCache {
     private var cachedWidth: CGFloat = 0
 
     public func getHeight(forMessage message: NCChatMessage, forWidth width: CGFloat) -> CGFloat? {
-        guard self.cachedWidth == width else { return nil }
+        guard self.cachedWidth == width, message.messageId > 0, !message.isSystemMessage else { return nil }
 
         return self.internalCache.object(forKey: String(message.messageId) as NSString) as? CGFloat
     }
