@@ -19,7 +19,6 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCExternalSignalingController.h"
 #import "NCKeyChainController.h"
 #import "NCRoomsManager.h"
 #import "NCUserInterfaceController.h"
@@ -583,7 +582,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         }
 
         TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-        extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account server:signalingSettings.server andTicket:signalingSettings.ticket];
+        extSignalingController = [[NCExternalSignalingController alloc] initWithAccount:account serverUrl:signalingSettings.server ticket:signalingSettings.ticket];
         [self->_externalSignalingControllers setObject:extSignalingController forKey:accountId];
 
         [bgTask stopBackgroundTask];

@@ -13,7 +13,6 @@
 #import "NCChatController.h"
 #import "NCChatMessage.h"
 #import "NCDatabaseManager.h"
-#import "NCExternalSignalingController.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NotificationCenterNotifications.h"
