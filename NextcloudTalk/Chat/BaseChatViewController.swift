@@ -3703,6 +3703,7 @@ import SwiftUI
             }
         }
 
+        self.messageHeightCache.removeHeight(forMessage: message)
         self.tableView?.beginUpdates()
         self.tableView?.endUpdates()
 
