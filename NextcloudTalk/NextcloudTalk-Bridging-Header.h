@@ -18,7 +18,7 @@
 #import "NCContactsManager.h"
 #import "NCDatabaseManager.h"
 #import "NCChatFileController.h"
-#import "NCExternalSignalingController.h"
+#import "NCSignalingMessage.h"
 #import "NCNavigationController.h"
 #import "NCPoll.h"
 #import "NCRoomsManager.h"
