@@ -36,7 +36,7 @@
         </dict>
     </dict>
     
-    <key>%ld participants in the call</key>
+    <key>%ld participants in this call</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@participants@</string>
@@ -47,11 +47,11 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>ld</string>
             <key>one</key>
-            <string>%ld participant in the call</string>
+            <string>%ld participant in this call</string>
             <key>many</key>
-            <string>%ld participants in the call</string>
+            <string>%ld participants in this call</string>
             <key>other</key>
-            <string>%ld participants in the call</string>
+            <string>%ld participants in this call</string>
         </dict>
     </dict>
 
