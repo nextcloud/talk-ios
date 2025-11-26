@@ -36,17 +36,20 @@ struct RoomInfoParticipantsSection: View {
     }
 
     private var participantCountText: String {
-        if participants == nil {
-            return ""
-        } else if room.hasCall {
-            return String.localizedStringWithFormat(NSLocalizedString("Other participants", comment: ""))
-        } else {
-            return String.localizedStringWithFormat(NSLocalizedString("%ld participants", comment: ""), participants?.count ?? 0)
-        }
+        guard let participants else { return "" }
+        return String.localizedStringWithFormat(NSLocalizedString("%ld participants", comment: ""), participants.count)
     }
 
     private var participantsInCallCountText: String {
-        return participants == nil ? "" : String.localizedStringWithFormat(NSLocalizedString("%ld participants in the call", comment: ""), participantsInCall.count, participants?.count ?? 0)
+        return String.localizedStringWithFormat(NSLocalizedString("%ld participants in this call", comment: ""), participantsInCall.count)
+    }
+
+    private var otherParticipansText: String {
+        guard let participants else { return "" }
+        if room.hasCall, !participantsInCall.isEmpty, participantsInCall.count == participants.count {
+            return ""
+        }
+        return String.localizedStringWithFormat(NSLocalizedString("Other participants", comment: ""))
     }
 
     private var participantsInCall: [NCRoomParticipant] {
@@ -54,23 +57,8 @@ struct RoomInfoParticipantsSection: View {
     }
 
     var body: (some View)? {
-        if room.hasCall {
-            Section(participantsInCallCountText) {
-                if let participants = Binding($participants) {
-                    ForEach(participants, id: \.self) { $participant in
-                        if participant.inCall.contains(.inCall) {
-                            participantView(participant: $participant)
-                        }
-                    }
-                } else {
-                    ProgressView()
-                        .listRowInsets(nil)
-                }
-            }
-        }
-
         if room.canAddParticipants {
-            Section(participantCountText) {
+            Section(NSLocalizedString("Conversation participants", comment: "")) {
                 Button(action: addParticipants) {
                     if room.type == .oneToOne {
                         ImageSublabelView(image: Image(systemName: "person.badge.plus")) {
@@ -88,7 +76,22 @@ struct RoomInfoParticipantsSection: View {
             }
         }
 
-        Section(room.canAddParticipants ? "" : participantCountText) {
+        if room.hasCall {
+            Section(participantsInCallCountText) {
+                if let participants = Binding($participants) {
+                    ForEach(participants, id: \.self) { $participant in
+                        if participant.inCall.contains(.inCall) {
+                            participantView(participant: $participant)
+                        }
+                    }
+                } else {
+                    ProgressView()
+                        .listRowInsets(nil)
+                }
+            }
+        }
+
+        Section(room.hasCall ? otherParticipansText : participantCountText) {
             if let participants = Binding($participants) {
                 ForEach(participants, id: \.self) { $participant in
                     if !room.hasCall || participant.inCall.isEmpty {
@@ -103,7 +106,6 @@ struct RoomInfoParticipantsSection: View {
         .task {
             getParticipants()
         }
-        .listRowInsets(room.canAddParticipants ? EdgeInsets(top: -12, leading: 0, bottom: 0, trailing: 0) : nil)
         .alert(String(format: NSLocalizedString("Ban %@", comment: "e.g. Ban John Doe"), participantToBan?.displayName ?? "Unknown"), isPresented: $banConfirmationShown) {
             // Can't move alert inside a menu element, it needs to be outside of the menu
 
