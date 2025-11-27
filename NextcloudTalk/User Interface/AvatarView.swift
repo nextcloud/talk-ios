@@ -8,13 +8,16 @@ import SDWebImage
 
 @objcMembers class AvatarView: UIView, AvatarProtocol {
 
-    private let userStatusSizePercentage = 0.36
+    private let userStatusSizePercentage = 1.0/3
     private let userStatusImageViewMargin = 2.0
 
     public let avatarImageView = AvatarImageView(frame: .zero)
     public let favoriteImageView = UIImageView()
     private let userStatusImageView = UIImageView()
     private let userStatusLabel = UILabel()
+
+    private var room: NCRoom?
+    private var allowCustomStatusIcon: Bool?
 
     // MARK: - Init
 
@@ -80,6 +83,10 @@ import SDWebImage
         userStatusImageView.layer.cornerRadius = userStatusImageView.frame.height / 2
         userStatusImageView.clipsToBounds = true
 
+        if let room = self.room, let statusIconAllowed = self.allowCustomStatusIcon {
+            setStatus(for: room, allowCustomStatusIcon: statusIconAllowed)
+        }
+
         setUserStatusImageViewCutoutLayer()
     }
 
@@ -97,6 +104,9 @@ import SDWebImage
 
         userStatusLabel.text = nil
         userStatusLabel.isHidden = true
+
+        room = nil
+        allowCustomStatusIcon = nil
     }
 
     func cancelCurrentRequest() {
@@ -135,9 +145,9 @@ import SDWebImage
 
     // MARK: - User status
 
-    public func setStatus(for room: NCRoom) {
+    public func setStatus(for room: NCRoom, allowCustomStatusIcon statusIconAllowed: Bool) {
         if room.type == .oneToOne, let roomStatus = room.status {
-            if roomStatus != "dnd", let roomStatusIcon = room.statusIcon {
+            if roomStatus != "dnd", statusIconAllowed, let roomStatusIcon = room.statusIcon {
                 setUserStatusIcon(roomStatusIcon)
             } else {
                 setUserStatus(roomStatus)
@@ -156,6 +166,9 @@ import SDWebImage
             }
         }
 
+        self.room = room
+        self.allowCustomStatusIcon = statusIconAllowed
+
         setUserStatusImageViewCutoutLayer()
     }
 
@@ -167,7 +180,7 @@ import SDWebImage
         }
 
         // Create a cutout path from the userStatusImageView
-        let statusWidth = userStatusImageView.bounds.width
+        let statusWidth = self.statusImageSize(padding: 0)
         let cutoutRect = CGRect(x: avatarImageView.bounds.maxX - statusWidth + userStatusImageViewMargin, y: avatarImageView.bounds.maxY - statusWidth + userStatusImageViewMargin, width: statusWidth, height: statusWidth)
         let cutoutPath = UIBezierPath(roundedRect: cutoutRect, cornerRadius: (statusWidth) / 2)
 
@@ -247,6 +260,6 @@ import SDWebImage
     }
 
     private func statusImageSize(padding: CGFloat) -> CGFloat {
-        return self.frame.size.height * userStatusSizePercentage - padding * 2
+        return (self.frame.size.height * userStatusSizePercentage - padding * 2).rounded()
     }
 }
