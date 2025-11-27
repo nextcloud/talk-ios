@@ -78,4 +78,12 @@ import SDWebImage
             self.setImage(image, for: .normal)
         }
     }
+
+    // MARK: Thread avatars
+
+    public func setThreadAvatar(forThread thread: NCThread) {
+        if let image = AvatarManager.shared.getThreadAvatar(for: thread, with: self.traitCollection.userInterfaceStyle) {
+            self.setImage(image, for: .normal)
+        }
+    }
 }

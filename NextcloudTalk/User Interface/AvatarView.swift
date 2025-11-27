@@ -122,6 +122,12 @@ import SDWebImage
         self.avatarImageView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, using: account)
     }
 
+    // MARK: - Thread avatars
+
+    public func setThreadAvatar(forThread thread: NCThread) {
+        self.avatarImageView.setThreadAvatar(forThread: thread)
+    }
+
     // MARK: - User status
 
     public func setStatus(for room: NCRoom) {
