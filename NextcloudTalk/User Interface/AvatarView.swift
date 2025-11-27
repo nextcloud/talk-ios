@@ -38,6 +38,7 @@ import SDWebImage
         favoriteImageView.contentMode = .scaleAspectFill
         userStatusImageView.contentMode = .center
         userStatusLabel.textAlignment = .center
+        userStatusLabel.adjustsFontSizeToFitWidth = true
 
         userStatusImageView.isHidden = true
         userStatusLabel.isHidden = true
@@ -78,6 +79,8 @@ import SDWebImage
 
         userStatusImageView.layer.cornerRadius = userStatusImageView.frame.height / 2
         userStatusImageView.clipsToBounds = true
+
+        setUserStatusImageViewCutoutLayer()
     }
 
     public func prepareForReuse() {
@@ -90,8 +93,10 @@ import SDWebImage
 
         userStatusImageView.image = nil
         userStatusImageView.backgroundColor = .clear
+        userStatusImageView.isHidden = true
 
         userStatusLabel.text = nil
+        userStatusLabel.isHidden = true
     }
 
     func cancelCurrentRequest() {
@@ -143,18 +148,24 @@ import SDWebImage
                 let size = CGSize(width: diameter, height: diameter)
                 if let configuredImage = NCUtils.renderAspectImage(image: statusImage, ofSize: size, centerImage: true)?.withTintColor(.label, renderingMode: .alwaysOriginal) {
                     setUserStatusImage(configuredImage)
-                    setUserStatusImageViewCutoutLayer()
                 }
             }
         } else if room.isFederated {
             if let statusImage = statusImageWith(name: "globe", color: .label, padding: 3) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         }
+
+        setUserStatusImageViewCutoutLayer()
     }
 
     private func setUserStatusImageViewCutoutLayer() {
+        // Only create cutout when we show the image view (no cutout for emojis)
+        if userStatusImageView.isHidden {
+            avatarImageView.layer.mask = nil
+            return
+        }
+
         // Create a cutout path from the userStatusImageView
         let statusWidth = userStatusImageView.bounds.width
         let cutoutRect = CGRect(x: avatarImageView.bounds.maxX - statusWidth + userStatusImageViewMargin, y: avatarImageView.bounds.maxY - statusWidth + userStatusImageViewMargin, width: statusWidth, height: statusWidth)
@@ -180,22 +191,18 @@ import SDWebImage
         if userStatus == "online" {
             if let statusImage = statusImageWith(name: "checkmark.circle.fill", color: .systemGreen, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "away" {
             if let statusImage = statusImageWith(name: "clock.fill", color: .systemYellow, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "busy" {
             if let statusImage = statusImageWith(name: "circle.fill", color: .systemRed, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "dnd" {
             if let statusImage = statusImageWith(name: "minus.circle.fill", color: .systemRed, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         }
     }
