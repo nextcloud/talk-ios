@@ -15,4 +15,7 @@ protocol AvatarProtocol {
     func setActorAvatar(forMessage message: NCChatMessage, withAccount account: TalkAccount)
     func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, using account: TalkAccount)
 
+    // MARK: - Thread avatars
+    func setThreadAvatar(forThread thread: NCThread)
+
 }
