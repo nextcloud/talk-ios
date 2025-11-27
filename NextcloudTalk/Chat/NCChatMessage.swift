@@ -27,6 +27,11 @@ import SwiftyAttributes
                self.systemMessage == "thread_renamed"
     }
 
+    public var isVisibleUpdateMessage: Bool {
+        return self.systemMessage == "message_pinned" ||
+               self.systemMessage == "message_unpinned"
+    }
+
     public var isThreadCreatedMessage: Bool {
         return self.systemMessage == "thread_created"
     }
@@ -97,6 +102,10 @@ import SwiftyAttributes
 
     public var isObjectShare: Bool {
         return self.message != nil && self.message == "{object}" && self.messageParameters["object"] != nil
+    }
+
+    public var isPinned: Bool {
+        return self.pinnedActorId != nil
     }
 
     public var richObjectFromObjectShare: [AnyHashable: Any] {
@@ -220,9 +229,7 @@ import SwiftyAttributes
             return false
         }
 
-        if let parent = parent,
-           let thread = thread,
-           parent.internalId == thread.firstMessageId {
+        if let parent, let thread, parent.internalId == thread.firstMessageId {
             return false
         }
 
@@ -338,7 +345,7 @@ import SwiftyAttributes
     }
 
     public func lastMessagePreview(forOneToOneRoom: Bool = false) -> NSMutableAttributedString? {
-        guard let message = messageForLastMessagePreview()
+        guard let message = messageForLastMessagePreview()?.prefix(characters: 80)
         else {return nil}
 
         let lastMessageAttributedString = NSMutableAttributedString()
@@ -384,8 +391,7 @@ import SwiftyAttributes
     }
 
     public func messageForLastMessagePreview() -> NSAttributedString? {
-        let message = String(self.parsedMarkdown().string.prefix(80))
-        if message.isEmpty { return nil}
+        guard let message = self.parsedMarkdown(), message.length > 0 else { return nil }
 
         let messageAttributedString = NSMutableAttributedString()
         // Icon
@@ -395,7 +401,7 @@ import SwiftyAttributes
             messageAttributedString.append(attachmentAttributedString)
         }
         // Message
-        messageAttributedString.append(NSAttributedString(string: message))
+        messageAttributedString.append(message)
 
         return messageAttributedString
     }

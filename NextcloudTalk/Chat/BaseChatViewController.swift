@@ -33,7 +33,8 @@ import SwiftUI
                                                   BaseChatTableViewCellDelegate,
                                                   UITableViewDataSourcePrefetching,
                                                   MessageSeparatorTableViewCellDelegate,
-                                                  DateHeaderViewDelegate {
+                                                  DateHeaderViewDelegate,
+                                                  PinnedMessageViewDelegate {
 
     // MARK: - Internal var
     internal var messages: [Date: [NCChatMessage]] = [:]
@@ -1094,6 +1095,33 @@ import SwiftUI
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding note", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
             }
         }
+    }
+
+    func didPressPinMessage(for message: NCChatMessage, pinUntil until: Int = 0) async {
+        guard let updatedMessage = try? await NCAPIController.sharedInstance().pinMessage(message.messageId, inRoom: self.room.token, pinUntil: until, forAccount: self.account)
+        else {
+            NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while pinning the message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            return
+        }
+
+        /*
+        // Note: We can't update the message here, as the parent is retrieved locally based on the id and therefore does not contain the updated information
+        if let parent = updatedMessage.parent {
+            self.updateMessage(withMessageId: message.messageId, updatedMessage: parent)
+        }
+        */
+
+        NotificationPresenter.shared().present(text: NSLocalizedString("Message pinned", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
+    }
+
+    func didPressUnpinMessage(for message: NCChatMessage) async {
+        guard let updatedMessage = try? await NCAPIController.sharedInstance().unpinMessage(message.messageId, inRoom: self.room.token, forAccount: self.account)
+        else {
+            NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while unpinning the message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            return
+        }
+
+        NotificationPresenter.shared().present(text: NSLocalizedString("Message unpinned", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
     }
 
     func didPressResend(for message: NCChatMessage) {
@@ -3142,7 +3170,7 @@ import SwiftUI
             height += 105
         }
 
-        if message.willShowParentMessageInThread(thread) {
+        if !message.isSystemMessage, message.willShowParentMessageInThread(thread) {
             height += 70 // quoteView(70)
         }
 
@@ -3833,6 +3861,12 @@ import SwiftUI
             self.tableView?.reloadRows(at: reloadIndexPath, with: .automatic)
             self.tableView?.endUpdates()
         }
+    }
+
+    // MARK: - PinnedMessageViewDelegate
+
+    func wantsToScroll(to message: NCChatMessage) {
+        self.cellWantsToScroll(to: message)
     }
 
     // MARK: - ChatMessageTableViewCellDelegate
