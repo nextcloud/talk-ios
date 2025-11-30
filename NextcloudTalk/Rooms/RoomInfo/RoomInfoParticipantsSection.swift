@@ -36,12 +36,29 @@ struct RoomInfoParticipantsSection: View {
     }
 
     private var participantCountText: String {
-        return participants == nil ? "" : String.localizedStringWithFormat(NSLocalizedString("%ld participants", comment: ""), participants?.count ?? 0)
+        guard let participants else { return "" }
+        return String.localizedStringWithFormat(NSLocalizedString("%ld participants", comment: ""), participants.count)
+    }
+
+    private var participantsInCallCountText: String {
+        return String.localizedStringWithFormat(NSLocalizedString("%ld participants in this call", comment: ""), participantsInCall.count)
+    }
+
+    private var otherParticipansText: String {
+        guard let participants else { return "" }
+        if room.hasCall, !participantsInCall.isEmpty, participantsInCall.count == participants.count {
+            return ""
+        }
+        return String.localizedStringWithFormat(NSLocalizedString("Other participants", comment: ""))
+    }
+
+    private var participantsInCall: [NCRoomParticipant] {
+        return participants?.filter { $0.inCall.contains(.inCall) } ?? []
     }
 
     var body: (some View)? {
         if room.canAddParticipants {
-            Section(participantCountText) {
+            Section(NSLocalizedString("Conversation participants", comment: "")) {
                 Button(action: addParticipants) {
                     if room.type == .oneToOne {
                         ImageSublabelView(image: Image(systemName: "person.badge.plus")) {
@@ -59,71 +76,26 @@ struct RoomInfoParticipantsSection: View {
             }
         }
 
-        Section(room.canAddParticipants ? "" : participantCountText) {
+        if room.hasCall {
+            Section(participantsInCallCountText) {
+                if let participants = Binding($participants) {
+                    ForEach(participants, id: \.self) { $participant in
+                        if participant.inCall.contains(.inCall) {
+                            participantView(participant: $participant)
+                        }
+                    }
+                } else {
+                    ProgressView()
+                        .listRowInsets(nil)
+                }
+            }
+        }
+
+        Section(room.hasCall ? otherParticipansText : participantCountText) {
             if let participants = Binding($participants) {
                 ForEach(participants, id: \.self) { $participant in
-                    Menu {
-                        if room.canModerate, participant.canBeModerated {
-                            if participant.canBeDemoted {
-                                Button {
-                                    self.changeModerationPermission(forParticipant: participant, canModerate: false)
-                                } label: {
-                                    Label(NSLocalizedString("Demote from moderator", comment: ""), systemImage: "person")
-                                }
-                            }
-
-                            if participant.canBePromoted {
-                                Button {
-                                    self.changeModerationPermission(forParticipant: participant, canModerate: true)
-                                } label: {
-                                    Label(NSLocalizedString("Promote to moderator", comment: ""), systemImage: "crown")
-                                }
-                            }
-                        }
-
-                        if participant.canBeNotifiedAboutCall, room.permissions.contains(.startCall), room.participantFlags != [] {
-                            Button {
-                                self.sendCallNotification(forParticipant: participant)
-                            } label: {
-                                Label(NSLocalizedString("Send call notification", comment: ""), systemImage: "bell")
-                            }
-                        }
-
-                        if participant.actorType == .email {
-                            Button {
-                                self.resendInvitation(forParticipant: participant)
-                            } label: {
-                                Label(NSLocalizedString("Resend invitation", comment: ""), systemImage: "envelope")
-                            }
-                        }
-
-                        if room.canModerate, participant.canBeModerated {
-                            if participant.canBeBanned {
-                                Button(role: .destructive) {
-                                    participantToBan = participant
-                                    banConfirmationShown = true
-                                } label: {
-                                    Label(NSLocalizedString("Ban participant", comment: ""), systemImage: "person.badge.minus")
-                                }
-                                .foregroundStyle(.primary)
-                                .disabled(isBanActionRunning)
-                            }
-
-                            Button(role: .destructive) {
-                                Task {
-                                    await removeParticipant(participant: participant)
-                                }
-                            } label: {
-                                Label(getRemoveLabel(forParticipant: participant), systemImage: "trash")
-                            }
-                        }
-                    } label: {
-                        ContactsTableViewCellWrapper(room: $room, participant: $participant)
-                            .frame(height: 72) // Height set in the XIB file
-                    }
-                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 12))
-                    .alignmentGuide(.listRowSeparatorLeading) { _ in
-                        72
+                    if !room.hasCall || participant.inCall.isEmpty {
+                        participantView(participant: $participant)
                     }
                 }
             } else {
@@ -134,7 +106,6 @@ struct RoomInfoParticipantsSection: View {
         .task {
             getParticipants()
         }
-        .listRowInsets(room.canAddParticipants ? EdgeInsets(top: -12, leading: 0, bottom: 0, trailing: 0) : nil)
         .alert(String(format: NSLocalizedString("Ban %@", comment: "e.g. Ban John Doe"), participantToBan?.displayName ?? "Unknown"), isPresented: $banConfirmationShown) {
             // Can't move alert inside a menu element, it needs to be outside of the menu
 
@@ -257,6 +228,73 @@ struct RoomInfoParticipantsSection: View {
             }
 
             self.getParticipants()
+        }
+    }
+
+    func participantView(participant: Binding<NCRoomParticipant>) -> some View {
+        let wrappedParticipant = participant.wrappedValue
+        return Menu {
+            if room.canModerate, wrappedParticipant.canBeModerated {
+                if wrappedParticipant.canBeDemoted {
+                    Button {
+                        self.changeModerationPermission(forParticipant: wrappedParticipant, canModerate: false)
+                    } label: {
+                        Label(NSLocalizedString("Demote from moderator", comment: ""), systemImage: "person")
+                    }
+                }
+
+                if wrappedParticipant.canBePromoted {
+                    Button {
+                        self.changeModerationPermission(forParticipant: wrappedParticipant, canModerate: true)
+                    } label: {
+                        Label(NSLocalizedString("Promote to moderator", comment: ""), systemImage: "crown")
+                    }
+                }
+            }
+
+            if wrappedParticipant.canBeNotifiedAboutCall, room.permissions.contains(.startCall), room.participantFlags.contains(.inCall) {
+                Button {
+                    self.sendCallNotification(forParticipant: wrappedParticipant)
+                } label: {
+                    Label(NSLocalizedString("Send call notification", comment: ""), systemImage: "bell")
+                }
+            }
+
+            if wrappedParticipant.actorType == .email {
+                Button {
+                    self.resendInvitation(forParticipant: wrappedParticipant)
+                } label: {
+                    Label(NSLocalizedString("Resend invitation", comment: ""), systemImage: "envelope")
+                }
+            }
+
+            if room.canModerate, wrappedParticipant.canBeModerated {
+                if wrappedParticipant.canBeBanned {
+                    Button(role: .destructive) {
+                        participantToBan = wrappedParticipant
+                        banConfirmationShown = true
+                    } label: {
+                        Label(NSLocalizedString("Ban participant", comment: ""), systemImage: "person.badge.minus")
+                    }
+                    .foregroundStyle(.primary)
+                    .disabled(isBanActionRunning)
+                }
+
+                Button(role: .destructive) {
+                    Task {
+                        await removeParticipant(participant: wrappedParticipant)
+                    }
+                } label: {
+                    Label(getRemoveLabel(forParticipant: wrappedParticipant), systemImage: "trash")
+                }
+            }
+        } label: {
+            ContactsTableViewCellWrapper(room: $room, participant: participant)
+                .frame(height: 72) // Height set in the XIB file
+        }
+        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 12))
+        .alignmentGuide(.listRowSeparatorLeading) { _ in
+            72
         }
     }
 }
