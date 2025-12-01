@@ -67,6 +67,9 @@
 /* No comment provided by engineer. */
 "%ld participants" = "%ld participants";
 
+/* No comment provided by engineer. */
+"%ld participants in this call" = "%ld participants in this call";
+
 /* Replies in a thread */
 "%ld replies" = "%ld replies";
 
@@ -606,6 +609,9 @@
 
 /* No comment provided by engineer. */
 "Conversation not found or not joined" = "Conversation not found or not joined";
+
+/* No comment provided by engineer. */
+"Conversation participants" = "Conversation participants";
 
 /* No comment provided by engineer. */
 "Conversation settings" = "Conversation settings";
@@ -1615,6 +1621,9 @@
 
 /* No comment provided by engineer. */
 "Other Accounts" = "Other Accounts";
+
+/* No comment provided by engineer. */
+"Other participants" = "Other participants";
 
 /* No comment provided by engineer. */
 "Others" = "Others";
