@@ -1306,4 +1306,58 @@ import NextcloudKit
             completionBlock(thread)
         }
     }
+
+    // MARK: - Message pinning
+
+    @MainActor
+    @discardableResult
+    @nonobjc
+    public func pinMessage(_ messageId: Int, inRoom token: String, pinUntil until: Int?, forAccount account: TalkAccount) async throws -> NCChatMessage? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, for: account)
+
+        var parameters = [String: Int]()
+
+        if let until {
+            parameters["pinUntil"] = until
+        }
+
+        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+
+        return NCChatMessage(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
+    @MainActor
+    @discardableResult
+    public func unpinMessage(_ messageId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> NCChatMessage? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, for: account)
+
+        let ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
+
+        return NCChatMessage(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
+    @MainActor
+    @discardableResult
+    public func unpinMessageForSelf(_ messageId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> NCChatMessage? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin/self", withAPIVersion: apiVersion, for: account)
+
+        let ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
+
+        return NCChatMessage(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
 }

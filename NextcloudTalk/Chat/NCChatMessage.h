@@ -31,6 +31,7 @@ extern NSString * const kSharedItemTypeOther;
 extern NSString * const kSharedItemTypeVoice;
 extern NSString * const kSharedItemTypePoll;
 extern NSString * const kSharedItemTypeRecording;
+extern NSString * const kSharedItemTypePinned;
 
 typedef NS_ENUM(NSInteger, ChatMessageDeliveryState) {
     ChatMessageDeliveryStateSent = 0,
@@ -89,6 +90,11 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, assign) BOOL isThread;
 @property (nonatomic, strong, nullable) NSString *threadTitle;
 @property (nonatomic, assign) NSInteger threadReplies;
+@property (nonatomic, strong, nullable) NSString *pinnedActorType;
+@property (nonatomic, strong, nullable) NSString *pinnedActorId;
+@property (nonatomic, strong, nullable) NSString *pinnedActorDisplayName;
+@property (nonatomic, assign) NSInteger pinnedUntil;
+@property (nonatomic, assign) NSInteger pinnedAt;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;

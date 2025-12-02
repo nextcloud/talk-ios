@@ -627,6 +627,7 @@ import SwiftUI
         self.checkLobbyState()
         self.checkRoomControlsAvailability()
         self.checkOutOfOfficeAbsence()
+        self.checkPinnedMessage()
         self.checkRetention()
 
         self.startObservingExpiredMessages()
@@ -895,8 +896,6 @@ import SwiftUI
 
     // MARK: - Out Of Office
 
-    let outOfOfficeView: OutOfOfficeView? = nil
-
     func checkOutOfOfficeAbsence() {
         // Only check once, and only for 1:1 on DND right now
         guard self.hasCheckedOutOfOfficeStatus == false,
@@ -926,6 +925,61 @@ import SwiftUI
             UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
                 oooView.alpha = 1.0
             }
+        }
+    }
+
+    // MARK: - Pinned messages
+
+    private var pinnedMessageView: PinnedMessageView?
+
+    func checkPinnedMessage() {
+        if let pinnedMessageView {
+            if self.room.lastPinnedId != pinnedMessageView.message?.messageId {
+                // Remove pinned message in case there's now a different message pinned or it was unpinned in the meantime
+                self.removePinnedMessageView()
+            } else {
+                // Nothing to do if it's still the same message
+                return
+            }
+        }
+
+        guard self.room.lastPinnedId > 0,
+              self.room.lastPinnedId != self.room.hiddenPinnedId
+        else { return }
+
+        self.chatController.getSingleMessage(withMessageId: self.room.lastPinnedId) { message in
+            guard let message else { return }
+
+            let view = PinnedMessageView()
+            self.pinnedMessageView = view
+
+            view.delegate = self
+            view.setupPinnedMessage(withMessage: message, inRoom: self.room)
+            view.alpha = 0
+
+            self.view.addSubview(view)
+
+            NSLayoutConstraint.activate([
+                view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+                view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+                view.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor)
+            ])
+
+            UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+                view.alpha = 1.0
+            }
+        }
+    }
+
+    func removePinnedMessageView() {
+        guard let pinnedMessageView else { return }
+
+        self.pinnedMessageView = nil
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+            pinnedMessageView.alpha = 0.0
+        } completion: { _ in
+            pinnedMessageView.removeFromSuperview()
         }
     }
 
@@ -1002,6 +1056,13 @@ import SwiftUI
     func removeExpiredMessages() {
         DispatchQueue.main.async {
             let currentTimestamp = Int(Date().timeIntervalSince1970)
+
+            // Also make sure that a pinned message correctly expires
+            if let pinnedMessageView = self.pinnedMessageView, let pinnedMessage = pinnedMessageView.message {
+                if pinnedMessage.expirationTimestamp > 0, pinnedMessage.expirationTimestamp <= currentTimestamp {
+                    self.removePinnedMessageView()
+                }
+            }
 
             // Iterate backwards in case we need to delete multiple sections in one go
             for sectionIndex in self.dateSections.indices.reversed() {
@@ -1257,6 +1318,7 @@ import SwiftUI
         if !self.hasStopped {
             self.checkLobbyState()
             self.checkRoomControlsAvailability()
+            self.checkPinnedMessage()
         }
 
         self.checkRetention()
@@ -1714,6 +1776,20 @@ import SwiftUI
         else { return }
 
         self.updateMessage(withMessageId: updateMessage.messageId, updatedMessage: updateMessage)
+
+        // Update pinned message if needed
+        if let pinnedMessageView = self.pinnedMessageView, pinnedMessageView.message?.messageId == updateMessage.messageId {
+            pinnedMessageView.setupPinnedMessage(withMessage: updateMessage, inRoom: self.room)
+        }
+
+        if message.systemMessage == "message_pinned" {
+            // When a message was pinned, we can directly set the message id and update the view
+            self.room.lastPinnedId = updateMessage.messageId
+            self.checkPinnedMessage()
+        } else if message.systemMessage == "message_unpinned" {
+            // In case of unpinning, update the room to check if there are other pinned message we now need to show
+            self.updateRoomInformation()
+        }
     }
 
     func didReceiveThreadMessage(notification: Notification) {
@@ -1798,7 +1874,7 @@ import SwiftUI
            permissions != self.room.permissions.rawValue {
 
             // Need to update the room from the api because otherwise "canStartCall" is not updated correctly
-            NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+            self.updateRoomInformation()
         }
     }
 
@@ -2188,6 +2264,59 @@ import SwiftUI
         return reminderOptions
     }
 
+    func getPinMessageOptions(for message: NCChatMessage) -> [UIMenuElement] {
+        let pinUntil24h = Calendar.current.date(byAdding: .hour, value: 24, to: Date())!
+        let pin24h = UIAction(title: NSLocalizedString("24 hours", comment: "Message is pinned 24 hours"), subtitle: NCUtils.readableTimeAndDate(fromDate: pinUntil24h)) { [unowned self] _ in
+            Task {
+                await self.didPressPinMessage(for: message, pinUntil: Int(pinUntil24h.timeIntervalSince1970))
+            }
+        }
+
+        let pinUntil7d = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+        let pin7d = UIAction(title: NSLocalizedString("7 days", comment: "Message is pinned 7 days"), subtitle: NCUtils.readableTimeAndDate(fromDate: pinUntil7d)) { [unowned self] _ in
+            Task {
+                await self.didPressPinMessage(for: message, pinUntil: Int(pinUntil7d.timeIntervalSince1970))
+            }
+        }
+
+        let pinUntil30d = Calendar.current.date(byAdding: .day, value: 30, to: Date())!
+        let pin30d = UIAction(title: NSLocalizedString("30 days", comment: "Message is pinned 30 days"), subtitle: NCUtils.readableTimeAndDate(fromDate: pinUntil30d)) { [unowned self] _ in
+            Task {
+                await self.didPressPinMessage(for: message, pinUntil: Int(pinUntil30d.timeIntervalSince1970))
+            }
+        }
+
+        let pinIndefinitely = UIAction(title: NSLocalizedString("Indefinitely", comment: "Message is pinned indefinitely"), image: .init(systemName: "infinity")) { [unowned self] _ in
+            Task {
+                await self.didPressPinMessage(for: message)
+            }
+        }
+
+        // Custom reminder
+        let customPinAction = UIAction(title: NSLocalizedString("Pick date & time", comment: ""), image: .init(systemName: "calendar.badge.clock")) { [weak self] _ in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.interactingMessage = message
+                self.lastMessageBeforeInteraction = self.tableView?.indexPathsForVisibleRows?.last
+
+                let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+                let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
+
+                self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
+                self.datePickerTextField.getDate { buttonTapped, selectedDate in
+                    guard buttonTapped == .done, let selectedDate else { return }
+
+                    let timestamp = Int(selectedDate.timeIntervalSince1970)
+                    Task {
+                        await self.didPressPinMessage(for: message, pinUntil: timestamp)
+                    }
+                }
+            }
+        }
+
+        return [pin24h, pin7d, pin30d, pinIndefinitely, UIMenu(options: .displayInline, children: [customPinAction])]
+    }
+
     override func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
         let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
 
@@ -2460,6 +2589,21 @@ import SwiftUI
             moreMenuActions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
                 self.didPressNoteToSelf(for: message)
             })
+        }
+
+        // Pin message
+        if !message.isDeletedMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: room) {
+            if message.isPinned {
+                moreMenuActions.append(UIAction(title: NSLocalizedString("Unpin message", comment: ""), image: .init(systemName: "pin.slash")) { _ in
+                    Task {
+                        await self.didPressUnpinMessage(for: message)
+                    }
+                })
+            } else {
+                moreMenuActions.append(UIMenu(title: NSLocalizedString("Pin message", comment: "Pin a message to be always visible in the chat"),
+                                              image: .init(systemName: "pin"),
+                                              children: self.getPinMessageOptions(for: message)))
+            }
         }
 
         if moreMenuActions.count == 1, let firstElement = moreMenuActions.first {
