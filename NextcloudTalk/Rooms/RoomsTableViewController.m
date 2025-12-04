@@ -1809,7 +1809,7 @@ typedef enum RoomsSections {
     RoomTableViewCell *cell = (RoomTableViewCell *)rcell;
     NCRoom *room = [_rooms objectAtIndex:indexPath.row];
 
-    [cell.avatarView setStatusFor:room];
+    [cell.avatarView setStatusFor:room allowCustomStatusIcon:YES];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
