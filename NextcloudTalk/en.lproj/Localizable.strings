@@ -1610,6 +1610,12 @@
 /* No comment provided by engineer. */
 "Open in %@" = "Open in %@";
 
+/* No comment provided by engineer. */
+"Open in Google Maps" = "Open in Google Maps";
+
+/* No comment provided by engineer. */
+"Open in Maps" = "Open in Maps";
+
 /* A menu to show additional options for the current conversation */
 "Option menu" = "Option menu";
 

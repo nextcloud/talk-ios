@@ -44,6 +44,7 @@
 		<string>nextcloud</string>
 		<string>nextcloudnotes</string>
 		<string>firefox</string>
+		<string>comgooglemaps</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
