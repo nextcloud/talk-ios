@@ -111,7 +111,7 @@ jobs:
           { talkbranch: 'stable29', serverbranch: 'stable29', phpversion: '8.3' },
           { talkbranch: 'stable30', serverbranch: 'stable30', phpversion: '8.3' },
           { talkbranch: 'stable31', serverbranch: 'stable31', phpversion: '8.3' },
-          { talkbranch: 'main', serverbranch: 'master', phpversion: '8.3' }
+          { talkbranch: 'main', serverbranch: 'nickvergessen-patch-1', phpversion: '8.3' }
         ]
 
     steps:
