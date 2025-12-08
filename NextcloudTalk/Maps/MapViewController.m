@@ -40,6 +40,12 @@
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self action:@selector(cancelButtonPressed)];
     self.navigationItem.leftBarButtonItem = cancelButton;
+
+    UIImage *shareImage = [UIImage systemImageNamed:@"square.and.arrow.up"];
+    UIBarButtonItem *shareButton = [[UIBarButtonItem alloc] initWithImage:shareImage style:UIBarButtonItemStylePlain
+                                                                   target:nil action:nil];
+    shareButton.menu = [self shareOptionsMenu];
+    self.navigationItem.rightBarButtonItem = shareButton;
 }
 
 - (instancetype)initWithGeoLocationRichObject:(GeoLocationRichObject *)geoLocation
@@ -61,6 +67,35 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (UIMenu *)shareOptionsMenu
+{
+    UIAction *appleMapsAction = [UIAction actionWithTitle:NSLocalizedString(@"Open in Maps", nil)
+                                                    image:nil
+                                               identifier:nil
+                                                  handler:^(UIAction *action) {
+        [self openInMaps:self->_annotation.coordinate];
+    }];
+
+    UIAction *googleMapsAction = nil;
+
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"comgooglemaps://"]]) {
+        googleMapsAction = [UIAction actionWithTitle:NSLocalizedString(@"Open in Google Maps", nil)
+                                               image:nil
+                                          identifier:nil
+                                             handler:^(UIAction *action) {
+            [self openInGoogleMaps:self->_annotation.coordinate];
+        }];
+    }
+
+    NSMutableArray *actions = [NSMutableArray arrayWithObject:appleMapsAction];
+    if (googleMapsAction) {
+        [actions addObject:googleMapsAction];
+    }
+
+    return [UIMenu menuWithTitle:@"" children:actions];
+}
+
+
 #pragma mark - Map view
 
 - (void)centerMapViewInSharedLocation
@@ -69,6 +104,35 @@
     mapRegion.center = _annotation.coordinate;
     mapRegion.span = MKCoordinateSpanMake(0.005, 0.005);
     [self.mapView setRegion:mapRegion animated:YES];
+}
+
+#pragma mark - Utils
+
+- (void)openInMaps:(CLLocationCoordinate2D)coordinate {
+    MKPlacemark *placemark = [[MKPlacemark alloc] initWithCoordinate:coordinate];
+    MKMapItem *mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
+    mapItem.name = NSLocalizedString(@"Shared location", nil);
+
+    NSDictionary *options = @{
+        MKLaunchOptionsMapCenterKey: [NSValue valueWithMKCoordinate:coordinate]
+    };
+
+    [mapItem openInMapsWithLaunchOptions:options];
+}
+
+- (void)openInGoogleMaps:(CLLocationCoordinate2D)coordinate {
+    NSString *urlString = [NSString stringWithFormat:
+                           @"comgooglemaps://?q=%f,%f&center=%f,%f&zoom=14",
+                           coordinate.latitude,
+                           coordinate.longitude,
+                           coordinate.latitude,
+                           coordinate.longitude];
+
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    if ([[UIApplication sharedApplication] canOpenURL:url]) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    }
 }
 
 #pragma mark - MKMapViewDelegate
