@@ -119,7 +119,7 @@ class CallViewController: UIViewController,
     private var connectingSoundAlreadyPlayed = false
     private var buttonFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private var localVideoDragStartingPoint: CGPoint?
-    private var airplayView = AVRoutePickerView(frame: .init(x: 0, y: 0, width: 48, height: 56))
+    private var airplayView = AVRoutePickerView(frame: .init(x: 0, y: 0, width: 48, height: 32))
     private var pendingPeerInserts: [NCPeerConnection] = []
     private var pendingPeerDeletions: [NCPeerConnection] = []
     private var pendingPeerUpdates: [PendingCellUpdate] = []
