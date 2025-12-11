@@ -195,6 +195,8 @@ class CallViewController: UIViewController,
         self.audioMuteButton.addGestureRecognizer(pushToTalkRecognizer)
 
         self.participantsLabelContainer.isHidden = true
+        let participantsLabelTapGesture = UITapGestureRecognizer(target: self, action: #selector(showParticipantsInRoomInfo))
+        self.participantsLabelContainer.addGestureRecognizer(participantsLabelTapGesture)
 
         self.screensharingView.isHidden = true
         self.screensharingView.clipsToBounds = true
@@ -1106,13 +1108,26 @@ class CallViewController: UIViewController,
 
         guard self.room.type != .oneToOne, let personImage = UIImage(systemName: "person.2") else { return }
 
-        DispatchQueue.main.async {
-            let participantAttachment = NSTextAttachment(image: personImage.withTintColor(self.participantsLabel.textColor))
-            let participantText = NSMutableAttributedString(attachment: participantAttachment)
-            participantText.append("  \(self.peersInCall.count + 1)".withFont(self.participantsLabel.font))
+        WebRTCCommon.shared.dispatch {
+            var participantsInCall: [TalkActor] = []
 
-            self.participantsLabel.attributedText = participantText
-            self.participantsLabelContainer.isHidden = false
+            self.peersInCall.forEach { peerConnection in
+                let actor = self.callController?.getActorFromSessionId(peerConnection.peerId) ?? TalkActor()
+                participantsInCall.append(actor)
+            }
+
+            let ownActor = TalkActor(actorId: self.room.account?.userId, actorType: kParticipantTypeUser)
+            participantsInCall.append(ownActor)
+
+            DispatchQueue.main.async {
+                let participantAttachment = NSTextAttachment(image: personImage.withTintColor(self.participantsLabel.textColor))
+                let participantText = NSMutableAttributedString(attachment: participantAttachment)
+                let uniqueParticipantsCount = Set(participantsInCall.map({ $0.id })).count
+                participantText.append("  \(uniqueParticipantsCount)".withFont(self.participantsLabel.font))
+
+                self.participantsLabel.attributedText = participantText
+                self.participantsLabelContainer.isHidden = false
+            }
         }
     }
 
@@ -1993,6 +2008,28 @@ class CallViewController: UIViewController,
         }
     }
 
+    func showParticipantsInRoomInfo() {
+        self.showRoomInfo(scrollToParticipantsSection: true)
+    }
+
+    func showRoomInfo(scrollToParticipantsSection: Bool = false) {
+        let roomInfoVC = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: false, scrollToParticipantsSectionOnAppear: scrollToParticipantsSection)
+        roomInfoVC.modalPresentationStyle = .pageSheet
+
+        let navController = UINavigationController(rootViewController: roomInfoVC)
+        let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
+            roomInfoVC.dismiss(animated: true)
+        })
+
+        if #unavailable(iOS 26.0) {
+            cancelButton.tintColor = NCAppBranding.themeTextColor()
+        }
+
+        navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
+
+        self.present(navController, animated: true)
+    }
+
     func showChat() {
         if chatNavigationController == nil {
             guard let room = NCDatabaseManager.sharedInstance().room(withToken: room.token, forAccountId: room.accountId),
@@ -2453,20 +2490,6 @@ class CallViewController: UIViewController,
     // MARK: - NCChatTitleViewDelegate
 
     func chatTitleViewTapped(_ chatTitleView: NCChatTitleView?) {
-        let roomInfoVC = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: false)
-        roomInfoVC.modalPresentationStyle = .pageSheet
-
-        let navController = UINavigationController(rootViewController: roomInfoVC)
-        let cancelButton = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { _ in
-            roomInfoVC.dismiss(animated: true)
-        })
-
-        if #unavailable(iOS 26.0) {
-            cancelButton.tintColor = NCAppBranding.themeTextColor()
-        }
-
-        navController.navigationBar.topItem?.leftBarButtonItem = cancelButton
-
-        self.present(navController, animated: true)
+        showRoomInfo()
     }
 }
