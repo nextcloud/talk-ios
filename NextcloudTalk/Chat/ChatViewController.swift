@@ -557,12 +557,12 @@ import SwiftUI
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMessagesInBackground(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveMessagesInBackground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeRoomCapabilities(notification:)), name: NSNotification.Name.NCDatabaseManagerRoomCapabilitiesChanged, object: nil)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantJoin(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveJoinOfParticipant, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantLeave(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveLeaveOfParticipant, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveStartedTyping(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveStartedTyping, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveStoppedTyping(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidReceiveStoppedTyping, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantJoin(notification:)), name: .extSignalingDidReceiveJoinOfParticipant, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveParticipantLeave(notification:)), name: .extSignalingDidReceiveLeaveOfParticipant, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveStartedTyping(notification:)), name: .extSignalingDidReceiveStartedTyping, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveStoppedTyping(notification:)), name: .extSignalingDidReceiveStoppedTyping, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didFailRequestingCallTransaction(notification:)), name: NSNotification.Name.CallKitManagerDidFailRequestingCallTransaction, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didUpdateParticipants(notification:)), name: NSNotification.Name.NCExternalSignalingControllerDidUpdateParticipants, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didUpdateParticipants(notification:)), name: .extSignalingDidUpdateParticipants, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive(notification:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive(notification:)), name: UIApplication.willResignActiveNotification, object: nil)
