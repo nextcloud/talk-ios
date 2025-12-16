@@ -1822,6 +1822,13 @@ typedef enum RoomsSections {
         return;
     }
 
+    if (self.navigationController.transitionCoordinator != nil) {
+        // In case we are currently in a transition (e.g. swipe back from a conversation),
+        // we don't want to present any new view controller, as that leads to crashes on iOS >= 26
+        [self removeRoomSelection];
+        return;
+    }
+
     if (tableView == self.tableView && indexPath.section == kRoomsSectionPendingFederationInvitation) {
         FederationInvitationTableViewController *federationInvitationVC = [[FederationInvitationTableViewController alloc] init];
         NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:federationInvitationVC];
