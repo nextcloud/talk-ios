@@ -187,7 +187,7 @@ import Foundation
 
                 let federation = signalingSettings?.getFederationJoinDictionary()
 
-                extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
+                extSignalingController.joinRoom(withRoomId: token, withSessionId: sessionId, withFederation: federation) { error in
                     // If the sessionId is not the same anymore we tried to join with, we either already left again before
                     // joining the external signaling server succeeded, or we already have another join in process
                     if !self.isJoiningRoom(withToken: token) {
@@ -250,7 +250,7 @@ import Foundation
 
         self.joiningRoomToken = token
         self.joinRoomTask = NCAPIController.sharedInstance().joinRoom(token, forAccount: activeAccount, completionBlock: { sessionId, room, error, statusCode, statusReason in
-            if error == nil {
+            if error == nil, let sessionId {
                 roomController.userSessionId = sessionId
                 roomController.inCall = true
 
@@ -269,7 +269,7 @@ import Foundation
 
                     let federation = signalingSettings?.getFederationJoinDictionary()
 
-                    extSignalingController.joinRoom(token, withSessionId: sessionId, withFederation: federation) { error in
+                    extSignalingController.joinRoom(withRoomId: token, withSessionId: sessionId, withFederation: federation) { error in
                         if error == nil {
                             NCUtils.log("Re-Joined room \(token) in external signaling server successfully.")
                             completionBlock(sessionId, room, nil, 0, nil)
@@ -320,7 +320,7 @@ import Foundation
                     print("Could not exit room. Error: \(error.localizedDescription)")
                 } else {
                     if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
-                        extSignalingController.leaveRoom(token)
+                        extSignalingController.leaveRoom(withRoomId: token)
                     }
 
                     self.checkForPendingToStartCalls()

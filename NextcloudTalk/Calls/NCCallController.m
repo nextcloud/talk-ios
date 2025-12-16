@@ -27,7 +27,6 @@
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
-#import "NCExternalSignalingController.h"
 #import "NCScreensharingController.h"
 
 #import "NextcloudTalk-Swift.h"
