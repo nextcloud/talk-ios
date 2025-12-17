@@ -647,6 +647,12 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     NSString *endpoint = [NSString stringWithFormat:@"chat/%@", encodedToken];
     NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
     NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
+
+    if (limit <= 0) {
+        // Ensure we don't try to request an invalid number of messages (although there's a limit server side)
+        limit = kReceivedChatMessagesLimit;
+    }
+
     NSDictionary *parameters = @{@"lookIntoFuture" : history ? @(0) : @(1),
                                  @"limit" : @(MIN(kReceivedChatMessagesLimit, limit)),
                                  @"timeout" : timeout ? @(30) : @(0),
