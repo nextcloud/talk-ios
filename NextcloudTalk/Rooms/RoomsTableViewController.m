@@ -1328,7 +1328,7 @@ typedef enum RoomsSections {
 
 - (void)presentRoomInfoForRoom:(NCRoom *)room
 {
-    UIViewController *roomInfoVC = [RoomInfoUIViewFactory createWithRoom:room showDestructiveActions:YES];
+    UIViewController *roomInfoVC = [RoomInfoUIViewFactory createWithRoom:room showDestructiveActions:YES scrollToParticipantsSectionOnAppear:NO];
     NCNavigationController *navigationController = [[NCNavigationController alloc] initWithRootViewController:roomInfoVC];
 
     UIAction *cancelAction = [UIAction actionWithHandler:^(__kindof UIAction * _Nonnull action) {

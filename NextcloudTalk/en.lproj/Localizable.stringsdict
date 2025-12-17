@@ -36,6 +36,25 @@
         </dict>
     </dict>
     
+    <key>%ld participants in this call</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@participants@</string>
+        <key>participants</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld participant in this call</string>
+            <key>many</key>
+            <string>%ld participants in this call</string>
+            <key>other</key>
+            <string>%ld participants in this call</string>
+        </dict>
+    </dict>
+
     <key>%d minutes ago</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
