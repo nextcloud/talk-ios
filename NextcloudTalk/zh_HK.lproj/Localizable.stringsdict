@@ -32,6 +32,12 @@
         </dict>
     </dict>
     
+    <key>%ld participants in this call</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@participantsincall@</string>
+    </dict>
+
     <key>%d minutes ago</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
