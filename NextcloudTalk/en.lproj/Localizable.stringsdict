@@ -48,8 +48,6 @@
             <string>ld</string>
             <key>one</key>
             <string>%ld participant in this call</string>
-            <key>many</key>
-            <string>%ld participants in this call</string>
             <key>other</key>
             <string>%ld participants in this call</string>
         </dict>
