@@ -39,8 +39,8 @@
     <key>%ld participants in this call</key>
     <dict>
         <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participants_in_call@</string>
-        <key>participants_in_call</key>
+        <string>%#@participantsincall@</string>
+        <key>participantsincall</key>
         <dict>
             <key>NSStringFormatSpecTypeKey</key>
             <string>NSStringPluralRuleType</string>
