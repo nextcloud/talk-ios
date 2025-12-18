@@ -456,7 +456,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
         [self->_pullMessagesTask cancel];
     }];
 
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO limit:0 lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO limit:kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (expired) {
             if (block) {
                 block(error);
@@ -731,7 +731,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
                                                                           history:YES
                                                                includeLastMessage:forInitialChatHistory
                                                                           timeout:NO
-                                                                            limit:0
+                                                                            limit:kReceivedChatMessagesLimit
                                                             lastCommonReadMessage:_room.lastCommonReadMessage
                                                                     setReadMarker:YES
                                                           markNotificationsAsRead:YES
@@ -780,12 +780,15 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
                 }
             }
 
-            // Recursively fetch messages until finding visible ones
-            [self fetchHistoryUntilVisibleFromMessageId:lastKnownMessage
-                                  forInitialChatHistory:forInitialChatHistory
-                                       isFirstIteration:NO
-                                             completion:completion];
-            return;
+            // Prevent infinite loop in case there are no new messages
+            if (statusCode != 304) {
+                // Recursively fetch messages until finding visible ones
+                [self fetchHistoryUntilVisibleFromMessageId:lastKnownMessage
+                                      forInitialChatHistory:forInitialChatHistory
+                                           isFirstIteration:NO
+                                                 completion:completion];
+                return;
+            }
         }
 
         completion(@[], 0, nil, 0);
@@ -843,7 +846,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout limit:0 lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout limit:kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
