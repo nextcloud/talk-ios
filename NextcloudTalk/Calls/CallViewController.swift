@@ -1112,8 +1112,9 @@ class CallViewController: UIViewController,
             var participantsInCall: [TalkActor] = []
 
             self.peersInCall.forEach { peerConnection in
-                let actor = self.callController?.getActorFromSessionId(peerConnection.peerId) ?? TalkActor()
-                participantsInCall.append(actor)
+                if let actor = self.callController?.getActorFromSessionId(peerConnection.peerId) {
+                    participantsInCall.append(actor)
+                }
             }
 
             let ownActor = TalkActor(actorId: self.room.account?.userId, actorType: kParticipantTypeUser)
