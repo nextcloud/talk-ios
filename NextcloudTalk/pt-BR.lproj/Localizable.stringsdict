@@ -44,6 +44,19 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@participantsincall@</string>
+        <key>participantsincall</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld participante nesta chamada</string>
+            <key>many</key>
+            <string>%ld de participantes nesta chamada</string>
+            <key>other</key>
+            <string>%ld participantes nesta chamada</string>
+        </dict>
     </dict>
 
     <key>%d minutes ago</key>
