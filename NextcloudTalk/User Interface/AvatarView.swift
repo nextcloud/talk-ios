@@ -92,9 +92,7 @@ import SDWebImage
 
     public func prepareForReuse() {
         // Fix problem of rendering downloaded image in a reused cell
-        avatarImageView.cancelCurrentRequest()
-        avatarImageView.image = nil
-        avatarImageView.layer.mask = nil
+        avatarImageView.prepareForReuse()
 
         favoriteImageView.image = nil
 
@@ -107,10 +105,6 @@ import SDWebImage
 
         room = nil
         allowCustomStatusIcon = nil
-    }
-
-    func cancelCurrentRequest() {
-        self.avatarImageView.cancelCurrentRequest()
     }
 
     // MARK: - Conversation avatars

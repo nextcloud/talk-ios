@@ -5,7 +5,7 @@
 
 protocol AvatarProtocol {
 
-    func cancelCurrentRequest()
+    func prepareForReuse()
 
     // MARK: - Conversation avatars
     func setAvatar(for room: NCRoom)

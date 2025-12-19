@@ -58,8 +58,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 {
     [super prepareForReuse];
 
-    [_peerAvatarImageView cancelCurrentRequest];
-    _peerAvatarImageView.image = nil;
+    [_peerAvatarImageView prepareForReuse];
     _peerAvatarImageView.alpha = 1;
 
     _displayName = nil;
