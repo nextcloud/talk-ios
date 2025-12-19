@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,32 +18,23 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="72"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5eI-x8-VQH" customClass="AvatarImageView" customModule="NextcloudTalk" customModuleProvider="target">
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Uyr-mW-eAX" userLabel="AvatarView" customClass="AvatarView" customModule="NextcloudTalk" customModuleProvider="target">
                         <rect key="frame" x="12" y="12" width="48" height="48"/>
-                        <color key="backgroundColor" red="0.83529411760000005" green="0.83529411760000005" blue="0.83529411760000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="48" id="9HH-HQ-ST0"/>
-                            <constraint firstAttribute="width" constant="48" id="Ic4-Hj-oK9"/>
+                            <constraint firstAttribute="width" secondItem="Uyr-mW-eAX" secondAttribute="height" multiplier="1:1" id="j4M-gw-fjI"/>
                         </constraints>
-                    </imageView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vfg-pq-jRm">
-                        <rect key="frame" x="45" y="48" width="20" height="20"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="20" id="Bil-ZR-myw"/>
-                            <constraint firstAttribute="height" constant="20" id="b9y-Pf-33a"/>
-                        </constraints>
-                    </imageView>
+                    </view>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="ifa-Ff-Eac">
-                        <rect key="frame" x="75" y="12" width="230" height="48"/>
+                        <rect key="frame" x="72" y="12" width="233" height="48"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="17" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOA-bG-zXZ">
-                                <rect key="frame" x="0.0" y="0.0" width="230" height="14"/>
+                                <rect key="frame" x="0.0" y="0.0" width="233" height="14"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="13" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="27H-pY-tFT">
-                                <rect key="frame" x="0.0" y="14" width="230" height="34"/>
+                                <rect key="frame" x="0.0" y="14" width="233" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <color key="textColor" systemColor="secondaryLabelColor"/>
                                 <nil key="highlightedColor"/>
@@ -58,22 +49,18 @@
                 <viewLayoutGuide key="safeArea" id="Pye-fe-c7r"/>
                 <constraints>
                     <constraint firstItem="ifa-Ff-Eac" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottom" constant="-12" id="83b-zt-HfV"/>
-                    <constraint firstItem="5eI-x8-VQH" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottom" constant="-12" id="AVW-ML-8YO"/>
+                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="leading" secondItem="Uyr-mW-eAX" secondAttribute="trailing" constant="12" id="F15-az-rIQ"/>
                     <constraint firstItem="ifa-Ff-Eac" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="W2o-1a-DHQ"/>
-                    <constraint firstItem="5eI-x8-VQH" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="XyY-WJ-Sov"/>
                     <constraint firstItem="ifa-Ff-Eac" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailing" constant="-15" id="ZFF-EU-3yR"/>
-                    <constraint firstItem="5eI-x8-VQH" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="12" id="fQR-A3-gQb"/>
-                    <constraint firstItem="vfg-pq-jRm" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="45" id="hXM-ju-rXF"/>
-                    <constraint firstItem="vfg-pq-jRm" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottom" constant="-4" id="pqA-H1-JwO"/>
-                    <constraint firstItem="ifa-Ff-Eac" firstAttribute="leading" secondItem="vfg-pq-jRm" secondAttribute="trailing" constant="10" id="sVo-dR-gTF"/>
-                    <constraint firstItem="vfg-pq-jRm" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="48" id="xJ5-xb-XdK"/>
+                    <constraint firstItem="Uyr-mW-eAX" firstAttribute="leading" secondItem="Pye-fe-c7r" secondAttribute="leading" constant="12" id="esP-u0-Yzd"/>
+                    <constraint firstItem="Uyr-mW-eAX" firstAttribute="top" secondItem="Pye-fe-c7r" secondAttribute="top" constant="12" id="pUG-XI-CFW"/>
+                    <constraint firstItem="Pye-fe-c7r" firstAttribute="bottom" secondItem="Uyr-mW-eAX" secondAttribute="bottom" constant="12" id="sJ7-q3-tNV"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="Hom-0H-2YQ"/>
             <connections>
-                <outlet property="contactImage" destination="5eI-x8-VQH" id="9Dl-Ae-9dw"/>
+                <outlet property="avatarView" destination="Uyr-mW-eAX" id="Jig-yS-5UL"/>
                 <outlet property="labelTitle" destination="nOA-bG-zXZ" id="0dX-jq-5N3"/>
-                <outlet property="userStatusImageView" destination="vfg-pq-jRm" id="mS5-WO-e7h"/>
                 <outlet property="userStatusMessageLabel" destination="27H-pY-tFT" id="kAG-y7-hW7"/>
             </connections>
             <point key="canvasLocation" x="33.600000000000001" y="45.877061469265371"/>
