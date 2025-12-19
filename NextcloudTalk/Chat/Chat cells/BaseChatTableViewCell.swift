@@ -178,11 +178,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         super.prepareForReuse()
 
         self.message = nil
-        self.avatarButton.cancelCurrentRequest()
-        self.avatarButton.setImage(nil, for: .normal)
-
-        self.quotedMessageView?.avatarImageView.cancelCurrentRequest()
-        self.quotedMessageView?.avatarImageView.image = nil
+        self.avatarButton.prepareForReuse()
+        self.quotedMessageView?.avatarImageView.prepareForReuse()
 
         self.headerPart.isHidden = false
         self.avatarButton.isHidden = false

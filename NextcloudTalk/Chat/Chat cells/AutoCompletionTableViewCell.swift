@@ -59,8 +59,7 @@ class AutoCompletionTableViewCell: UITableViewCell {
         self.titleLabel.font = .preferredFont(forTextStyle: .body)
         self.titleLabel.text = ""
 
-        self.avatarButton.cancelCurrentRequest()
-        self.avatarButton.setImage(nil, for: .normal)
+        self.avatarButton.prepareForReuse()
 
         self.userStatusImageView.image = nil
         self.userStatusImageView.backgroundColor = .clear
