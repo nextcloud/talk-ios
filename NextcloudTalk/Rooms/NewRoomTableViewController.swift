@@ -192,7 +192,7 @@ enum NewRoomOption: Int {
 
             let contactType = contact.source as String
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            contactCell.contactImage.setActorAvatar(forId: contact.userId, withType: contactType, withDisplayName: contact.name, withRoomToken: nil, using: account)
+            contactCell.avatarView.setActorAvatar(forId: contact.userId, withType: contactType, withDisplayName: contact.name, withRoomToken: nil, using: account)
 
             return contactCell
         }

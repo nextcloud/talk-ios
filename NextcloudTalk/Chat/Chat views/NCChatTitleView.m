@@ -51,10 +51,6 @@
     [self addSubview:self.contentView];
     self.contentView.frame = self.bounds;
 
-    self.avatarimage.layer.cornerRadius = self.avatarimage.bounds.size.width / 2;
-    self.avatarimage.clipsToBounds = YES;
-    self.avatarimage.backgroundColor = [UIColor systemGray3Color];
-
     self.titleTextView.textContainer.lineFragmentPadding = 0;
     self.titleTextView.textContainerInset = UIEdgeInsetsZero;
 
@@ -64,10 +60,8 @@
     self.showSubtitle = YES;
 
     if (@available(iOS 26.0, *)) {
-        self.userStatusBackgroundColor = [UIColor clearColor];
         self.titleTextColor = [UIColor labelColor];
     } else {
-        self.userStatusBackgroundColor = [NCAppBranding themeColor];
         self.titleTextColor = [NCAppBranding themeTextColor];
     }
 
@@ -80,23 +74,16 @@
     [self.contentView addGestureRecognizer:self.longPressGestureRecognizer];
 }
 
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-    self.avatarimage.layer.cornerRadius = self.avatarimage.bounds.size.width / 2;
-    self.userStatusImage.layer.cornerRadius = self.userStatusImage.bounds.size.width / 2;
-}
-
 - (void)updateForRoom:(NCRoom *)room
 {
     // Set room image
-    [self.avatarimage setAvatarFor:room];
+    [self.avatarView setAvatarFor:room];
 
     NSString *subtitle = nil;
     
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySingleConvStatus]) {
         // User status
-        [self setStatusImageForUserStatus:room.status];
+        [self.avatarView setStatusFor:room allowCustomStatusIcon:NO];
 
         // User status message
         if (!room.statusMessage || [room.statusMessage isEqualToString:@""]) {
@@ -127,33 +114,11 @@
 - (void)updateForThread:(NCThread *)thread
 {
     // Set thread image
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:thread.accountId];
-    [self.avatarimage setThreadAvatarForThread:thread];
+    [self.avatarView setThreadAvatarForThread:thread];
 
     // Set thread title and number of replies
     NSString *repliesString = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld replies", @"Replies in a thread"), (long)thread.numReplies];
     [self setTitle:thread.title withSubtitle:repliesString];
-}
-
-- (void)setStatusImageForUserStatus:(NSString *)userStatus
-{
-    UIImage *statusImage = nil;
-    if ([userStatus isEqualToString:@"online"]) {
-        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getOnlineSFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
-    } else if ([userStatus isEqualToString:@"away"]) {
-        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getAwaySFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
-    } else if ([userStatus isEqualToString:@"busy"]) {
-        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getBusySFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
-    } else if ([userStatus isEqualToString:@"dnd"]) {
-        statusImage = [NCUtils renderAspectImageWithImage:[NCUserStatus getDoNotDisturbSFIcon] ofSize:CGSizeMake(10, 10) centerImage:NO];
-    }
-
-    if (statusImage) {
-        [_userStatusImage setImage:statusImage];
-        _userStatusImage.contentMode = UIViewContentModeCenter;
-        _userStatusImage.clipsToBounds = YES;
-        _userStatusImage.backgroundColor = _userStatusBackgroundColor;
-    }
 }
 
 - (void)setTitle:(NSString *)title withSubtitle:(NSString *)subtitle
@@ -195,18 +160,15 @@
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         // Simulate a pressed stated. Don't use self.alpha here as it will interfere with NavigationController transitions
         self.titleTextView.alpha = 0.7;
-        self.avatarimage.alpha = 0.7;
-        self.userStatusImage.alpha = 0.7;
+        self.avatarView.alpha = 0.7;
     } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         // Call delegate & reset the pressed state -> use dispatch after to give the UI time to show the actual pressed state
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             self.titleTextView.alpha = 1.0;
-            self.avatarimage.alpha = 1.0;
-            self.userStatusImage.alpha = 1.0;
-            
+            self.avatarView.alpha = 1.0;
+
             [self.delegate chatTitleViewTapped:self];
         });
-
     }
 }
 

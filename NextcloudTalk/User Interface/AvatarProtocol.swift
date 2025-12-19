@@ -5,7 +5,7 @@
 
 protocol AvatarProtocol {
 
-    func cancelCurrentRequest()
+    func prepareForReuse()
 
     // MARK: - Conversation avatars
     func setAvatar(for room: NCRoom)
@@ -14,5 +14,8 @@ protocol AvatarProtocol {
     // MARK: - User avatars
     func setActorAvatar(forMessage message: NCChatMessage, withAccount account: TalkAccount)
     func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, using account: TalkAccount)
+
+    // MARK: - Thread avatars
+    func setThreadAvatar(forThread thread: NCThread)
 
 }

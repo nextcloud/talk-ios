@@ -10,8 +10,9 @@ import SDWebImage
 
     private var currentRequest: SDWebImageCombinedOperation?
 
-    public func cancelCurrentRequest() {
+    public func prepareForReuse() {
         self.currentRequest?.cancel()
+        self.setImage(nil, for: .normal)
     }
 
     // MARK: - Init
@@ -43,7 +44,7 @@ import SDWebImage
     // MARK: - Conversation avatars
 
     public func setAvatar(for room: NCRoom) {
-        self.cancelCurrentRequest()
+        self.currentRequest?.cancel()
 
         self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: self.traitCollection.userInterfaceStyle) { image in
             guard let image = image else {
@@ -68,13 +69,21 @@ import SDWebImage
     }
 
     public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, using account: TalkAccount) {
-        self.cancelCurrentRequest()
+        self.currentRequest?.cancel()
 
         self.currentRequest = AvatarManager.shared.getActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, withStyle: self.traitCollection.userInterfaceStyle, usingAccount: account) { image in
             guard let image = image else {
                 return
             }
 
+            self.setImage(image, for: .normal)
+        }
+    }
+
+    // MARK: Thread avatars
+
+    public func setThreadAvatar(forThread thread: NCThread) {
+        if let image = AvatarManager.shared.getThreadAvatar(for: thread, with: self.traitCollection.userInterfaceStyle) {
             self.setImage(image, for: .normal)
         }
     }

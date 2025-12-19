@@ -8,13 +8,16 @@ import SDWebImage
 
 @objcMembers class AvatarView: UIView, AvatarProtocol {
 
-    private let userStatusSizePercentage = 0.36
+    private let userStatusSizePercentage = 1.0/3
     private let userStatusImageViewMargin = 2.0
 
     public let avatarImageView = AvatarImageView(frame: .zero)
     public let favoriteImageView = UIImageView()
     private let userStatusImageView = UIImageView()
     private let userStatusLabel = UILabel()
+
+    private var room: NCRoom?
+    private var allowCustomStatusIcon: Bool?
 
     // MARK: - Init
 
@@ -38,6 +41,7 @@ import SDWebImage
         favoriteImageView.contentMode = .scaleAspectFill
         userStatusImageView.contentMode = .center
         userStatusLabel.textAlignment = .center
+        userStatusLabel.adjustsFontSizeToFitWidth = true
 
         userStatusImageView.isHidden = true
         userStatusLabel.isHidden = true
@@ -78,24 +82,29 @@ import SDWebImage
 
         userStatusImageView.layer.cornerRadius = userStatusImageView.frame.height / 2
         userStatusImageView.clipsToBounds = true
+
+        if let room = self.room, let statusIconAllowed = self.allowCustomStatusIcon {
+            setStatus(for: room, allowCustomStatusIcon: statusIconAllowed)
+        }
+
+        setUserStatusImageViewCutoutLayer()
     }
 
     public func prepareForReuse() {
         // Fix problem of rendering downloaded image in a reused cell
-        avatarImageView.cancelCurrentRequest()
-        avatarImageView.image = nil
-        avatarImageView.layer.mask = nil
+        avatarImageView.prepareForReuse()
 
         favoriteImageView.image = nil
 
         userStatusImageView.image = nil
         userStatusImageView.backgroundColor = .clear
+        userStatusImageView.isHidden = true
 
         userStatusLabel.text = nil
-    }
+        userStatusLabel.isHidden = true
 
-    func cancelCurrentRequest() {
-        self.avatarImageView.cancelCurrentRequest()
+        room = nil
+        allowCustomStatusIcon = nil
     }
 
     // MARK: - Conversation avatars
@@ -122,11 +131,17 @@ import SDWebImage
         self.avatarImageView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, using: account)
     }
 
+    // MARK: - Thread avatars
+
+    public func setThreadAvatar(forThread thread: NCThread) {
+        self.avatarImageView.setThreadAvatar(forThread: thread)
+    }
+
     // MARK: - User status
 
-    public func setStatus(for room: NCRoom) {
+    public func setStatus(for room: NCRoom, allowCustomStatusIcon statusIconAllowed: Bool) {
         if room.type == .oneToOne, let roomStatus = room.status {
-            if roomStatus != "dnd", let roomStatusIcon = room.statusIcon {
+            if roomStatus != "dnd", statusIconAllowed, let roomStatusIcon = room.statusIcon {
                 setUserStatusIcon(roomStatusIcon)
             } else {
                 setUserStatus(roomStatus)
@@ -137,20 +152,45 @@ import SDWebImage
                 let size = CGSize(width: diameter, height: diameter)
                 if let configuredImage = NCUtils.renderAspectImage(image: statusImage, ofSize: size, centerImage: true)?.withTintColor(.label, renderingMode: .alwaysOriginal) {
                     setUserStatusImage(configuredImage)
-                    setUserStatusImageViewCutoutLayer()
                 }
             }
         } else if room.isFederated {
             if let statusImage = statusImageWith(name: "globe", color: .label, padding: 3) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
+            }
+        }
+
+        self.room = room
+        self.allowCustomStatusIcon = statusIconAllowed
+
+        setUserStatusImageViewCutoutLayer()
+    }
+
+    public func setStatus(for participant: NCRoomParticipant, inRoom room: NCRoom) {
+        if let account = room.account {
+            self.setActorAvatar(forId: participant.actorId, withType: participant.actorType?.rawValue, withDisplayName: participant.displayName, withRoomToken: room.token, using: account)
+        }
+
+        if let status = participant.status {
+            self.setUserStatus(status)
+        }
+
+        if participant.isFederated {
+            if let statusImage = statusImageWith(name: "globe", color: .label, padding: 3) {
+                setUserStatusImage(statusImage)
             }
         }
     }
 
     private func setUserStatusImageViewCutoutLayer() {
+        // Only create cutout when we show the image view (no cutout for emojis)
+        if userStatusImageView.isHidden {
+            avatarImageView.layer.mask = nil
+            return
+        }
+
         // Create a cutout path from the userStatusImageView
-        let statusWidth = userStatusImageView.bounds.width
+        let statusWidth = self.statusImageSize(padding: 0)
         let cutoutRect = CGRect(x: avatarImageView.bounds.maxX - statusWidth + userStatusImageViewMargin, y: avatarImageView.bounds.maxY - statusWidth + userStatusImageViewMargin, width: statusWidth, height: statusWidth)
         let cutoutPath = UIBezierPath(roundedRect: cutoutRect, cornerRadius: (statusWidth) / 2)
 
@@ -174,22 +214,18 @@ import SDWebImage
         if userStatus == "online" {
             if let statusImage = statusImageWith(name: "checkmark.circle.fill", color: .systemGreen, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "away" {
             if let statusImage = statusImageWith(name: "clock.fill", color: .systemYellow, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "busy" {
             if let statusImage = statusImageWith(name: "circle.fill", color: .systemRed, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         } else if userStatus == "dnd" {
             if let statusImage = statusImageWith(name: "minus.circle.fill", color: .systemRed, padding: 2) {
                 setUserStatusImage(statusImage)
-                setUserStatusImageViewCutoutLayer()
             }
         }
     }
@@ -234,6 +270,6 @@ import SDWebImage
     }
 
     private func statusImageSize(padding: CGFloat) -> CGFloat {
-        return self.frame.size.height * userStatusSizePercentage - padding * 2
+        return (self.frame.size.height * userStatusSizePercentage - padding * 2).rounded()
     }
 }

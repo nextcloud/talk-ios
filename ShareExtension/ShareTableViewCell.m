@@ -31,8 +31,7 @@ CGFloat const kShareTableCellHeight = 56.0f;
     [super prepareForReuse];
     
     // Fix problem of rendering downloaded image in a reused cell
-    [self.avatarImageView cancelCurrentRequest];
-    self.avatarImageView.image = nil;
+    [self.avatarImageView prepareForReuse];
 
     self.titleLabel.text = @"";
 }
