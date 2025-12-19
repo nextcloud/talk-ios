@@ -105,7 +105,7 @@
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
 
     if (activeAccount) {
-        [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:nil using:activeAccount];
+        [cell.avatarView setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:nil using:activeAccount];
     }
 
     return cell;

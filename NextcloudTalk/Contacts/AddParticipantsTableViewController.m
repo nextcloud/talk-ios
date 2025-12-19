@@ -447,7 +447,7 @@
         account = [[NCDatabaseManager sharedInstance] activeAccount];
     }
 
-    [cell.contactImage setActorAvatarForId:participant.userId withType:participant.source withDisplayName:participant.name withRoomToken:_room.token using:account];
+    [cell.avatarView setActorAvatarForId:participant.userId withType:participant.source withDisplayName:participant.name withRoomToken:_room.token using:account];
 
     UIImage *selectionImage = [UIImage systemImageNamed:@"circle"];
     UIColor *selectionImageColor = [UIColor tertiaryLabelColor];

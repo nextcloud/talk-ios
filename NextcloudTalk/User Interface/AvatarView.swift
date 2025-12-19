@@ -166,6 +166,22 @@ import SDWebImage
         setUserStatusImageViewCutoutLayer()
     }
 
+    public func setStatus(for participant: NCRoomParticipant, inRoom room: NCRoom) {
+        if let account = room.account {
+            self.setActorAvatar(forId: participant.actorId, withType: participant.actorType?.rawValue, withDisplayName: participant.displayName, withRoomToken: room.token, using: account)
+        }
+
+        if let status = participant.status {
+            self.setUserStatus(status)
+        }
+
+        if participant.isFederated {
+            if let statusImage = statusImageWith(name: "globe", color: .label, padding: 3) {
+                setUserStatusImage(statusImage)
+            }
+        }
+    }
+
     private func setUserStatusImageViewCutoutLayer() {
         // Only create cutout when we show the image view (no cutout for emojis)
         if userStatusImageView.isHidden {

@@ -25,11 +25,7 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
             cell.labelTitle.text = participant.detailedName
         }
 
-        if let account = room.account {
-            cell.contactImage.setActorAvatar(forId: participant.actorId, withType: participant.actorType?.rawValue, withDisplayName: participant.displayName, withRoomToken: room.token, using: account)
-        }
-
-        cell.setUserStatus(participant.status)
+        cell.avatarView.setStatus(for: participant, inRoom: room)
         cell.setUserStatusMessage(participant.statusMessage, withIcon: participant.statusIcon)
 
         if (participant.statusMessage ?? "").isEmpty {
@@ -40,26 +36,18 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
             }
         }
 
-        if participant.isFederated {
-            let conf = UIImage.SymbolConfiguration(pointSize: 14)
-            let image = UIImage(systemName: "globe")?.withTintColor(.label).withRenderingMode(.alwaysOriginal).applyingSymbolConfiguration(conf)
-            cell.setUserStatusIconWith(image)
-        }
-
         if let invitedActorId = participant.invitedActorId, !invitedActorId.isEmpty {
             cell.setUserStatusMessage(invitedActorId, withIcon: nil)
         }
 
         if participant.isOffline {
-            cell.contactImage.alpha = 0.5
+            cell.avatarView.alpha = 0.5
             cell.labelTitle.alpha = 0.5
             cell.userStatusMessageLabel.alpha = 0.5
-            cell.userStatusImageView.alpha = 0.5
         } else {
-            cell.contactImage.alpha = 1
+            cell.avatarView.alpha = 1
             cell.labelTitle.alpha = 1
             cell.userStatusMessageLabel.alpha = 1
-            cell.userStatusImageView.alpha = 1
         }
 
         if let callIconImageName = participant.callIconImageName, !callIconImageName.isEmpty {

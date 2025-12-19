@@ -106,12 +106,12 @@
     // TODO: Replace with NCAttendeeTypeEmail when migrating to swift
     if ([contact.source isEqualToString:@"emails"]) {
         // Only when adding new (email) participants we show the mail avatar
-        [cell.contactImage setMailAvatar];
+        [cell.avatarView setMailAvatar];
     } else {
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
 
         if (activeAccount) {
-            [cell.contactImage setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:_room.token using:activeAccount];
+            [cell.avatarView setActorAvatarForId:contact.userId withType:contact.source withDisplayName:contact.name withRoomToken:_room.token using:activeAccount];
         }
     }
 
