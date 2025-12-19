@@ -74,11 +74,6 @@
     [self.contentView addGestureRecognizer:self.longPressGestureRecognizer];
 }
 
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-}
-
 - (void)updateForRoom:(NCRoom *)room
 {
     // Set room image
