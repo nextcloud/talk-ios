@@ -24,7 +24,6 @@
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
-#import "NCPushNotificationsUtils.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
@@ -347,7 +346,7 @@
     for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
-            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotificationWithMessage:message withDevicePrivateKey:pushNotificationPrivateKey];
             if (decryptedMessage) {
                 NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
                 [[NCNotificationController sharedInstance] processBackgroundPushNotification:pushNotification];
@@ -389,7 +388,7 @@
             continue;
         }
 
-        NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+        NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotificationWithMessage:message withDevicePrivateKey:pushNotificationPrivateKey];
 
         if (!decryptedMessage) {
             continue;

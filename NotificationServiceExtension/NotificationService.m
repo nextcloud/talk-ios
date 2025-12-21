@@ -12,7 +12,6 @@
 #import "NCKeyChainController.h"
 #import "NCNotification.h"
 #import "NCPushNotification.h"
-#import "NCPushNotificationsUtils.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -91,7 +90,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
         NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
         if (message && pushNotificationPrivateKey) {
             @try {
-                NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+                NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotificationWithMessage:message withDevicePrivateKey:pushNotificationPrivateKey];
                 if (decryptedMessage) {
                     NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
 
