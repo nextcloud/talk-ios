@@ -8,11 +8,25 @@ import SwiftyRSA
 @objcMembers
 public class NCPushNotificationsUtils: NSObject {
 
-    public static func decryptPushNotification(message: String, withDevicePrivateKey key: NSData) -> String? {
+    public static func decryptPushNotification(withMessageBase64 messageBase64: String, withSignatureBase64 signatureBase64: String, forAccount account: TalkAccount) -> String? {
         do {
-            let privateKey = try PrivateKey(pemEncoded: String(data: key as Data, encoding: .utf8)!)
-            let encryptedMessage = try EncryptedMessage(base64Encoded: message)
-            let clearMessage = try encryptedMessage.decrypted(with: privateKey, padding: .PKCS1)
+            guard let userPublicKeyPem = account.userPublicKey else { return nil }
+
+            let encryptedMessage = try EncryptedMessage(base64Encoded: messageBase64)
+            let userPublicKey = try RsaPublicKey(pemEncoded: userPublicKeyPem)
+            let signature = try Signature(base64Encoded: signatureBase64)
+
+            guard try encryptedMessage.verify(with: userPublicKey, signature: signature, digestType: .sha512) else {
+                return nil
+            }
+
+            guard let devicePrivateKeyData = NCKeyChainController.sharedInstance().pushNotificationPrivateKey(forAccountId: account.accountId),
+                  let devicePrivateKeyPem = String(data: devicePrivateKeyData, encoding: .utf8) else {
+                return nil
+            }
+
+            let devicePrivateKey = try RsaPrivateKey(pemEncoded: devicePrivateKeyPem)
+            let clearMessage = try encryptedMessage.decrypted(with: devicePrivateKey, padding: .PKCS1)
 
             return try clearMessage.string(encoding: .utf8)
         } catch {
@@ -26,11 +40,8 @@ public class NCPushNotificationsUtils: NSObject {
         do {
             let keyPair = try SwiftyRSA.generateRSAKeyPair(sizeInBits: 2048)
 
-            let privateKey = try keyPair.privateKey.data().prependx509Header().base64EncodedString(options: [.lineLength64Characters, .endLineWithLineFeed])
-            let publicKey = try keyPair.publicKey.data().prependx509Header().base64EncodedString(options: [.lineLength64Characters, .endLineWithLineFeed])
-
-            let privateKeyPem = "-----BEGIN PRIVATE KEY-----\n\(privateKey)\n-----END PRIVATE KEY-----"
-            let publicKeyPem = "-----BEGIN PUBLIC KEY-----\n\(publicKey)\n-----END PUBLIC KEY-----"
+            let privateKeyPem = try keyPair.privateKey.pemStringPkcs8()
+            let publicKeyPem = try keyPair.publicKey.pemStringPkcs8()
 
             return NCPushNotificationKeyPair(privateKey: privateKeyPem.data(using: .utf8)!, publicKey: publicKeyPem.data(using: .utf8)!)
         } catch {

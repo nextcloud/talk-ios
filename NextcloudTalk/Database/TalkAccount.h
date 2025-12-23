@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSInteger lastPushSubscription;
 @property NSString *deviceIdentifier;
 @property NSString *deviceSignature;
-@property NSString *userPublicKey;
+@property NSString * _Nullable userPublicKey;
 @property NSInteger unreadBadgeNumber;
 @property BOOL unreadNotification;
 @property NSInteger lastContactSync;

@@ -60,16 +60,12 @@
 		1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F7AE07B29142E6A009F72AD /* NextcloudKit */; };
 		1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
 		1F8848122A75B68D00063860 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
-		1F899EFF2EF866F500890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899EFE2EF866F500890727 /* SwiftyRSA */; };
-		1F899F012EF8688D00890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F002EF8688D00890727 /* SwiftyRSA */; };
-		1F899F022EF8688D00890727 /* SwiftyRSA in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F002EF8688D00890727 /* SwiftyRSA */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		1F899F082EF8698200890727 /* SwiftyRSA in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 1F899EFE2EF866F500890727 /* SwiftyRSA */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		1F899F142EF889E500890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F132EF889E500890727 /* SwiftyRSA */; };
-		1F899F152EF889E500890727 /* SwiftyRSA in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F132EF889E500890727 /* SwiftyRSA */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		1F899F172EF889EE00890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F162EF889EE00890727 /* SwiftyRSA */; };
-		1F899F182EF889EE00890727 /* SwiftyRSA in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F162EF889EE00890727 /* SwiftyRSA */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		1F899F1B2EF889F300890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F1A2EF889F300890727 /* SwiftyRSA */; };
-		1F899F1C2EF889F300890727 /* SwiftyRSA in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F1A2EF889F300890727 /* SwiftyRSA */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1F899F212EF9E5FF00890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F202EF9E5FF00890727 /* SwiftyRSA */; };
+		1F899F232EF9E60500890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F222EF9E60500890727 /* SwiftyRSA */; };
+		1F899F252EF9E60900890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F242EF9E60900890727 /* SwiftyRSA */; };
+		1F899F272EF9E60F00890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F262EF9E60F00890727 /* SwiftyRSA */; };
+		1F899F292EF9E61300890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F282EF9E61300890727 /* SwiftyRSA */; };
+		1F89A8442EFAC35D00890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F89A8432EFAC35D00890727 /* SwiftyRSA */; };
 		1F90EFC725FE4BE700F3FA55 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
 		1F96D76E2D93013C0088331F /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 1F96D76D2D93013C0088331F /* SwiftyXMLParser */; };
 		1FA93DA52D70FCC200DF6CDF /* TalkIntents.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -213,7 +209,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1F899F022EF8688D00890727 /* SwiftyRSA in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -224,7 +219,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1F899F152EF889E500890727 /* SwiftyRSA in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -235,7 +229,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1F899F082EF8698200890727 /* SwiftyRSA in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -246,7 +239,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1F899F182EF889EE00890727 /* SwiftyRSA in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -257,7 +249,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1F899F1C2EF889F300890727 /* SwiftyRSA in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1201,7 +1192,7 @@
 				1FA93DE92D71011800DF6CDF /* Realm in Frameworks */,
 				1FA93DE72D71011400DF6CDF /* NextcloudKit in Frameworks */,
 				1FA93DF12D71012900DF6CDF /* UICKeyChainStore in Frameworks */,
-				1F899F1B2EF889F300890727 /* SwiftyRSA in Frameworks */,
+				1F899F292EF9E61300890727 /* SwiftyRSA in Frameworks */,
 				1FA93DEB2D71011C00DF6CDF /* SDWebImage in Frameworks */,
 				1FA93DE52D71010F00DF6CDF /* CDMarkdownKit in Frameworks */,
 				1FA93DED2D71012000DF6CDF /* SDWebImageSVGKitPlugin in Frameworks */,
@@ -1228,7 +1219,7 @@
 				1FC4B32B2CC0564100D28138 /* UICKeyChainStore in Frameworks */,
 				1FF2FD5D2AB99CCB000C9905 /* ReplayKit.framework in Frameworks */,
 				1F77A5EF2AB9A41E007B6037 /* SDWebImage in Frameworks */,
-				1F899F172EF889EE00890727 /* SwiftyRSA in Frameworks */,
+				1F899F272EF9E60F00890727 /* SwiftyRSA in Frameworks */,
 				1FF1361A2BFBC841006A6101 /* SwiftyAttributes in Frameworks */,
 				847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */,
 				1F77A5F12AB9A423007B6037 /* SDWebImageSVGKitPlugin in Frameworks */,
@@ -1241,13 +1232,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CA1CCCA1F17C503002FE6A2 /* AudioToolbox.framework in Frameworks */,
+				1F899F212EF9E5FF00890727 /* SwiftyRSA in Frameworks */,
 				1FCE3D532C9B5918009C68A9 /* SwiftyGif in Frameworks */,
 				1F90EFC725FE4BE700F3FA55 /* IntentsUI.framework in Frameworks */,
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
 				1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */,
-				1F899EFF2EF866F500890727 /* SwiftyRSA in Frameworks */,
+				1F89A8442EFAC35D00890727 /* SwiftyRSA in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */,
@@ -1286,7 +1278,7 @@
 				1F35F8FD2AEEDCCB00044BDA /* AudioToolbox.framework in Frameworks */,
 				1F45A1252A01D8F7005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F35F8F52AEEDA9800044BDA /* SwiftyAttributes in Frameworks */,
-				1F899F142EF889E500890727 /* SwiftyRSA in Frameworks */,
+				1F899F252EF9E60900890727 /* SwiftyRSA in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1300,7 +1292,7 @@
 				1FC4B3272CC0562600D28138 /* UICKeyChainStore in Frameworks */,
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
 				1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */,
-				1F899F012EF8688D00890727 /* SwiftyRSA in Frameworks */,
+				1F899F232EF9E60500890727 /* SwiftyRSA in Frameworks */,
 				1FF1361C2BFBC86A006A6101 /* SwiftyAttributes in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 				1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */,
@@ -1580,7 +1572,7 @@
 				1FA93DEE2D71012500DF6CDF /* SwiftyAttributes */,
 				1FA93DF02D71012900DF6CDF /* UICKeyChainStore */,
 				1F96D76D2D93013C0088331F /* SwiftyXMLParser */,
-				1F899F1A2EF889F300890727 /* SwiftyRSA */,
+				1F899F282EF9E61300890727 /* SwiftyRSA */,
 			);
 			productName = TalkIntents;
 			productReference = 1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */;
@@ -1635,7 +1627,7 @@
 				1FF136192BFBC841006A6101 /* SwiftyAttributes */,
 				1FC4B32A2CC0564100D28138 /* UICKeyChainStore */,
 				2C349B852D71A15F004EC882 /* SwiftyXMLParser */,
-				1F899F162EF889EE00890727 /* SwiftyRSA */,
+				1F899F262EF9E60F00890727 /* SwiftyRSA */,
 			);
 			productName = BroadcastUploadExtension;
 			productReference = 1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */;
@@ -1706,7 +1698,8 @@
 				1FC4B3352CC0586A00D28138 /* libPhoneNumber */,
 				1F549B682D3A9AA500E9AA9E /* DebouncedOnChange */,
 				2C349B832D71A058004EC882 /* SwiftyXMLParser */,
-				1F899EFE2EF866F500890727 /* SwiftyRSA */,
+				1F899F202EF9E5FF00890727 /* SwiftyRSA */,
+				1F89A8432EFAC35D00890727 /* SwiftyRSA */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1747,7 +1740,7 @@
 				1FC4B3282CC0562E00D28138 /* UICKeyChainStore */,
 				1FC4B3302CC057B700D28138 /* MBProgressHUD */,
 				2C349B812D71A03B004EC882 /* SwiftyXMLParser */,
-				1F899F132EF889E500890727 /* SwiftyRSA */,
+				1F899F242EF9E60900890727 /* SwiftyRSA */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -1784,7 +1777,7 @@
 				1FF1361B2BFBC86A006A6101 /* SwiftyAttributes */,
 				1FC4B3262CC0562600D28138 /* UICKeyChainStore */,
 				2C349B7F2D71A030004EC882 /* SwiftyXMLParser */,
-				1F899F002EF8688D00890727 /* SwiftyRSA */,
+				1F899F222EF9E60500890727 /* SwiftyRSA */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -1901,7 +1894,7 @@
 				1FC4B3342CC0586A00D28138 /* XCRemoteSwiftPackageReference "libPhoneNumber-iOS" */,
 				1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */,
 				2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */,
-				1F899EFD2EF866F500890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */,
+				1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -3422,12 +3415,12 @@
 				version = 2.6.0;
 			};
 		};
-		1F899EFD2EF866F500890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */ = {
+		1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/TakeScoop/SwiftyRSA";
+			repositoryURL = "https://github.com/nextcloud-deps/SwiftyRSA";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.8.0;
+				kind = revision;
+				revision = 36f9963a83a602bd2ea57ff3ccf600d6284d91e4;
 			};
 		};
 		1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */ = {
@@ -3670,29 +3663,29 @@
 			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
 			productName = NextcloudKit;
 		};
-		1F899EFE2EF866F500890727 /* SwiftyRSA */ = {
+		1F899F202EF9E5FF00890727 /* SwiftyRSA */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F899EFD2EF866F500890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */;
 			productName = SwiftyRSA;
 		};
-		1F899F002EF8688D00890727 /* SwiftyRSA */ = {
+		1F899F222EF9E60500890727 /* SwiftyRSA */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F899EFD2EF866F500890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */;
 			productName = SwiftyRSA;
 		};
-		1F899F132EF889E500890727 /* SwiftyRSA */ = {
+		1F899F242EF9E60900890727 /* SwiftyRSA */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F899EFD2EF866F500890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */;
 			productName = SwiftyRSA;
 		};
-		1F899F162EF889EE00890727 /* SwiftyRSA */ = {
+		1F899F262EF9E60F00890727 /* SwiftyRSA */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F899EFD2EF866F500890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */;
 			productName = SwiftyRSA;
 		};
-		1F899F1A2EF889F300890727 /* SwiftyRSA */ = {
+		1F899F282EF9E61300890727 /* SwiftyRSA */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1F899EFD2EF866F500890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */;
+			productName = SwiftyRSA;
+		};
+		1F89A8432EFAC35D00890727 /* SwiftyRSA */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */;
 			productName = SwiftyRSA;
 		};
 		1F96D76D2D93013C0088331F /* SwiftyXMLParser */ = {
