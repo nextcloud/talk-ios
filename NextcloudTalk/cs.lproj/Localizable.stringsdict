@@ -48,6 +48,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@participantsincall@</string>
+        <key>participantsincall</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld účastník v tomto hovoru</string>
+            <key>few</key>
+            <string>%ld účastníci v tomto hovoru</string>
+            <key>many</key>
+            <string>%ld účastníků v tomto hovoru</string>
+            <key>other</key>
+            <string>%ld účastníci v tomto hovoru</string>
+        </dict>
     </dict>
 
     <key>%d minutes ago</key>
