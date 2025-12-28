@@ -43,19 +43,7 @@ import SwiftyAttributes
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         if #available(iOS 26.0, *) {
-            let effectView = UIVisualEffectView()
-            wrapperView.insertSubview(effectView, at: 0)
-
-            let glassEffect = UIGlassEffect(style: .regular)
-            effectView.effect = glassEffect
-            effectView.translatesAutoresizingMaskIntoConstraints = false
-
-            NSLayoutConstraint.activate([
-                effectView.leftAnchor.constraint(equalTo: wrapperView.leftAnchor),
-                effectView.rightAnchor.constraint(equalTo: wrapperView.rightAnchor),
-                effectView.topAnchor.constraint(equalTo: wrapperView.topAnchor),
-                effectView.bottomAnchor.constraint(equalTo: wrapperView.bottomAnchor)
-            ])
+            wrapperView.addGlassView()
 
             contentView.backgroundColor = .clear
             backgroundView.backgroundColor = .clear
