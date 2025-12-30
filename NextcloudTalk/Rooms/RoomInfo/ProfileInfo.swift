@@ -48,7 +48,7 @@ public struct ProfileInfo {
     }
 
     public func hasAnyInformation() -> Bool {
-        return role != nil || pronouns != nil || organisation != nil || address != nil
+        return role != nil || pronouns != nil || organisation != nil || address != nil || timezoneOffset != nil
     }
 
 }
