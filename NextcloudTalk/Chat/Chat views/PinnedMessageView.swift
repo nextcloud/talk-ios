@@ -171,6 +171,9 @@ protocol PinnedMessageViewDelegate: AnyObject {
 
         guard let font = subtitle.font else { return }
 
+        // Ensure the labels are correctly sized at this point
+        self.stackView.layoutSubviews()
+
         let singleLineHeight = ceil(font.lineHeight + font.leading)
         let maxViewHeight = singleLineHeight * maxNumberOfLines
         let maxTextSize = ceil(subtitle.sizeThatFits(CGSize(width: subtitle.frame.width, height: CGFloat.greatestFiniteMagnitude)).height)
