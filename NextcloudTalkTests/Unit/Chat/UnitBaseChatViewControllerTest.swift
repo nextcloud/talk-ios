@@ -222,12 +222,4 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 171.0)
     }
 
-    /*
-    func testCellWithMarkdownQuoteHeight() throws {
-        // Normal chat message
-        testMessage.message = "> 1234567890123456789012345678901"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 372), 96.0)
-    }
-     */
-
 }

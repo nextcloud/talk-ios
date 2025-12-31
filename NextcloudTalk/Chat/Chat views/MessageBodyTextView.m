@@ -41,6 +41,24 @@
     return self;
 }
 
+- (CGSize)intrinsicContentSize {
+    CGSize superSize = [super intrinsicContentSize];
+
+    // When a paragraphStyle with firstLineHeadIndent/headIndent is used, the
+    // intrinsicContentSize might not be accurate and the last word/character is wrapped,
+    // due to the size being too small. In that case usedRectForTextContainer reports
+    // a non-zero x value, we add to the width of the intrinsicContentSize
+    if (superSize.width < UINT16_MAX) {
+        CGRect usedRect = [self.layoutManager usedRectForTextContainer:self.textContainer];
+
+        if (usedRect.origin.x > 0) {
+            return CGSizeMake(superSize.width + usedRect.origin.x, superSize.height);
+        }
+    }
+
+    return superSize;
+}
+
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
 {
     return NO;
