@@ -5,12 +5,9 @@
 
 #import "CCCertificate.h"
 
-#import <openssl/x509.h>
-#import <openssl/bio.h>
-#import <openssl/err.h>
-#import <openssl/pem.h>
-
 #import "NCAppBranding.h"
+
+#import "NextcloudTalk-Swift.h"
 
 @implementation CCCertificate
 
@@ -79,45 +76,23 @@ static SecCertificateRef SecTrustGetLeafCertificate(SecTrustRef trust)
 - (void)saveCertificate:(SecTrustRef)trust withName:(NSString *)certName
 {
     SecCertificateRef currentServerCert = SecTrustGetLeafCertificate(trust);
-    
     CFDataRef data = SecCertificateCopyData(currentServerCert);
-    X509 *x509cert = NULL;
-    if (data) {
-        BIO *mem = BIO_new_mem_buf((void *)CFDataGetBytePtr(data), (int)CFDataGetLength(data));
-        x509cert = d2i_X509_bio(mem, NULL);
-        BIO_free(mem);
-        CFRelease(data);
-        
-        if (!x509cert) {
-            
-            NSLog(@"[LOG] OpenSSL couldn't parse X509 Certificate");
-            
-        } else {
-            
-            NSString *localCertificatesFolder = [self getDirectoryCerificates];
-            
-            certName = [NSString stringWithFormat:@"%@/%@",localCertificatesFolder,certName];
-            
-            if ([[NSFileManager defaultManager] fileExistsAtPath:certName]) {
-                NSError *error;
-                [[NSFileManager defaultManager] removeItemAtPath:certName error:&error];
-            }
-            
-            FILE *file;
-            file = fopen([certName UTF8String], "w");
-            if (file) {
-                PEM_write_X509(file, x509cert);
-            }
-            fclose(file);
-        }
-    
-    } else {
-        
-        NSLog(@"[LOG] Failed to retrieve DER data from Certificate Ref");
+
+    if (!data) {
+        return;
     }
-    
-    //Free
-    X509_free(x509cert);
+
+    NSData *nsData = (__bridge NSData *)(data);
+    NSString *base64Certificate = [nsData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength | NSDataBase64EncodingEndLineWithLineFeed];
+
+    if (!base64Certificate) {
+        return;
+    }
+
+    NSString *localCertificatesFolder = [self getDirectoryCerificates];
+    certName = [NSString stringWithFormat:@"%@/%@", localCertificatesFolder, certName];
+
+    [base64Certificate writeToFile:certName atomically:YES encoding:NSUTF8StringEncoding error:nil];
 }
 
 - (void)presentViewControllerCertificateWithTitle:(NSString *)title viewController:(UIViewController *)viewController delegate:(id)delegate
