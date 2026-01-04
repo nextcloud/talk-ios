@@ -2240,6 +2240,9 @@
 /* No comment provided by engineer. */
 "Translation failed" = "Translation failed";
 
+/* Waiting message when trying to login with QR code */
+"Trying to login…" = "Trying to login…";
+
 /* No comment provided by engineer. */
 "TURN servers" = "TURN servers";
 
