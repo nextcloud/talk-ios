@@ -333,10 +333,9 @@
 
 - (void)presentConversationsList
 {
-    [_mainViewController dismissViewControllerAnimated:YES completion:nil];
-
-    [_mainViewController popSecondaryColumnToRootViewController];
-    [_mainViewController showColumn:UISplitViewControllerColumnPrimary];
+    [_mainViewController dismissViewControllerAnimated:YES completion:^{
+        [self popToConversationsList];
+    }];
 }
 
 - (void)popToConversationsList
@@ -347,9 +346,13 @@
 
 - (void)presentChatViewController:(ChatViewController *)chatViewController
 {
-    [self presentConversationsList];
-    [_mainViewController showDetailViewController:chatViewController sender:self];
-    [_roomsTableViewController setSelectedRoomToken:chatViewController.room.token];
+    // Present conversation list first (see presentConversationsList)
+    [_mainViewController dismissViewControllerAnimated:YES completion:^{
+        [self popToConversationsList];
+
+        [self->_mainViewController showDetailViewController:chatViewController sender:self];
+        [self->_roomsTableViewController setSelectedRoomToken:chatViewController.room.token];
+    }];
 }
 
 - (void)presentCallViewController:(CallViewController *)callViewController withCompletionBlock:(PresentCallControllerCompletionBlock)block
