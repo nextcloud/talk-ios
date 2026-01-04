@@ -24,4 +24,12 @@ extension NCAppBranding {
         return NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
     }
 
+    @objc
+    static func userAgentForLogin() -> String {
+        let appDisplayName = Bundle.main.infoDictionary?["CFBundleDisplayName"] ?? "Unknown app"
+        let deviceName = UIDevice.current.name
+
+        return "\(deviceName) (\(appDisplayName)"
+    }
+
 }

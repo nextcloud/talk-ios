@@ -1352,12 +1352,12 @@ import NextcloudKit
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
-        
+
         let apiVersion = self.chatAPIVersion(for: account)
         let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin/self", withAPIVersion: apiVersion, for: account)
-        
+
         let ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
-        
+
         return NCChatMessage(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
     }
 
@@ -1373,6 +1373,7 @@ import NextcloudKit
         let configuration = URLSessionConfiguration.default
         let apiSessionManager = NCAPISessionManager(configuration: configuration)
         apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        apiSessionManager.requestSerializer.setValue(NCAppBranding.userAgentForLogin(), forHTTPHeaderField: "User-Agent")
 
         _ = apiSessionManager.get(appPasswordRoute, parameters: nil, progress: nil) { _, result in
             if let resultDict = result as? [String: AnyObject],
