@@ -746,6 +746,7 @@
 			membershipExceptions = (
 				CurrentUserAbsence.swift,
 				NCAppBranding.m,
+				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCUserDefaults.m,
 				NCUtils.swift,
@@ -758,6 +759,7 @@
 			membershipExceptions = (
 				CurrentUserAbsence.swift,
 				NCAppBranding.m,
+				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCUserDefaults.m,
 				NCUserStatus.m,
@@ -771,6 +773,7 @@
 			membershipExceptions = (
 				CurrentUserAbsence.swift,
 				NCAppBranding.m,
+				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCUserStatus.m,
 				NCUtils.swift,
@@ -783,6 +786,7 @@
 			membershipExceptions = (
 				CurrentUserAbsence.swift,
 				NCAppBranding.m,
+				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCUserDefaults.m,
 				NCUserStatus.m,

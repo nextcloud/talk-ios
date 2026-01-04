@@ -155,9 +155,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     [SDImageCache sharedImageCache].config.shouldRemoveExpiredDataWhenTerminate = NO;
     [SDImageCache sharedImageCache].config.shouldRemoveExpiredDataWhenEnterBackground = NO;
 
-    NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
-                  [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-    [[SDWebImageDownloader sharedDownloader] setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+    [[SDWebImageDownloader sharedDownloader] setValue:[NCAppBranding userAgent] forHTTPHeaderField:@"User-Agent"];
 }
 
 - (NSString *)authHeaderForAccount:(TalkAccount *)account
