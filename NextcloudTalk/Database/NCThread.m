@@ -111,6 +111,7 @@
 
 + (void)storeOrUpdateThreads:(NSArray *)threads
 {
+    BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"storeOrUpdateThreadsx" expirationHandler:nil];
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
         for (NCThread *thread in threads) {
@@ -122,6 +123,7 @@
             }
         }
     }];
+    [bgTask stopBackgroundTask];
 }
 
 - (NCChatMessage *)firstMessage
