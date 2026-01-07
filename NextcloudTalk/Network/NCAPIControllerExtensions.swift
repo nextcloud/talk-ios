@@ -1389,4 +1389,82 @@ import NextcloudKit
             completionBlock(nil)
         }
     }
+
+    // MARK: - Message scheduling
+
+    @MainActor
+    @nonobjc
+    public func getScheduledMessages(forRoom token: String, forAccount account: TalkAccount) async throws -> [ScheduledMessage] {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, for: account)
+
+        let ocsResponse = try await apiSessionManager.getOcs(urlString, account: account)
+
+        guard let dataArrayDict = ocsResponse.dataArrayDict else { throw ApiControllerError.unexpectedOcsResponse }
+
+        return dataArrayDict.compactMap { ScheduledMessage(dictionary: $0, withAccount: account) }
+    }
+
+    @MainActor
+    @discardableResult
+    @nonobjc
+    public func scheduleMessage(_ message: String, inRoom token: String, sendAt: Int, replyTo: Int? = nil, silent: Bool? = nil, threadTitle: String? = nil, threadId: Int? = nil, forAccount account: TalkAccount) async throws -> ScheduledMessage? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: Any?] = [
+            "message": message,
+            "sendAt": sendAt,
+            "replyTo": replyTo,
+            "silent": silent,
+            "threadTitle": threadTitle,
+            "threadId": threadId
+        ]
+
+        let result = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters.compactMapValues { $0 })
+        return ScheduledMessage(dictionary: result.dataDict, withAccount: account)
+    }
+
+    @MainActor
+    @nonobjc
+    public func editScheduledMessage(_ messageId: String, withMessage message: String, inRoom token: String, sendAt: Int, silent: Bool? = nil, threadTitle: String? = nil, forAccount account: TalkAccount) async throws -> ScheduledMessage {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, for: account)
+
+        let parameters: [String: Any?] = [
+            "message": message,
+            "sendAt": sendAt,
+            "silent": silent,
+            "threadTitle": threadTitle
+        ]
+
+        let result = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters.compactMapValues { $0 })
+        guard let updatedMessage = ScheduledMessage(dictionary: result.dataDict, withAccount: account) else { throw ApiControllerError.unexpectedOcsResponse }
+
+        return updatedMessage
+    }
+
+    @MainActor
+    public func deleteScheduledMessage(_ messageId: String, inRoom token: String, forAccount account: TalkAccount) async throws {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, for: account)
+
+        try await apiSessionManager.deleteOcs(urlString, account: account)
+    }
 }
