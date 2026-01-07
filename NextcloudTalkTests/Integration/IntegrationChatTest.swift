@@ -45,4 +45,48 @@ final class IntegrationChatTest: TestBase {
         XCTAssertEqual(try XCTUnwrap(updatedRoom).lastPinnedId, 0)
     }
 
+    func testScheduleMessages() async throws {
+        try skipWithoutCapability(capability: kCapabilityScheduleMessages)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let chatMessage = "Scheduled Message 😀😆"
+        let chatMessageEdited = "Scheduled Message 😀😆 Edited"
+
+        let room = try await createUniqueRoom(prefix: "Schedule message room", withAccount: activeAccount)
+
+        // Ensure no message was scheduled in hte room
+        var scheduledMessages = try await NCAPIController.sharedInstance().getScheduledMessages(forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(scheduledMessages.count, 0)
+
+        // Schedule our first message
+        let timestamp = Int(Date().timeIntervalSince1970 + 300)
+        var message = try await NCAPIController.sharedInstance().scheduleMessage(chatMessage, inRoom: room.token, sendAt: timestamp, forAccount: activeAccount)
+        XCTAssertNotNil(message)
+
+        // Check if we can retrieve the scheduled message
+        scheduledMessages = try await NCAPIController.sharedInstance().getScheduledMessages(forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(scheduledMessages.count, 1)
+        let firstMessage = scheduledMessages.first!
+        XCTAssertEqual(firstMessage.message, chatMessage)
+        XCTAssertEqual(firstMessage.sendAtTimestamp, timestamp)
+        XCTAssertEqual(firstMessage.id, message?.id)
+
+        // Edit the scheduled message
+        XCTAssertNotNil(firstMessage.id)
+        message = try await NCAPIController.sharedInstance().editScheduledMessage(firstMessage.id, withMessage: chatMessageEdited, inRoom: room.token, sendAt: timestamp, forAccount: activeAccount)
+
+        // Check if we can retrieve the edited scheduled message
+        scheduledMessages = try await NCAPIController.sharedInstance().getScheduledMessages(forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(scheduledMessages.count, 1)
+        XCTAssertEqual(scheduledMessages.first?.message, chatMessageEdited)
+        XCTAssertEqual(scheduledMessages.first?.id, message?.id)
+
+        // Delete the scheduled message
+        try await NCAPIController.sharedInstance().deleteScheduledMessage(firstMessage.id, inRoom: room.token, forAccount: activeAccount)
+
+        // No scheduled messages should be there anymore
+        scheduledMessages = try await NCAPIController.sharedInstance().getScheduledMessages(forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(scheduledMessages.count, 0)
+    }
+
 }
