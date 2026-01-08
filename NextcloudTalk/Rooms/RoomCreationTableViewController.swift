@@ -456,7 +456,7 @@ enum RoomVisibilityOption: Int {
 
                 let participantType = participant.source as String
                 let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-                participantCell.contactImage.setActorAvatar(forId: participant.userId, withType: participantType, withDisplayName: participant.name, withRoomToken: nil, using: activeAccount)
+                participantCell.avatarView.setActorAvatar(forId: participant.userId, withType: participantType, withDisplayName: participant.name, withRoomToken: nil, using: activeAccount)
 
                 return participantCell
             }

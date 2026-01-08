@@ -7,7 +7,7 @@
 
 #import "NCRoom.h"
 
-@class AvatarImageView;
+@class AvatarView;
 @class NCChatTitleView;
 @class NCThread;
 
@@ -21,11 +21,9 @@
 
 @property (nonatomic, weak) id<NCChatTitleViewDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UITextView *titleTextView;
-@property (weak, nonatomic) IBOutlet AvatarImageView *avatarimage;
-@property (weak, nonatomic) IBOutlet UIImageView *userStatusImage;
+@property (weak, nonatomic) IBOutlet AvatarView *avatarView;
 @property (assign, nonatomic) BOOL showSubtitle;
 @property (strong, nonatomic) UIColor *titleTextColor;
-@property (strong, nonatomic) UIColor *userStatusBackgroundColor;
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizer;
 
 - (void)updateForRoom:(NCRoom *)room;

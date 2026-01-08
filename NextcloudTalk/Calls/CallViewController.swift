@@ -269,10 +269,6 @@ class CallViewController: UIViewController,
         self.titleView.titleTextColor = .white
         self.titleView.update(for: room)
 
-        // The titleView uses the themeColor as a background for the userStatusImage
-        // As we always have a black background, we need to change that
-        self.titleView.userStatusBackgroundColor = .black
-
         self.titleView.delegate = self
         self.collectionView.delegate = self
         self.applyInitialSnapshot()

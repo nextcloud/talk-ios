@@ -20,7 +20,7 @@ struct AvatarImageViewWrapper: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: AvatarImageView, context: Context) {
-        uiView.cancelCurrentRequest()
+        uiView.prepareForReuse()
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         uiView.setActorAvatar(forId: actorId, withType: actorType, withDisplayName: nil, withRoomToken: nil, using: activeAccount)
@@ -31,8 +31,11 @@ struct AvatarImageViewWrapper: UIViewRepresentable {
 
     private var currentRequest: SDWebImageCombinedOperation?
 
-    public func cancelCurrentRequest() {
+    public func prepareForReuse() {
         self.currentRequest?.cancel()
+
+        self.image = nil
+        self.layer.mask = nil
     }
 
     // MARK: - Init
@@ -54,7 +57,7 @@ struct AvatarImageViewWrapper: UIViewRepresentable {
     // MARK: - Conversation avatars
 
     public func setAvatar(for room: NCRoom) {
-        self.cancelCurrentRequest()
+        self.currentRequest?.cancel()
 
         self.currentRequest = AvatarManager.shared.getAvatar(for: room, with: self.traitCollection.userInterfaceStyle) { image in
             guard let image = image else {
@@ -92,7 +95,7 @@ struct AvatarImageViewWrapper: UIViewRepresentable {
     }
 
     public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, using account: TalkAccount) {
-        self.cancelCurrentRequest()
+        self.currentRequest?.cancel()
 
         self.currentRequest = AvatarManager.shared.getActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, withStyle: self.traitCollection.userInterfaceStyle, usingAccount: account) { image in
             guard let image = image else {
