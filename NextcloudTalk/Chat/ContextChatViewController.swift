@@ -10,10 +10,6 @@ import Foundation
     override func setTitleView() {
         super.setTitleView()
 
-        if thread != nil {
-            self.titleView?.update(for: thread)
-        }
-
         self.titleView?.longPressGestureRecognizer.isEnabled = false
     }
 
