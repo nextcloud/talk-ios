@@ -22,6 +22,10 @@ import UIKit
     internal var contentView: UIView?
     internal var selectedAutocompletionRow: IndexPath?
 
+    public var isThreadViewController: Bool {
+        return thread != nil
+    }
+
     public init?(forRoom room: NCRoom, withAccount account: TalkAccount, tableViewStyle style: UITableView.Style) {
         self.room = room
         self.account = account
@@ -233,7 +237,13 @@ import UIKit
             titleView.showSubtitle = false
         }
 
-        titleView.update(for: self.room)
+        if isThreadViewController {
+            titleView.update(for: thread)
+            titleView.longPressGestureRecognizer.isEnabled = false
+        } else {
+            titleView.update(for: self.room)
+        }
+
         self.titleView = titleView
         self.navigationItem.titleView = titleView
     }
