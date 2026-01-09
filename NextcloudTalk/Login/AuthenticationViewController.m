@@ -65,10 +65,7 @@ NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flo
         [request setValue:@"true" forHTTPHeaderField:@"OCS-APIRequest"];
 
         self->_webView = [[DebounceWebView alloc] initWithFrame:self.view.frame configuration:configuration];
-        NSString *appDisplayName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-        NSString *deviceName = [[UIDevice currentDevice] name];
-        NSString *userAgent = [NSString stringWithFormat:@"%@ (%@)", deviceName, appDisplayName];
-        self->_webView.customUserAgent = [[NSString alloc] initWithCString:[userAgent UTF8String] encoding:NSASCIIStringEncoding];
+        self->_webView.customUserAgent = [NCAppBranding userAgentForLogin];
         self->_webView.navigationDelegate = self;
         self->_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 

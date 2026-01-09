@@ -24,4 +24,17 @@ extension NCAppBranding {
         return NCAppBranding.getDynamicColor(lightColor, withDarkMode: darkColor)
     }
 
+    @objc
+    static func userAgent() -> String {
+        return "Mozilla/5.0 (iOS) Nextcloud-Talk v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")"
+    }
+
+    @objc
+    static func userAgentForLogin() -> String {
+        let appDisplayName = Bundle.main.infoDictionary?["CFBundleDisplayName"] ?? "Unknown app"
+        let deviceName = UIDevice.current.name
+
+        return "\(deviceName) (\(appDisplayName)"
+    }
+
 }
