@@ -130,6 +130,43 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
+    func testMessageQuoting() {
+        let app = launchAndLogin()
+        let newConversationName = "QuoteTest"
+
+        // Create a new test conversion
+        self.createConversation(for: app, with: newConversationName)
+
+        // Send a test message
+        let testMessage = "TestMessage"
+        let replyMessage = "ReplyMessage"
+
+        let toolbar = app.toolbars["Toolbar"]
+        let textView = toolbar.textViews["Write message, @ to mention someone …"]
+        XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
+        textView.tap()
+        app.typeText(testMessage)
+        let sendMessageButton = toolbar.buttons["Send message"]
+        sendMessageButton.tap()
+
+        // Wait for temporary message to be replaced
+        let messageSentImage = app.images["MessageSent"]
+        XCTAssert(messageSentImage.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        // Open context menu
+        messageSentImage.press(forDuration: 2.0)
+
+        // Start a reply
+        XCTAssert(messageSentImage.waitForExistence(timeout: TestConstants.timeoutShort))
+        waitForReady(object: app.buttons["Reply"]).tap()
+
+        // Send message and check if temporary message is replaced
+        textView.tap()
+        app.typeText(replyMessage)
+        sendMessageButton.tap()
+        XCTAssert(app.otherElements["MessageSending"].waitForNonExistence(timeout: TestConstants.timeoutShort))
+    }
+
     func testChatViewControllerMentions() {
         let app = launchAndLogin()
         let newConversationName = "MentionTest 🇨🇨"
