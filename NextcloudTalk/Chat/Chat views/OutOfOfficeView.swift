@@ -4,86 +4,12 @@
 //
 
 import Foundation
-import Combine
 import SwiftyAttributes
 
-@objcMembers class OutOfOfficeView: UIView, UIGestureRecognizerDelegate {
 
-    @IBOutlet var contentView: UIView!
-    @IBOutlet weak var leftIndicator: UIView!
-    @IBOutlet weak var backgroundView: UIView!
-    @IBOutlet weak var wrapperView: UIView!
-    @IBOutlet weak var stackView: UIStackView!
-
-    @IBOutlet weak var title: UILabel!
-    @IBOutlet weak var dates: UILabel!
-    @IBOutlet weak var replacement: UILabel!
-    @IBOutlet weak var subtitle: UITextView!
-
-    @IBOutlet weak var uiMenuButton: UIButton!
-
-    private var tapToShowMenu: UITapGestureRecognizer?
-
-    public var maxNumberOfLines: CGFloat = 3
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        commonInit()
-    }
-
-    func commonInit() {
-        Bundle.main.loadNibNamed("OutOfOfficeView", owner: self, options: nil)
-        addSubview(contentView)
-        contentView.frame = frame
-        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-
-        if #available(iOS 26.0, *) {
-            wrapperView.addGlassView()
-
-            contentView.backgroundColor = .clear
-            backgroundView.backgroundColor = .clear
-            wrapperView.backgroundColor = .clear
-        } else {
-            contentView.backgroundColor = .systemBackground
-            backgroundView.backgroundColor = NCAppBranding.elementColorBackground()
-            wrapperView.backgroundColor = .systemBackground
-        }
-
-        leftIndicator.backgroundColor = NCAppBranding.elementColor()
-        wrapperView.layer.cornerRadius = 8
-        wrapperView.layer.masksToBounds = true
-
-        subtitle.textContainerInset = .zero
-        subtitle.textContainer.lineFragmentPadding = 0
-
-        uiMenuButton.showsMenuAsPrimaryAction = true
-
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.tapTextView))
-        self.tapToShowMenu = tapGestureRecognizer
-        tapGestureRecognizer.delegate = self
-        tapGestureRecognizer.require(toFail: subtitle.panGestureRecognizer)
-
-        subtitle.addGestureRecognizer(tapGestureRecognizer)
-        stackView.addGestureRecognizer(tapGestureRecognizer)
-        wrapperView.addGestureRecognizer(tapGestureRecognizer)
-    }
-
-    func tapTextView() {
-        let gestureRecognizer = self.uiMenuButton.gestureRecognizers?.first(where: { $0.description.contains("UITouchDownGestureRecognizer") })
-        gestureRecognizer?.touchesBegan([], with: UIEvent())
-    }
-
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
+@objcMembers class OutOfOfficeView: ChatOverlayView {
 
     public func setupAbsence(withData absenceData: CurrentUserAbsence, inRoom room: NCRoom) {
-        translatesAutoresizingMaskIntoConstraints = false
         title.text = String.localizedStringWithFormat(NSLocalizedString("%@ is out of office", comment: "'%@' is the name of a user"), room.displayName)
 
         let dismissAction = UIAction(title: NSLocalizedString("Hide", comment: ""), image: UIImage(systemName: "eye.slash")) { [unowned self] _ in
@@ -99,7 +25,7 @@ import SwiftyAttributes
             let isSameDay = Calendar.current.isDate(startDate, inSameDayAs: endDate)
             if isSameDay {
                 title.text = String.localizedStringWithFormat(NSLocalizedString("%@ is out of office today", comment: "'%@' is the name of a user"), room.displayName)
-                dates.isHidden = true
+                subtitle.isHidden = true
             } else {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateStyle = .medium
@@ -109,10 +35,10 @@ import SwiftyAttributes
                 let startDateString = dateFormatter.string(from: startDate)
                 let endDateString = dateFormatter.string(from: endDate)
 
-                dates.text = "\(startDateString) - \(endDateString)"
+                subtitle.text = "\(startDateString) - \(endDateString)"
             }
         } else {
-            dates.isHidden = true
+            subtitle.isHidden = true
         }
 
         if let replacementUserId = absenceData.replacementUserId, let replacementUserDisplayname = absenceData.replacementUserDisplayName,
@@ -122,7 +48,7 @@ import SwiftyAttributes
             let separatorString = ": ".withFont(.preferredFont(forTextStyle: .body))
             let usernameString = replacementUserDisplayname.withFont(.preferredFont(for: .body, weight: .bold))
 
-            replacement.attributedText = replacementString + separatorString + usernameString
+            secondarySubtitle.attributedText = replacementString + separatorString + usernameString
 
             if let account = room.account, replacementUserId != account.userId, replacementUserId != absenceData.userId {
                 let talkIcon = UIImage(named: "talk-20")?.withRenderingMode(.alwaysTemplate)
@@ -131,36 +57,16 @@ import SwiftyAttributes
                 })
             }
         } else {
-            replacement.isHidden = true
+            secondarySubtitle.isHidden = true
         }
 
         if let longNote = absenceData.message {
-            subtitle.text = longNote
+            textView.text = longNote
         } else {
-            subtitle.isHidden = true
+            textView.isHidden = true
         }
 
         uiMenuButton.menu = UIMenu(children: menuActions)
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        guard let font = subtitle.font else { return }
-
-        let singleLineHeight = ceil(font.lineHeight + font.leading)
-        let maxViewHeight = singleLineHeight * maxNumberOfLines
-        let maxTextSize = ceil(subtitle.sizeThatFits(CGSize(width: subtitle.frame.width, height: CGFloat.greatestFiniteMagnitude)).height)
-
-        if maxTextSize > maxViewHeight {
-            subtitle.isScrollEnabled = true
-
-            // We want to indicate that the text is scrollable, so show parts of the next line
-            let newHeightConstant = maxViewHeight + (singleLineHeight / 2)
-            subtitle.heightAnchor.constraint(equalToConstant: newHeightConstant).isActive = true
-        } else {
-            subtitle.isScrollEnabled = false
-            subtitle.heightAnchor.constraint(equalToConstant: maxViewHeight).isActive = false
-        }
-    }
 }

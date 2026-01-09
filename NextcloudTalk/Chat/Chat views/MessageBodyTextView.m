@@ -28,6 +28,13 @@
         return nil;
     }
 
+    [self commonInit];
+
+    return self;
+}
+
+- (void)commonInit
+{
     self.dataDetectorTypes = UIDataDetectorTypeAll;
     self.textContainer.lineFragmentPadding = 0;
     self.textContainerInset = UIEdgeInsetsZero;
@@ -38,7 +45,13 @@
     self.editable = NO;
     self.scrollEnabled = NO;
     self.delegate = self;
-    return self;
+}
+
+- (void)awakeFromNib
+{
+    // Note: Init from storyboard my still be TextKit2, since there's no custom layout manager
+    [super awakeFromNib];
+    [self commonInit];
 }
 
 - (CGSize)intrinsicContentSize {

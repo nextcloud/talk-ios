@@ -4,91 +4,17 @@
 //
 
 import Foundation
-import Combine
 import SwiftyAttributes
 
 protocol PinnedMessageViewDelegate: AnyObject {
     func wantsToScroll(to message: NCChatMessage)
 }
 
-@objcMembers class PinnedMessageView: UIView, UIGestureRecognizerDelegate {
+@objcMembers class PinnedMessageView: ChatOverlayView {
 
     public weak var delegate: PinnedMessageViewDelegate?
 
-    @IBOutlet var contentView: UIView!
-    @IBOutlet weak var leftIndicator: UIView!
-    @IBOutlet weak var backgroundView: UIView!
-    @IBOutlet weak var wrapperView: UIView!
-    @IBOutlet weak var stackView: UIStackView!
-
-    @IBOutlet weak var title: UILabel!
-    @IBOutlet weak var subtitle: UITextView!
-
-    @IBOutlet weak var uiMenuButton: UIButton!
-
-    private var tapToShowMenu: UITapGestureRecognizer?
-
     public var message: NCChatMessage?
-    public var maxNumberOfLines: CGFloat = 3
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        commonInit()
-    }
-
-    func commonInit() {
-        Bundle.main.loadNibNamed("PinnedMessageView", owner: self, options: nil)
-        translatesAutoresizingMaskIntoConstraints = false
-
-        addSubview(contentView)
-        contentView.frame = frame
-        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-
-        if #available(iOS 26.0, *) {
-            wrapperView.addGlassView()
-
-            contentView.backgroundColor = .clear
-            backgroundView.backgroundColor = .clear
-            wrapperView.backgroundColor = .clear
-        } else {
-            contentView.backgroundColor = .systemBackground
-            backgroundView.backgroundColor = NCAppBranding.elementColorBackground()
-            wrapperView.backgroundColor = .systemBackground
-        }
-
-        leftIndicator.backgroundColor = NCAppBranding.elementColor()
-
-        wrapperView.layer.cornerRadius = 8
-        wrapperView.layer.masksToBounds = true
-
-        subtitle.textContainerInset = .zero
-        subtitle.textContainer.lineFragmentPadding = 0
-
-        uiMenuButton.showsMenuAsPrimaryAction = true
-
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.tapTextView))
-        self.tapToShowMenu = tapGestureRecognizer
-        tapGestureRecognizer.delegate = self
-        tapGestureRecognizer.require(toFail: subtitle.panGestureRecognizer)
-
-        subtitle.addGestureRecognizer(tapGestureRecognizer)
-        stackView.addGestureRecognizer(tapGestureRecognizer)
-        wrapperView.addGestureRecognizer(tapGestureRecognizer)
-    }
-
-    func tapTextView() {
-        let gestureRecognizer = self.uiMenuButton.gestureRecognizers?.first(where: { $0.description.contains("UITouchDownGestureRecognizer") })
-        gestureRecognizer?.touchesBegan([], with: UIEvent())
-    }
-
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
 
     public func setupPinnedMessage(withMessage message: NCChatMessage, inRoom room: NCRoom) {
         guard let account = room.account else { return }
@@ -109,7 +35,9 @@ protocol PinnedMessageViewDelegate: AnyObject {
         }
 
         self.title.attributedText = titleLabel
-        self.subtitle.attributedText = message.messageForLastMessagePreview()
+        self.textView.attributedText = message.messageForLastMessagePreview()
+        self.subtitle.isHidden = true
+        self.secondarySubtitle.isHidden = true
 
         var pinnedInfoText: String
 
@@ -153,24 +81,4 @@ protocol PinnedMessageViewDelegate: AnyObject {
         uiMenuButton.menu = UIMenu(children: menuActions)
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        guard let font = subtitle.font else { return }
-
-        let singleLineHeight = ceil(font.lineHeight + font.leading)
-        let maxViewHeight = singleLineHeight * maxNumberOfLines
-        let maxTextSize = ceil(subtitle.sizeThatFits(CGSize(width: subtitle.frame.width, height: CGFloat.greatestFiniteMagnitude)).height)
-
-        if maxTextSize > maxViewHeight {
-            subtitle.isScrollEnabled = true
-
-            // We want to indicate that the text is scrollable, so show parts of the next line
-            let newHeightConstant = maxViewHeight + (singleLineHeight / 2)
-            subtitle.heightAnchor.constraint(equalToConstant: newHeightConstant).isActive = true
-        } else {
-            subtitle.isScrollEnabled = false
-            subtitle.heightAnchor.constraint(equalToConstant: maxViewHeight).isActive = false
-        }
-    }
 }
