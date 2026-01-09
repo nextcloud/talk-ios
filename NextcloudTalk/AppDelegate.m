@@ -24,7 +24,6 @@
 #import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
-#import "NCPushNotificationsUtils.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
@@ -344,16 +343,19 @@
 {
     // Called when a background notification is delivered.
     NSString *message = [userInfo objectForKey:@"subject"];
-    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
-        if (message && pushNotificationPrivateKey) {
-            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
-            if (decryptedMessage) {
-                NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
-                [[NCNotificationController sharedInstance] processBackgroundPushNotification:pushNotification];
+    NSString *signature = [userInfo objectForKey:@"signature"];
 
-                break;
-            }
+    if (!message || !signature) {
+        return;
+    }
+
+    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
+        NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotificationWithMessageBase64:message withSignatureBase64:signature forAccount:account];
+        if (decryptedMessage) {
+            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
+            [[NCNotificationController sharedInstance] processBackgroundPushNotification:pushNotification];
+
+            break;
         }
     }
 
@@ -382,25 +384,23 @@
     [NCUtils log:@"Received PushKit notification"];
 
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
-    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:account.accountId];
+    NSString *signature = [payload.dictionaryPayload objectForKey:@"signature"];
 
-        if (!message || !pushNotificationPrivateKey) {
-            continue;
-        }
+    if (message && signature) {
+        for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
+            NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotificationWithMessageBase64:message withSignatureBase64:signature forAccount:account];
 
-        NSString *decryptedMessage = [NCPushNotificationsUtils decryptPushNotification:message withDevicePrivateKey:pushNotificationPrivateKey];
+            if (!decryptedMessage) {
+                continue;
+            }
 
-        if (!decryptedMessage) {
-            continue;
-        }
+            NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
 
-        NCPushNotification *pushNotification = [NCPushNotification pushNotificationFromDecryptedString:decryptedMessage withAccountId:account.accountId];
-
-        if ( pushNotification && pushNotification.type == NCPushNotificationTypeCall) {
-            [[NCNotificationController sharedInstance] showIncomingCallForPushNotification:pushNotification];
-            completion();
-            return;
+            if (pushNotification && pushNotification.type == NCPushNotificationTypeCall) {
+                [[NCNotificationController sharedInstance] showIncomingCallForPushNotification:pushNotification];
+                completion();
+                return;
+            }
         }
     }
 

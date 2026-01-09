@@ -7,13 +7,6 @@
 
 @import NextcloudKit;
 
-#import <openssl/rsa.h>
-#import <openssl/pem.h>
-#import <openssl/bio.h>
-#import <openssl/bn.h>
-#import <openssl/sha.h>
-#import <openssl/err.h>
-
 #import "JDStatusBarNotification.h"
 
 #import "NCAPIController.h"
@@ -29,18 +22,6 @@
 #import "NextcloudTalk-Swift.h"
 
 NSString * const NCSettingsControllerDidChangeActiveAccountNotification = @"NCSettingsControllerDidChangeActiveAccountNotification";
-
-@interface NCPushNotificationKeyPair : NSObject
-
-@property (nonatomic, copy) NSData *publicKey;
-@property (nonatomic, copy) NSData *privateKey;
-
-@end
-
-@implementation NCPushNotificationKeyPair
-
-@end
-
 
 @implementation NCSettingsController
 
@@ -740,13 +721,11 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     NSData *pushNotificationPrivateKey = [[NCKeyChainController sharedInstance] pushNotificationPrivateKeyForAccountId:accountId];
     
     if (pushNotificationPublicKey && pushNotificationPrivateKey) {
-        keyPair = [[NCPushNotificationKeyPair alloc] init];
-        keyPair.publicKey = pushNotificationPublicKey;
-        keyPair.privateKey = pushNotificationPrivateKey;
+        keyPair = [[NCPushNotificationKeyPair alloc] initWithPrivateKey:pushNotificationPrivateKey publicKey:pushNotificationPublicKey];
     } else {
-        keyPair = [self generatePushNotificationsKeyPairForAccountId:accountId];
+        keyPair = [NCPushNotificationsUtils generatePushNotificationKeyPair];
     }
-    
+
     if (!keyPair) {
         [NCUtils log:@"Error while subscribing: Unable to generate push notifications key pair."];
 
@@ -845,79 +824,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         block(YES);
     }
 #endif
-}
-
-- (NCPushNotificationKeyPair *)generatePushNotificationsKeyPairForAccountId:(NSString *)accountId
-{
-    EVP_PKEY *pkey = [self generateRSAKey];
-    if (!pkey) {
-        return nil;
-    }
-    
-    // Extract publicKey, privateKey
-    int len;
-    char *keyBytes;
-    
-    // PublicKey
-    BIO *publicKeyBIO = BIO_new(BIO_s_mem());
-    PEM_write_bio_PUBKEY(publicKeyBIO, pkey);
-    
-    len = BIO_pending(publicKeyBIO);
-    keyBytes  = malloc(len);
-    
-    BIO_read(publicKeyBIO, keyBytes, len);
-    NSData *pnPublicKey = [NSData dataWithBytes:keyBytes length:len];
-    NSLog(@"Push Notifications Key Pair generated: \n%@", [[NSString alloc] initWithData:pnPublicKey encoding:NSUTF8StringEncoding]);
-    
-    // PrivateKey
-    BIO *privateKeyBIO = BIO_new(BIO_s_mem());
-    PEM_write_bio_PKCS8PrivateKey(privateKeyBIO, pkey, NULL, NULL, 0, NULL, NULL);
-    
-    len = BIO_pending(privateKeyBIO);
-    keyBytes = malloc(len);
-    
-    BIO_read(privateKeyBIO, keyBytes, len);
-    NSData *pnPrivateKey = [NSData dataWithBytes:keyBytes length:len];
-    EVP_PKEY_free(pkey);
-    
-    NCPushNotificationKeyPair *keyPair = [[NCPushNotificationKeyPair alloc] init];
-    keyPair.publicKey = pnPublicKey;
-    keyPair.privateKey = pnPrivateKey;
-    
-    return keyPair;
-}
-
-- (EVP_PKEY *)generateRSAKey
-{
-    EVP_PKEY *pkey = EVP_PKEY_new();
-    if (!pkey) {
-        return NULL;
-    }
-    
-    BIGNUM *bigNumber = BN_new();
-    int exponent = RSA_F4;
-    RSA *rsa = RSA_new();
-    
-    if (BN_set_word(bigNumber, exponent) == 0) {
-        pkey = NULL;
-        goto cleanup;
-    }
-    
-    if (RSA_generate_key_ex(rsa, 2048, bigNumber, NULL) == 0) {
-        pkey = NULL;
-        goto cleanup;
-    }
-    
-    if (!EVP_PKEY_set1_RSA(pkey, rsa)) {
-        pkey = NULL;
-        goto cleanup;
-    }
-    
-cleanup:
-    RSA_free(rsa);
-    BN_free(bigNumber);
-    
-    return pkey;
 }
 
 @end
