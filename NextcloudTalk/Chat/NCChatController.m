@@ -175,7 +175,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
 
 - (NSArray *)getNewStoredMessagesInBlock:(NCChatBlock *)chatBlock sinceMessageId:(NSInteger)messageId
 {
-    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId > %ld AND messageId <= %ld", _account.accountId, _room.token, (long)messageId, (long)chatBlock.newestMessageId];
+    NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND messageId > %ld AND messageId <= %ld AND (threadId == 0 OR threadId == messageId)", _account.accountId, _room.token, (long)messageId, (long)chatBlock.newestMessageId];
 
     if ([self isThreadController]) {
         query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@ AND threadId = %ld AND messageId > %ld AND messageId <= %ld", _account.accountId, _room.token, _threadId, (long)messageId, (long)chatBlock.newestMessageId];
