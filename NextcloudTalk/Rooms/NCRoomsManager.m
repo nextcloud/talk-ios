@@ -164,16 +164,25 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
         NSMutableArray *roomsWithNewMessages = [NSMutableArray new];
 
         if (!error) {
+            __block BOOL expired = NO;
             BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateRoomsTransaction" expirationHandler:^(BGTaskHelper *task) {
+                expired = YES;
                 NSString *logMessage = [NSString stringWithFormat:@"ExpirationHandler called NCUpdateRoomsTransaction, number of rooms %ld", rooms.count];
                 [NCUtils log:logMessage];
             }];
 
             RLMRealm *realm = [RLMRealm defaultRealm];
-            NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
+
             [realm transactionWithBlock:^{
+                NSInteger updateTimestamp = [[NSDate date] timeIntervalSince1970];
+
                 // Add or update rooms
                 for (NSDictionary *roomDict in rooms) {
+                    if (expired) {
+                        [realm cancelWriteTransaction];
+                        return;
+                    }
+
                     BOOL roomContainsNewMessages = [self updateRoomWithDict:roomDict withAccount:activeAccount withTimestamp:updateTimestamp withRealm:realm];
 
                     if (roomContainsNewMessages) {
@@ -181,10 +190,9 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                         [roomsWithNewMessages addObject:room];
                     }
                 }
-            }];
-            // Only delete rooms if it was a complete rooms update (not using modifiedSince)
-            if (!onlyLastModified) {
-                [realm transactionWithBlock:^{
+
+                // Only delete rooms if it was a complete rooms update (not using modifiedSince)
+                if (!onlyLastModified) {
                     // Delete old rooms
                     NSPredicate *roomsQuery = [NSPredicate predicateWithFormat:@"accountId = %@ AND lastUpdate != %ld", activeAccount.accountId, (long)updateTimestamp];
                     RLMResults *managedRoomsToBeDeleted = [NCRoom objectsWithPredicate:roomsQuery];
@@ -202,8 +210,8 @@ static NSInteger kNotJoiningAnymoreStatusCode = 999;
                         }
                     }
                     [realm deleteObjects:managedRoomsToBeDeleted];
-                }];
-            }
+                }
+            }];
 
             [bgTask stopBackgroundTask];
         } else {
