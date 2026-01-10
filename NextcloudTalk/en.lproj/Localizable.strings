@@ -1407,6 +1407,9 @@
 "Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services" = "Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services";
 
 /* No comment provided by engineer. */
+"Message editing failed" = "Message editing failed";
+
+/* No comment provided by engineer. */
 "Message expiration" = "Message expiration";
 
 /* Copy 'link' to a message */
@@ -1420,6 +1423,21 @@
 
 /* No comment provided by engineer. */
 "Message preview will be disabled in conversation list and notifications" = "Message preview will be disabled in conversation list and notifications";
+
+/* No comment provided by engineer. */
+"Message rescheduling failed" = "Message rescheduling failed";
+
+/* No comment provided by engineer. */
+"Message scheduling failed" = "Message scheduling failed";
+
+/* No comment provided by engineer. */
+"Message successfully edited" = "Message successfully edited";
+
+/* No comment provided by engineer. */
+"Message successfully rescheduled" = "Message successfully rescheduled";
+
+/* No comment provided by engineer. */
+"Message successfully scheduled" = "Message successfully scheduled";
 
 /* No comment provided by engineer. */
 "Message unpinned" = "Message unpinned";
@@ -1862,6 +1880,9 @@
 /* Name of a repository */
 "Repo" = "Repo";
 
+/* Reschedule a message that is send later */
+"Reschedule" = "Reschedule";
+
 /* No comment provided by engineer. */
 "Resend" = "Resend";
 
@@ -1905,6 +1926,9 @@
 "Schedule a meeting" = "Schedule a meeting";
 
 /* No comment provided by engineer. */
+"Scheduled messages" = "Scheduled messages";
+
+/* No comment provided by engineer. */
 "Screensharing stopped" = "Screensharing stopped";
 
 /* No comment provided by engineer. */
@@ -1932,7 +1956,16 @@
 "Send call notification" = "Send call notification";
 
 /* No comment provided by engineer. */
+"Send later" = "Send later";
+
+/* No comment provided by engineer. */
+"Send later without notification" = "Send later without notification";
+
+/* No comment provided by engineer. */
 "Send message" = "Send message";
+
+/* Send a message now */
+"Send now" = "Send now";
 
 /* No comment provided by engineer. */
 "Send without notification" = "Send without notification";

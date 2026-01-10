@@ -27,6 +27,7 @@
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizer;
 
 - (void)updateForRoom:(NCRoom *)room;
+- (void)updateForScheduledMessagesIn:(NCRoom *)room;
 - (void)updateForThread:(NCThread *)thread;
 
 @end
