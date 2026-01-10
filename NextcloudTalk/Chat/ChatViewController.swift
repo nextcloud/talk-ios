@@ -1309,6 +1309,10 @@ import SwiftUI
         }
 
         self.checkRetention()
+
+        // Update right button after receiving a room update (for scheduled messages)
+        // TODO: Button update should be a separate method
+        _ = self.canPressRightButton()
     }
 
     func didJoinRoom(notification: Notification) {

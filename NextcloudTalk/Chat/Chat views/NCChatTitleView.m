@@ -111,6 +111,11 @@
     [self setTitle:room.displayName withSubtitle:subtitle];
 }
 
+- (void)updateForScheduledMessagesIn:(NCRoom *)room
+{
+    [self setTitle:NSLocalizedString(@"Scheduled messages", nil) withSubtitle:room.displayName];
+}
+
 - (void)updateForThread:(NCThread *)thread
 {
     // Set thread image
