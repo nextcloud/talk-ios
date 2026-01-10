@@ -115,4 +115,12 @@ struct DatePickerTextFieldWrapper: UIViewRepresentable {
         self.completion = completion
         self.becomeFirstResponder()
     }
+
+    public func getDate() async -> (DatePickerTextFieldButtonTapped, Date?) {
+        return await withCheckedContinuation { continuation in
+            self.getDate { buttonTapped, selectedDate in
+                continuation.resume(returning: (buttonTapped, selectedDate))
+            }
+        }
+    }
 }

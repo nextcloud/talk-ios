@@ -60,10 +60,6 @@ import SwiftUI
 
     private var lobbyCheckTimer: Timer?
 
-    public var isThreadViewController: Bool {
-        return thread != nil
-    }
-
     // MARK: - Thread notification levels
 
     enum NotificationLevelOption: Int, CaseIterable {
@@ -510,15 +506,6 @@ import SwiftUI
     }
 
     private var messageExpirationTimer: Timer?
-
-    override func setTitleView() {
-        super.setTitleView()
-
-        if isThreadViewController {
-            self.titleView?.update(for: thread)
-            self.titleView?.longPressGestureRecognizer.isEnabled = false
-        }
-    }
 
     public override init?(forRoom room: NCRoom, withAccount account: TalkAccount) {
         self.chatController = NCChatController(for: room)
@@ -1322,6 +1309,10 @@ import SwiftUI
         }
 
         self.checkRetention()
+
+        // Update right button after receiving a room update (for scheduled messages)
+        // TODO: Button update should be a separate method
+        _ = self.canPressRightButton()
     }
 
     func didJoinRoom(notification: Notification) {
