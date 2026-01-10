@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 84;
+uint64_t const kTalkDatabaseSchemaVersion           = 85;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
