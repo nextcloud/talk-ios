@@ -8,6 +8,7 @@ import VisionKit
 
 @objc protocol QRScannerViewControllerDelegate: AnyObject {
     func qrScanner(_ scanner: QRScannerViewController, didScanNextcloudLogin serverURL: String, user: String, password: String)
+    func qrScanner(_ scanner: QRScannerViewController, didScanNextcloudOnetimeLogin serverURL: String, user: String, onetimeToken: String)
 }
 
 @objcMembers
@@ -137,7 +138,10 @@ class QRScannerViewController: UIViewController, DataScannerViewControllerDelega
         guard case let .barcode(barcode) = item,
               let value = barcode.payloadStringValue else { return }
 
-        if let urlComponents = NSURLComponents(string: value), var path = urlComponents.path, urlComponents.scheme == "nc", urlComponents.host == "login" {
+        if let urlComponents = NSURLComponents(string: value), var path = urlComponents.path, urlComponents.scheme == "nc" {
+            let isOnetimeLogin = (urlComponents.host == "onetime-login")
+            guard urlComponents.host == "login" || isOnetimeLogin else { return }
+
             if path.starts(with: "/") {
                 path.removeFirst()
             }
@@ -152,7 +156,12 @@ class QRScannerViewController: UIViewController, DataScannerViewControllerDelega
 
                     scannerViewController?.stopScanning()
                     self.dismiss(animated: true)
-                    self.delegate?.qrScanner(self, didScanNextcloudLogin: serverUrl, user: user, password: password)
+
+                    if isOnetimeLogin {
+                        self.delegate?.qrScanner(self, didScanNextcloudOnetimeLogin: serverUrl, user: user, onetimeToken: password)
+                    } else {
+                        self.delegate?.qrScanner(self, didScanNextcloudLogin: serverUrl, user: user, password: password)
+                    }
 
                     return
                 }

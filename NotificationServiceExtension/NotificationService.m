@@ -210,10 +210,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
 
                             NSURL *url = [NSURL URLWithString:urlString];
 
-                            NSString *userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iOS) Nextcloud-Talk v%@",
-                                                   [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
-
-                            [[SDWebImageDownloader sharedDownloader] setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+                            [[SDWebImageDownloader sharedDownloader] setValue:[NCAppBranding userAgent] forHTTPHeaderField:@"User-Agent"];
                             [SDWebImageDownloader sharedDownloader].config.downloadTimeout = 25.0;
 
                             SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;

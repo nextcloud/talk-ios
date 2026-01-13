@@ -119,11 +119,9 @@ public enum NCExternalSignalingSendMessageStatus {
 
         NCUtils.log("Connecting to: \(self.serverUrl)")
 
-        let userAgent = "Mozilla/5.0 (iOS) Nextcloud-Talk v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")"
-
         let wsSession = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         var wsRequest = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: webSocketTimeoutInterval)
-        wsRequest.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        wsRequest.setValue(NCAppBranding.userAgent(), forHTTPHeaderField: "User-Agent")
 
         if self.resumeId != nil {
             let currentTimestamp = Date().timeIntervalSince1970

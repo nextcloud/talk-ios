@@ -353,4 +353,25 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
         NCSettingsController.sharedInstance().addNewAccount(forUser: user, withToken: password, inServer: serverURL)
         delegate?.loginViewControllerDidFinish()
     }
+
+    func qrScanner(_ scanner: QRScannerViewController, didScanNextcloudOnetimeLogin serverURL: String, user: String, onetimeToken: String) {
+        NotificationPresenter.shared().present(text: NSLocalizedString("Trying to login…", comment: "Waiting message when trying to login with QR code"))
+        NotificationPresenter.shared().displayActivityIndicator(true)
+
+        // We received a onetime login token and need to convert it to a permanent one. The token only allows to retrieve a permanent one, no other routes allowed
+        NCAPIController.sharedInstance().getAppPasswordOnetime(forServer: serverURL, withUsername: user, andOnetimeToken: onetimeToken) { [weak self] permanentAppToken in
+            NotificationPresenter.shared().dismiss()
+
+            guard let permanentAppToken else {
+                self?.showAlert(
+                    title: NSLocalizedString("Could not login with QR code", comment: ""),
+                    message: NSLocalizedString("The token might be used already or is expired. Please generate a new QR code and retry.", comment: ""))
+
+                return
+            }
+
+            NCSettingsController.sharedInstance().addNewAccount(forUser: user, withToken: permanentAppToken, inServer: serverURL)
+            self?.delegate?.loginViewControllerDidFinish()
+        }
+    }
 }
