@@ -442,6 +442,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             activityIndicator.strokeWidth = 1.5
             activityIndicator.cycleColors = [.secondaryLabel]
             activityIndicator.startAnimating()
+            activityIndicator.accessibilityIdentifier = "MessageSending"
             activityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(activityIndicator)
