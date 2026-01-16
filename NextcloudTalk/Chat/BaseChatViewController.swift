@@ -704,7 +704,13 @@ import SwiftUI
 
     func showVoiceMessageRecordButton() {
         self.rightButton.setTitle("", for: .normal)
-        self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+
+        if self.room.hasScheduledMessages {
+            self.rightButton.setImage(UIImage(systemName: "clock"), for: .normal)
+        } else {
+            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+        }
+
         self.rightButton.tag = sendButtonTagVoice
         self.rightButton.accessibilityLabel = NSLocalizedString("Record voice message", comment: "")
         self.rightButton.accessibilityHint = NSLocalizedString("Tap and hold to record a voice message", comment: "")
@@ -738,6 +744,40 @@ import SwiftUI
         let messageParameters = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
         self.sendChatMessage(message: self.textView.text, withParentMessage: replyToMessage, messageParameters: messageParameters, silently: silently)
 
+        self.clearInputAfterSend()
+    }
+
+    func sendCurrentMessageLater(silently: Bool) {
+        Task { @MainActor in
+            let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+            let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
+
+            self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
+
+            let (buttonTapped, selectedDate) = await self.datePickerTextField.getDate()
+            guard buttonTapped == .done, let selectedDate else { return }
+
+            do {
+                let timestamp = Int(selectedDate.timeIntervalSince1970)
+                var replyToMessage: NCChatMessage?
+
+                if let replyMessageView, replyMessageView.isVisible {
+                    replyToMessage = replyMessageView.message
+                }
+
+                try await NCAPIController.sharedInstance().scheduleMessage(self.textView.text, inRoom: self.room.token, sendAt: timestamp, replyTo: replyToMessage?.messageId, silent: silently, threadId: self.thread?.threadId, forAccount: self.account)
+                NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully scheduled", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
+
+                self.clearInputAfterSend()
+                NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+            } catch {
+                print(error)
+                NotificationPresenter.shared().present(text: NSLocalizedString("Message scheduling failed", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            }
+        }
+    }
+
+    private func clearInputAfterSend() {
         self.mentionsDict.removeAll()
         self.replyMessageView?.dismiss()
         super.didPressRightButton(self)
@@ -753,7 +793,12 @@ import SwiftUI
             self.sendCurrentMessage(silently: false)
             super.didPressRightButton(sender)
         case sendButtonTagVoice:
-            self.showVoiceMessageRecordHint()
+            if self.room.hasScheduledMessages {
+                let scheduledViewController = ScheduledMessagesChatViewController(forRoom: self.room, withAccount: self.account)!
+                self.presentWithNavigation(scheduledViewController, animated: true)
+            } else {
+                self.showVoiceMessageRecordHint()
+            }
         default:
             break
         }
@@ -779,11 +824,23 @@ import SwiftUI
             self.voiceMessageLongPressGesture = nil
         }
 
-        let silentSendAction = UIAction(title: NSLocalizedString("Send without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
-            self.sendCurrentMessage(silently: true)
+        var actions: [UIMenuElement] = []
+
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMessages, forAccountId: self.account.accountId) {
+            actions.append(UIAction(title: NSLocalizedString("Send later without notification", comment: ""), image: UIImage(named: "custom.paperplane.badge.clock")) { [unowned self] _ in
+                self.sendCurrentMessageLater(silently: true)
+            })
+
+            actions.append(UIAction(title: NSLocalizedString("Send later", comment: ""), image: UIImage(named: "custom.paperplane.badge.clock")) { [unowned self] _ in
+                self.sendCurrentMessageLater(silently: false)
+            })
         }
 
-        self.rightButton.menu = UIMenu(children: [silentSendAction])
+        actions.append(UIAction(title: NSLocalizedString("Send without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
+            self.sendCurrentMessage(silently: true)
+        })
+
+        self.rightButton.menu = UIMenu(children: actions)
     }
 
     func addMenuToLeftButton() {
@@ -1738,6 +1795,7 @@ import SwiftUI
         self.recordCancelled = true
         self.stopRecordingVoiceMessage()
         handleCollapseVoiceRecording()
+        self.showVoiceMessageRecordButton()
     }
 
     func handleSend() {
@@ -1842,7 +1900,9 @@ import SwiftUI
     }
 
     func shareVoiceMessage() {
+        self.showVoiceMessageRecordButton()
         guard let recorder = self.recorder else { return }
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
         let dateString = dateFormatter.string(from: Date())
@@ -1960,6 +2020,8 @@ import SwiftUI
         if flag, recorder == self.recorder, !self.recordCancelled {
             self.shareVoiceMessage()
         }
+
+        self.showVoiceMessageRecordButton()
     }
 
     // MARK: - Voice Messages Transcribe
@@ -2129,6 +2191,7 @@ import SwiftUI
             self.longPressStartingPoint = point
             self.cancelHintLabelInitialPositionX = voiceMessageRecordingView?.slideToCancelHintLabel?.frame.origin.x
             self.voiceRecordingLockButton.alpha = 1
+            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
         } else if gestureRecognizer.state == .ended {
             self.shouldLockInterfaceOrientation(lock: false)
             self.resetVoiceRecordingLockButton()
