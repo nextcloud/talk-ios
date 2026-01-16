@@ -765,7 +765,7 @@ import SwiftUI
                     replyToMessage = replyMessageView.message
                 }
 
-                try await NCAPIController.sharedInstance().scheduleMessage(self.textView.text, inRoom: self.room.token, sendAt: timestamp, replyTo: replyToMessage?.messageId, threadId: self.thread?.threadId, forAccount: self.account)
+                try await NCAPIController.sharedInstance().scheduleMessage(self.textView.text, inRoom: self.room.token, sendAt: timestamp, replyTo: replyToMessage?.messageId, silent: silently, threadId: self.thread?.threadId, forAccount: self.account)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully scheduled", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
 
                 self.clearInputAfterSend()
