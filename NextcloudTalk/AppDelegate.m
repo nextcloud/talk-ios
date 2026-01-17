@@ -21,7 +21,6 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
-#import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
 #import "NCRoomsManager.h"

@@ -823,7 +823,6 @@
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 				Extensions/UITableViewExtension.swift,
-				NCNavigationController.m,
 				PlaceholderView.m,
 				PlaceholderView.xib,
 			);

@@ -16,7 +16,6 @@
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCNavigationController.h"
 #import "NCNotificationController.h"
 #import "NCRoomsManager.h"
 #import "NCSettingsController.h"

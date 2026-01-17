@@ -7,7 +7,6 @@
 #import <UIKit/UIKit.h>
 
 #import "NCNotificationController.h"
-#import "NCNavigationController.h"
 #import "NCPushNotification.h"
 #import "RoomsTableViewController.h"
 #import "NCRoom.h"
