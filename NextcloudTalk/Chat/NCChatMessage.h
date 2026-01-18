@@ -7,7 +7,6 @@
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
 
-#import "NCChatReaction.h"
 #import "NCDatabaseManager.h"
 #import "NCDeckCardParameter.h"
 #import "NCMessageParameter.h"
@@ -40,6 +39,7 @@ extern NSString * const kSharedItemTypePinned;
 typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictionary *referenceData, NSString *url);
 
 @class NCRoom;
+@class NCChatReaction;
 
 @interface NCChatMessage : RLMObject <NSCopying>
 

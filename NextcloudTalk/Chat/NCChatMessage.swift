@@ -255,9 +255,7 @@ import SwiftyAttributes
             updateReaction.reaction = reaction
             updateReaction.state = state
         } else {
-            let temporaryReaction = NCChatReaction()
-            temporaryReaction.reaction = reaction
-            temporaryReaction.state = state
+            let temporaryReaction = NCChatReaction(reaction: reaction, state: state)
             self.temporaryReactions().add(temporaryReaction)
         }
     }
