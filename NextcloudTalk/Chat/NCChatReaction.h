@@ -4,14 +4,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSInteger, NCChatReactionState) {
-    NCChatReactionStateSet = 0,
-    NCChatReactionStateAdding,
-    NCChatReactionStateRemoving,
-    NCChatReactionStateAdded,
-    NCChatReactionStateRemoved
-};
+#import "NCTypes.h"
 
 @interface NCChatReaction : NSObject
 

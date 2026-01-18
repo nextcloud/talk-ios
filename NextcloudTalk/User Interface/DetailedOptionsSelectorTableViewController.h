@@ -4,6 +4,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "NCTypes.h"
 
 @interface DetailedOption : NSObject
 @property (nonatomic, copy) NSString *identifier;
@@ -13,10 +14,6 @@
 @property (nonatomic, assign) BOOL selected;
 @end
 
-typedef NS_ENUM(NSInteger, DetailedOptionsSelectorType) {
-    DetailedOptionsSelectorTypeDefault = 0,
-    DetailedOptionsSelectorTypeAccounts
-};
 
 @class DetailedOptionsSelectorTableViewController;
 @protocol DetailedOptionsSelectorTableViewControllerDelegate <NSObject>

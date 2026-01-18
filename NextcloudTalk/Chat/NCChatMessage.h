@@ -13,6 +13,7 @@
 #import "NCMessageParameter.h"
 #import "NCMessageFileParameter.h"
 #import "NCMessageLocationParameter.h"
+#import "NCTypes.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;
 
@@ -33,13 +34,6 @@ extern NSString * const kSharedItemTypePoll;
 extern NSString * const kSharedItemTypeRecording;
 extern NSString * const kSharedItemTypePinned;
 
-typedef NS_ENUM(NSInteger, ChatMessageDeliveryState) {
-    ChatMessageDeliveryStateSent = 0,
-    ChatMessageDeliveryStateRead,
-    ChatMessageDeliveryStateSending,
-    ChatMessageDeliveryStateDeleting,
-    ChatMessageDeliveryStateFailed
-};
 
 @class NCChatMessage;
 
