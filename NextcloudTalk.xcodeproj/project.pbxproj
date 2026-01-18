@@ -314,6 +314,7 @@
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header-Extensions.h"; sourceTree = "<group>"; };
 		1FDDB0E82AFE8F5C00FBAFB7 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		1FE052B82F1C463E00B975FD /* NCTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCTypes.h; sourceTree = "<group>"; };
 		1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BroadcastUploadExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FF2FD5C2AB99CCB000C9905 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		237121A4908D37D7D5CC71A4 /* libPods-TalkIntents.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TalkIntents.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1344,6 +1345,7 @@
 		2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */ = {
 			isa = PBXGroup;
 			children = (
+				1FE052B82F1C463E00B975FD /* NCTypes.h */,
 				1F9629252E8E6A2100EC9BEE /* Calls */,
 				1F9629262E8E6A6800EC9BEE /* Chat */,
 				1F9629302E8E6B3D00EC9BEE /* Contacts */,

@@ -70,7 +70,6 @@
 #import "ScreenCaptureController.h"
 
 #import "AFNetworking.h"
-#import "NCNotification.h"
 
 #import "MessageBodyTextView.h"
 #import "NCAudioController.h"
@@ -81,5 +80,6 @@
 #import "ContactsTableViewCell.h"
 
 #import "DRCellSlideGestureRecognizer.h"
+#import "NCTypes.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */
