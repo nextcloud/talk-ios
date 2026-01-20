@@ -48,7 +48,6 @@
 #import "NCChatMessage.h"
 #import "NCThread.h"
 #import "NCChatTitleView.h"
-#import "NCMessageParameter.h"
 #import "ReplyMessageView.h"
 
 #import "JDStatusBarNotificationPresenter.h"

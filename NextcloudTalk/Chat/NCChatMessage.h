@@ -8,10 +8,6 @@
 #import <Realm/Realm.h>
 
 #import "NCDatabaseManager.h"
-#import "NCDeckCardParameter.h"
-#import "NCMessageParameter.h"
-#import "NCMessageFileParameter.h"
-#import "NCMessageLocationParameter.h"
 #import "NCTypes.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;
@@ -35,11 +31,13 @@ extern NSString * const kSharedItemTypePinned;
 
 
 @class NCChatMessage;
-
-typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictionary *referenceData, NSString *url);
-
 @class NCRoom;
 @class NCChatReaction;
+@class NCMessageFileParameter;
+@class NCMessageLocationParameter;
+@class NCDeckCardParameter;
+
+typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictionary *referenceData, NSString *url);
 
 @interface NCChatMessage : RLMObject <NSCopying>
 

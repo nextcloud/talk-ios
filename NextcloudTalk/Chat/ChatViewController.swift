@@ -2017,7 +2017,7 @@ import SwiftUI
 
     public override func didCommitTextEditing(_ sender: Any) {
         if let editingMessage {
-            let messageParametersJSONString = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
+            let messageParametersJSONString = self.mentionsDict.asJSONString() ?? ""
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
 

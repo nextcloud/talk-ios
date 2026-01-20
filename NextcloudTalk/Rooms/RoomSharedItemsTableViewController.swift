@@ -381,10 +381,10 @@ import QuickLook
         if !message.actorDisplayName.isEmpty {
             infoLabelText += " ⸱ " + message.actorDisplayName
         }
-        if let file = message.file(), file.size > 0 {
+        if let file = message.file(), let size = file.size, size > 0 {
             let formatter = ByteCountFormatter()
             formatter.countStyle = .file
-            let sizeString = formatter.string(fromByteCount: Int64(file.size))
+            let sizeString = formatter.string(fromByteCount: Int64(size))
             infoLabelText += " ⸱ " + sizeString
         }
         cell.fileInfoLabel?.text = infoLabelText

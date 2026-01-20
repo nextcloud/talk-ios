@@ -534,10 +534,10 @@
 				NCChatMessage.m,
 				NCChatMessage.swift,
 				NCChatReaction.swift,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -566,10 +566,10 @@
 				NCChatMessage.m,
 				NCChatMessage.swift,
 				NCChatReaction.swift,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -587,10 +587,10 @@
 				NCChatMessage.m,
 				NCChatMessage.swift,
 				NCChatReaction.swift,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -608,10 +608,10 @@
 				NCChatMessage.m,
 				NCChatMessage.swift,
 				NCChatReaction.swift,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -806,6 +806,7 @@
 				AvatarManager.swift,
 				ColorGenerator.swift,
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
@@ -821,6 +822,7 @@
 				AvatarView.swift,
 				ColorGenerator.swift,
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 				Extensions/UITableViewExtension.swift,
@@ -833,6 +835,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
@@ -849,6 +852,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);

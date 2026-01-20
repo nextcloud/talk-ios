@@ -103,7 +103,7 @@ extension BaseChatTableViewCell {
             }
         }
 
-        if let contactImage = message.file().contactPhotoImage() {
+        if let contactImage = message.file().contactPhotoImage {
             filePreviewImageView.image = contactImage
         }
     }

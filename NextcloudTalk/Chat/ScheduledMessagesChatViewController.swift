@@ -57,7 +57,7 @@ import Foundation
     public override func didCommitTextEditing(_ sender: Any) {
         guard let editingMessage else { return }
 
-        let messageParametersJSONString = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
+        let messageParametersJSONString = self.mentionsDict.asJSONString() ?? ""
         editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
         editingMessage.messageParametersJSONString = messageParametersJSONString
 

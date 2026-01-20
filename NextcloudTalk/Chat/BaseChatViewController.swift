@@ -741,7 +741,7 @@ import SwiftUI
             replyToMessage = replyMessageView.message
         }
 
-        let messageParameters = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
+        let messageParameters = self.mentionsDict.asJSONString() ?? ""
         self.sendChatMessage(message: self.textView.text, withParentMessage: replyToMessage, messageParameters: messageParameters, silently: silently)
 
         self.clearInputAfterSend()
