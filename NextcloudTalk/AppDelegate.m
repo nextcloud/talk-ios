@@ -17,7 +17,6 @@
 
 #import <SDWebImage/SDImageCache.h>
 
-#import "NCAudioController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
@@ -61,7 +60,7 @@
 
     [[WebRTCCommon shared] dispatch:^{
         NSLog(@"Configure Audio Session");
-        [NCAudioController sharedInstance];
+        [NCAudioController shared];
     }];
     
     NSLog(@"Configure App Settings");

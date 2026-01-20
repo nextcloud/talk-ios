@@ -20,3 +20,7 @@ NSString * const NCSelectedUserForChatNotification = @"NCSelectedUserForChatNoti
 NSString * const NCUserThreadsUpdatedNotification = @"NCUserThreadsUpdatedNotification";
 NSString * const NCUserHasThreadsFlagUpdatedNotification = @"NCUserHasThreadsFlagUpdatedNotification";
 
+NSString * const AudioSessionDidChangeRouteNotification = @"AudioSessionDidChangeRouteNotification";
+NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSessionWasActivatedByProviderNotification";
+NSString * const AudioSessionDidChangeRoutingInformationNotification = @"AudioSessionDidChangeRoutingInformationNotification";
+

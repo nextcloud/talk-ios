@@ -22,4 +22,8 @@ extern NSString * const NCSelectedUserForChatNotification;
 extern NSString * const NCUserThreadsUpdatedNotification;
 extern NSString * const NCUserHasThreadsFlagUpdatedNotification;
 
+extern NSString * const AudioSessionDidChangeRouteNotification;
+extern NSString * const AudioSessionWasActivatedByProviderNotification;
+extern NSString * const AudioSessionDidChangeRoutingInformationNotification;
+
 NS_ASSUME_NONNULL_END

@@ -6,7 +6,6 @@
 #import "CallKitManager.h"
 #import <CallKit/CXError.h>
 
-#import "NCAudioController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
@@ -683,7 +682,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     NSLog(@"Provider:didActivateAudioSession - %@", audioSession);
 
     [[WebRTCCommon shared] dispatch:^{
-        [[NCAudioController sharedInstance] providerDidActivateAudioSession:audioSession];
+        [[NCAudioController shared] providerDidActivateWithAudioSession:audioSession];
     }];
 }
 
@@ -692,7 +691,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     NSLog(@"Provider:didDeactivateAudioSession - %@", audioSession);
 
     [[WebRTCCommon shared] dispatch:^{
-        [[NCAudioController sharedInstance] providerDidDeactivateAudioSession:audioSession];
+        [[NCAudioController shared] providerDidDeactivateWithAudioSession:audioSession];
     }];
 }
 

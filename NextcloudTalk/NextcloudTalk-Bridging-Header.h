@@ -71,7 +71,6 @@
 #import "AFNetworking.h"
 
 #import "MessageBodyTextView.h"
-#import "NCAudioController.h"
 #import "NCCallController.h"
 #import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
