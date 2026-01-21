@@ -13,7 +13,7 @@ import Foundation
 
     public var isExpired: Bool = false
 
-    public class func startBackgroundTask(withName taskName: String? = nil, expirationHandler handler: ((BGTaskHelper) -> Void)? = nil) -> BGTaskHelper {
+    public class func startBackgroundTask(withName taskName: String? = #function, expirationHandler handler: ((BGTaskHelper) -> Void)? = nil) -> BGTaskHelper {
         let taskHelper = BGTaskHelper()
 
         let expirationhandler = {
