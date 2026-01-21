@@ -1955,7 +1955,7 @@ import SwiftUI
     }
 
     func updateRoomInformation() {
-        NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+        NCRoomsManager.sharedInstance().updateRoom(self.room.token)
     }
 
     func shouldPresentLobbyView() -> Bool {

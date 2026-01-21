@@ -12,6 +12,232 @@ import Foundation
     public static let statusCodeShouldIgnoreAttemptButJoinedSuccessfully = 998
     public static let statusCodeIgnoreJoinAttempt = 999
 
+    // MARK: Room
+
+    @objc(updateRoomsAndChatsUpdatingUserStatus: onlyLastModified: withCompletionBlock:)
+    public func updateRoomsAndChats(updatingUserStatus updateStatus: Bool, onlyLastModified: Bool, withCompletionBlock completion: ((_ error: Error?) -> Void)?) {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        if onlyLastModified, Int(activeAccount.lastReceivedModifiedSince) == 0 {
+            completion?(nil)
+            return
+        }
+
+        self.updateRooms(updatingUserStatus: updateStatus, onlyLastModified: onlyLastModified) { roomsWithNewMessages, account, error in
+            guard error == nil else {
+                completion?(error)
+                return
+            }
+
+            print("Finished rooms update with \(roomsWithNewMessages?.count ?? 0) rooms with new messages")
+
+            // When in low power mode, we only update the conversation list and don't load new messages for each room
+            guard !ProcessInfo.processInfo.isLowPowerModeEnabled, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatKeepNotifications, forAccountId: account.accountId) else {
+                completion?(nil)
+                return
+            }
+
+            guard let roomsWithNewMessages else {
+                completion?(nil)
+                return
+            }
+
+            let chatUpdateGroup = DispatchGroup()
+
+            for room in roomsWithNewMessages {
+                chatUpdateGroup.enter()
+
+                print("Updating room \(room.internalId)")
+                var chatController: NCChatController
+
+                if let activeController = self.chatViewController?.chatController, activeController.room.internalId == room.internalId {
+                    chatController = activeController
+                } else {
+                    chatController = NCChatController(for: room)
+                }
+
+                chatController.updateHistoryInBackground { _ in
+                    print("Finished updating \(room.internalId)")
+                    chatUpdateGroup.leave()
+                }
+            }
+
+            chatUpdateGroup.notify(queue: .main) {
+                // Notify backgroundFetch that we're finished
+                completion?(nil)
+            }
+        }
+    }
+
+    // TODO: Can be removed when ObjC is gone
+    @objc(updateRoomsUpdatingUserStatus: onlyLastModified:)
+    public func updateRooms(updatingUserStatus updateStatus: Bool, onlyLastModified: Bool) {
+        self.updateRooms(updatingUserStatus: updateStatus, onlyLastModified: onlyLastModified, withCompletion: nil)
+    }
+
+    @objc(updateRoomsUpdatingUserStatus: onlyLastModified: withCompletionBlock:)
+    public func updateRooms(updatingUserStatus updateStatus: Bool, onlyLastModified: Bool, withCompletion completion: ((_ roomsWithNewMessage: [NCRoom]?, _ account: TalkAccount, _ error: Error?) -> Void)? = nil) {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let lastReceivedModified = Int(activeAccount.lastReceivedModifiedSince) ?? 0
+        let modifiedSince = onlyLastModified ? lastReceivedModified : 0
+
+        NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: updateStatus, modifiedSince: modifiedSince) { rooms, error in
+            if let error {
+                NCUtils.log("Could not update rooms. Error: \(error.localizedDescription)")
+
+                NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRooms, object: self, userInfo: ["error": error])
+                completion?([], activeAccount, error)
+
+                return
+            }
+
+            guard let rooms else {
+                NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRooms, object: self)
+                completion?([], activeAccount, nil)
+                return
+            }
+
+            let realm = RLMRealm.default()
+            var roomsWithNewMessages = [NCRoom]()
+
+            let bgTask = BGTaskHelper.startBackgroundTask { _ in
+                NCUtils.log("ExpirationHandler called NCUpdateRoomsTransaction, number of rooms \(rooms.count)")
+            }
+
+            defer {
+                bgTask.stopBackgroundTask()
+
+                NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRooms, object: self)
+                completion?(roomsWithNewMessages, activeAccount, nil)
+            }
+
+            try? realm.transaction {
+                let updateTimestamp = Int(Date().timeIntervalSince1970)
+
+                // Add or update rooms
+                for roomDict in rooms {
+                    if bgTask.isExpired {
+                        roomsWithNewMessages.removeAll()
+                        realm.cancelWriteTransaction()
+                        return
+                    }
+
+                    let roomContainsNewMessages = self.updateRoom(withDict: roomDict, withAccount: activeAccount, withTimestamp: updateTimestamp, withRealm: realm)
+
+                    if roomContainsNewMessages, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+                        roomsWithNewMessages.append(room)
+                    }
+                }
+
+                // Only delete rooms if it was a complete rooms update (not using modifiedSince)
+                if !onlyLastModified {
+                    // Delete old rooms
+                    let roomsQuery = NSPredicate(format: "accountId = %@ AND lastUpdate != %ld", activeAccount.accountId, updateTimestamp)
+                    let managedRoomsToBeDeleted = NCRoom.objects(with: roomsQuery)
+
+                    // Delete messages, chat blocks and threads from old rooms
+                    for case let managedRoom as NCRoom in managedRoomsToBeDeleted {
+                        if bgTask.isExpired {
+                            roomsWithNewMessages.removeAll()
+                            realm.cancelWriteTransaction()
+                            return
+                        }
+
+                        let messagesAndBlocksQuery = NSPredicate(format: "accountId = %@ AND token = %@", activeAccount.accountId, managedRoom.token)
+                        realm.deleteObjects(NCChatMessage.objects(with: messagesAndBlocksQuery))
+                        realm.deleteObjects(NCChatBlock.objects(with: messagesAndBlocksQuery))
+
+                        let threadsQuery = NSPredicate(format: "accountId = %@ AND roomToken = %@", activeAccount.accountId, managedRoom.token)
+                        realm.deleteObjects(NCThread.objects(with: threadsQuery))
+
+                        if managedRoom.isFederated {
+                            let federatedCapabilities = NSPredicate(format: "accountId = %@ AND remoteServer = %@ AND roomToken = %@", activeAccount.accountId, managedRoom.remoteServer, managedRoom.token)
+                            realm.deleteObjects(FederatedCapabilities.objects(with: federatedCapabilities))
+                        }
+                    }
+
+                    realm.deleteObjects(managedRoomsToBeDeleted)
+                }
+            }
+        }
+    }
+
+    public func updateRoom(_ token: String, withCompletionBlock completion: ((_ roomDict: [String: AnyObject]?, _ error: Error?) -> Void)? = nil) {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: token) { roomDict, error in
+            if let error {
+                NCUtils.log("Could not update room. Error: \(error.localizedDescription)")
+
+                NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRoom, object: self, userInfo: ["error": error])
+                completion?([:], error as NSError)
+
+                return
+            }
+
+            guard let roomDict else {
+                NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRoom, object: self)
+                completion?([:], nil)
+
+                return
+            }
+
+            let realm = RLMRealm.default()
+            try? realm.transaction {
+                self.updateRoom(withDict: roomDict, withAccount: activeAccount, withTimestamp: Int(Date().timeIntervalSince1970), withRealm: realm)
+            }
+
+            var userDict = [String: Any]()
+
+            // TODO: Can be returend from updateRoom(withDict)?
+            if let updateRoom = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: activeAccount.accountId) {
+                userDict["room"] = updateRoom
+            }
+
+            NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRoom, object: self, userInfo: userDict)
+            completion?(roomDict, error)
+        }
+    }
+
+    @discardableResult
+    public func updateRoom(withDict roomDict: [String: Any], withAccount account: TalkAccount, withTimestamp timestamp: Int, withRealm realm: RLMRealm) -> Bool {
+        var roomContainsNewMessages = false
+
+        guard let room = NCRoom(dictionary: roomDict, andAccountId: account.accountId)
+        else { return false }
+
+        room.lastUpdate = timestamp
+
+        var lastMessage: NCChatMessage?
+        let lastMessageDict = roomDict["lastMessage"] as? [AnyHashable: Any]
+
+        if !room.isFederated, let lastMessageDict {
+            // TODO: Move handling to NCRoom roomWithDictionary?
+            lastMessage = NCChatMessage(dictionary: lastMessageDict, andAccountId: account.accountId)
+            room.lastMessageId = lastMessage?.internalId
+        }
+
+        if let managedRoom = NCRoom.objects(where: "internalId = %@", room.internalId).firstObject() as? NCRoom {
+            if room.lastActivity > managedRoom.lastActivity {
+                roomContainsNewMessages = true
+            }
+
+            NCRoom.update(managedRoom, with: room)
+        } else {
+            realm.add(room)
+        }
+
+        if let lastMessage, let lastMessageDict, let internalId = lastMessage.internalId {
+            if let managedLastMessage = NCChatMessage.objects(where: "internalId = %@", internalId).firstObject() as? NCChatMessage {
+                NCChatMessage.update(managedLastMessage, with: lastMessage, isRoomLastMessage: true)
+            } else {
+                let chatController = NCChatController(for: room)
+                chatController?.storeMessages([lastMessageDict], with: realm)
+            }
+        }
+
+        return roomContainsNewMessages
+    }
+
     // MARK: - Join/Leave room
 
     public func joinRoom(_ token: String, forCall call: Bool) {

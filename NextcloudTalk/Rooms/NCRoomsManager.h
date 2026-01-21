@@ -9,16 +9,6 @@
 #import "NCRoom.h"
 #import "NCChatController.h"
 
-// Room
-extern NSString * const NCRoomsManagerDidJoinRoomNotification;
-extern NSString * const NCRoomsManagerDidLeaveRoomNotification;
-extern NSString * const NCRoomsManagerDidUpdateRoomsNotification;
-extern NSString * const NCRoomsManagerDidUpdateRoomNotification;
-// Call
-extern NSString * const NCRoomsManagerDidStartCallNotification;
-
-typedef void (^UpdateRoomsCompletionBlock)(NSArray *roomsWithNewMessages, TalkAccount *account, NSError *error);
-typedef void (^UpdateRoomsAndChatsCompletionBlock)(NSError *error);
 typedef void (^SendOfflineMessagesCompletionBlock)(void);
 typedef void (^RoomDeletionStartedBlock)(void);
 typedef void (^RoomDeletionAdditionalOptionBlock)(BOOL success);
@@ -60,9 +50,6 @@ typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 
 + (instancetype)sharedInstance;
 // Room
-- (void)updateRoomsAndChatsUpdatingUserStatus:(BOOL)updateStatus onlyLastModified:(BOOL)onlyLastModified withCompletionBlock:(UpdateRoomsAndChatsCompletionBlock)block;
-- (void)updateRoomsUpdatingUserStatus:(BOOL)updateStatus onlyLastModified:(BOOL)onlyLastModified;
-- (void)updateRoom:(NSString *)token withCompletionBlock:(GetRoomCompletionBlock)block;
 - (void)updatePendingMessage:(NSString *)message forRoom:(NCRoom *)room;
 - (void)updateLastReadMessage:(NSInteger)lastReadMessage forRoom:(NCRoom *)room;
 - (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room;

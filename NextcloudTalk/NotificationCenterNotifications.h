@@ -26,4 +26,12 @@ extern NSString * const AudioSessionDidChangeRouteNotification;
 extern NSString * const AudioSessionWasActivatedByProviderNotification;
 extern NSString * const AudioSessionDidChangeRoutingInformationNotification;
 
+// Room
+extern NSString * const NCRoomsManagerDidJoinRoomNotification;
+extern NSString * const NCRoomsManagerDidLeaveRoomNotification;
+extern NSString * const NCRoomsManagerDidUpdateRoomsNotification;
+extern NSString * const NCRoomsManagerDidUpdateRoomNotification;
+// Call
+extern NSString * const NCRoomsManagerDidStartCallNotification;
+
 NS_ASSUME_NONNULL_END

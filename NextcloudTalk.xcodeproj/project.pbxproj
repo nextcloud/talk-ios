@@ -1349,7 +1349,6 @@
 		2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */ = {
 			isa = PBXGroup;
 			children = (
-				1FE052B82F1C463E00B975FD /* NCTypes.h */,
 				1F9629252E8E6A2100EC9BEE /* Calls */,
 				1F9629262E8E6A6800EC9BEE /* Chat */,
 				1F9629302E8E6B3D00EC9BEE /* Contacts */,
@@ -1375,6 +1374,7 @@
 				2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */,
 				2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */,
 				2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */,
+				1FE052B82F1C463E00B975FD /* NCTypes.h */,
 				2C0574811EDD9E8E00D9E7F2 /* main.m */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
 				1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */,

@@ -193,7 +193,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
     return sortedMessages;
 }
 
-- (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm {
+- (void)storeMessages:(NSArray<NSDictionary *> *)messages withRealm:(RLMRealm *)realm {
     // Add or update messages
     for (NSDictionary *messageDict in messages) {
         // messageWithDictionary takes care of setting a potential available parentId

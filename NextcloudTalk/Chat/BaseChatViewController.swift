@@ -769,7 +769,7 @@ import SwiftUI
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully scheduled", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
 
                 self.clearInputAfterSend()
-                NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+                NCRoomsManager.sharedInstance().updateRoom(self.room.token)
             } catch {
                 print(error)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message scheduling failed", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)

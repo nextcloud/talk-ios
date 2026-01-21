@@ -24,3 +24,9 @@ NSString * const AudioSessionDidChangeRouteNotification = @"AudioSessionDidChang
 NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSessionWasActivatedByProviderNotification";
 NSString * const AudioSessionDidChangeRoutingInformationNotification = @"AudioSessionDidChangeRoutingInformationNotification";
 
+NSString * const NCRoomsManagerDidJoinRoomNotification              = @"NCRoomsManagerDidJoinRoomNotification";
+NSString * const NCRoomsManagerDidLeaveRoomNotification             = @"NCRoomsManagerDidLeaveRoomNotification";
+NSString * const NCRoomsManagerDidUpdateRoomsNotification           = @"NCRoomsManagerDidUpdateRoomsNotification";
+NSString * const NCRoomsManagerDidUpdateRoomNotification            = @"NCRoomsManagerDidUpdateRoomNotification";
+NSString * const NCRoomsManagerDidStartCallNotification             = @"NCRoomsManagerDidStartCallNotification";
+NSString * const NCRoomsManagerDidReceiveChatMessagesNotification   = @"ChatMessagesReceivedNotification";

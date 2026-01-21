@@ -131,7 +131,7 @@ import Foundation
         }
 
         self.dismiss(animated: true)
-        NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+        NCRoomsManager.sharedInstance().updateRoom(self.room.token)
     }
 
     func didPressDeleteScheduled(for message: NCChatMessage, at indexPath: IndexPath) async {
@@ -146,7 +146,7 @@ import Foundation
 
         if self.messages.values.isEmpty {
             self.dismiss(animated: true)
-            NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+            NCRoomsManager.sharedInstance().updateRoom(self.room.token)
         }
     }
 

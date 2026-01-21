@@ -46,6 +46,7 @@
 
 #import "GeoLocationRichObject.h"
 #import "NCChatMessage.h"
+#import "NCChatBlock.h"
 #import "NCThread.h"
 #import "NCChatTitleView.h"
 #import "ReplyMessageView.h"

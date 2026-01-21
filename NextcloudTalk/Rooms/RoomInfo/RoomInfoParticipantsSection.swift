@@ -178,7 +178,7 @@ struct RoomInfoParticipantsSection: View {
         NCAPIController.sharedInstance().resendInvitation(toParticipant: String(participant.attendeeId), inRoom: room.token, for: room.account!) { error in
             if error == nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Invitation resent", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
-                NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+                NCRoomsManager.sharedInstance().updateRoom(room.token)
 
                 return
             }

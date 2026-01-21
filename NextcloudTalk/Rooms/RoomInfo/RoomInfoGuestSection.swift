@@ -55,7 +55,7 @@ struct RoomInfoGuestSection: View {
                 NCUserInterfaceController.sharedInstance().presentShareLinkDialog(for: room, inViewContoller: nil, for: nil)
             }
 
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+            NCRoomsManager.sharedInstance().updateRoom(room.token)
         }
     }
 
@@ -63,7 +63,7 @@ struct RoomInfoGuestSection: View {
         NCAPIController.sharedInstance().resendInvitation(toParticipant: nil, inRoom: room.token, for: room.account!) { error in
             if error == nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Invitations resent", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
-                NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+                NCRoomsManager.sharedInstance().updateRoom(room.token)
 
                 return
             }
