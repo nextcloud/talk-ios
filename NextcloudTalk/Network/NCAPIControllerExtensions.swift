@@ -917,14 +917,14 @@ import NextcloudKit
     public func setUserAbsence(forAccountId accountId: String, forUserId userId: String, withAbsence absenceData: UserAbsence, completionBlock: @escaping (_ response: SetUserAbsenceResponse) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
-              let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let absenceDictionary = absenceData.asDictionary()
+              let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(.unknownError)
             return
         }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/dav/api/v1/outOfOffice/\(encodedUserId)"
+        let absenceDictionary = absenceData.asDictionary()
 
         apiSessionManager.postOcs(urlString, account: account, parameters: absenceDictionary) { _, ocsError in
             completionBlock(SetUserAbsenceResponse(errorKey: ocsError?.errorKey))

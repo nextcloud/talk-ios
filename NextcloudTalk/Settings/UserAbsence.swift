@@ -55,7 +55,7 @@ public struct UserAbsence {
 
     }
 
-    public func asDictionary() -> [String: Any]? {
+    public func asDictionary() -> [String: Any] {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
 
