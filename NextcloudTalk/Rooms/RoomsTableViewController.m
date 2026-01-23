@@ -1384,7 +1384,7 @@ typedef enum RoomsSections {
             [self->_rooms removeObjectAtIndex:indexPath.row];
             [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
-    } andWithFinishedBlock:nil];
+    } withFinishedBlock:nil];
 }
 
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath

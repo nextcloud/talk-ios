@@ -238,6 +238,124 @@ import Foundation
         return roomContainsNewMessages
     }
 
+    private func updateRoom(_ room: NCRoom, withBlock block: @escaping (_ managedRoom: NCRoom) -> Void) {
+        let bgTask = BGTaskHelper.startBackgroundTask()
+        try? RLMRealm.default().transaction {
+            if let managedRoom = NCRoom.objects(where: "internalId = %@", room.internalId).firstObject() as? NCRoom {
+                block(managedRoom)
+            }
+        }
+        bgTask.stopBackgroundTask()
+    }
+
+    public func updatePendingMessage(_ message: String, forRoom room: NCRoom) {
+        self.updateRoom(room) { managedRoom in
+            managedRoom.pendingMessage = message
+        }
+    }
+
+    public func updateLastReadMessage(_ lastReadMessage: Int, forRoom room: NCRoom) {
+        self.updateRoom(room) { managedRoom in
+            managedRoom.lastReadMessage = lastReadMessage
+        }
+    }
+
+    public func updateLastCommonReadMessage(_ messageId: Int, forRoom room: NCRoom) {
+        self.updateRoom(room) { managedRoom in
+            if messageId > managedRoom.lastCommonReadMessage {
+                managedRoom.lastCommonReadMessage = messageId
+            }
+        }
+    }
+
+    public func setNoUnreadMessages(forRoom room: NCRoom, withLastMessage lastMessage: NCChatMessage?) {
+        self.updateRoom(room) { managedRoom in
+            managedRoom.unreadMention = false
+            managedRoom.unreadMentionDirect = false
+            managedRoom.unreadMessages = 0
+
+            if let lastMessage, !room.isSensitive {
+                managedRoom.lastMessageId = lastMessage.internalId
+                managedRoom.lastActivity = lastMessage.timestamp
+            }
+        }
+    }
+
+    public func deleteRoom(withConfirmation room: NCRoom, withStartedBlock startedBlock: (() -> Void)? = nil, withFinishedBlock finishedBlock: ((_ success: Bool) -> Void)? = nil) {
+        self.deleteRoom(withConfirmation: room, withTitle: NSLocalizedString("Delete conversation", comment: ""), withMessage: room.deletionMessage, withKeepOption: false, withStartedBlock: startedBlock, withFinishedBlock: finishedBlock)
+    }
+
+    public func deleteEventRoomWithConfirmationAfterCall(_ room: NCRoom) {
+        var title = NSLocalizedString("Delete conversation", comment: "")
+        var message = NSLocalizedString("The call for this event ended. Do you want to delete this conversation for everyone?", comment: "")
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
+        let retentionEvent = serverCapabilities?.retentionEvent ?? 0
+        let isRetentionEnabled = retentionEvent > 0
+
+        if isRetentionEnabled {
+            title = NSLocalizedString("Do you want to delete this conversation?", comment: "")
+            message = String.localizedStringWithFormat("This conversation will be automatically deleted for everyone in %ld days of no activity.", retentionEvent)
+
+        }
+
+        self.deleteRoom(withConfirmation: room, withTitle: title, withMessage: message, withKeepOption: isRetentionEnabled, withStartedBlock: nil, withFinishedBlock: nil)
+    }
+
+    private func deleteRoom(withConfirmation room: NCRoom, withTitle title: String, withMessage message: String, withKeepOption keepOption: Bool, withStartedBlock startedBlock: (() -> Void)?, withFinishedBlock finishedBlock: ((_ success: Bool) -> Void)?) {
+        let confirmDialog = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        if keepOption {
+            let keepAction = UIAlertAction(title: NSLocalizedString("Keep", comment: ""), style: .default) { _ in
+                startedBlock?()
+
+                let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+                NCAPIController.sharedInstance().unbindRoomFromObject(room.token, forAccount: activeAccount) { error in
+                    if let error {
+                        print("Error unbinding room from object: \(error.localizedDescription)")
+                    }
+
+                    finishedBlock?(error == nil)
+                }
+            }
+
+            confirmDialog.addAction(keepAction)
+        }
+
+        // Delete option
+        let deleteTitle = keepOption ?
+        NSLocalizedString("Delete now", comment: "Delete a conversation right now without waiting for auto-deletion") :
+        NSLocalizedString("Delete", comment: "")
+
+        let confirmAction = UIAlertAction(title: deleteTitle, style: .destructive) { _ in
+            NCUserInterfaceController.sharedInstance().presentConversationsList()
+
+            startedBlock?()
+
+            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+            NCAPIController.sharedInstance().deleteRoom(room.token, forAccount: activeAccount) { error in
+                if let error {
+                    print("Error deleting room: \(error.localizedDescription)")
+                }
+
+                self.updateRooms(updatingUserStatus: true, onlyLastModified: false)
+
+                finishedBlock?(error == nil)
+            }
+        }
+
+        confirmDialog.addAction(confirmAction)
+
+        // Cancel option
+        let cancelTitle = keepOption ? NSLocalizedString("Dismiss", comment: "") : NSLocalizedString("Cancel", comment: "")
+
+        let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
+        confirmDialog.addAction(cancelAction)
+
+        NCUserInterfaceController.sharedInstance().presentAlertViewController(confirmDialog)
+    }
+
     // MARK: - Join/Leave room
 
     public func joinRoom(_ token: String, forCall call: Bool) {

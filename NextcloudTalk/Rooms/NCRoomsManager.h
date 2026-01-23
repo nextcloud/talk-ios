@@ -49,13 +49,7 @@ typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 // END
 
 + (instancetype)sharedInstance;
-// Room
-- (void)updatePendingMessage:(NSString *)message forRoom:(NCRoom *)room;
-- (void)updateLastReadMessage:(NSInteger)lastReadMessage forRoom:(NCRoom *)room;
-- (void)updateLastCommonReadMessage:(NSInteger)messageId forRoom:(NCRoom *)room;
-- (void)setNoUnreadMessagesForRoom:(NCRoom *)room withLastMessage:(NCChatMessage * _Nullable)lastMessage;
-- (void)deleteRoomWithConfirmation:(NCRoom * _Nonnull)room withStartedBlock:(RoomDeletionStartedBlock _Nullable)startedBlock andWithFinishedBlock:(RoomDeletionFinishedBlock _Nullable)finishedBlock;
-- (void)deleteEventRoomWithConfirmationAfterCall:(NCRoom * _Nonnull)room;
+
 // Chat
 - (void)startChatInRoom:(NCRoom *)room;
 - (void)leaveChatInRoom:(NSString *)token;

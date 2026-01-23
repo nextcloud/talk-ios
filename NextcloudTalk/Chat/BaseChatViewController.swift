@@ -3523,12 +3523,12 @@ import SwiftUI
         }
 
         self.room.pendingMessage = self.textView.text
-        NCRoomsManager.sharedInstance().updatePendingMessage(self.room.pendingMessage, for: self.room)
+        NCRoomsManager.sharedInstance().updatePendingMessage(self.room.pendingMessage, forRoom: self.room)
     }
 
     public func clearPendingMessage() {
         self.room.pendingMessage = ""
-        NCRoomsManager.sharedInstance().updatePendingMessage("", for: self.room)
+        NCRoomsManager.sharedInstance().updatePendingMessage("", forRoom: self.room)
     }
 
     private func getKeyForDate(date: Date, inDictionary dict: [Date: [NCChatMessage]]) -> Date? {

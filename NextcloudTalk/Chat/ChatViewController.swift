@@ -453,7 +453,7 @@ import SwiftUI
 
         if self.room.canModerate, calendarEvent.isPastEvent {
             let deleteConversation = UIAction(title: NSLocalizedString("Delete conversation", comment: ""), image: .init(systemName: "trash")) { [unowned self] _ in
-                NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil)
+                NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room)
             }
 
             deleteConversation.attributes = .destructive
@@ -1016,7 +1016,7 @@ import SwiftUI
     }
 
     func deleteNowButtonPressed() {
-        NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil)
+        NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room)
     }
 
     func keepButtonPressed() {
@@ -1287,7 +1287,7 @@ import SwiftUI
     }
 
     func saveLastReadMessage() {
-        NCRoomsManager.sharedInstance().updateLastReadMessage(self.lastReadMessage, for: self.room)
+        NCRoomsManager.sharedInstance().updateLastReadMessage(self.lastReadMessage, forRoom: self.room)
     }
 
     // MARK: - Room Manager notifications
