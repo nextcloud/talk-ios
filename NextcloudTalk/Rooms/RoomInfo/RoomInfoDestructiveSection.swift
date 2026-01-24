@@ -76,9 +76,9 @@ struct RoomInfoDestructiveSection: View {
         do {
             try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: room.account!)
 
-            NCRoomsManager.sharedInstance().chatViewController?.leaveChat()
+            NCRoomsManager.shared.chatViewController?.leaveChat()
             NCUserInterfaceController.sharedInstance().presentConversationsList()
-            NCRoomsManager.sharedInstance().updateRooms(updatingUserStatus: false, onlyLastModified: false)
+            NCRoomsManager.shared.updateRooms(updatingUserStatus: false, onlyLastModified: false)
         } catch {
             if let error = error as? OcsError, error.responseStatusCode == 400 {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("You need to promote a new moderator before you can leave this conversation", comment: ""), withMessage: nil)
@@ -101,7 +101,7 @@ struct RoomInfoDestructiveSection: View {
     }
 
     func deleteRoomWithConfirmation() {
-        NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room, withStartedBlock: nil) { success in
+        NCRoomsManager.shared.deleteRoom(withConfirmation: self.room, withStartedBlock: nil) { success in
             if !success {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not delete conversation", comment: ""), withMessage: nil)
             }

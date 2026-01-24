@@ -5,12 +5,78 @@
 
 import Foundation
 
-@objc extension NCRoomsManager {
+public typealias RoomToken = String
 
-    public static let statusCodeNoSessionId = 996
-    public static let statusCodeFailedToJoinExternal = 997
-    public static let statusCodeShouldIgnoreAttemptButJoinedSuccessfully = 998
-    public static let statusCodeIgnoreJoinAttempt = 999
+@objcMembers
+public class NCRoomController {
+    public var userSessionId: String
+    public var inCall: Bool
+    public var inChat: Bool
+
+    init(userSessionId: String, inCall: Bool, inChat: Bool) {
+        self.userSessionId = userSessionId
+        self.inCall = inCall
+        self.inChat = inChat
+
+        AllocationTracker.shared.addAllocation()
+    }
+
+    deinit {
+        AllocationTracker.shared.removeAllocation()
+    }
+}
+
+@objcMembers
+class NCRoomsManager: NSObject, CallViewControllerDelegate {
+
+    public static let shared = NCRoomsManager()
+
+    private static let statusCodeNoSessionId = 996
+    private static let statusCodeFailedToJoinExternal = 997
+    private static let statusCodeShouldIgnoreAttemptButJoinedSuccessfully = 998
+    private static let statusCodeIgnoreJoinAttempt = 999
+
+    public var chatViewController: ChatViewController?
+    public var callViewController: CallViewController?
+
+    internal var activeRooms = [RoomToken: NCRoomController]()
+    internal var joiningAttempts: Int = 0
+
+    private var joiningRoomToken: String?
+    private var leavingRoomToken: String?
+    private var joiningSessionId: String?
+    private var joinRoomTask: URLSessionTask?
+    private var leaveRoomTask: URLSessionTask?
+    private var upgradeCallToken: String?
+    private var pendingToStartCallToken: String?
+    private var pendingToStartCallHasVideo: Bool = false
+    private var highlightMessageDict: [AnyHashable: Any]?
+    private var showThreadPushNotification: NCPushNotification?
+
+    override init() {
+        super.init()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(joinChatWithLocalNotification(notification:)), name: NSNotification.Name.NCLocalNotificationJoinChat, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinChat(notification:)), name: NSNotification.Name.NCPushNotificationJoinChat, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinAudioCallAccepted(notification:)), name: NSNotification.Name.NCPushNotificationJoinAudioCallAccepted, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinVideoCallAccepted(notification:)), name: NSNotification.Name.NCPushNotificationJoinVideoCallAccepted, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(selectedUserForChat(notification:)), name: NSNotification.Name.NCSelectedUserForChat, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(roomCreated(notification:)), name: NSNotification.Name.NCRoomCreated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(acceptCallForRoom(notification:)), name: NSNotification.Name.CallKitManagerDidAnswerCall, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(startCallForRoom(notification:)), name: NSNotification.Name.CallKitManagerDidStartCall, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(checkForCallUpgrades(notification:)), name: NSNotification.Name.CallKitManagerDidEndCall, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinOrCreateChat(notification:)), name: NSNotification.Name.NCChatViewControllerReplyPrivatelyNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinChatOfForwardedMessage(notification:)), name: NSNotification.Name.NCChatViewControllerForwardNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinOrCreateChat(notification:)), name: NSNotification.Name.NCChatViewControllerTalkToUserNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinOrCreateChatWithURL(notification:)), name: NSNotification.Name.NCURLWantsToOpenConversation, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(joinChatHighlightingMessage(notification:)), name: NSNotification.Name.NCPresentChatHighlightingMessage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionStateHasChanged(notification:)), name: NSNotification.Name.NCConnectionStateHasChangedNotification, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 
     // MARK: Room
 
@@ -370,9 +436,8 @@ import Foundation
         }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        var roomController = self.activeRooms[roomToken]
 
-        if roomController == nil {
+        if self.activeRooms[roomToken] != nil {
             // Workaround until external signaling supports multi-room
             if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
                 let currentRoom = extSignalingController.currentRoom
@@ -393,14 +458,14 @@ import Foundation
             // Highlight message
             if let highlightToken = self.highlightMessageDict?["token"] as? String, highlightToken == roomToken {
                 if let messageId = self.highlightMessageDict?[intForKey: "messageId"] {
-                    self.chatViewController.highlightMessageId = messageId
+                    self.chatViewController?.highlightMessageId = messageId
                     self.highlightMessageDict = nil
                 }
             }
 
             // Open thread view on appear
             if let showThreadPushNotification, showThreadPushNotification.roomToken == roomToken {
-                self.chatViewController.presentThreadOnAppear = showThreadPushNotification.threadId
+                self.chatViewController?.presentThreadOnAppear = showThreadPushNotification.threadId
                 self.showThreadPushNotification = nil
             }
 
@@ -410,7 +475,7 @@ import Foundation
 
             // Open thread view on appear
             if let showThreadPushNotification, showThreadPushNotification.roomToken == roomToken {
-                self.chatViewController.presentThreadView(for: showThreadPushNotification.threadId)
+                self.chatViewController?.presentThreadView(for: showThreadPushNotification.threadId)
                 self.showThreadPushNotification = nil
 
                 // Still make sure the current room is highlighted
@@ -437,11 +502,379 @@ import Foundation
     }
 
     public func leaveChat(inRoom token: String) {
-        if let roomController = self.activeRooms[token] as? NCRoomController {
-            roomController.inChat = false
+        self.activeRooms[token]?.inChat = false
+        self.leaveRoom(token)
+    }
+
+    // MARK: - Call
+
+    public func startCall(withVideo video: Bool, inRoom room: NCRoom, withVideoEnabled videoEnabled: Bool, asInitiator initiator: Bool, silently: Bool, withRecordingConsent recordingConsent: Bool, withVoiceChatMode voiceChatMode: Bool) {
+        guard self.callViewController == nil else {
+            print("Not starting call due to in another call.")
+            return
         }
 
-        self.leaveRoom(token)
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        let callViewController = CallViewController(for: room, asUser: activeAccount.userDisplayName, audioOnly: !video)
+        self.callViewController = callViewController
+
+        callViewController.videoDisabledAtStart = !videoEnabled
+        callViewController.voiceChatModeAtStart = voiceChatMode
+        callViewController.initiator = initiator
+        callViewController.silentCall = silently
+        callViewController.recordingConsent = recordingConsent
+        callViewController.modalTransitionStyle = .crossDissolve
+        callViewController.delegate = self
+
+        let chatViewControllerRoomToken = self.chatViewController?.room.token
+        let joiningRoomToken = room.token
+
+        // Workaround until external signaling supports multi-room
+        if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
+            let extSignalingRoomToken = extSignalingController.currentRoom
+
+            if extSignalingRoomToken != joiningRoomToken {
+                // Since we are going to join another conversation, we don't need to leaveRoom() in extSignalingController.
+                // That's why we set currentRoom = nil, so when leaveRoom() is called in extSignalingController the currentRoom
+                // is no longer the room we want to leave (so no message is sent to the external signaling server).
+                extSignalingController.currentRoom = nil
+            }
+
+            // Make sure the external signaling contoller is connected.
+            // Could be that the call has been received while the app was inactive or in the background,
+            // so the external signaling controller might be disconnected at this point.
+            if extSignalingController.disconnected {
+                extSignalingController.forceConnect()
+            }
+        }
+
+        if let chatViewController {
+            if chatViewControllerRoomToken == joiningRoomToken {
+                // We're in the chat of the room we want to start a call, so stop chat for now
+                chatViewController.stopChat()
+            } else {
+                // We're in a different chat, so make sure we leave the chat and go back to the conversation list
+                chatViewController.leaveChat()
+                NCUserInterfaceController.sharedInstance().presentConversationsList()
+            }
+        }
+
+        NCUserInterfaceController.sharedInstance().present(callViewController) {
+            self.joinRoom(room.token, forCall: true)
+        }
+    }
+
+    public func joinCall(withCallToken token: String, withVideo video: Bool, asInitiator initiator: Bool, recordingConsent: Bool) {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: token) { roomDict, error in
+            guard error == nil else { return }
+
+            if let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+                CallKitManager.sharedInstance().startCall(room.token, withVideoEnabled: video, andDisplayName: room.displayName, asInitiator: initiator, silently: true, recordingConsent: recordingConsent, withAccountId: activeAccount.accountId)
+            }
+        }
+    }
+
+    public func startCall(withToken token: String, withVideo video: Bool, enabledAtStart videoEnabled: Bool, asInitiator initiator: Bool, silently: Bool, recordingConsent: Bool, withVoiceChatMode voiceChatMode: Bool) {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: token) { roomDict, error in
+            guard error == nil else { return }
+
+            if let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+                self.startCall(withVideo: video, inRoom: room, withVideoEnabled: videoEnabled, asInitiator: initiator, silently: silently, withRecordingConsent: recordingConsent, withVoiceChatMode: voiceChatMode)
+            }
+        }
+    }
+
+    public func isCallOngoing(withCallToken token: String) -> Bool {
+        guard let callViewController = self.callViewController else { return false }
+
+        return callViewController.room.token == token
+    }
+
+    public var areThereActiveCalls: Bool {
+        return self.activeRooms.values.contains(where: { $0.inCall })
+    }
+
+    public func checkForPendingToStartCalls() {
+        if let pendingToStartCallToken = self.pendingToStartCallToken {
+            // Pending calls can only happen when answering a new call. That's why we start with video disabled at start and in voice chat mode.
+            // We also can start call silently because we are joining an already started call so no need to notify.
+            self.startCall(withToken: pendingToStartCallToken, withVideo: pendingToStartCallHasVideo, enabledAtStart: false, asInitiator: false, silently: true, recordingConsent: false, withVoiceChatMode: true)
+            self.pendingToStartCallToken = nil
+        }
+    }
+
+    public func upgradeCallToVideoCall(forRoom room: NCRoom) {
+        guard let roomToken = room.token else { return }
+
+        if let roomController = activeRooms[roomToken] {
+            roomController.inCall = false
+        }
+
+        self.upgradeCallToken = roomToken
+        CallKitManager.sharedInstance().endCall(roomToken, withStatusCode: 0)
+    }
+
+    // MARK: - Switch to
+
+    public func prepareSwitchToAnotherRoom(fromRoom token: String, withCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+        if self.chatViewController?.room.token == token {
+            self.chatViewController?.leaveChat()
+            NCUserInterfaceController.sharedInstance().popToConversationsList()
+        }
+
+        // Remove room controller and exit rooms
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        if self.activeRooms[token] != nil {
+            self.activeRooms.removeValue(forKey: token)
+            NCAPIController.sharedInstance().exitRoom(token, forAccount: activeAccount) { error in
+                completionBlock(error)
+            }
+        } else {
+            print("Couldn't find a room controller from the room we are switching from")
+            completionBlock(nil)
+        }
+    }
+
+    // MARK: CallViewControllerDelegate
+
+    func callViewControllerWantsToBeDismissed(_ viewController: CallViewController) {
+        guard self.callViewController == viewController else { return }
+
+        if !viewController.isBeingDismissed {
+            viewController.dismiss(animated: true)
+        }
+    }
+
+    func callViewControllerWantsVideoCallUpgrade(_ viewController: CallViewController) {
+        guard self.callViewController == viewController else { return }
+
+        if let room = self.callViewController?.room {
+            self.callViewController = nil
+            self.upgradeCallToVideoCall(forRoom: room)
+        }
+    }
+
+    func callViewController(_ viewController: CallViewController, wantsToSwitchFromRoom from: String, toRoom to: String) {
+        guard self.callViewController == viewController else { return }
+
+        CallKitManager.sharedInstance().switchCall(from: from, toCall: to)
+    }
+
+    func callViewControllerDidFinish(_ viewController: CallViewController) {
+        guard self.callViewController == viewController,
+              let roomToken = viewController.room.token
+        else { return }
+
+        let room = viewController.room
+
+        self.callViewController = nil
+        self.activeRooms[roomToken]?.inCall = false
+        self.leaveRoom(roomToken)
+
+        CallKitManager.sharedInstance().endCall(roomToken, withStatusCode: 0)
+
+        if let chatViewController, chatViewController.room.token == roomToken {
+            chatViewController.resumeChat()
+        }
+
+        // Keep connection alive temporarily when a call was finished while the app in the background
+        if UIApplication.shared.applicationState == .background {
+            let appDelegate = UIApplication.shared.delegate as? AppDelegate
+            appDelegate?.keepExternalSignalingConnectionAliveTemporarily()
+        }
+
+        // If this is an event room and we are a moderator, we allow direct deletion
+        if room.canModerate, room.isEvent {
+            self.deleteEventRoomWithConfirmationAfterCall(room)
+        }
+    }
+
+    // MARK: - Notifications
+
+    func checkForCallUpgrades(notification: Notification) {
+        guard let upgradeCallToken else { return }
+        let token = upgradeCallToken
+        self.upgradeCallToken = nil
+
+        // Add some delay so CallKit doesn't fail requesting new call
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.joinCall(withCallToken: token, withVideo: true, asInitiator: false, recordingConsent: true)
+        }
+    }
+
+    private func checkForAccountChange(_ accountId: String?) {
+        guard let accountId else { return }
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        if activeAccount.accountId == accountId {
+            // Leave chat before changing accounts
+            self.chatViewController?.leaveChat()
+        }
+        // Set notification account active
+        NCSettingsController.sharedInstance().setActiveAccountWithAccountId(accountId)
+    }
+
+    func acceptCallForRoom(notification: Notification) {
+        guard let roomToken = notification.userInfo?[stringForKey: "roomToken"],
+              let waitForcallEnd = notification.userInfo?[boolForKey: "waitForCallEnd"],
+              let hasVideo = notification.userInfo?[boolForKey: "hasVideo"]
+        else { return }
+
+        let activeCalls = self.areThereActiveCalls
+
+        if !waitForcallEnd || (!activeCalls && leaveRoomTask == nil) {
+            // Calls that have been answered start with video disabled by default, in voice chat mode and silently (without notification).
+            self.startCall(withToken: roomToken, withVideo: hasVideo, enabledAtStart: false, asInitiator: false, silently: true, recordingConsent: false, withVoiceChatMode: true)
+        } else {
+            self.pendingToStartCallToken = roomToken
+            self.pendingToStartCallHasVideo = hasVideo
+        }
+    }
+
+    func startCallForRoom(notification: Notification) {
+        guard let roomToken = notification.userInfo?[stringForKey: "roomToken"],
+              let isVideoEnabled = notification.userInfo?[boolForKey: "isVideoEnabled"],
+              let initiator = notification.userInfo?[boolForKey: "initiator"],
+              let silentCall = notification.userInfo?[boolForKey: "silentCall"],
+              let recordingConsent = notification.userInfo?[boolForKey: "recordingConsent"]
+        else { return }
+
+        self.startCall(withToken: roomToken, withVideo: isVideoEnabled, enabledAtStart: true, asInitiator: initiator, silently: silentCall, recordingConsent: recordingConsent, withVoiceChatMode: false)
+    }
+
+    func joinAudioCallAccepted(notification: Notification) {
+        guard let pushNotification = notification.userInfo?["pushNotification"] as? NCPushNotification
+        else { return }
+
+        self.checkForAccountChange(pushNotification.accountId)
+        self.joinCall(withCallToken: pushNotification.roomToken, withVideo: false, asInitiator: false, recordingConsent: false)
+    }
+
+    func joinVideoCallAccepted(notification: Notification) {
+        guard let pushNotification = notification.userInfo?["pushNotification"] as? NCPushNotification
+        else { return }
+
+        self.checkForAccountChange(pushNotification.accountId)
+        self.joinCall(withCallToken: pushNotification.roomToken, withVideo: true, asInitiator: false, recordingConsent: false)
+    }
+
+    func joinChat(notification: Notification) {
+        guard let pushNotification = notification.userInfo?["pushNotification"] as? NCPushNotification
+        else { return }
+
+        self.checkForAccountChange(pushNotification.accountId)
+
+        if pushNotification.threadId > 0 {
+            self.showThreadPushNotification = pushNotification
+        }
+
+        self.startChat(withRoomToken: pushNotification.roomToken)
+    }
+
+    func joinOrCreateChat(withUser userId: String, usingAccountId accountId: String) {
+        let accountRooms = NCDatabaseManager.sharedInstance().roomsForAccountId(accountId, withRealm: nil)
+
+        if let room = accountRooms.first(where: { $0.type == .oneToOne && $0.name == userId }) {
+            // Room already exists -> join the room
+            self.startChat(inRoom: room)
+            return
+        }
+
+        // Did not find a one-to-one room for this user -> create a new one
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: userId, ofType: .oneToOne, andName: nil) { room, error in
+            guard error == nil, let room else {
+                print("Failed creating room with \(userId)")
+                return
+            }
+
+            self.startChat(withRoomToken: room.token)
+        }
+    }
+
+    func joinOrCreateChat(notification: Notification) {
+        guard let actorId = notification.userInfo?[stringForKey: "actorId"]
+        else { return }
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        self.joinOrCreateChat(withUser: actorId, usingAccountId: activeAccount.accountId)
+    }
+
+    func joinOrCreateChatWithURL(notification: Notification) {
+        guard let accountId = notification.userInfo?[stringForKey: "accountId"]
+        else { return }
+
+        let withUser = notification.userInfo?[stringForKey: "withUser"]
+        let roomToken = notification.userInfo?[stringForKey: "withRoomToken"]
+
+        self.checkForAccountChange(accountId)
+
+        if let withUser {
+            self.joinOrCreateChat(withUser: withUser, usingAccountId: accountId)
+        } else if let roomToken {
+            self.startChat(withRoomToken: roomToken)
+        }
+    }
+
+    func joinChatOfForwardedMessage(notification: Notification) {
+        guard let accountId = notification.userInfo?[stringForKey: "accountId"],
+              let roomToken = notification.userInfo?[stringForKey: "token"]
+        else { return }
+
+        self.checkForAccountChange(accountId)
+        self.startChat(withRoomToken: roomToken)
+    }
+
+    func joinChatWithLocalNotification(notification: Notification) {
+        guard let accountId = notification.userInfo?[stringForKey: "accountId"],
+              let roomToken = notification.userInfo?[stringForKey: "roomToken"]
+        else { return }
+
+        self.checkForAccountChange(accountId)
+        self.startChat(withRoomToken: roomToken)
+
+        // In case this notification occurred because of a failed chat-sending event, make sure the text is not lost
+        // Note: This will override any stored pending message
+        if let responseUserText = notification.userInfo?[stringForKey: "responseUserText"], let chatViewController {
+            chatViewController.setChatMessage(responseUserText)
+        }
+    }
+
+    func joinChatHighlightingMessage(notification: Notification) {
+        guard let roomToken = notification.userInfo?[stringForKey: "token"]
+        else { return }
+
+        self.highlightMessageDict = notification.userInfo
+        self.startChat(withRoomToken: roomToken)
+    }
+
+    func selectedUserForChat(notification: Notification) {
+        guard let roomToken = notification.userInfo?[stringForKey: "token"]
+        else { return }
+
+        self.startChat(withRoomToken: roomToken)
+    }
+
+    func roomCreated(notification: Notification) {
+        guard let roomToken = notification.userInfo?[stringForKey: "token"]
+        else { return }
+
+        self.startChat(withRoomToken: roomToken)
+    }
+
+    func connectionStateHasChanged(notification: Notification) {
+        guard let rawConnectionState = notification.userInfo?["connectionState"] as? Int,
+              let connectionState = ConnectionState(rawValue: rawConnectionState)
+        else { return }
+
+        // Try to send offline message when the connection state changes to connected again
+        if connectionState == .connected {
+            self.resendOfflineMessagesWithCompletionBlock(nil)
+        }
     }
 
     // MARK: - Join/Leave room
@@ -470,7 +903,7 @@ import Foundation
         var userInfo: [AnyHashable: Any] = [:]
         userInfo["token"] = token
 
-        if let roomController = self.activeRooms[token] as? NCRoomController {
+        if let roomController = self.activeRooms[token] {
             NCUtils.log("JoinRoomHelper: Found active room controller")
 
             if call {
@@ -509,12 +942,8 @@ import Foundation
                 return
             }
 
-            if error == nil {
-                let controller = NCRoomController()
-                controller.userSessionId = sessionId
-                controller.inChat = !call
-                controller.inCall = call
-
+            if error == nil, let sessionId {
+                let controller = NCRoomController(userSessionId: sessionId, inCall: call, inChat: !call)
                 userInfo["roomController"] = controller
 
                 if let room {
@@ -676,7 +1105,7 @@ import Foundation
     public func rejoinRoomForCall(_ token: String, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) {
         NCUtils.log("Rejoining room \(token)")
 
-        guard let roomController = self.activeRooms[token] as? NCRoomController else { return }
+        guard let roomController = self.activeRooms[token] else { return }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
@@ -734,10 +1163,9 @@ import Foundation
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         // Remove room controller and exit room
-        if let roomController = self.activeRooms[token] as? NCRoomController,
-           !roomController.inCall, !roomController.inChat {
+        if let roomController = self.activeRooms[token], !roomController.inCall, !roomController.inChat {
 
-            self.activeRooms.removeObject(forKey: token)
+            self.activeRooms.removeValue(forKey: token)
 
             self.leavingRoomToken = token
             self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, forAccount: activeAccount, completionBlock: { error in
@@ -795,12 +1223,12 @@ import Foundation
 
     // MARK: - Room
 
-    public func resendOfflineMessagesWithCompletionBlock(_ block: SendOfflineMessagesCompletionBlock?) {
+    public func resendOfflineMessagesWithCompletionBlock(_ block: (() -> Void)?) {
         // Try to send offline messages for all rooms
         self.resendOfflineMessages(forToken: nil, withCompletionBlock: block)
     }
 
-    public func resendOfflineMessages(forToken token: String?, withCompletionBlock completionBlock: SendOfflineMessagesCompletionBlock?) {
+    public func resendOfflineMessages(forToken token: String?, withCompletionBlock completionBlock: (() -> Void)?) {
         var query: NSPredicate
 
         if let token {

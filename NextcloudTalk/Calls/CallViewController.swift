@@ -131,7 +131,7 @@ class CallViewController: UIViewController,
     private var currentCallState: CallState = .joining
     private var previousParticipants: [String] = []
 
-    public init?(for room: NCRoom, asUser displayName: String, audioOnly: Bool) {
+    public init(for room: NCRoom, asUser displayName: String, audioOnly: Bool) {
         self.room = room
         self.displayName = displayName
         self.isAudioOnly = audioOnly
@@ -933,7 +933,7 @@ class CallViewController: UIViewController,
         }
 
         // Connect to new call
-        NCRoomsManager.sharedInstance().updateRoom(token) { roomDict, error in
+        NCRoomsManager.shared.updateRoom(token) { roomDict, error in
             guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: self.room.accountId)
             else {
                 print("Error getting room to switch")
@@ -941,7 +941,7 @@ class CallViewController: UIViewController,
             }
 
             // Prepare rooms manager to switch to another room
-            NCRoomsManager.sharedInstance().prepareSwitchToAnotherRoom(fromRoom: self.room.token) { _ in
+            NCRoomsManager.shared.prepareSwitchToAnotherRoom(fromRoom: self.room.token) { _ in
                 // Notify callkit about room switch
                 self.delegate?.callViewController(self, wantsToSwitchFromRoom: self.room.token, toRoom: token)
 
@@ -965,7 +965,7 @@ class CallViewController: UIViewController,
                 self.callController = nil
 
                 // Join new room
-                NCRoomsManager.sharedInstance().joinRoom(token, forCall: true)
+                NCRoomsManager.shared.joinRoom(token, forCall: true)
             }
         }
     }

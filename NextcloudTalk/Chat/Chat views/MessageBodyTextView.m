@@ -5,7 +5,6 @@
 
 #import "MessageBodyTextView.h"
 
-#import "NCRoomsManager.h"
 #import "NCUserDefaults.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -94,7 +93,7 @@
 {
     if ([NCUtils isInstanceRoomLinkWithLink:URL.absoluteString]) {
         NSString *token = URL.lastPathComponent;
-        [[NCRoomsManager sharedInstance] startChatWithRoomToken:token];
+        [[NCRoomsManager shared] startChatWithRoomToken:token];
         return NO;
     }
     return YES;

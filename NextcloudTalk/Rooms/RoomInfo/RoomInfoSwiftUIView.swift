@@ -68,7 +68,7 @@ struct RoomInfoSwiftUIView: View {
             }
         }
         .task {
-            NCRoomsManager.sharedInstance().updateRoom(room.token)
+            NCRoomsManager.shared.updateRoom(room.token)
 
             if room.type == .oneToOne {
                 // TODO: Should have some caching here

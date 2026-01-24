@@ -143,7 +143,7 @@ class OpenConversationsTableViewController: UITableViewController, UISearchResul
         }
 
         NCUserInterfaceController.sharedInstance().presentConversationsList()
-        NCRoomsManager.sharedInstance().startChat(inRoom: openConversation)
+        NCRoomsManager.shared.startChat(inRoom: openConversation)
     }
 
 }

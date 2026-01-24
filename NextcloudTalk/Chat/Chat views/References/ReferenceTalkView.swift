@@ -49,7 +49,7 @@ import SwiftyAttributes
 
     func handleTap() {
         if let roomToken = self.roomToken {
-            NCRoomsManager.sharedInstance().startChat(withRoomToken: roomToken)
+            NCRoomsManager.shared.startChat(withRoomToken: roomToken)
         } else if let url = url {
             NCUtils.openLinkInBrowser(link: url)
         }

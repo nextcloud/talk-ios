@@ -20,7 +20,6 @@
 #import "NCChatFileController.h"
 #import "NCSignalingMessage.h"
 #import "NCPoll.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserDefaults.h"
 #import "NCUserInterfaceController.h"
@@ -79,5 +78,6 @@
 
 #import "DRCellSlideGestureRecognizer.h"
 #import "NCTypes.h"
+#import "NCChatController.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

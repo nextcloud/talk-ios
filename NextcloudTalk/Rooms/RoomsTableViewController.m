@@ -17,7 +17,6 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NotificationCenterNotifications.h"
@@ -416,7 +415,7 @@ typedef enum RoomsSections {
 
 - (void)notificationWillBePresented:(NSNotification *)notification
 {
-    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:NO withCompletionBlock:nil];
+    [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:NO withCompletionBlock:nil];
     [self setUnreadMessageForInactiveAccountsIndicator];
 }
 
@@ -433,7 +432,7 @@ typedef enum RoomsSections {
 - (void)appWillEnterForeground:(NSNotification *)notification
 {
     if ([NCConnectionController shared].appState == AppStateReady) {
-        [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
+        [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
         [self startRefreshRoomsTimer];
 
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -485,10 +484,10 @@ typedef enum RoomsSections {
 
 - (void)refreshRooms
 {
-    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
+    [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
     if ([NCConnectionController shared].connectionState == ConnectionStateConnected) {
-        [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:nil];
+        [[NCRoomsManager shared] resendOfflineMessagesWithCompletionBlock:nil];
     }
 
     [self getUserStatusWithCompletionBlock:nil];
@@ -523,7 +522,7 @@ typedef enum RoomsSections {
 
 - (void)refreshControlTarget
 {
-    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
+    [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
     [self getUserStatusWithCompletionBlock:nil];
 
@@ -978,7 +977,7 @@ typedef enum RoomsSections {
         {
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-            [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:isAppActive onlyLastModified:NO];
+            [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:isAppActive onlyLastModified:NO];
             [self getUserStatusWithCompletionBlock:nil];
             [self getUserThreads];
             [self startRefreshRoomsTimer];
@@ -1222,7 +1221,7 @@ typedef enum RoomsSections {
 
 - (void)trustedCerticateAccepted
 {
-    [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:NO onlyLastModified:NO];
+    [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:NO onlyLastModified:NO];
 }
 
 #pragma mark - Room actions
@@ -1240,7 +1239,7 @@ typedef enum RoomsSections {
                 NSLog(@"Error setting notification level");
             }
 
-            [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+            [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
         }];
     }];
 
@@ -1268,7 +1267,7 @@ typedef enum RoomsSections {
             NSLog(@"Error archiving room");
         }
 
-        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
     }];
 }
 
@@ -1281,7 +1280,7 @@ typedef enum RoomsSections {
             NSLog(@"Error unarchiving room");
         }
 
-        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
     }];
 }
 
@@ -1291,7 +1290,7 @@ typedef enum RoomsSections {
         if (error) {
             NSLog(@"Error marking room as read: %@", error.description);
         }
-        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
     }];
 }
 
@@ -1301,7 +1300,7 @@ typedef enum RoomsSections {
         if (error) {
             NSLog(@"Error marking chat as unread: %@", error.description);
         }
-        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
     }];
 }
 
@@ -1311,7 +1310,7 @@ typedef enum RoomsSections {
         if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
         }
-        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
     }];
 }
 
@@ -1321,7 +1320,7 @@ typedef enum RoomsSections {
         if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
         }
-        [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
     }];
 }
 
@@ -1366,7 +1365,7 @@ typedef enum RoomsSections {
                 }
             }
 
-            [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+            [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
         }];
     }];
     [confirmDialog addAction:confirmAction];
@@ -1377,7 +1376,7 @@ typedef enum RoomsSections {
 
 - (void)deleteRoom:(NCRoom *)room
 {
-    [[NCRoomsManager sharedInstance] deleteRoomWithConfirmation:room withStartedBlock:^{
+    [[NCRoomsManager shared] deleteRoomWithConfirmation:room withStartedBlock:^{
         NSIndexPath *indexPath = [self indexPathForRoom:room];
 
         if (indexPath) {
@@ -1390,7 +1389,7 @@ typedef enum RoomsSections {
 - (void)presentChatForRoomAtIndexPath:(NSIndexPath *)indexPath
 {
     NCRoom *room = [self roomForIndexPath:indexPath];
-    ChatViewController *currentChatViewController = [NCRoomsManager sharedInstance].chatViewController;
+    ChatViewController *currentChatViewController = [NCRoomsManager shared].chatViewController;
 
     // When a room is selected, that is currently displayed, leave that room and optionally show the placeholder view again
     if (currentChatViewController && [room.token isEqualToString:currentChatViewController.room.token]) {
@@ -1400,7 +1399,7 @@ typedef enum RoomsSections {
         return;
     }
 
-    [[NCRoomsManager sharedInstance] startChatInRoom:room];
+    [[NCRoomsManager shared] startChatInRoom:room];
 }
 
 #pragma mark - Utils
@@ -1951,7 +1950,7 @@ typedef enum RoomsSections {
                         NSLog(@"Error setting call notification");
                     }
 
-                    [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+                    [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
                 }];
             }];
 
@@ -1975,7 +1974,7 @@ typedef enum RoomsSections {
                         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
                     }
 
-                    [[NCRoomsManager sharedInstance] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+                    [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
                 }];
             }];
 

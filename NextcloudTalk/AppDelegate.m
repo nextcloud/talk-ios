@@ -22,7 +22,6 @@
 #import "NCKeyChainController.h"
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 
@@ -79,8 +78,8 @@
     [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@, %@ %@, model %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString], currentDevice.systemName, currentDevice.systemVersion, currentDevice.model]];
 
     // Init rooms manager to start receiving NSNotificationCenter notifications
-    [NCRoomsManager sharedInstance];
-    
+    [NCRoomsManager shared];
+
     [self registerBackgroundFetchTask];
     [self registerBackgroundProcessingTask];
 
@@ -145,7 +144,7 @@
             NCRoom *room = [[NCDatabaseManager sharedInstance] roomWithInternalId:recipient.customIdentifier];
 
             if (room) {
-                [[NCRoomsManager sharedInstance] startChatInRoom:room];
+                [[NCRoomsManager shared] startChatInRoom:room];
             }
         }
     }
@@ -545,7 +544,7 @@
     [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
 
     dispatch_group_enter(backgroundRefreshGroup);
-    [[NCRoomsManager sharedInstance] resendOfflineMessagesWithCompletionBlock:^{
+    [[NCRoomsManager shared] resendOfflineMessagesWithCompletionBlock:^{
         [NCUtils log:@"CompletionHandler resendOfflineMessagesWithCompletionBlock"];
 
         dispatch_group_leave(backgroundRefreshGroup);
@@ -577,7 +576,7 @@
      */
 
     dispatch_group_enter(backgroundRefreshGroup);
-    [[NCRoomsManager sharedInstance] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:YES withCompletionBlock:^(NSError *error) {
+    [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:YES withCompletionBlock:^(NSError *error) {
         [NCUtils log:@"CompletionHandler updateRoomsAndChatsUpdatingUserStatus"];
 
         if (error) {
@@ -628,7 +627,7 @@
     _keepAliveTimer = [NSTimer scheduledTimerWithTimeInterval:20 repeats:NO block:^(NSTimer * _Nonnull timer) {
         // Stop the external signaling connections only if the app keeps in the background and not in a call
         if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground &&
-            ![NCRoomsManager sharedInstance].callViewController) {
+            ![NCRoomsManager shared].callViewController) {
             [[NCSettingsController sharedInstance] disconnectAllExternalSignalingControllers];
         }
 

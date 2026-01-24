@@ -136,7 +136,7 @@ struct RoomInfoConversationSettingsSection: View {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not set message expiration time", comment: ""), withMessage: nil)
         }
 
-        NCRoomsManager.sharedInstance().updateRoom(room.token)
+        NCRoomsManager.shared.updateRoom(room.token)
     }
 
     func setListableScope(to newScope: NCRoomListableScope) async {
@@ -146,7 +146,7 @@ struct RoomInfoConversationSettingsSection: View {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change listable scope of the conversation", comment: ""), withMessage: nil)
         }
 
-        NCRoomsManager.sharedInstance().updateRoom(room.token)
+        NCRoomsManager.shared.updateRoom(room.token)
     }
 
     func setMentionPermissions(to newPermission: NCRoomMentionPermissions) {
@@ -155,7 +155,7 @@ struct RoomInfoConversationSettingsSection: View {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change mention permissions of the conversation", comment: ""), withMessage: nil)
             }
 
-            NCRoomsManager.sharedInstance().updateRoom(room.token)
+            NCRoomsManager.shared.updateRoom(room.token)
         }
     }
 
@@ -166,6 +166,6 @@ struct RoomInfoConversationSettingsSection: View {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change read-only state of the conversation", comment: ""), withMessage: nil)
         }
 
-        NCRoomsManager.sharedInstance().updateRoom(room.token)
+        NCRoomsManager.shared.updateRoom(room.token)
     }
 }

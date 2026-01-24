@@ -11,7 +11,6 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
@@ -719,7 +718,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         return;
     }
 
-    if ([NCRoomsManager sharedInstance].callViewController) {
+    if ([NCRoomsManager shared].callViewController) {
         return;
     }
 
@@ -728,7 +727,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }];
 
     // Open the conversation for the reminder
-    [[NCRoomsManager sharedInstance] startChatWithRoomToken:serverNotification.roomToken];
+    [[NCRoomsManager shared] startChatWithRoomToken:serverNotification.roomToken];
 
     // After opening the notification, we need to execute the DELETE action
     for (NSDictionary *dict in serverNotification.actions) {
@@ -742,7 +741,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
 - (void)handlePushNotificationResponse:(NCPushNotification *)pushNotification
 {
-    if ([NCRoomsManager sharedInstance].callViewController) {
+    if ([NCRoomsManager shared].callViewController) {
         return;
     }
 
@@ -767,7 +766,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
 - (void)handleLocalNotificationResponse:(NSDictionary *)notificationUserInfo
 {
-    if ([NCRoomsManager sharedInstance].callViewController) {
+    if ([NCRoomsManager shared].callViewController) {
         return;
     }
 

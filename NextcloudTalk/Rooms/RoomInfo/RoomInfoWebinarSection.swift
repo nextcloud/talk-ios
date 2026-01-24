@@ -93,7 +93,7 @@ struct RoomInfoWebinarSection: View {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change lobby state of the conversation", comment: ""), withMessage: nil)
         }
 
-        NCRoomsManager.sharedInstance().updateRoom(room.token)
+        NCRoomsManager.shared.updateRoom(room.token)
     }
 
     func setSipState(withNewState newState: NCRoomSIPState) async {
@@ -103,6 +103,6 @@ struct RoomInfoWebinarSection: View {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change SIP state of the conversation", comment: ""), withMessage: nil)
         }
 
-        NCRoomsManager.sharedInstance().updateRoom(room.token)
+        NCRoomsManager.shared.updateRoom(room.token)
     }
 }

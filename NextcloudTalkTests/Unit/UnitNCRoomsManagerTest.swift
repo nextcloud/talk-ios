@@ -37,9 +37,9 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
         XCTAssertEqual(NCChatMessage.allObjects().count, 1)
 
         let exp = expectation(description: "\(#function)\(#line)")
-        expectation(forNotification: .NCChatControllerDidSendChatMessage, object: NCRoomsManager.sharedInstance())
+        expectation(forNotification: .NCChatControllerDidSendChatMessage, object: NCRoomsManager.shared)
 
-        NCRoomsManager.sharedInstance().resendOfflineMessages(forToken: roomToken) {
+        NCRoomsManager.shared.resendOfflineMessages(forToken: roomToken) {
             exp.fulfill()
         }
 
@@ -140,7 +140,7 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         try realm.transaction {
-            NCRoomsManager.sharedInstance().updateRoom(withDict: roomDict, withAccount: activeAccount, withTimestamp: Int(Date().timeIntervalSince1970), withRealm: realm)
+            NCRoomsManager.shared.updateRoom(withDict: roomDict, withAccount: activeAccount, withTimestamp: Int(Date().timeIntervalSince1970), withRealm: realm)
         }
 
         XCTAssertEqual(NCChatMessage.allObjects().count, 1)

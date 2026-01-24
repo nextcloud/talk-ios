@@ -215,7 +215,7 @@ import SwiftUI
 
         closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
             if self.presentedInCall {
-                NCRoomsManager.sharedInstance().callViewController?.toggleChatView()
+                NCRoomsManager.shared.callViewController?.toggleChatView()
             } else {
                 self.leaveChat()
                 self.dismiss(animated: true)
@@ -453,7 +453,7 @@ import SwiftUI
 
         if self.room.canModerate, calendarEvent.isPastEvent {
             let deleteConversation = UIAction(title: NSLocalizedString("Delete conversation", comment: ""), image: .init(systemName: "trash")) { [unowned self] _ in
-                NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room)
+                NCRoomsManager.shared.deleteRoom(withConfirmation: self.room)
             }
 
             deleteConversation.attributes = .destructive
@@ -628,7 +628,7 @@ import SwiftUI
         }
 
         if !self.offlineMode {
-            NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
+            NCRoomsManager.shared.joinRoom(self.room.token, forCall: false)
         }
 
         // Check if there are summary tasks still running, but not yet finished
@@ -692,7 +692,7 @@ import SwiftUI
         self.checkForNewStoredMessages()
 
         if !self.offlineMode {
-            NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
+            NCRoomsManager.shared.joinRoom(self.room.token, forCall: false)
         }
 
         self.startObservingExpiredMessages()
@@ -710,7 +710,7 @@ import SwiftUI
         self.chatController.stop()
         self.messageExpirationTimer?.invalidate()
         self.stopTyping(force: false)
-        NCRoomsManager.sharedInstance().leaveChat(inRoom: self.room.token)
+        NCRoomsManager.shared.leaveChat(inRoom: self.room.token)
     }
 
     func connectionStateHasChanged(notification: Notification) {
@@ -724,7 +724,7 @@ import SwiftUI
                 offlineMode = false
                 startReceivingMessagesAfterJoin = true
                 self.removeOfflineFooterView()
-                NCRoomsManager.sharedInstance().joinRoom(self.room.token, forCall: false)
+                NCRoomsManager.shared.joinRoom(self.room.token, forCall: false)
             }
         default:
             break
@@ -1016,7 +1016,7 @@ import SwiftUI
     }
 
     func deleteNowButtonPressed() {
-        NCRoomsManager.sharedInstance().deleteRoom(withConfirmation: self.room)
+        NCRoomsManager.shared.deleteRoom(withConfirmation: self.room)
     }
 
     func keepButtonPressed() {
@@ -1264,17 +1264,17 @@ import SwiftUI
         // If this chat view controller is for the same room as the one owned by the rooms manager
         // then we should not try to leave the chat. Since we will leave the chat when the
         // chat view controller owned by rooms manager moves from parent view controller.
-        if NCRoomsManager.sharedInstance().chatViewController?.room.token == self.room.token,
-           NCRoomsManager.sharedInstance().chatViewController !== self {
+        if NCRoomsManager.shared.chatViewController?.room.token == self.room.token,
+           NCRoomsManager.shared.chatViewController !== self {
             return
         }
 
-        NCRoomsManager.sharedInstance().leaveChat(inRoom: self.room.token)
+        NCRoomsManager.shared.leaveChat(inRoom: self.room.token)
 
         // Remove chat view controller pointer if this chat is owned by rooms manager
         // and the chat view is moving from parent view controller
-        if NCRoomsManager.sharedInstance().chatViewController === self {
-            NCRoomsManager.sharedInstance().chatViewController = nil
+        if NCRoomsManager.shared.chatViewController === self {
+            NCRoomsManager.shared.chatViewController = nil
         }
     }
 
@@ -1287,7 +1287,7 @@ import SwiftUI
     }
 
     func saveLastReadMessage() {
-        NCRoomsManager.sharedInstance().updateLastReadMessage(self.lastReadMessage, forRoom: self.room)
+        NCRoomsManager.shared.updateLastReadMessage(self.lastReadMessage, forRoom: self.room)
     }
 
     // MARK: - Room Manager notifications
@@ -1361,7 +1361,7 @@ import SwiftUI
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [capturedToken = self.room.token] in
             // After we joined a room, check if there are offline messages for this particular room which need to be send
-            NCRoomsManager.sharedInstance().resendOfflineMessages(forToken: capturedToken, withCompletionBlock: nil)
+            NCRoomsManager.shared.resendOfflineMessages(forToken: capturedToken, withCompletionBlock: nil)
         }
     }
 
@@ -1955,7 +1955,7 @@ import SwiftUI
     }
 
     func updateRoomInformation() {
-        NCRoomsManager.sharedInstance().updateRoom(self.room.token)
+        NCRoomsManager.shared.updateRoom(self.room.token)
     }
 
     func shouldPresentLobbyView() -> Bool {
