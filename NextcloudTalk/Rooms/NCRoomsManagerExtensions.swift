@@ -356,6 +356,94 @@ import Foundation
         NCUserInterfaceController.sharedInstance().presentAlertViewController(confirmDialog)
     }
 
+    // MARK: - Chat
+
+    public func startChat(inRoom room: NCRoom) {
+        guard self.callViewController == nil else {
+            print("Not starting chat due to in a call.")
+            return
+        }
+
+        guard let roomToken = room.token else {
+            print("Trying to start a chat in a room, without a token")
+            return
+        }
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        var roomController = self.activeRooms[roomToken]
+
+        if roomController == nil {
+            // Workaround until external signaling supports multi-room
+            if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
+                let currentRoom = extSignalingController.currentRoom
+
+                if currentRoom != roomToken {
+                    // Since we are going to join another conversation, we don't need to leaveRoom() in extSignalingController.
+                    // That's why we set currentRoom = nil, so when leaveRoom() is called in extSignalingController the currentRoom
+                    // is no longer the room we want to leave (so no message is sent to the external signaling server).
+                    extSignalingController.currentRoom = nil
+                }
+            }
+        }
+
+        if chatViewController == nil || chatViewController?.room.token != roomToken {
+            print("Creating new chat view controller.")
+            self.chatViewController = ChatViewController(forRoom: room, withAccount: activeAccount)
+
+            // Highlight message
+            if let highlightToken = self.highlightMessageDict?["token"] as? String, highlightToken == roomToken {
+                if let messageId = self.highlightMessageDict?[intForKey: "messageId"] {
+                    self.chatViewController.highlightMessageId = messageId
+                    self.highlightMessageDict = nil
+                }
+            }
+
+            // Open thread view on appear
+            if let showThreadPushNotification, showThreadPushNotification.roomToken == roomToken {
+                self.chatViewController.presentThreadOnAppear = showThreadPushNotification.threadId
+                self.showThreadPushNotification = nil
+            }
+
+            NCUserInterfaceController.sharedInstance().present(chatViewController)
+        } else {
+            print("Not creating new chat room: chatViewController for room \(roomToken) does already exist.")
+
+            // Open thread view on appear
+            if let showThreadPushNotification, showThreadPushNotification.roomToken == roomToken {
+                self.chatViewController.presentThreadView(for: showThreadPushNotification.threadId)
+                self.showThreadPushNotification = nil
+
+                // Still make sure the current room is highlighted
+                NCUserInterfaceController.sharedInstance().roomsTableViewController.selectedRoomToken = roomToken
+            }
+        }
+    }
+
+    public func startChat(withRoomToken token: String) {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        if let room = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: activeAccount.accountId) {
+            self.startChat(inRoom: room)
+        } else {
+            // TODO: Show spinner
+            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: token) { roomDict, error in
+                guard error == nil else { return }
+
+                if let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+                    self.startChat(inRoom: room)
+                }
+            }
+        }
+    }
+
+    public func leaveChat(inRoom token: String) {
+        if let roomController = self.activeRooms[token] as? NCRoomController {
+            roomController.inChat = false
+        }
+
+        self.leaveRoom(token)
+    }
+
     // MARK: - Join/Leave room
 
     public func joinRoom(_ token: String, forCall call: Bool) {

@@ -42,7 +42,7 @@ typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 @property (nonatomic, strong) NSString *upgradeCallToken;
 @property (nonatomic, strong) NSString *pendingToStartCallToken;
 @property (nonatomic, assign) BOOL pendingToStartCallHasVideo;
-@property (nonatomic, strong) NSDictionary *highlightMessageDict;
+@property (nonatomic, strong) NSDictionary<NSString *, id> *highlightMessageDict;
 @property (nonatomic, strong) NCPushNotification *showThreadPushNotification;
 
 - (void)checkForPendingToStartCalls;
@@ -50,10 +50,6 @@ typedef void (^RoomDeletionFinishedBlock)(BOOL success);
 
 + (instancetype)sharedInstance;
 
-// Chat
-- (void)startChatInRoom:(NCRoom *)room;
-- (void)leaveChatInRoom:(NSString *)token;
-- (void)startChatWithRoomToken:(NSString *)token;
 // Call
 - (void)joinCallWithCallToken:(NSString *)token withVideo:(BOOL)video asInitiator:(BOOL)initiator recordingConsent:(BOOL)recordingConsent;
 - (BOOL)isCallOngoingWithCallToken:(NSString *)token;
