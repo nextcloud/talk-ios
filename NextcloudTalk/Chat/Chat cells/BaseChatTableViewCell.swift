@@ -258,7 +258,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if let parent = message.parent, message.willShowParentMessageInThread(thread) {
             self.showQuotePart()
 
-            self.quotedMessageView?.messageLabel.attributedText = parent.messageForLastMessagePreview()?.prefix(characters: 80)
+            self.quotedMessageView?.messageLabel.attributedText = parent.messageForLastMessagePreview()?.prefix(characters: 80).withFont(self.quotedMessageView?.messageLabel.font ?? .preferredFont(forTextStyle: .body))
             self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarImageView.setActorAvatar(forMessage: parent, withAccount: account)
