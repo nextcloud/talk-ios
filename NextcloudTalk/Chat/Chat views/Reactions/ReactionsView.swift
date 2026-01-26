@@ -14,6 +14,12 @@ import UIKit
     public weak var reactionsDelegate: ReactionsViewDelegate?
     var reactions: [NCChatReaction] = []
 
+    /// Tracks the touch start time to differentiate quick taps from long presses
+    private var touchBeganTime: Date?
+
+    /// Maximum duration (in seconds) for a touch to be considered a tap vs long press
+    private let maxTapDuration: TimeInterval = 0.25
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         self.setupReactionView()
@@ -30,6 +36,18 @@ import UIKit
         self.register(UINib(nibName: "ReactionsViewCell", bundle: .main), forCellWithReuseIdentifier: "ReactionCellIdentifier")
         self.backgroundColor = .clear
         self.showsHorizontalScrollIndicator = false
+    }
+
+    // MARK: - Touch tracking
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchBeganTime = Date()
+        super.touchesBegan(touches, with: event)
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchBeganTime = nil
+        super.touchesCancelled(touches, with: event)
     }
 
     func updateReactions(reactions: [NCChatReaction]) {
@@ -69,6 +87,17 @@ import UIKit
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // Only trigger reaction toggle for quick taps (not long presses intended to show "who reacted")
+        if let touchBeganTime = touchBeganTime {
+            let touchDuration = Date().timeIntervalSince(touchBeganTime)
+            self.touchBeganTime = nil
+
+            // If the touch was too long, it was likely intended as a long press - ignore it
+            guard touchDuration <= maxTapDuration else {
+                return
+            }
+        }
+
         if indexPath.row < reactions.count {
             self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row])
         }
