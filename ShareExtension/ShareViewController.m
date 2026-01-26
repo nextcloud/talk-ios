@@ -509,9 +509,7 @@
         return;
     }
 
-    BOOL hasChatPermission = ![[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityChatPermission] || (room.permissions & NCPermissionChat) != 0;
-
-    if (!hasChatPermission || room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
+    if (!room.canChat || room.readOnlyState == NCRoomReadOnlyStateReadOnly) {
         [self showChatPermissionAlert];
         return;
     }
