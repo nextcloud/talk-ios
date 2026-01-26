@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 85;
+uint64_t const kTalkDatabaseSchemaVersion           = 86;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -465,6 +465,12 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.callReactions = [callConfig objectForKey:@"supported-reactions"];
     } else {
         capabilities.callReactions = (RLMArray<RLMString> *)@[];
+    }
+
+    if ([callConfigKeys containsObject:@"end-to-end-encryption"]) {
+        capabilities.e2eeCallsEnabled = [[callConfig objectForKey:@"end-to-end-encryption"] boolValue];
+    } else {
+        capabilities.e2eeCallsEnabled = NO;
     }
 
     // Conversations capabilities

@@ -148,6 +148,14 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         }
             break;
 
+        case kNCLocalNotificationTypeEndToEndEncryptionUnsupported:
+        {
+            NSString *endToEndEncryptionUnsupported = NSLocalizedString(@"Calling is currently not supported because end-to-end-encryption is enabled on the server", nil);
+            content.body = [NSString stringWithFormat:@"⚠️ %@", endToEndEncryptionUnsupported];
+            content.userInfo = userInfo;
+        }
+            break;
+
         default:
             break;
     }
