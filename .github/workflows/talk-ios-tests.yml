@@ -15,11 +15,6 @@ on:
       - ShareExtension/**
       - BroadcastUploadExtension/**
 
-    push:
-      branches:
-        - main
-        - stable*
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -108,9 +103,9 @@ jobs:
         # Test with stable23 as well to find regressions in older versions
         configs: [
           { talkbranch: 'stable23', serverbranch: 'stable23', phpversion: '8.0' },
-          { talkbranch: 'stable29', serverbranch: 'stable29', phpversion: '8.3' },
-          { talkbranch: 'stable30', serverbranch: 'stable30', phpversion: '8.3' },
           { talkbranch: 'stable31', serverbranch: 'stable31', phpversion: '8.3' },
+          { talkbranch: 'stable32', serverbranch: 'stable32', phpversion: '8.3' },
+          { talkbranch: 'stable33', serverbranch: 'stable33', phpversion: '8.3' },
           { talkbranch: 'main', serverbranch: 'master', phpversion: '8.3' }
         ]
 
