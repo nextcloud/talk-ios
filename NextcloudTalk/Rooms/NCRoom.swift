@@ -355,7 +355,8 @@ import SwiftyAttributes
         }
 
         // Fallback for older servers: reactions were tied to chat permission
-        return self.permissions.contains(.chat)
+        // For very old servers without chat-permission capability, allow reactions
+        return !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: self) || self.permissions.contains(.chat)
     }
 
 }
