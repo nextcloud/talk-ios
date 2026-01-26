@@ -1599,6 +1599,9 @@ import SwiftUI
 
         guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController() else { return }
 
+        shareConfirmationVC.setChatMessage(self.textView.text)
+        self.setChatMessage("")
+
         picker.dismiss(animated: true) {
             self.present(navigationController, animated: true) {
                 for result in results {
@@ -1644,6 +1647,9 @@ import SwiftUI
               let mediaType = info[.mediaType] as? String
         else { return }
 
+        shareConfirmationVC.setChatMessage(self.textView.text)
+        self.setChatMessage("")
+
         if mediaType == "public.image" {
             guard let image = info[.originalImage] as? UIImage else { return }
 
@@ -1678,6 +1684,9 @@ import SwiftUI
 
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController() else { return }
+
+        shareConfirmationVC.setChatMessage(self.textView.text)
+        self.setChatMessage("")
 
         self.present(navigationController, animated: true) {
             for url in urls {
