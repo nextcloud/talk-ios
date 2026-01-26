@@ -348,5 +348,14 @@ import SwiftyAttributes
         return self.permissions.contains(.canPublishScreen) || !supportsConversationPermissions
     }
 
+    public var canReact: Bool {
+        // Check if server supports separate react permission (Talk 24+)
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityReactPermission, for: self) {
+            return self.permissions.contains(.react)
+        }
+
+        // Fallback for older servers: reactions were tied to chat permission
+        return self.permissions.contains(.chat)
+    }
 
 }

@@ -2311,9 +2311,7 @@ import SwiftUI
     }
 
     override func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
-        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
-
-        guard hasChatPermissions && self.isMessageReactable(message: message) else { return nil }
+        guard self.room.canReact && self.isMessageReactable(message: message) else { return nil }
 
         let reactionViewPadding = 10
         let emojiButtonPadding = 10
@@ -2464,7 +2462,7 @@ import SwiftUI
         }
 
         // Show "Add reaction" when running on MacOS because we don't have an accessory view
-        if self.isMessageReactable(message: message), hasChatPermissions, NCUtils.isiOSAppOnMac() {
+        if self.isMessageReactable(message: message), self.room.canReact, NCUtils.isiOSAppOnMac() {
             actions.append(UIAction(title: NSLocalizedString("Add reaction", comment: ""), image: .init(systemName: "face.smiling")) { _ in
                 self.didPressAddReaction(for: message, at: indexPath)
             })
