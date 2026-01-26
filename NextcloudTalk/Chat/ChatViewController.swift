@@ -189,6 +189,17 @@ import SwiftUI
     }
 
     func startCall(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
+        if self.room.isEndToEndEncryptedCallingEnabled {
+            let alert = UIAlertController(title: NSLocalizedString("Unsupported", comment: "Calling is not supported"),
+                                          message: NSLocalizedString("Calling is not supported since end-to-end-encryption is enabled on the server", comment: ""),
+                                          preferredStyle: .alert)
+
+            alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+            self.present(alert, animated: true)
+
+            return
+        }
+
         button.showIndicator()
         if self.room.recordingConsent {
             let alert = UIAlertController(title: "⚠️" + NSLocalizedString("The call might be recorded", comment: ""),
