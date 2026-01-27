@@ -17,6 +17,11 @@ import SwiftyAttributes
     }
 
     public var isUpdateMessage: Bool {
+        // Hide system messages for automatic unpin
+        if self.systemMessage == "message_unpinned", self.actorType == "guests", self.actorId == "system" {
+            return true
+        }
+
         return self.systemMessage == "message_deleted" ||
                self.systemMessage == "reaction" ||
                self.systemMessage == "reaction_revoked" ||
