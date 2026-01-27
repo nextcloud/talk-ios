@@ -171,7 +171,7 @@ enum RoomAvatarInfoSection: Int {
     }
 
     func updateRoomAndRemoveModifyingView() {
-        NCRoomsManager.sharedInstance().updateRoom(self.room.token) { _, _ in
+        NCRoomsManager.shared.updateRoom(self.room.token) { _, _ in
             guard let room = NCDatabaseManager.sharedInstance().room(withToken: self.room.token, forAccountId: self.room.accountId) else { return }
 
             self.room = room

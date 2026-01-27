@@ -314,6 +314,7 @@
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header-Extensions.h"; sourceTree = "<group>"; };
 		1FDDB0E82AFE8F5C00FBAFB7 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		1FE052B82F1C463E00B975FD /* NCTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCTypes.h; sourceTree = "<group>"; };
 		1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BroadcastUploadExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FF2FD5C2AB99CCB000C9905 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		237121A4908D37D7D5CC71A4 /* libPods-TalkIntents.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TalkIntents.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -532,11 +533,11 @@
 				NCChatFileStatus.swift,
 				NCChatMessage.m,
 				NCChatMessage.swift,
-				NCChatReaction.m,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCChatReaction.swift,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -564,11 +565,11 @@
 				NCChatFileStatus.swift,
 				NCChatMessage.m,
 				NCChatMessage.swift,
-				NCChatReaction.m,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCChatReaction.swift,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -585,11 +586,11 @@
 				NCChatFileStatus.swift,
 				NCChatMessage.m,
 				NCChatMessage.swift,
-				NCChatReaction.m,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCChatReaction.swift,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -606,11 +607,11 @@
 				NCChatFileStatus.swift,
 				NCChatMessage.m,
 				NCChatMessage.swift,
-				NCChatReaction.m,
-				NCDeckCardParameter.m,
-				NCMessageFileParameter.m,
-				NCMessageLocationParameter.m,
-				NCMessageParameter.m,
+				NCChatReaction.swift,
+				NCDeckCardParameter.swift,
+				NCMessageFileParameter.swift,
+				NCMessageLocationParameter.swift,
+				NCMessageParameter.swift,
 				NCPoll.m,
 				ScheduledMessage.swift,
 			);
@@ -805,6 +806,7 @@
 				AvatarManager.swift,
 				ColorGenerator.swift,
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
@@ -820,10 +822,10 @@
 				AvatarView.swift,
 				ColorGenerator.swift,
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 				Extensions/UITableViewExtension.swift,
-				NCNavigationController.m,
 				PlaceholderView.m,
 				PlaceholderView.xib,
 			);
@@ -833,6 +835,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
@@ -849,6 +852,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Extensions/DateExtension.swift,
+				Extensions/DictionaryExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
@@ -1370,6 +1374,7 @@
 				2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */,
 				2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */,
 				2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */,
+				1FE052B82F1C463E00B975FD /* NCTypes.h */,
 				2C0574811EDD9E8E00D9E7F2 /* main.m */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
 				1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */,

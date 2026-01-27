@@ -6,6 +6,7 @@
 #import <Foundation/Foundation.h>
 
 #import "NCPushNotification.h"
+#import "NCTypes.h"
 
 extern NSString * const NCNotificationControllerWillPresentNotification;
 extern NSString * const NCLocalNotificationJoinChatNotification;
@@ -18,17 +19,6 @@ extern NSString * const NCNotificationActionFederationInvitationReject;
 
 typedef void (^CheckForNewNotificationsCompletionBlock)(NSError *error);
 typedef void (^CheckNotificationExistanceCompletionBlock)(NSError *error);
-
-typedef NS_ENUM(NSInteger, NCLocalNotificationType) {
-    kNCLocalNotificationTypeMissedCall = 1,
-    kNCLocalNotificationTypeCancelledCall,
-    kNCLocalNotificationTypeFailedSendChat,
-    kNCLocalNotificationTypeCallFromOldAccount,
-    kNCLocalNotificationTypeChatNotification,
-    kNCLocalNotificationTypeFailedToShareRecording,
-    kNCLocalNotificationTypeFailedToAcceptInvitation,
-    kNCLocalNotificationTypeRecordingConsentRequired
-};
 
 @interface NCNotificationController : NSObject
 

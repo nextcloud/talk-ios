@@ -6,82 +6,8 @@
 #import <Foundation/Foundation.h>
 #import <Realm/Realm.h>
 
-#import "CallConstants.h"
 #import "NCChatMessage.h"
-
-typedef NS_ENUM(NSInteger, NCRoomType) {
-    kNCRoomTypeOneToOne = 1,
-    kNCRoomTypeGroup,
-    kNCRoomTypePublic,
-    kNCRoomTypeChangelog,
-    kNCRoomTypeFormerOneToOne,
-    kNCRoomTypeNoteToSelf
-};
-
-typedef NS_ENUM(NSInteger, NCRoomNotificationLevel) {
-    kNCRoomNotificationLevelDefault = 0,
-    kNCRoomNotificationLevelAlways,
-    kNCRoomNotificationLevelMention,
-    kNCRoomNotificationLevelNever
-};
-
-typedef NS_ENUM(NSInteger, NCRoomReadOnlyState) {
-    NCRoomReadOnlyStateReadWrite = 0,
-    NCRoomReadOnlyStateReadOnly
-};
-
-typedef NS_ENUM(NSInteger, NCRoomListableScope) {
-    NCRoomListableScopeParticipantsOnly = 0,
-    NCRoomListableScopeRegularUsersOnly,
-    NCRoomListableScopeEveryone
-};
-
-typedef NS_ENUM(NSInteger, NCRoomMentionPermissions) {
-    NCRoomMentionPermissionsEveryone = 0,
-    NCRoomMentionPermissionsModeratorsOnly
-};
-
-typedef NS_ENUM(NSInteger, NCRoomLobbyState) {
-    NCRoomLobbyStateAllParticipants = 0,
-    NCRoomLobbyStateModeratorsOnly
-};
-
-typedef NS_ENUM(NSInteger, NCRoomSIPState) {
-    NCRoomSIPStateDisabled = 0,
-    NCRoomSIPStateEnabled,
-    NCRoomSIPStateEnabledWithoutPIN
-};
-
-typedef NS_OPTIONS(NSInteger, NCPermission) {
-    NCPermissionDefaultPermissions = 0,
-    NCPermissionCustomPermissions = 1,
-    NCPermissionStartCall = 2,
-    NCPermissionJoinCall = 4,
-    NCPermissionCanIgnoreLobby = 8,
-    NCPermissionCanPublishAudio = 16,
-    NCPermissionCanPublishVideo = 32,
-    NCPermissionCanPublishScreen = 64,
-    NCPermissionChat = 128,
-};
-
-typedef NS_ENUM(NSInteger, NCMessageExpiration) {
-    NCMessageExpirationOff = 0,
-    NCMessageExpiration1Hour = 3600,
-    NCMessageExpiration8Hours = 28800,
-    NCMessageExpiration1Day = 86400,
-    NCMessageExpiration1Week = 604800,
-    NCMessageExpiration4Weeks = 2419200,
-};
-
-typedef NS_ENUM(NSInteger, NCCallRecordingState) {
-    NCCallRecordingStateStopped = 0,
-    NCCallRecordingStateVideoRunning = 1,
-    NCCallRecordingStateAudioRunning = 2,
-    NCCallRecordingStateVideoStarting = 3,
-    NCCallRecordingStateAudioStarting = 4,
-    NCCallRecordingStateFailed = 5
-};
-
+#import "NCTypes.h"
 
 extern NSString * const NCRoomObjectTypeFile;
 extern NSString * const NCRoomObjectTypeSharePassword;

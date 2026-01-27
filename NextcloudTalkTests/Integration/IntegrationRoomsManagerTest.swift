@@ -13,7 +13,7 @@ final class IntegrationRoomsManagerTest: TestBase {
         let roomToken = "nonexistantToken"
 
         expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
-            XCTAssertEqual(NCRoomsManager.sharedInstance().joiningAttempts, 3)
+            XCTAssertEqual(NCRoomsManager.shared.joiningAttempts, 3)
 
             XCTAssertNotNil(notification.userInfo?["error"])
             XCTAssertNotNil(notification.userInfo?["statusCode"])
@@ -28,7 +28,7 @@ final class IntegrationRoomsManagerTest: TestBase {
             return true
         }
 
-        NCRoomsManager.sharedInstance().joinRoom(roomToken, forCall: false)
+        NCRoomsManager.shared.joinRoom(roomToken, forCall: false)
 
         waitForExpectations(timeout: TestConstants.timeoutShort)
     }
@@ -52,7 +52,7 @@ final class IntegrationRoomsManagerTest: TestBase {
 
         // Setup expectations for the DidJoinRoom notification
         expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
-            XCTAssertEqual(NCRoomsManager.sharedInstance().joiningAttempts, 0)
+            XCTAssertEqual(NCRoomsManager.shared.joiningAttempts, 0)
 
             XCTAssertNil(notification.userInfo?["error"])
             XCTAssertNil(notification.userInfo?["statusCode"])
@@ -62,7 +62,7 @@ final class IntegrationRoomsManagerTest: TestBase {
             XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
 
             // Check if the NCRoomController was correctly added to the activeRooms dictionary
-            XCTAssertNotNil(NCRoomsManager.sharedInstance().activeRooms[roomToken])
+            XCTAssertNotNil(NCRoomsManager.shared.activeRooms[roomToken])
 
             // When successfully joined, the NCRoomController should be included in the notification
             XCTAssertNotNil(notification.userInfo?["roomController"])
@@ -71,7 +71,7 @@ final class IntegrationRoomsManagerTest: TestBase {
         }
 
         // Try to join the room
-        NCRoomsManager.sharedInstance().joinRoom(roomToken, forCall: false)
+        NCRoomsManager.shared.joinRoom(roomToken, forCall: false)
 
         waitForExpectations(timeout: TestConstants.timeoutShort)
 
@@ -83,13 +83,13 @@ final class IntegrationRoomsManagerTest: TestBase {
             XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
 
             // Check if the NCRoomController was correctly removed from the activeRooms dictionary
-            XCTAssertNil(NCRoomsManager.sharedInstance().activeRooms[roomToken])
+            XCTAssertNil(NCRoomsManager.shared.activeRooms[roomToken])
 
             return true
         }
 
         // Try to leave the room
-        NCRoomsManager.sharedInstance().leaveChat(inRoom: roomToken)
+        NCRoomsManager.shared.leaveChat(inRoom: roomToken)
 
         waitForExpectations(timeout: TestConstants.timeoutShort)
     }

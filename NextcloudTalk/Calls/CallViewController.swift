@@ -131,7 +131,7 @@ class CallViewController: UIViewController,
     private var currentCallState: CallState = .joining
     private var previousParticipants: [String] = []
 
-    public init?(for room: NCRoom, asUser displayName: String, audioOnly: Bool) {
+    public init(for room: NCRoom, asUser displayName: String, audioOnly: Bool) {
         self.room = room
         self.displayName = displayName
         self.isAudioOnly = audioOnly
@@ -933,7 +933,7 @@ class CallViewController: UIViewController,
         }
 
         // Connect to new call
-        NCRoomsManager.sharedInstance().updateRoom(token) { roomDict, error in
+        NCRoomsManager.shared.updateRoom(token) { roomDict, error in
             guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: self.room.accountId)
             else {
                 print("Error getting room to switch")
@@ -941,7 +941,7 @@ class CallViewController: UIViewController,
             }
 
             // Prepare rooms manager to switch to another room
-            NCRoomsManager.sharedInstance().prepareSwitchToAnotherRoom(fromRoom: self.room.token) { _ in
+            NCRoomsManager.shared.prepareSwitchToAnotherRoom(fromRoom: self.room.token) { _ in
                 // Notify callkit about room switch
                 self.delegate?.callViewController(self, wantsToSwitchFromRoom: self.room.token, toRoom: token)
 
@@ -965,7 +965,7 @@ class CallViewController: UIViewController,
                 self.callController = nil
 
                 // Join new room
-                NCRoomsManager.sharedInstance().joinRoom(token, forCall: true)
+                NCRoomsManager.shared.joinRoom(token, forCall: true)
             }
         }
     }
@@ -1259,8 +1259,8 @@ class CallViewController: UIViewController,
             // Only when the server supports recording-v1 we have access to callStartTime, otherwise hide the label
             self.callTimeLabel.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1)
 
-            let audioController = NCAudioController.sharedInstance()
-            self.speakerButton.isHidden = !audioController.isAudioRouteChangeable()
+            let audioController = NCAudioController.shared
+            self.speakerButton.isHidden = !audioController.isAudioRouteChangeable
 
             self.recordingButton.isHidden = !self.room.callRecordingIsInActiveState
 
@@ -1442,8 +1442,8 @@ class CallViewController: UIViewController,
         var items: [UIMenuElement] = []
 
         // Add speaker button to menu if it was hidden from topbar
-        let audioController = NCAudioController.sharedInstance()
-        if self.speakerButton.isHidden, audioController.isAudioRouteChangeable() {
+        let audioController = NCAudioController.shared
+        if self.speakerButton.isHidden, audioController.isAudioRouteChangeable {
             var speakerImage = UIImage(systemName: "speaker.slash.fill")
             var speakerActionTitle = NSLocalizedString("Disable speaker", comment: "speaker = Loudspeaker, device")
 
@@ -1525,12 +1525,14 @@ class CallViewController: UIViewController,
 
     func adjustSpeakerButton() {
         DispatchQueue.main.async {
-            let audioController = NCAudioController.sharedInstance()
+            guard self.speakerButton != nil else { return }
+
+            let audioController = NCAudioController.shared
             self.setSpeakerButtonActive(audioController.isSpeakerActive)
 
             // If the visibility of the speaker button does not reflect the route changeability
             // we need to try and adjust the top bar
-            if self.speakerButton.isHidden == audioController.isAudioRouteChangeable() {
+            if self.speakerButton.isHidden == audioController.isAudioRouteChangeable {
                 self.adjustBars()
             }
 
@@ -1781,7 +1783,7 @@ class CallViewController: UIViewController,
     }
 
     @IBAction func speakerButtonPressed(_ sender: Any?) {
-        if NCAudioController.sharedInstance().isSpeakerActive {
+        if NCAudioController.shared.isSpeakerActive {
             self.disableSpeaker()
             self.userDisabledSpeaker = true
         } else {
@@ -1794,7 +1796,7 @@ class CallViewController: UIViewController,
         self.setSpeakerButtonActive(false)
 
         WebRTCCommon.shared.dispatch {
-            NCAudioController.sharedInstance().setAudioSessionToVoiceChatMode()
+            NCAudioController.shared.setAudioSessionToVoiceChatMode()
         }
     }
 
@@ -1802,7 +1804,7 @@ class CallViewController: UIViewController,
         self.setSpeakerButtonActive(true)
 
         WebRTCCommon.shared.dispatch {
-            NCAudioController.sharedInstance().setAudioSessionToVideoChatMode()
+            NCAudioController.shared.setAudioSessionToVideoChatMode()
         }
     }
 

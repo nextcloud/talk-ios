@@ -40,7 +40,7 @@ struct RoomInfoNonDestructiveSection: View {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change archived conversation setting", comment: ""), withMessage: nil)
             }
 
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+            NCRoomsManager.shared.updateRoom(room.token)
         }
     }
 }

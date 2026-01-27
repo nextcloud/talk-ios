@@ -19,9 +19,7 @@
 #import "NCDatabaseManager.h"
 #import "NCChatFileController.h"
 #import "NCSignalingMessage.h"
-#import "NCNavigationController.h"
 #import "NCPoll.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserDefaults.h"
 #import "NCUserInterfaceController.h"
@@ -47,9 +45,9 @@
 
 #import "GeoLocationRichObject.h"
 #import "NCChatMessage.h"
+#import "NCChatBlock.h"
 #import "NCThread.h"
 #import "NCChatTitleView.h"
-#import "NCMessageParameter.h"
 #import "ReplyMessageView.h"
 
 #import "JDStatusBarNotificationPresenter.h"
@@ -71,16 +69,15 @@
 #import "ScreenCaptureController.h"
 
 #import "AFNetworking.h"
-#import "NCNotification.h"
 
 #import "MessageBodyTextView.h"
-#import "NCAudioController.h"
 #import "NCCallController.h"
-#import "CallConstants.h"
 #import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
 #import "ContactsTableViewCell.h"
 
 #import "DRCellSlideGestureRecognizer.h"
+#import "NCTypes.h"
+#import "NCChatController.h"
 
 #endif /* NextcloudTalk_Bridging_Header_h */

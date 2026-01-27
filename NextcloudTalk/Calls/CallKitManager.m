@@ -6,13 +6,10 @@
 #import "CallKitManager.h"
 #import <CallKit/CXError.h>
 
-#import "CallConstants.h"
-#import "NCAudioController.h"
 #import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 
@@ -159,7 +156,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     
     // If the app is not active (e.g. in background) and there is an open chat
     BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-    ChatViewController *chatViewController = [[NCRoomsManager sharedInstance] chatViewController];
+    ChatViewController *chatViewController = [[NCRoomsManager shared] chatViewController];
     if (!isAppActive && chatViewController) {
         // Leave the chat so it doesn't try to join the chat conversation when the app becomes active.
         [chatViewController leaveChat];
@@ -396,7 +393,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         } else if (state == CallNotificationStateParticipantJoined) {
             // Account is already in a call (answered the call on a different device) -> no need to keep ringing
 
-            if (![[NCRoomsManager sharedInstance] isCallOngoingWithCallToken:call.token]) {
+            if (![[NCRoomsManager shared] isCallOngoingWithCallToken:call.token]) {
                 [self endCallWithUUID:call.uuid];
             }
 
@@ -684,7 +681,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     NSLog(@"Provider:didActivateAudioSession - %@", audioSession);
 
     [[WebRTCCommon shared] dispatch:^{
-        [[NCAudioController sharedInstance] providerDidActivateAudioSession:audioSession];
+        [[NCAudioController shared] providerDidActivateWithAudioSession:audioSession];
     }];
 }
 
@@ -693,7 +690,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     NSLog(@"Provider:didDeactivateAudioSession - %@", audioSession);
 
     [[WebRTCCommon shared] dispatch:^{
-        [[NCAudioController sharedInstance] providerDidDeactivateAudioSession:audioSession];
+        [[NCAudioController shared] providerDidDeactivateWithAudioSession:audioSession];
     }];
 }
 

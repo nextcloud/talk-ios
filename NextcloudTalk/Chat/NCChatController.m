@@ -9,7 +9,6 @@
 #import "NCChatBlock.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
-#import "NCRoomsManager.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -193,7 +192,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
     return sortedMessages;
 }
 
-- (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm {
+- (void)storeMessages:(NSArray<NSDictionary *> *)messages withRealm:(RLMRealm *)realm {
     // Add or update messages
     for (NSDictionary *messageDict in messages) {
         // messageWithDictionary takes care of setting a potential available parentId
@@ -593,7 +592,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
         }
 
         // We always want to set the room to have no unread messages, optionally we also want to update the last message, if there's one
-        [[NCRoomsManager sharedInstance] setNoUnreadMessagesForRoom:self->_room withLastMessage:lastNonUpdateMessage];
+        [[NCRoomsManager shared] setNoUnreadMessagesForRoom:self->_room withLastMessage:lastNonUpdateMessage];
     }
 }
 
@@ -1031,7 +1030,7 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
         
         if (newerCommonReadReceived) {
             self->_room.lastCommonReadMessage = lastCommonReadMessage;
-            [[NCRoomsManager sharedInstance] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
+            [[NCRoomsManager shared] updateLastCommonReadMessage:lastCommonReadMessage forRoom:self->_room];
             
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             [userInfo setObject:self->_room.token forKey:@"room"];

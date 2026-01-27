@@ -5,9 +5,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NCMessageLocationParameter.h"
-
 NS_ASSUME_NONNULL_BEGIN
+
+@class NCMessageLocationParameter;
 
 extern NSString * const GeoLocationRichObjectType;
 

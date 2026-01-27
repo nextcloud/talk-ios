@@ -615,7 +615,7 @@ import MBProgressHUD
         // Add caption to last shareItem
         if let shareItem = self.shareItemController.shareItems.last {
             if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMediaCaption, forAccountId: self.account.accountId) {
-                let messageParameters = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
+                let messageParameters = self.mentionsDict.asJSONString() ?? ""
                 let message = NCChatMessage()
                 message.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParameters)
                 message.messageParametersJSONString = messageParameters

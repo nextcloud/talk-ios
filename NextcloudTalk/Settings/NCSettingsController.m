@@ -13,7 +13,6 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
-#import "NCRoomsManager.h"
 #import "NCUserInterfaceController.h"
 #import "NCUserDefaults.h"
 #import "NCChatFileController.h"
@@ -493,7 +492,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     [[NCAPIController sharedInstance] removeAPISessionManagerForAccount:removingAccount];
     [[NCDatabaseManager sharedInstance] removeAccountWithAccountId:removingAccount.accountId];
     [[[NCChatFileController alloc] init] deleteDownloadDirectoryForAccount:removingAccount];
-    [[[NCRoomsManager sharedInstance] chatViewController] leaveChat];
+    [[[NCRoomsManager shared] chatViewController] leaveChat];
     [self createAccountsFile];
     
     // Activate any of the inactive accounts

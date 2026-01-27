@@ -57,7 +57,7 @@ import Foundation
     public override func didCommitTextEditing(_ sender: Any) {
         guard let editingMessage else { return }
 
-        let messageParametersJSONString = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
+        let messageParametersJSONString = self.mentionsDict.asJSONString() ?? ""
         editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
         editingMessage.messageParametersJSONString = messageParametersJSONString
 
@@ -131,7 +131,7 @@ import Foundation
         }
 
         self.dismiss(animated: true)
-        NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+        NCRoomsManager.shared.updateRoom(self.room.token)
     }
 
     func didPressDeleteScheduled(for message: NCChatMessage, at indexPath: IndexPath) async {
@@ -146,7 +146,7 @@ import Foundation
 
         if self.messages.values.isEmpty {
             self.dismiss(animated: true)
-            NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+            NCRoomsManager.shared.updateRoom(self.room.token)
         }
     }
 

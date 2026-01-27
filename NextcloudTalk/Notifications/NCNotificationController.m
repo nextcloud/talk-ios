@@ -11,8 +11,6 @@
 #import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
-#import "NCNotification.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"
@@ -351,7 +349,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             NSMutableArray *activeServerNotificationsIds = [NSMutableArray new];
 
             for (NSDictionary *notification in notifications) {
-                NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
+                NCNotification *serverNotification = [[NCNotification alloc] initWithDictionary:notification];
 
                 // Only process Talk notifications
                 if (!serverNotification || ![serverNotification.app isEqualToString:kNCPNAppIdKey]) {
@@ -507,7 +505,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     // Server notification (only available if the Notification Service Extension was able to fetch it)
     NSDictionary *serverNotificationDict = [userInfo objectForKey:@"serverNotification"];
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:notificationAccountId];
-    NCNotification *serverNotification = [NCNotification notificationWithDictionary:serverNotificationDict];
+    NCNotification *serverNotification = [[NCNotification alloc] initWithDictionary:serverNotificationDict];
 
     // Update push notification with server notification
     pushNotification.threadId = serverNotification.threadId;
@@ -720,7 +718,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         return;
     }
 
-    if ([NCRoomsManager sharedInstance].callViewController) {
+    if ([NCRoomsManager shared].callViewController) {
         return;
     }
 
@@ -729,7 +727,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }];
 
     // Open the conversation for the reminder
-    [[NCRoomsManager sharedInstance] startChatWithRoomToken:serverNotification.roomToken];
+    [[NCRoomsManager shared] startChatWithRoomToken:serverNotification.roomToken];
 
     // After opening the notification, we need to execute the DELETE action
     for (NSDictionary *dict in serverNotification.actions) {
@@ -743,7 +741,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
 - (void)handlePushNotificationResponse:(NCPushNotification *)pushNotification
 {
-    if ([NCRoomsManager sharedInstance].callViewController) {
+    if ([NCRoomsManager shared].callViewController) {
         return;
     }
 
@@ -768,7 +766,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
 - (void)handleLocalNotificationResponse:(NSDictionary *)notificationUserInfo
 {
-    if ([NCRoomsManager sharedInstance].callViewController) {
+    if ([NCRoomsManager shared].callViewController) {
         return;
     }
 

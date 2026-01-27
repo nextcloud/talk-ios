@@ -99,7 +99,7 @@ public enum NCExternalSignalingSendMessageStatus {
     }
 
     func connect(force: Bool) {
-        let forceConnect = force || NCRoomsManager.sharedInstance().callViewController != nil
+        let forceConnect = force || NCRoomsManager.shared.callViewController != nil
 
         // Do not try to connect if the app is running in the background (unless forcing a connection or in a call)
         if !forceConnect, UIApplication.shared.applicationState == .background {
@@ -352,7 +352,7 @@ public enum NCExternalSignalingSendMessageStatus {
         if let currentRoom, sessionChanged {
             self.delegate?.externalSignalingControllerWillRejoinCall(self)
 
-            NCRoomsManager.sharedInstance().rejoinRoomForCall(currentRoom) { _, _, _, _, _ in
+            NCRoomsManager.shared.rejoinRoomForCall(currentRoom) { _, _, _, _, _ in
                 self.delegate?.externalSignalingControllerShouldRejoinCall(self)
             }
         }

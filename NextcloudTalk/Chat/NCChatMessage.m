@@ -534,10 +534,7 @@ NSString * const kSharedItemTypePinned      = @"pinned";
         }
     }
     if (!includedReaction) {
-        NCChatReaction *newReaction = [[NCChatReaction alloc] init];
-        newReaction.reaction = reaction;
-        newReaction.count = 1;
-        newReaction.userReacted = YES;
+        NCChatReaction *newReaction = [[NCChatReaction alloc] initWithReaction:reaction count:1 userReacted:YES state:NCChatReactionStateSet];
         [reactions addObject:newReaction];
     }
 }
@@ -604,7 +601,7 @@ NSString * const kSharedItemTypePinned      = @"pinned";
     for (NSString *reactionKey in reactionsDict.allKeys) {
         // We need to keep this check for users who installed v14.0 (beta 1)
         if ([reactionKey isEqualToString:@"self"]) {continue;}
-        NCChatReaction *reaction = [NCChatReaction initWithReaction:reactionKey andCount:[[reactionsDict objectForKey:reactionKey] integerValue]];
+        NCChatReaction *reaction = [[NCChatReaction alloc] initWithReaction:reactionKey count:[[reactionsDict objectForKey:reactionKey] integerValue] userReacted:NO state:NCChatReactionStateSet];
         [reactionsArray addObject:reaction];
     }
     // Set flag for own reactions

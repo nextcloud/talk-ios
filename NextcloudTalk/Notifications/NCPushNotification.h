@@ -4,20 +4,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSInteger, NCPushNotificationType) {
-    NCPushNotificationTypeUnknown,
-    NCPushNotificationTypeCall,
-    NCPushNotificationTypeRoom,
-    NCPushNotificationTypeChat,
-    NCPushNotificationTypeDelete,
-    NCPushNotificationTypeDeleteAll,
-    NCPushNotificationTypeDeleteMultiple,
-    NCPushNotificationTypeAdminNotification,
-    NCPushNotificationTypeRecording,
-    NCPUshNotificationTypeFederation,
-    NCPushNotificationTypeReminder
-};
+#import "NCTypes.h"
 
 extern NSString * const kNCPNAppKey;
 extern NSString * const kNCPNAppIdKey;

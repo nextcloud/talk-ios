@@ -6,14 +6,7 @@
 #import <Foundation/Foundation.h>
 
 #import "NCContact.h"
-
-typedef NS_ENUM(NSInteger, NCShareType) {
-    NCShareTypeUser = 0,
-    NCShareTypeGroup = 1,
-    NCShareTypeEmail = 4,
-    NCShareTypeRemote = 6,
-    NCShareTypeCircle = 7
-};
+#import "NCTypes.h"
 
 extern NSString * const kParticipantTypeUser;
 extern NSString * const kParticipantTypeGroup;

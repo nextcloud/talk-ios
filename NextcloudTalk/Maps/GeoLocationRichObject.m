@@ -5,6 +5,8 @@
 
 #import "GeoLocationRichObject.h"
 
+#import "NextcloudTalk-Swift.h"
+
 NSString * const GeoLocationRichObjectType = @"geo-location";
 
 @implementation GeoLocationRichObject

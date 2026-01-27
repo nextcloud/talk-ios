@@ -74,7 +74,7 @@ struct RoomInfoNotificationSection: View {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change notifications setting", comment: ""), withMessage: nil)
         }
 
-        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+        NCRoomsManager.shared.updateRoom(room.token)
     }
 
     func setCallNotifications(toEnabled newValue: Bool) async {
@@ -83,7 +83,7 @@ struct RoomInfoNotificationSection: View {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change call notifications setting", comment: ""), withMessage: nil)
         }
 
-        NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+        NCRoomsManager.shared.updateRoom(room.token)
     }
 
     func setImportantConversation(toEnabled newValue: Bool) async {
@@ -92,7 +92,7 @@ struct RoomInfoNotificationSection: View {
             self.room = updatedRoom!
         } catch {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change important conversation setting", comment: ""), withMessage: nil)
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+            NCRoomsManager.shared.updateRoom(room.token)
         }
     }
 
@@ -101,7 +101,7 @@ struct RoomInfoNotificationSection: View {
             self.room = updatedRoom
         } else {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change sensitive conversation setting", comment: ""), withMessage: nil)
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+            NCRoomsManager.shared.updateRoom(room.token)
         }
     }
 }

@@ -4,16 +4,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSInteger, NCPollStatus) {
-    NCPollStatusOpen = 0,
-    NCPollStatusClosed
-};
-
-typedef NS_ENUM(NSInteger, NCPollResultMode) {
-    NCPollResultModePublic = 0,
-    NCPollResultModeHidden
-};
+#import "NCTypes.h"
 
 @interface NCPoll : NSObject
 

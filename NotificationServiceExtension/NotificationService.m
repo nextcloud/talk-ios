@@ -10,7 +10,6 @@
 #import "NCIntentController.h"
 #import "NCRoom.h"
 #import "NCKeyChainController.h"
-#import "NCNotification.h"
 #import "NCPushNotification.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -179,7 +178,7 @@ typedef void (^CreateConversationNotificationCompletionBlock)(void);
 
             [apiSessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSDictionary *notification = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-                NCNotification *serverNotification = [NCNotification notificationWithDictionary:notification];
+                NCNotification *serverNotification = [[NCNotification alloc] initWithDictionary:notification];
 
                 if (!serverNotification) {
                     self.contentHandler(self.bestAttemptContent);

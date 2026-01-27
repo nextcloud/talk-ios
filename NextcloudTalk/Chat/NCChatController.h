@@ -51,7 +51,7 @@ extern NSString * const NCChatControllerDidReceiveThreadMessageNotification;
 - (void)clearHistoryAndResetChatController;
 - (void)removeExpiredMessages;
 - (BOOL)hasHistoryFromMessageId:(NSInteger)messageId;
-- (void)storeMessages:(NSArray *)messages withRealm:(RLMRealm *)realm;
+- (void)storeMessages:(NSArray<NSDictionary *> *)messages withRealm:(RLMRealm *)realm;
 - (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block;
 - (void)getSingleMessageWithMessageId:(NSInteger)messageId withCompletionBlock:(_Nonnull GetSingleMessageCompletionBlock)block;
 

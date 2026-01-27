@@ -7,6 +7,7 @@
 #import <UIKit/UIKit.h>
 
 #import "ARDSettingsModel.h"
+#import "NCTypes.h"
 
 extern NSString * const kUserProfileDisplayName;
 extern NSString * const kUserProfileDisplayNameScope;
@@ -39,10 +40,6 @@ typedef void (^UpdateSignalingConfigCompletionBlock)(NCExternalSignalingControll
 typedef void (^SubscribeForPushNotificationsCompletionBlock)(BOOL success);
 typedef void (^EnsureSignalingConfigCompletionBlock)(NCExternalSignalingController * _Nullable signalingServer);
 
-typedef NS_ENUM(NSInteger, NCPreferredFileSorting) {
-    NCAlphabeticalSorting = 1,
-    NCModificationDateSorting
-};
 
 @interface NCSettingsController : NSObject
 

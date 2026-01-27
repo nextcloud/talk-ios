@@ -20,10 +20,8 @@
 
 #import "ARDCaptureController.h"
 
-#import "CallConstants.h"
 #import "CallKitManager.h"
 #import "NCAPIController.h"
-#import "NCAudioController.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
@@ -103,9 +101,9 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         [[WebRTCCommon shared] dispatch:^{
             if (audioOnly || voiceChatMode) {
-                [[NCAudioController sharedInstance] setAudioSessionToVoiceChatMode];
+                [[NCAudioController shared] setAudioSessionToVoiceChatMode];
             } else {
-                [[NCAudioController sharedInstance] setAudioSessionToVideoChatMode];
+                [[NCAudioController shared] setAudioSessionToVideoChatMode];
             }
         }];
         
@@ -408,7 +406,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     }];
 
     [[WebRTCCommon shared] dispatch:^{
-        [[NCAudioController sharedInstance] disableAudioSession];
+        [[NCAudioController shared] disableAudioSession];
     }];
 }
 

@@ -11,10 +11,14 @@ import Foundation
     var backgroundTaskIdentifier: UIBackgroundTaskIdentifier = .invalid
 #endif
 
-    public class func startBackgroundTask(withName taskName: String? = nil, expirationHandler handler: ((BGTaskHelper) -> Void)? = nil) -> BGTaskHelper {
+    public var isExpired: Bool = false
+
+    public class func startBackgroundTask(withName taskName: String? = #function, expirationHandler handler: ((BGTaskHelper) -> Void)? = nil) -> BGTaskHelper {
         let taskHelper = BGTaskHelper()
 
         let expirationhandler = {
+            taskHelper.isExpired = true
+
             if let handler = handler {
                 handler(taskHelper)
             }
