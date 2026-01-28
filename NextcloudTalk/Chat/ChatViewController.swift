@@ -18,6 +18,7 @@ import SwiftUI
     public var chatController: NCChatController
     public var highlightMessageId = 0
     public var presentThreadOnAppear = 0
+    public var presentedThreadNavigationController: NCNavigationController?
 
     // MARK: - Private var
     private var hasPresentedLobby = false
@@ -1154,6 +1155,7 @@ import SwiftUI
         let navController = NCNavigationController(rootViewController: chatViewController)
         navController.presentationController?.delegate = chatViewController
         self.present(navController, animated: true)
+        presentedThreadNavigationController = navController
     }
 
     // MARK: - Voice message player
@@ -1814,6 +1816,13 @@ import SwiftUI
             self.chatController.clearHistoryAndResetChatController()
             self.hasRequestedInitialHistory = false
             self.chatController.getInitialChatHistory()
+
+            // If a thread view is presented, we close it
+            if self.presentedViewController == presentedThreadNavigationController,
+               let threadViewController = presentedThreadNavigationController?.viewControllers.first as? ChatViewController {
+                threadViewController.leaveChat()
+                threadViewController.dismiss(animated: true)
+            }
         }
     }
 
