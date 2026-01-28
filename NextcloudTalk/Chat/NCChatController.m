@@ -255,6 +255,8 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@", _account.accountId, _room.token];
         [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
         [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+        NSPredicate *threadsQuery = [NSPredicate predicateWithFormat:@"accountId = %@ AND roomToken = %@", _account.accountId, _room.token];
+        [realm deleteObjects:[NCThread objectsWithPredicate:threadsQuery]];
     }];
 }
 
