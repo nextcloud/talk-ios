@@ -150,7 +150,9 @@
     
     self.message = message;
     self.quotedMessageView.actorLabel.text = ([message.actorDisplayName isEqualToString:@""]) ? NSLocalizedString(@"Guest", nil) : message.actorDisplayName;
-    self.quotedMessageView.messageLabel.attributedText = [message messageForLastMessagePreview];
+    NSMutableAttributedString *attributedMessage = [[NSMutableAttributedString alloc] initWithAttributedString:[message messageForLastMessagePreview]];
+    [attributedMessage addAttribute:NSFontAttributeName value:self.quotedMessageView.messageLabel.font range:NSMakeRange(0, attributedMessage.length)];
+    self.quotedMessageView.messageLabel.attributedText = attributedMessage;
     self.quotedMessageView.highlighted = [message isMessageFrom:userId];
 
     TalkAccount *account = message.account;
