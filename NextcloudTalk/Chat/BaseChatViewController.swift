@@ -2803,6 +2803,11 @@ import SwiftUI
     // MARK: - Reactions
 
     func addReaction(reaction: String, to message: NCChatMessage) {
+        if !self.room.canReact {
+            NotificationPresenter.shared().present(text: NSLocalizedString("You are not allowed to add or remove reactions in this conversation", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            return
+        }
+
         if message.reactionsArray().contains(where: { $0.reaction == reaction && $0.userReacted }) {
             // We can't add reaction twice
             return
@@ -2825,6 +2830,11 @@ import SwiftUI
     }
 
     func removeReaction(reaction: String, from message: NCChatMessage) {
+        if !self.room.canReact {
+            NotificationPresenter.shared().present(text: NSLocalizedString("You are not allowed to add or remove reactions in this conversation", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+            return
+        }
+
         self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
         NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
