@@ -80,6 +80,11 @@
 // https://stackoverflow.com/a/44878203
 - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
 {
+    // In case scrolling is enabled, we need to allow touch recognition, as we can't scroll otherwise
+    if (self.scrollEnabled) {
+        return true;
+    }
+
     UITextPosition *position = [self closestPositionToPoint:point];
     if (!position) {return NO;}
     UITextRange *range = [self.tokenizer rangeEnclosingPosition:position withGranularity:UITextGranularityCharacter inDirection:(UITextDirection)UITextLayoutDirectionLeft];
