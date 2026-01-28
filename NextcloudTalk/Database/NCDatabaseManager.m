@@ -467,6 +467,12 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.callReactions = (RLMArray<RLMString> *)@[];
     }
 
+    if ([callConfigKeys containsObject:@"end-to-end-encryption"]) {
+        capabilities.e2eeCallsEnabled = [[callConfig objectForKey:@"end-to-end-encryption"] boolValue];
+    } else {
+        capabilities.e2eeCallsEnabled = NO;
+    }
+
     // Conversations capabilities
     NSDictionary *conversationsConfig = [talkConfig objectForKey:@"conversations"];
     NSArray *conversationsConfigKeys = [conversationsConfig allKeys];

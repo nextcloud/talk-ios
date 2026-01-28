@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSInteger retentionEvent;
 @property NSInteger retentionPhone;
 @property NSInteger retentionInstantMeetings;
+@property BOOL e2eeCallsEnabled;
 
 @end
 

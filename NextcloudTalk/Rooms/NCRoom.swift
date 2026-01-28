@@ -139,6 +139,10 @@ import SwiftyAttributes
             self.type != .changelog && self.type != .noteToSelf
     }
 
+    public var isEndToEndEncryptedCallingEnabled: Bool {
+        return NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId)?.e2eeCallsEnabled ?? false
+    }
+
     public var supportsThreading: Bool {
         if self.isFederated {
             return false
