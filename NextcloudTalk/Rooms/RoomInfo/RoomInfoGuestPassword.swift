@@ -75,7 +75,7 @@ struct RoomInfoGuestPassword: View {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change password protection settings", comment: ""), withMessage: errorDescription)
             }
 
-            NCRoomsManager.sharedInstance().updateRoom(room.token, withCompletionBlock: nil)
+            NCRoomsManager.shared.updateRoom(room.token)
             isActionRunning = false
         }
     }

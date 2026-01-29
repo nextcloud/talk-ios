@@ -87,7 +87,7 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
             return
         }
 
-        let messageParameters = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
+        let messageParameters = self.mentionsDict.asJSONString() ?? ""
         let message = NCChatMessage()
         message.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParameters)
         message.messageParametersJSONString = messageParameters

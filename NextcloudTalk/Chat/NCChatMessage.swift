@@ -113,17 +113,17 @@ import SwiftyAttributes
         return self.pinnedActorId != nil
     }
 
-    public var richObjectFromObjectShare: [AnyHashable: Any] {
+    public var richObjectFromObjectShare: [String: Any] {
         guard self.isObjectShare,
-              let objectDict = self.messageParameters["object"] as? [AnyHashable: Any],
+              let objectDict = self.messageParameters["object"] as? [String: Any],
               let jsonData = try? JSONSerialization.data(withJSONObject: objectDict),
               let jsonString = String(data: jsonData, encoding: .utf8),
               let parameter = NCMessageParameter(dictionary: objectDict)
         else { return [:] }
 
         return [
-            "objectType": parameter.type!,
-            "objectId": parameter.parameterId!,
+            "objectType": parameter.type,
+            "objectId": parameter.parameterId,
             "metaData": jsonString
         ]
     }
@@ -137,7 +137,7 @@ import SwiftyAttributes
 
     public var objectParameter: NCMessageParameter? {
         guard self.isObjectShare,
-              let objectDict = self.messageParameters["object"] as? [AnyHashable: Any],
+              let objectDict = self.messageParameters["object"] as? [String: Any],
               let objectParameter = NCMessageParameter(dictionary: objectDict)
         else { return nil }
 
@@ -156,11 +156,11 @@ import SwiftyAttributes
         var result: [String: NCMessageParameter] = [:]
 
         for case let (key as String, value as [String: String]) in self.messageParameters {
-            guard key.hasPrefix("mention-"), let parameter = NCMessageParameter(dictionary: value), parameter.isMention() else { continue }
+            guard key.hasPrefix("mention-"), let parameter = NCMessageParameter(dictionary: value), parameter.isMention else { continue }
 
-            if parameter.mention == nil, let parameterId = parameter.parameterId, let paramaterDisplayName = parameter.name {
+            if parameter.mention == nil {
                 // Try to reconstruct the mention for unsupported servers
-                parameter.mention = Mention(id: parameterId, label: paramaterDisplayName)
+                parameter.mention = Mention(id: parameter.parameterId, label: parameter.name)
             }
 
             if parameter.mention != nil {
@@ -188,7 +188,7 @@ import SwiftyAttributes
 
         resultMessage = resultMessage.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        for case let (key as String, value as [AnyHashable: Any]) in self.messageParameters {
+        for case let (key as String, value as [String: Any]) in self.messageParameters {
             if let parameter = NCMessageParameter(dictionary: value), let mention = parameter.mention {
                 resultMessage = resultMessage.replacingOccurrences(of: "{\(key)}", with: mention.idForChat)
             }
@@ -204,7 +204,7 @@ import SwiftyAttributes
         resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // TODO: Could use mentionMessageParameters directly here?
-        for case let (key as String, value as [AnyHashable: Any]) in self.messageParameters {
+        for case let (key as String, value as [String: Any]) in self.messageParameters {
             if let parameter = NCMessageParameter(dictionary: value), let mention = parameter.mention {
                 resultMessage = resultMessage.replacingOccurrences(of: "{\(key)}", with: mention.labelForChat)
             }
@@ -260,9 +260,7 @@ import SwiftyAttributes
             updateReaction.reaction = reaction
             updateReaction.state = state
         } else {
-            let temporaryReaction = NCChatReaction()
-            temporaryReaction.reaction = reaction
-            temporaryReaction.state = state
+            let temporaryReaction = NCChatReaction(reaction: reaction, state: state)
             self.temporaryReactions().add(temporaryReaction)
         }
     }
@@ -340,13 +338,13 @@ import SwiftyAttributes
     }
 
     public var isAnimatableGif: Bool {
-        guard let accountId, let file = self.file(), let mimetype = file.mimetype else { return false }
+        guard let accountId, let file = self.file(), let mimetype = file.mimetype, let size = file.size else { return false }
 
         let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)
 
         guard NCUtils.isGif(fileType: mimetype), let maxGifSize = capabilities?.maxGifSize, maxGifSize > 0 else { return false }
 
-        return file.size <= maxGifSize
+        return size <= maxGifSize
     }
 
     public func lastMessagePreview(forOneToOneRoom: Bool = false) -> NSMutableAttributedString? {

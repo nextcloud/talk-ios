@@ -5,9 +5,9 @@
 #import <Foundation/Foundation.h>
 
 #import "NCDatabaseManager.h"
-#import "NCMessageFileParameter.h"
 
 @class NCChatFileStatus;
+@class NCMessageFileParameter;
 
 NS_ASSUME_NONNULL_BEGIN
 

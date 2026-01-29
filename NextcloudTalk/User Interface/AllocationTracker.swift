@@ -16,7 +16,7 @@ import UIKit
         return arguments.contains(where: { $0 == "-TestEnvironment" })
     }()
 
-    public func addAllocation(_ name: String) {
+    public func addAllocation(_ name: String = #fileID) {
         if !isTestEnvironment {
             return
         }
@@ -24,7 +24,7 @@ import UIKit
         allocationDict[name, default: 0] += 1
     }
 
-    public func removeAllocation(_ name: String) {
+    public func removeAllocation(_ name: String = #fileID) {
         if !isTestEnvironment {
             return
         }

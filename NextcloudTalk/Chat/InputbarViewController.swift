@@ -285,7 +285,7 @@ import UIKit
     internal func replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: String, parameters: String) -> String {
         var resultMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard let messageParametersDict = NCMessageParameter.messageParametersDict(fromJSONString: parameters) else { return resultMessage }
+        guard let messageParametersDict = [String: NCMessageParameter].fromJSONString(parameters) else { return resultMessage }
 
         for (parameterKey, parameter) in messageParametersDict {
             guard let mention = parameter.mention else { continue }

@@ -20,8 +20,6 @@ typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary
 typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);
 typedef void (^SearchUsersCompletionBlock)(NSArray *indexes, NSMutableDictionary *users, NSMutableArray *userList, NSError *error);
 
-typedef void (^GetRoomCompletionBlock)(NSDictionary *roomDict, NSError *error);
-
 typedef void (^PrepareSwitchRoomCompletionBlock)(NSError *error);
 typedef void (^RequestAssistanceCompletionBlock)(NSError *error);
 

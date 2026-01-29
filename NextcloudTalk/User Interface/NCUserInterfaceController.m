@@ -12,7 +12,6 @@
 #import "AuthenticationViewController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCRoomsManager.h"
 #import "NCSettingsController.h"
 #import "NotificationCenterNotifications.h"
 
@@ -87,12 +86,12 @@
         [_mainViewController presentViewController:_authViewController animated:YES completion:nil];
     } else {
         // Don't open a login if we're in a call
-        if ([[NCRoomsManager sharedInstance] callViewController]) {
+        if ([[NCRoomsManager shared] callViewController]) {
             return;
         }
         
         // Leave chat if we're currently in one
-        if ([[NCRoomsManager sharedInstance] chatViewController]) {
+        if ([[NCRoomsManager shared] chatViewController]) {
             [self presentConversationsList];
         }
         
@@ -296,7 +295,7 @@
     [alert addAction:cancelButton];
     
     // Do not show join call dialog until we don't handle 'hangup current call'/'join new one' properly.
-    if (![NCRoomsManager sharedInstance].callViewController) {
+    if (![NCRoomsManager shared].callViewController) {
         [_mainViewController dismissViewControllerAnimated:NO completion:nil];
         [_mainViewController presentViewController:alert animated:YES completion:nil];
     } else {
@@ -381,7 +380,7 @@
 {
     NSString *roomToken = [callDict objectForKey:@"roomToken"];
     BOOL video = [[callDict objectForKey:@"isVideoEnabled"] boolValue];
-    [[NCRoomsManager sharedInstance] joinCallWithCallToken:roomToken withVideo:video asInitiator:YES recordingConsent:NO];
+    [[NCRoomsManager shared] joinCallWithCallToken:roomToken withVideo:video asInitiator:YES recordingConsent:NO];
 }
 
 - (void)presentChatForURL:(NSURLComponents *)urlComponents

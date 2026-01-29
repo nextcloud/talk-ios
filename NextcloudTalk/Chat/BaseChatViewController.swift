@@ -741,7 +741,7 @@ import SwiftUI
             replyToMessage = replyMessageView.message
         }
 
-        let messageParameters = NCMessageParameter.messageParametersJSONString(from: self.mentionsDict) ?? ""
+        let messageParameters = self.mentionsDict.asJSONString() ?? ""
         self.sendChatMessage(message: self.textView.text, withParentMessage: replyToMessage, messageParameters: messageParameters, silently: silently)
 
         self.clearInputAfterSend()
@@ -769,7 +769,7 @@ import SwiftUI
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully scheduled", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
 
                 self.clearInputAfterSend()
-                NCRoomsManager.sharedInstance().updateRoom(self.room.token, withCompletionBlock: nil)
+                NCRoomsManager.shared.updateRoom(self.room.token)
             } catch {
                 print(error)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message scheduling failed", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
@@ -3532,12 +3532,12 @@ import SwiftUI
         }
 
         self.room.pendingMessage = self.textView.text
-        NCRoomsManager.sharedInstance().updatePendingMessage(self.room.pendingMessage, for: self.room)
+        NCRoomsManager.shared.updatePendingMessage(self.room.pendingMessage, forRoom: self.room)
     }
 
     public func clearPendingMessage() {
         self.room.pendingMessage = ""
-        NCRoomsManager.sharedInstance().updatePendingMessage("", for: self.room)
+        NCRoomsManager.shared.updatePendingMessage("", forRoom: self.room)
     }
 
     private func getKeyForDate(date: Date, inDictionary dict: [Date: [NCChatMessage]]) -> Date? {

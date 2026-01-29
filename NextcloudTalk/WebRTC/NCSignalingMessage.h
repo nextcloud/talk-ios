@@ -7,26 +7,10 @@
 
 #import "WebRTC/RTCIceCandidate.h"
 #import "WebRTC/RTCSessionDescription.h"
+#import "NCtypes.h"
 
 extern NSString *const kRoomTypeVideo;
 extern NSString *const kRoomTypeScreen;
-
-typedef NS_ENUM(NSInteger, NCSignalingMessageType) {
-    kNCSignalingMessageTypeUnknown,
-    kNCSignalingMessageTypeCandidate,
-    kNCSignalingMessageTypeOffer,
-    kNCSignalingMessageTypeAnswer,
-    kNCSignalingMessageTypeUnshareScreen,
-    kNCSignalingMessageTypeControl,
-    kNCSignalingMessageTypeMute,
-    kNCSignalingMessageTypeUnmute,
-    kNCSignalingMessageTypeNickChanged,
-    kNCSignalingMessageTypeRaiseHand,
-    kNCSignalingMessageTypeRecording,
-    kNCSignalingMessageTypeReaction,
-    kNCSignalingMessageTypeStartedTyping,
-    kNCSignalingMessageTypeStoppedTyping
-};
 
 
 @interface NCSignalingMessage : NSObject

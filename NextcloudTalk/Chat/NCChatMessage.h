@@ -7,12 +7,8 @@
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
 
-#import "NCChatReaction.h"
 #import "NCDatabaseManager.h"
-#import "NCDeckCardParameter.h"
-#import "NCMessageParameter.h"
-#import "NCMessageFileParameter.h"
-#import "NCMessageLocationParameter.h"
+#import "NCTypes.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;
 
@@ -33,19 +29,15 @@ extern NSString * const kSharedItemTypePoll;
 extern NSString * const kSharedItemTypeRecording;
 extern NSString * const kSharedItemTypePinned;
 
-typedef NS_ENUM(NSInteger, ChatMessageDeliveryState) {
-    ChatMessageDeliveryStateSent = 0,
-    ChatMessageDeliveryStateRead,
-    ChatMessageDeliveryStateSending,
-    ChatMessageDeliveryStateDeleting,
-    ChatMessageDeliveryStateFailed
-};
 
 @class NCChatMessage;
+@class NCRoom;
+@class NCChatReaction;
+@class NCMessageFileParameter;
+@class NCMessageLocationParameter;
+@class NCDeckCardParameter;
 
 typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictionary *referenceData, NSString *url);
-
-@class NCRoom;
 
 @interface NCChatMessage : RLMObject <NSCopying>
 

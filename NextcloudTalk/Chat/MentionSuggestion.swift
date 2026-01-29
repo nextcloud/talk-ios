@@ -22,10 +22,7 @@ import Foundation
     }
 
     func asMessageParameter() -> NCMessageParameter {
-        let messageParameter = NCMessageParameter()
-
-        messageParameter.parameterId = mention.id
-        messageParameter.name = mention.label
+        let messageParameter = NCMessageParameter(parameterId: mention.id, name: mention.label, type: "unknown")
         messageParameter.mention = mention
 
         // Set parameter type
