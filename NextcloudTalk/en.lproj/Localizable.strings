@@ -1883,6 +1883,12 @@
 /* Reschedule a message that is send later */
 "Reschedule" = "Reschedule";
 
+/* Reschedule a message that is send later with a notification */
+"Reschedule with notification" = "Reschedule with notification";
+
+/* Reschedule a message that is send later without a notification */
+"Reschedule without notification" = "Reschedule without notification";
+
 /* No comment provided by engineer. */
 "Resend" = "Resend";
 
