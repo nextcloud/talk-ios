@@ -63,7 +63,7 @@ import Foundation
 
         Task {
             do {
-                let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(editingMessage.messageId), withMessage: editingMessage.sendingMessage, inRoom: self.room.token, sendAt: editingMessage.timestamp, forAccount: self.account)
+                let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(editingMessage.messageId), withMessage: editingMessage.sendingMessage, inRoom: self.room.token, sendAt: editingMessage.timestamp, silent: editingMessage.isSilent, forAccount: self.account)
                 self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage.asChatMessage())
                 super.didCommitTextEditing(sender)
                 self.setTextInputbarHidden(true, animated: true)
@@ -94,7 +94,7 @@ import Foundation
 
         do {
             let timestamp = Int(selectedDate.timeIntervalSince1970)
-            let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(message.messageId), withMessage: message.sendingMessage, inRoom: self.room.token, sendAt: timestamp, forAccount: self.account)
+            let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(message.messageId), withMessage: message.sendingMessage, inRoom: self.room.token, sendAt: timestamp, silent: message.isSilent, forAccount: self.account)
 
             // TODO: Update message does not support moving to a different section, therefore we remove and insert the updated message
             self.removeMessage(at: indexPath)
