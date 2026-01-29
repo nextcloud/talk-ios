@@ -118,4 +118,8 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
         textField.resignFirstResponder()
         return true
     }
+
+    override func forceTextInputbarAdjustment(for responder: UIResponder?) -> Bool {
+        return true
+    }
 }
