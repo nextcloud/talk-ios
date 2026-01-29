@@ -33,7 +33,7 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
 
         self.threadCreationContentView.addSubview(self.titleLabel)
         NSLayoutConstraint.activate([
-            self.titleLabel.topAnchor.constraint(equalTo: self.threadCreationContentView.safeAreaLayoutGuide.topAnchor, constant: 16),
+            self.titleLabel.topAnchor.constraint(greaterThanOrEqualTo: self.threadCreationContentView.safeAreaLayoutGuide.topAnchor, constant: 16),
             self.titleLabel.leadingAnchor.constraint(equalTo: self.threadCreationContentView.leadingAnchor, constant: 16),
             self.titleLabel.trailingAnchor.constraint(equalTo: self.threadCreationContentView.trailingAnchor, constant: -16)
         ])
@@ -42,7 +42,8 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
         NSLayoutConstraint.activate([
             self.titleTextField.topAnchor.constraint(equalTo: self.titleLabel.bottomAnchor, constant: 8),
             self.titleTextField.leadingAnchor.constraint(equalTo: self.threadCreationContentView.leadingAnchor, constant: 16),
-            self.titleTextField.trailingAnchor.constraint(equalTo: self.threadCreationContentView.trailingAnchor, constant: -16)
+            self.titleTextField.trailingAnchor.constraint(equalTo: self.threadCreationContentView.trailingAnchor, constant: -16),
+            self.titleTextField.bottomAnchor.constraint(equalTo: self.threadCreationContentView.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
 
     }
