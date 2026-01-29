@@ -1346,6 +1346,7 @@ import SwiftUI
 
         self.hasJoinedRoom = true
         self.checkRoomControlsAvailability()
+        self.checkPinnedMessage()
 
         if self.hasStopped {
             return
