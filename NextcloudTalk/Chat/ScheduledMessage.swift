@@ -53,6 +53,7 @@ public class ScheduledMessage {
         message.timestamp = self.sendAtTimestamp
         message.message = self.message
         message.isSilent = self.silent
+        message.isMarkdownMessage = true
 
         if let parentMessage {
             message.parentId = parentMessage.internalId
