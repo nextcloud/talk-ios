@@ -43,8 +43,11 @@ import Foundation
 
         self.avatarView.prepareForReuse()
 
-        self.subtitleLabel.text = ""
-        self.dateLabel.text = ""
+        // Reset attributedText before text seems to make a difference
+        // https://stackoverflow.com/a/58631165/10976375
+        self.subtitleLabel.attributedText = nil
+        self.subtitleLabel.text = nil
+        self.dateLabel.text = nil
         self.titleOnly = false
 
         self.unreadMessagesView.setBadgeNumber(0)
