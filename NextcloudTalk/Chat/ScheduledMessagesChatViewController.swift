@@ -62,17 +62,9 @@ import Foundation
         editingMessage.messageParametersJSONString = messageParametersJSONString
 
         Task {
-            do {
-                let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(editingMessage.messageId), withMessage: editingMessage.sendingMessage, inRoom: self.room.token, sendAt: editingMessage.timestamp, forAccount: self.account)
-                self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage.asChatMessage())
-                super.didCommitTextEditing(sender)
-                self.setTextInputbarHidden(true, animated: true)
-
-                NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully edited", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
-            } catch {
-                print(error)
-                NotificationPresenter.shared().present(text: NSLocalizedString("Message editing failed", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
-            }
+            await self.saveEditedMessage(message: editingMessage)
+            super.didCommitTextEditing(sender)
+            self.setTextInputbarHidden(true, animated: true)
         }
     }
 
@@ -94,7 +86,7 @@ import Foundation
 
         do {
             let timestamp = Int(selectedDate.timeIntervalSince1970)
-            let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(message.messageId), withMessage: message.sendingMessage, inRoom: self.room.token, sendAt: timestamp, forAccount: self.account)
+            let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(message.messageId), withMessage: message.sendingMessage, inRoom: self.room.token, sendAt: timestamp, silent: message.isSilent, forAccount: self.account)
 
             // TODO: Update message does not support moving to a different section, therefore we remove and insert the updated message
             self.removeMessage(at: indexPath)
@@ -150,6 +142,18 @@ import Foundation
         }
     }
 
+    private func saveEditedMessage(message editingMessage: NCChatMessage) async {
+        do {
+            let updatedMessage = try await NCAPIController.sharedInstance().editScheduledMessage(String(editingMessage.messageId), withMessage: editingMessage.sendingMessage, inRoom: self.room.token, sendAt: editingMessage.timestamp, silent: editingMessage.isSilent, forAccount: self.account)
+            self.updateMessage(withMessageId: editingMessage.messageId, updatedMessage: updatedMessage.asChatMessage())
+
+            NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully edited", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
+        } catch {
+            print(error)
+            NotificationPresenter.shared().present(text: NSLocalizedString("Message editing failed", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+        }
+    }
+
     // MARK: - TableView overrides
 
     public override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
@@ -173,6 +177,22 @@ import Foundation
                 await self.didPressReschedule(for: message, at: indexPath)
             }
         })
+
+        if message.isSilent {
+            actions.append(UIAction(title: NSLocalizedString("Reschedule with notification", comment: "Reschedule a message that is send later with a notification"), image: .init(systemName: "bell")) { _ in
+                Task {
+                    message.isSilent = !message.isSilent
+                    await self.saveEditedMessage(message: message)
+                }
+            })
+        } else {
+            actions.append(UIAction(title: NSLocalizedString("Reschedule without notification", comment: "Reschedule a message that is send later without a notification"), image: .init(systemName: "bell.slash")) { _ in
+                Task {
+                    message.isSilent = !message.isSilent
+                    await self.saveEditedMessage(message: message)
+                }
+            })
+        }
 
         // Send now option
         actions.append(UIAction(title: NSLocalizedString("Send now", comment: "Send a message now"), image: .init(systemName: "paperplane")) { _ in
