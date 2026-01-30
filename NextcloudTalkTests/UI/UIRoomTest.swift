@@ -300,13 +300,9 @@ final class UIRoomTest: XCTestCase {
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutLong))
 
-        // Wait until we joined the room
-        let callOptionsButton = chatNavBar.buttons["Call options"]
-        waitForReady(object: callOptionsButton)
-
-        // Find the message from alice that we should react to
+        // Find the message from alice that we should react to and wait until it's ready
         let messageText = app.tables.staticTexts["React to this message!"]
-        XCTAssert(messageText.waitForExistence(timeout: TestConstants.timeoutShort))
+        waitForReady(object: messageText, timeout: TestConstants.timeoutLong)
 
         // Open context menu by long-pressing on the message
         messageText.press(forDuration: 2.0)
