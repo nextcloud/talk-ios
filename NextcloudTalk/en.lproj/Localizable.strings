@@ -2439,6 +2439,9 @@
 "You are currently waiting in the lobby" = "You are currently waiting in the lobby";
 
 /* No comment provided by engineer. */
+"You are not allowed to add or remove reactions in this conversation" = "You are not allowed to add or remove reactions in this conversation";
+
+/* No comment provided by engineer. */
 "You are not part of any conversation" = "You are not part of any conversation";
 
 /* No comment provided by engineer. */
