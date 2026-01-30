@@ -1599,10 +1599,10 @@ import SwiftUI
                         continue
                     }
 
-                    if !self.isThreadViewController, newMessage.isThreadMessage() {
-                        // Thread messages should not be displayed outside of threads
-                        continue
-                    }
+                    // Thread messages should not be displayed outside of threads or vise-versa
+                    guard (!self.isThreadViewController && !newMessage.isThreadMessage())
+                            || (self.isThreadViewController && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
+                    else { continue }
 
                     // If we don't get an indexPath here, something is wrong with our appendMessages function
                     let indexPath = self.indexPath(for: newMessage)!
