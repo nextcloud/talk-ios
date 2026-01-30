@@ -182,9 +182,12 @@ import UIKit
             // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
             self.textView.layer.borderColor = UIColor.systemGray4.cgColor
             self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
-        }
 
-        self.setTitleView()
+            self.setTitleView()
+        } else if previousTraitCollection?.horizontalSizeClass != self.traitCollection.horizontalSizeClass || previousTraitCollection?.verticalSizeClass != self.traitCollection.verticalSizeClass {
+            // When the size class changes, we want to update the title view (e.g. to show/hide subtitle)
+            self.setTitleView()
+        }
     }
 
     // MARK: - Configuration
