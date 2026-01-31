@@ -301,8 +301,8 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutLong))
 
         // Find the message from alice that we should react to
-        let messageText = app.tables.staticTexts["React to this message!"]
-        XCTAssert(messageText.waitForExistence(timeout: TestConstants.timeoutLong))
+        let messageText = app.tables.textViews["React to this message!"].firstMatch
+        XCTAssert(messageText.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Open context menu by long-pressing on the message
         messageText.press(forDuration: 2.0)
