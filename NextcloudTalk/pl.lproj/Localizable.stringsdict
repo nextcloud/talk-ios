@@ -48,6 +48,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@participantsincall@</string>
+        <key>participantsincall</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>ld</string>
+            <key>one</key>
+            <string>%ld uczestnik w rozmowie</string>
+            <key>few</key>
+            <string>%ld uczestników w rozmowie</string>
+            <key>many</key>
+            <string>%ld uczestników w rozmowie</string>
+            <key>other</key>
+            <string>%ld uczestników w rozmowie</string>
+        </dict>
     </dict>
 
     <key>%d minutes ago</key>
