@@ -1061,6 +1061,12 @@
 "End poll" = "End poll";
 
 /* No comment provided by engineer. */
+"Enter a new password" = "Enter a new password";
+
+/* No comment provided by engineer. */
+"Enter a password" = "Enter a password";
+
+/* No comment provided by engineer. */
 "Error occurred when creating a reminder" = "Error occurred when creating a reminder";
 
 /* No comment provided by engineer. */
@@ -1695,6 +1701,15 @@
 "Password" = "Password";
 
 /* No comment provided by engineer. */
+"Password is valid" = "Password is valid";
+
+/* No comment provided by engineer. */
+"Password needs to be at least %d characters long" = "Password needs to be at least %d characters long";
+
+/* No comment provided by engineer. */
+"Password protection" = "Password protection";
+
+/* No comment provided by engineer. */
 "Pending invitations" = "Pending invitations";
 
 /* No comment provided by engineer. */
@@ -2313,6 +2328,9 @@
 "Unable to open file" = "Unable to open file";
 
 /* No comment provided by engineer. */
+"Unable to validate password right now" = "Unable to validate password right now";
+
+/* No comment provided by engineer. */
 "Unarchive conversation" = "Unarchive conversation";
 
 /* No comment provided by engineer. */
@@ -2386,6 +2404,9 @@
 
 /* No comment provided by engineer. */
 "Users" = "Users";
+
+/* No comment provided by engineer. */
+"Validating password…" = "Validating password…";
 
 /* No comment provided by engineer. */
 "Version" = "Version";

@@ -42,6 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL absenceSupported;
 @property BOOL absenceReplacementSupported;
 @property RLMArray<RLMString> *notificationsCapabilities;
+@property NSString *passwordPolicyGenerateAPIEndpoint;
+@property NSString *passwordPolicyValidateAPIEndpoint;
+@property NSInteger passwordPolicyMinLength;
 
 @end
 

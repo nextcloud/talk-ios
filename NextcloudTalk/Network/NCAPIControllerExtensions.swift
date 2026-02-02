@@ -1467,4 +1467,29 @@ import NextcloudKit
 
         try await apiSessionManager.deleteOcs(urlString, account: account)
     }
+
+    // MARK: - Password policy
+
+    @MainActor
+    @nonobjc
+    public func validatePassword(password: String, forAccount account: TalkAccount) async throws -> (passed: Bool, reason: String?) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { throw ApiControllerError.preconditionError }
+
+        // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId),
+              !serverCapabilities.passwordPolicyValidateAPIEndpoint.isEmpty
+        else { return (true, "") }
+
+        let parameters: [String: String] = ["password": password]
+        let ocsResponse = try await apiSessionManager.postOcs(serverCapabilities.passwordPolicyValidateAPIEndpoint, account: account, parameters: parameters)
+
+        guard let dataDict = ocsResponse.dataDict,
+        let passed = dataDict["passed"] as? Bool
+        else { throw ApiControllerError.unexpectedOcsResponse }
+
+        let reason = dataDict["reason"] as? String
+
+        return (passed, reason)
+    }
 }
