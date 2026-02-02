@@ -2157,8 +2157,9 @@ import SwiftUI
         return isReactable
     }
 
-    func getSetReminderOptions(for message: NCChatMessage) -> [UIMenuElement] {
-        var reminderOptions: [UIMenuElement] = []
+    func getPredefinedTimeMessageOptions() -> [(title: String, subtitle: String?, timestamp: Int)] {
+        var timeOptions: [(title: String, subtitle: String?, timestamp: Int)] = []
+
         let now = Date()
 
         let sunday = 1
@@ -2169,6 +2170,50 @@ import SwiftUI
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
 
+        var title: String
+        var subtitle: String
+
+        // Today (but not, when it's past 5pm)
+        if Calendar.current.component(.hour, from: now) < 17 {
+            let laterTodayTime = NCUtils.today(withHour: 18, withMinute: 0, withSecond: 0)!
+            title = NSLocalizedString("Later today", comment: "Remind me later today about that message")
+            subtitle = NCUtils.getTime(fromDate: laterTodayTime)
+            timeOptions.append((title, subtitle, Int(laterTodayTime.timeIntervalSince1970)))
+        }
+
+        // Tomorrow
+        var tomorrowTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+        tomorrowTime = Calendar.current.date(byAdding: .day, value: 1, to: tomorrowTime)!
+        title = NSLocalizedString("Tomorrow", comment: "Remind me tomorrow about that message")
+        subtitle = "\(formatter.string(from: tomorrowTime)), \(NCUtils.getTime(fromDate: tomorrowTime))"
+        timeOptions.append((title, subtitle, Int(tomorrowTime.timeIntervalSince1970)))
+
+        // This weekend (only for Mon-Tue)
+        let nowWeekday = Calendar.current.component(.weekday, from: now)
+        if nowWeekday != friday && nowWeekday != saturday && nowWeekday != sunday {
+            var weekendTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+            weekendTime = NCUtils.setWeekday(saturday, withDate: weekendTime)
+            title = NSLocalizedString("This weekend", comment: "Remind me this weekend about that message")
+            subtitle = "\(formatter.string(from: weekendTime)), \(NCUtils.getTime(fromDate: weekendTime))"
+            timeOptions.append((title, subtitle, Int(weekendTime.timeIntervalSince1970)))
+        }
+
+        // Next week (not on sundays)
+        if nowWeekday != sunday {
+            var nextWeekTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+            nextWeekTime = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: nextWeekTime)!
+            nextWeekTime = NCUtils.setWeekday(monday, withDate: nextWeekTime)
+            title =  NSLocalizedString("Next week", comment: "Remind me next week about that message")
+            subtitle = "\(formatter.string(from: nextWeekTime)), \(NCUtils.getTime(fromDate: nextWeekTime))"
+            timeOptions.append((title, subtitle, Int(nextWeekTime.timeIntervalSince1970)))
+        }
+
+        return timeOptions
+    }
+
+    func getSetReminderOptions(for message: NCChatMessage) -> [UIMenuElement] {
+        var reminderOptions: [UIMenuElement] = []
+
         let setReminderCompletion: SetReminderForMessage = { (error: Error?) in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred when creating a reminder", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
@@ -2177,40 +2222,14 @@ import SwiftUI
             }
         }
 
-        // Today
-        let laterTodayTime = NCUtils.today(withHour: 18, withMinute: 0, withSecond: 0)!
-        let laterToday = UIAction(title: NSLocalizedString("Later today", comment: "Remind me later today about that message"), subtitle: NCUtils.getTime(fromDate: laterTodayTime)) { _ in
-            let timestamp = String(Int(laterTodayTime.timeIntervalSince1970))
-            NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
-        }
+        for timeOption in self.getPredefinedTimeMessageOptions() {
+            let timeAction = UIAction(title: timeOption.title, subtitle: timeOption.subtitle) { _ in
+                let timestamp = String(timeOption.timestamp)
+                NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
+            }
 
-        // Tomorrow
-        var tomorrowTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
-        tomorrowTime = Calendar.current.date(byAdding: .day, value: 1, to: tomorrowTime)!
-        let tomorrow = UIAction(title: NSLocalizedString("Tomorrow", comment: "Remind me tomorrow about that message")) { _ in
-            let timestamp = String(Int(tomorrowTime.timeIntervalSince1970))
-            NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
+            reminderOptions.append(timeAction)
         }
-        tomorrow.subtitle = "\(formatter.string(from: tomorrowTime)), \(NCUtils.getTime(fromDate: tomorrowTime))"
-
-        // This weekend
-        var weekendTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
-        weekendTime = NCUtils.setWeekday(saturday, withDate: weekendTime)
-        let thisWeekend = UIAction(title: NSLocalizedString("This weekend", comment: "Remind me this weekend about that message")) { _ in
-            let timestamp = String(Int(weekendTime.timeIntervalSince1970))
-            NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
-        }
-        thisWeekend.subtitle = "\(formatter.string(from: weekendTime)), \(NCUtils.getTime(fromDate: weekendTime))"
-
-        // Next week
-        var nextWeekTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
-        nextWeekTime = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: nextWeekTime)!
-        nextWeekTime = NCUtils.setWeekday(monday, withDate: nextWeekTime)
-        let nextWeek = UIAction(title: NSLocalizedString("Next week", comment: "Remind me next week about that message")) { _ in
-            let timestamp = String(Int(nextWeekTime.timeIntervalSince1970))
-            NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
-        }
-        nextWeek.subtitle = "\(formatter.string(from: nextWeekTime)), \(NCUtils.getTime(fromDate: nextWeekTime))"
 
         // Custom reminder
         let customReminderAction = UIAction(title: NSLocalizedString("Pick date & time", comment: ""), image: .init(systemName: "calendar.badge.clock")) { [weak self] _ in
@@ -2219,8 +2238,8 @@ import SwiftUI
                 self.interactingMessage = message
                 self.lastMessageBeforeInteraction = self.tableView?.indexPathsForVisibleRows?.last
 
-                let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: now)
-                let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: now)
+                let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+                let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
 
                 self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
                 self.datePickerTextField.getDate { buttonTapped, selectedDate in
@@ -2233,25 +2252,6 @@ import SwiftUI
         }
 
         let customReminder = UIMenu(options: .displayInline, children: [customReminderAction])
-
-        // Hide "Later today" when it's past 5pm
-        if Calendar.current.component(.hour, from: now) < 17 {
-            reminderOptions.append(laterToday)
-        }
-
-        reminderOptions.append(tomorrow)
-
-        // Only show "This weekend" for Mon-Tue
-        let nowWeekday = Calendar.current.component(.weekday, from: now)
-        if nowWeekday != friday && nowWeekday != saturday && nowWeekday != sunday {
-            reminderOptions.append(thisWeekend)
-        }
-
-        // "Next week" should be hidden on sunday
-        if nowWeekday != sunday {
-            reminderOptions.append(nextWeek)
-        }
-
         reminderOptions.append(customReminder)
 
         return reminderOptions
