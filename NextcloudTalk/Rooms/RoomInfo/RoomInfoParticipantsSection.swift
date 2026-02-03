@@ -260,15 +260,15 @@ struct RoomInfoParticipantsSection: View {
                 }
             }
 
-            if wrappedParticipant.actorType == .email {
-                Button {
-                    self.resendInvitation(forParticipant: wrappedParticipant)
-                } label: {
-                    Label(NSLocalizedString("Resend invitation", comment: ""), systemImage: "envelope")
-                }
-            }
-
             if room.canModerate, wrappedParticipant.canBeModerated {
+                if wrappedParticipant.actorType == .email {
+                    Button {
+                        self.resendInvitation(forParticipant: wrappedParticipant)
+                    } label: {
+                        Label(NSLocalizedString("Resend invitation", comment: ""), systemImage: "envelope")
+                    }
+                }
+
                 if wrappedParticipant.canBeBanned {
                     Button(role: .destructive) {
                         participantToBan = wrappedParticipant
