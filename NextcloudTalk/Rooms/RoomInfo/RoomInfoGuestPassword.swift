@@ -9,62 +9,42 @@ import NextcloudKit
 struct RoomInfoGuestPassword: View {
     @Binding var room: NCRoom
 
-    @State private var setPasswordDialogShown: Bool = false
-    @State private var changePasswordDialogShown: Bool = false
-    @State private var password: String = ""
+    @State private var isSetPasswordRowVisible: Bool = false
+    @State private var toggleValue: Bool = false
     @State private var isActionRunning = false
 
-    var trimmedPassword: String {
-        return password.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private let changePasswordText = NSLocalizedString("Change password", comment: "")
-    private let setPasswordText = NSLocalizedString("Set password", comment: "")
-
     var body: (some View)? {
-        Button(action: {
-            if room.hasPassword {
-                changePasswordDialogShown = true
+        ActionToggle(isOn: $toggleValue, action: { isOn in
+            if isOn {
+                isSetPasswordRowVisible = true
             } else {
-                setPasswordDialogShown = true
+                isSetPasswordRowVisible = false
+                if room.hasPassword {
+                    setPassword(to: "")
+                }
             }
         }, label: {
-            ImageSublabelView(image: Image(systemName: room.hasPassword ? "lock" : "lock.open")) {
-                Text(room.hasPassword ? changePasswordText : setPasswordText)
+            ImageSublabelView(image: Image(systemName: "lock")) {
+                Text("Password protection")
             }
         })
-        .foregroundStyle(.primary)
-        .alert(NSLocalizedString("Set password:", comment: ""), isPresented: $setPasswordDialogShown) {
-            SecureField(NSLocalizedString("Password", comment: ""), text: $password)
-
-            Button(action: {
-                setPassword(to: trimmedPassword)
-            }, label: {
-                Text("OK")
-            })
-            .disabled(trimmedPassword.isEmpty)
-
-            Button("Cancel", role: .cancel) {}
+        .onAppear {
+            toggleValue = room.hasPassword
         }
-        .alert(NSLocalizedString("Set new password:", comment: ""), isPresented: $changePasswordDialogShown) {
-            SecureField(NSLocalizedString("Password", comment: ""), text: $password)
-
-            Button(action: {
-                setPassword(to: trimmedPassword)
-            }, label: {
-                Text(changePasswordText)
-            })
-            .disabled(trimmedPassword.isEmpty)
-
-            Button(role: .destructive, action: {
-                setPassword(to: "")
-            }, label: {
-                Text("Remove password")
-            })
-
-            Button("Cancel", role: .cancel) {}
+        .onChange(of: room.hasPassword) { newValue in
+            toggleValue = newValue
         }
         .disabled(isActionRunning)
+
+        if isSetPasswordRowVisible {
+            RoomInfoGuestPasswordSave(
+                minLength: NCSettingsController.sharedInstance().passwordPolicyMinLength(),
+                isPasswordValidationRequired: !(NCSettingsController.sharedInstance().passwordPolicyValidateAPIEndpoint() ?? "").isEmpty
+            ) { password in
+                isSetPasswordRowVisible = false
+                setPassword(to: password)
+            }
+        }
     }
 
     func setPassword(to value: String) {
@@ -75,6 +55,10 @@ struct RoomInfoGuestPassword: View {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change password protection settings", comment: ""), withMessage: errorDescription)
             }
 
+            let message = value.isEmpty ?
+            NSLocalizedString("Conversation password has been removed", comment: "") :
+            NSLocalizedString("Conversation password has been saved", comment: "")
+            NotificationPresenter.shared().present(text: message, dismissAfterDelay: 5.0, includedStyle: .success)
             NCRoomsManager.shared.updateRoom(room.token)
             isActionRunning = false
         }

@@ -774,7 +774,7 @@ enum RoomVisibilityOption: Int {
                     do {
                         let result = try await NCAPIController.sharedInstance().validatePassword(password: updatedText, forAccount: self.account)
                         if result.passed {
-                            self.passwordDialog.message = NSLocalizedString("Password is valid", comment: "")
+                            self.passwordDialog.message = NSLocalizedString("Password is secure", comment: "")
                         } else {
                             self.passwordDialog.message = result.reason
                         }

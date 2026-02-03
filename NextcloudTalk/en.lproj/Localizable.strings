@@ -632,6 +632,12 @@
 "Conversation participants" = "Conversation participants";
 
 /* No comment provided by engineer. */
+"Conversation password has been removed" = "Conversation password has been removed";
+
+/* No comment provided by engineer. */
+"Conversation password has been saved" = "Conversation password has been saved";
+
+/* No comment provided by engineer. */
 "Conversation settings" = "Conversation settings";
 
 /* No comment provided by engineer. */
@@ -1701,7 +1707,10 @@
 "Password" = "Password";
 
 /* No comment provided by engineer. */
-"Password is valid" = "Password is valid";
+"Password copied" = "Password copied";
+
+/* No comment provided by engineer. */
+"Password is secure" = "Password is secure";
 
 /* No comment provided by engineer. */
 "Password needs to be at least %d characters long" = "Password needs to be at least %d characters long";
@@ -1933,6 +1942,9 @@
 
 /* No comment provided by engineer. */
 "Save as draft" = "Save as draft";
+
+/* No comment provided by engineer. */
+"Save password" = "Save password";
 
 /* No comment provided by engineer. */
 "Save to 'Note to self'" = "Save to 'Note to self'";
