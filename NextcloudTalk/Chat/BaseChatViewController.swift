@@ -867,7 +867,7 @@ import SwiftUI
 
         // Predefined options
         for timeOption in self.getPredefinedTimeMessageOptions() {
-            let timeAction = UIAction(title: timeOption.title, subtitle: timeOption.subtitle) { _ in
+            let timeAction = UIAction(title: timeOption.title, subtitle: timeOption.subtitle) { [unowned self] _ in
                 let timestamp = timeOption.timestamp
                 self.sendCurrentMessageLater(silently: silent, timestamp: timestamp)
             }
