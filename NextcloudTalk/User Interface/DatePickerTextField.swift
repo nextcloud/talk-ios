@@ -101,7 +101,13 @@ struct DatePickerTextFieldWrapper: UIViewRepresentable {
             self.resignFirstResponder()
         })
 
-        let toolBar = UIToolbar(frame: .init(x: 0, y: 0, width: 320, height: 44))
+        var toolBarHeight = 44
+
+        if #available(iOS 26.0, *) {
+            toolBarHeight += 10
+        }
+
+        let toolBar = UIToolbar(frame: .init(x: 0, y: 0, width: 320, height: toolBarHeight))
         toolBar.setItems([leftButton, UIBarButtonItem(systemItem: .flexibleSpace), doneButton], animated: false)
 
         self.inputAccessoryView = toolBar
