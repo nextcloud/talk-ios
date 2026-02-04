@@ -911,13 +911,15 @@ import SwiftUI
         })
 
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMessages, forAccountId: self.account.accountId) {
-            actions.append(UIMenu(title: NSLocalizedString("Send later", comment: ""),
-                                  image: .init(named: "custom.paperplane.badge.clock"),
-                                  children: self.getSendLaterMenu(forSilent: false).reversed()))
+            let sendLaterAction = UIMenu(title: NSLocalizedString("Send later", comment: ""),
+                                         image: .init(named: "custom.paperplane.badge.clock"),
+                                         children: self.getSendLaterMenu(forSilent: false).reversed())
 
-            actions.append(UIMenu(title: NSLocalizedString("Send later without notification", comment: ""),
-                                  image: .init(named: "custom.paperplane.badge.clock"),
-                                  children: self.getSendLaterMenu(forSilent: true).reversed()))
+            let sendLaterWithoutNotification = UIMenu(title: NSLocalizedString("Send later without notification", comment: ""),
+                                                      image: .init(named: "custom.bell.slash.badge.clock"),
+                                                      children: self.getSendLaterMenu(forSilent: true).reversed())
+
+            actions.append(UIMenu(options: .displayInline, children: [sendLaterWithoutNotification, sendLaterAction]))
         }
 
         // Reversed, because we open from the bottom
