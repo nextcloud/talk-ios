@@ -817,6 +817,60 @@ import SwiftUI
         }
     }
 
+    func getPredefinedTimeMessageOptions() -> [(title: String, subtitle: String?, timestamp: Int)] {
+        var timeOptions: [(title: String, subtitle: String?, timestamp: Int)] = []
+
+        let now = Date()
+
+        let sunday = 1
+        let monday = 2
+        let friday = 6
+        let saturday = 7
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+
+        var title: String
+        var subtitle: String
+
+        // Today (but not, when it's past 5pm)
+        if Calendar.current.component(.hour, from: now) < 17 {
+            let laterTodayTime = NCUtils.today(withHour: 18, withMinute: 0, withSecond: 0)!
+            title = NSLocalizedString("Later today", comment: "Remind me later today about that message")
+            subtitle = NCUtils.getTime(fromDate: laterTodayTime)
+            timeOptions.append((title, subtitle, Int(laterTodayTime.timeIntervalSince1970)))
+        }
+
+        // Tomorrow
+        var tomorrowTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+        tomorrowTime = Calendar.current.date(byAdding: .day, value: 1, to: tomorrowTime)!
+        title = NSLocalizedString("Tomorrow", comment: "Remind me tomorrow about that message")
+        subtitle = "\(formatter.string(from: tomorrowTime)), \(NCUtils.getTime(fromDate: tomorrowTime))"
+        timeOptions.append((title, subtitle, Int(tomorrowTime.timeIntervalSince1970)))
+
+        // This weekend (only for Mon-Tue)
+        let nowWeekday = Calendar.current.component(.weekday, from: now)
+        if nowWeekday != friday && nowWeekday != saturday && nowWeekday != sunday {
+            var weekendTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+            weekendTime = NCUtils.setWeekday(saturday, withDate: weekendTime)
+            title = NSLocalizedString("This weekend", comment: "Remind me this weekend about that message")
+            subtitle = "\(formatter.string(from: weekendTime)), \(NCUtils.getTime(fromDate: weekendTime))"
+            timeOptions.append((title, subtitle, Int(weekendTime.timeIntervalSince1970)))
+        }
+
+        // Next week (not on sundays)
+        if nowWeekday != sunday {
+            var nextWeekTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+            nextWeekTime = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: nextWeekTime)!
+            nextWeekTime = NCUtils.setWeekday(monday, withDate: nextWeekTime)
+            title =  NSLocalizedString("Next week", comment: "Remind me next week about that message")
+            subtitle = "\(formatter.string(from: nextWeekTime)), \(NCUtils.getTime(fromDate: nextWeekTime))"
+            timeOptions.append((title, subtitle, Int(nextWeekTime.timeIntervalSince1970)))
+        }
+
+        return timeOptions
+    }
+
     func addMenuToRightButton() {
         // Remove a gesture recognizer to not interfere with our menu
         if let voiceMessageLongPressGesture = self.voiceMessageLongPressGesture {
