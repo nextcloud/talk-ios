@@ -747,18 +747,9 @@ import SwiftUI
         self.clearInputAfterSend()
     }
 
-    func sendCurrentMessageLater(silently: Bool) {
+    func sendCurrentMessageLater(silently: Bool, timestamp: Int) {
         Task { @MainActor in
-            let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
-            let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
-
-            self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
-
-            let (buttonTapped, selectedDate) = await self.datePickerTextField.getDate()
-            guard buttonTapped == .done, let selectedDate else { return }
-
             do {
-                let timestamp = Int(selectedDate.timeIntervalSince1970)
                 var replyToMessage: NCChatMessage?
 
                 if let replyMessageView, replyMessageView.isVisible {
@@ -871,6 +862,41 @@ import SwiftUI
         return timeOptions
     }
 
+    func getSendLaterMenu(forSilent silent: Bool) -> [UIMenuElement] {
+        var options: [UIMenuElement] = []
+
+        // Predefined options
+        for timeOption in self.getPredefinedTimeMessageOptions() {
+            let timeAction = UIAction(title: timeOption.title, subtitle: timeOption.subtitle) { _ in
+                let timestamp = timeOption.timestamp
+                self.sendCurrentMessageLater(silently: silent, timestamp: timestamp)
+            }
+
+            options.append(timeAction)
+        }
+
+        // Custom options
+        let customReminderAction = UIAction(title: NSLocalizedString("Pick date & time", comment: ""), image: .init(systemName: "calendar.badge.clock")) { [unowned self] _ in
+            DispatchQueue.main.async {
+                let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+                let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
+
+                self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
+                self.datePickerTextField.getDate { buttonTapped, selectedDate in
+                    guard buttonTapped == .done, let selectedDate else { return }
+
+                    let timestamp = Int(selectedDate.timeIntervalSince1970)
+                    self.sendCurrentMessageLater(silently: silent, timestamp: timestamp)
+                }
+            }
+        }
+
+        let customOption = UIMenu(options: .displayInline, children: [customReminderAction])
+        options.append(customOption)
+
+        return options
+    }
+
     func addMenuToRightButton() {
         // Remove a gesture recognizer to not interfere with our menu
         if let voiceMessageLongPressGesture = self.voiceMessageLongPressGesture {
@@ -880,21 +906,22 @@ import SwiftUI
 
         var actions: [UIMenuElement] = []
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMessages, forAccountId: self.account.accountId) {
-            actions.append(UIAction(title: NSLocalizedString("Send later without notification", comment: ""), image: UIImage(named: "custom.paperplane.badge.clock")) { [unowned self] _ in
-                self.sendCurrentMessageLater(silently: true)
-            })
-
-            actions.append(UIAction(title: NSLocalizedString("Send later", comment: ""), image: UIImage(named: "custom.paperplane.badge.clock")) { [unowned self] _ in
-                self.sendCurrentMessageLater(silently: false)
-            })
-        }
-
         actions.append(UIAction(title: NSLocalizedString("Send without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
             self.sendCurrentMessage(silently: true)
         })
 
-        self.rightButton.menu = UIMenu(children: actions)
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMessages, forAccountId: self.account.accountId) {
+            actions.append(UIMenu(title: NSLocalizedString("Send later", comment: ""),
+                                  image: .init(named: "custom.paperplane.badge.clock"),
+                                  children: self.getSendLaterMenu(forSilent: false).reversed()))
+
+            actions.append(UIMenu(title: NSLocalizedString("Send later without notification", comment: ""),
+                                  image: .init(named: "custom.paperplane.badge.clock"),
+                                  children: self.getSendLaterMenu(forSilent: true).reversed()))
+        }
+
+        // Reversed, because we open from the bottom
+        self.rightButton.menu = UIMenu(children: actions.reversed())
     }
 
     func addMenuToLeftButton() {
