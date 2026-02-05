@@ -540,6 +540,7 @@ import SwiftUI
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveCallEndedMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveCallEndedMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveUpdateMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveUpdateMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveThreadMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveThreadMessage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveThreadNotFound(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveThreadNotFound, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveHistoryCleared(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveHistoryCleared, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMessagesInBackground(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveMessagesInBackground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeRoomCapabilities(notification:)), name: NSNotification.Name.NCDatabaseManagerRoomCapabilitiesChanged, object: nil)
@@ -1799,6 +1800,16 @@ import SwiftUI
                 thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId)
                 self.titleView?.update(for: thread)
             }
+        }
+    }
+
+    func didReceiveThreadNotFound(notification: Notification) {
+        if notification.object as? NCChatController != self.chatController {
+            return
+        }
+
+        if isThreadViewController {
+            self.dismiss(animated: true)
         }
     }
 

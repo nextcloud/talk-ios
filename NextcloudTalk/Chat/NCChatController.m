@@ -25,6 +25,7 @@ NSString * const NCChatControllerDidReceiveCallStartedMessageNotification       
 NSString * const NCChatControllerDidReceiveCallEndedMessageNotification             = @"NCChatControllerDidReceiveCallEndedMessageNotification";
 NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification         = @"NCChatControllerDidReceiveMessagesInBackgroundNotification";
 NSString * const NCChatControllerDidReceiveThreadMessageNotification                = @"NCChatControllerDidReceiveThreadMessageNotification";
+NSString * const NCChatControllerDidReceiveThreadNotFoundNotification               = @"NCChatControllerDidReceiveThreadNotFoundNotification";
 
 @interface NCChatController ()
 
@@ -254,6 +255,8 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
         NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@ AND token = %@", _account.accountId, _room.token];
         [realm deleteObjects:[NCChatMessage objectsWithPredicate:query]];
         [realm deleteObjects:[NCChatBlock objectsWithPredicate:query]];
+        NSPredicate *threadsQuery = [NSPredicate predicateWithFormat:@"accountId = %@ AND roomToken = %@", _account.accountId, _room.token];
+        [realm deleteObjects:[NCThread objectsWithPredicate:threadsQuery]];
     }];
 }
 
@@ -853,6 +856,14 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
         if (error) {
             if ([self isChatBeingBlocked:statusCode]) {
                 [self notifyChatIsBlocked];
+                return;
+            }
+
+            if (statusCode == 404) {
+                NSLog(@"Thread not found error: %@", error.description);
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveThreadNotFoundNotification
+                                                                    object:self
+                                                                  userInfo:nil];
                 return;
             }
 
