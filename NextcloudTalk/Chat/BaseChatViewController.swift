@@ -747,18 +747,9 @@ import SwiftUI
         self.clearInputAfterSend()
     }
 
-    func sendCurrentMessageLater(silently: Bool) {
+    func sendCurrentMessageLater(silently: Bool, timestamp: Int) {
         Task { @MainActor in
-            let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
-            let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
-
-            self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
-
-            let (buttonTapped, selectedDate) = await self.datePickerTextField.getDate()
-            guard buttonTapped == .done, let selectedDate else { return }
-
             do {
-                let timestamp = Int(selectedDate.timeIntervalSince1970)
                 var replyToMessage: NCChatMessage?
 
                 if let replyMessageView, replyMessageView.isVisible {
@@ -817,6 +808,95 @@ import SwiftUI
         }
     }
 
+    func getPredefinedTimeMessageOptions() -> [(title: String, subtitle: String?, timestamp: Int)] {
+        var timeOptions: [(title: String, subtitle: String?, timestamp: Int)] = []
+
+        let now = Date()
+
+        let sunday = 1
+        let monday = 2
+        let friday = 6
+        let saturday = 7
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+
+        var title: String
+        var subtitle: String
+
+        // Today (but not, when it's past 5pm)
+        if Calendar.current.component(.hour, from: now) < 17 {
+            let laterTodayTime = NCUtils.today(withHour: 18, withMinute: 0, withSecond: 0)!
+            title = NSLocalizedString("Later today", comment: "Remind me later today about that message")
+            subtitle = NCUtils.getTime(fromDate: laterTodayTime)
+            timeOptions.append((title, subtitle, Int(laterTodayTime.timeIntervalSince1970)))
+        }
+
+        // Tomorrow
+        var tomorrowTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+        tomorrowTime = Calendar.current.date(byAdding: .day, value: 1, to: tomorrowTime)!
+        title = NSLocalizedString("Tomorrow", comment: "Remind me tomorrow about that message")
+        subtitle = "\(formatter.string(from: tomorrowTime)), \(NCUtils.getTime(fromDate: tomorrowTime))"
+        timeOptions.append((title, subtitle, Int(tomorrowTime.timeIntervalSince1970)))
+
+        // This weekend (only for Mon-Tue)
+        let nowWeekday = Calendar.current.component(.weekday, from: now)
+        if nowWeekday != friday && nowWeekday != saturday && nowWeekday != sunday {
+            var weekendTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+            weekendTime = NCUtils.setWeekday(saturday, withDate: weekendTime)
+            title = NSLocalizedString("This weekend", comment: "Remind me this weekend about that message")
+            subtitle = "\(formatter.string(from: weekendTime)), \(NCUtils.getTime(fromDate: weekendTime))"
+            timeOptions.append((title, subtitle, Int(weekendTime.timeIntervalSince1970)))
+        }
+
+        // Next week (not on sundays)
+        if nowWeekday != sunday {
+            var nextWeekTime = NCUtils.today(withHour: 8, withMinute: 0, withSecond: 0)!
+            nextWeekTime = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: nextWeekTime)!
+            nextWeekTime = NCUtils.setWeekday(monday, withDate: nextWeekTime)
+            title =  NSLocalizedString("Next week", comment: "Remind me next week about that message")
+            subtitle = "\(formatter.string(from: nextWeekTime)), \(NCUtils.getTime(fromDate: nextWeekTime))"
+            timeOptions.append((title, subtitle, Int(nextWeekTime.timeIntervalSince1970)))
+        }
+
+        return timeOptions
+    }
+
+    func getSendLaterMenu(forSilent silent: Bool) -> [UIMenuElement] {
+        var options: [UIMenuElement] = []
+
+        // Predefined options
+        for timeOption in self.getPredefinedTimeMessageOptions() {
+            let timeAction = UIAction(title: timeOption.title, subtitle: timeOption.subtitle) { [unowned self] _ in
+                let timestamp = timeOption.timestamp
+                self.sendCurrentMessageLater(silently: silent, timestamp: timestamp)
+            }
+
+            options.append(timeAction)
+        }
+
+        // Custom options
+        let customReminderAction = UIAction(title: NSLocalizedString("Pick date & time", comment: ""), image: .init(systemName: "calendar.badge.clock")) { [unowned self] _ in
+            DispatchQueue.main.async {
+                let startingDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+                let minimumDate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
+
+                self.datePickerTextField.setupDatePicker(startingDate: startingDate, minimumDate: minimumDate)
+                self.datePickerTextField.getDate { buttonTapped, selectedDate in
+                    guard buttonTapped == .done, let selectedDate else { return }
+
+                    let timestamp = Int(selectedDate.timeIntervalSince1970)
+                    self.sendCurrentMessageLater(silently: silent, timestamp: timestamp)
+                }
+            }
+        }
+
+        let customOption = UIMenu(options: .displayInline, children: [customReminderAction])
+        options.append(customOption)
+
+        return options
+    }
+
     func addMenuToRightButton() {
         // Remove a gesture recognizer to not interfere with our menu
         if let voiceMessageLongPressGesture = self.voiceMessageLongPressGesture {
@@ -826,21 +906,24 @@ import SwiftUI
 
         var actions: [UIMenuElement] = []
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMessages, forAccountId: self.account.accountId) {
-            actions.append(UIAction(title: NSLocalizedString("Send later without notification", comment: ""), image: UIImage(named: "custom.paperplane.badge.clock")) { [unowned self] _ in
-                self.sendCurrentMessageLater(silently: true)
-            })
-
-            actions.append(UIAction(title: NSLocalizedString("Send later", comment: ""), image: UIImage(named: "custom.paperplane.badge.clock")) { [unowned self] _ in
-                self.sendCurrentMessageLater(silently: false)
-            })
-        }
-
         actions.append(UIAction(title: NSLocalizedString("Send without notification", comment: ""), image: UIImage(systemName: "bell.slash")) { [unowned self] _ in
             self.sendCurrentMessage(silently: true)
         })
 
-        self.rightButton.menu = UIMenu(children: actions)
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMessages, forAccountId: self.account.accountId) {
+            let sendLaterAction = UIMenu(title: NSLocalizedString("Send later", comment: ""),
+                                         image: .init(named: "custom.paperplane.badge.clock"),
+                                         children: self.getSendLaterMenu(forSilent: false).reversed())
+
+            let sendLaterWithoutNotification = UIMenu(title: NSLocalizedString("Send later without notification", comment: ""),
+                                                      image: .init(named: "custom.bell.slash.badge.clock"),
+                                                      children: self.getSendLaterMenu(forSilent: true).reversed())
+
+            actions.append(UIMenu(options: .displayInline, children: [sendLaterWithoutNotification, sendLaterAction]))
+        }
+
+        // Reversed, because we open from the bottom
+        self.rightButton.menu = UIMenu(children: actions.reversed())
     }
 
     func addMenuToLeftButton() {
