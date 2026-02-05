@@ -25,6 +25,7 @@ NSString * const NCChatControllerDidReceiveCallStartedMessageNotification       
 NSString * const NCChatControllerDidReceiveCallEndedMessageNotification             = @"NCChatControllerDidReceiveCallEndedMessageNotification";
 NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification         = @"NCChatControllerDidReceiveMessagesInBackgroundNotification";
 NSString * const NCChatControllerDidReceiveThreadMessageNotification                = @"NCChatControllerDidReceiveThreadMessageNotification";
+NSString * const NCChatControllerDidReceiveThreadNotFoundNotification               = @"NCChatControllerDidReceiveThreadNotFoundNotification";
 
 @interface NCChatController ()
 
@@ -853,6 +854,14 @@ NSString * const NCChatControllerDidReceiveThreadMessageNotification            
         if (error) {
             if ([self isChatBeingBlocked:statusCode]) {
                 [self notifyChatIsBlocked];
+                return;
+            }
+
+            if (statusCode == 404) {
+                NSLog(@"Thread not found error: %@", error.description);
+                [[NSNotificationCenter defaultCenter] postNotificationName:NCChatControllerDidReceiveThreadNotFoundNotification
+                                                                    object:self
+                                                                  userInfo:nil];
                 return;
             }
 

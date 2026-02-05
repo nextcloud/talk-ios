@@ -26,6 +26,7 @@ extern NSString * const NCChatControllerDidReceiveCallStartedMessageNotification
 extern NSString * const NCChatControllerDidReceiveCallEndedMessageNotification;
 extern NSString * const NCChatControllerDidReceiveMessagesInBackgroundNotification;
 extern NSString * const NCChatControllerDidReceiveThreadMessageNotification;
+extern NSString * const NCChatControllerDidReceiveThreadNotFoundNotification;
 
 @interface NCChatController : NSObject
 
