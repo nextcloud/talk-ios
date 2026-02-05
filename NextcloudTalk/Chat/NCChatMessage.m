@@ -461,7 +461,7 @@ NSString * const kSharedItemTypePinned      = @"pinned";
         return nil;
     }
 
-    if (!_isMarkdownMessage) {
+    if (!self.isMarkdownMessage) {
         return parsedMessage;
     }
 
