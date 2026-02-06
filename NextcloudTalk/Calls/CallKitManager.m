@@ -153,7 +153,12 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
     BOOL ongoingCalls = _calls.count > 0;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    
+
+    if ([[NCSettingsController sharedInstance] isEndToEndEncryptedCallingEnabledForAccount:activeAccount.accountId]) {
+        [self reportAndCancelIncomingCall:token forAccountId:accountId withLocalNotificationType:kNCLocalNotificationTypeEndToEndEncryptionUnsupported];
+        return;
+    }
+
     // If the app is not active (e.g. in background) and there is an open chat
     BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
     ChatViewController *chatViewController = [[NCRoomsManager shared] chatViewController];
@@ -162,12 +167,12 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         [chatViewController leaveChat];
         [[NCUserInterfaceController sharedInstance] presentConversationsList];
     }
-    
+
     // If the incoming call is from a different account
     if (![activeAccount.accountId isEqualToString:accountId]) {
         // If there is an ongoing call then show a local notification
         if (ongoingCalls) {
-            [self reportAndCancelIncomingCall:token withDisplayName:displayName forAccountId:accountId];
+            [self reportAndCancelIncomingCall:token forAccountId:accountId withLocalNotificationType:kNCLocalNotificationTypeCancelledCall];
             return;
         // Change accounts if there are no ongoing calls
         } else {
@@ -211,7 +216,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     }];
 }
 
-- (void)reportAndCancelIncomingCall:(NSString *)token withDisplayName:(NSString *)displayName forAccountId:(NSString *)accountId
+- (void)reportAndCancelIncomingCall:(NSString *)token forAccountId:(NSString *)accountId withLocalNotificationType:(NCLocalNotificationType)notificationType
 {
     CXCallUpdate *update = [self defaultCallUpdate];
     NSUUID *callUUID = [NSUUID new];
@@ -225,9 +230,9 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         if (!error) {
             [weakSelf.calls setObject:call forKey:callUUID];
             NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
-            [userInfo setValue:@(kNCLocalNotificationTypeCancelledCall) forKey:@"localNotificationType"];
+            [userInfo setValue:@(notificationType) forKey:@"localNotificationType"];
             [userInfo setObject:call.accountId forKey:@"accountId"];
-            [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeCancelledCall withUserInfo:userInfo];
+            [[NCNotificationController sharedInstance] showLocalNotification:notificationType withUserInfo:userInfo];
             [weakSelf endCallWithUUID:callUUID];
         } else {
             NSLog(@"Provider could not present incoming call view.");
@@ -454,6 +459,14 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName asInitiator:(BOOL)initiator silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId
 {
+    if ([[NCSettingsController sharedInstance] isEndToEndEncryptedCallingEnabledForAccount:accountId]) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
+        [userInfo setValue:@(kNCLocalNotificationTypeEndToEndEncryptionUnsupported) forKey:@"localNotificationType"];
+        [userInfo setObject:accountId forKey:@"accountId"];
+        [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeEndToEndEncryptionUnsupported withUserInfo:userInfo];
+        return;
+    }
+
     if (![CallKitManager isCallKitAvailable]) {
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
         [userInfo setValue:@(videoEnabled) forKey:@"isVideoEnabled"];

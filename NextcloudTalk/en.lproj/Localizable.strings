@@ -506,6 +506,9 @@
 "Call without notification" = "Call without notification";
 
 /* No comment provided by engineer. */
+"Calling is currently not supported because end-to-end-encryption is enabled on the server" = "Calling is currently not supported because end-to-end-encryption is enabled on the server";
+
+/* No comment provided by engineer. */
 "CallKit supported?" = "CallKit supported?";
 
 /* No comment provided by engineer. */
@@ -2350,6 +2353,9 @@
 
 /* No comment provided by engineer. */
 "Unread messages" = "Unread messages";
+
+/* Calling is not supported */
+"Unsupported" = "Unsupported";
 
 /* No comment provided by engineer. */
 "Update" = "Update";

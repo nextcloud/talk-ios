@@ -156,7 +156,8 @@ typedef NS_ENUM(NSInteger, NCLocalNotificationType) {
     kNCLocalNotificationTypeChatNotification,
     kNCLocalNotificationTypeFailedToShareRecording,
     kNCLocalNotificationTypeFailedToAcceptInvitation,
-    kNCLocalNotificationTypeRecordingConsentRequired
+    kNCLocalNotificationTypeRecordingConsentRequired,
+    kNCLocalNotificationTypeEndToEndEncryptionUnsupported
 };
 
 typedef NS_ENUM(NSInteger, NCPushNotificationType) {
