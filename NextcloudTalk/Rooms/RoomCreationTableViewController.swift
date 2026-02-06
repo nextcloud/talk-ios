@@ -52,6 +52,8 @@ enum RoomVisibilityOption: Int {
     let kRoomNameTextFieldTag = 99
     let kPasswordTextFieldTag = 98
     var setPasswordAction = UIAlertAction()
+    var passwordDialog = UIAlertController()
+    var validationTask: Task<Void, Never>?
 
     var roomCreationGroup = DispatchGroup()
     var roomCreationErrors: [String] = []
@@ -355,8 +357,8 @@ enum RoomVisibilityOption: Int {
     // MARK: - Room password
 
     func presentRoomPasswordOptions() {
-        let alertTitle = self.roomPassword.isEmpty ? NSLocalizedString("Set password", comment: "") : NSLocalizedString("Set new password", comment: "")
-        let passwordDialog = UIAlertController(title: alertTitle, message: nil, preferredStyle: .alert)
+        passwordDialog = UIAlertController(title: NSLocalizedString("Password protection", comment: ""), message: nil, preferredStyle: .alert)
+        setDefaultPasswordDialogMessage()
 
         passwordDialog.addTextField { [weak self] textField in
             guard let self else { return }
@@ -367,8 +369,9 @@ enum RoomVisibilityOption: Int {
         }
 
         let actionTitle = self.roomPassword.isEmpty ? NSLocalizedString("OK", comment: "") : NSLocalizedString("Change password", comment: "")
-        self.setPasswordAction = UIAlertAction(title: actionTitle, style: .default) { _ in
-            self.roomPassword = passwordDialog.textFields?[0].text?.trimmingCharacters(in: .whitespaces) ?? ""
+        self.setPasswordAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.roomPassword = self.passwordDialog.textFields?[0].text?.trimmingCharacters(in: .whitespaces) ?? ""
             self.updateVisibilitySection()
         }
         self.setPasswordAction.isEnabled = false
@@ -384,6 +387,15 @@ enum RoomVisibilityOption: Int {
         passwordDialog.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
 
         self.present(passwordDialog, animated: true)
+    }
+
+    func setDefaultPasswordDialogMessage() {
+        passwordDialog.message = self.roomPassword.isEmpty ? NSLocalizedString("Enter a password", comment: "") : NSLocalizedString("Enter a new password", comment: "")
+    }
+
+    func setMinLengthPasswordDialogMessage() {
+        let minLength = NCSettingsController.sharedInstance().passwordPolicyMinLength()
+        passwordDialog.message = String.localizedStringWithFormat(NSLocalizedString("Password needs to be at least %d characters long", comment: ""), minLength)
     }
 
     // MARK: - TableView
@@ -724,9 +736,60 @@ enum RoomVisibilityOption: Int {
             self.roomName = updatedText
             self.createButton.isEnabled = !updatedText.isEmpty
         } else if textField.tag == kPasswordTextFieldTag {
-            let hasAllowedLength = updatedText.count <= 200
-            self.setPasswordAction.isEnabled = hasAllowedLength && !updatedText.isEmpty
-            return hasAllowedLength
+            // Disable setPassword action
+            self.setPasswordAction.isEnabled = false
+
+            // Not allowed length
+            if updatedText.count > 200 {
+                return false
+            }
+
+            // Empty password field
+            if updatedText.isEmpty {
+                setDefaultPasswordDialogMessage()
+                return true
+            }
+
+            // Password does not have minimum length
+            if updatedText.count < NCSettingsController.sharedInstance().passwordPolicyMinLength() {
+                setMinLengthPasswordDialogMessage()
+                return true
+            }
+
+            // Validate password if password policy app is enabled
+            if NCSettingsController.sharedInstance().passwordPolicyValidateAPIEndpoint()?.isEmpty == false {
+                // Cancel previous task
+                validationTask?.cancel()
+                setPasswordAction.isEnabled = false
+
+                // Create a new password validation task
+                validationTask = Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    // Debounce
+                    try? await Task.sleep(for: .seconds(1))
+                    guard !Task.isCancelled else { return }
+
+                    self.passwordDialog.message = NSLocalizedString("Validating password…", comment: "")
+
+                    do {
+                        let result = try await NCAPIController.sharedInstance().validatePassword(password: updatedText, forAccount: self.account)
+                        if result.passed {
+                            self.passwordDialog.message = NSLocalizedString("Password is secure", comment: "")
+                        } else {
+                            self.passwordDialog.message = result.reason
+                        }
+                        self.setPasswordAction.isEnabled = result.passed
+                    } catch {
+                        self.setPasswordAction.isEnabled = false
+                        self.passwordDialog.message = NSLocalizedString("Unable to validate password right now", comment: "")
+                    }
+                }
+            } else {
+                setDefaultPasswordDialogMessage()
+                self.setPasswordAction.isEnabled = true
+            }
+
+            return true
         }
 
         return true

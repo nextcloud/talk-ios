@@ -67,6 +67,9 @@ typedef void (^EnsureSignalingConfigCompletionBlock)(NCExternalSignalingControll
 - (BOOL)isGuestsAppEnabled;
 - (BOOL)isReferenceApiSupported;
 - (BOOL)isRecordingEnabled;
+- (NSString * _Nullable)passwordPolicyGenerateAPIEndpoint;
+- (NSString * _Nullable)passwordPolicyValidateAPIEndpoint;
+- (NSInteger)passwordPolicyMinLength;
 - (NCPreferredFileSorting)getPreferredFileSorting;
 - (void)setPreferredFileSorting:(NCPreferredFileSorting)sorting;
 - (BOOL)isContactSyncEnabled;

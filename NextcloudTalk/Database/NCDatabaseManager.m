@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 86;
+uint64_t const kTalkDatabaseSchemaVersion           = 87;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -696,6 +696,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     NSDictionary *guestsCaps = [serverCaps objectForKey:@"guests"];
     NSDictionary *notificationsCaps = [serverCaps objectForKey:@"notifications"];
     NSDictionary *davCaps = [serverCaps objectForKey:@"dav"];
+    NSDictionary *passwordPolicyCaps = [serverCaps objectForKey:@"password_policy"];
 
     ServerCapabilities *capabilities = [[ServerCapabilities alloc] init];
     capabilities.accountId = accountId;
@@ -729,6 +730,9 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.absenceSupported = [[davCaps objectForKey:@"absence-supported"] boolValue];
     capabilities.absenceReplacementSupported = [[davCaps objectForKey:@"absence-replacement"] boolValue];
     capabilities.notificationsCapabilities = [notificationsCaps objectForKey:@"ocs-endpoints"];
+    capabilities.passwordPolicyGenerateAPIEndpoint = [[passwordPolicyCaps objectForKey:@"api"] objectForKey:@"generate"];
+    capabilities.passwordPolicyValidateAPIEndpoint = [[passwordPolicyCaps objectForKey:@"api"] objectForKey:@"validate"];
+    capabilities.passwordPolicyMinLength = [[passwordPolicyCaps objectForKey:@"minLength"] integerValue];
 
     [self setTalkCapabilities:talkCaps onTalkCapabilitiesObject:capabilities];
 

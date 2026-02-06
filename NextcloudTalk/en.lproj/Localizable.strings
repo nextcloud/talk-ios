@@ -632,6 +632,12 @@
 "Conversation participants" = "Conversation participants";
 
 /* No comment provided by engineer. */
+"Conversation password has been removed" = "Conversation password has been removed";
+
+/* No comment provided by engineer. */
+"Conversation password has been saved" = "Conversation password has been saved";
+
+/* No comment provided by engineer. */
 "Conversation settings" = "Conversation settings";
 
 /* No comment provided by engineer. */
@@ -1059,6 +1065,12 @@
 
 /* No comment provided by engineer. */
 "End poll" = "End poll";
+
+/* No comment provided by engineer. */
+"Enter a new password" = "Enter a new password";
+
+/* No comment provided by engineer. */
+"Enter a password" = "Enter a password";
 
 /* No comment provided by engineer. */
 "Error occurred when creating a reminder" = "Error occurred when creating a reminder";
@@ -1695,6 +1707,18 @@
 "Password" = "Password";
 
 /* No comment provided by engineer. */
+"Password copied" = "Password copied";
+
+/* No comment provided by engineer. */
+"Password is secure" = "Password is secure";
+
+/* No comment provided by engineer. */
+"Password needs to be at least %d characters long" = "Password needs to be at least %d characters long";
+
+/* No comment provided by engineer. */
+"Password protection" = "Password protection";
+
+/* No comment provided by engineer. */
 "Pending invitations" = "Pending invitations";
 
 /* No comment provided by engineer. */
@@ -1918,6 +1942,9 @@
 
 /* No comment provided by engineer. */
 "Save as draft" = "Save as draft";
+
+/* No comment provided by engineer. */
+"Save password" = "Save password";
 
 /* No comment provided by engineer. */
 "Save to 'Note to self'" = "Save to 'Note to self'";
@@ -2313,6 +2340,9 @@
 "Unable to open file" = "Unable to open file";
 
 /* No comment provided by engineer. */
+"Unable to validate password right now" = "Unable to validate password right now";
+
+/* No comment provided by engineer. */
 "Unarchive conversation" = "Unarchive conversation";
 
 /* No comment provided by engineer. */
@@ -2386,6 +2416,9 @@
 
 /* No comment provided by engineer. */
 "Users" = "Users";
+
+/* No comment provided by engineer. */
+"Validating password…" = "Validating password…";
 
 /* No comment provided by engineer. */
 "Version" = "Version";
