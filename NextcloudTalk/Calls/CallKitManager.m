@@ -460,7 +460,10 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 - (void)startCall:(NSString *)token withVideoEnabled:(BOOL)videoEnabled andDisplayName:(NSString *)displayName asInitiator:(BOOL)initiator silently:(BOOL)silently recordingConsent:(BOOL)recordingConsent withAccountId:(NSString *)accountId
 {
     if ([[NCSettingsController sharedInstance] isEndToEndEncryptedCallingEnabledForAccount:accountId]) {
-        [self reportAndCancelIncomingCall:token forAccountId:accountId withLocalNotificationType:kNCLocalNotificationTypeEndToEndEncryptionUnsupported];
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:token forKey:@"roomToken"];
+        [userInfo setValue:@(kNCLocalNotificationTypeEndToEndEncryptionUnsupported) forKey:@"localNotificationType"];
+        [userInfo setObject:accountId forKey:@"accountId"];
+        [[NCNotificationController sharedInstance] showLocalNotification:kNCLocalNotificationTypeEndToEndEncryptionUnsupported withUserInfo:userInfo];
         return;
     }
 
