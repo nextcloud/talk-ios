@@ -787,7 +787,7 @@ import SwiftUI
 
             // Disable call buttons
             self.callOptionsButton.isEnabled = false
-        } else if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room), !room.permissions.contains(.chat) {
+        } else if !room.canChat {
             // Hide text input
             self.setTextInputbarHidden(true, animated: isVisible)
         } else if self.isTextInputbarHidden {
@@ -2279,9 +2279,7 @@ import SwiftUI
     }
 
     override func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
-        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
-
-        guard hasChatPermissions && self.isMessageReactable(message: message) else { return nil }
+        guard self.room.canReact && self.isMessageReactable(message: message) else { return nil }
 
         let reactionViewPadding = 10
         let emojiButtonPadding = 10
@@ -2400,7 +2398,6 @@ import SwiftUI
 
         var actions: [UIMenuElement] = []
         var informationalActions: [UIMenuElement] = []
-        let hasChatPermissions = !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: room) || self.room.permissions.contains(.chat)
 
         // Show edit information
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
@@ -2425,14 +2422,14 @@ import SwiftUI
         }
 
         // Reply option
-        if self.isMessageReplyable(message: message), hasChatPermissions, !self.textInputbar.isEditing {
+        if self.isMessageReplyable(message: message), self.room.canChat, !self.textInputbar.isEditing {
             actions.append(UIAction(title: NSLocalizedString("Reply", comment: ""), image: .init(systemName: "arrowshape.turn.up.left")) { _ in
                 self.didPressReply(for: message)
             })
         }
 
         // Show "Add reaction" when running on MacOS because we don't have an accessory view
-        if self.isMessageReactable(message: message), hasChatPermissions, NCUtils.isiOSAppOnMac() {
+        if self.isMessageReactable(message: message), self.room.canReact, NCUtils.isiOSAppOnMac() {
             actions.append(UIAction(title: NSLocalizedString("Add reaction", comment: ""), image: .init(systemName: "face.smiling")) { _ in
                 self.didPressAddReaction(for: message, at: indexPath)
             })
@@ -2506,7 +2503,7 @@ import SwiftUI
         }
 
         // Re-send option
-        if (message.sendingFailed || message.isOfflineMessage) && hasChatPermissions {
+        if (message.sendingFailed || message.isOfflineMessage) && self.room.canChat {
             actions.append(UIAction(title: NSLocalizedString("Resend", comment: ""), image: .init(systemName: "arrow.clockwise")) { _ in
                 self.didPressResend(for: message)
             })
@@ -2577,14 +2574,14 @@ import SwiftUI
         var destructiveMenuActions: [UIMenuElement] = []
 
         // Edit option
-        if message.isEditable(for: self.account, in: self.room) && hasChatPermissions {
+        if message.isEditable(for: self.account, in: self.room) && self.room.canChat {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Edit", comment: "Edit a message or room participants"), image: .init(systemName: "pencil")) { _ in
                 self.didPressEdit(for: message)
             })
         }
 
         // Delete option
-        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: self.account, in: self.room) && hasChatPermissions) {
+        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: self.account, in: self.room) && self.room.canChat) {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
                 self.didPressDelete(for: message)
             })

@@ -284,4 +284,43 @@ final class UIRoomTest: XCTestCase {
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(!textView.exists)
     }
+
+    func testReactOnlyPermission() throws {
+        let app = launchAndLogin()
+
+        // ReactOnlyTest room is only created for Talk 24+ (main branch)
+        let reactOnlyCell = app.tables.cells.staticTexts["ReactOnlyTest"]
+
+        // Skip test if the room doesn't exist (older server versions)
+        try XCTSkipUnless(reactOnlyCell.waitForExistence(timeout: TestConstants.timeoutShort),
+                         "ReactOnlyTest room not found - skipping (requires Talk 24+)")
+
+        reactOnlyCell.tap()
+
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
+        XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutLong))
+
+        // Find the message from alice that we should react to
+        let messageText = app.tables.textViews["React to this message!"].firstMatch
+        XCTAssert(messageText.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        // Open context menu by long-pressing on the message
+        messageText.press(forDuration: 2.0)
+
+        // Tap the thumbs up reaction from the context menu (same pattern as testDeallocation)
+        let thumbsUpReaction = app.staticTexts["👍"]
+        XCTAssert(thumbsUpReaction.waitForExistence(timeout: TestConstants.timeoutShort))
+        thumbsUpReaction.tap()
+
+        // Verify the reaction was added - the reaction label shows "emoji count" format
+        let reactionLabel = app.staticTexts["👍 1"]
+        XCTAssert(reactionLabel.waitForExistence(timeout: TestConstants.timeoutShort),
+                 "Reaction should be visible after adding it")
+
+        // Verify that we cannot send messages (no chat permission)
+        // The toolbar/text input should not be present when user cannot chat
+        let toolbar = app.toolbars["Toolbar"]
+        let textView = toolbar.textViews["Write message, @ to mention someone …"]
+        XCTAssertFalse(textView.exists, "Text input should not exist when user cannot chat")
+    }
 }

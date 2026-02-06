@@ -88,6 +88,7 @@ NSString * const kCapabilitySensitiveConversations  = @"sensitive-conversations"
 NSString * const kCapabilityThreads                 = @"threads";
 NSString * const kCapabilityPinnedMessages          = @"pinned-messages";
 NSString * const kCapabilityScheduleMessages        = @"scheduled-messages";
+NSString * const kCapabilityReactPermission         = @"react-permission";
 
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";
