@@ -162,12 +162,12 @@ struct RoomInfoGuestPasswordSave: View {
 
         // Validate password if password policy app is enabled
         validationTask = Task { [trimmedPassword] in
+            message = NSLocalizedString("Validating password…", comment: "")
+            messageColor = .secondary
+
             // Debounce
             try? await Task.sleep(for: .seconds(1))
             guard !Task.isCancelled else { return }
-
-            message = NSLocalizedString("Validating password…", comment: "")
-            messageColor = .secondary
 
             do {
                 let result = try await NCAPIController.sharedInstance()
@@ -184,6 +184,7 @@ struct RoomInfoGuestPasswordSave: View {
                 await MainActor.run {
                     isSaveEnabled = false
                     message = NSLocalizedString("Unable to validate password right now", comment: "")
+                    messageColor = .red
                 }
             }
         }

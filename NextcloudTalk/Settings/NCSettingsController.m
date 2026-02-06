@@ -710,16 +710,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     return NO;
 }
 
-- (BOOL)passwordPolicyAppEnabled
-{
-    TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:activeAccount.accountId];
-    if (serverCapabilities) {
-        return serverCapabilities.passwordPolicyValidateAPIEndpoint.length > 0;
-    }
-    return NO;
-}
-
 - (NSString * _Nullable)passwordPolicyGenerateAPIEndpoint
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];

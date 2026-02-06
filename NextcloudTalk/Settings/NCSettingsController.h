@@ -67,7 +67,6 @@ typedef void (^EnsureSignalingConfigCompletionBlock)(NCExternalSignalingControll
 - (BOOL)isGuestsAppEnabled;
 - (BOOL)isReferenceApiSupported;
 - (BOOL)isRecordingEnabled;
-- (BOOL)passwordPolicyAppEnabled;
 - (NSString * _Nullable)passwordPolicyGenerateAPIEndpoint;
 - (NSString * _Nullable)passwordPolicyValidateAPIEndpoint;
 - (NSInteger)passwordPolicyMinLength;
