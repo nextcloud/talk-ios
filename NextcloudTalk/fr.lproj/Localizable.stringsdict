@@ -197,5 +197,11 @@
             <string>%ld réponses</string>
         </dict>
     </dict>
+
+    <key>Password needs to be at least %d characters long</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@characters@</string>
+    </dict>
 </dict>
 </plist>
