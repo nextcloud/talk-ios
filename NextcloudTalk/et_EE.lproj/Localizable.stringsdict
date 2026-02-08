@@ -193,6 +193,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@characters@</string>
+        <key>characters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Salasõna peab olema vähemalt %d sümbol pikk</string>
+            <key>other</key>
+            <string>Salasõna peab olema vähemalt %d sümbolit pikk</string>
+        </dict>
     </dict>
 </dict>
 </plist>
