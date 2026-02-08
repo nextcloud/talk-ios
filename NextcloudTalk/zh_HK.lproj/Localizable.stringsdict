@@ -171,6 +171,15 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@characters@</string>
+        <key>characters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>密碼需長於 %d 個字母</string>
+        </dict>
     </dict>
 </dict>
 </plist>
