@@ -9,19 +9,13 @@ import NextcloudKit
 struct RoomInfoGuestPassword: View {
     @Binding var room: NCRoom
 
-    @State private var isSetPasswordRowVisible: Bool = false
     @State private var toggleValue: Bool = false
     @State private var isActionRunning = false
 
     var body: (some View)? {
         ActionToggle(isOn: $toggleValue, action: { isOn in
-            if isOn {
-                isSetPasswordRowVisible = true
-            } else {
-                isSetPasswordRowVisible = false
-                if room.hasPassword {
-                    setPassword(to: "")
-                }
+            if !isOn, room.hasPassword {
+                setPassword(to: "")
             }
         }, label: {
             ImageSublabelView(image: Image(systemName: "lock")) {
@@ -36,12 +30,12 @@ struct RoomInfoGuestPassword: View {
         }
         .disabled(isActionRunning)
 
-        if isSetPasswordRowVisible {
+        if toggleValue {
             RoomInfoGuestPasswordSave(
                 minLength: NCSettingsController.sharedInstance().passwordPolicyMinLength(),
-                isPasswordValidationRequired: !(NCSettingsController.sharedInstance().passwordPolicyValidateAPIEndpoint() ?? "").isEmpty
+                isPasswordValidationRequired: !(NCSettingsController.sharedInstance().passwordPolicyValidateAPIEndpoint() ?? "").isEmpty,
+                isPasswordAlreadySet: room.hasPassword
             ) { password in
-                isSetPasswordRowVisible = false
                 setPassword(to: password)
             }
         }

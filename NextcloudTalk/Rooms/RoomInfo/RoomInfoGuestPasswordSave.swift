@@ -8,7 +8,9 @@ import SwiftUI
 struct RoomInfoGuestPasswordSave: View {
 
     @State private var password: String = ""
+    @State private var passwordSet: String = "password"
     @State private var isPasswordVisible: Bool = false
+    @State private var isEditingPassword: Bool = false
     @State private var message: String = ""
     @State private var messageColor: Color = .secondary
     @State private var isSaveEnabled: Bool = false
@@ -16,6 +18,10 @@ struct RoomInfoGuestPasswordSave: View {
 
     var trimmedPassword: String {
         return password.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var isShowingEditButton: Bool {
+        return isPasswordAlreadySet && !isEditingPassword
     }
 
     private enum Field {
@@ -27,7 +33,13 @@ struct RoomInfoGuestPasswordSave: View {
 
     let minLength: Int
     let isPasswordValidationRequired: Bool
+    let isPasswordAlreadySet: Bool
     let onSave: (String) -> Void
+
+    let passwordPlaceholder: String = NSLocalizedString("Enter a password", comment: "")
+    let newPasswordPlaceholder: String = NSLocalizedString("Enter a new password", comment: "")
+    let savePasswordButtonTitle: String = NSLocalizedString("Save password", comment: "")
+    let changePasswordButtonTitle: String = NSLocalizedString("Change password", comment: "")
 
     // MARK: - View
 
@@ -41,16 +53,16 @@ struct RoomInfoGuestPasswordSave: View {
                 HStack {
                     // Password fields
                     Group {
-                        if isPasswordVisible {
-                            TextField(
-                                NSLocalizedString("Enter a password", comment: ""),
-                                text: $password
+                        if !isPasswordVisible || isShowingEditButton {
+                            SecureField(
+                                isEditingPassword ? newPasswordPlaceholder : passwordPlaceholder,
+                                text: isShowingEditButton ? $passwordSet : $password
                             )
                             .focused($focusedField, equals: .password)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         } else {
-                            SecureField(
-                                NSLocalizedString("Enter a password", comment: ""),
+                            TextField(
+                                isEditingPassword ? newPasswordPlaceholder : passwordPlaceholder,
                                 text: $password
                             )
                             .focused($focusedField, equals: .password)
@@ -59,55 +71,87 @@ struct RoomInfoGuestPasswordSave: View {
                     }
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
+                    .disabled(isShowingEditButton)
                     .onChange(of: password) { newValue in
                         passwordChanged(to: newValue)
                     }
 
-                    // Eye toggle button
-                    Button {
-                        isPasswordVisible.toggle()
-                        DispatchQueue.main.async {
-                            focusedField = .password
+                    if isShowingEditButton {
+                        // Edit password
+                        Button {
+                            isEditingPassword = true
+                            DispatchQueue.main.async {
+                                focusedField = .password
+                            }
+                        } label: {
+                            Image(systemName: "pencil")
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 4)
                         }
-                    } label: {
-                        Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
-                            .foregroundColor(.primary)
+                        .buttonStyle(.plain)
+                    } else {
+                        // Eye toggle button
+                        Button {
+                            isPasswordVisible.toggle()
+                            DispatchQueue.main.async {
+                                focusedField = .password
+                            }
+                        } label: {
+                            Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 4)
+                        }
+                        .buttonStyle(.plain)
+
+                        // Copy button
+                        Button {
+                            UIPasteboard.general.string = password
+                            NotificationPresenter.shared().present(text: NSLocalizedString("Password copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 4)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(!isSaveEnabled)
                     }
-                    .buttonStyle(.plain)
                 }
 
-                // Validation reason
-                Text(message)
-                    .font(.footnote)
-                    .foregroundColor(messageColor)
+                if !isShowingEditButton {
+                    // Validation reason
+                    Text(message)
+                        .font(.footnote)
+                        .foregroundColor(messageColor)
 
-                HStack {
-                    // Save button
-                    Button(NSLocalizedString("Save password", comment: "")) {
-                        onSave(trimmedPassword)
-                        resetValues()
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(isSaveEnabled ? Color.green : Color.gray.opacity(0.3))
-                    .clipShape(Capsule())
-                    .disabled(!isSaveEnabled)
+                    HStack {
+                        // Save button
+                        Button(isEditingPassword ? changePasswordButtonTitle : savePasswordButtonTitle) {
+                            onSave(trimmedPassword)
+                            resetValues()
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(isSaveEnabled ? Color.green : Color.gray.opacity(0.3))
+                        .clipShape(Capsule())
+                        .buttonStyle(.plain)
+                        .disabled(!isSaveEnabled)
 
-                    // Copy button
-                    Button {
-                        UIPasteboard.general.string = password
-                        NotificationPresenter.shared().present(text: NSLocalizedString("Password copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
-                    } label: {
-                        Image(systemName: "doc.on.doc")
+                        // Cancel button
+                        if isEditingPassword {
+                            Button(NSLocalizedString("Cancel", comment: "")) {
+                                isEditingPassword = false
+                                resetValues()
+                            }
                             .foregroundColor(.white)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
+                            .background(Color.blue)
+                            .clipShape(Capsule())
+                            .buttonStyle(.plain)
+                        }
+
                     }
-                    .background(isSaveEnabled ? Color.blue : Color.gray.opacity(0.3))
-                    .clipShape(Capsule())
-                    .buttonStyle(.plain)
-                    .disabled(!isSaveEnabled)
                 }
             }
             .onAppear {
