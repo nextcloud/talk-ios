@@ -237,6 +237,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@characters@</string>
+        <key>characters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Je třeba, aby heslo bylo alespoň %d znak dlouhé</string>
+            <key>few</key>
+            <string>Je třeba, aby heslo bylo alespoň %d znaky dlouhé</string>
+            <key>many</key>
+            <string>Je třeba, aby heslo bylo alespoň %d znaků dlouhé</string>
+            <key>other</key>
+            <string>Je třeba, aby heslo bylo alespoň %d znaky dlouhé</string>
+        </dict>
     </dict>
 </dict>
 </plist>
