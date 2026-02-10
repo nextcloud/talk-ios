@@ -259,6 +259,23 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@characters@</string>
+        <key>characters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Caithfidh an focal faire a bheith %d carachtar ar a laghad ar fhad</string>
+            <key>two</key>
+            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+            <key>few</key>
+            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+            <key>many</key>
+            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+            <key>other</key>
+            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+        </dict>
     </dict>
 </dict>
 </plist>
