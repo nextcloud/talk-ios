@@ -732,7 +732,13 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.notificationsCapabilities = [notificationsCaps objectForKey:@"ocs-endpoints"];
     capabilities.passwordPolicyGenerateAPIEndpoint = [[passwordPolicyCaps objectForKey:@"api"] objectForKey:@"generate"];
     capabilities.passwordPolicyValidateAPIEndpoint = [[passwordPolicyCaps objectForKey:@"api"] objectForKey:@"validate"];
-    capabilities.passwordPolicyMinLength = [[passwordPolicyCaps objectForKey:@"minLength"] integerValue];
+
+    NSArray *policiesKeys = [[passwordPolicyCaps objectForKey:@"policies"] allKeys];
+    if ([policiesKeys containsObject:@"sharing"]) {
+        capabilities.passwordPolicyMinLength = [[[[passwordPolicyCaps objectForKey:@"policies"] objectForKey:@"sharing"] objectForKey:@"minLength"] integerValue];
+    } else {
+        capabilities.passwordPolicyMinLength = [[passwordPolicyCaps objectForKey:@"minLength"] integerValue];
+    }
 
     [self setTalkCapabilities:talkCaps onTalkCapabilitiesObject:capabilities];
 
