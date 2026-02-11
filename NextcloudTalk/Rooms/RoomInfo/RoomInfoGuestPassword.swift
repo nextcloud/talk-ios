@@ -38,6 +38,7 @@ struct RoomInfoGuestPassword: View {
             ) { password in
                 setPassword(to: password)
             }
+            .disabled(isActionRunning)
         }
     }
 
