@@ -165,6 +165,7 @@ struct RoomInfoGuestPasswordSave: View {
         validationTask?.cancel()
         password = ""
         isPasswordVisible = false
+        isEditingPassword = false
         setDefaultMessage()
     }
 
