@@ -1481,7 +1481,11 @@ import NextcloudKit
               !serverCapabilities.passwordPolicyValidateAPIEndpoint.isEmpty
         else { return (true, "") }
 
-        let parameters: [String: String] = ["password": password]
+        let parameters: [String: String] = [
+            "password": password,
+            "context": "sharing"
+        ]
+
         let ocsResponse = try await apiSessionManager.postOcs(serverCapabilities.passwordPolicyValidateAPIEndpoint, account: account, parameters: parameters)
 
         guard let dataDict = ocsResponse.dataDict,
