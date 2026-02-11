@@ -237,6 +237,21 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@characters@</string>
+        <key>characters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Hasło musi składać się z minimum %d znaków</string>
+            <key>few</key>
+            <string>Hasło musi składać się z minimum %d znaków</string>
+            <key>many</key>
+            <string>Hasło musi składać się z minimum %d znaków</string>
+            <key>other</key>
+            <string>Hasło musi składać się z minimum %d znaków</string>
+        </dict>
     </dict>
 </dict>
 </plist>
