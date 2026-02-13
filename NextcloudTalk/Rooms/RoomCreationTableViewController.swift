@@ -192,6 +192,9 @@ enum RoomVisibilityOption: Int {
     func allowGuestValueChanged(_ sender: Any?) {
         if let optionSwitch = sender as? UISwitch {
             self.isPublic = optionSwitch.isOn
+            if !optionSwitch.isOn {
+                self.roomPassword = ""
+            }
             self.updateVisibilitySection()
         }
     }
