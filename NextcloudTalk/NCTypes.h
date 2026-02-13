@@ -94,6 +94,7 @@ typedef NS_OPTIONS(NSInteger, NCPermission) {
     NCPermissionCanPublishVideo = 32,
     NCPermissionCanPublishScreen = 64,
     NCPermissionChat = 128,
+    NCPermissionReact = 256,
 };
 
 typedef NS_ENUM(NSInteger, NCMessageExpiration) {
