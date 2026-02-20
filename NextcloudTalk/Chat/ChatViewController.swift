@@ -31,6 +31,7 @@ import SwiftUI
     private var hasStoredHistory = true
     private var hasStopped = false
     private var hasCheckedOutOfOfficeStatus = false
+    private var isLeavingChat = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
     private var generateSummaryFromMessageId: Int?
@@ -622,6 +623,8 @@ import SwiftUI
 
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
+        if isLeavingChat { return }
 
         self.checkLobbyState()
         self.checkRoomControlsAvailability()
@@ -1254,6 +1257,7 @@ import SwiftUI
     }
 
     public func leaveChat() {
+        self.isLeavingChat = true
         self.hasStopped = true
         self.lobbyCheckTimer?.invalidate()
         self.messageExpirationTimer?.invalidate()
