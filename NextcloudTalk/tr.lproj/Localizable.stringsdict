@@ -193,6 +193,17 @@
     <dict>
         <key>NSStringLocalizedFormatKey</key>
         <string>%#@characters@</string>
+        <key>characters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Parola en az %d karakter uzunluğunda olmalıdır</string>
+            <key>other</key>
+            <string>Parola en az %d karakter uzunluğunda olmalıdır</string>
+        </dict>
     </dict>
 </dict>
 </plist>
