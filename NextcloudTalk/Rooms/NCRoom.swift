@@ -363,4 +363,9 @@ import SwiftyAttributes
         return self.canChat
     }
 
+    public var canPinMessage: Bool {
+        // Pinning is also allowed in 1-1-conversations, therefore check isUserOwnerOrModerator, instead of canModerate
+        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: self)
+    }
+
 }

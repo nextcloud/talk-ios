@@ -2179,6 +2179,14 @@ import SwiftUI
         return isReactable
     }
 
+    func isMessagePinnable(message: NCChatMessage) -> Bool {
+        var isPinnable = !self.offlineMode
+        isPinnable = isPinnable && self.room.readOnlyState != .readOnly
+        isPinnable = isPinnable && !message.isDeletedMessage && !message.isCommandMessage && !message.sendingFailed && !message.isTemporary
+
+        return isPinnable
+    }
+
     func getSetReminderOptions(for message: NCChatMessage) -> [UIMenuElement] {
         var reminderOptions: [UIMenuElement] = []
 
@@ -2550,7 +2558,7 @@ import SwiftUI
         }
 
         // Pin message
-        if !message.isDeletedMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: room) {
+        if self.isMessagePinnable(message: message), room.canPinMessage {
             if message.isPinned {
                 moreMenuActions.append(UIAction(title: NSLocalizedString("Unpin message", comment: ""), image: .init(systemName: "pin.slash")) { _ in
                     Task {
