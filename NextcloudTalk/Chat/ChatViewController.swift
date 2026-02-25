@@ -1832,6 +1832,8 @@ import SwiftUI
         guard let message = notification.userInfo?["historyCleared"] as? NCChatMessage
         else { return }
 
+        self.removePinnedMessageView()
+
         if self.chatController.hasOlderStoredMessagesThanMessageId(message.messageId) {
             self.cleanChat()
             self.chatController.clearHistoryAndResetChatController()
