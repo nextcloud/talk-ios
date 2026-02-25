@@ -2473,7 +2473,7 @@ import SwiftUI
         actions.append(UIMenu(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "doc.on.doc"), children: copyMenuActions))
 
         // Remind me later
-        if !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
+        if !message.isTemporary, !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
             let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
                 NCAPIController.sharedInstance().getReminderFor(message) { [weak self] response, error in
                     guard let self else { return }
