@@ -1832,6 +1832,8 @@ import SwiftUI
         guard let message = notification.userInfo?["historyCleared"] as? NCChatMessage
         else { return }
 
+        self.removePinnedMessageView()
+
         if self.chatController.hasOlderStoredMessagesThanMessageId(message.messageId) {
             self.cleanChat()
             self.chatController.clearHistoryAndResetChatController()
@@ -2179,6 +2181,14 @@ import SwiftUI
         return isReactable
     }
 
+    func isMessagePinnable(message: NCChatMessage) -> Bool {
+        var isPinnable = !self.offlineMode
+        isPinnable = isPinnable && self.room.readOnlyState != .readOnly
+        isPinnable = isPinnable && !message.isDeletedMessage && !message.isCommandMessage && !message.sendingFailed && !message.isTemporary
+
+        return isPinnable
+    }
+
     func getSetReminderOptions(for message: NCChatMessage) -> [UIMenuElement] {
         var reminderOptions: [UIMenuElement] = []
 
@@ -2465,7 +2475,7 @@ import SwiftUI
         actions.append(UIMenu(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "doc.on.doc"), children: copyMenuActions))
 
         // Remind me later
-        if !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
+        if !message.isTemporary, !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
             let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
                 NCAPIController.sharedInstance().getReminderFor(message) { [weak self] response, error in
                     guard let self else { return }
@@ -2553,7 +2563,7 @@ import SwiftUI
         }
 
         // Pin message
-        if !message.isDeletedMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: room) {
+        if self.isMessagePinnable(message: message), room.canPinMessage {
             if message.isPinned {
                 moreMenuActions.append(UIAction(title: NSLocalizedString("Unpin message", comment: ""), image: .init(systemName: "pin.slash")) { _ in
                     Task {
