@@ -30,3 +30,23 @@ curl -u alice:alice "http://localhost:8080/ocs/v2.php/apps/spreed/api/v4/room/$t
     -H 'content-type: application/json' \
     -H 'accept: application/json, text/plain, */*' \
     --data-raw '{"newParticipant":"admin","source":"users"}'
+
+# Setup a listable room so other users can join them
+response=$(curl -u alice:alice "http://localhost:8080/ocs/v2.php/apps/spreed/api/v4/room" \
+    -H "OCS-APIRequest: true" \
+    -H 'content-type: application/json' \
+    -H 'accept: application/json, text/plain, */*' \
+    --data-raw '{"roomType":2,"roomName":"OpenConversationTest"}')
+
+echo $response
+
+token=$(echo $response | jq -r .ocs.data.token)
+
+echo $token
+
+curl -u alice:alice "http://localhost:8080/ocs/v2.php/apps/spreed/api/v4/room/$token/listable" \
+    -X 'PUT' \
+    -H "OCS-APIRequest: true" \
+    -H 'content-type: application/json' \
+    -H 'accept: application/json, text/plain, */*' \
+    --data-raw '{"scope":1}'
