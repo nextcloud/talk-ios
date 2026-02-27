@@ -60,6 +60,49 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
     }
 
+    func testJoinAndLeaveConversation() {
+        let app = launchAndLogin()
+        let openConversationName = "OpenConversationTest"
+
+        waitForReady(object: app.buttons["Create or join a conversation"]).tap()
+        waitForReady(object: app.tables.cells.staticTexts["Join open conversations"]).tap()
+        waitForReady(object: app.tables.cells.staticTexts[openConversationName]).tap()
+
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
+
+        // Wait for navigationBar
+        XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutLong))
+
+        // Wait for titleView
+        let chatTitleView = chatNavBar.textViews[openConversationName]
+        XCTAssert(chatTitleView.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        // Wait until we joined the room and the call buttons get active
+        let callOptionsButton = chatNavBar.buttons["Call options"]
+        waitForReady(object: callOptionsButton)
+
+        // Open conversation settings
+        chatTitleView.tap()
+
+        // Leave open conversation
+        let leaveButton = app.buttons["Leave conversation"]
+        app.scrollTo(leaveButton)
+        leaveButton.tap()
+        waitForReady(object: app.buttons["Leave"]).tap()
+        waitForReady(object: app.buttons["Create or join a conversation"])
+
+        // Check that the conversation is no longer in conversations list
+        let conversationTextField = app.textFields[openConversationName]
+        let existsInitially = conversationTextField.waitForExistence(timeout: 0.5)
+        if existsInitially {
+            // If it is there initially → it must not be there after the timeout
+            XCTAssertTrue(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
+        } else {
+            // If it is not there initially → it must stay like this after timeout
+            XCTAssertFalse(conversationTextField.waitForExistence(timeout: TestConstants.timeoutShort))
+        }
+    }
+
     func testDeallocation() {
         let app = launchAndLogin()
         let newConversationName = "DeAllocTest"
