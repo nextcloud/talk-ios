@@ -399,7 +399,8 @@ import SwiftyAttributes
         let messageAttributedString = NSMutableAttributedString()
         // Icon
         if let messageIconName = self.messageIconName, let messageIcon = UIImage(systemName: messageIconName) {
-            let attachmentAttributedString = NSMutableAttributedString(attachment: NSTextAttachment(image: messageIcon))
+            // Use body font here as that is the markdown default
+            let attachmentAttributedString = NSMutableAttributedString(attachment: NSTextAttachment(image: messageIcon)).withFont(.preferredFont(forTextStyle: .body))
             attachmentAttributedString.append(NSAttributedString(string: " "))
             messageAttributedString.append(attachmentAttributedString)
         }
