@@ -43,6 +43,26 @@ curl -u alice:alice "$SERVER_URL/ocs/v2.php/apps/spreed/api/v4/room/$token/parti
     -H 'accept: application/json, text/plain, */*' \
     --data-raw '{"newParticipant":"admin","source":"users"}'
 
+# Setup a listable room so other users can join them
+response=$(curl -u alice:alice "$SERVER_URL/ocs/v2.php/apps/spreed/api/v4/room" \
+    -H "OCS-APIRequest: true" \
+    -H 'content-type: application/json' \
+    -H 'accept: application/json, text/plain, */*' \
+    --data-raw '{"roomType":2,"roomName":"OpenConversationTest"}')
+
+echo $response
+
+token=$(echo $response | jq -r .ocs.data.token)
+
+echo $token
+
+curl -u alice:alice "$SERVER_URL/ocs/v2.php/apps/spreed/api/v4/room/$token/listable" \
+    -X 'PUT' \
+    -H "OCS-APIRequest: true" \
+    -H 'content-type: application/json' \
+    -H 'accept: application/json, text/plain, */*' \
+    --data-raw '{"scope":1}'
+
 # Setup a room with react-only permission (can react but cannot chat)
 # Only available when server supports react-permission capability (Talk 24+)
 if has_capability "react-permission"; then
