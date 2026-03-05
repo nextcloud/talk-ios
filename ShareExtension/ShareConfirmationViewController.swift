@@ -551,7 +551,7 @@ import MBProgressHUD
     func sendSharedText() {
         NCAPIController.sharedInstance().sendChatMessage(self.shareTextView.text, toRoom: self.room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
             if let error {
-                NCUtils.log(String(format: "Failed to share text. Error: %@", error.localizedDescription))
+                NCLog.log(String(format: "Failed to share text. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFail(self)
             } else {
                 NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
@@ -565,7 +565,7 @@ import MBProgressHUD
     func sendObjectShare() {
         NCAPIController.sharedInstance().shareRichObject(self.objectShareMessage?.richObjectFromObjectShare, inRoom: self.room.token, for: self.account) { error in
             if let error {
-                NCUtils.log(String(format: "Failed to share rich object. Error: %@", error.localizedDescription))
+                NCLog.log(String(format: "Failed to share rich object. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFail(self)
             } else {
                 NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
@@ -633,7 +633,7 @@ import MBProgressHUD
                 if let fileServerURL, let fileServerPath {
                     self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
                 } else {
-                    NCUtils.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
+                    NCLog.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
                     self.uploadErrors.append(errorDescription ?? "Unknown error")
                     self.uploadGroup.leave()
                 }
@@ -690,7 +690,7 @@ import MBProgressHUD
 
                 NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: filePath, toRoom: self.room.token, talkMetaData: talkMetaData, referenceId: nil) { error in
                     if let error {
-                        NCUtils.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
+                        NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)
                     } else {
                         self.uploadSuccess.append(item)
@@ -708,7 +708,7 @@ import MBProgressHUD
                     }
                 }
             } else {
-                NCUtils.log(String(format: "Failed to upload file. Error: %@", nkError.errorDescription))
+                NCLog.log(String(format: "Failed to upload file. Error: %@", nkError.errorDescription))
                 self.uploadErrors.append(nkError.errorDescription)
                 self.uploadGroup.leave()
             }

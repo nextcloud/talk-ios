@@ -451,7 +451,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
     __block BOOL expired = NO;
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"updateHistoryInBackgroundWithCompletionBlock" expirationHandler:^(BGTaskHelper *task) {
-        [NCUtils log:@"ExpirationHandler called updateHistoryInBackgroundWithCompletionBlock"];
+        [NCLog log:@"ExpirationHandler called updateHistoryInBackgroundWithCompletionBlock"];
         expired = YES;
 
         // Make sure we actually end a running pullMessagesTask, because otherwise the completion handler might not be called in time
@@ -868,7 +868,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
             }
 
             if (statusCode == 429) {
-                [NCUtils log:@"Brute-force protected, received 429 while receiving messages. No further polling."];
+                [NCLog log:@"Brute-force protected, received 429 while receiving messages. No further polling."];
                 return;
             }
 
@@ -922,7 +922,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 - (void)sendChatMessage:(NSString *)message replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently
 {
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCChatControllerSendMessage" expirationHandler:^(BGTaskHelper *task) {
-        [NCUtils log:@"ExpirationHandler called - sendChatMessage"];
+        [NCLog log:@"ExpirationHandler called - sendChatMessage"];
     }];
 
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
@@ -966,7 +966,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
                 }
             }
 
-            [NCUtils log:[NSString stringWithFormat:@"Could not send chat message. Error: %@", error.description]];
+            [NCLog log:[NSString stringWithFormat:@"Could not send chat message. Error: %@", error.description]];
         } else {
             [[NCIntentController sharedInstance] donateSendMessageIntentForRoom:self->_room];
         }

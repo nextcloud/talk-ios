@@ -148,7 +148,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
         NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: updateStatus, modifiedSince: modifiedSince) { rooms, error in
             if let error {
-                NCUtils.log("Could not update rooms. Error: \(error.localizedDescription)")
+                NCLog.log("Could not update rooms. Error: \(error.localizedDescription)")
 
                 NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRooms, object: self, userInfo: ["error": error])
                 completion?([], activeAccount, error)
@@ -166,7 +166,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             var roomsWithNewMessages = [NCRoom]()
 
             let bgTask = BGTaskHelper.startBackgroundTask { _ in
-                NCUtils.log("ExpirationHandler called NCUpdateRoomsTransaction, number of rooms \(rooms.count)")
+                NCLog.log("ExpirationHandler called NCUpdateRoomsTransaction, number of rooms \(rooms.count)")
             }
 
             defer {
@@ -232,7 +232,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
         NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: token) { roomDict, error in
             if let error {
-                NCUtils.log("Could not update room. Error: \(error.localizedDescription)")
+                NCLog.log("Could not update room. Error: \(error.localizedDescription)")
 
                 NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRoom, object: self, userInfo: ["error": error])
                 completion?([:], error as NSError)
@@ -880,7 +880,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     // MARK: - Join/Leave room
 
     public func joinRoom(_ token: String, forCall call: Bool) {
-        NCUtils.log("Joining room \(token) for call \(call)")
+        NCLog.log("Joining room \(token) for call \(call)")
 
         // Clean up joining room flag and attempts
         self.joiningRoomToken = nil
@@ -904,7 +904,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         userInfo["token"] = token
 
         if let roomController = self.activeRooms[token] {
-            NCUtils.log("JoinRoomHelper: Found active room controller")
+            NCLog.log("JoinRoomHelper: Found active room controller")
 
             if call {
                 roomController.inCall = true
@@ -954,7 +954,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 self.activeRooms[token] = controller
             } else {
                 if self.joiningAttempts < 3 && statusCode != 403 {
-                    NCUtils.log("Error joining room, retrying. \(self.joiningAttempts)")
+                    NCLog.log("Error joining room, retrying. \(self.joiningAttempts)")
                     self.joiningAttempts += 1
                     self.joinRoomHelper(token, forCall: call)
                     return
@@ -969,7 +969,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                     userInfo["isBanned"] = true
                 }
 
-                NCUtils.log("Could not join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "")")
+                NCLog.log("Could not join room. Status code: \(statusCode). Error: \(error?.localizedDescription ?? "")")
             }
 
             self.joiningRoomToken = nil
@@ -1003,10 +1003,10 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             if !self.isJoiningRoom(withToken: token) {
                 // Treat a cancelled request as success, as we can't determine if the request was processed on the server or not
                 if let error = error as? NSError, error.code != NSURLErrorCancelled {
-                    NCUtils.log("Not joining the room any more. Ignore attempt as the join request failed anyway.")
+                    NCLog.log("Not joining the room any more. Ignore attempt as the join request failed anyway.")
                     completionBlock(nil, nil, nil, NCRoomsManager.statusCodeIgnoreJoinAttempt, nil)
                 } else {
-                    NCUtils.log("Not joining the room any more, but our join request was successful.")
+                    NCLog.log("Not joining the room any more, but our join request was successful.")
                     completionBlock(nil, nil, nil, NCRoomsManager.statusCodeShouldIgnoreAttemptButJoinedSuccessfully, nil)
                 }
 
@@ -1026,7 +1026,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 return
             }
 
-            NCUtils.log("Joined room \(token) in NC successfully")
+            NCLog.log("Joined room \(token) in NC successfully")
 
             // Remember the latest sessionId we're using to join a room, to be able to check when joining the external signaling server
             self.joiningSessionId = sessionId
@@ -1044,7 +1044,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                     return
                 }
 
-                NCUtils.log("Trying to join room \(token) in external signaling server...")
+                NCLog.log("Trying to join room \(token) in external signaling server...")
 
                 let federation = signalingSettings?.getFederationJoinDictionary()
 
@@ -1052,22 +1052,22 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                     // If the sessionId is not the same anymore we tried to join with, we either already left again before
                     // joining the external signaling server succeeded, or we already have another join in process
                     if !self.isJoiningRoom(withToken: token) {
-                        NCUtils.log("Not joining the room any more. Ignore external signaling completion block, but we joined the Nextcloud instance before.")
+                        NCLog.log("Not joining the room any more. Ignore external signaling completion block, but we joined the Nextcloud instance before.")
                         completionBlock(nil, nil, nil, NCRoomsManager.statusCodeShouldIgnoreAttemptButJoinedSuccessfully, nil)
                         return
                     }
 
                     if !self.isJoiningRoom(withSessionId: sessionId) {
-                        NCUtils.log("Joining the same room with a different sessionId. Ignore external signaling completion block.")
+                        NCLog.log("Joining the same room with a different sessionId. Ignore external signaling completion block.")
                         completionBlock(nil, nil, nil, NCRoomsManager.statusCodeIgnoreJoinAttempt, nil)
                         return
                     }
 
                     if error == nil {
-                        NCUtils.log("Joined room \(token) in external signaling server successfully.")
+                        NCLog.log("Joined room \(token) in external signaling server successfully.")
                         completionBlock(sessionId, room, nil, 0, nil)
                     } else {
-                        NCUtils.log("Failed joining room \(token) in external signaling server.")
+                        NCLog.log("Failed joining room \(token) in external signaling server.")
                         completionBlock(nil, nil, error, statusCode, statusReason)
                     }
                 }
@@ -1103,7 +1103,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     }
 
     public func rejoinRoomForCall(_ token: String, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) {
-        NCUtils.log("Rejoining room \(token)")
+        NCLog.log("Rejoining room \(token)")
 
         guard let roomController = self.activeRooms[token] else { return }
 
@@ -1132,16 +1132,16 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
                     extSignalingController.joinRoom(withRoomId: token, withSessionId: sessionId, withFederation: federation) { error in
                         if error == nil {
-                            NCUtils.log("Re-Joined room \(token) in external signaling server successfully.")
+                            NCLog.log("Re-Joined room \(token) in external signaling server successfully.")
                             completionBlock(sessionId, room, nil, 0, nil)
                         } else {
-                            NCUtils.log("Failed re-joining room \(token) in external signaling server.")
+                            NCLog.log("Failed re-joining room \(token) in external signaling server.")
                             completionBlock(nil, nil, error, statusCode, statusReason)
                         }
                     }
                 }
             } else {
-                NCUtils.log("Could not re-join room \(token). Status code: \(statusCode). Error: \(error?.localizedDescription ?? "Unknown")")
+                NCLog.log("Could not re-join room \(token). Status code: \(statusCode). Error: \(error?.localizedDescription ?? "Unknown")")
                 completionBlock(nil, nil, error, statusCode, statusReason)
             }
 
@@ -1153,7 +1153,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     public func leaveRoom(_ token: String) {
         // Check if leaving the room we are joining
         if self.isJoiningRoom(withToken: token) {
-            NCUtils.log("Leaving room \(token), but still joining -> cancel")
+            NCLog.log("Leaving room \(token), but still joining -> cancel")
 
             self.joiningRoomToken = nil
             self.joiningSessionId = nil
