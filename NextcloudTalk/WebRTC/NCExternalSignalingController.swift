@@ -13,12 +13,17 @@ import Foundation
     @objc func externalSignalingController(_ externalSignalingController: NCExternalSignalingController, shouldSwitchToCall roomToken: String)
 }
 
+@objc extension NSNotification {
+    public static let ExtSignalingDidReceiveChatMessage = Notification.Name.extSignalingDidReceiveChatMessage
+}
+
 extension Notification.Name {
     static let extSignalingDidUpdateParticipants = Notification.Name(rawValue: "NCExternalSignalingControllerDidUpdateParticipantsNotification")
     static let extSignalingDidReceiveJoinOfParticipant = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveJoinOfParticipantNotification")
     static let extSignalingDidReceiveLeaveOfParticipant = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveLeaveOfParticipantNotification")
     static let extSignalingDidReceiveStartedTyping = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveStartedTypingNotification")
     static let extSignalingDidReceiveStoppedTyping = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveStoppedTypingNotification")
+    static let extSignalingDidReceiveChatMessage = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveChatMessageNotification")
 }
 
 public typealias SendMessageCompletionBlock = (_ task: URLSessionWebSocketTask?, _ status: NCExternalSignalingSendMessageStatus) -> Void
@@ -38,6 +43,7 @@ public enum NCExternalSignalingSendMessageStatus {
     public private(set) var account: TalkAccount
     public private(set) var disconnected: Bool = true
     public private(set) var hasMCU: Bool = false
+    public private(set) var hasChatRelay: Bool = false
     public private(set) var sessionId: String?
     public private(set) var participantsMap = [String: SignalingParticipant]()
 
@@ -280,6 +286,9 @@ public enum NCExternalSignalingSendMessageStatus {
                         "userid": account.userId,
                         "ticket": ticket
                     ]
+                ],
+                "features": [
+                    "chat-relay"
                 ]
             ]
         ]
@@ -289,7 +298,10 @@ public enum NCExternalSignalingSendMessageStatus {
                 "type": "hello",
                 "hello": [
                     "version": "1.0",
-                    "resumeid": resumeId
+                    "resumeid": resumeId,
+                    "features": [
+                        "chat-relay"
+                    ]
                 ]
             ]
         }
@@ -333,6 +345,7 @@ public enum NCExternalSignalingSendMessageStatus {
         }
 
         self.hasMCU = serverFeatures.contains(where: { $0 == "mcu" })
+        self.hasChatRelay = serverFeatures.contains(where: { $0 == "chat-relay" })
 
         DispatchQueue.main.async {
             let bgTask = BGTaskHelper.startBackgroundTask(withName: "NCUpdateSignalingVersionTransaction")
@@ -616,6 +629,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
         if messageType == "chat" {
             print("Chat message received")
+            NotificationCenter.default.post(name: .extSignalingDidReceiveChatMessage, object: self, userInfo: messageDict)
         } else if messageType == "recording" {
             self.delegate?.externalSignalingController(self, didReceivedSignalingMessage: messageDict)
         } else {
