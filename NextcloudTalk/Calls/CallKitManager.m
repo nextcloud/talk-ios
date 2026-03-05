@@ -149,7 +149,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         protectedDataAvailable = @"unavailable";
     }
 
-    [NCUtils log:[NSString stringWithFormat:@"Report incoming call for token %@ for account %@. Protected data is %@", token, accountId, protectedDataAvailable]];
+    [NCLog log:[NSString stringWithFormat:@"Report incoming call for token %@ for account %@. Protected data is %@", token, accountId, protectedDataAvailable]];
 
     BOOL ongoingCalls = _calls.count > 0;
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
@@ -549,7 +549,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 
 - (void)endCall:(NSString *)token withStatusCode:(NSInteger)statusCode
 {
-    [NCUtils log:[NSString stringWithFormat:@"End call for token %@ with statusCode %ld", token, statusCode]];
+    [NCLog log:[NSString stringWithFormat:@"End call for token %@ with statusCode %ld", token, statusCode]];
 
     CallKitCall *call = [self callForToken:token];
     if (call) {
@@ -634,7 +634,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 {
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
-        [NCUtils log:[NSString stringWithFormat:@"CallKit provider answer call action for token %@", call.token]];
+        [NCLog log:[NSString stringWithFormat:@"CallKit provider answer call action for token %@", call.token]];
 
         call.isRinging = NO;
         [self stopCallStateTimerForCallUUID:call.uuid];
@@ -655,7 +655,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 {
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
-        [NCUtils log:[NSString stringWithFormat:@"CallKit provider end call action for token %@", call.token]];
+        [NCLog log:[NSString stringWithFormat:@"CallKit provider end call action for token %@", call.token]];
 
         call.isRinging = NO;
         [self stopCallStateTimerForCallUUID:call.uuid];

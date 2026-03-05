@@ -77,7 +77,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     self = [super init];
     
     if (self) {
-        [NCUtils log:[NSString stringWithFormat:@"Creating call controller for token %@", room.token]];
+        [NCLog log:[NSString stringWithFormat:@"Creating call controller for token %@", room.token]];
 
         _delegate = delegate;
         _room = room;
@@ -132,7 +132,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)startCall
 {
-    [NCUtils log:[NSString stringWithFormat:@"Start call in NCCallController for token %@", self.room.token]];
+    [NCLog log:[NSString stringWithFormat:@"Start call in NCCallController for token %@", self.room.token]];
 
     // Make sure the signaling controller has retrieved the settings before joining a call
     [_signalingController updateSignalingSettingsWithCompletionBlock:^(SignalingSettings *signalingSettings) {
@@ -177,12 +177,12 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)joinCall
 {
-    [NCUtils log:[NSString stringWithFormat:@"Join call in NCCallController for token %@", self.room.token]];
+    [NCLog log:[NSString stringWithFormat:@"Join call in NCCallController for token %@", self.room.token]];
 
     _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall silentFor:_silentFor recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
-                [NCUtils log:[NSString stringWithFormat:@"Did join call in NCCallController for token %@", self.room.token]];
+                [NCLog log:[NSString stringWithFormat:@"Did join call in NCCallController for token %@", self.room.token]];
 
                 [self.delegate callControllerDidJoinCall:self];
                 [self startMonitoringMicrophoneAudioLevel];
@@ -206,7 +206,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                 }
 
                 if (self->_joinCallAttempts < 3) {
-                    [NCUtils log:[NSString stringWithFormat:@"Could not join call in %@, retrying. %ld", self.room.token, self.joinCallAttempts]];
+                    [NCLog log:[NSString stringWithFormat:@"Could not join call in %@, retrying. %ld", self.room.token, self.joinCallAttempts]];
                     self->_joinCallAttempts += 1;
 
                     if (statusCode == 404) {
@@ -221,7 +221,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                 }
 
                 [self.delegate callControllerDidFailedJoiningCall:self statusCode:statusCode errorReason:[self getJoinCallErrorReason:statusCode]];
-                [NCUtils log:[NSString stringWithFormat:@"Could not join call in %@, StatusCode: %ld, Error: %@", self.room.token, statusCode, error.description]];
+                [NCLog log:[NSString stringWithFormat:@"Could not join call in %@, StatusCode: %ld, Error: %@", self.room.token, statusCode, error.description]];
             }
         }];
     }];
@@ -320,7 +320,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)forceReconnect
 {
-    [NCUtils log:@"Force reconnect"];
+    [NCLog log:@"Force reconnect"];
 
     [[WebRTCCommon shared] dispatch:^{
         [self.joinCallTask cancel];
@@ -1039,7 +1039,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         return;
     }
 
-    [NCUtils log:[NSString stringWithFormat:@"Creating publisher peer connection with sessionId: %@", [self signalingSessionId]]];
+    [NCLog log:[NSString stringWithFormat:@"Creating publisher peer connection with sessionId: %@", [self signalingSessionId]]];
 
     NSArray *iceServers = [self->_signalingController getIceServers];
     self->_publisherPeerConnection = [[NCPeerConnection alloc] initForPublisherWithSessionId:[self signalingSessionId] andICEServers:iceServers forAudioOnlyCall:YES];
@@ -1598,7 +1598,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
             NSInteger userPermissions = [userPermissionValue integerValue];
             NSInteger changedPermissions = userPermissions ^ _room.permissions;
             if ((changedPermissions & NCPermissionCanPublishAudio) || (changedPermissions & NCPermissionCanPublishVideo) || (changedPermissions & NCPermissionCanPublishScreen)) {
-                [NCUtils log:@"User permissions changed"];
+                [NCLog log:@"User permissions changed"];
                 _room.permissions = userPermissions;
                 [self.delegate callController:self userPermissionsChanged:userPermissions];
                 [self forceReconnect];
@@ -1683,7 +1683,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         // If publisher peer failed then reconnect
         if (peerConnection.isMCUPublisherPeer) {
-            [NCUtils log:@"Publisher peer connection failed"];
+            [NCLog log:@"Publisher peer connection failed"];
             [self forceReconnect];
         // If another peer failed using MCU then request a new offer
         } else if ([_externalSignalingController hasMCU]) {
@@ -1700,7 +1700,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         [self startSendingCurrentState];
 
         if (self.externalSignalingController && peerConnection.isMCUPublisherPeer) {
-            [NCUtils log:@"Publisher peer changed to connected"];
+            [NCLog log:@"Publisher peer changed to connected"];
         }
 
         if (self.externalSignalingController && self.screensharingActive) {

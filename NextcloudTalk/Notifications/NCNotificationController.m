@@ -589,7 +589,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForFederation" expirationHandler:^(BGTaskHelper *task) {
-        [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForFederation"];
+        [NCLog log:@"ExpirationHandler called - handlePushNotificationResponseForFederation"];
     }];
 
     if ([actionIdentifier isEqualToString:NCNotificationActionFederationInvitationAccept]) {
@@ -647,7 +647,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForRecording" expirationHandler:^(BGTaskHelper *task) {
-        [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForRecording"];
+        [NCLog log:@"ExpirationHandler called - handlePushNotificationResponseForRecording"];
     }];
 
     NSTimeInterval notificationTimeInterval = [serverNotification.datetime timeIntervalSince1970];
@@ -731,7 +731,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"handlePushNotificationResponseForReminder" expirationHandler:^(BGTaskHelper *task) {
-        [NCUtils log:@"ExpirationHandler called - handlePushNotificationResponseForReminder"];
+        [NCLog log:@"ExpirationHandler called - handlePushNotificationResponseForReminder"];
     }];
 
     // Open the conversation for the reminder
