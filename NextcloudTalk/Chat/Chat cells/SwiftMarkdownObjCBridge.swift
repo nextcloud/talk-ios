@@ -28,9 +28,12 @@ import UIKit
         // Don't update the font when we have a listing/quote (to not override any mentions), just the paragraph style
         markdownParser.list.font = nil
         markdownParser.list.color = nil
+        markdownParser.task.font = nil
+        markdownParser.task.color = nil
 
         // To correctly position list elements, we need to tell CDMarkdownKit the font to use for sizing
         markdownParser.list.indicatorFont = .preferredFont(forTextStyle: .body)
+        markdownParser.task.indicatorFont = .preferredFont(forTextStyle: .body)
 
         markdownParser.quote.font = nil
         markdownParser.quote.color = nil
