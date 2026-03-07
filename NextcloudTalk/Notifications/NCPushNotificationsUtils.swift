@@ -45,7 +45,7 @@ public class NCPushNotificationsUtils: NSObject {
 
             return NCPushNotificationKeyPair(privateKey: privateKeyPem.data(using: .utf8)!, publicKey: publicKeyPem.data(using: .utf8)!)
         } catch {
-            NCUtils.log("Error generating push keypair: \(error)")
+            NCLog.log("Error generating push keypair: \(error)")
         }
 
         return nil

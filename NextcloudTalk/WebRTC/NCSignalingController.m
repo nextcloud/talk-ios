@@ -50,7 +50,7 @@
             }
 
             // TODO: Error handling
-            [NCUtils log:[NSString stringWithFormat:@"Could not get signaling settings. Error: %@", error.description]];
+            [NCLog log:[NSString stringWithFormat:@"Could not get signaling settings. Error: %@", error.description]];
         }
 
         if (settings) {
@@ -90,7 +90,7 @@
 
 - (void)startPullingSignalingMessages
 {
-    [NCUtils log:[NSString stringWithFormat:@"Start pulling internal signaling messages for token %@", _room.token]];
+    [NCLog log:[NSString stringWithFormat:@"Start pulling internal signaling messages for token %@", _room.token]];
 
     _shouldStopPullingMessages = NO;
     [self pullSignalingMessages];

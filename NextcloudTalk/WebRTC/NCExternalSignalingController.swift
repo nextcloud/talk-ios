@@ -103,7 +103,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
         // Do not try to connect if the app is running in the background (unless forcing a connection or in a call)
         if !forceConnect, UIApplication.shared.applicationState == .background {
-            NCUtils.log("Trying to create websocket connection while app is in the background")
+            NCLog.log("Trying to create websocket connection while app is in the background")
             self.disconnected = true
             return
         }
@@ -117,7 +117,7 @@ public enum NCExternalSignalingSendMessageStatus {
         self.messagesWithCompletionBlock = []
         self.helloResponseReceived = false
 
-        NCUtils.log("Connecting to: \(self.serverUrl)")
+        NCLog.log("Connecting to: \(self.serverUrl)")
 
         let wsSession = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         var wsRequest = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: webSocketTimeoutInterval)
@@ -128,7 +128,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
             // We are only allowed to resume a session 30s after disconnect
             if self.disconnectTime == nil || (currentTimestamp - (self.disconnectTime ?? 0)) >= 30 {
-                NCUtils.log("We have a resumeId, but we disconnected outside of the 30s resume window. Connecting without resumeId.")
+                NCLog.log("We have a resumeId, but we disconnected outside of the 30s resume window. Connecting without resumeId.")
                 self.resumeId = nil
             }
         }
@@ -146,7 +146,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
         guard self.reconnectTimer == nil else { return }
 
-        NCUtils.log("Reconnecting to: \(self.serverUrl)")
+        NCLog.log("Reconnecting to: \(self.serverUrl)")
 
         self.resetWebSocket()
 
@@ -186,7 +186,7 @@ public enum NCExternalSignalingSendMessageStatus {
     }
 
     func disconnect() {
-        NCUtils.log("Disconnecting from: \(self.serverUrl)")
+        NCLog.log("Disconnecting from: \(self.serverUrl)")
 
         self.disconnectTime = Date().timeIntervalSince1970
 
@@ -240,7 +240,7 @@ public enum NCExternalSignalingSendMessageStatus {
                     self.pendingMessages = []
                 }
 
-                NCUtils.log("Trying to send message before we received a hello response -> adding to pendingMessages")
+                NCLog.log("Trying to send message before we received a hello response -> adding to pendingMessages")
                 self.pendingMessages.append(wsMessage)
             }
 
@@ -294,11 +294,11 @@ public enum NCExternalSignalingSendMessageStatus {
             ]
         }
 
-        NCUtils.log("Sending hello message")
+        NCLog.log("Sending hello message")
 
         self.send(message: helloDict) { task, status in
             if status == .socketError, task == self.webSocket {
-                NCUtils.log("Reconnecting from sendHelloMessage")
+                NCLog.log("Reconnecting from sendHelloMessage")
                 self.reconnect()
             }
         }
@@ -307,7 +307,7 @@ public enum NCExternalSignalingSendMessageStatus {
     func helloResponseReceived(messageDict: [AnyHashable: Any]) {
         self.helloResponseReceived = true
 
-        NCUtils.log("Hello received with \(self.pendingMessages.count) pending messages")
+        NCLog.log("Hello received with \(self.pendingMessages.count) pending messages")
 
         let messageId = messageDict["id"] as? String ?? "0"
         self.executeCompletionBlock(forMessageId: messageId, withStatus: .success)
@@ -315,7 +315,7 @@ public enum NCExternalSignalingSendMessageStatus {
         guard let helloDict = messageDict["hello"] as? [AnyHashable: Any],
               let newSessionId = helloDict["sessionid"] as? String
         else {
-            NCUtils.log("Unable to access hello dictionary")
+            NCLog.log("Unable to access hello dictionary")
             return
         }
 
@@ -328,7 +328,7 @@ public enum NCExternalSignalingSendMessageStatus {
               let serverFeatures = serverDict["features"] as? [String],
               let serverVersion = serverDict["version"] as? String
         else {
-            NCUtils.log("Unable to access server dictionary")
+            NCLog.log("Unable to access server dictionary")
             return
         }
 
@@ -364,7 +364,7 @@ public enum NCExternalSignalingSendMessageStatus {
               let messageId = messageDict["id"] as? String
         else { return }
 
-        NCUtils.log("Received error response \(errorCode)")
+        NCLog.log("Received error response \(errorCode)")
 
         if errorCode == "no_such_session" || errorCode == "too_many_requests" {
             // We could not resume the previous session, but the websocket is still alive -> resend the hello message without a resumeId
@@ -391,11 +391,11 @@ public enum NCExternalSignalingSendMessageStatus {
 
     func joinRoom(withRoomId roomId: String, withSessionId sessionId: String, withFederation federationDict: [AnyHashable: Any]?, withCompletionBlock block: ((_ error: NSError?) -> Void)?) {
         if self.disconnected {
-            NCUtils.log("Joining room \(roomId), but the websocket is disconnected.")
+            NCLog.log("Joining room \(roomId), but the websocket is disconnected.")
         }
 
         if self.webSocket == nil {
-            NCUtils.log("Joining room \(roomId), but the websocket is nil.")
+            NCLog.log("Joining room \(roomId), but the websocket is nil.")
         }
 
         var messageDict: [AnyHashable: Any] = [
@@ -420,7 +420,7 @@ public enum NCExternalSignalingSendMessageStatus {
         self.send(message: messageDict) { task, status in
             if status == .socketError, task == self.webSocket {
                 // Reconnect if this is still the same socket we tried to send the message on
-                NCUtils.log("Reconnect from joinRoom")
+                NCLog.log("Reconnect from joinRoom")
 
                 // When we failed to join a room, we shouldn't try to resume a session but instead do a force reconnect
                 self.forceReconnect()
@@ -737,7 +737,7 @@ public enum NCExternalSignalingSendMessageStatus {
         DispatchQueue.main.async {
             guard webSocketTask == self.webSocket else { return }
 
-            NCUtils.log("WebSocket connected!")
+            NCLog.log("WebSocket connected!")
             self.reconnectInterval = self.initialReconnectInterval
             self.sendHelloMessage()
         }
@@ -747,7 +747,7 @@ public enum NCExternalSignalingSendMessageStatus {
         DispatchQueue.main.async {
             guard webSocketTask == self.webSocket else { return }
 
-            NCUtils.log("WebSocket didCloseWithCode: \(closeCode) reason: \(reason, default: "Unknown")")
+            NCLog.log("WebSocket didCloseWithCode: \(closeCode) reason: \(reason, default: "Unknown")")
             self.reconnect()
         }
     }
@@ -757,7 +757,7 @@ public enum NCExternalSignalingSendMessageStatus {
             guard task == self.webSocket else { return }
 
             if let error = error as? URLError, error.code == .serverCertificateUntrusted {
-                NCUtils.log("WebSocket session didCompleteWithError: \(error)")
+                NCLog.log("WebSocket session didCompleteWithError: \(error)")
 
                 DispatchQueue.main.async {
                     CCCertificate.sharedManager()
@@ -771,7 +771,7 @@ public enum NCExternalSignalingSendMessageStatus {
             }
 
             if let error {
-                NCUtils.log("WebSocket session didCompleteWithError: \(error)")
+                NCLog.log("WebSocket session didCompleteWithError: \(error)")
                 self.reconnect()
             }
         }
@@ -816,7 +816,7 @@ public enum NCExternalSignalingSendMessageStatus {
                         return
                     }
 
-                    NCUtils.log("WebSocket receiveMessageWithCompletionHandler error \(error)")
+                    NCLog.log("WebSocket receiveMessageWithCompletionHandler error \(error)")
                     self.reconnect()
                 }
             }

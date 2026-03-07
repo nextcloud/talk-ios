@@ -230,7 +230,7 @@ enum RoomVisibilityOption: Int {
         let roomType: NCRoomType = self.isPublic ? .public : .group
         NCAPIController.sharedInstance().createRoom(forAccount: self.account, withInvite: nil, ofType: roomType, andName: self.roomName) { room, error in
             if let error {
-                NCUtils.log(String(format: "Failed to create room. Error: %@", error.localizedDescription))
+                NCLog.log(String(format: "Failed to create room. Error: %@", error.localizedDescription))
                 self.roomCreationErrors.append(error.localizedDescription)
 
                 self.removeModifyingView()
@@ -251,7 +251,7 @@ enum RoomVisibilityOption: Int {
             self.roomCreationGroup.enter()
             NCAPIController.sharedInstance().setAvatarForRoomWithToken(token, image: self.selectedAvatarImage, account: self.account) { error in
                 if let error {
-                    NCUtils.log(String(format: "Failed to set room avatar. Error: %@", error.localizedDescription))
+                    NCLog.log(String(format: "Failed to set room avatar. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
                 }
 
@@ -261,7 +261,7 @@ enum RoomVisibilityOption: Int {
             self.roomCreationGroup.enter()
             NCAPIController.sharedInstance().setEmojiAvatarForRoomWithToken(token, withEmoji: self.selectedEmoji, andColor: self.selectedEmojiBackgroundColor, account: self.account) { error in
                 if let error {
-                    NCUtils.log(String(format: "Failed to set room emoji avatar. Error: %@", error.localizedDescription))
+                    NCLog.log(String(format: "Failed to set room emoji avatar. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
                 }
 
@@ -274,7 +274,7 @@ enum RoomVisibilityOption: Int {
             self.roomCreationGroup.enter()
             NCAPIController.sharedInstance().setRoomDescription(self.roomDescription, forRoom: token, forAccount: account) { error in
                 if let error {
-                    NCUtils.log(String(format: "Failed to set room description. Error: %@", error.localizedDescription))
+                    NCLog.log(String(format: "Failed to set room description. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
                 }
 
@@ -290,7 +290,7 @@ enum RoomVisibilityOption: Int {
                 do {
                     try await NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source as String?, toRoom: token, forAccount: account)
                 } catch {
-                    NCUtils.log(String(format: "Failed to add participant. Error: %@", error.localizedDescription))
+                    NCLog.log(String(format: "Failed to add participant. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
                 }
 
@@ -303,7 +303,7 @@ enum RoomVisibilityOption: Int {
             self.roomCreationGroup.enter()
             NCAPIController.sharedInstance().setPassword(self.roomPassword, forRoom: token, forAccount: self.account) { error, _ in
                 if let error {
-                    NCUtils.log(String(format: "Failed to set room password. Error: %@", error.localizedDescription))
+                    NCLog.log(String(format: "Failed to set room password. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
                 }
 
