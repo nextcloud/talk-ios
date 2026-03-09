@@ -71,7 +71,7 @@ final class UICallTest: XCTestCase {
 
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        chatNavBar.buttons["Back"].tap()
+        chatNavBar.buttons["Conversation list"].tap()
 
         // Check if all call view controllers are deallocated
         XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
