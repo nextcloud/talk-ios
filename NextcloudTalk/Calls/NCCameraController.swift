@@ -95,13 +95,6 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     func switchCamera() {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else { return }
-            var newInput: AVCaptureDeviceInput
-
-            if self.usingFrontCamera {
-                newInput = getBackCameraInput()
-            } else {
-                newInput = getFrontCameraInput()
-            }
 
             if let firstInput = session?.inputs.first {
                 session?.removeInput(firstInput)
@@ -109,7 +102,10 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
             // Stop and restart the session to prevent a weird glitch when rotating our local view
             self.session?.stopRunning()
-            self.session?.addInput(newInput)
+
+            if let newInput = self.usingFrontCamera ? self.getBackCameraInput() : self.getFrontCameraInput() {
+                self.session?.addInput(newInput)
+            }
 
             // We need to set the orientation again, because otherweise after switching the video is turned
             self.session?.outputs.first?.connections.first?.videoOrientation = .portrait
@@ -171,29 +167,33 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         }
     }
 
-    func getFrontCameraInput() -> AVCaptureDeviceInput {
+    func getFrontCameraInput() -> AVCaptureDeviceInput? {
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else {
-            fatalError("Error getting AVCaptureDevice.")
+            print("Error getting AVCaptureDevice.")
+            return nil
         }
 
         self.setFormat(for: device)
 
         guard let input = try? AVCaptureDeviceInput(device: device) else {
-            fatalError("Error getting AVCaptureDeviceInput")
+            print("Error getting AVCaptureDeviceInput")
+            return nil
         }
 
         return input
     }
 
-    func getBackCameraInput() -> AVCaptureDeviceInput {
+    func getBackCameraInput() -> AVCaptureDeviceInput? {
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
-            fatalError("Error getting AVCaptureDevice.")
+            print("Error getting AVCaptureDevice.")
+            return nil
         }
 
         self.setFormat(for: device)
 
         guard let input = try? AVCaptureDeviceInput(device: device) else {
-            fatalError("Error getting AVCaptureDeviceInput")
+            print("Error getting AVCaptureDeviceInput")
+            return nil
         }
 
         return input
@@ -206,10 +206,8 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
             self.session?.sessionPreset = .inputPriority
 
-            if self.usingFrontCamera {
-                self.session?.addInput(self.getFrontCameraInput())
-            } else {
-                self.session?.addInput(self.getBackCameraInput())
+            if let input = self.usingFrontCamera ? self.getFrontCameraInput() : self.getBackCameraInput() {
+                self.session?.addInput(input)
             }
 
             let output = AVCaptureVideoDataOutput()
