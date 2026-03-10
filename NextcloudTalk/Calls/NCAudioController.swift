@@ -39,7 +39,7 @@ public class NCAudioController: NSObject, RTCAudioSessionDelegate {
         do {
             try self.rtcAudioSession.setConfiguration(configuration)
         } catch {
-            NCUtils.log("Error setting audio configuration: \(error.localizedDescription)")
+            NCLog.log("Error setting audio configuration: \(error.localizedDescription)")
         }
 
         self.rtcAudioSession.unlockForConfiguration()
@@ -81,7 +81,7 @@ public class NCAudioController: NSObject, RTCAudioSessionDelegate {
                 try self.rtcAudioSession.setConfiguration(configuration, active: true)
             }
         } catch {
-            NCUtils.log("Error setting audio configuration: \(error.localizedDescription)")
+            NCLog.log("Error setting audio configuration: \(error.localizedDescription)")
         }
 
         self.rtcAudioSession.unlockForConfiguration()
@@ -97,7 +97,7 @@ public class NCAudioController: NSObject, RTCAudioSessionDelegate {
         do {
             try self.rtcAudioSession.setActive(false)
         } catch {
-            NCUtils.log("Error setting audio configuration: \(error.localizedDescription)")
+            NCLog.log("Error setting audio configuration: \(error.localizedDescription)")
         }
 
         self.rtcAudioSession.unlockForConfiguration()

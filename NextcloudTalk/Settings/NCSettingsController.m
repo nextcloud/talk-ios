@@ -580,7 +580,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     if (currentSignalingSettings) {
         block([self->_externalSignalingControllers objectForKey:accountId]);
     } else {
-        [NCUtils log:@"Ensure signaling configuration -> Setting configuration"];
+        [NCLog log:@"Ensure signaling configuration -> Setting configuration"];
 
         if (settings) {
             // In case settings are provided, we use these provided settings
@@ -756,7 +756,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     }
 
     if (!keyPair) {
-        [NCUtils log:@"Error while subscribing: Unable to generate push notifications key pair."];
+        [NCLog log:@"Error while subscribing: Unable to generate push notifications key pair."];
 
         if (block) {
             block(NO);
@@ -768,7 +768,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     NSString *pushToken = [[NCKeyChainController sharedInstance] combinedPushToken];
 
     if (!pushToken) {
-        [NCUtils log:@"Error while subscribing: Push token is not available."];
+        [NCLog log:@"Error while subscribing: Push token is not available."];
 
         if (block) {
             block(NO);
@@ -781,14 +781,14 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
     [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] withPublicKey:keyPair.publicKey toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
         if (!error) {
-            [NCUtils log:@"Subscribed to NC server successfully."];
+            [NCLog log:@"Subscribed to NC server successfully."];
 
             NSString *publicKey = [responseDict objectForKey:@"publicKey"];
             NSString *deviceIdentifier = [responseDict objectForKey:@"deviceIdentifier"];
             NSString *signature = [responseDict objectForKey:@"signature"];
 
             if (!publicKey || !deviceIdentifier || !signature) {
-                [NCUtils log:@"Something went wrong subscribing to NC server. Aborting subscribe to Push Notification server."];
+                [NCLog log:@"Something went wrong subscribing to NC server. Aborting subscribe to Push Notification server."];
 
                 if (block) {
                     block(NO);
@@ -817,7 +817,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
                     [realm commitWriteTransaction];
                     [[NCKeyChainController sharedInstance] setPushNotificationPublicKey:keyPair.publicKey forAccountId:accountId];
                     [[NCKeyChainController sharedInstance] setPushNotificationPrivateKey:keyPair.privateKey forAccountId:accountId];
-                    [NCUtils log:@"Subscribed to Push Notification server successfully."];
+                    [NCLog log:@"Subscribed to Push Notification server successfully."];
 
                     if (block) {
                         block(YES);
@@ -825,10 +825,10 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
                     [bgTask stopBackgroundTask];
                 } else {
-                    [NCUtils log:[NSString stringWithFormat:@"Error while subscribing to Push Notification server. Error: %@", error.description]];
-                    [NCUtils log:[NSString stringWithFormat:@"Push notification, public key: %@", publicKey]];
-                    [NCUtils log:[NSString stringWithFormat:@"Push notification, device signature: %@", signature]];
-                    [NCUtils log:[NSString stringWithFormat:@"Push notification, device identifier: %@", deviceIdentifier]];
+                    [NCLog log:[NSString stringWithFormat:@"Error while subscribing to Push Notification server. Error: %@", error.description]];
+                    [NCLog log:[NSString stringWithFormat:@"Push notification, public key: %@", publicKey]];
+                    [NCLog log:[NSString stringWithFormat:@"Push notification, device signature: %@", signature]];
+                    [NCLog log:[NSString stringWithFormat:@"Push notification, device identifier: %@", deviceIdentifier]];
                     [[NCKeyChainController sharedInstance] logCombinedPushToken];
 
                     if (block) {
@@ -839,7 +839,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
                 }
             }];
         } else {
-            [NCUtils log:[NSString stringWithFormat:@"Error while subscribing to NC server. Error: %@", error.description]];
+            [NCLog log:[NSString stringWithFormat:@"Error while subscribing to NC server. Error: %@", error.description]];
 
             if (block) {
                 block(NO);

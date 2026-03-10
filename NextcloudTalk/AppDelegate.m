@@ -68,14 +68,14 @@
     // Perform cleanup only once in app lifecycle
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(void){
         @autoreleasepool {
-            [NCUtils removeOldLogfiles];
+            [NCLog removeOldLogfiles];
             [[SDImageCache sharedImageCache].diskCache removeExpiredData];
             [[NCSettingsController sharedInstance] createAccountsFile];
         }
     });
 
     UIDevice *currentDevice = [UIDevice currentDevice];
-    [NCUtils log:[NSString stringWithFormat:@"Starting %@, version %@, %@ %@, model %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString], currentDevice.systemName, currentDevice.systemVersion, currentDevice.model]];
+    [NCLog log:[NSString stringWithFormat:@"Starting %@, version %@, %@ %@, model %@", NSBundle.mainBundle.bundleIdentifier, [NCAppBranding getAppVersionString], currentDevice.systemName, currentDevice.systemVersion, currentDevice.model]];
 
     // Init rooms manager to start receiving NSNotificationCenter notifications
     [NCRoomsManager shared];
@@ -188,14 +188,14 @@
 - (void)applicationProtectedDataDidBecomeAvailable:(UIApplication *)application
 {
     if ([[CallKitManager sharedInstance].calls count] > 0) {
-        [NCUtils log:@"Protected data did become available"];
+        [NCLog log:@"Protected data did become available"];
     }
 }
 
 - (void)applicationProtectedDataWillBecomeUnavailable:(UIApplication *)application
 {
     if ([[CallKitManager sharedInstance].calls count] > 0) {
-        [NCUtils log:@"Protected data did become unavailable"];
+        [NCLog log:@"Protected data did become unavailable"];
     }
 }
 
@@ -378,7 +378,7 @@
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion
 {
-    [NCUtils log:@"Received PushKit notification"];
+    [NCLog log:@"Received PushKit notification"];
 
     NSString *message = [payload.dictionaryPayload objectForKey:@"subject"];
     NSString *signature = [payload.dictionaryPayload objectForKey:@"signature"];
@@ -450,18 +450,18 @@
 
 - (void)handleBackgroundProcessing:(BGTask *)task
 {
-    [NCUtils log:@"Performing background processing -> handleBackgroundProcessing"];
+    [NCLog log:@"Performing background processing -> handleBackgroundProcessing"];
 
     // With BGTasks (iOS >= 13) we need to schedule another task when running in background
     [self scheduleBackgroundProcessing];
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCBackgroundProcessing" expirationHandler:^(BGTaskHelper *task) {
-        [NCUtils log:@"ExpirationHandler NCBackgroundProcessing called"];
+        [NCLog log:@"ExpirationHandler NCBackgroundProcessing called"];
     }];
 
     // Check if the shown notifications are still available on the server
     [[NCNotificationController sharedInstance] checkNotificationExistanceWithCompletionBlock:^(NSError *error) {
-        [NCUtils log:@"CompletionHandler checkNotificationExistance"];
+        [NCLog log:@"CompletionHandler checkNotificationExistance"];
 
         [task setTaskCompletedWithSuccess:YES];
         [bgTask stopBackgroundTask];
@@ -498,7 +498,7 @@
 
 - (void)handleAppRefresh:(BGTask *)task
 {
-    [NCUtils log:@"Performing background fetch -> handleAppRefresh"];
+    [NCLog log:@"Performing background fetch -> handleAppRefresh"];
     
     // With BGTasks (iOS >= 13) we need to schedule another refresh when running in background
     [self scheduleAppRefresh];
@@ -512,7 +512,7 @@
 // so we keep it around, although it's deprecated on iOS 13 onwards
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    [NCUtils log:@"Performing background fetch -> performFetchWithCompletionHandler"];
+    [NCLog log:@"Performing background fetch -> performFetchWithCompletionHandler"];
 
     [self performBackgroundFetchWithCompletionHandler:^(BOOL errorOccurred) {
          if (errorOccurred) {
@@ -531,7 +531,7 @@
     __block BOOL expired = NO;
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCBackgroundFetch" expirationHandler:^(BGTaskHelper *task) {
-        [NCUtils log:@"ExpirationHandler called"];
+        [NCLog log:@"ExpirationHandler called"];
 
         /*
         expired = YES;
@@ -541,11 +541,11 @@
          */
     }];
 
-    [NCUtils log:@"Start performBackgroundFetchWithCompletionHandler"];
+    [NCLog log:@"Start performBackgroundFetchWithCompletionHandler"];
 
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCRoomsManager shared] resendOfflineMessagesWithCompletionBlock:^{
-        [NCUtils log:@"CompletionHandler resendOfflineMessagesWithCompletionBlock"];
+        [NCLog log:@"CompletionHandler resendOfflineMessagesWithCompletionBlock"];
 
         dispatch_group_leave(backgroundRefreshGroup);
     }];
@@ -553,7 +553,7 @@
     // Check if the shown notifications are still available on the server
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCNotificationController sharedInstance] checkNotificationExistanceWithCompletionBlock:^(NSError *error) {
-        [NCUtils log:@"CompletionHandler checkNotificationExistance"];
+        [NCLog log:@"CompletionHandler checkNotificationExistance"];
 
         if (error) {
             errorOccurred = YES;
@@ -565,7 +565,7 @@
     /* Disable checking for new messages for now, until we can prevent them from showing twice
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCNotificationController sharedInstance] checkForNewNotificationsWithCompletionBlock:^(NSError *error) {
-        [NCUtils log:@"CompletionHandler checkForNewNotificationsWithCompletionBlock"];
+        [NCLog log:@"CompletionHandler checkForNewNotificationsWithCompletionBlock"];
 
         if (error) {
             errorOccurred = YES;
@@ -577,7 +577,7 @@
 
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:YES withCompletionBlock:^(NSError *error) {
-        [NCUtils log:@"CompletionHandler updateRoomsAndChatsUpdatingUserStatus"];
+        [NCLog log:@"CompletionHandler updateRoomsAndChatsUpdatingUserStatus"];
 
         if (error) {
             errorOccurred = YES;
@@ -609,7 +609,7 @@
     }
 
     dispatch_group_notify(backgroundRefreshGroup, dispatch_get_main_queue(), ^{
-         [NCUtils log:@"CompletionHandler performBackgroundFetchWithCompletionHandler dispatch_group_notify"];
+         [NCLog log:@"CompletionHandler performBackgroundFetchWithCompletionHandler dispatch_group_notify"];
 
          if (!expired) {
              completionHandler(errorOccurred);
