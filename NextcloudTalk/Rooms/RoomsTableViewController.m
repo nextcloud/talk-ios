@@ -139,8 +139,8 @@ typedef enum RoomsSections {
     // Set selection color for selected cells
     [self.tableView setTintColor:[UIColor clearColor]];
 
-    // Remove the backButtonTitle, otherwise when we transition to a conversation, "Back" is briefly visible
-    self.navigationItem.backButtonTitle = @"";
+    // The title is used when long-pressing the back button in a conversation
+    self.navigationItem.backButtonTitle = NSLocalizedString(@"Conversations", nil);
 
     NSDictionary *views = @{@"unreadMentionsButton": _unreadMentionsBottomButton};
     NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};

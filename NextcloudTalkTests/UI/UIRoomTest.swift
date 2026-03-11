@@ -40,7 +40,7 @@ final class UIRoomTest: XCTestCase {
 
         // Go back to conversation list
         app.navigationBars["Conversation settings"].buttons["Back"].tap()
-        chatNavBar.buttons["Back"].tap()
+        chatNavBar.buttons["Conversations"].tap()
 
         // Check if the conversation appears in the conversation list
         let conversationStaticText = app.tables.cells.staticTexts[newConversationName]
@@ -167,7 +167,7 @@ final class UIRoomTest: XCTestCase {
 
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        chatNavBar.buttons["Back"].tap()
+        chatNavBar.buttons["Conversations"].tap()
 
         // Check if all controllers are deallocated
         XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
