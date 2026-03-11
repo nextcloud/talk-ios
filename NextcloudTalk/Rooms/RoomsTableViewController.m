@@ -1974,7 +1974,9 @@ typedef enum RoomsSections {
                         [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
                     }
 
-                    [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void) {
+                        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+                    });
                 }];
             }];
 
@@ -1984,8 +1986,36 @@ typedef enum RoomsSections {
                 importantConversationAction.state = UIMenuElementStateOn;
             }
 
-            UIMenu *importantConversationMenu = [UIMenu menuWithTitle:nil image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[importantConversationAction]];
+            UIMenu *importantConversationMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[importantConversationAction]];
             [notificationActions addObject:importantConversationMenu];
+        }
+
+        // Sensitive conversation
+        if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilitySensitiveConversations]) {
+            UIAction *sensitiveConversationAction = [UIAction actionWithTitle:NSLocalizedString(@"Sensitive conversation", nil) image:nil identifier:nil handler:^(UIAction *action) {
+                BOOL newState = !(action.state == UIMenuElementStateOn);
+
+                [[NCAPIController sharedInstance] setSensitiveStateWithEnabled:newState forRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NCRoom * _Nullable room, NSError * _Nullable error) {
+                    if (error) {
+                        NSLog(@"Error setting call notification: %@", error.description);
+                    } else {
+                        [[JDStatusBarNotificationPresenter sharedPresenter] presentWithText:NSLocalizedString(@"Updated notification settings", "") dismissAfterDelay:5.0 includedStyle:JDStatusBarNotificationIncludedStyleSuccess];
+                    }
+
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void) {
+                        [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:YES onlyLastModified:NO];
+                    });
+                }];
+            }];
+
+            sensitiveConversationAction.subtitle = NSLocalizedString(@"Message preview will be disabled in conversation list and notifications", nil);
+
+            if (room.isSensitive) {
+                sensitiveConversationAction.state = UIMenuElementStateOn;
+            }
+
+            UIMenu *sensitiveConversationMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[sensitiveConversationAction]];
+            [notificationActions addObject:sensitiveConversationMenu];
         }
 
         UIMenu *notificationMenu = [UIMenu menuWithTitle:NSLocalizedString(@"Notifications", nil)
