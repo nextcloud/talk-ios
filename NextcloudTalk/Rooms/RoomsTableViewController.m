@@ -140,7 +140,7 @@ typedef enum RoomsSections {
     [self.tableView setTintColor:[UIColor clearColor]];
 
     // The title is used when long-pressing the back button in a conversation
-    self.navigationItem.backButtonTitle = NSLocalizedString(@"Conversation list", nil);
+    self.navigationItem.backButtonTitle = NSLocalizedString(@"Conversations", nil);
 
     NSDictionary *views = @{@"unreadMentionsButton": _unreadMentionsBottomButton};
     NSDictionary *metrics = @{@"buttonWidth": @(buttonWidth)};
