@@ -62,12 +62,12 @@
 
     func showActivityIndicator() {
         self.modifyingViewIndicator.startAnimating()
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: modifyingViewIndicator)
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: modifyingViewIndicator)
     }
 
     func hideActivityIndicator() {
         self.modifyingViewIndicator.stopAnimating()
-        self.navigationItem.leftBarButtonItem = nil
+        self.navigationItem.rightBarButtonItem = nil
     }
 
     // MARK: - Table view data source
