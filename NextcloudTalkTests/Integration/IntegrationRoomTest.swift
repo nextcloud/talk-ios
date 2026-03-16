@@ -433,7 +433,7 @@ final class IntegrationRoomTest: TestBase {
         XCTAssertEqual(enabledBot?.name, "TestBot")
         XCTAssertEqual(enabledBot?.state, .enabled)
 
-        let disabledBot = try await NCAPIController.sharedInstance().enableBot(withId: bot.id, forRoom: room.token, forAccount: activeAccount)
+        let disabledBot = try await NCAPIController.sharedInstance().disableBot(withId: bot.id, forRoom: room.token, forAccount: activeAccount)
         XCTAssertEqual(disabledBot?.name, "TestBot")
         XCTAssertEqual(disabledBot?.state, .disabled)
     }
