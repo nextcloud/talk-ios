@@ -171,6 +171,7 @@ jobs:
         ./server/occ config:system:set memcache.distributed --value='\OC\Memcache\APCu'
         ./server/occ app:enable --force spreed
         ./server/occ background:cron
+        ./server/occ talk:bot:install TestBot secret123456789123456789qwertzuiop1234567890 https://domain.invalid "New description" || true
         OC_PASS=alice ./server/occ user:add --password-from-env alice
         PHP_CLI_SERVER_WORKERS=10 php -S localhost:8080 -t server/ &
 

@@ -61,6 +61,9 @@
 /* Votes in a poll */
 "%d votes" = "%d votes";
 
+/* '5 active bots' in this conversation */
+"%ld active bots" = "%ld active bots";
+
 /* No comment provided by engineer. */
 "%ld notifications" = "%ld notifications";
 
@@ -467,6 +470,9 @@
 "bot" = "bot";
 
 /* No comment provided by engineer. */
+"Bots" = "Bots";
+
+/* No comment provided by engineer. */
 "Browse poll drafts" = "Browse poll drafts";
 
 /* No comment provided by engineer. */
@@ -869,6 +875,9 @@
 "Diagnostics" = "Diagnostics";
 
 /* No comment provided by engineer. */
+"Disable" = "Disable";
+
+/* No comment provided by engineer. */
 "Disable absence" = "Disable absence";
 
 /* No comment provided by engineer. */
@@ -1056,6 +1065,9 @@
 
 /* No comment provided by engineer. */
 "Enable speaker" = "Enable speaker";
+
+/* No comment provided by engineer. */
+"Enabled" = "Enabled";
 
 /* No comment provided by engineer. */
 "End call" = "End call";
@@ -1548,10 +1560,16 @@
 "No active account found" = "No active account found";
 
 /* No comment provided by engineer. */
+"No active bots" = "No active bots";
+
+/* No comment provided by engineer. */
 "No AI provider available or summarizing failed" = "No AI provider available or summarizing failed";
 
 /* No comment provided by engineer. */
 "No banned users or guests" = "No banned users or guests";
+
+/* No comment provided by engineer. */
+"No bots available for this conversation" = "No bots available for this conversation";
 
 /* No comment provided by engineer. */
 "No description provided" = "No description provided";

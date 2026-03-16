@@ -161,13 +161,17 @@ import SwiftyAttributes
             return false
         }
 
-        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMessageExpiration)
+        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMessageExpiration, forAccountId: self.accountId)
     }
 
     public var supportsBanningModeration: Bool {
         let supportedType = self.type == .group || self.type == .public
 
-        return supportedType && self.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBanV1)
+        return supportedType && self.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBanV1, forAccountId: self.accountId)
+    }
+
+    public var supportsBotsModeration: Bool {
+        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBotV1, forAccountId: self.accountId)
     }
 
     public var isBreakoutRoom: Bool {

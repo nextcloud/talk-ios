@@ -88,6 +88,7 @@ extern NSString * const kCapabilityThreads;
 extern NSString * const kCapabilityPinnedMessages;
 extern NSString * const kCapabilityScheduleMessages;
 extern NSString * const kCapabilityReactPermission;
+extern NSString * const kCapabilityBotV1;
 
 extern NSString * const kNotificationsCapabilityExists;
 extern NSString * const kNotificationsCapabilityTestPush;

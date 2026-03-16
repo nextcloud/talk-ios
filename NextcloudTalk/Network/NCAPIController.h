@@ -132,6 +132,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)federationAPIVersionForAccount:(TalkAccount *)account;
 - (NSInteger)banAPIVersionForAccount:(TalkAccount *)account;
+- (NSInteger)botsAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
