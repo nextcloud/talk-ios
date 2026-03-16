@@ -416,7 +416,7 @@ final class IntegrationRoomTest: TestBase {
     }
 
     func testBotManagement() async throws {
-        try skipWithoutCapability(capability: kCapabilityBot1)
+        try skipWithoutCapability(capability: kCapabilityBotV1)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "BotConversation", withAccount: activeAccount)
