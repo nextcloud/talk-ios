@@ -148,4 +148,59 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["🇫🇮", "🙈", "😵‍💫", "🤷‍♂️"])
     }
+
+    func testContentInsetAdjustsForOverlayViews() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = NCRoom()
+        room.token = "overlayToken"
+        room.name = "Overlay Views Test Room"
+        room.accountId = activeAccount.accountId
+
+        try? realm.transaction {
+            realm.add(room)
+        }
+
+        let chatViewController = ChatViewController(forRoom: room, withAccount: activeAccount)!
+
+        // Load the view hierarchy so tableView and viewDidLayoutSubviews work
+        chatViewController.loadViewIfNeeded()
+
+        // Initially no overlay -> inset should be 0
+        chatViewController.viewDidLayoutSubviews()
+        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 0)
+
+        // Add a ChatOverlayView simulating a pinned message
+        let overlayView = ChatOverlayView()
+        overlayView.alpha = 1.0
+        overlayView.frame = CGRect(x: 0, y: 0, width: 320, height: 80)
+        chatViewController.view.addSubview(overlayView)
+
+        chatViewController.viewDidLayoutSubviews()
+        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 80)
+
+        // Add a taller ChatInfoView simulating a retention banner
+        let infoView = ChatInfoView()
+        infoView.alpha = 1.0
+        infoView.frame = CGRect(x: 0, y: 0, width: 320, height: 120)
+        chatViewController.view.addSubview(infoView)
+
+        // Should use the tallest overlay
+        chatViewController.viewDidLayoutSubviews()
+        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 120)
+
+        // Remove the taller view -> should fall back to the shorter overlay
+        infoView.removeFromSuperview()
+        chatViewController.viewDidLayoutSubviews()
+        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 80)
+
+        // Hide the remaining overlay via alpha (same as the fade-out animation)
+        overlayView.alpha = 0
+        chatViewController.viewDidLayoutSubviews()
+        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 0)
+
+        // Remove it fully and confirm inset stays at 0
+        overlayView.removeFromSuperview()
+        chatViewController.viewDidLayoutSubviews()
+        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 0)
+    }
 }
