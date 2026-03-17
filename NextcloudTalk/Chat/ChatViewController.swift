@@ -39,6 +39,8 @@ import SwiftUI
 
     private var startCallSilently: Bool = false
 
+    private var currentTopContentInset: CGFloat = 0
+
     private lazy var unreadMessagesSeparator: NCChatMessage = {
         let message = NCChatMessage()
 
@@ -682,6 +684,22 @@ import SwiftUI
         }
 
         self.callOptionsButton.hideIndicator()
+    }
+
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        // Recalculate the top content inset based on the tallest visible overlay.
+        var maxOverlayViewHeight: CGFloat = 0
+        for subview in self.view.subviews {
+            guard subview.alpha > 0, subview is ChatOverlayView || subview is ChatInfoView else { continue }
+            maxOverlayViewHeight = max(maxOverlayViewHeight, subview.frame.height)
+        }
+
+        if currentTopContentInset != maxOverlayViewHeight {
+            currentTopContentInset = maxOverlayViewHeight
+            self.tableView?.contentInset.top = maxOverlayViewHeight
+        }
     }
 
     required init?(coder decoder: NSCoder) {
