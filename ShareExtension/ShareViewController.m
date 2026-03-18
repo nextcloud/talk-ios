@@ -383,7 +383,9 @@
                                           if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
                                               NSLog(@"Shared URL = %@", item);
                                               NSURL *sharedURL = (NSURL *)item;
-                                              [shareConfirmationVC shareText:sharedURL.absoluteString];
+                                              if (sharedURL.absoluteString.length > 0) {
+                                                  [shareConfirmationVC shareText:sharedURL.absoluteString];
+                                              }
                                           }
                                       }];
             }
@@ -395,7 +397,9 @@
                                           if ([(NSObject *)item isKindOfClass:[NSString class]]) {
                                               NSLog(@"Shared Text = %@", item);
                                               NSString *sharedText = (NSString *)item;
-                                              [shareConfirmationVC shareText:sharedText];
+                                              if (sharedText.length > 0) {
+                                                  [shareConfirmationVC shareText:sharedText];
+                                              }
                                           }
                                       }];
             }
