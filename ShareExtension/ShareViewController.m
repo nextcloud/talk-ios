@@ -375,6 +375,22 @@
                                       }];
                 return;
             }
+            // Check if shared pkpass (Apple Wallet)
+            if ([itemProvider hasItemConformingToTypeIdentifier:@"com.apple.pkpass"]) {
+                [itemProvider loadItemForTypeIdentifier:@"com.apple.pkpass"
+                                                options:nil
+                                      completionHandler:^(id<NSSecureCoding>  _Nullable item, NSError * _Null_unspecified error) {
+                                          if ([(NSObject *)item isKindOfClass:[NSData class]]) {
+                                              NSLog(@"Shared Pass = %@", item);
+                                              NSData *passData = (NSData *)item;
+                                              NSString *passFileName = [NSString stringWithFormat:@"Pass_%.f.pkpass", [[NSDate date] timeIntervalSince1970] * 1000];
+                                              NSURL *tempURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:passFileName]];
+                                              [passData writeToURL:tempURL atomically:YES];
+                                              [shareConfirmationVC.shareItemController addItemWithURLAndName:tempURL withName:passFileName];
+                                          }
+                                      }];
+                return;
+            }
             // Check if shared URL
             if ([itemProvider hasItemConformingToTypeIdentifier:@"public.url"]) {
                 [itemProvider loadItemForTypeIdentifier:@"public.url"
