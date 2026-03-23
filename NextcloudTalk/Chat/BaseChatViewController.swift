@@ -5,6 +5,7 @@
 
 import Foundation
 import NextcloudKit
+import PassKit
 import PhotosUI
 import UIKit
 import Realm
@@ -4117,6 +4118,17 @@ import SwiftUI
                 self.present(vlcKitViewController, animated: true)
 
                 return
+            }
+
+            // Use PKAddPassesViewController for Apple Wallet passes
+            if fileExtension == "pkpass" {
+                if let passData = try? Data(contentsOf: URL(fileURLWithPath: fileLocalPath)),
+                   let pass = try? PKPass(data: passData),
+                   let addPassVC = PKAddPassesViewController(pass: pass) {
+                    self.present(addPassVC, animated: true)
+                    self.isPreviewControllerShown = false
+                    return
+                }
             }
 
             let preview = QLPreviewController()
