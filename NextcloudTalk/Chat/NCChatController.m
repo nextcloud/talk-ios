@@ -29,10 +29,14 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 @interface NCChatController ()
 
+@property (nonatomic, assign) BOOL startProcessingChatRelayMessages;
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
 @property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
+@property (nonatomic, strong) NSMutableArray *chatRelayMessagesBuffer;
+@property (nonatomic, strong) dispatch_queue_t chatRelayMessagesQueue;
+@property (nonatomic, strong) NCExternalSignalingController *externalSignalingController;
 
 @end
 
@@ -42,9 +46,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     self = [super init];
     if (self) {
-        _room = room;
-        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
-
+        [self commonInitForRoom:room];
         [[AllocationTracker shared] addAllocation:@"NCChatController"];
     }
     
@@ -55,19 +57,32 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     self = [super init];
     if (self) {
-        _room = room;
         _threadId = threadId;
-        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
-
+        [self commonInitForRoom:room];
         [[AllocationTracker shared] addAllocation:@"NCChatController"];
     }
 
     return self;
 }
 
+- (void)commonInitForRoom:(NCRoom *)room
+{
+    _room = room;
+    _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
+
+    _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_account.accountId];
+    if (_externalSignalingController.hasChatRelay) {
+        _chatRelayMessagesQueue = dispatch_queue_create("chat.relay.message.queue", DISPATCH_QUEUE_SERIAL);
+        _chatRelayMessagesBuffer = [NSMutableArray new];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessageFromExternalSignaling:) name:NSNotification.ExtSignalingDidReceiveChatMessage object:_externalSignalingController];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDisconnectFromExternalSignaling:) name:NSNotification.ExtSignalingDidDisconnect object:_externalSignalingController];
+    }
+}
+
 - (void)dealloc
 {
     [[AllocationTracker shared] removeAllocation:@"NCChatController"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (BOOL)isThreadController
@@ -402,6 +417,45 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
     [sortedMessages sortUsingDescriptors:descriptors];
     
     return sortedMessages;
+}
+
+#pragma mark - External Signaling Controller
+
+- (void)didReceiveChatMessageFromExternalSignaling:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomid"];
+    NSDictionary *messageDict = [[[notification.userInfo objectForKey:@"data"] objectForKey:@"chat"] objectForKey:@"comment"];
+    if ([roomToken isEqualToString:_room.token]) {
+        dispatch_async(_chatRelayMessagesQueue, ^{
+            if (!self->_startProcessingChatRelayMessages) {
+                [self->_chatRelayMessagesBuffer addObject:messageDict];
+                return;
+            }
+
+            [self handleChatRelayMessage:messageDict];
+        });
+    }
+}
+
+- (void)didDisconnectFromExternalSignaling:(NSNotification *)notification
+{
+    // If the signaling connection was lost while we were using chat relay,
+    // stop relay processing and fall back to long-polling to catch up on missed messages.
+    dispatch_async(_chatRelayMessagesQueue, ^{
+        if (!self->_startProcessingChatRelayMessages) {
+            return;
+        }
+
+        self->_startProcessingChatRelayMessages = NO;
+        [self->_chatRelayMessagesBuffer removeAllObjects];
+
+        // Resume long-polling to fetch any messages missed during the disconnect.
+        // Once polling reaches 304 (no new messages), it will switch back to chat relay.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
+            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:NO];
+        });
+    });
 }
 
 #pragma mark - Chat
@@ -901,10 +955,72 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         [self checkLastCommonReadMessage:lastCommonReadMessage];
         
         if (error.code != -999) {
+            BOOL hasReachedLatest = statusCode == 304;
             NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
-            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
+
+            if (hasReachedLatest && self->_externalSignalingController.hasChatRelay) {
+                [NCLog log:@"Starting chat relay"];
+                [self startProcessingChatRelayMessagesFromMessagesId:lastChatBlock.newestMessageId];
+                return;
+            }
+
+            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:hasReachedLatest];
         }
     }];
+}
+
+- (void)startProcessingChatRelayMessagesFromMessagesId:(NSInteger)messageId
+{
+    dispatch_async(self.chatRelayMessagesQueue, ^{
+        self.startProcessingChatRelayMessages = YES;
+        [self flushChatRelayMessagesBuffer];
+    });
+}
+
+- (void)flushChatRelayMessagesBuffer
+{
+    if (self.chatRelayMessagesBuffer.count == 0) {
+        [NCLog log:@"No messages stored in chat relay messages buffer"];
+        return;
+    }
+
+    [self.chatRelayMessagesBuffer sortUsingDescriptors:@[
+        [NSSortDescriptor sortDescriptorWithKey:@"id" ascending:YES]
+    ]];
+
+    for (NSDictionary *messageDict in self.chatRelayMessagesBuffer) {
+        [self handleChatRelayMessage:messageDict];
+    }
+
+    [self.chatRelayMessagesBuffer removeAllObjects];
+}
+
+- (void)handleChatRelayMessage:(NSDictionary *)messageDict
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
+    NSInteger lastNewestMessageId = lastChatBlock.newestMessageId;
+    NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self->_account.accountId];
+    if (message) {
+        // Sanity check: if there's a gap between the last known message and the incoming
+        // message, some messages may have been missed on a flaky connection. Stop chat relay
+        // and fall back to long-polling, which will fetch missing messages from the server.
+        // Once polling catches up (304), it will switch back to chat relay automatically.
+        // Only check for gaps when we have a known last message (lastNewestMessageId > 0).
+        if (lastNewestMessageId > 0 && message.messageId > lastNewestMessageId + 1) {
+            [NCLog log:[NSString stringWithFormat:@"Chat relay gap detected: last=%ld, received=%ld – falling back to long-polling to fetch missing messages", (long)lastNewestMessageId, (long)message.messageId]];
+            self->_startProcessingChatRelayMessages = NO;
+            [self->_chatRelayMessagesBuffer removeAllObjects];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self startReceivingChatMessagesFromMessagesId:lastNewestMessageId withTimeout:NO];
+            });
+            return;
+        }
+
+        [self updateLastChatBlockWithNewestKnown:message.messageId];
+        [self storeMessages:@[messageDict]];
+
+        [self checkForNewMessagesFromMessageId:lastNewestMessageId];
+    }
 }
 
 - (void)startReceivingNewChatMessages
@@ -915,6 +1031,12 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 - (void)stopReceivingNewChatMessages
 {
+    if (_chatRelayMessagesQueue) {
+        dispatch_async(_chatRelayMessagesQueue, ^{
+            self->_startProcessingChatRelayMessages = NO;
+            [self->_chatRelayMessagesBuffer removeAllObjects];
+        });
+    }
     _stopChatMessagesPoll = YES;
     [_pullMessagesTask cancel];
 }
