@@ -414,4 +414,28 @@ final class IntegrationRoomTest: TestBase {
             XCTAssertEqual(error.responseStatusCode, 400)
         }
     }
+
+    func testBotManagement() async throws {
+        try skipWithoutCapability(capability: kCapabilityBotV1)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "BotConversation", withAccount: activeAccount)
+
+        let botList = try await NCAPIController.sharedInstance().getBots(forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(botList.count, 1)
+
+        let bot = try XCTUnwrap(botList.first)
+        XCTAssertEqual(bot.name, "TestBot")
+        XCTAssertEqual(bot.description, "New description")
+        XCTAssertEqual(bot.state, .disabled)
+
+        let enabledBot = try await NCAPIController.sharedInstance().enableBot(withId: bot.id, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(enabledBot?.name, "TestBot")
+        XCTAssertEqual(enabledBot?.state, .enabled)
+
+        let disabledBot = try await NCAPIController.sharedInstance().disableBot(withId: bot.id, forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(disabledBot?.name, "TestBot")
+        XCTAssertEqual(disabledBot?.state, .disabled)
+    }
+
 }

@@ -1496,4 +1496,52 @@ import NextcloudKit
 
         return (passed, reason)
     }
+
+    // MARK: - Bots
+
+    @MainActor
+    @nonobjc
+    public func getBots(forRoom token: String, forAccount account: TalkAccount) async throws -> [Bot] {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.botsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        let ocsResponse = try await apiSessionManager.getOcs(urlString, account: account)
+
+        guard let dataArrayDict = ocsResponse.dataArrayDict else { throw ApiControllerError.unexpectedOcsResponse }
+
+        return dataArrayDict.compactMap { Bot(dictionary: $0) }
+    }
+
+    @MainActor
+    @nonobjc
+    public func enableBot(withId botId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> Bot? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.botsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)/\(botId)", withAPIVersion: apiVersion, for: account)
+
+        let result = try await apiSessionManager.postOcs(urlString, account: account)
+        return Bot(dictionary: result.dataDict)
+    }
+
+    @MainActor
+    @nonobjc
+    public func disableBot(withId botId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> Bot? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.botsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)/\(botId)", withAPIVersion: apiVersion, for: account)
+
+        let result = try await apiSessionManager.deleteOcs(urlString, account: account)
+        return Bot(dictionary: result.dataDict)
+    }
+
 }

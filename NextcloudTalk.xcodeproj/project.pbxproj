@@ -699,6 +699,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Banned Actors/BannedActor.swift",
+				Bots/Bot.swift,
 				NCRoom.m,
 				NCRoom.swift,
 				NCRoomParticipant.swift,
@@ -710,6 +711,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Banned Actors/BannedActor.swift",
+				Bots/Bot.swift,
 				NCRoom.m,
 				NCRoom.swift,
 				NCRoomParticipant.swift,
@@ -721,6 +723,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Banned Actors/BannedActor.swift",
+				Bots/Bot.swift,
 				NCRoom.m,
 				NCRoom.swift,
 				NCRoomParticipant.swift,
@@ -732,6 +735,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Banned Actors/BannedActor.swift",
+				Bots/Bot.swift,
 				NCRoom.m,
 				NCRoom.swift,
 				NCRoomParticipant.swift,

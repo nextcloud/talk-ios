@@ -11,6 +11,8 @@ struct RoomInfoConversationSettingsSection: View {
 
     @Binding var room: NCRoom
 
+    @State var bots: [Bot]?
+
     var body: (some View)? {
         Section(header: Text("Conversation settings")) {
             if room.supportsMessageExpirationModeration {
@@ -49,6 +51,44 @@ struct RoomInfoConversationSettingsSection: View {
                         }
                     })
                 }).foregroundStyle(.primary)
+            }
+
+            if room.supportsBotsModeration {
+                Button(action: {
+                    hostingWrapper.pushViewController(BotsTableViewController(room: room, bots: bots ?? []), animated: true)
+                }, label: {
+                    if let bots {
+                        // Add disclosure chevron on button
+                        NavigationLink(destination: UserStatusSwiftUIView(userStatus: NCUserStatus()), label: {
+                            ImageSublabelView(image: Image("custom.laptopcomputer.badge.person.crop")) {
+                                HStack {
+                                    Text("Bots")
+                                    Spacer()
+                                    let activeBots = bots.count(where: { $0.state != .disabled })
+
+                                    if activeBots == 0 {
+                                        Text("No active bots").foregroundStyle(.secondary)
+                                    } else {
+                                        let sublabelText = String.localizedStringWithFormat(NSLocalizedString("%ld active bots", comment: "'5 active bots' in this conversation"), activeBots)
+                                        Text(sublabelText).foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        })
+                    } else {
+                        ImageSublabelView(image: Image("custom.laptopcomputer.badge.person.crop")) {
+                            HStack {
+                                Text("Bots")
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+                    }
+                })
+                .foregroundStyle(.primary)
+                .task {
+                    self.getBots()
+                }
             }
 
             if room.canModerate {
@@ -167,5 +207,11 @@ struct RoomInfoConversationSettingsSection: View {
         }
 
         NCRoomsManager.shared.updateRoom(room.token)
+    }
+
+    func getBots() {
+        Task {
+            self.bots = try? await NCAPIController.sharedInstance().getBots(forRoom: room.token, forAccount: room.account!)
+        }
     }
 }
