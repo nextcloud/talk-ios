@@ -94,7 +94,7 @@ enum NewRoomOption: Int {
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
                 if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
                     let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.indexes.append(contentsOf: combinedIndexes)
+                    self.indexes = [""] + combinedIndexes
                     self.contacts = combinedContacts
                     self.tableView.reloadData()
                 }
