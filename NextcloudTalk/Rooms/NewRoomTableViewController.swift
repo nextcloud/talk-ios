@@ -39,11 +39,12 @@ enum NewRoomOption: Int {
         super.viewWillAppear(animated)
 
         self.navigationItem.hidesSearchBarWhenScrolling = false
-        self.getPossibleContacts()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.getPossibleContacts()
 
         self.navigationItem.searchController = searchController
         
