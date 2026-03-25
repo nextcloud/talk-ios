@@ -2,109 +2,108 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>%d votes</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@votes@</string>
-        <key>votes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d глас</string>
-            <key>few</key>
-            <string>%d гласа</string>
-            <key>other</key>
-            <string>%d гласова</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participants@</string>
-        <key>participants</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>ld</string>
-            <key>one</key>
-            <string>%ld учесник</string>
-            <key>few</key>
-            <string>%ld учесника</string>
-            <key>other</key>
-            <string>%ld учесника</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants in this call</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participantsincall@</string>
-    </dict>
-
-    <key>%d minutes ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@minutes@</string>
-        <key>minutes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>пре %d минута</string>
-            <key>few</key>
-            <string>пре %d минута</string>
-            <key>other</key>
-            <string>пре %d минута</string>
-        </dict>
-    </dict>
-    
-    <key>%d hours ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@hours@</string>
-        <key>hours</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>пре %d сат</string>
-            <key>few</key>
-            <string>пре %d сата</string>
-            <key>other</key>
-            <string>пре %d сати</string>
-        </dict>
-    </dict>
-    
-    <key>%d days ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>пре %d дан</string>
-            <key>few</key>
-            <string>пре %d дана</string>
-            <key>other</key>
-            <string>пре %d дана</string>
-        </dict>
-    </dict>
-
-    <key>%ld notifications</key>
-    <dict>
+	<key>%ld active bots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@bots@</string>
+	</dict>
+	<key>%d votes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@votes@</string>
+		<key>votes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d глас</string>
+			<key>few</key>
+			<string>%d гласа</string>
+			<key>other</key>
+			<string>%d гласова</string>
+		</dict>
+	</dict>
+	<key>%ld participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld учесник</string>
+			<key>few</key>
+			<string>%ld учесника</string>
+			<key>other</key>
+			<string>%ld учесника</string>
+		</dict>
+	</dict>
+	<key>%ld participants in this call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participantsincall@</string>
+	</dict>
+	<key>%d minutes ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>пре %d минута</string>
+			<key>few</key>
+			<string>пре %d минута</string>
+			<key>other</key>
+			<string>пре %d минута</string>
+		</dict>
+	</dict>
+	<key>%d hours ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@hours@</string>
+		<key>hours</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>пре %d сат</string>
+			<key>few</key>
+			<string>пре %d сата</string>
+			<key>other</key>
+			<string>пре %d сати</string>
+		</dict>
+	</dict>
+	<key>%d days ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>пре %d дан</string>
+			<key>few</key>
+			<string>пре %d дана</string>
+			<key>other</key>
+			<string>пре %d дана</string>
+		</dict>
+	</dict>
+	<key>%ld notifications</key>
+	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@notifications@</string>
 		<key>notifications</key>
@@ -121,87 +120,82 @@
 			<string>%ld обавештења</string>
 		</dict>
 	</dict>
-
-    <key>You have %ld pending invitations</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@pendinginvitations@</string>
-        <key>pendinginvitations</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Имате %ld позивницу на чекању</string>
-            <key>few</key>
-            <string>Имате %ld позивнице на чекању</string>
-            <key>other</key>
-            <string>Имате %ld позивница на чекању</string>
-        </dict>
-    </dict>
-
-    <key>%d options</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@options@</string>
-        <key>options</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d опција</string>
-            <key>few</key>
-            <string>%d опције</string>
-            <key>other</key>
-            <string>%d опција</string>
-        </dict>
-    </dict>
-
-    <key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Овај разговор ће се аутоматски обрисати за све након %ld дан неактивности.</string>
-            <key>few</key>
-            <string>Овај разговор ће се аутоматски обрисати за све након %ld дана неактивности.</string>
-            <key>other</key>
-            <string>Овај разговор ће се аутоматски обрисати за све након %ld дана неактивности.</string>
-        </dict>
-    </dict>
-
-    <key>%ld replies</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@replies@</string>
-        <key>replies</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%ld одговор</string>
-            <key>few</key>
-            <string>%ld одговора</string>
-            <key>other</key>
-            <string>%ld одговора</string>
-        </dict>
-    </dict>
-
-    <key>Password needs to be at least %d characters long</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@characters@</string>
-    </dict>
+	<key>You have %ld pending invitations</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@pendinginvitations@</string>
+		<key>pendinginvitations</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Имате %ld позивницу на чекању</string>
+			<key>few</key>
+			<string>Имате %ld позивнице на чекању</string>
+			<key>other</key>
+			<string>Имате %ld позивница на чекању</string>
+		</dict>
+	</dict>
+	<key>%d options</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@options@</string>
+		<key>options</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d опција</string>
+			<key>few</key>
+			<string>%d опције</string>
+			<key>other</key>
+			<string>%d опција</string>
+		</dict>
+	</dict>
+	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Овај разговор ће се аутоматски обрисати за све након %ld дан неактивности.</string>
+			<key>few</key>
+			<string>Овај разговор ће се аутоматски обрисати за све након %ld дана неактивности.</string>
+			<key>other</key>
+			<string>Овај разговор ће се аутоматски обрисати за све након %ld дана неактивности.</string>
+		</dict>
+	</dict>
+	<key>%ld replies</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@replies@</string>
+		<key>replies</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld одговор</string>
+			<key>few</key>
+			<string>%ld одговора</string>
+			<key>other</key>
+			<string>%ld одговора</string>
+		</dict>
+	</dict>
+	<key>Password needs to be at least %d characters long</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@characters@</string>
+	</dict>
 </dict>
 </plist>

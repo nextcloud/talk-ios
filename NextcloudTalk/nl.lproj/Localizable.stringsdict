@@ -2,99 +2,98 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>%d votes</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@votes@</string>
-        <key>votes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d stem</string>
-            <key>other</key>
-            <string>%d stemmen</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participants@</string>
-        <key>participants</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>ld</string>
-            <key>one</key>
-            <string>%ld deelnemer</string>
-            <key>other</key>
-            <string>%ld deelnemers</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants in this call</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participantsincall@</string>
-    </dict>
-
-    <key>%d minutes ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@minutes@</string>
-        <key>minutes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d minuut geleden</string>
-            <key>other</key>
-            <string>%d minuten geleden</string>
-        </dict>
-    </dict>
-    
-    <key>%d hours ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@hours@</string>
-        <key>hours</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d uur geleden</string>
-            <key>other</key>
-            <string>%d uren geleden</string>
-        </dict>
-    </dict>
-    
-    <key>%d days ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d dag geleden</string>
-            <key>other</key>
-            <string>%d dagen geleden</string>
-        </dict>
-    </dict>
-
-    <key>%ld notifications</key>
-    <dict>
+	<key>%ld active bots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@bots@</string>
+	</dict>
+	<key>%d votes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@votes@</string>
+		<key>votes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d stem</string>
+			<key>other</key>
+			<string>%d stemmen</string>
+		</dict>
+	</dict>
+	<key>%ld participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld deelnemer</string>
+			<key>other</key>
+			<string>%ld deelnemers</string>
+		</dict>
+	</dict>
+	<key>%ld participants in this call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participantsincall@</string>
+	</dict>
+	<key>%d minutes ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d minuut geleden</string>
+			<key>other</key>
+			<string>%d minuten geleden</string>
+		</dict>
+	</dict>
+	<key>%d hours ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@hours@</string>
+		<key>hours</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d uur geleden</string>
+			<key>other</key>
+			<string>%d uren geleden</string>
+		</dict>
+	</dict>
+	<key>%d days ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d dag geleden</string>
+			<key>other</key>
+			<string>%d dagen geleden</string>
+		</dict>
+	</dict>
+	<key>%ld notifications</key>
+	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@notifications@</string>
 		<key>notifications</key>
@@ -109,68 +108,63 @@
 			<string>%ld meldingen</string>
 		</dict>
 	</dict>
-
-    <key>You have %ld pending invitations</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@pendinginvitations@</string>
-        <key>pendinginvitations</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>U heeft %ld uitstaande uitnodiging</string>
-            <key>other</key>
-            <string>U heeft %ld uitstaande uitnodigingen</string>
-        </dict>
-    </dict>
-
-    <key>%d options</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@options@</string>
-        <key>options</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d optie</string>
-            <key>other</key>
-            <string>%d opties</string>
-        </dict>
-    </dict>
-
-    <key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Dit gesprek wordt voor iedereen automatisch verwijderd na %ld dag zonder activiteit.</string>
-            <key>other</key>
-            <string>Dit gesprek wordt voor iedereen automatisch verwijderd na %ld dagen zonder activiteit.</string>
-        </dict>
-    </dict>
-
-    <key>%ld replies</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@replies@</string>
-    </dict>
-
-    <key>Password needs to be at least %d characters long</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@characters@</string>
-    </dict>
+	<key>You have %ld pending invitations</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@pendinginvitations@</string>
+		<key>pendinginvitations</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>U heeft %ld uitstaande uitnodiging</string>
+			<key>other</key>
+			<string>U heeft %ld uitstaande uitnodigingen</string>
+		</dict>
+	</dict>
+	<key>%d options</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@options@</string>
+		<key>options</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d optie</string>
+			<key>other</key>
+			<string>%d opties</string>
+		</dict>
+	</dict>
+	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Dit gesprek wordt voor iedereen automatisch verwijderd na %ld dag zonder activiteit.</string>
+			<key>other</key>
+			<string>Dit gesprek wordt voor iedereen automatisch verwijderd na %ld dagen zonder activiteit.</string>
+		</dict>
+	</dict>
+	<key>%ld replies</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@replies@</string>
+	</dict>
+	<key>Password needs to be at least %d characters long</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@characters@</string>
+	</dict>
 </dict>
 </plist>
