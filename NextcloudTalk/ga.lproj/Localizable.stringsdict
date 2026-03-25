@@ -2,146 +2,145 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>%d votes</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@votes@</string>
-        <key>votes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d vóta</string>
-            <key>two</key>
-            <string>%d vótaí</string>
-            <key>few</key>
-            <string>%d vótaí</string>
-            <key>many</key>
-            <string>%d vótaí</string>
-            <key>other</key>
-            <string>%d vótaí</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participants@</string>
-        <key>participants</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>ld</string>
-            <key>one</key>
-            <string>%ld rannpháirtí</string>
-            <key>two</key>
-            <string>%ld rannpháirtí</string>
-            <key>few</key>
-            <string>%ld rannpháirtí</string>
-            <key>many</key>
-            <string>%ld rannpháirtí</string>
-            <key>other</key>
-            <string>%ld rannpháirtí</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants in this call</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participantsincall@</string>
-        <key>participantsincall</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>ld</string>
-            <key>one</key>
-            <string>%ld rannpháirtí sa ghlao seo</string>
-            <key>two</key>
-            <string>%ld rannpháirtithe sa ghlao seo</string>
-            <key>few</key>
-            <string>%ld rannpháirtithe sa ghlao seo</string>
-            <key>many</key>
-            <string>%ld rannpháirtithe sa ghlao seo</string>
-            <key>other</key>
-            <string>%ld rannpháirtithe sa ghlao seo</string>
-        </dict>
-    </dict>
-
-    <key>%d minutes ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@minutes@</string>
-        <key>minutes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d nóiméad ó shin</string>
-            <key>two</key>
-            <string>%d nóiméad ó shin</string>
-            <key>few</key>
-            <string>%d nóiméad ó shin</string>
-            <key>many</key>
-            <string>%d nóiméad ó shin</string>
-            <key>other</key>
-            <string>%d nóiméad ó shin</string>
-        </dict>
-    </dict>
-    
-    <key>%d hours ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@hours@</string>
-        <key>hours</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d uair ó shin</string>
-            <key>two</key>
-            <string>%d uair ó shin</string>
-            <key>few</key>
-            <string>%d uair ó shin</string>
-            <key>many</key>
-            <string>%d uair ó shin</string>
-            <key>other</key>
-            <string>%d uair ó shin</string>
-        </dict>
-    </dict>
-    
-    <key>%d days ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d lá ó shin</string>
-            <key>two</key>
-            <string>%d lá ó shin</string>
-            <key>few</key>
-            <string>%d lá ó shin</string>
-            <key>many</key>
-            <string>%d lá ó shin</string>
-            <key>other</key>
-            <string>%d lá ó shin</string>
-        </dict>
-    </dict>
-
-    <key>%ld notifications</key>
-    <dict>
+	<key>%ld active bots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@bots@</string>
+	</dict>
+	<key>%d votes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@votes@</string>
+		<key>votes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d vóta</string>
+			<key>two</key>
+			<string>%d vótaí</string>
+			<key>few</key>
+			<string>%d vótaí</string>
+			<key>many</key>
+			<string>%d vótaí</string>
+			<key>other</key>
+			<string>%d vótaí</string>
+		</dict>
+	</dict>
+	<key>%ld participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld rannpháirtí</string>
+			<key>two</key>
+			<string>%ld rannpháirtí</string>
+			<key>few</key>
+			<string>%ld rannpháirtí</string>
+			<key>many</key>
+			<string>%ld rannpháirtí</string>
+			<key>other</key>
+			<string>%ld rannpháirtí</string>
+		</dict>
+	</dict>
+	<key>%ld participants in this call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participantsincall@</string>
+		<key>participantsincall</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld rannpháirtí sa ghlao seo</string>
+			<key>two</key>
+			<string>%ld rannpháirtithe sa ghlao seo</string>
+			<key>few</key>
+			<string>%ld rannpháirtithe sa ghlao seo</string>
+			<key>many</key>
+			<string>%ld rannpháirtithe sa ghlao seo</string>
+			<key>other</key>
+			<string>%ld rannpháirtithe sa ghlao seo</string>
+		</dict>
+	</dict>
+	<key>%d minutes ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d nóiméad ó shin</string>
+			<key>two</key>
+			<string>%d nóiméad ó shin</string>
+			<key>few</key>
+			<string>%d nóiméad ó shin</string>
+			<key>many</key>
+			<string>%d nóiméad ó shin</string>
+			<key>other</key>
+			<string>%d nóiméad ó shin</string>
+		</dict>
+	</dict>
+	<key>%d hours ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@hours@</string>
+		<key>hours</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d uair ó shin</string>
+			<key>two</key>
+			<string>%d uair ó shin</string>
+			<key>few</key>
+			<string>%d uair ó shin</string>
+			<key>many</key>
+			<string>%d uair ó shin</string>
+			<key>other</key>
+			<string>%d uair ó shin</string>
+		</dict>
+	</dict>
+	<key>%d days ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d lá ó shin</string>
+			<key>two</key>
+			<string>%d lá ó shin</string>
+			<key>few</key>
+			<string>%d lá ó shin</string>
+			<key>many</key>
+			<string>%d lá ó shin</string>
+			<key>other</key>
+			<string>%d lá ó shin</string>
+		</dict>
+	</dict>
+	<key>%ld notifications</key>
+	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@notifications@</string>
 		<key>notifications</key>
@@ -162,120 +161,115 @@
 			<string>%ld fógra</string>
 		</dict>
 	</dict>
-
-    <key>You have %ld pending invitations</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@pendinginvitations@</string>
-        <key>pendinginvitations</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Tá %ld cuireadh ar feitheamh agat</string>
-            <key>two</key>
-            <string>Tá %ld cuireadh ar feitheamh agat</string>
-            <key>few</key>
-            <string>Tá %ld cuireadh ar feitheamh agat</string>
-            <key>many</key>
-            <string>Tá %ld cuireadh ar feitheamh agat</string>
-            <key>other</key>
-            <string>Tá %ld cuireadh ar feitheamh agat</string>
-        </dict>
-    </dict>
-
-    <key>%d options</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@options@</string>
-        <key>options</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>rogha %d</string>
-            <key>two</key>
-            <string>%d roghanna</string>
-            <key>few</key>
-            <string>%d roghanna</string>
-            <key>many</key>
-            <string>%d roghanna</string>
-            <key>other</key>
-            <string>%d roghanna</string>
-        </dict>
-    </dict>
-
-    <key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
-            <key>two</key>
-            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
-            <key>few</key>
-            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
-            <key>many</key>
-            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
-            <key>other</key>
-            <string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
-        </dict>
-    </dict>
-
-    <key>%ld replies</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@replies@</string>
-        <key>replies</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%ld freagra</string>
-            <key>two</key>
-            <string>%ld freagraí</string>
-            <key>few</key>
-            <string>%ld freagraí</string>
-            <key>many</key>
-            <string>%ld freagraí</string>
-            <key>other</key>
-            <string>%ld freagraí</string>
-        </dict>
-    </dict>
-
-    <key>Password needs to be at least %d characters long</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@characters@</string>
-        <key>characters</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Caithfidh an focal faire a bheith %d carachtar ar a laghad ar fhad</string>
-            <key>two</key>
-            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
-            <key>few</key>
-            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
-            <key>many</key>
-            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
-            <key>other</key>
-            <string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
-        </dict>
-    </dict>
+	<key>You have %ld pending invitations</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@pendinginvitations@</string>
+		<key>pendinginvitations</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Tá %ld cuireadh ar feitheamh agat</string>
+			<key>two</key>
+			<string>Tá %ld cuireadh ar feitheamh agat</string>
+			<key>few</key>
+			<string>Tá %ld cuireadh ar feitheamh agat</string>
+			<key>many</key>
+			<string>Tá %ld cuireadh ar feitheamh agat</string>
+			<key>other</key>
+			<string>Tá %ld cuireadh ar feitheamh agat</string>
+		</dict>
+	</dict>
+	<key>%d options</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@options@</string>
+		<key>options</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>rogha %d</string>
+			<key>two</key>
+			<string>%d roghanna</string>
+			<key>few</key>
+			<string>%d roghanna</string>
+			<key>many</key>
+			<string>%d roghanna</string>
+			<key>other</key>
+			<string>%d roghanna</string>
+		</dict>
+	</dict>
+	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+			<key>two</key>
+			<string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+			<key>few</key>
+			<string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+			<key>many</key>
+			<string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+			<key>other</key>
+			<string>Scriosfar an comhrá seo go huathoibríoch do gach duine i %ld lá gan aon ghníomhaíocht.</string>
+		</dict>
+	</dict>
+	<key>%ld replies</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@replies@</string>
+		<key>replies</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld freagra</string>
+			<key>two</key>
+			<string>%ld freagraí</string>
+			<key>few</key>
+			<string>%ld freagraí</string>
+			<key>many</key>
+			<string>%ld freagraí</string>
+			<key>other</key>
+			<string>%ld freagraí</string>
+		</dict>
+	</dict>
+	<key>Password needs to be at least %d characters long</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Caithfidh an focal faire a bheith %d carachtar ar a laghad ar fhad</string>
+			<key>two</key>
+			<string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+			<key>few</key>
+			<string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+			<key>many</key>
+			<string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+			<key>other</key>
+			<string>Caithfidh an focal faire a bheith %d carachtair ar a laghad ar fhad</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

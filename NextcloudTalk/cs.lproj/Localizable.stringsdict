@@ -2,134 +2,133 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>%d votes</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@votes@</string>
-        <key>votes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d hlas</string>
-            <key>few</key>
-            <string>%d hlasy</string>
-            <key>many</key>
-            <string>%d hlasů</string>
-            <key>other</key>
-            <string>%d hlasy</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participants@</string>
-        <key>participants</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>ld</string>
-            <key>one</key>
-            <string>%ld účastník</string>
-            <key>few</key>
-            <string>%ld účastníci</string>
-            <key>many</key>
-            <string>%ld účastníků</string>
-            <key>other</key>
-            <string>%ld účastníci</string>
-        </dict>
-    </dict>
-    
-    <key>%ld participants in this call</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@participantsincall@</string>
-        <key>participantsincall</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>ld</string>
-            <key>one</key>
-            <string>%ld účastník v tomto hovoru</string>
-            <key>few</key>
-            <string>%ld účastníci v tomto hovoru</string>
-            <key>many</key>
-            <string>%ld účastníků v tomto hovoru</string>
-            <key>other</key>
-            <string>%ld účastníci v tomto hovoru</string>
-        </dict>
-    </dict>
-
-    <key>%d minutes ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@minutes@</string>
-        <key>minutes</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>před %d minutou</string>
-            <key>few</key>
-            <string>před %d minutami</string>
-            <key>many</key>
-            <string>před %d minutami</string>
-            <key>other</key>
-            <string>před %d minutami</string>
-        </dict>
-    </dict>
-    
-    <key>%d hours ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@hours@</string>
-        <key>hours</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>před %d hodinou</string>
-            <key>few</key>
-            <string>před %d hodinami</string>
-            <key>many</key>
-            <string>před %d hodinami</string>
-            <key>other</key>
-            <string>před %d hodinami</string>
-        </dict>
-    </dict>
-    
-    <key>%d days ago</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>před %d dnem</string>
-            <key>few</key>
-            <string>před %d dny</string>
-            <key>many</key>
-            <string>před %d dny</string>
-            <key>other</key>
-            <string>před %d dny</string>
-        </dict>
-    </dict>
-
-    <key>%ld notifications</key>
-    <dict>
+	<key>%ld active bots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@bots@</string>
+	</dict>
+	<key>%d votes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@votes@</string>
+		<key>votes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d hlas</string>
+			<key>few</key>
+			<string>%d hlasy</string>
+			<key>many</key>
+			<string>%d hlasů</string>
+			<key>other</key>
+			<string>%d hlasy</string>
+		</dict>
+	</dict>
+	<key>%ld participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld účastník</string>
+			<key>few</key>
+			<string>%ld účastníci</string>
+			<key>many</key>
+			<string>%ld účastníků</string>
+			<key>other</key>
+			<string>%ld účastníci</string>
+		</dict>
+	</dict>
+	<key>%ld participants in this call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participantsincall@</string>
+		<key>participantsincall</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld účastník v tomto hovoru</string>
+			<key>few</key>
+			<string>%ld účastníci v tomto hovoru</string>
+			<key>many</key>
+			<string>%ld účastníků v tomto hovoru</string>
+			<key>other</key>
+			<string>%ld účastníci v tomto hovoru</string>
+		</dict>
+	</dict>
+	<key>%d minutes ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>před %d minutou</string>
+			<key>few</key>
+			<string>před %d minutami</string>
+			<key>many</key>
+			<string>před %d minutami</string>
+			<key>other</key>
+			<string>před %d minutami</string>
+		</dict>
+	</dict>
+	<key>%d hours ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@hours@</string>
+		<key>hours</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>před %d hodinou</string>
+			<key>few</key>
+			<string>před %d hodinami</string>
+			<key>many</key>
+			<string>před %d hodinami</string>
+			<key>other</key>
+			<string>před %d hodinami</string>
+		</dict>
+	</dict>
+	<key>%d days ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>před %d dnem</string>
+			<key>few</key>
+			<string>před %d dny</string>
+			<key>many</key>
+			<string>před %d dny</string>
+			<key>other</key>
+			<string>před %d dny</string>
+		</dict>
+	</dict>
+	<key>%ld notifications</key>
+	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@notifications@</string>
 		<key>notifications</key>
@@ -148,110 +147,105 @@
 			<string>%ld upozornění</string>
 		</dict>
 	</dict>
-
-    <key>You have %ld pending invitations</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@pendinginvitations@</string>
-        <key>pendinginvitations</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Máte %ld nevyřízenou pozvánku</string>
-            <key>few</key>
-            <string>Máte %ld nevyřízené pozvánky</string>
-            <key>many</key>
-            <string>Máte %ld nevyřízených pozvánek</string>
-            <key>other</key>
-            <string>Máte %ld nevyřízené pozvánky</string>
-        </dict>
-    </dict>
-
-    <key>%d options</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@options@</string>
-        <key>options</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%d možnost</string>
-            <key>few</key>
-            <string>%d možnosti</string>
-            <key>many</key>
-            <string>%d možností</string>
-            <key>other</key>
-            <string>%d možnosti</string>
-        </dict>
-    </dict>
-
-    <key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@days@</string>
-        <key>days</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnu bez jakékoli aktivity.</string>
-            <key>few</key>
-            <string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnech bez jakékoli aktivity.</string>
-            <key>many</key>
-            <string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnech bez jakékoli aktivity.</string>
-            <key>other</key>
-            <string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnech bez jakékoli aktivity.</string>
-        </dict>
-    </dict>
-
-    <key>%ld replies</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@replies@</string>
-        <key>replies</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>%ld odpověď</string>
-            <key>few</key>
-            <string>%ld odpovědi</string>
-            <key>many</key>
-            <string>%ld odpovědí</string>
-            <key>other</key>
-            <string>%ld odpovědi</string>
-        </dict>
-    </dict>
-
-    <key>Password needs to be at least %d characters long</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@characters@</string>
-        <key>characters</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>one</key>
-            <string>Je třeba, aby heslo bylo alespoň %d znak dlouhé</string>
-            <key>few</key>
-            <string>Je třeba, aby heslo bylo alespoň %d znaky dlouhé</string>
-            <key>many</key>
-            <string>Je třeba, aby heslo bylo alespoň %d znaků dlouhé</string>
-            <key>other</key>
-            <string>Je třeba, aby heslo bylo alespoň %d znaky dlouhé</string>
-        </dict>
-    </dict>
+	<key>You have %ld pending invitations</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@pendinginvitations@</string>
+		<key>pendinginvitations</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Máte %ld nevyřízenou pozvánku</string>
+			<key>few</key>
+			<string>Máte %ld nevyřízené pozvánky</string>
+			<key>many</key>
+			<string>Máte %ld nevyřízených pozvánek</string>
+			<key>other</key>
+			<string>Máte %ld nevyřízené pozvánky</string>
+		</dict>
+	</dict>
+	<key>%d options</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@options@</string>
+		<key>options</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d možnost</string>
+			<key>few</key>
+			<string>%d možnosti</string>
+			<key>many</key>
+			<string>%d možností</string>
+			<key>other</key>
+			<string>%d možnosti</string>
+		</dict>
+	</dict>
+	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnu bez jakékoli aktivity.</string>
+			<key>few</key>
+			<string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnech bez jakékoli aktivity.</string>
+			<key>many</key>
+			<string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnech bez jakékoli aktivity.</string>
+			<key>other</key>
+			<string>Tato konverzace bude automaticky smazána pro kohokoli po %ld dnech bez jakékoli aktivity.</string>
+		</dict>
+	</dict>
+	<key>%ld replies</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@replies@</string>
+		<key>replies</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld odpověď</string>
+			<key>few</key>
+			<string>%ld odpovědi</string>
+			<key>many</key>
+			<string>%ld odpovědí</string>
+			<key>other</key>
+			<string>%ld odpovědi</string>
+		</dict>
+	</dict>
+	<key>Password needs to be at least %d characters long</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Je třeba, aby heslo bylo alespoň %d znak dlouhé</string>
+			<key>few</key>
+			<string>Je třeba, aby heslo bylo alespoň %d znaky dlouhé</string>
+			<key>many</key>
+			<string>Je třeba, aby heslo bylo alespoň %d znaků dlouhé</string>
+			<key>other</key>
+			<string>Je třeba, aby heslo bylo alespoň %d znaky dlouhé</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
