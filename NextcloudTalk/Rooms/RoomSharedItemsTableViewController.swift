@@ -5,6 +5,7 @@
 
 import UIKit
 import QuickLook
+import PassKit
 
 @objcMembers class RoomSharedItemsTableViewController: UITableViewController,
                                                         NCChatFileControllerDelegate,
@@ -276,6 +277,7 @@ import QuickLook
 
             let fileExtension = URL(fileURLWithPath: fileLocalPath).pathExtension.lowercased()
 
+            // Use VLCKitVideoViewController for file formats unsupported by the native PreviewController
             if VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
                 let vlcViewController = VLCKitVideoViewController(filePath: fileLocalPath)
                 vlcViewController.delegate = self
@@ -284,6 +286,17 @@ import QuickLook
                 self.present(vlcViewController, animated: true)
 
                 return
+            }
+
+            // Use PKAddPassesViewController for Apple Wallet passes
+            if fileExtension == "pkpass" {
+                if let passData = try? Data(contentsOf: URL(fileURLWithPath: fileLocalPath)),
+                   let pass = try? PKPass(data: passData),
+                   let addPassVC = PKAddPassesViewController(pass: pass) {
+                    self.present(addPassVC, animated: true)
+                    self.isPreviewControllerShown = false
+                    return
+                }
             }
 
             let previewController = QLPreviewController()
