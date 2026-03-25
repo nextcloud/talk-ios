@@ -39,14 +39,15 @@ enum NewRoomOption: Int {
         super.viewWillAppear(animated)
 
         self.navigationItem.hidesSearchBarWhenScrolling = false
-        self.getPossibleContacts()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.getPossibleContacts()
+
         self.navigationItem.searchController = searchController
-        
+
         NCAppBranding.styleViewController(self)
 
         self.navigationItem.title = NSLocalizedString("New conversation", comment: "")
@@ -88,13 +89,13 @@ enum NewRoomOption: Int {
     // MARK: - Contacts
 
     func getPossibleContacts() {
-        NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: "") { indexes, _, contactList, error in
-            if error == nil, let indexes = indexes as? [String], let contactList = contactList as? [NCUser] {
+        NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: "") { _, _, contactList, error in
+            if error == nil, let contactList = contactList as? [NCUser] {
                 let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: nil)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
                 if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
                     let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.indexes.append(contentsOf: combinedIndexes)
+                    self.indexes = [""] + combinedIndexes
                     self.contacts = combinedContacts
                     self.tableView.reloadData()
                 }
@@ -120,7 +121,7 @@ enum NewRoomOption: Int {
 
     func searchForContactsWithSearchParameter(_ searchParameter: String) {
         searchRequest?.cancel()
-        searchRequest = NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: searchParameter) { indexes, contacts, contactList, error in
+        searchRequest = NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: searchParameter) { _, _, contactList, error in
             if error == nil, let contactList = contactList as? [NCUser] {
                 let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: searchParameter)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
@@ -191,7 +192,6 @@ enum NewRoomOption: Int {
             contactCell.labelTitle.text = contact.name
 
             let contactType = contact.source as String
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             contactCell.avatarView.setActorAvatar(forId: contact.userId, withType: contactType, withDisplayName: contact.name, withRoomToken: nil, using: account)
 
             return contactCell
