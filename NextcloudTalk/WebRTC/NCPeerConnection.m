@@ -57,6 +57,8 @@
         NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         _sid = sid ? sid : [NSString stringWithFormat:@"%.0f", timeStamp];
         _isAudioOnly = audioOnly;
+        _isRemoteAudioDisabled = YES;
+        _isRemoteVideoDisabled = YES;
     }
     
     return self;
