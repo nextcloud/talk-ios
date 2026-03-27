@@ -29,10 +29,14 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 @interface NCChatController ()
 
+@property (nonatomic, assign) BOOL startProcessingChatRelayMessages;
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
 @property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
+@property (nonatomic, strong) NSMutableArray *chatRelayMessagesBuffer;
+@property (nonatomic, strong) dispatch_queue_t chatRelayMessagesQueue;
+@property (nonatomic, strong) NCExternalSignalingController *externalSignalingController;
 
 @end
 
@@ -42,9 +46,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     self = [super init];
     if (self) {
-        _room = room;
-        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
-
+        [self commonInitForRoom:room];
         [[AllocationTracker shared] addAllocation:@"NCChatController"];
     }
     
@@ -55,19 +57,31 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     self = [super init];
     if (self) {
-        _room = room;
         _threadId = threadId;
-        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
-
+        [self commonInitForRoom:room];
         [[AllocationTracker shared] addAllocation:@"NCChatController"];
     }
 
     return self;
 }
 
+- (void)commonInitForRoom:(NCRoom *)room
+{
+    _room = room;
+    _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
+
+    _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_account.accountId];
+    if (_externalSignalingController.hasChatRelay) {
+        _chatRelayMessagesQueue = dispatch_queue_create("chat.relay.message.queue", DISPATCH_QUEUE_SERIAL);
+        _chatRelayMessagesBuffer = [NSMutableArray new];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessageFromExternalSignaling:) name:NSNotification.ExtSignalingDidReceiveChatMessage object:nil];
+    }
+}
+
 - (void)dealloc
 {
     [[AllocationTracker shared] removeAllocation:@"NCChatController"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (BOOL)isThreadController
@@ -402,6 +416,24 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
     [sortedMessages sortUsingDescriptors:descriptors];
     
     return sortedMessages;
+}
+
+#pragma mark - External Signaling Controller
+
+- (void)didReceiveChatMessageFromExternalSignaling:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomid"];
+    NSDictionary *messageDict = [[[notification.userInfo objectForKey:@"data"] objectForKey:@"chat"] objectForKey:@"comment"];
+    if ([roomToken isEqualToString:_room.token]) {
+        dispatch_async(_chatRelayMessagesQueue, ^{
+            if (!self->_startProcessingChatRelayMessages) {
+                [self->_chatRelayMessagesBuffer addObject:messageDict];
+                return;
+            }
+
+            [self handleChatRelayMessage:messageDict];
+        });
+    }
 }
 
 #pragma mark - Chat
@@ -901,10 +933,57 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         [self checkLastCommonReadMessage:lastCommonReadMessage];
         
         if (error.code != -999) {
+            BOOL shouldStartLongPolling = statusCode == 304;
             NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
-            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
+
+            if (shouldStartLongPolling && self->_externalSignalingController.hasChatRelay) {
+                NSLog(@"Starting chat relay");
+                [self startProcessingChatRelayMessagesFromMessagesId:lastChatBlock.newestMessageId];
+                return;
+            }
+
+            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:shouldStartLongPolling];
         }
     }];
+}
+
+- (void)startProcessingChatRelayMessagesFromMessagesId:(NSInteger)messageId
+{
+    dispatch_async(self.chatRelayMessagesQueue, ^{
+        self.startProcessingChatRelayMessages = YES;
+        [self flushChatRelayMessagesBuffer];
+    });
+}
+
+- (void)flushChatRelayMessagesBuffer
+{
+    if (self.chatRelayMessagesBuffer.count == 0) {
+        NSLog(@"No messages store in chat relay messages buffer");
+        return;
+    }
+
+    [self.chatRelayMessagesBuffer sortUsingDescriptors:@[
+        [NSSortDescriptor sortDescriptorWithKey:@"id" ascending:YES]
+    ]];
+
+    for (NSDictionary *messageDict in self.chatRelayMessagesBuffer) {
+        [self handleChatRelayMessage:messageDict];
+    }
+
+    [self.chatRelayMessagesBuffer removeAllObjects];
+}
+
+- (void)handleChatRelayMessage:(NSDictionary *)messageDict
+{
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
+    NSInteger lastNewestMessageId = lastChatBlock.newestMessageId;
+    NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self->_account.accountId];
+    if (message) {
+        [self updateLastChatBlockWithNewestKnown:message.messageId];
+        [self storeMessages:@[messageDict]];
+
+        [self checkForNewMessagesFromMessageId:lastNewestMessageId];
+    }
 }
 
 - (void)startReceivingNewChatMessages
@@ -915,6 +994,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 - (void)stopReceivingNewChatMessages
 {
+    _startProcessingChatRelayMessages = NO;
     _stopChatMessagesPoll = YES;
     [_pullMessagesTask cancel];
 }
