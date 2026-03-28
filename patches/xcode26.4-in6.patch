@@ -1,0 +1,24 @@
+diff --git a/AFNetworking/AFHTTPSessionManager.m b/AFNetworking/AFHTTPSessionManager.m
+index cab11c2..b408820 100644
+--- a/AFNetworking/AFHTTPSessionManager.m
++++ b/AFNetworking/AFHTTPSessionManager.m
+@@ -29,7 +29,6 @@
+ #import <Security/Security.h>
+ 
+ #import <netinet/in.h>
+-#import <netinet6/in6.h>
+ #import <arpa/inet.h>
+ #import <ifaddrs.h>
+ #import <netdb.h>
+diff --git a/AFNetworking/AFNetworkReachabilityManager.m b/AFNetworking/AFNetworkReachabilityManager.m
+index d458364..f4cae61 100644
+--- a/AFNetworking/AFNetworkReachabilityManager.m
++++ b/AFNetworking/AFNetworkReachabilityManager.m
+@@ -23,7 +23,6 @@
+ #if !TARGET_OS_WATCH
+ 
+ #import <netinet/in.h>
+-#import <netinet6/in6.h>
+ #import <arpa/inet.h>
+ #import <ifaddrs.h>
+ #import <netdb.h>
