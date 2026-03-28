@@ -1,5 +1,5 @@
 source 'https://cdn.cocoapods.org/'
-platform :ios, '15.0'
+platform :ios, '16.0'
 
 def common_dependencies
   pod 'AFNetworking', '3.2.0'
@@ -57,6 +57,11 @@ pre_install do |installer|
         end
       end
     }
+
+    puts 'Patching AFNetworking for Xcode 26.4'
+    %x(cd Pods/AFNetworking/ && patch -N -p1 < ../../patches/xcode26.4-in6.patch)
+    puts 'Patching AFNetworking done'
+
     puts 'end pre_install.'
 end
 
@@ -67,6 +72,10 @@ post_install do |installer|
           config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
       end
     end
+
+    target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+    end        
   end
 end
 
