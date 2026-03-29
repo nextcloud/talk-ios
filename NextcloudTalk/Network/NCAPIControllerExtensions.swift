@@ -1146,7 +1146,7 @@ import NextcloudKit
 
         let urlString = "\(account.server)/ocs/v2.php/profile/\(encodedUserId)"
 
-        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, error in
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, _ in
             // Note: HTTP 405 -> Server does not support the endpoint
             guard let dataDict = ocsResponse?.dataDict else {
                 completionBlock(nil)
@@ -1213,7 +1213,7 @@ import NextcloudKit
 
                 let userInfo: [AnyHashable: Any] = [
                     "threads": threads,
-                    "accountId" : accountId
+                    "accountId": accountId
                 ]
                 NotificationCenter.default.post(name: .NCUserThreadsUpdated, object: self, userInfo: userInfo)
 
@@ -1544,4 +1544,29 @@ import NextcloudKit
         return Bot(dictionary: result.dataDict)
     }
 
+    // MARK: - Breakout rooms controller
+
+    @MainActor
+    public func requestAssistance(inRoom token: String, forAccount account: TalkAccount) async throws {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.breakoutRoomsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, for: account)
+
+        try await apiSessionManager.postOcs(urlString, account: account)
+    }
+
+    @MainActor
+    public func stopRequestingAssistance(inRoom token: String, forAccount account: TalkAccount) async throws {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.breakoutRoomsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, for: account)
+
+        try await apiSessionManager.deleteOcs(urlString, account: account)
+    }
 }
