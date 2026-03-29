@@ -6,6 +6,17 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld active bot</string>
+			<key>other</key>
+			<string>%ld active bots</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
