@@ -545,6 +545,49 @@ import NextcloudKit
         return try await apiSessionManager.deleteOcs(urlString, account: account)
     }
 
+    public enum ModeratorPermissionChangeType {
+        case promoteToModerator, demoteToParticipant
+    }
+
+    @MainActor
+    @nonobjc
+    @discardableResult
+    public func changeModerationPermission(forParticipantId participantId: String, withType type: ModeratorPermissionChangeType, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/moderators", for: account)
+        var parameters = ["participant": participantId]
+
+        if self.conversationAPIVersion(for: account) >= APIv3 {
+            parameters = ["attendeeId": participantId]
+        }
+
+        if type == .promoteToModerator {
+            return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+        } else {
+            return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
+        }
+    }
+
+    @MainActor
+    @discardableResult
+    public func resendInvitation(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/resend-invitations", for: account)
+        var parameters: [String: String] = [:]
+
+        if let participant {
+            parameters = ["attendeeId": participant]
+        }
+
+        return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+    }
+
     // MARK: - Federation
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
