@@ -159,7 +159,7 @@ import NextcloudKit
         }
     }
 
-    public func createRoom(forAccount account: TalkAccount, withParameters parameters: [String: Any], completionBlock: @escaping (_ room: NCRoom?, _ error: Error?) -> Void) {
+    public func createRoom(forAccount account: TalkAccount, withParameters parameters: [String: Any], completionBlock: @escaping (_ room: NCRoom?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
@@ -167,11 +167,11 @@ import NextcloudKit
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
-            completionBlock(room, ocsError?.error)
+            completionBlock(room, ocsError)
         }
     }
 
-    public func createRoom(forAccount account: TalkAccount, withInvite invite: String?, ofType roomType: NCRoomType, andName roomName: String?, completionBlock: @escaping (_ room: NCRoom?, _ error: Error?) -> Void) {
+    public func createRoom(forAccount account: TalkAccount, withInvite invite: String?, ofType roomType: NCRoomType, andName roomName: String?, completionBlock: @escaping (_ room: NCRoom?, _ error: OcsError?) -> Void) {
         var parameters: [String: Any] = ["roomType": roomType.rawValue]
 
         if let invite, !invite.isEmpty {

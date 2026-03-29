@@ -51,6 +51,20 @@ final class IntegrationRoomTest: TestBase {
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
+    func testNonExistantOneToOneCreation() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: "non-existant-userid", ofType: .oneToOne, andName: nil) { room, error in
+            XCTAssertNil(room)
+            XCTAssertEqual(error?.errorKey, "invite")
+
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+    }
+
     func testRoomDescription() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Description Test Room " + UUID().uuidString
