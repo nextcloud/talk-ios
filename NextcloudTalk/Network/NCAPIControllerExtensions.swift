@@ -159,7 +159,7 @@ import NextcloudKit
         }
     }
 
-    public func createRoom(forAccount account: TalkAccount, withParameters parameters: [String: Any], completionBlock: @escaping (_ room: NCRoom?, _ error: Error?) -> Void) {
+    public func createRoom(forAccount account: TalkAccount, withParameters parameters: [String: Any], completionBlock: @escaping (_ room: NCRoom?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
@@ -167,11 +167,11 @@ import NextcloudKit
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
-            completionBlock(room, ocsError?.error)
+            completionBlock(room, ocsError)
         }
     }
 
-    public func createRoom(forAccount account: TalkAccount, withInvite invite: String?, ofType roomType: NCRoomType, andName roomName: String?, completionBlock: @escaping (_ room: NCRoom?, _ error: Error?) -> Void) {
+    public func createRoom(forAccount account: TalkAccount, withInvite invite: String?, ofType roomType: NCRoomType, andName roomName: String?, completionBlock: @escaping (_ room: NCRoom?, _ error: OcsError?) -> Void) {
         var parameters: [String: Any] = ["roomType": roomType.rawValue]
 
         if let invite, !invite.isEmpty {
@@ -543,6 +543,49 @@ import NextcloudKit
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/self", for: account)
 
         return try await apiSessionManager.deleteOcs(urlString, account: account)
+    }
+
+    public enum ModeratorPermissionChangeType {
+        case promoteToModerator, demoteToParticipant
+    }
+
+    @MainActor
+    @nonobjc
+    @discardableResult
+    public func changeModerationPermission(forParticipantId participantId: String, withType type: ModeratorPermissionChangeType, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/moderators", for: account)
+        var parameters = ["participant": participantId]
+
+        if self.conversationAPIVersion(for: account) >= APIv3 {
+            parameters = ["attendeeId": participantId]
+        }
+
+        if type == .promoteToModerator {
+            return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+        } else {
+            return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
+        }
+    }
+
+    @MainActor
+    @discardableResult
+    public func resendInvitation(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/resend-invitations", for: account)
+        var parameters: [String: String] = [:]
+
+        if let participant {
+            parameters = ["attendeeId": participant]
+        }
+
+        return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
     }
 
     // MARK: - Federation
@@ -1146,7 +1189,7 @@ import NextcloudKit
 
         let urlString = "\(account.server)/ocs/v2.php/profile/\(encodedUserId)"
 
-        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, error in
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, _ in
             // Note: HTTP 405 -> Server does not support the endpoint
             guard let dataDict = ocsResponse?.dataDict else {
                 completionBlock(nil)
@@ -1213,7 +1256,7 @@ import NextcloudKit
 
                 let userInfo: [AnyHashable: Any] = [
                     "threads": threads,
-                    "accountId" : accountId
+                    "accountId": accountId
                 ]
                 NotificationCenter.default.post(name: .NCUserThreadsUpdated, object: self, userInfo: userInfo)
 
@@ -1544,4 +1587,29 @@ import NextcloudKit
         return Bot(dictionary: result.dataDict)
     }
 
+    // MARK: - Breakout rooms controller
+
+    @MainActor
+    public func requestAssistance(inRoom token: String, forAccount account: TalkAccount) async throws {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.breakoutRoomsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, for: account)
+
+        try await apiSessionManager.postOcs(urlString, account: account)
+    }
+
+    @MainActor
+    public func stopRequestingAssistance(inRoom token: String, forAccount account: TalkAccount) async throws {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.breakoutRoomsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, for: account)
+
+        try await apiSessionManager.deleteOcs(urlString, account: account)
+    }
 }

@@ -51,6 +51,20 @@ final class IntegrationRoomTest: TestBase {
         waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
+    func testNonExistantOneToOneCreation() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: "non-existant-userid", ofType: .oneToOne, andName: nil) { room, error in
+            XCTAssertNil(room)
+            XCTAssertEqual(error?.errorKey, "invite")
+
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+    }
+
     func testRoomDescription() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Description Test Room " + UUID().uuidString
@@ -401,17 +415,32 @@ final class IntegrationRoomTest: TestBase {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "ParticipantConversation", withAccount: activeAccount)
 
+        // Add alice as participant
         try await NCAPIController.sharedInstance().addParticipant("alice", ofType: "users", toRoom: room.token, forAccount: activeAccount)
-        let participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
+        var participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
 
-        XCTAssertTrue(participants.contains { $0.displayName == "alice" })
+        let participantAlice = try XCTUnwrap(participants.first(where: { $0.displayName == "alice" }))
 
+        // Promote alice to moderator
+        try await NCAPIController.sharedInstance().changeModerationPermission(forParticipantId: participantAlice.participantId!, withType: .promoteToModerator, inRoom: room.token, forAccount: activeAccount)
+        participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
+
+        XCTAssertTrue(participants.contains { $0.displayName == "alice" && $0.canModerate })
+
+        // Demote alice to participant
+        try await NCAPIController.sharedInstance().changeModerationPermission(forParticipantId: participantAlice.participantId!, withType: .demoteToParticipant, inRoom: room.token, forAccount: activeAccount)
+        participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
+
+        XCTAssertTrue(participants.contains { $0.displayName == "alice" && !$0.canModerate })
+
+        // Try to remove admin which should fail, as admin is the last moderator
         do {
             try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: activeAccount)
             XCTFail("OcsError expected")
         } catch {
             let error = try XCTUnwrap(error as? OcsError)
             XCTAssertEqual(error.responseStatusCode, 400)
+            XCTAssertEqual(error.errorKey, "last-moderator")
         }
     }
 
