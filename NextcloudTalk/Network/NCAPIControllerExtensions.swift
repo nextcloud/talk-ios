@@ -1146,7 +1146,7 @@ import NextcloudKit
 
         let urlString = "\(account.server)/ocs/v2.php/profile/\(encodedUserId)"
 
-        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, error in
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, _ in
             // Note: HTTP 405 -> Server does not support the endpoint
             guard let dataDict = ocsResponse?.dataDict else {
                 completionBlock(nil)
@@ -1213,7 +1213,7 @@ import NextcloudKit
 
                 let userInfo: [AnyHashable: Any] = [
                     "threads": threads,
-                    "accountId" : accountId
+                    "accountId": accountId
                 ]
                 NotificationCenter.default.post(name: .NCUserThreadsUpdated, object: self, userInfo: userInfo)
 
