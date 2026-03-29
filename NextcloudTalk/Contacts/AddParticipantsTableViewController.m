@@ -250,7 +250,7 @@
     [roomBuilder roomName:roomName];
 
     [self showAddingParticipantsView];
-    [[NCAPIController sharedInstance] createRoomForAccount:_room.account withParameters:roomBuilder.roomParameters completionBlock:^(NCRoom *room, NSError *error) {
+    [[NCAPIController sharedInstance] createRoomForAccount:_room.account withParameters:roomBuilder.roomParameters completionBlock:^(NCRoom *room, OcsError *error) {
         [self removeAddingParticipantsView];
         if (error) {
             UIAlertController * alert = [UIAlertController
