@@ -540,13 +540,13 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     }
 
     if (raised) {
-        [[NCAPIController sharedInstance] requestAssistanceInRoom:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] requestAssistanceInRoom:_room.token forAccount:_account completionHandler:^(NSError * _Nullable error) {
             if (error) {
                 NSLog(@"Error requesting assistance");
             }
         }];
     } else {
-        [[NCAPIController sharedInstance] stopRequestingAssistanceInRoom:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] stopRequestingAssistanceInRoom:_room.token forAccount:_account completionHandler:^(NSError * _Nullable error) {
             if (error) {
                 NSLog(@"Error on stop requesting assisntance");
             }
