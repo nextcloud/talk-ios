@@ -96,7 +96,7 @@ extension NCAPIController {
         }
     }
 
-    // swiftlint:disable function_parameter_count
+    // swiftlint:disable:next function_parameter_count
     public func createMeeting(account: TalkAccount, token: String, title: String?, description: String?, start: Int, end: Int, calendarUri: String, attendeeIds: [Int]?, completionBlock: @escaping (_ error: CreateMeetingResponse) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
