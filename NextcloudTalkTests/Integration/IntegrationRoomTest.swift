@@ -57,7 +57,12 @@ final class IntegrationRoomTest: TestBase {
 
         NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: "non-existant-userid", ofType: .oneToOne, andName: nil) { room, error in
             XCTAssertNil(room)
-            XCTAssertEqual(error?.errorKey, "invite")
+            XCTAssertEqual(error?.responseStatusCode, 404)
+
+            // Not supported on older versions
+            if NCDatabaseManager.sharedInstance().serverCapabilities()!.versionMajor >= 31 {
+                XCTAssertEqual(error?.errorKey, "invite")
+            }
 
             exp.fulfill()
         }
@@ -440,7 +445,11 @@ final class IntegrationRoomTest: TestBase {
         } catch {
             let error = try XCTUnwrap(error as? OcsError)
             XCTAssertEqual(error.responseStatusCode, 400)
-            XCTAssertEqual(error.errorKey, "last-moderator")
+
+            // Not supported on older versions
+            if NCDatabaseManager.sharedInstance().serverCapabilities()!.versionMajor >= 31 {
+                XCTAssertEqual(error.errorKey, "last-moderator")
+            }
         }
     }
 }
