@@ -46,7 +46,6 @@ final class UnitSignalingSettings: XCTestCase {
             }
         """
 
-        // swiftlint:disable:next force_cast
         let signalingDict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
         let signalingSettings = SignalingSettings(dictionary: signalingDict)
 
@@ -115,7 +114,6 @@ final class UnitSignalingSettings: XCTestCase {
             }
         """
 
-        // swiftlint:disable:next force_cast
         let signalingDict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
         let signalingSettings = SignalingSettings(dictionary: signalingDict)
 

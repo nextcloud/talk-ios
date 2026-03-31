@@ -99,7 +99,6 @@ final class UnitNCRoomParticipantTest: TestBaseRealm {
             }
             """
 
-        // swiftlint:disable:next force_cast
         let participantdict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
         let participant = NCRoomParticipant(dictionary: participantdict)
 

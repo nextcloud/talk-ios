@@ -34,7 +34,6 @@ final class IntegrationNCSignalingControllerTest: TestBase {
                                        roomType: "video",
                                        payload: ["action": "testAction"])!
 
-        // swiftlint:disable:next force_try
         let jsonData = try! JSONSerialization.data(withJSONObject: [message.messageDict()], options: [])
         let jsonDataString = String(data: jsonData, encoding: .utf8)!
 

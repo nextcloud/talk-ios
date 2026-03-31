@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+opt_in_rules: # some rules are turned off by default, so you need to opt-in
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - explicit_init
+  - file_types_order
+  - unneeded_parentheses_in_closure_argument
+
+disabled_rules:
+  - type_body_length
+  - file_length
+  - function_body_length
+  - line_length
+  - force_try
+  - force_cast
+
+empty_count:
+  severity: warning
+
+identifier_name:
+  min_length: 0
+
+reporter: "xcode"
