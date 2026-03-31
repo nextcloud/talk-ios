@@ -104,22 +104,12 @@
 
 - (void)pullSignalingMessages
 {
-    _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSDictionary *messages, NSError *error) {
+    _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSArray<NSDictionary<NSString *,id> *> * _Nullable messages, NSError * _Nullable error) {
         if (self->_shouldStopPullingMessages) {
             return;
         }
-        
-        id messagesObj = [[messages objectForKey:@"ocs"] objectForKey:@"data"];
-        NSArray *messagesArray = [[NSArray alloc] init];
-        
-        // Check if messages array was parsed correctly
-        if ([messagesObj isKindOfClass:[NSArray class]]) {
-            messagesArray = messagesObj;
-        }else if ([messagesObj isKindOfClass:[NSDictionary class]]) {
-            messagesArray = [messagesObj allValues];
-        }
-        
-        for (NSDictionary *message in messagesArray) {
+
+        for (NSDictionary *message in messages) {
             if ([self.observer respondsToSelector:@selector(signalingController:didReceiveSignalingMessage:)]) {
                 [self.observer signalingController:self didReceiveSignalingMessage:message];
             }
@@ -136,8 +126,8 @@
     if (!JSONSerializedMessages) {
         return;
     }
-    
-    [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+
+    [[NCAPIController sharedInstance] sendSignalingMessages:JSONSerializedMessages toRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionHandler:^(NSError *error) {
         if (error) {
             //TODO: Error handling
             NSLog(@"Error sending signaling message.");

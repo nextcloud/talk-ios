@@ -1206,56 +1206,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 #pragma mark - Signaling Controller
 
-- (NSURLSessionDataTask *)sendSignalingMessages:(NSString *)messages toRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendSignalingMessagesCompletionBlock)block;
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@", encodedToken] : @"signaling";
-    NSInteger signalingAPIVersion = [self signalingAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:signalingAPIVersion forAccount:account];
-    NSDictionary *parameters = @{@"messages" : messages};
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if (block) {
-            block(nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)pullSignalingMessagesFromRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PullSignalingMessagesCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = (token) ? [NSString stringWithFormat:@"signaling/%@", encodedToken] : @"signaling";
-    NSInteger signalingAPIVersion = [self signalingAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:signalingAPIVersion forAccount:account];
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString
-                                             parameters:nil progress:nil
-                                                success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary *responseDict = responseObject;
-        if (block) {
-            block(responseDict, nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(nil, error);
-        }
-    }];
-    
-    return task;
-}
-
 - (NSString *)authenticationBackendUrlForAccount:(TalkAccount *)account
 {
     NSString *endpoint = @"signaling/backend";
