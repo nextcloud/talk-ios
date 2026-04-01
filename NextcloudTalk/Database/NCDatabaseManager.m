@@ -503,6 +503,30 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
         capabilities.retentionInstantMeetings = [[conversationsConfig objectForKey:@"retention-instant-meetings"] integerValue];
     }
 
+    if ([conversationsConfigKeys containsObject:@"sort-order"]) {
+        NSString *sortOrder = [conversationsConfig objectForKey:@"sort-order"];
+        if ([sortOrder isEqualToString:@"alphabetical"]) {
+            capabilities.roomsSortOrder = NCRoomSortOrderAlphabetical;
+        } else {
+            capabilities.roomsSortOrder = NCRoomSortOrderActivity;
+        }
+    } else {
+        capabilities.roomsSortOrder = NCRoomSortOrderActivity;
+    }
+
+    if ([conversationsConfigKeys containsObject:@"group-mode"]) {
+        NSString *groupMode = [conversationsConfig objectForKey:@"group-mode"];
+        if ([groupMode isEqualToString:@"group-first"]) {
+            capabilities.roomsGroupMode = NCRoomGroupModeGroupFirst;
+        } else if ([groupMode isEqualToString:@"private-first"]) {
+            capabilities.roomsGroupMode = NCRoomGroupModePrivateFirst;
+        } else {
+            capabilities.roomsGroupMode = NCRoomGroupModeNone;
+        }
+    } else {
+        capabilities.roomsGroupMode = NCRoomGroupModeNone;
+    }
+
     // Chat capabilities
     NSDictionary *chatConfig = [talkConfig objectForKey:@"chat"];
     NSArray *chatConfigKeys = [chatConfig allKeys];
