@@ -62,9 +62,38 @@ import Foundation
             unmanagedRooms.append(NCRoom(value: managedRoom))
         }
 
-        // Sort by favorites first, then by lastActivity
-        unmanagedRooms.sort { first, second in
-            (first.isFavorite ? 1 : 0, first.lastActivity) > (second.isFavorite ? 1 : 0, second.lastActivity)
+        // Sort rooms
+        let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)
+
+        unmanagedRooms.sort { (first: NCRoom, second: NCRoom) in
+            // 1. Favorites
+            if first.isFavorite != second.isFavorite {
+                return first.isFavorite
+            }
+
+            if let capabilities {
+                let groupMode = NCRoomGroupMode(rawValue: capabilities.roomsGroupMode) ?? .none
+                let sortOrder = NCRoomSortOrder(rawValue: capabilities.roomsSortOrder) ?? .activity
+
+                // 2. Group mode
+                if groupMode == .groupFirst || groupMode == .privateFirst {
+                    let firstIsOneToOne = (first.type == .oneToOne || first.type == .formerOneToOne)
+                    let secondIsOneToOne = (second.type == .oneToOne || second.type == .formerOneToOne)
+
+                    if firstIsOneToOne != secondIsOneToOne {
+                        let oneToOneFirst = groupMode == .privateFirst
+                        return firstIsOneToOne == oneToOneFirst
+                    }
+                }
+
+                // 3. Sort order
+                if sortOrder == .alphabetical {
+                    return first.displayName.localizedCaseInsensitiveCompare(second.displayName) == .orderedAscending
+                }
+            }
+
+            // Default: Recent activity
+            return first.lastActivity > second.lastActivity
         }
 
         return unmanagedRooms
