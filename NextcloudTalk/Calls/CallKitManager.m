@@ -416,7 +416,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
     __weak CallKitManager *weakSelf = self;
 
     TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:call.accountId];
-    [[NCAPIController sharedInstance] getPeersForCall:call.token forAccount:account withCompletionBlock:^(NSMutableArray *peers, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getPeersForCallInRoom:call.token forAccount:account completionBlock:^(NSArray<NSDictionary<NSString *, id> *> * _Nullable peers, NSError * _Nullable error, NSInteger statusCode) {
         // Make sure call is still ringing at this point to avoid a race-condition between answering the call on this device and the API callback
         if (!call.isRinging) {
             return;

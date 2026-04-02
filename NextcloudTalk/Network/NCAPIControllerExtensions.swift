@@ -1591,14 +1591,90 @@ import NextcloudKit
         let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, for: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            if let ocsError {
-                completionBlock(nil, ocsError.error)
-                return
-            }
+            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
+        }
+    }
 
-            completionBlock(ocsResponse?.dataArrayDict, nil)
+    // MARK: - Call controller
+
+    @discardableResult
+    public func getPeersForCall(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ peers: [[String: AnyObject]]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.callAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error, ocsError?.responseStatusCode ?? 0)
+        }
+    }
+
+    @discardableResult
+    // swiftlint:disable:next function_parameter_count
+    public func joinCall(inRoom token: String,
+                         withCallFlags flags: CallFlag,
+                         joinSilently silently: Bool,
+                         joinSilentlyFor silentFor: [String],
+                         withRecordingConsent recordingConsent: Bool,
+                         forAccount account: TalkAccount,
+                         completionBlock: @escaping (_ error: Error?, _ statusCode: Int) -> Void) -> URLSessionTask? {
+
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.callAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        var parameters: [String: Any] = [
+            "flags": flags.rawValue,
+            "recordingConsent": recordingConsent,
+            "silent": silently
+        ]
+
+        if !silentFor.isEmpty {
+            parameters["silentFor"] = silentFor
         }
 
+        return apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError?.error, ocsError?.responseStatusCode ?? 0)
+        }
+    }
+
+    @discardableResult
+    public func leaveCall(inRoom token: String, forAllParticipants allParticipants: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.callAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.deleteOcs(urlString, account: account, parameters: ["all": allParticipants]) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    @discardableResult
+    public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.callAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        var parameters: [String: Any] = [:]
+
+        if let participant {
+            parameters["attendeeId"] = participant
+        }
+
+        return apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
     }
 
 }
