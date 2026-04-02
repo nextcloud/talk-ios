@@ -1724,4 +1724,27 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Server capabilities
+
+    @discardableResult
+    public func getServerCapabilities(forServer server: String, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionTask? {
+        let urlString = "\(server)/ocs/v1.php/cloud/capabilities"
+
+        return defaultAPISessionManager.getOcs(urlString, account: nil, parameters: ["format": "json"]) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError?.error)
+        }
+    }
+
+    @discardableResult
+    public func getServerCapabilities(forAccount account: TalkAccount, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return nil }
+
+        let urlString = "\(account.server)/ocs/v1.php/cloud/capabilities"
+
+        return apiSessionManager.getOcs(urlString, account: account, parameters: ["format": "json"]) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError?.error)
+        }
+    }
+
 }

@@ -12,6 +12,7 @@
 
 @class NKFile;
 @class NCNotificationAction;
+@class NCAPISessionManager;
 
 @class SDWebImageCombinedOperation;
 @class SDWebImageDownloaderRequestModifier;
@@ -76,8 +77,6 @@ typedef void (^GetAppIdCompletionBlock)(NSString *appId, NSError *error);
 typedef void (^GetWipeStatusCompletionBlock)(BOOL wipe, NSError *error);
 typedef void (^ConfirmWipeCompletionBlock)(NSError *error);
 
-typedef void (^GetServerCapabilitiesCompletionBlock)(NSDictionary *serverCapabilities, NSError *error);
-
 typedef void (^GetServerNotificationCompletionBlock)(NSDictionary *notification, NSError *error, NSInteger statusCode);
 typedef void (^GetServerNotificationsCompletionBlock)(NSArray *notifications, NSString *ETag, NSString *userStatus, NSError *error);
 typedef void (^ExecuteNotificationActionCompletionBlock)(NSError *error);
@@ -107,6 +106,7 @@ extern NSInteger const kReceivedChatMessagesLimit;
 
 @interface NCAPIController : NSObject
 
+@property (nonatomic, strong) NCAPISessionManager *defaultAPISessionManager;
 @property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
 @property (nonatomic, strong) NSMutableDictionary *longPollingApiSessionManagers;
 @property (nonatomic, strong) NSMutableDictionary *calDAVSessionManagers;
@@ -214,10 +214,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // User Status
 - (NSURLSessionDataTask *)getUserStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetUserStatusCompletionBlock)block;
 - (NSURLSessionDataTask *)setUserStatus:(NSString *)status forAccount:(TalkAccount *)account withCompletionBlock:(SetUserStatusCompletionBlock)block;
-
-// Server capabilities
-- (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
-- (NSURLSessionDataTask *)getServerCapabilitiesForAccount:(TalkAccount *)account withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block;
 
 // Server notifications
 - (NSURLSessionDataTask *)getServerNotification:(NSInteger)notificationId forAccount:(TalkAccount *)account withCompletionBlock:(GetServerNotificationCompletionBlock)block;
