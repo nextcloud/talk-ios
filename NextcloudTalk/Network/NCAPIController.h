@@ -105,9 +105,6 @@ extern NSInteger const APIv3;
 extern NSInteger const APIv4;
 extern NSInteger const kReceivedChatMessagesLimit;
 
-@interface OCURLSessionManager : AFURLSessionManager
-@end
-
 @interface NCAPIController : NSObject
 
 @property (nonatomic, strong) NSMutableDictionary *apiSessionManagers;
