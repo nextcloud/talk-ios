@@ -631,7 +631,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:account withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:account completionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         if (!error && [serverCapabilities isKindOfClass:[NSDictionary class]]) {
             BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateCapabilitiesTransaction" expirationHandler:nil];
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:account.accountId];

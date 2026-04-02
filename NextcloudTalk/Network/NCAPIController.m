@@ -32,7 +32,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 
 @interface NCAPIController () <NSURLSessionTaskDelegate, NSURLSessionDelegate, NKCommonDelegate>
 
-@property (nonatomic, strong) NCAPISessionManager *defaultAPISessionManager;
 @property (nonatomic, strong) NSCache<NSString *, NSString *> *authTokenCache;
 @property (nonatomic, strong) NSCache<NSString *, SDWebImageDownloaderRequestModifier *> *requestModifierCache;
 
@@ -1985,49 +1984,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
         }
     }];
 
-    return task;
-}
-
-#pragma mark - Server capabilities
-
-- (NSURLSessionDataTask *)getServerCapabilitiesForServer:(NSString *)server withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block
-{
-    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", server];
-    NSDictionary *parameters = @{@"format" : @"json"};
-    
-    NSURLSessionDataTask *task = [_defaultAPISessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        if (block) {
-            block(capabilities, nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error);
-        }
-    }];
-    
-    return task;
-}
-
-- (NSURLSessionDataTask *)getServerCapabilitiesForAccount:(TalkAccount *)account withCompletionBlock:(GetServerCapabilitiesCompletionBlock)block
-{
-    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v1.php/cloud/capabilities", account.server];
-    NSDictionary *parameters = @{@"format" : @"json"};
-    
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary *capabilities = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-        if (block) {
-            block(capabilities, nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(nil, error);
-        }
-    }];
-    
     return task;
 }
 

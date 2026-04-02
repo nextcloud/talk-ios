@@ -164,7 +164,7 @@ class DiagnosticsTableViewController: UITableViewController {
         serverReachableIndicator.startAnimating()
         self.reloadRow(ServerSections.kServerSectionReachable.rawValue, in: DiagnosticsSections.kDiagnosticsSectionServer.rawValue)
 
-        NCAPIController.sharedInstance().getServerCapabilities(for: account) { _, error in
+        NCAPIController.sharedInstance().getServerCapabilities(forAccount: account) { _, error in
             DispatchQueue.main.async {
                 self.serverReachable = error == nil
                 self.serverReachableIndicator.stopAnimating()
