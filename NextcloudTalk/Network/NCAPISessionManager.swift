@@ -56,15 +56,15 @@ import Foundation
 
     @discardableResult
     @available(*, renamed: "getOcs()")
-    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
+    public func getOcs(_ URLString: String, account: TalkAccount?, parameters: Any? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
         return self.get(URLString, parameters: parameters, progress: nil) { task, data in
-            if checkResponseHeaders {
+            if checkResponseHeaders, let account {
                 self.checkHeaders(for: task, for: account)
             }
 
             completion?(OcsResponse(withData: data, withTask: task), nil)
         } failure: { task, error in
-            if checkResponseStatusCode, let task {
+            if checkResponseStatusCode, let task, let account {
                 self.checkStatusCode(for: task, for: account)
             }
 
@@ -117,7 +117,7 @@ import Foundation
     // MARK: - Async/Await wrapper
 
     @discardableResult
-    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
+    public func getOcs(_ URLString: String, account: TalkAccount?, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
         return try await withCheckedThrowingContinuation { continuation in
             getOcs(URLString, account: account, parameters: parameters, checkResponseStatusCode: checkResponseStatusCode) { response, error in
                 if let error {
