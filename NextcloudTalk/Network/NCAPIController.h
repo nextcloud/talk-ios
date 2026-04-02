@@ -23,8 +23,6 @@ typedef void (^SearchUsersCompletionBlock)(NSArray *indexes, NSMutableDictionary
 typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
 typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
 
-typedef void (^GetPeersForCallCompletionBlock)(NSMutableArray *peers, NSError *error, NSInteger statusCode);
-typedef void (^JoinCallCompletionBlock)(NSError *error, NSInteger statusCode);
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
 typedef void (^GetChatMessagesCompletionBlock)(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode);
@@ -143,12 +141,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
 - (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
 - (NSURLSessionDataTask *)searchUsersForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(SearchUsersCompletionBlock)block;
-
-// Call Controller
-- (NSURLSessionDataTask *)getPeersForCall:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetPeersForCallCompletionBlock)block;
-- (NSURLSessionDataTask *)joinCall:(NSString *)token withCallFlags:(NSInteger)flags silently:(BOOL)silently silentFor:(NSArray *)silentFor recordingConsent:(BOOL)recordingConsent forAccount:(TalkAccount *)account withCompletionBlock:(JoinCallCompletionBlock)block;
-- (NSURLSessionDataTask *)leaveCall:(NSString *)token forAllParticipants:(BOOL)allParticipants forAccount:(TalkAccount *)account withCompletionBlock:(LeaveCallCompletionBlock)block;
-- (NSURLSessionDataTask *)sendCallNotificationToParticipant:(NSString *)participant inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ParticipantModificationCompletionBlock)block;
 
 // Chat Controller
 - (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId inThread:(NSInteger)threadId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout limit:(NSInteger)limit lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block;
