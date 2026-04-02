@@ -61,6 +61,23 @@ extension XCTestCase {
         }
     }
 
+    func joinRoom(withToken token: String, withAccount account: TalkAccount) async throws -> NCRoomController {
+        let exp = expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
+            XCTAssertNil(notification.userInfo?["error"])
+            XCTAssertNil(notification.userInfo?["statusCode"])
+            XCTAssertNil(notification.userInfo?["errorReason"])
+
+            XCTAssertEqual(notification.userInfo?[stringForKey: "token"], token)
+
+            return true
+        }
+
+        NCRoomsManager.shared.joinRoom(token, forCall: false)
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+
+        return try XCTUnwrap(NCRoomsManager.shared.activeRooms[token])
+    }
+
     func sendMessage(message: String, inRoom token: String, withAccount account: TalkAccount) async throws -> NCChatMessage {
         return try await withCheckedThrowingContinuation { continuation in
             NCAPIController.sharedInstance().sendChatMessage(message, toRoom: token, threadTitle: "", replyTo: 0, referenceId: "", silently: false, for: account) { error in
