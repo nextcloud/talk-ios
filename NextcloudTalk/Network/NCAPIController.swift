@@ -692,6 +692,40 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
     }
 
+    // MARK: - Rooms sorting
+
+    @MainActor
+    public func setRoomSortOrder(_ sortOrder: NCRoomSortOrder, forAccount account: TalkAccount) async -> Bool {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return false }
+
+        let value: String = (sortOrder == .alphabetical) ? "alphabetical" : "activity"
+        let urlString = "\(account.server)/ocs/v2.php/apps/provisioning_api/api/v1/config/users/spreed/conversations_sort_order"
+        let parameters: [String: String] = ["configValue": value]
+
+        let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+        return (ocsResponse != nil)
+    }
+
+    @MainActor
+    public func setRoomGroupMode(_ groupMode: NCRoomGroupMode, forAccount account: TalkAccount) async -> Bool {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return false }
+
+        let value: String
+        switch groupMode {
+        case .groupFirst: value = "group-first"
+        case .privateFirst: value = "private-first"
+        default: value = "none"
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/provisioning_api/api/v1/config/users/spreed/conversations_group_mode"
+        let parameters: [String: String] = ["configValue": value]
+
+        let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+        return (ocsResponse != nil)
+    }
+
     // MARK: - Participants
 
     @nonobjc
