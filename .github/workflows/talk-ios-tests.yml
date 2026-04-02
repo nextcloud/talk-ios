@@ -25,6 +25,8 @@ permissions:
 env:
   WORKSPACE: NextcloudTalk.xcworkspace
   DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.5
+  SIMULATOR_MODEL: iPhone 16
+  SIMULATOR_VERSION: "18.5"  
   SCHEME: NextcloudTalk
 
 jobs:
@@ -191,14 +193,22 @@ jobs:
       with:
         xcode-version: '26.2'
 
-    - name: Install iOS 18.5 and set permissions
+    - name: Install iOS 18.5
       run: |
         xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
         xcodebuild -downloadPlatform iOS -buildVersion 18.5
-        xcrun simctl privacy booted grant camera com.nextcloud.Talk
+
+    - name: Boot simulator
+      uses: futureware-tech/simulator-action@e89aa8f93d3aec35083ff49d2854d07f7186f7f5 # v5.0.0
+      with:
+        model: ${{ env.SIMULATOR_MODEL }}
+        os_version: ${{ env.SIMULATOR_VERSION }}
+        wait_for_boot: true
 
     - name: Test NextcloudTalk iOS
       run: |
+        xcrun simctl privacy booted grant camera com.nextcloud.Talk
+
         set -o pipefail && \
         xcodebuild test-without-building \
         -xctestrun $(find . -type f -name '*.xctestrun') \
