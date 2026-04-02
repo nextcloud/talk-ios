@@ -12,21 +12,7 @@ final class IntegrationNCSignalingControllerTest: TestBase {
     func testSendingSignalingMessage() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "NCSignalingController", withAccount: activeAccount)
-
-        let exp = expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { [roomToken = room.token!] notification -> Bool in
-            XCTAssertNil(notification.userInfo?["error"])
-            XCTAssertNil(notification.userInfo?["statusCode"])
-            XCTAssertNil(notification.userInfo?["errorReason"])
-
-            XCTAssertEqual(notification.userInfo?[stringForKey: "token"], roomToken)
-
-            return true
-        }
-
-        NCRoomsManager.shared.joinRoom(room.token, forCall: false)
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
-
-        let roomController = try XCTUnwrap(NCRoomsManager.shared.activeRooms[room.token])
+        let roomController = try await joinRoom(withToken: room.token, withAccount: activeAccount)
 
         let message = NCControlMessage(from: roomController.userSessionId,
                                        to: roomController.userSessionId,
