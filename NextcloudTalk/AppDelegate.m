@@ -562,19 +562,6 @@
         dispatch_group_leave(backgroundRefreshGroup);
     }];
 
-    /* Disable checking for new messages for now, until we can prevent them from showing twice
-    dispatch_group_enter(backgroundRefreshGroup);
-    [[NCNotificationController sharedInstance] checkForNewNotificationsWithCompletionBlock:^(NSError *error) {
-        [NCLog log:@"CompletionHandler checkForNewNotificationsWithCompletionBlock"];
-
-        if (error) {
-            errorOccurred = YES;
-        }
-
-        dispatch_group_leave(backgroundRefreshGroup);
-    }];
-     */
-
     dispatch_group_enter(backgroundRefreshGroup);
     [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:NO onlyLastModified:YES withCompletionBlock:^(NSError *error) {
         [NCLog log:@"CompletionHandler updateRoomsAndChatsUpdatingUserStatus"];
