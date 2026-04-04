@@ -1044,19 +1044,21 @@ import NextcloudKit
 
     // MARK: - Push notification test
 
-    public func testPushnotifications(forAccount account: TalkAccount, completionBlock: @escaping (_ result: String?) -> Void) {
+    @nonobjc
+    public func testPushnotifications(forAccount account: TalkAccount) async throws -> (message: String, notificationId: Int?) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
-        else {
-            completionBlock(nil)
-            return
-        }
+        else { throw ApiControllerError.preconditionError }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v3/test/self"
 
-        apiSessionManager.postOcs(urlString, account: account) { ocsResponse, _ in
-            let message = ocsResponse?.dataDict?["message"] as? String
-            completionBlock(message)
-        }
+        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account)
+
+        guard let dataDict = ocsResponse.dataDict,
+              let message = dataDict["message"] as? String
+        else { throw ApiControllerError.unexpectedOcsResponse }
+
+        // notificationId is only returend on Nextcloud >= 32
+        return (message, dataDict["nid"] as? Int)
     }
 
     // MARK: - Upcoming events
@@ -1697,6 +1699,87 @@ import NextcloudKit
 
         return apiSessionManager.getOcs(urlString, account: account, parameters: ["format": "json"]) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError?.error)
+        }
+    }
+
+    // MARK: - Server notification
+
+    @discardableResult
+    public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: Error?) -> Void) -> URLSessionTask? {
+        // TODO: Do we need to manually ensure the session manager exist (see objc workaround)
+        // This method is currently only used in tests as NSE is using the endpoint directly
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return nil }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/\(notificationId)"
+
+        return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(NCNotification(dictionary: ocsResponse?.dataDict), ocsError?.error)
+        }
+    }
+
+    @MainActor
+    public func deleteServerNotification(withId notificationId: Int, forAccount account: TalkAccount) async throws {
+        // This method is currently only used in tests
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/\(notificationId)"
+
+        try await apiSessionManager.deleteOcs(urlString, account: account)
+    }
+
+    public func executeNotificationAction(_ action: NCNotificationAction, forAccount account: TalkAccount, completionBlock: ((_ error: Error?) -> Void)?) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        guard let actionLink = action.actionLink else {
+            print("Trying to execute notification action without actionLink")
+            completionBlock?(NSError(domain: NSCocoaErrorDomain, code: 0))
+
+            return
+        }
+
+        let success = { (_ task: URLSessionDataTask, _ responseObject: Any?) in
+            if let completionBlock {
+                completionBlock(nil)
+            }
+        }
+
+        let failure = { (_ task: URLSessionDataTask?, _ error: any Error) in
+            if let completionBlock {
+                completionBlock(error)
+            }
+        }
+
+        switch action.actionType {
+        case .kNotificationActionTypeGet:
+            apiSessionManager.get(actionLink, parameters: nil, progress: nil, success: success, failure: failure)
+        case .kNotificationActionTypePut:
+            apiSessionManager.put(actionLink, parameters: nil, success: success, failure: failure)
+        case .kNotificationActionTypePost:
+            apiSessionManager.post(actionLink, parameters: nil, progress: nil, success: success, failure: failure)
+        case .kNotificationActionTypeDelete:
+            apiSessionManager.delete(actionLink, parameters: nil, success: success, failure: failure)
+        default:
+            print("Trying to execute non-supported notification action type")
+            completionBlock?(NSError(domain: NSCocoaErrorDomain, code: 0))
+        }
+    }
+
+    @discardableResult
+    public func checkNotificationExistance(withIds notificationIds: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ notification: [Int]?, _ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return nil }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/exists"
+
+        return apiSessionManager.postOcs(urlString, account: account, parameters: ["ids": notificationIds]) { ocsResponse, ocsError in
+            if let intArray = ocsResponse?.ocsDict?["data"] as? [Int] {
+                completionBlock(intArray, nil)
+            } else {
+                completionBlock(nil, ocsError)
+            }
         }
     }
 

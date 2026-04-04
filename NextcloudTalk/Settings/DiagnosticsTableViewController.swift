@@ -149,7 +149,6 @@ class DiagnosticsTableViewController: UITableViewController {
         return sections
     }
 
-
     // MARK: Async. checks
 
     func runChecks() {
@@ -675,22 +674,34 @@ class DiagnosticsTableViewController: UITableViewController {
 
     func testPushNotifications() {
         self.showPushNotificationTestRunningIndicator()
-        NCAPIController.sharedInstance().testPushnotifications(forAccount: account) { result in
-            let isEmptyResult = result?.isEmpty ?? true
-            let title = isEmptyResult ? NSLocalizedString("Test failed", comment: "") : NSLocalizedString("Test results", comment: "")
-            let message = isEmptyResult ? NSLocalizedString("An error occurred while testing push notifications", comment: "") : result
-            let alert = UIAlertController(title: title,
-                                          message: message,
-                                          preferredStyle: .alert)
 
-            alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-            if !isEmptyResult {
+        Task {
+            do {
+                let (message, _) = try await NCAPIController.sharedInstance().testPushnotifications(forAccount: account)
+
+                let alertTitle = NSLocalizedString("Test results", comment: "")
+                let alert = UIAlertController(title: alertTitle,
+                                              message: message,
+                                              preferredStyle: .alert)
+
+                alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
                 alert.addAction(UIAlertAction(title: NSLocalizedString("Copy", comment: ""), style: .default) { _ in
-                    UIPasteboard.general.string = result
+                    UIPasteboard.general.string = message
                     NotificationPresenter.shared().present(text: NSLocalizedString("Test results copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
                 })
+
+                NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+            } catch {
+                let alertTitle = NSLocalizedString("Test failed", comment: "")
+                let alertMessage = NSLocalizedString("An error occurred while testing push notifications", comment: "")
+                let alert = UIAlertController(title: alertTitle,
+                                              message: alertMessage,
+                                              preferredStyle: .alert)
+
+                alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+                NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
             }
-            NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+
             self.hidePushNotificationTestRunningIndicator()
         }
     }

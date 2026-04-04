@@ -105,11 +105,36 @@ jobs:
       matrix:
         # Test with stable23 as well to find regressions in older versions
         configs: [
-          { talkbranch: 'stable23', serverbranch: 'stable23', phpversion: '8.0' },
-          { talkbranch: 'stable31', serverbranch: 'stable31', phpversion: '8.3' },
-          { talkbranch: 'stable32', serverbranch: 'stable32', phpversion: '8.3' },
-          { talkbranch: 'stable33', serverbranch: 'stable33', phpversion: '8.3' },
-          { talkbranch: 'main', serverbranch: 'master', phpversion: '8.3' }
+          {
+            serverbranch: 'stable23',
+            talkbranch: 'stable23',
+            notificationsbranch: 'stable23',
+            phpversion: '8.0'
+          },
+          {
+            serverbranch: 'stable31',
+            talkbranch: 'stable31',
+            notificationsbranch: 'stable31',
+            phpversion: '8.3'
+          },
+          {
+            serverbranch: 'stable32',
+            talkbranch: 'stable32',
+            notificationsbranch: 'stable32',
+            phpversion: '8.3'
+          },
+          {
+            serverbranch: 'stable33',
+            talkbranch: 'stable33',
+            notificationsbranch: 'stable33',
+            phpversion: '8.3'
+          },
+          {
+            serverbranch: 'master',
+            talkbranch: 'main',
+            notificationsbranch: 'master',
+            phpversion: '8.3'
+          }
         ]
 
     steps:
@@ -159,8 +184,20 @@ jobs:
         path: server/apps/spreed
         ref: ${{ matrix.configs.talkbranch }}
 
-    - name: Set up production dependencies
+    - name: Checkout notifications app
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
+        repository: nextcloud/notifications
+        path: server/apps/notifications
+        ref: ${{ matrix.configs.notificationsbranch }}
+
+    - name: Set up production dependencies spreed
       working-directory: server/apps/spreed
+      run: composer i --no-dev
+
+    - name: Set up production dependencies notifications
+      working-directory: server/apps/notifications
       run: composer i --no-dev 
 
     - name: Set up Nextcloud
@@ -173,6 +210,7 @@ jobs:
         ./server/occ config:system:set memcache.local --value='\OC\Memcache\APCu'
         ./server/occ config:system:set memcache.distributed --value='\OC\Memcache\APCu'
         ./server/occ app:enable --force spreed
+        ./server/occ app:enable --force notifications
         ./server/occ background:cron
         OC_PASS=alice ./server/occ user:add --password-from-env alice
         PHP_CLI_SERVER_WORKERS=10 php -S localhost:8080 -t server/ &
