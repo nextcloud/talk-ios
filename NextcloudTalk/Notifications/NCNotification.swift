@@ -4,7 +4,7 @@
 //
 
 @objcMembers
-class NCNotification: NSObject {
+public class NCNotification: NSObject {
 
     public var notificationId: Int
     public var app: String?
