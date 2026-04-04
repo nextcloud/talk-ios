@@ -1044,19 +1044,21 @@ import NextcloudKit
 
     // MARK: - Push notification test
 
-    public func testPushnotifications(forAccount account: TalkAccount, completionBlock: @escaping (_ result: String?) -> Void) {
+    @nonobjc
+    public func testPushnotifications(forAccount account: TalkAccount) async throws -> (message: String, notificationId: Int?) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
-        else {
-            completionBlock(nil)
-            return
-        }
+        else { throw ApiControllerError.preconditionError }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v3/test/self"
 
-        apiSessionManager.postOcs(urlString, account: account) { ocsResponse, _ in
-            let message = ocsResponse?.dataDict?["message"] as? String
-            completionBlock(message)
-        }
+        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account)
+
+        guard let dataDict = ocsResponse.dataDict,
+              let message = dataDict["message"] as? String
+        else { throw ApiControllerError.unexpectedOcsResponse }
+
+        // notificationId is only returend on Nextcloud >= 32
+        return (message, dataDict["nid"] as? Int)
     }
 
     // MARK: - Upcoming events

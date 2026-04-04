@@ -77,11 +77,11 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
     if (pushNotification.type == NCPushNotificationTypeDelete) {
         NSNumber *notificationId = @(pushNotification.notificationId);
-        [self removeNotificationWithNotificationIds:@[notificationId] forAccountId:pushNotification.accountId];
+        [self removeNotificationWithNotificationIds:@[notificationId] forAccountId:pushNotification.accountId withCompletionBlock:nil];
     } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
         [self removeAllNotificationsForAccountId:pushNotification.accountId];
     } else if (pushNotification.type == NCPushNotificationTypeDeleteMultiple) {
-        [self removeNotificationWithNotificationIds:pushNotification.notificationIds forAccountId:pushNotification.accountId];
+        [self removeNotificationWithNotificationIds:pushNotification.notificationIds forAccountId:pushNotification.accountId withCompletionBlock:nil];
     } else {
         NSLog(@"Push Notification of an unknown type received");
     }
@@ -264,9 +264,12 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     [self updateAppIconBadgeNumber];
 }
 
-- (void)removeNotificationWithNotificationIds:(NSArray *)notificationIds forAccountId:(NSString *)accountId
+- (void)removeNotificationWithNotificationIds:(NSArray *)notificationIds forAccountId:(NSString *)accountId withCompletionBlock:(void (^)(void))completion
 {
     if (!notificationIds) {
+        if (completion) {
+            completion();
+        }
         return;
     }
     
@@ -327,6 +330,9 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }];
 
     dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
+        if (completion) {
+            completion();
+        }
         [bgTask stopBackgroundTask];
     });
 }
@@ -345,6 +351,8 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
             NSMutableArray *notificationIdsOnDevice = [[NSMutableArray alloc] init];
 
+            // TODO: Instead of storing just the IDs, we can also store the identifier and directly
+            // remove the notification instead of iterating again removeNotificationWithNotificationIds
             for (UNNotification *notification in notifications) {
                 UNNotificationRequest *notificationRequest = notification.request;
                 NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
@@ -364,7 +372,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                 return;
             }
 
-            [[NCAPIController sharedInstance] checkNotificationExistance:notificationIdsOnDevice forAccount:account withCompletionBlock:^(NSArray *notificationIds, NSError *error) {
+            [[NCAPIController sharedInstance] checkNotificationExistanceWithIds:notificationIdsOnDevice forAccount:account completionBlock:^(NSArray<NSNumber *> * _Nullable notificationIds, NSError * _Nullable error) {
                 if (error) {
                     dispatch_group_leave(notificationsGroup);
                     return;
@@ -376,11 +384,14 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                 }
 
                 // In case there are still notifications on the device (that are not on the server anymore) remove them
-                if ([notificationIdsOnDevice count] > 0) {
-                    [self removeNotificationWithNotificationIds:notificationIdsOnDevice forAccountId:account.accountId];
+                if ([notificationIdsOnDevice count] == 0) {
+                    dispatch_group_leave(notificationsGroup);
+                    return;
                 }
 
-                dispatch_group_leave(notificationsGroup);
+                [self removeNotificationWithNotificationIds:notificationIdsOnDevice forAccountId:account.accountId withCompletionBlock:^{
+                    dispatch_group_leave(notificationsGroup);
+                }];
             }];
         }];
     }
@@ -539,7 +550,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^(UIAlertAction * _Nonnull action) {
                 [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
-                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:nil];
             }];
 
             [alert addAction:tempButton];
@@ -609,7 +620,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             UIAlertAction* tempButton = [UIAlertAction actionWithTitle:notificationAction.actionLabel
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^(UIAlertAction * _Nonnull action) {
-                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:nil];
             }];
 
             [alert addAction:tempButton];
@@ -653,7 +664,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         NCNotificationAction *notificationAction = [[NCNotificationAction alloc] initWithDictionary:dict];
 
         if (notificationAction && notificationAction.actionType == NCNotificationActionTypeKNotificationActionTypeDelete) {
-            [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+            [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:nil];
         }
     }
 }

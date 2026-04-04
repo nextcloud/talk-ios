@@ -7,7 +7,8 @@ import Foundation
 
 // Documentation at https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 // Type "Web" is supposed to do a redirect
-@objc enum NCNotificationActionType: Int {
+@objc
+public enum NCNotificationActionType: Int {
     case kNotificationActionTypeUnknown = 0
     case kNotificationActionTypeGet
     case kNotificationActionTypePost
@@ -16,7 +17,8 @@ import Foundation
     case kNotificationActionTypeWeb
 }
 
-@objcMembers class NCNotificationAction: NSObject {
+@objcMembers
+public class NCNotificationAction: NSObject {
 
     public let actionLabel: String?
     public var actionLink: String?
