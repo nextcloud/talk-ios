@@ -13,6 +13,13 @@ import NextcloudKit
         case unexpectedOcsResponse
     }
 
+    // MARK: - Urls
+
+    public func authenticationBackendUrl(forAccount account: TalkAccount) -> String {
+        let signalingApiVersion = self.signalingAPIVersion(for: account)
+        return self.getRequestURL(forEndpoint: "signaling/backend", withAPIVersion: signalingApiVersion, for: account)
+    }
+
     // MARK: - Rooms Controller
 
     @discardableResult

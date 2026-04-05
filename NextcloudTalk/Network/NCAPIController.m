@@ -1089,15 +1089,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-#pragma mark - Signaling Controller
-
-- (NSString *)authenticationBackendUrlForAccount:(TalkAccount *)account
-{
-    NSString *endpoint = @"signaling/backend";
-    NSInteger signalingAPIVersion = [self signalingAPIVersionForAccount:account];
-    return [self getRequestURLForEndpoint:endpoint withAPIVersion:signalingAPIVersion forAccount:account];
-}
-
 #pragma mark - Settings
 
 - (NSURLSessionDataTask *)setReadStatusPrivacySettingEnabled:(BOOL)enabled forAccount:(TalkAccount *)account withCompletionBlock:(SetReadStatusPrivacySettingCompletionBlock)block
