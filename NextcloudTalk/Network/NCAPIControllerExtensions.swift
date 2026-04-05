@@ -1652,7 +1652,7 @@ import NextcloudKit
     // MARK: - Call controller
 
     @discardableResult
-    public func getPeersForCall(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ peers: [[String: AnyObject]]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionTask? {
+    public func getPeersForCall(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ peers: [[String: AnyObject]]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -1698,7 +1698,7 @@ import NextcloudKit
     }
 
     @discardableResult
-    public func leaveCall(inRoom token: String, forAllParticipants allParticipants: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
+    public func leaveCall(inRoom token: String, forAllParticipants allParticipants: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -1712,7 +1712,7 @@ import NextcloudKit
     }
 
     @discardableResult
-    public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
+    public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -1734,7 +1734,7 @@ import NextcloudKit
     // MARK: - Server capabilities
 
     @discardableResult
-    public func getServerCapabilities(forServer server: String, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionTask? {
+    public func getServerCapabilities(forServer server: String, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         let urlString = "\(server)/ocs/v1.php/cloud/capabilities"
 
         return defaultAPISessionManager.getOcs(urlString, account: nil, parameters: ["format": "json"]) { ocsResponse, ocsError in
@@ -1743,7 +1743,7 @@ import NextcloudKit
     }
 
     @discardableResult
-    public func getServerCapabilities(forAccount account: TalkAccount, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionTask? {
+    public func getServerCapabilities(forAccount account: TalkAccount, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return nil }
 
@@ -1757,7 +1757,7 @@ import NextcloudKit
     // MARK: - Server notification
 
     @discardableResult
-    public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: Error?) -> Void) -> URLSessionTask? {
+    public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         // TODO: Do we need to manually ensure the session manager exist (see objc workaround)
         // This method is currently only used in tests as NSE is using the endpoint directly
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
@@ -1820,7 +1820,7 @@ import NextcloudKit
     }
 
     @discardableResult
-    public func checkNotificationExistance(withIds notificationIds: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ notification: [Int]?, _ error: Error?) -> Void) -> URLSessionTask? {
+    public func checkNotificationExistance(withIds notificationIds: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ notification: [Int]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return nil }
 
@@ -1838,7 +1838,7 @@ import NextcloudKit
     // MARK: - Contacts controller
 
     @discardableResult
-    public func searchContacts(forAccount account: TalkAccount, withPhoneNumbers phoneNumbers: [String: [String]], completionBlock: @escaping (_ contacts: [String: String]?, _ error: Error?) -> Void) -> URLSessionTask? {
+    public func searchContacts(forAccount account: TalkAccount, withPhoneNumbers phoneNumbers: [String: [String]], completionBlock: @escaping (_ contacts: [String: String]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return nil }
 
@@ -1859,7 +1859,7 @@ import NextcloudKit
     }
 
     @discardableResult
-    public func getContacts(forAccount account: TalkAccount, forRoom room: String?, forGroupRoom groupRoom: Bool, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionTask? {
+    public func getContacts(forAccount account: TalkAccount, forRoom room: String?, forGroupRoom groupRoom: Bool, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return nil }
 
