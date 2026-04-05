@@ -1926,4 +1926,65 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Reactions controller
+
+    public func addReaction(_ reaction: String, toMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.reactionsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: ["reaction": reaction]) { ocsResponse, ocsError in
+            if let ocsResponse {
+                // When there are no elements, the server returns an empty array instead of an empty dictionary
+                completionBlock(ocsResponse.dataDict ?? [:], nil)
+            } else {
+                completionBlock(nil, ocsError)
+            }
+        }
+    }
+
+    public func removeReaction(_ reaction: String, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.reactionsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account, parameters: ["reaction": reaction]) { ocsResponse, ocsError in
+            if let ocsResponse {
+                // When there are no elements, the server returns an empty array instead of an empty dictionary
+                completionBlock(ocsResponse.dataDict ?? [:], nil)
+            } else {
+                completionBlock(nil, ocsError)
+            }
+        }
+    }
+
+    public func getReactions(_ reaction: String?, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.reactionsAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+        var parameters: [String: Any] = [:]
+
+        if let reaction {
+            parameters["reaction"] = reaction
+        }
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let ocsResponse {
+                // When there are no elements, the server returns an empty array instead of an empty dictionary
+                completionBlock(ocsResponse.dataDict ?? [:], nil)
+            } else {
+                completionBlock(nil, ocsError)
+            }
+        }
+    }
+
 }
