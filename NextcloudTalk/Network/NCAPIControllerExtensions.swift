@@ -1928,4 +1928,49 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Translations controller
+
+    @nonobjc
+    public func getAvailableTranslations(forAccount account: TalkAccount, completionBlock: @escaping (_ translations: [NCTranslation]?, _ langugageDetection: Bool, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/translation/languages"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            if let translationDict = ocsResponse?.dataDict {
+                var availableTranslations: [NCTranslation]?
+
+                if let translations = translationDict["languages"] as? [[String: Any]] {
+                    availableTranslations = NCDatabaseManager.sharedInstance().translations(fromTranslationsArray: translations)
+                }
+
+                completionBlock(availableTranslations, translationDict["languageDetection"] as? Bool ?? false, ocsError?.error)
+            } else {
+                completionBlock(nil, false, ocsError?.error)
+            }
+        }
+    }
+
+    @nonobjc
+    public func translateMessage(_ message: String, fromLanguage from: String?, toLanguage to: String, forAccount account: TalkAccount, completionBlock: @escaping (_ translationDict: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/translation/translate"
+
+        var parameters = [
+            "text": message,
+            "toLanguage": to
+        ]
+
+        if let from, !from.isEmpty {
+            parameters["fromLanguage"] = from
+        }
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict ?? ocsError?.dataDict, ocsError?.error)
+        }
+    }
+
 }

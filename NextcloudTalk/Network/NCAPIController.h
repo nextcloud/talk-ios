@@ -31,9 +31,6 @@ typedef void (^GetSharedItemsOverviewCompletionBlock)(NSDictionary *sharedItemsO
 typedef void (^GetSharedItemsCompletionBlock)(NSArray *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 typedef void (^GetMessageContextInRoomCompletionBlock)(NSArray *messages, NSError *error, NSInteger statusCode);
 
-typedef void (^GetTranslationsCompletionBlock)(NSArray *languages, BOOL languageDetection, NSError *error, NSInteger statusCode);
-typedef void (^MessageTranslationCompletionBlock)(NSDictionary *translationDict, NSError *error, NSInteger statusCode);
-
 typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
 
 typedef void (^PollCompletionBlock)(NCPoll *poll, NSError *error, NSInteger statusCode);
@@ -138,10 +135,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getSharedItemsOverviewInRoom:(NSString *)token withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsOverviewCompletionBlock)block;
 - (NSURLSessionDataTask *)getSharedItemsOfType:(NSString *)objectType fromLastMessageId:(NSInteger)messageId withLimit:(NSInteger)limit inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsCompletionBlock)block;
 - (NSURLSessionDataTask *)getMessageContextInRoom:(NSString *)token forMessageId:(NSInteger)messageId inThread:(NSInteger)threadId withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetMessageContextInRoomCompletionBlock)block;
-
-// Translations
-- (NSURLSessionDataTask *)getAvailableTranslationsForAccount:(TalkAccount *)account withCompletionBlock:(GetTranslationsCompletionBlock)block;
-- (NSURLSessionDataTask *)translateMessage:(NSString *)message from:(NSString *)from to:(NSString *)to forAccount:(TalkAccount *)account withCompletionBlock:(MessageTranslationCompletionBlock)block;
 
 // Reactions Controller
 - (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
