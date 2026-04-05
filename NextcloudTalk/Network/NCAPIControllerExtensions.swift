@@ -1835,4 +1835,97 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Contacts controller
+
+    @discardableResult
+    public func searchContacts(forAccount account: TalkAccount, withPhoneNumbers phoneNumbers: [String: [String]], completionBlock: @escaping (_ contacts: [String: String]?, _ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return nil }
+
+        let urlString = "\(account.server)/ocs/v2.php/cloud/users/search/by-phone"
+        let parameters: [String: Any] = [
+            "location": Locale.current.region?.identifier ?? "",
+            "search": phoneNumbers
+        ]
+
+        // Ignore status code for now https://github.com/nextcloud/server/pull/26679
+        return apiSessionManager.postOcs(urlString, account: account, parameters: parameters, checkResponseStatusCode: false) { ocsResponse, ocsError in
+            if let contactsDict = ocsResponse?.dataDict as? [String: String] {
+                completionBlock(contactsDict, ocsError?.error)
+            } else {
+                completionBlock(nil, ocsError?.error)
+            }
+        }
+    }
+
+    @discardableResult
+    public func getContacts(forAccount account: TalkAccount, forRoom room: String?, forGroupRoom groupRoom: Bool, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return nil }
+
+        let urlString = "\(account.server)/ocs/v2.php/core/autocomplete/get"
+
+        var shareTypes = [NCShareType.user.rawValue]
+        if groupRoom, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityInviteGroupsAndMails, forAccountId: account.accountId) {
+            shareTypes.append(NCShareType.group.rawValue)
+            shareTypes.append(NCShareType.email.rawValue)
+
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityCirclesSupport, forAccountId: account.accountId) {
+                shareTypes.append(NCShareType.circle.rawValue)
+            }
+
+            if NCDatabaseManager.sharedInstance().serverCanInviteFederatedUsersforAccountId(account.accountId) {
+                shareTypes.append(NCShareType.remote.rawValue)
+            }
+        }
+
+        let parameters: [String: Any] = [
+            "format": "json",
+            "search": searchParam ?? "",
+            "limit": "50",
+            "itemType": "call",
+            "itemId": room ?? "new",
+            "shareTypes": shareTypes
+        ]
+
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let contactsDict = ocsResponse?.dataArrayDict {
+                let contacts = contactsDict
+                    .compactMap( { NCUser(dictionary: $0) })
+                    .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
+
+                completionBlock(contacts, ocsError?.error)
+            } else {
+                completionBlock(nil, ocsError?.error)
+            }
+        }
+    }
+
+    // TODO: Can be combined with 'getContacts(forAccount:)' at some point
+    @discardableResult
+    public func searchUsers(forAccount account: TalkAccount, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return nil }
+
+        let urlString = "\(account.server)/ocs/v2.php/core/autocomplete/get"
+
+        let parameters: [String: Any] = [
+            "format": "json",
+            "search": searchParam ?? "",
+            "limit": "20"
+        ]
+
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let contactsDict = ocsResponse?.dataArrayDict {
+                let contacts = contactsDict
+                    .compactMap( { NCUser(dictionary: $0) })
+                    .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
+
+                completionBlock(contacts, ocsError?.error)
+            } else {
+                completionBlock(nil, ocsError?.error)
+            }
+        }
+    }
+
 }
