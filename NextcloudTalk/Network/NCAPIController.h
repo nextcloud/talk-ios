@@ -31,8 +31,6 @@ typedef void (^GetSharedItemsOverviewCompletionBlock)(NSDictionary *sharedItemsO
 typedef void (^GetSharedItemsCompletionBlock)(NSArray *sharedItems, NSInteger lastKnownMessage, NSError *error, NSInteger statusCode);
 typedef void (^GetMessageContextInRoomCompletionBlock)(NSArray *messages, NSError *error, NSInteger statusCode);
 
-typedef void (^MessageReactionCompletionBlock)(NSDictionary *reactionsDict, NSError *error, NSInteger statusCode);
-
 typedef void (^PollCompletionBlock)(NCPoll *poll, NSError *error, NSInteger statusCode);
 typedef void (^PollDraftsCompletionBlock)(NSArray *polls, NSError *error, NSInteger statusCode);
 
@@ -135,11 +133,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getSharedItemsOverviewInRoom:(NSString *)token withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsOverviewCompletionBlock)block;
 - (NSURLSessionDataTask *)getSharedItemsOfType:(NSString *)objectType fromLastMessageId:(NSInteger)messageId withLimit:(NSInteger)limit inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(GetSharedItemsCompletionBlock)block;
 - (NSURLSessionDataTask *)getMessageContextInRoom:(NSString *)token forMessageId:(NSInteger)messageId inThread:(NSInteger)threadId withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetMessageContextInRoomCompletionBlock)block;
-
-// Reactions Controller
-- (NSURLSessionDataTask *)addReaction:(NSString *)reaction toMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
-- (NSURLSessionDataTask *)removeReaction:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
-- (NSURLSessionDataTask *)getReactions:(NSString *)reaction fromMessage:(NSInteger)messageId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(MessageReactionCompletionBlock)block;
 
 // Polls Controller
 - (NSURLSessionDataTask *)createPollWithQuestion:(NSString *)question options:(NSArray *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes inRoom:(NSString *)token asDraft:(BOOL)asDraft forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;

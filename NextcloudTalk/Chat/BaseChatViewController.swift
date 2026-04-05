@@ -2903,7 +2903,7 @@ import SwiftUI
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: self.account.accountId)
 
-        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
+        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, forAccount: self.account) { _, error in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2921,7 +2921,7 @@ import SwiftUI
 
         self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
-        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
+        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, forAccount: self.account) { _, error in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2999,7 +2999,7 @@ import SwiftUI
         reactionsVC.room = self.room
         self.presentWithNavigation(reactionsVC, animated: true)
 
-        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { reactionsDict, error, _ in
+        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, forAccount: self.account) { reactionsDict, error in
             if error == nil,
                let reactions = reactionsDict as? [String: [[String: AnyObject]]] {
 
