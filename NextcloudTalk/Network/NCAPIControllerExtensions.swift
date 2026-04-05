@@ -2034,4 +2034,22 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Reference handling
+
+    public func getReference(forUrlString referenceUrl: String, forAccount account: TalkAccount, completionBlock: @escaping (_ referenceDict: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/references/resolve"
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: ["reference": referenceUrl]) { ocsResponse, ocsError in
+            if let ocsResponse {
+                // When there's no data, the server returns an empty array instead of a dictionary
+                completionBlock(ocsResponse.dataDict?["references"] as? [String: [String: AnyObject]] ?? [:], nil)
+            } else {
+                completionBlock(nil, ocsError)
+            }
+        }
+    }
+
 }
