@@ -64,7 +64,7 @@ public enum NCExternalSignalingSendMessageStatus {
         self.serverUrl = serverUrl
         self.ticket = ticket
 
-        self.authenticationBackendUrl = NCAPIController.sharedInstance().authenticationBackendUrl(for: account)
+        self.authenticationBackendUrl = NCAPIController.sharedInstance().authenticationBackendUrl(forAccount: account)
         self.serverUrl = NCExternalSignalingController.getWebSocketUrl(forServer: serverUrl)
 
         super.init()
