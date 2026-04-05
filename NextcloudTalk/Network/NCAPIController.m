@@ -1807,35 +1807,7 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-#pragma mark - Reference handling
-
-- (NSURLSessionDataTask *)getReferenceForUrlString:(NSString *)url forAccount:(TalkAccount *)account withCompletionBlock:(GetReferenceForUrlStringCompletionBlock)block
-{
-    NSString *URLString = [NSString stringWithFormat:@"%@/ocs/v2.php/references/resolve", account.server];
-    NSDictionary *parameters = @{@"reference" : url};
-
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary *responseReferences = [[[responseObject objectForKey:@"ocs"] objectForKey:@"data"] objectForKey:@"references"];
-        if (block) {
-            // When there's no data, the server returns an empty array instead of a dictionary
-            // Also we don't want to have a dictionary with NSNull values in it
-            if (![responseReferences isKindOfClass:[NSDictionary class]] || [[responseReferences objectForKey:url] isKindOfClass:[NSNull class]]) {
-                block(@{}, nil);
-            } else {
-                block(responseReferences, nil);
-            }
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error);
-        }
-    }];
-
-    return task;
-}
-
-#pragma - Recording
+#pragma mark - Recording
 
 - (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block
 {
