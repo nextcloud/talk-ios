@@ -21,7 +21,7 @@ import UIKit
     var originalMessage: String?
     var availableTranslations: [NCTranslation]?
     var userLanguageCode: String?
-    var activeAccount: TalkAccount?
+    var activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
     let textHorizontalPadding = 12.0
     let textVerticalPadding = 10.0
@@ -44,7 +44,6 @@ import UIKit
         self.originalMessage = message
         self.availableTranslations = availableTranslations
         self.userLanguageCode = Locale.current.languageCode
-        self.activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
     }
 
     override func viewDidLoad() {
@@ -80,6 +79,8 @@ import UIKit
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
         if !didTriggerInitialTranslation {
             self.setTranslatingUI()
             self.didTriggerInitialTranslation = true
@@ -87,9 +88,9 @@ import UIKit
             self.configureToButton(title: initialToLanguage(), enabled: false, fromLanguageCode: "")
             self.adjustOriginalTextViewSizeToViewSize(size: self.view.bounds.size)
 
-            if NCDatabaseManager.sharedInstance().hasTranslationProviders(forAccountId: activeAccount?.accountId ?? "") {
-                NCAPIController.sharedInstance().getAvailableTranslations(for: activeAccount) { languages, languageDetection, error, _ in
-                    if let translations = languages as? [NCTranslation], error == nil {
+            if NCDatabaseManager.sharedInstance().hasTranslationProviders(forAccountId: activeAccount.accountId) {
+                NCAPIController.sharedInstance().getAvailableTranslations(forAccount: activeAccount) { translations, languageDetection, error in
+                    if let translations, error == nil {
                         self.availableTranslations = translations
                         if languageDetection {
                             self.translateOriginalText(from: "", to: self.userLanguageCode ?? "")
@@ -198,8 +199,10 @@ import UIKit
     // MARK: - Translate
 
     func translateOriginalText(from: String, to: String) {
+        guard let originalMessage else { return }
+
         self.setTranslatingUI()
-        NCAPIController.sharedInstance().translateMessage(originalMessage, from: from, to: to, for: activeAccount) { responseDict, error, _ in
+        NCAPIController.sharedInstance().translateMessage(originalMessage, fromLanguage: from, toLanguage: to, forAccount: activeAccount) { responseDict, error in
             self.removeTranslatingUI()
 
             if let responseDict = responseDict as? [String: String] {
