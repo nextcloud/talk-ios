@@ -696,6 +696,33 @@ import NextcloudKit
         }
     }
 
+    @MainActor
+    public func sendSignalingMessages(_ messages: String, toRoom token: String, forAccount account: TalkAccount) async throws {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let apiVersion = self.signalingAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        try await apiSessionManager.postOcs(urlString, account: account, parameters: ["messages": messages])
+    }
+
+    // Use non-async method here to allow cancellation from objc (as we can return a URLSessionDataTask)
+    @discardableResult
+    public func pullSignalingMessages(fromRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [[String: AnyObject]]?, _ error: Error?) -> Void) -> URLSessionTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.signalingAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
+        }
+    }
+
     // MARK: - Mentions
 
     public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ mentions: [MentionSuggestion]?) -> Void) {
