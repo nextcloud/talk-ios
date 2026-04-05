@@ -17,10 +17,6 @@
 @class SDWebImageCombinedOperation;
 @class SDWebImageDownloaderRequestModifier;
 
-typedef void (^GetContactsCompletionBlock)(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error);
-typedef void (^GetContactsWithPhoneNumbersCompletionBlock)(NSDictionary *contacts, NSError *error);
-typedef void (^SearchUsersCompletionBlock)(NSArray *indexes, NSMutableDictionary *users, NSMutableArray *userList, NSError *error);
-
 typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
 typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
 
@@ -128,11 +124,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Remote Wipe
 - (NSURLSessionDataTask *)checkWipeStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetWipeStatusCompletionBlock)block;
 - (NSURLSessionDataTask *)confirmWipeForAccount:(TalkAccount *)account withCompletionBlock:(GetWipeStatusCompletionBlock)block;
-
-// Contacts Controller
-- (NSURLSessionDataTask *)searchContactsForAccount:(TalkAccount *)account withPhoneNumbers:(NSDictionary *)phoneNumbers andCompletionBlock:(GetContactsWithPhoneNumbersCompletionBlock)block;
-- (NSURLSessionDataTask *)getContactsForAccount:(TalkAccount *)account forRoom:(NSString *)room groupRoom:(BOOL)groupRoom withSearchParam:(NSString *)search andCompletionBlock:(GetContactsCompletionBlock)block;
-- (NSURLSessionDataTask *)searchUsersForAccount:(TalkAccount *)account withSearchParam:(NSString *)search andCompletionBlock:(SearchUsersCompletionBlock)block;
 
 // Chat Controller
 - (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId inThread:(NSInteger)threadId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout limit:(NSInteger)limit lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block;

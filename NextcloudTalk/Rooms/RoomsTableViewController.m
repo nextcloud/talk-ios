@@ -755,7 +755,7 @@ typedef enum RoomsSections {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     // Search for contacts
     _resultTableViewController.users = @[];
-    [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil forGroupRoom:NO withSearchParam:searchString completionBlock:^(NSArray<NCUser *> * _Nullable contactList, NSError *error) {
         if (!error) {
             NSArray *users = [self usersWithoutOneToOneConversations:contactList];
             if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
