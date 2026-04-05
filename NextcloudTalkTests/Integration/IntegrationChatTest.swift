@@ -89,4 +89,44 @@ final class IntegrationChatTest: TestBase {
         XCTAssertEqual(scheduledMessages.count, 0)
     }
 
+    func testMessageReaction() async throws {
+        try skipWithoutCapability(capability: kCapabilityReactions)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let chatMessage = "React to message 🥳"
+
+        let room = try await createUniqueRoom(prefix: "Reaction Test Room 🧊", withAccount: activeAccount)
+        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+
+        XCTAssertNotNil(message)
+        XCTAssertEqual(message.message, chatMessage)
+        XCTAssertEqual(message.token, room.token)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        NCAPIController.sharedInstance().addReaction("👍", toMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
+            XCTAssertNil(error)
+            XCTAssertNotNil(reactionsDict!["👍"])
+
+            NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
+                XCTAssertNil(error)
+                XCTAssertNotNil(reactionsDict!["👍"])
+
+                NCAPIController.sharedInstance().removeReaction("👍", fromMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
+                    XCTAssertNil(error)
+                    XCTAssertNil(reactionsDict!["👍"])
+
+                    NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
+                        XCTAssertNil(error)
+                        XCTAssertNil(reactionsDict!["👍"])
+
+                        exp.fulfill()
+                    }
+                }
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
 }
