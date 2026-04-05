@@ -683,7 +683,7 @@ NSString * const kSharedItemTypePinned      = @"pinned";
     } else {
         TalkAccount *account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_accountId];
 
-        [[NCAPIController sharedInstance] getReferenceForUrlString:_urlDetected forAccount:account withCompletionBlock:^(NSDictionary *references, NSError *error) {
+        [[NCAPIController sharedInstance] getReferenceForUrlString:_urlDetected forAccount:account completionBlock:^(NSDictionary *references, NSError *error) {
             if (block) {
                 block(self, references, self->_urlDetected);
             }
