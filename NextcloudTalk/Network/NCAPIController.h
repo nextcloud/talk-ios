@@ -165,12 +165,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getUserStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetUserStatusCompletionBlock)block;
 - (NSURLSessionDataTask *)setUserStatus:(NSString *)status forAccount:(TalkAccount *)account withCompletionBlock:(SetUserStatusCompletionBlock)block;
 
-// Push Notifications
-- (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account withPublicKey:(NSData *)publicKey toNextcloudServerWithCompletionBlock:(SubscribeToNextcloudServerCompletionBlock)block;
-- (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromNextcloudServerWithCompletionBlock:(UnsubscribeToNextcloudServerCompletionBlock)block;
-- (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block;
-- (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromPushServerWithCompletionBlock:(UnsubscribeToPushProxyCompletionBlock)block;
-
 // Internal method exposed for swift extension
 - (NSString * _Nonnull)getRequestURLForConversationEndpoint:(NSString *_Nonnull)endpoint forAccount:(TalkAccount *_Nonnull)account;
 - (NSString * _Nonnull)getRequestURLForEndpoint:(NSString *_Nonnull)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *_Nonnull)account;
