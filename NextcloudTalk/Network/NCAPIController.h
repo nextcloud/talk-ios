@@ -73,11 +73,6 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
-typedef void (^StartRecordingCompletionBlock)(NSError *error);
-typedef void (^StopRecordingCompletionBlock)(NSError *error);
-typedef void (^DismissStoredRecordingNotificationCompletionBlock)(NSError *error);
-typedef void (^ShareStoredRecordingCompletionBlock)(NSError *error);
-
 typedef void (^SetReminderForMessage)(NSError *error);
 typedef void (^DeleteReminderForMessage)(NSError *error);
 typedef void (^GetReminderForMessage)(NSDictionary *responseDict, NSError *error);
@@ -187,12 +182,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromNextcloudServerWithCompletionBlock:(UnsubscribeToNextcloudServerCompletionBlock)block;
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block;
 - (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromPushServerWithCompletionBlock:(UnsubscribeToPushProxyCompletionBlock)block;
-
-// Recording
-- (NSURLSessionDataTask *)startRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StartRecordingCompletionBlock)block;
-- (NSURLSessionDataTask *)stopRecording:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(StopRecordingCompletionBlock)block;
-- (NSURLSessionDataTask *)dismissStoredRecordingNotificationWithTimestamp:(NSString *)timestamp forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(DismissStoredRecordingNotificationCompletionBlock)block;
-- (NSURLSessionDataTask *)shareStoredRecordingWithTimestamp:(NSString *)timestamp withFileId:(NSString *)fileId forRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(ShareStoredRecordingCompletionBlock)block;
 
 // Remind me later
 - (NSURLSessionDataTask *)setReminderForMessage:(NCChatMessage *)message withTimestamp:(NSString *)timestamp withCompletionBlock:(SetReminderForMessage)block;

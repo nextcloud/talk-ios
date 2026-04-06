@@ -589,7 +589,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                                                                  withFileId:fileId
                                                                     forRoom:serverNotification.roomToken
                                                                  forAccount:account
-                                                        withCompletionBlock:^(NSError *error) {
+                                                        completionBlock:^(NSError *error) {
             if (error) {
                 NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:serverNotification.roomToken forKey:@"roomToken"];
                 [userInfo setValue:@(kNCLocalNotificationTypeFailedToShareRecording) forKey:@"localNotificationType"];
@@ -605,7 +605,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         [[NCAPIController sharedInstance] dismissStoredRecordingNotificationWithTimestamp:notificationTimestamp
                                                                                   forRoom:serverNotification.roomToken
                                                                                forAccount:account
-                                                                      withCompletionBlock:^(NSError *error) {
+                                                                      completionBlock:^(NSError *error) {
             [bgTask stopBackgroundTask];
         }];
     } else {

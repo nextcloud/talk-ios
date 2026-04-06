@@ -2052,4 +2052,62 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Recording
+
+    public func startRecording(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, for: account)
+
+        // Status 1 -> Video recording
+        // Status 2 -> Audio recording (not supported for now)
+        let parameters = ["status": 1]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func stopRecording(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func dismissStoredRecordingNotification(withTimestamp timestamp: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/notification", withAPIVersion: 1, for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account, parameters: ["timestamp": timestamp]) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
+    public func shareStoredRecording(withTimestamp timestamp: String, withFileId fileId: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/share-chat", withAPIVersion: 1, for: account)
+        let parameters = [
+            "timestamp": timestamp,
+            "fileId": fileId
+        ]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.error)
+        }
+    }
+
 }
