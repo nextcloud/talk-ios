@@ -2273,4 +2273,23 @@ import NextcloudKit
             completionBlock?(ocsError?.error)
         }
     }
+
+    // MARK: - AppStore info
+
+    public func getAppStoreAppId(withCompletionBlock completionBlock: @escaping (_ appId: String?, _ error: Error?) -> Void) {
+        let urlString = "http://itunes.apple.com/lookup?bundleId=\(bundleIdentifier)"
+
+        defaultAPISessionManager.get(urlString, parameters: nil, progress: nil, success: { _, responseObject in
+            if let responseDict = responseObject as? [String: Any], let results = responseDict["results"] as? [[String: Any]], let firstResult = results.first {
+                if let trackId = firstResult["trackId"] as? Int {
+                    completionBlock(String(trackId), nil)
+                    return
+                }
+            }
+
+            completionBlock(nil, NSError(domain: NSCocoaErrorDomain, code: 0))
+        }, failure: { _, error in
+            completionBlock(nil, error)
+        })
+    }
 }
