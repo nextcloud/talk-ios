@@ -1581,31 +1581,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return task;
 }
 
-#pragma mark - App Store info
-
-- (NSURLSessionDataTask *)getAppStoreAppIdWithCompletionBlock:(GetAppIdCompletionBlock)block
-{
-    NSString *URLString = [NSString stringWithFormat:@"http://itunes.apple.com/lookup?bundleId=%@", bundleIdentifier];
-
-    NSURLSessionDataTask *task = [_defaultAPISessionManager GET:URLString parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSString *appId = nil;
-        NSArray *results = [responseObject objectForKey:@"results"];
-        if (results.count > 0) {
-            NSDictionary *appInfo = [results objectAtIndex:0];
-            appId = [[appInfo objectForKey:@"trackId"] stringValue];
-        }
-        if (block) {
-            block(appId, nil);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (block) {
-            block(nil, error);
-        }
-    }];
-
-    return task;
-}
-
 #pragma mark - Error handling
 
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response
