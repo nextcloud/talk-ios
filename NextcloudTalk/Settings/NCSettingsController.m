@@ -180,9 +180,9 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             [[NCConnectionController shared] checkAppState];
 
             // If the token was marked for remote wipe, confirm the wipe
-            [[NCAPIController sharedInstance] checkWipeStatusForAccount:account withCompletionBlock:^(BOOL wipe, NSError *error) {
+            [[NCAPIController sharedInstance] checkWipeStatusForAccount:account completionBlock:^(BOOL wipe, NSError *error) {
                 if (wipe) {
-                    [[NCAPIController sharedInstance] confirmWipeForAccount:account withCompletionBlock:nil];
+                    [[NCAPIController sharedInstance] confirmWipeForAccount:account completionBlock:nil];
                 }
             }];
         }

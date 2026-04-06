@@ -331,7 +331,7 @@ import MBProgressHUD
         super.viewDidLoad()
 
         // Configure communication lib
-        let userToken = NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId)
+        guard let userToken = NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId) else { return }
         let userAgent = "Mozilla/5.0 (iOS) Nextcloud-Talk v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")"
 
         NextcloudKit.shared.setup(account: self.account.accountId,
