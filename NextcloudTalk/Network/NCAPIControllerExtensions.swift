@@ -2154,4 +2154,33 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Settings
+
+    private func setUserSetting(withKey key: String, toValue value: Any, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = self.getRequestURL(forEndpoint: "settings/user", withAPIVersion: 1, for: account)
+        let parameters: [String: Any] = [
+            "key": key,
+            "value": value
+        ]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    public func setReadStatusPrivacySettingEnabled(_ enabled: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
+        self.setUserSetting(withKey: "read_status_privacy", toValue: enabled, forAccount: account) { error in
+            completionBlock(error)
+        }
+    }
+
+    public func setTypingPrivacySettingEnabled(_ enabled: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
+        self.setUserSetting(withKey: "typing_privacy", toValue: enabled, forAccount: account) { error in
+            completionBlock(error)
+        }
+    }
+
 }
