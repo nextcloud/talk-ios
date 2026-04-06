@@ -579,7 +579,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)startRecording
 {
-    [[NCAPIController sharedInstance] startRecording:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] startRecordingInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Could not start call recording. Error: %@", error.description);
         }
@@ -588,7 +588,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)stopRecording
 {
-    [[NCAPIController sharedInstance] stopRecording:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] stopRecordingInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Could not stop call recording. Error: %@", error.description);
         }
