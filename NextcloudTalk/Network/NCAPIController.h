@@ -73,10 +73,6 @@ typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
 typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
 typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
-typedef void (^SetReminderForMessage)(NSError *error);
-typedef void (^DeleteReminderForMessage)(NSError *error);
-typedef void (^GetReminderForMessage)(NSDictionary *responseDict, NSError *error);
-
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
 extern NSInteger const APIv3;
@@ -182,11 +178,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromNextcloudServerWithCompletionBlock:(UnsubscribeToNextcloudServerCompletionBlock)block;
 - (NSURLSessionDataTask *)subscribeAccount:(TalkAccount *)account toPushServerWithCompletionBlock:(SubscribeToPushProxyCompletionBlock)block;
 - (NSURLSessionDataTask *)unsubscribeAccount:(TalkAccount *)account fromPushServerWithCompletionBlock:(UnsubscribeToPushProxyCompletionBlock)block;
-
-// Remind me later
-- (NSURLSessionDataTask *)setReminderForMessage:(NCChatMessage *)message withTimestamp:(NSString *)timestamp withCompletionBlock:(SetReminderForMessage)block;
-- (NSURLSessionDataTask *)deleteReminderForMessage:(NCChatMessage *)message withCompletionBlock:(DeleteReminderForMessage)block;
-- (NSURLSessionDataTask *)getReminderForMessage:(NCChatMessage *)message withCompletionBlock:(GetReminderForMessage)block;
 
 // Internal method exposed for swift extension
 - (NSString * _Nonnull)getRequestURLForConversationEndpoint:(NSString *_Nonnull)endpoint forAccount:(TalkAccount *_Nonnull)account;

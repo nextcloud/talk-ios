@@ -2110,4 +2110,48 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Remind me later
+
+    public func setReminder(forMessage message: NCChatMessage, withTimestamp timestamp: Int, completionBlock: @escaping (_ error: OcsError?) -> Void) {
+        guard let account = message.account,
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.chatAPIVersion(for: message.account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: ["timestamp": timestamp]) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    public func deleteReminder(forMessage message: NCChatMessage, completionBlock: @escaping (_ error: OcsError?) -> Void) {
+        guard let account = message.account,
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.chatAPIVersion(for: message.account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    public func getReminder(forMessage message: NCChatMessage, completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: OcsError?) -> Void) {
+        guard let account = message.account,
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.chatAPIVersion(for: message.account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, for: account)
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError)
+        }
+    }
+
 }
