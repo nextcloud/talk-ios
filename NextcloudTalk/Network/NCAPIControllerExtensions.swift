@@ -2244,4 +2244,33 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Remote wipe
+
+    public func checkWipeStatus(forAccount account: TalkAccount, completionBlock: @escaping (_ wipe: Bool, _ error: Error?) -> Void) {
+        guard let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId)
+        else {
+            completionBlock(false, NSError(domain: NSCocoaErrorDomain, code: 0))
+            return
+        }
+
+        let urlString = "\(account.server)/index.php/core/wipe/check"
+
+        defaultAPISessionManager.postOcs(urlString, account: account, parameters: ["token": token]) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.responseDict?["wipe"] != nil, ocsError?.error)
+        }
+    }
+
+    public func confirmWipe(forAccount account: TalkAccount, completionBlock: ((_ error: Error?) -> Void)?) {
+        guard let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId)
+        else {
+            completionBlock?(NSError(domain: NSCocoaErrorDomain, code: 0))
+            return
+        }
+
+        let urlString = "\(account.server)/index.php/core/wipe/success"
+
+        defaultAPISessionManager.postOcs(urlString, account: account, parameters: ["token": token]) { _, ocsError in
+            completionBlock?(ocsError?.error)
+        }
+    }
 }
