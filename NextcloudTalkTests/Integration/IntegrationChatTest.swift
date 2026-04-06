@@ -98,10 +98,6 @@ final class IntegrationChatTest: TestBase {
         let room = try await createUniqueRoom(prefix: "Reaction Test Room 🧊", withAccount: activeAccount)
         let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
 
-        XCTAssertNotNil(message)
-        XCTAssertEqual(message.message, chatMessage)
-        XCTAssertEqual(message.token, room.token)
-
         let exp = expectation(description: "\(#function)\(#line)")
 
         NCAPIController.sharedInstance().addReaction("👍", toMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
@@ -119,6 +115,42 @@ final class IntegrationChatTest: TestBase {
                     NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
                         XCTAssertNil(error)
                         XCTAssertNil(reactionsDict!["👍"])
+
+                        exp.fulfill()
+                    }
+                }
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testMessageReminder() async throws {
+        try skipWithoutCapability(capability: kCapabilityRemindMeLater)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let chatMessage = "Reminded message"
+
+        let room = try await createUniqueRoom(prefix: "Reminder Test Room", withAccount: activeAccount)
+        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+        let timestamp = Int(Date().timeIntervalSince1970)
+
+        NCAPIController.sharedInstance().setReminder(forMessage: message, withTimestamp: timestamp) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().getReminder(forMessage: message) { responseDict, error in
+                XCTAssertNil(error)
+                XCTAssertEqual(responseDict!["timestamp"] as? Int, timestamp)
+
+                NCAPIController.sharedInstance().deleteReminder(forMessage: message) { error in
+                    XCTAssertNil(error)
+
+                    NCAPIController.sharedInstance().getReminder(forMessage: message) { responseDict, error in
+                        XCTAssertNotNil(error)
+                        XCTAssertEqual(error?.responseStatusCode, 404)
+                        XCTAssertNil(responseDict)
 
                         exp.fulfill()
                     }

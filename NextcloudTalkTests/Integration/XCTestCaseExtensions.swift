@@ -7,6 +7,10 @@ import XCTest
 import Foundation
 @testable import NextcloudTalk
 
+enum TestCaseError: Error {
+    case expectedValueNotFound
+}
+
 extension XCTestCase {
 
     // TODO: This should probably be part of APIController
@@ -105,15 +109,18 @@ extension XCTestCase {
 
                     for rawMessage in messages! {
                         if let dictMessage = rawMessage as? [AnyHashable: Any] {
-                            let chatMessage = NCChatMessage(dictionary: dictMessage)!
+                            let chatMessage = NCChatMessage(dictionary: dictMessage, andAccountId: account.accountId)!
 
                             if chatMessage.message == message {
+                                XCTAssertEqual(chatMessage.token, token)
                                 continuation.resume(returning: chatMessage)
 
                                 return
                             }
                         }
                     }
+
+                    continuation.resume(throwing: TestCaseError.expectedValueNotFound)
                 }
             }
         }
