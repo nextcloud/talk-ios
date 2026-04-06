@@ -60,8 +60,6 @@ typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger sta
 typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *error);
 typedef void (^SetUserStatusCompletionBlock)(NSError *error);
 
-typedef void (^GetAppIdCompletionBlock)(NSString *appId, NSError *error);
-
 typedef void (^GetWipeStatusCompletionBlock)(BOOL wipe, NSError *error);
 typedef void (^ConfirmWipeCompletionBlock)(NSError *error);
 
@@ -98,9 +96,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)banAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
-
-// App Store
-- (NSURLSessionDataTask *)getAppStoreAppIdWithCompletionBlock:(GetAppIdCompletionBlock)block;
 
 // Chat Controller
 - (NSURLSessionDataTask *)receiveChatMessagesOfRoom:(NSString *)token fromLastMessageId:(NSInteger)messageId inThread:(NSInteger)threadId history:(BOOL)history includeLastMessage:(BOOL)include timeout:(BOOL)timeout limit:(NSInteger)limit lastCommonReadMessage:(NSInteger)lastCommonReadMessage setReadMarker:(BOOL)setReadMarker markNotificationsAsRead:(BOOL)markNotificationsAsRead forAccount:(TalkAccount *)account withCompletionBlock:(GetChatMessagesCompletionBlock)block;
