@@ -2183,4 +2183,65 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Push Notifications
+
+    public func subscribeAccount(_ account: TalkAccount, withPublicKey publicKey: Data, toNextcloudServerWithCompletionBlock completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let devicePublicKey = String(data: publicKey, encoding: .utf8)
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/push"
+        let parameters = [
+            "pushTokenHash": NCKeyChainController.sharedInstance().pushTokenSHA512(),
+            "devicePublicKey": devicePublicKey,
+            "proxyServer": pushNotificationServer
+        ]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError)
+        }
+    }
+
+    public func unsubscribeAccount(_ account: TalkAccount, fromNextcloudServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/push"
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    public func subscribeAccount(_ account: TalkAccount, toPushServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+        let urlString = "\(pushNotificationServer)/devices"
+        let parameters = [
+            "pushToken": NCKeyChainController.sharedInstance().combinedPushToken(),
+            "deviceIdentifier": account.deviceIdentifier,
+            "deviceIdentifierSignature": account.deviceSignature,
+            "userPublicKey": account.userPublicKey
+        ]
+
+        NCPushProxySessionManager.shared.post(urlString, parameters: parameters, progress: nil) { _, _ in
+            completionBlock(nil)
+        } failure: { _, error in
+            completionBlock(error)
+        }
+    }
+
+    public func unsubscribeAccount(_ account: TalkAccount, fromPushServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+        let urlString = "\(pushNotificationServer)/devices"
+        let parameters = [
+            "deviceIdentifier": account.deviceIdentifier,
+            "deviceIdentifierSignature": account.deviceSignature,
+            "userPublicKey": account.userPublicKey
+        ]
+
+        NCPushProxySessionManager.shared.delete(urlString, parameters: parameters) { _, _ in
+            completionBlock(nil)
+        } failure: { _, error in
+            completionBlock(error)
+        }
+    }
+
 }
