@@ -456,7 +456,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     @objc func readStatusValueChanged(_ sender: Any?) {
         readStatusSwitch.isEnabled = false
 
-        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, for: activeAccount) { error in
+        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, forAccount: activeAccount) { error in
             if error == nil {
                 NCSettingsController.sharedInstance().getCapabilitiesForAccountId(self.activeAccount.accountId) { error in
                     if error == nil {
@@ -487,7 +487,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     @objc func typingIndicatorValueChanged(_ sender: Any?) {
         typingIndicatorSwitch.isEnabled = false
 
-        NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(!typingIndicatorSwitch.isOn, for: activeAccount) { error in
+        NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(!typingIndicatorSwitch.isOn, forAccount: activeAccount) { error in
             if error == nil {
                 NCSettingsController.sharedInstance().getCapabilitiesForAccountId(self.activeAccount.accountId) { error in
                     if error == nil {

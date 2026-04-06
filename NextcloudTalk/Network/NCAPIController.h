@@ -37,9 +37,6 @@ typedef void (^PollDraftsCompletionBlock)(NSArray *polls, NSError *error, NSInte
 typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
 typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
 
-typedef void (^SetReadStatusPrivacySettingCompletionBlock)(NSError *error);
-typedef void (^SetTypingPrivacySettingCompletionBlock)(NSError *error);
-
 typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
 typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
 typedef void (^GetFileUniqueNameCompletionBlock)(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription);
@@ -129,10 +126,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)getPollDraftsInRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollDraftsCompletionBlock)block;
 - (NSURLSessionDataTask *)voteOnPollWithId:(NSInteger)pollId inRoom:(NSString *)token withOptions:(NSArray *)options forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
 - (NSURLSessionDataTask *)closePollWithId:(NSInteger)pollId inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;
-
-// Settings Controller
-- (NSURLSessionDataTask *)setReadStatusPrivacySettingEnabled:(BOOL)enabled forAccount:(TalkAccount *)account withCompletionBlock:(SetReadStatusPrivacySettingCompletionBlock)block;
-- (NSURLSessionDataTask *)setTypingPrivacySettingEnabled:(BOOL)enabled forAccount:(TalkAccount *)account withCompletionBlock:(SetTypingPrivacySettingCompletionBlock)block;
 
 // DAV client
 - (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
