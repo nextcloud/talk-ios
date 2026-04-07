@@ -14,11 +14,26 @@ final class IntegrationChatTest: TestBase {
         let chatMessage = "Test Message 😀😆"
 
         let room = try await createUniqueRoom(prefix: "Integration Test Room 👍", withAccount: activeAccount)
-        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+        let (message, details) = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
 
         XCTAssertNotNil(message)
         XCTAssertEqual(message.message, chatMessage)
         XCTAssertEqual(message.token, room.token)
+        XCTAssertEqual(details.statusCode, 200)
+        XCTAssertGreaterThan(details.lastKnownMessage, 0)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: details.lastKnownMessage, inThread: 0, history: false, includeLastMessage: false, timeout: false, limit: 0, lastCommonReadMessage: 0, setReadMarker: false, markNotificationsAsRead: false, forAccount: activeAccount, completionBlock: { messages, lastKnownMessage, _, error, statusCode in
+            XCTAssertNil(messages)
+            XCTAssertEqual(lastKnownMessage, -1)
+            XCTAssertEqual(statusCode, 304)
+            XCTAssertNotNil(error)
+
+            exp.fulfill()
+        })
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
     func testPinMessage() async throws {
@@ -28,7 +43,7 @@ final class IntegrationChatTest: TestBase {
         let chatMessage = "Test Message 😀😆"
 
         let room = try await createUniqueRoom(prefix: "Pin message room", withAccount: activeAccount)
-        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+        let (message, _) = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
 
         // Pin message
         _ = try await NCAPIController.sharedInstance().pinMessage(message.messageId, inRoom: room.token, pinUntil: 0, forAccount: activeAccount)
@@ -96,7 +111,7 @@ final class IntegrationChatTest: TestBase {
         let chatMessage = "React to message 🥳"
 
         let room = try await createUniqueRoom(prefix: "Reaction Test Room 🧊", withAccount: activeAccount)
-        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+        let (message, _) = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
 
         let exp = expectation(description: "\(#function)\(#line)")
 
@@ -132,7 +147,7 @@ final class IntegrationChatTest: TestBase {
         let chatMessage = "Reminded message"
 
         let room = try await createUniqueRoom(prefix: "Reminder Test Room", withAccount: activeAccount)
-        let message = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+        let (message, _) = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
 
         let exp = expectation(description: "\(#function)\(#line)")
         let timestamp = Int(Date().timeIntervalSince1970)
