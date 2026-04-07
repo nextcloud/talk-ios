@@ -82,7 +82,13 @@ extension XCTestCase {
         return try XCTUnwrap(NCRoomsManager.shared.activeRooms[token])
     }
 
-    func sendMessage(message: String, inRoom token: String, withAccount account: TalkAccount) async throws -> NCChatMessage {
+    struct ReceiveMessageDetails {
+        var lastKnownMessage: Int
+        var lastCommonReadMessage: Int
+        var statusCode: Int
+    }
+
+    func sendMessage(message: String, inRoom token: String, withAccount account: TalkAccount) async throws -> (message: NCChatMessage, details: ReceiveMessageDetails) {
         return try await withCheckedThrowingContinuation { continuation in
             NCAPIController.sharedInstance().sendChatMessage(message, toRoom: token, threadTitle: "", replyTo: 0, referenceId: "", silently: false, for: account) { error in
                 if let error {
@@ -93,30 +99,29 @@ extension XCTestCase {
                 NCAPIController.sharedInstance().receiveChatMessages(ofRoom: token,
                                                                      fromLastMessageId: 0,
                                                                      inThread: 0,
-                                                                     history: true,
+                                                                     history: false,
                                                                      includeLastMessage: true,
                                                                      timeout: false,
                                                                      limit: 0,
                                                                      lastCommonReadMessage: 0,
                                                                      setReadMarker: false,
                                                                      markNotificationsAsRead: false,
-                                                                     for: account) { messages, _, _, error, _ in
+                                                                     forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, statusCode in
 
                     if let error {
                         continuation.resume(throwing: error)
                         return
                     }
 
-                    for rawMessage in messages! {
-                        if let dictMessage = rawMessage as? [AnyHashable: Any] {
-                            let chatMessage = NCChatMessage(dictionary: dictMessage, andAccountId: account.accountId)!
+                    for dictMessage in messages! {
+                        let chatMessage = NCChatMessage(dictionary: dictMessage, andAccountId: account.accountId)!
 
-                            if chatMessage.message == message {
-                                XCTAssertEqual(chatMessage.token, token)
-                                continuation.resume(returning: chatMessage)
+                        if chatMessage.message == message {
+                            XCTAssertEqual(chatMessage.token, token)
+                            let details = ReceiveMessageDetails(lastKnownMessage: lastKnownMessage, lastCommonReadMessage: lastCommonReadMessage, statusCode: statusCode)
+                            continuation.resume(returning: (chatMessage, details))
 
-                                return
-                            }
+                            return
                         }
                     }
 

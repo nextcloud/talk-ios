@@ -14,12 +14,20 @@ import Foundation
         return data as? [String: AnyObject]
     }()
 
-    lazy var responseStatusCode: Int = {
+    private lazy var response: HTTPURLResponse? = {
         guard let response = task?.response,
               let httpResponse = response as? HTTPURLResponse
-        else { return 0 }
+        else { return nil }
 
-        return httpResponse.statusCode
+        return httpResponse
+    }()
+
+    lazy var responseStatusCode: Int = {
+        return response?.statusCode ?? 0
+    }()
+
+    lazy var responseHeaders: [String: Any]? = {
+        return response?.allHeaderFields as? [String: Any]
     }()
 
     lazy var ocsDict: [String: AnyObject]? = {
