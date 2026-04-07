@@ -2077,7 +2077,7 @@ import NextcloudKit
 
         let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, for: account)
 
-        apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
         }
     }
@@ -2292,4 +2292,72 @@ import NextcloudKit
             completionBlock(nil, error)
         })
     }
+
+    // MARK: - Chat controller
+
+    @discardableResult
+    // swiftlint:disable:next function_parameter_count
+    public func receiveChatMessages(ofRoom token: String,
+                                    fromLastMessageId messageId: Int,
+                                    inThread threadId: Int,
+                                    history: Bool,
+                                    includeLastMessage: Bool,
+                                    timeout: Bool,
+                                    limit: Int,
+                                    lastCommonReadMessage: Int,
+                                    setReadMarker: Bool,
+                                    markNotificationsAsRead: Bool,
+                                    forAccount account: TalkAccount,
+                                    completionBlock: @escaping (_ messages: [[String: Any]]?, _ lastKnownMessage: Int, _ lastCommonReadMessage: Int, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
+
+        guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        var limitParameter = limit
+
+        if limitParameter <= 0 {
+            // Ensure we don't try to request an invalid number of messages (although there's a limit server side)
+            limitParameter = kReceivedChatMessagesLimit
+        }
+
+        let parameters: [String: Any] = [
+            "lookIntoFuture": history ? 0 : 1,
+            "limit": min(kReceivedChatMessagesLimit, limitParameter),
+            "timeout": timeout ? 30 : 0,
+            "lastKnownMessageId": messageId,
+            "lastCommonReadId": lastCommonReadMessage,
+            "setReadMarker": setReadMarker ? 1 : 0,
+            "includeLastKnown": includeLastMessage ? 1 : 0,
+            "markNotificationsAsRead": markNotificationsAsRead ? 1 : 0,
+            "threadId": threadId
+        ]
+
+        let apiSessionManager: NCAPISessionManager?
+
+        if timeout {
+            apiSessionManager = longPollingApiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        } else {
+            apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        }
+
+        guard let apiSessionManager else { return nil }
+
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let messageDict = ocsResponse?.dataArrayDict {
+                // TODO: Directly return NCChatMessage objects
+                // let messages = messageDict.compactMap( { NCChatMessage(dictionary: $0, andAccountId: account.accountId) })
+
+                let headerLastKnownMessage = Int(ocsResponse?.responseHeaders?["x-chat-last-given"] as? String) ?? -1
+                let headerLastCommonRead = Int(ocsResponse?.responseHeaders?["x-chat-last-common-read"] as? String) ?? -1
+
+                completionBlock(messageDict, headerLastKnownMessage, headerLastCommonRead, ocsError?.error, ocsResponse?.responseStatusCode ?? 0)
+            } else {
+                completionBlock(nil, -1, -1, ocsError?.error, ocsError?.responseStatusCode ?? 0)
+            }
+        }
+    }
+
 }

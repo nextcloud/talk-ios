@@ -815,6 +815,7 @@
 				ColorGenerator.swift,
 				Extensions/DateExtension.swift,
 				Extensions/DictionaryExtension.swift,
+				Extensions/IntExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
@@ -831,6 +832,7 @@
 				ColorGenerator.swift,
 				Extensions/DateExtension.swift,
 				Extensions/DictionaryExtension.swift,
+				Extensions/IntExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 				Extensions/UITableViewExtension.swift,
@@ -844,6 +846,7 @@
 			membershipExceptions = (
 				Extensions/DateExtension.swift,
 				Extensions/DictionaryExtension.swift,
+				Extensions/IntExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
@@ -861,6 +864,7 @@
 			membershipExceptions = (
 				Extensions/DateExtension.swift,
 				Extensions/DictionaryExtension.swift,
+				Extensions/IntExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 			);
