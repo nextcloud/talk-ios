@@ -1395,7 +1395,7 @@ import SwiftUI
             self.updateMessage(withMessageId: deletingMessage.messageId, updatedMessage: deletingMessage)
         }
 
-        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: self.account) { messageDict, error, statusCode in
+        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, forAccount: self.account) { messageDict, error, statusCode in
             if error == nil,
                let messageDict,
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
