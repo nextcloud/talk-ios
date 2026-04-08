@@ -17,11 +17,11 @@ import Foundation
     private func checkHeaders(for task: URLSessionDataTask, for account: TalkAccount) {
         guard let response = task.response as? HTTPURLResponse else { return }
 
-        if let modifiedSince = response.allHeaderFields["x-nextcloud-talk-modified-before"] as? String, !modifiedSince.isEmpty {
+        if let modifiedSince = response.value(forHTTPHeaderField: "x-nextcloud-talk-modified-before"), !modifiedSince.isEmpty {
             NCDatabaseManager.sharedInstance().updateLastModifiedSince(forAccountId: account.accountId, with: modifiedSince)
         }
 
-        if let configurationHash = response.allHeaderFields["x-nextcloud-talk-hash"] as? String, configurationHash != account.lastReceivedConfigurationHash {
+        if let configurationHash = response.value(forHTTPHeaderField: "x-nextcloud-talk-hash"), configurationHash != account.lastReceivedConfigurationHash {
             if account.lastReceivedConfigurationHash != nil {
                 // We previously stored a configuration hash which now changed -> Update settings and capabilities
                 let userInfo: [AnyHashable: Any] = [

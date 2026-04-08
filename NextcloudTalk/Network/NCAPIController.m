@@ -1576,15 +1576,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
 }
 
 #pragma mark - Header handling
-- (NSDictionary *)getResponseHeaders:(NSURLResponse *)response
-{
-    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        return [httpResponse allHeaderFields];
-    }
-    
-    return nil;
-}
 
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account
 {
@@ -1615,10 +1606,8 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     }
 }
 
-- (void)checkProxyResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account forRoom:(NSString *)token
+- (void)checkProxyResponseHeaders:(NSString * _Nullable)proxyHash forAccount:(TalkAccount *)account forRoom:(NSString *)token
 {
-    NSString *proxyHash = [headers objectForKey:@"X-Nextcloud-Talk-Proxy-Hash"];
-
     if (!proxyHash) {
         return;
     }
