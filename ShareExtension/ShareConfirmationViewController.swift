@@ -563,7 +563,9 @@ import MBProgressHUD
     }
 
     func sendObjectShare() {
-        NCAPIController.sharedInstance().shareRichObject(self.objectShareMessage?.richObjectFromObjectShare, inRoom: self.room.token, for: self.account) { error in
+        guard let richObjectFromObjectShare = objectShareMessage?.richObjectFromObjectShare else { return }
+
+        NCAPIController.sharedInstance().shareRichObject(richObjectFromObjectShare, inRoom: self.room.token, forAccount: self.account) { error in
             if let error {
                 NCLog.log(String(format: "Failed to share rich object. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFail(self)

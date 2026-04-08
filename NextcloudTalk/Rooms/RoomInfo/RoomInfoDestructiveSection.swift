@@ -89,7 +89,7 @@ struct RoomInfoDestructiveSection: View {
     }
 
     func clearHistory() {
-        NCAPIController.sharedInstance().clearChatHistory(inRoom: room.token, for: room.account!) { _, error, _ in
+        NCAPIController.sharedInstance().clearChatHistory(inRoom: room.token, forAccount: room.account!) { _, error in
             if let error {
                 print("Error clearing chat history: \(error.localizedDescription)")
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not clear chat history", comment: ""), withMessage: nil)
