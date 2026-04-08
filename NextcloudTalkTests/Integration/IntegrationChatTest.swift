@@ -176,4 +176,24 @@ final class IntegrationChatTest: TestBase {
         await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
+    func testDeleteMessage() async throws {
+        try skipWithoutCapability(capability: kCapabilityDeleteMessages)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let chatMessage = "Deltable Message"
+
+        let room = try await createUniqueRoom(prefix: "Delete message room", withAccount: activeAccount)
+        let (message, _) = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().deleteChatMessage(inRoom: room.token, withMessageId: message.messageId, forAccount: activeAccount) { message, error, statusCode in
+            XCTAssertEqual(NCChatMessage(dictionary: message)!.systemMessage, "message_deleted")
+            XCTAssertNil(error)
+            XCTAssertEqual(statusCode, 200)
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
 }

@@ -2397,4 +2397,18 @@ import NextcloudKit
         }
     }
 
+    @discardableResult
+    // swiftlint:disable:next function_parameter_count
+    public func deleteChatMessage(inRoom token: String, withMessageId messageId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError, ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0)
+        }
+    }
 }
