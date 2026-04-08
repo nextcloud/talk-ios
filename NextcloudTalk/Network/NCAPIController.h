@@ -157,10 +157,9 @@ extern NSInteger const kReceivedChatMessagesLimit;
 // Internal method exposed for swift extension
 - (NSString * _Nonnull)getRequestURLForConversationEndpoint:(NSString *_Nonnull)endpoint forAccount:(TalkAccount *_Nonnull)account;
 - (NSString * _Nonnull)getRequestURLForEndpoint:(NSString *_Nonnull)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *_Nonnull)account;
-- (NSDictionary * _Nullable)getResponseHeaders:(NSURLResponse *_Nonnull)response;
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response;
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;
-- (void)checkProxyResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account forRoom:(NSString *)token;
+- (void)checkProxyResponseHeaders:(NSString * _Nullable)proxyHash forAccount:(TalkAccount *)account forRoom:(NSString *)token;
 
 @end

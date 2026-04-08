@@ -26,10 +26,6 @@ import Foundation
         return response?.statusCode ?? 0
     }()
 
-    lazy var responseHeaders: [String: Any]? = {
-        return response?.allHeaderFields as? [String: Any]
-    }()
-
     lazy var ocsDict: [String: AnyObject]? = {
         return responseDict?["ocs"] as? [String: AnyObject]
     }()
@@ -41,6 +37,10 @@ import Foundation
     lazy var dataArrayDict: [[String: AnyObject]]? = {
         return ocsDict?["data"] as? [[String: AnyObject]]
     }()
+
+    func value(forHTTPHeaderField field: String) -> String? {
+        return response?.value(forHTTPHeaderField: field)
+    }
 
     init(withData data: Any?, withTask task: URLSessionDataTask?) {
         self.data = data
