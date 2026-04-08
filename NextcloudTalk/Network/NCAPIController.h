@@ -98,7 +98,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
 // Chat Controller
-- (NSURLSessionDataTask *)sendChatMessage:(NSString *)message toRoom:(NSString *)token threadTitle:(NSString *)threadTitle replyTo:(NSInteger)replyTo referenceId:(NSString *)referenceId silently:(BOOL)silently forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
 - (NSURLSessionDataTask *)deleteChatMessageInRoom:(NSString *)token withMessageId:(NSInteger)messageId forAccount:(TalkAccount *)account withCompletionBlock:(DeleteChatMessageCompletionBlock)block;
 - (NSURLSessionDataTask *)editChatMessageInRoom:(NSString *)token withMessageId:(NSInteger)messageId withMessage:(NSString *)message forAccount:(TalkAccount *)account withCompletionBlock:(EditChatMessageCompletionBlock)block;
 - (NSURLSessionDataTask *)shareRichObject:(NSDictionary *)richObject inRoom:(NSString *)token forAccount:(TalkAccount *)account withCompletionBlock:(SendChatMessagesCompletionBlock)block;
@@ -162,5 +161,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response;
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;
 - (void)checkProxyResponseHeaders:(NSString * _Nullable)proxyHash forAccount:(TalkAccount *)account forRoom:(NSString *)token;
+- (void)initSessionManagers;
 
 @end

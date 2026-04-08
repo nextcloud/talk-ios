@@ -2345,4 +2345,56 @@ import NextcloudKit
         }
     }
 
+    @discardableResult
+    // swiftlint:disable:next function_parameter_count
+    public func sendChatMessage(_ message: String,
+                                toRoom token: String,
+                                threadTitle: String?,
+                                replyTo: Int,
+                                referenceId: String?,
+                                silently: Bool,
+                                forAccount account: TalkAccount,
+                                completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+
+        guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        var parameters: [String: Any] = [
+            "message": message
+        ]
+
+        if replyTo > -1 {
+            parameters["replyTo"] = replyTo
+        }
+
+        if let referenceId {
+            parameters["referenceId"] = referenceId
+        }
+
+        if silently {
+            parameters["silent"] = silently
+        }
+
+        if let threadTitle {
+            parameters["threadTitle"] = threadTitle
+        }
+
+        var apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+
+        // TODO: Workaround for ShareExtension, still needed?
+        if apiSessionManager == nil {
+            self.initSessionManagers()
+            apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        }
+
+        guard let apiSessionManager else { return nil }
+
+        return apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
 }

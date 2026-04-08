@@ -1224,7 +1224,7 @@ import SwiftUI
                         }
                     }
                 } else {
-                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
+                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, forAccount: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
