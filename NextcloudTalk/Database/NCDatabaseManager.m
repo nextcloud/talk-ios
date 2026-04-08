@@ -511,7 +511,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
             capabilities.roomsSortOrder = NCRoomSortOrderActivity;
         }
     } else {
-        capabilities.roomsSortOrder = NCRoomSortOrderActivity;
+        capabilities.roomsSortOrder = NCRoomSortOrderUnsupported;
     }
 
     if ([conversationsConfigKeys containsObject:@"group-mode"]) {
@@ -524,7 +524,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
             capabilities.roomsGroupMode = NCRoomGroupModeNone;
         }
     } else {
-        capabilities.roomsGroupMode = NCRoomGroupModeNone;
+        capabilities.roomsGroupMode = NCRoomGroupModeUnsupported;
     }
 
     // Chat capabilities

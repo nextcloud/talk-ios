@@ -196,7 +196,16 @@ typedef enum RoomsSections {
             UIMenu *filtersSection = [UIMenu menuWithTitle:NSLocalizedString(@"Filters", @"Title for available conversations filters")
                                                      image:nil identifier:nil options:UIMenuOptionsDisplayInline children:filterActions];
 
-            UIMenu *menu = [UIMenu menuWithTitle:@"" children:@[filtersSection, [self getSortOrderSection], [self getGroupModeSection]]];
+            TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+
+            NSMutableArray *menuChildren = [[NSMutableArray alloc] initWithArray:@[filtersSection]];
+
+            if ([[NCSettingsController sharedInstance] isRoomsSortingSupportedForAccountId:account.accountId]) {
+                [menuChildren addObject:[self getSortOrderSection]];
+                [menuChildren addObject:[self getGroupModeSection]];
+            }
+
+            UIMenu *menu = [UIMenu menuWithTitle:@"" children:menuChildren];
 
             UIBarButtonItem *filterBarButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease"] menu:menu];
 
@@ -267,8 +276,9 @@ typedef enum RoomsSections {
     }
 
     // Sort button (only when not already in the iOS 26 toolbar menu)
-    if (![self hasSortMenuInToolbar]) {
-        UIBarButtonItem *sortButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"arrow.up.arrow.down.circle"]
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+    if ([[NCSettingsController sharedInstance] isRoomsSortingSupportedForAccountId:account.accountId] && ![self hasSortMenuInToolbar]) {
+        UIBarButtonItem *sortButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease.circle"]
                                                                         menu:[self getSortMenu]];
         sortButton.accessibilityLabel = NSLocalizedString(@"Sort conversations", nil);
         [rightItems addObject:sortButton];
@@ -479,6 +489,7 @@ typedef enum RoomsSections {
 
         // Setup the navigation bar here, otherwise it would only be updated
         // when the capabilities were updated, which fails when the server is not reachable.
+        [self setupSearchBar];
         [self setupNavigationBar];
     });
 }
@@ -1103,6 +1114,7 @@ typedef enum RoomsSections {
             [self updateUserStatus];
             [self getUserThreads];
             [self startRefreshRoomsTimer];
+            [self setupSearchBar];
             [self setupNavigationBar];
         }
             break;
