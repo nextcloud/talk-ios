@@ -186,11 +186,130 @@ final class IntegrationChatTest: TestBase {
         let (message, _) = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
 
         let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().deleteChatMessage(inRoom: room.token, withMessageId: message.messageId, forAccount: activeAccount) { message, error, statusCode in
-            XCTAssertEqual(NCChatMessage(dictionary: message)!.systemMessage, "message_deleted")
+        NCAPIController.sharedInstance().deleteChatMessage(inRoom: room.token, withMessageId: message.messageId, forAccount: activeAccount) { deleteMessage, error, statusCode in
+            // Since we don't store messages, we can't access chatMessage.parent here directly (it's always retrieved through internalId)
+            let chatMessage = NCChatMessage(dictionary: deleteMessage)!
+            let parentMessage = NCChatMessage(dictionary: deleteMessage!["parent"] as! [String: Any])!
+
+            XCTAssertEqual(chatMessage.systemMessage, "message_deleted")
             XCTAssertNil(error)
             XCTAssertEqual(statusCode, 200)
+            XCTAssertEqual(parentMessage.messageId, message.messageId)
+
             exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testEditMessage() async throws {
+        try skipWithoutCapability(capability: kCapabilityEditMessages)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let chatMessage = "Editable Message"
+        let newChatMessage = "Edited message"
+
+        let room = try await createUniqueRoom(prefix: "Edit message room", withAccount: activeAccount)
+        let (message, _) = try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().editChatMessage(inRoom: room.token, withMessageId: message.messageId, withMessage: newChatMessage, forAccount: activeAccount) { editedMessage, error, statusCode in
+            // Since we don't store messages, we can't access chatMessage.parent here directly (it's always retrieved through internalId)
+            let chatMessage = NCChatMessage(dictionary: editedMessage)!
+            let parentMessage = NCChatMessage(dictionary: editedMessage!["parent"] as! [String: Any])!
+
+            XCTAssertEqual(chatMessage.systemMessage, "message_edited")
+            XCTAssertNil(error)
+            XCTAssertEqual(statusCode, 200)
+            XCTAssertEqual(parentMessage.messageId, message.messageId)
+            XCTAssertEqual(parentMessage.message, newChatMessage)
+
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testClearHistory() async throws {
+        try skipWithoutCapability(capability: kCapabilityClearHistory)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let chatMessage = "Before clear history Message"
+
+        let room = try await createUniqueRoom(prefix: "Clear history room", withAccount: activeAccount)
+        try await sendMessage(message: chatMessage, inRoom: room.token, withAccount: activeAccount)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().clearChatHistory(inRoom: room.token, forAccount: activeAccount) { message, error in
+            let chatMessage = NCChatMessage(dictionary: message)!
+
+            XCTAssertEqual(chatMessage.systemMessage, "history_cleared")
+            XCTAssertNil(error)
+
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testShareRichObject() async throws {
+        try skipWithoutCapability(capability: kCapabilityLocationSharing)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        let room = try await createUniqueRoom(prefix: "Rich object room", withAccount: activeAccount)
+        let richObject = GeoLocationRichObject(latitude: 48.858093, longitude: 2.294694, name: "Tour Eiffel")
+
+        let exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: room.token, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testReadMarker() async throws {
+        try skipWithoutCapability(capability: kCapabilityChatReadLast)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        let room = try await createUniqueRoom(prefix: "Read marker room", withAccount: activeAccount)
+        let (message1, _) = try await sendMessage(message: "Message1", inRoom: room.token, withAccount: activeAccount)
+        let (message2, _) = try await sendMessage(message: "Message2", inRoom: room.token, withAccount: activeAccount)
+        try await sendMessage(message: "Message3", inRoom: room.token, withAccount: activeAccount)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+        // Set read marker to a specific messageId
+        NCAPIController.sharedInstance().setChatReadMarker(message1.messageId, inRoom: room.token, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+
+            // Check if the set ID is correctly reflected in rooms list
+            NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: false, modifiedSince: 0) { roomsDict, error in
+                XCTAssertNil(error)
+
+                let rooms = self.getRoomDict(from: roomsDict!, for: activeAccount)
+                let foundRoom = rooms.first(where: { $0.token == room.token })
+
+                XCTAssertEqual(foundRoom?.lastReadMessage, message1.messageId)
+
+                // markChatAsUnread sets the lastReadMessage to the last-1 message, message2 in our test case
+                NCAPIController.sharedInstance().markChatAsUnread(inRoom: room.token, forAccount: activeAccount) { error in
+                    XCTAssertNil(error)
+
+                    // Check again if that is correctly reflected in the rooms list
+                    NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: false, modifiedSince: 0) { roomsDict, error in
+                        XCTAssertNil(error)
+
+                        let rooms = self.getRoomDict(from: roomsDict!, for: activeAccount)
+                        let foundRoom = rooms.first(where: { $0.token == room.token })
+
+                        XCTAssertEqual(foundRoom?.lastReadMessage, message2.messageId)
+
+                        exp.fulfill()
+                    }
+                }
+            }
         }
 
         await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)

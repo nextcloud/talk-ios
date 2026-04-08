@@ -2068,7 +2068,7 @@ import SwiftUI
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
 
-            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: account) { messageDict, error, _ in
+            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, forAccount: account) { messageDict, error, _ in
                 if error != nil {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred while editing a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                     return

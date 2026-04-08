@@ -2398,7 +2398,6 @@ import NextcloudKit
     }
 
     @discardableResult
-    // swiftlint:disable:next function_parameter_count
     public func deleteChatMessage(inRoom token: String, withMessageId messageId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2411,4 +2410,75 @@ import NextcloudKit
             completionBlock(ocsResponse?.dataDict, ocsError, ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0)
         }
     }
+
+    @discardableResult
+    public func editChatMessage(inRoom token: String, withMessageId messageId: Int, withMessage message: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.putOcs(urlString, account: account, parameters: ["message": message]) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError, ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0)
+        }
+    }
+
+    @discardableResult
+    public func clearChatHistory(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError)
+        }
+    }
+
+    @discardableResult
+    public func shareRichObject(_ richObject: [AnyHashable: Any], inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.postOcs(urlString, account: account, parameters: richObject) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    @discardableResult
+    public func setChatReadMarker(_ lastReadMessage: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.postOcs(urlString, account: account, parameters: ["lastReadMessage": lastReadMessage]) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    @discardableResult
+    public func markChatAsUnread(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, for: account)
+
+        return apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
 }

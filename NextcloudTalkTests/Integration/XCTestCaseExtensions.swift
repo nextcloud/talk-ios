@@ -88,6 +88,7 @@ extension XCTestCase {
         var statusCode: Int
     }
 
+    @discardableResult
     func sendMessage(message: String, inRoom token: String, withAccount account: TalkAccount) async throws -> (message: NCChatMessage, details: ReceiveMessageDetails) {
         return try await withCheckedThrowingContinuation { continuation in
             NCAPIController.sharedInstance().sendChatMessage(message, toRoom: token, threadTitle: "", replyTo: 0, referenceId: "", silently: false, forAccount: account) { error in

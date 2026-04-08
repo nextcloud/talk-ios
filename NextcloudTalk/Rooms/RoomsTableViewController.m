@@ -1286,7 +1286,7 @@ typedef enum RoomsSections {
 
 - (void)markRoomAsRead:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error marking room as read: %@", error.description);
         }
@@ -1296,7 +1296,7 @@ typedef enum RoomsSections {
 
 - (void)markRoomAsUnread:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error marking chat as unread: %@", error.description);
         }

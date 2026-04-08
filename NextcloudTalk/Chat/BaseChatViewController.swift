@@ -1216,7 +1216,7 @@ import SwiftUI
             if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: self.account.accountId) {
 
                 if message.isObjectShare {
-                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: self.account) { error in
+                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, forAccount: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -1784,7 +1784,7 @@ import SwiftUI
     public func shareLocationViewController(_ viewController: ShareLocationViewController, didSelectLocationWithLatitude latitude: Double, longitude: Double, andName name: String) {
         let richObject = GeoLocationRichObject(latitude: latitude, longitude: longitude, name: name)
 
-        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: self.account) { error in
+        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, forAccount: self.account) { error in
             if let error {
                 print("Error sharing rich object: \(error)")
             }
