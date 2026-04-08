@@ -36,9 +36,7 @@ import NextcloudKit
                 return
             }
 
-            if let response = ocsResponse?.task?.response as? HTTPURLResponse {
-                self.checkProxyResponseHeaders(response.allHeaderFields, for: account, forRoom: token)
-            }
+            self.checkProxyResponseHeaders(ocsResponse?.value(forHTTPHeaderField: "X-Nextcloud-Talk-Proxy-Hash"), for: account, forRoom: token)
 
             var room: NCRoom?
 
@@ -97,7 +95,7 @@ import NextcloudKit
                 var numberOfPendingInvitations = 0
 
                 // If the header is not present, there are no pending invites
-                if let federationInvitesString = response.allHeaderFields["x-nextcloud-talk-federation-invites"] as? String {
+                if let federationInvitesString = response.value(forHTTPHeaderField: "x-nextcloud-talk-federation-invites") {
                     numberOfPendingInvitations = Int(federationInvitesString) ?? 0
                 }
 
@@ -660,20 +658,7 @@ import NextcloudKit
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/capabilities", for: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
-            if let data = ocs?.dataDict,
-               let response = ocs?.task?.response,
-               let headers = self.getResponseHeaders(response) {
-
-                // Need to use lowercase name in swift
-                if let headerProxyHash = headers["x-nextcloud-talk-proxy-hash"] as? String {
-                    completionBlock(data, headerProxyHash)
-                } else {
-                    completionBlock(data, nil)
-                }
-
-            } else {
-                completionBlock(nil, nil)
-            }
+            completionBlock(ocs?.dataDict, ocs?.value(forHTTPHeaderField: "x-nextcloud-talk-proxy-hash"))
         }
     }
 
