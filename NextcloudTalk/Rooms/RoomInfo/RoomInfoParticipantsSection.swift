@@ -188,7 +188,7 @@ struct RoomInfoParticipantsSection: View {
 
     func removeParticipant(participant: NCRoomParticipant) async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let conversationAPIVersion = NCAPIController.sharedInstance().conversationAPIVersion(for: activeAccount)
+        let conversationAPIVersion = NCAPIController.sharedInstance().conversationAPIVersion(forAccount: activeAccount)
 
         if conversationAPIVersion >= APIv3 {
             do {

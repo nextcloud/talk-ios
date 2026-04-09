@@ -105,7 +105,7 @@ extension NCAPIController {
             return
         }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/meeting", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/meeting", forAccount: account)
         var parameters: [String: Any] = ["calendarUri": calendarUri]
         parameters["start"] = start
         parameters["end"] = end

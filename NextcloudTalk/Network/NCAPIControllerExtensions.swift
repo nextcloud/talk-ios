@@ -13,11 +13,82 @@ import NextcloudKit
         case unexpectedOcsResponse
     }
 
-    // MARK: - Urls
+    // MARK: - API versions
+
+    public func conversationAPIVersion(forAccount account: TalkAccount) -> Int {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationV4, forAccountId: account.accountId) {
+            return APIv4
+        }
+
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadStatus, forAccountId: account.accountId) {
+            return APIv3
+        }
+
+        return APIv2
+    }
+
+    public func callAPIVersion(forAccount account: TalkAccount) -> Int {
+        return self.conversationAPIVersion(forAccount: account)
+    }
+
+    public func chatAPIVersion(forAccount account: TalkAccount) -> Int {
+        return APIv1
+    }
+
+    public func reactionsAPIVersion(forAccount account: TalkAccount) -> Int {
+        return APIv1
+    }
+
+    public func pollsAPIVersion(forAccount account: TalkAccount) -> Int {
+        return APIv1
+    }
+
+    public func breakoutRoomsAPIVersion(forAccount account: TalkAccount) -> Int {
+        return APIv1
+    }
+
+    public func federationAPIVersion(forAccount account: TalkAccount) -> Int {
+        return APIv1
+    }
+
+    public func banAPIVersion(forAccount account: TalkAccount) -> Int {
+        return APIv1
+    }
+
+    public func botsAPIVersion(forAccount account: TalkAccount) -> Int {
+        return APIv1
+    }
+
+    public func signalingAPIVersion(forAccount account: TalkAccount) -> Int {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySignalingV3, forAccountId: account.accountId) {
+            return APIv3
+        }
+
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySIPSupport, forAccountId: account.accountId) {
+            return APIv2
+        }
+
+        return APIv1
+    }
+
+    // MARK: - Utils
 
     public func authenticationBackendUrl(forAccount account: TalkAccount) -> String {
-        let signalingApiVersion = self.signalingAPIVersion(for: account)
-        return self.getRequestURL(forEndpoint: "signaling/backend", withAPIVersion: signalingApiVersion, for: account)
+        let signalingApiVersion = self.signalingAPIVersion(forAccount: account)
+        return self.getRequestURL(forEndpoint: "signaling/backend", withAPIVersion: signalingApiVersion, forAccount: account)
+    }
+
+    public func filesPath(forAccount account: TalkAccount) -> String {
+        return "\(kDavEndpoint)/files/\(account.userId)"
+    }
+
+    public func getRequestURL(forConversationEndpoint endpoint: String, forAccount account: TalkAccount) -> String {
+        let conversationApi = self.conversationAPIVersion(forAccount: account)
+        return self.getRequestURL(forEndpoint: endpoint, withAPIVersion: conversationApi, forAccount: account)
+    }
+
+    public func getRequestURL(forEndpoint endpoint: String, withAPIVersion apiVersion: Int, forAccount account: TalkAccount) -> String {
+        return "\(account.server)\(kNCOCSAPIVersion)\(kNCSpreedAPIVersionBase)\(apiVersion)/\(endpoint)"
     }
 
     // MARK: - Rooms Controller
@@ -28,7 +99,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/active", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/active", forAccount: account)
 
         return apiSessionManager.postOcs(urlString, account: account) { ocsResponse, ocsError in
             if let ocsError {
@@ -60,7 +131,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/active", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/active", forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             if let ocsError {
@@ -76,7 +147,7 @@ import NextcloudKit
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        var urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
+        var urlString = self.getRequestURL(forConversationEndpoint: "room", forAccount: account)
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
 
         let parameters: [String: Any] = [
@@ -115,7 +186,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError?.error)
@@ -140,7 +211,7 @@ import NextcloudKit
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/note-to-self", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/note-to-self", forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError?.error)
@@ -151,7 +222,7 @@ import NextcloudKit
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "listed-room", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "listed-room", forAccount: account)
         var parameters: [String: Any] = [:]
 
         if let searchTerm, !searchTerm.isEmpty {
@@ -168,7 +239,7 @@ import NextcloudKit
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room", forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             let room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
@@ -195,7 +266,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", forAccount: account)
         let parameters: [String: String] = ["roomName": roomName]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
@@ -208,7 +279,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/description", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/description", forAccount: account)
         let parameters: [String: String] = ["description": description ?? ""]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
@@ -221,7 +292,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/mention-permissions", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/mention-permissions", forAccount: account)
         let parameters: [String: Int] = ["mentionPermissions": permissions.rawValue]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
@@ -234,7 +305,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -246,7 +317,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -258,7 +329,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -270,7 +341,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/object", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/object", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -282,7 +353,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/password", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/password", forAccount: account)
         let parameters: [String: String] = ["password": password]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
@@ -301,7 +372,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -313,7 +384,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -326,7 +397,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/important", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/important", forAccount: account)
         var ocsResponse: OcsResponse
 
         if enabled {
@@ -344,7 +415,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/sensitive", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/sensitive", forAccount: account)
         var ocsResponse: OcsResponse
 
         if enabled {
@@ -362,7 +433,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return false }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify", forAccount: account)
         let parameters: [String: Int] = ["level": level.rawValue]
 
         let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
@@ -378,7 +449,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return false }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify-calls", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/notify-calls", forAccount: account)
         let parameters: [String: Bool] = ["level": enabled]
 
         let ocsResponse = try? await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
@@ -395,7 +466,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/read-only", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/read-only", forAccount: account)
         let parameters: [String: Int] = ["state": state.rawValue]
 
         return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
@@ -408,8 +479,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let endpoint = self.conversationAPIVersion(for: account) >= APIv4 ? "room/\(encodedToken)/webinar/lobby" : "room/\(encodedToken)/webinary/lobby"
-        let urlString = self.getRequestURL(forConversationEndpoint: endpoint, for: account)
+        let endpoint = self.conversationAPIVersion(forAccount: account) >= APIv4 ? "room/\(encodedToken)/webinar/lobby" : "room/\(encodedToken)/webinary/lobby"
+        let urlString = self.getRequestURL(forConversationEndpoint: endpoint, forAccount: account)
         var parameters: [String: Int] = ["state": state.rawValue]
 
         if timer > 0 {
@@ -426,7 +497,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/webinar/sip", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/webinar/sip", forAccount: account)
         let parameters: [String: Int] = ["state": state.rawValue]
 
         return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
@@ -439,7 +510,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/listable", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/listable", forAccount: account)
         let parameters: [String: Int] = ["scope": scope.rawValue]
 
         return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
@@ -452,7 +523,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/message-expiration", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/message-expiration", forAccount: account)
         let parameters: [String: Int] = ["seconds": messageExpiration.rawValue]
 
         return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
@@ -467,7 +538,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        var urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", for: account)
+        var urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", forAccount: account)
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
 
         if serverCapabilities?.userStatus == true {
@@ -489,7 +560,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", forAccount: account)
         var parameters: [String: String] = ["newParticipant": participant]
 
         if let type {
@@ -506,7 +577,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/attendees", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/attendees", forAccount: account)
         let parameters: [String: Int] = ["attendeeId": attendeeId]
 
         return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
@@ -519,7 +590,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", forAccount: account)
         let parameters: [String: String] = ["participant": participant]
 
         return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
@@ -532,7 +603,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/guests", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/guests", forAccount: account)
         let parameters: [String: String] = ["participant": guest]
 
         return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
@@ -545,7 +616,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/self", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/self", forAccount: account)
 
         return try await apiSessionManager.deleteOcs(urlString, account: account)
     }
@@ -562,10 +633,10 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/moderators", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/moderators", forAccount: account)
         var parameters = ["participant": participantId]
 
-        if self.conversationAPIVersion(for: account) >= APIv3 {
+        if self.conversationAPIVersion(forAccount: account) >= APIv3 {
             parameters = ["attendeeId": participantId]
         }
 
@@ -583,7 +654,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/resend-invitations", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/resend-invitations", forAccount: account)
         var parameters: [String: String] = [:]
 
         if let participant {
@@ -597,8 +668,8 @@ import NextcloudKit
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
-        let apiVersion = self.federationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.federationAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, forAccount: account)
 
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {
@@ -613,8 +684,8 @@ import NextcloudKit
 
     public func rejectFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
-        let apiVersion = self.federationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.federationAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, forAccount: account)
 
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else {
@@ -635,8 +706,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.federationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.federationAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             let invitations = ocs?.dataArrayDict?.map { FederationInvitation(dictionary: $0, for: accountId) }
@@ -655,7 +726,7 @@ import NextcloudKit
             return
         }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/capabilities", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/capabilities", forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             completionBlock(ocs?.dataDict, ocs?.value(forHTTPHeaderField: "x-nextcloud-talk-proxy-hash"))
@@ -672,8 +743,8 @@ import NextcloudKit
             return nil
         }
 
-        let apiVersion = self.signalingAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "signaling/settings", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.signalingAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/settings", withAPIVersion: apiVersion, forAccount: account)
 
         var parameters: [String: Any]?
 
@@ -694,8 +765,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.signalingAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.signalingAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         try await apiSessionManager.postOcs(urlString, account: account, parameters: ["messages": messages])
     }
@@ -707,8 +778,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.signalingAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.signalingAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
@@ -727,8 +798,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/mentions", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/mentions", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: Any] = [
             "limit": 20,
@@ -753,8 +824,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.banAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.banAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         var parameters: [String: Any] = [
             "actorType": actorType,
@@ -781,8 +852,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.banAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.banAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             let actorBans = ocs?.dataArrayDict?.map { BannedActor(dictionary: $0) }
@@ -799,8 +870,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.banAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)/\(banId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.banAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)/\(banId)", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.delete(urlString, parameters: nil) { _, _ in
             completionBlock(true)
@@ -828,8 +899,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/summarize", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/summarize", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: Int] = [
             "fromMessageId": messageId
@@ -1009,8 +1080,8 @@ import NextcloudKit
             return nil
         }
 
-        let apiVersion = self.callAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)/notification-state", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.callAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)/notification-state", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             if ocsResponse?.responseStatusCode == 200 {
@@ -1037,8 +1108,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.conversationAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account) { _, error in
             completionBlock(error == nil)
@@ -1053,8 +1124,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.conversationAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.conversationAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, error in
             completionBlock(error == nil)
@@ -1233,8 +1304,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/recent", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/recent", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: Any] = [
             "limit": limit
@@ -1258,8 +1329,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/subscribed-threads", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/subscribed-threads", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: Any] = [
             "limit": limit,
@@ -1298,8 +1369,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account, parameters: nil) { ocs, _ in
             guard let threadDict = ocs?.dataDict as? [String: Any] else {
@@ -1323,8 +1394,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: String] = [
             "threadTitle": threadTitle
@@ -1352,8 +1423,8 @@ import NextcloudKit
             return
         }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)/notify", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)/notify", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: Int] = [
             "level": level
@@ -1381,8 +1452,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, forAccount: account)
 
         var parameters = [String: Int]()
 
@@ -1402,8 +1473,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, forAccount: account)
 
         let ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
 
@@ -1417,8 +1488,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin/self", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin/self", withAPIVersion: apiVersion, forAccount: account)
 
         let ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
 
@@ -1463,8 +1534,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, forAccount: account)
 
         let ocsResponse = try await apiSessionManager.getOcs(urlString, account: account)
 
@@ -1481,8 +1552,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: Any?] = [
             "message": message,
@@ -1504,8 +1575,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
 
         let parameters: [String: Any?] = [
             "message": message,
@@ -1526,8 +1597,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
 
         try await apiSessionManager.deleteOcs(urlString, account: account)
     }
@@ -1569,8 +1640,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.breakoutRoomsAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.breakoutRoomsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, forAccount: account)
 
         try await apiSessionManager.postOcs(urlString, account: account)
     }
@@ -1581,8 +1652,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.breakoutRoomsAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.breakoutRoomsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, forAccount: account)
 
         try await apiSessionManager.deleteOcs(urlString, account: account)
     }
@@ -1595,8 +1666,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.callAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataArrayDict, ocsError?.error, ocsError?.responseStatusCode ?? 0)
@@ -1617,8 +1688,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.callAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         var parameters: [String: Any] = [
             "flags": flags.rawValue,
@@ -1641,8 +1712,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.callAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account, parameters: ["all": allParticipants]) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -1655,8 +1726,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.callAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         var parameters: [String: Any] = [:]
 
@@ -1918,8 +1989,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.reactionsAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.reactionsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account, parameters: ["reaction": reaction]) { ocsResponse, ocsError in
             if let ocsResponse {
@@ -1936,8 +2007,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.reactionsAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.reactionsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account, parameters: ["reaction": reaction]) { ocsResponse, ocsError in
             if let ocsResponse {
@@ -1954,8 +2025,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.reactionsAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.reactionsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
         var parameters: [String: Any] = [:]
 
         if let reaction {
@@ -1997,7 +2068,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, forAccount: account)
 
         // Status 1 -> Video recording
         // Status 2 -> Audio recording (not supported for now)
@@ -2013,7 +2084,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -2025,7 +2096,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/notification", withAPIVersion: 1, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/notification", withAPIVersion: 1, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account, parameters: ["timestamp": timestamp]) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -2037,7 +2108,7 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/share-chat", withAPIVersion: 1, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/share-chat", withAPIVersion: 1, forAccount: account)
         let parameters = [
             "timestamp": timestamp,
             "fileId": fileId
@@ -2056,8 +2127,8 @@ import NextcloudKit
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(for: message.account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account, parameters: ["timestamp": timestamp]) { _, ocsError in
             completionBlock(ocsError)
@@ -2070,8 +2141,8 @@ import NextcloudKit
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(for: message.account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError)
@@ -2084,8 +2155,8 @@ import NextcloudKit
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(for: message.account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError)
@@ -2098,7 +2169,7 @@ import NextcloudKit
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "settings/user", withAPIVersion: 1, for: account)
+        let urlString = self.getRequestURL(forEndpoint: "settings/user", withAPIVersion: 1, forAccount: account)
         let parameters: [String: Any] = [
             "key": key,
             "value": value
@@ -2251,8 +2322,8 @@ import NextcloudKit
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         var limitParameter = limit
 
@@ -2312,8 +2383,8 @@ import NextcloudKit
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         var parameters: [String: Any] = [
             "message": message
@@ -2356,8 +2427,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError, ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0)
@@ -2370,8 +2441,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.putOcs(urlString, account: account, parameters: ["message": message]) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError, ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0)
@@ -2384,8 +2455,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError)
@@ -2398,8 +2469,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.postOcs(urlString, account: account, parameters: richObject) { _, ocsError in
             completionBlock(ocsError)
@@ -2412,8 +2483,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.postOcs(urlString, account: account, parameters: ["lastReadMessage": lastReadMessage]) { _, ocsError in
             completionBlock(ocsError)
@@ -2426,8 +2497,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError)
@@ -2440,8 +2511,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share/overview", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share/overview", withAPIVersion: apiVersion, forAccount: account)
         var parameters: [String: Any] = [:]
 
         if limit > -1 {
@@ -2471,8 +2542,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, forAccount: account)
         var parameters: [String: Any] = [
             "objectType": type
         ]
@@ -2500,8 +2571,8 @@ import NextcloudKit
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(for: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/context", withAPIVersion: apiVersion, for: account)
+        let apiVersion = self.chatAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/context", withAPIVersion: apiVersion, forAccount: account)
 
         var parameters: [String: Any] = [
             "limit": limit
