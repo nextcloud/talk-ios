@@ -10,7 +10,7 @@
 
 @property (nonatomic, assign) NSInteger pollId;
 @property (nonatomic, strong) NSString *question;
-@property (nonatomic, strong) NSArray *options;
+@property (nonatomic, strong) NSArray<NSString *> *options;
 @property (nonatomic, strong) NSDictionary *votes;
 @property (nonatomic, strong) NSString *actorType;
 @property (nonatomic, strong) NSString *actorId;
