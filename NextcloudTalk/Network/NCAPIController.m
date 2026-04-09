@@ -274,43 +274,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return [NSString stringWithFormat:@"%@%@%@%ld/%@", account.server, kNCOCSAPIVersion, kNCSpreedAPIVersionBase, (long)apiVersion, endpoint];
 }
 
-#pragma mark - Chat Controller
-
-- (NSURLSessionDataTask *)getMessageContextInRoom:(NSString *)token forMessageId:(NSInteger)messageId inThread:(NSInteger)threadId withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetMessageContextInRoomCompletionBlock)block
-{
-    NSString *encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *endpoint = [NSString stringWithFormat:@"chat/%@/%ld/context", encodedToken, (long)messageId];
-    NSInteger chatAPIVersion = [self chatAPIVersionForAccount:account];
-    NSString *URLString = [self getRequestURLForEndpoint:endpoint withAPIVersion:chatAPIVersion forAccount:account];
-
-    NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
-    if (limit && limit > 0) {
-        // Limit is optional server-side and defaults to 50, maximum is 100
-        [parameters setObject:@(limit) forKey:@"limit"];
-    }
-    if (threadId && threadId > 0) {
-        [parameters setObject:@(threadId) forKey:@"threadId"];
-    }
-
-    NCAPISessionManager *apiSessionManager = [_apiSessionManagers objectForKey:account.accountId];
-
-    NSURLSessionDataTask *task = [apiSessionManager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *responseMessages = [[responseObject objectForKey:@"ocs"] objectForKey:@"data"];
-
-        if (block) {
-            block(responseMessages, nil, 0);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSInteger statusCode = [self getResponseStatusCode:task.response];
-        [self checkResponseStatusCode:statusCode forAccount:account];
-        if (block) {
-            block(nil, error, statusCode);
-        }
-    }];
-
-    return task;
-}
-
 #pragma mark - Polls Controller
 
 - (NSURLSessionDataTask *)createPollWithQuestion:(NSString *)question options:(NSArray *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes inRoom:(NSString *)token asDraft:(BOOL)asDraft forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block

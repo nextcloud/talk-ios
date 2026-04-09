@@ -1095,7 +1095,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 - (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId inThread:_threadId withLimit:limit forAccount:self.account withCompletionBlock:^(NSArray *messages, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId inThread:_threadId withLimit:limit forAccount:self.account completionBlock:^(NSArray<NCChatMessage *> *messages, NSError *error) {
         if (error) {
             if (block) {
                 block(nil);
@@ -1104,12 +1104,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
             return;
         }
 
-        NSMutableArray *chatMessages = [[NSMutableArray alloc] initWithCapacity:messages.count];
-
-        for (NSDictionary *messageDict in messages) {
-            NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self.account.accountId];
-            [chatMessages addObject:message];
-
+        for (NCChatMessage *message in messages) {
             if (!message.file) {
                 continue;
             }
@@ -1123,7 +1118,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         }
 
         if (block) {
-            block(chatMessages);
+            block(messages);
         }
     }];
 }
