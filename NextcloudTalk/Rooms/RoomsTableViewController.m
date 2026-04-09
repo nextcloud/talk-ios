@@ -174,35 +174,14 @@ typedef enum RoomsSections {
 #if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
     if (@available(iOS 26, *)) {
         if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-            __weak typeof(self) weakSelf = self;
-            RoomsFilter currentFilter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
-            NSMutableArray *filterActions = [[NSMutableArray alloc] init];
-
-            for (NSNumber *filterId in [self availableFilters]) {
-                UIAction *action = [UIAction actionWithTitle:[self filterName:filterId.intValue]
-                                                       image:[self filterImage:filterId.intValue]
-                                                  identifier:nil
-                                                     handler:^(UIAction *action) {
-                    weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
-                    [weakSelf filterRooms];
-                    [weakSelf setupSearchBar];
-                    [weakSelf updateMentionsIndicator];
-                }];
-
-                action.state = (filterId.intValue == currentFilter) ? UIMenuElementStateOn : UIMenuElementStateOff;
-                [filterActions addObject:action];
-            }
-
-            UIMenu *filtersSection = [UIMenu menuWithTitle:NSLocalizedString(@"Filters", @"Title for available conversations filters")
-                                                     image:nil identifier:nil options:UIMenuOptionsDisplayInline children:filterActions];
-
             TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+            RoomsFilter currentFilter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
 
-            NSMutableArray *menuChildren = [[NSMutableArray alloc] initWithArray:@[filtersSection]];
-
+            NSMutableArray *menuChildren = [[NSMutableArray alloc] init];
+            [menuChildren addObject:[self getFiltersSectionReversed:YES]];
             if ([[NCSettingsController sharedInstance] isRoomsSortingSupportedForAccountId:account.accountId]) {
-                [menuChildren addObject:[self getSortOrderSection]];
-                [menuChildren addObject:[self getGroupModeSection]];
+                [menuChildren addObject:[self getGroupModeSectionReversed:YES]];
+                [menuChildren addObject:[self getSortOrderSectionReversed:YES]];
             }
 
             UIMenu *menu = [UIMenu menuWithTitle:@"" children:menuChildren];
@@ -954,75 +933,111 @@ typedef enum RoomsSections {
 
 #pragma mark - Sort menu
 
-- (UIMenu *)getSortOrderSection
+- (UIMenu *)getSortOrderSectionReversed:(BOOL)reversed
 {
+    __weak typeof(self) weakSelf = self;
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *caps = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    NCRoomSortOrder currentSortOrder = caps.roomsSortOrder;
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    NCRoomSortOrder currentSort = serverCapabilities.roomsSortOrder;
 
-    UIAction *sortByActivity = [UIAction actionWithTitle:NSLocalizedString(@"By activity", @"Sort conversations by recent activity")
-                                                   image:[UIImage systemImageNamed:@"clock"]
+    UIAction *byActivity = [UIAction actionWithTitle:NSLocalizedString(@"By activity", @"Sort conversations by recent activity")
+                                               image:[UIImage systemImageNamed:@"clock"]
+                                          identifier:nil
+                                             handler:^(UIAction *action) {
+        [weakSelf applySortOrder:NCRoomSortOrderActivity];
+    }];
+    byActivity.state = (currentSort == NCRoomSortOrderActivity) ? UIMenuElementStateOn : UIMenuElementStateOff;
+
+    UIAction *alphabetically = [UIAction actionWithTitle:NSLocalizedString(@"Alphabetically", @"Sort conversations alphabetically")
+                                                   image:[UIImage systemImageNamed:@"character.square"]
                                               identifier:nil
                                                  handler:^(UIAction *action) {
-        [self applySortOrder:NCRoomSortOrderActivity];
+        [weakSelf applySortOrder:NCRoomSortOrderAlphabetical];
     }];
-    sortByActivity.state = (currentSortOrder == NCRoomSortOrderActivity) ? UIMenuElementStateOn : UIMenuElementStateOff;
+    alphabetically.state = (currentSort == NCRoomSortOrderAlphabetical) ? UIMenuElementStateOn : UIMenuElementStateOff;
 
-    UIAction *sortAlphabetically = [UIAction actionWithTitle:NSLocalizedString(@"Alphabetically", @"Sort conversations alphabetically")
-                                                       image:[UIImage systemImageNamed:@"character.square"]
-                                                  identifier:nil
-                                                     handler:^(UIAction *action) {
-        [self applySortOrder:NCRoomSortOrderAlphabetical];
-    }];
-    sortAlphabetically.state = (currentSortOrder == NCRoomSortOrderAlphabetical) ? UIMenuElementStateOn : UIMenuElementStateOff;
+    NSArray *children = reversed ? @[alphabetically, byActivity] : @[byActivity, alphabetically];
 
-    return [UIMenu menuWithTitle:@""
+    return [UIMenu menuWithTitle:NSLocalizedString(@"Sort conversations", @"Title for conversations sorting options")
                            image:nil
                       identifier:nil
                          options:UIMenuOptionsDisplayInline
-                        children:@[sortByActivity, sortAlphabetically]];
+                        children:children];
 }
 
-- (UIMenu *)getGroupModeSection
+- (UIMenu *)getGroupModeSectionReversed:(BOOL)reversed
 {
+    __weak typeof(self) weakSelf = self;
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    ServerCapabilities *caps = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-    NCRoomGroupMode currentGroupMode = caps.roomsGroupMode;
+    ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
+    NCRoomGroupMode currentGroup = serverCapabilities.roomsGroupMode;
 
     UIAction *noGrouping = [UIAction actionWithTitle:NSLocalizedString(@"No grouping", @"Do not group conversations by type")
                                                image:[UIImage systemImageNamed:@"list.bullet"]
                                           identifier:nil
-                                             handler:^(__unused UIAction *action) {
-        [self applyGroupMode:NCRoomGroupModeNone];
+                                             handler:^(UIAction *action) {
+        [weakSelf applyGroupMode:NCRoomGroupModeNone];
     }];
-    noGrouping.state = (currentGroupMode == NCRoomGroupModeNone) ? UIMenuElementStateOn : UIMenuElementStateOff;
-
-    UIAction *groupFirst = [UIAction actionWithTitle:NSLocalizedString(@"Groups first", @"Show group conversations before private ones")
-                                               image:[UIImage systemImageNamed:@"person.2"]
-                                          identifier:nil
-                                             handler:^(__unused UIAction *action) {
-        [self applyGroupMode:NCRoomGroupModeGroupFirst];
-    }];
-    groupFirst.state = (currentGroupMode == NCRoomGroupModeGroupFirst) ? UIMenuElementStateOn : UIMenuElementStateOff;
+    noGrouping.state = (currentGroup == NCRoomGroupModeNone) ? UIMenuElementStateOn : UIMenuElementStateOff;
 
     UIAction *privateFirst = [UIAction actionWithTitle:NSLocalizedString(@"Private first", @"Show private conversations before group ones")
                                                  image:[UIImage systemImageNamed:@"person"]
                                             identifier:nil
-                                               handler:^(__unused UIAction *action) {
-        [self applyGroupMode:NCRoomGroupModePrivateFirst];
+                                               handler:^(UIAction *action) {
+        [weakSelf applyGroupMode:NCRoomGroupModePrivateFirst];
     }];
-    privateFirst.state = (currentGroupMode == NCRoomGroupModePrivateFirst) ? UIMenuElementStateOn : UIMenuElementStateOff;
+    privateFirst.state = (currentGroup == NCRoomGroupModePrivateFirst) ? UIMenuElementStateOn : UIMenuElementStateOff;
+
+    UIAction *groupFirst = [UIAction actionWithTitle:NSLocalizedString(@"Group first", @"Show group conversations before private ones")
+                                               image:[UIImage systemImageNamed:@"person.2"]
+                                          identifier:nil
+                                             handler:^(UIAction *action) {
+        [weakSelf applyGroupMode:NCRoomGroupModeGroupFirst];
+    }];
+    groupFirst.state = (currentGroup == NCRoomGroupModeGroupFirst) ? UIMenuElementStateOn : UIMenuElementStateOff;
+
+    NSArray *children = reversed ? @[groupFirst, privateFirst, noGrouping] : @[noGrouping, privateFirst, groupFirst];
 
     return [UIMenu menuWithTitle:@""
                            image:nil
                       identifier:nil
                          options:UIMenuOptionsDisplayInline
-                        children:@[noGrouping, groupFirst, privateFirst]];
+                        children:children];
+}
+
+- (UIMenu *)getFiltersSectionReversed:(BOOL)reversed
+{
+    __weak typeof(self) weakSelf = self;
+    RoomsFilter currentFilter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
+    NSMutableArray *filterActions = [[NSMutableArray alloc] init];
+
+    for (NSNumber *filterId in [self availableFilters]) {
+        UIAction *action = [UIAction actionWithTitle:[self filterName:filterId.intValue]
+                                               image:[self filterImage:filterId.intValue]
+                                          identifier:nil
+                                             handler:^(UIAction *action) {
+            weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
+            [weakSelf filterRooms];
+            [weakSelf setupSearchBar];
+            [weakSelf updateMentionsIndicator];
+        }];
+
+        action.state = (filterId.intValue == currentFilter) ? UIMenuElementStateOn : UIMenuElementStateOff;
+        [filterActions addObject:action];
+    }
+
+    NSArray *children = reversed ? [[filterActions reverseObjectEnumerator] allObjects] : filterActions;
+
+    return [UIMenu menuWithTitle:NSLocalizedString(@"Filters", @"Title for available conversations filters")
+                           image:nil
+                      identifier:nil
+                         options:UIMenuOptionsDisplayInline
+                        children:children];
 }
 
 - (UIMenu *)getSortMenu
 {
-    return [UIMenu menuWithTitle:@"" children:@[[self getSortOrderSection], [self getGroupModeSection]]];
+    return [UIMenu menuWithTitle:@"" children:@[[self getSortOrderSectionReversed:NO], [self getGroupModeSectionReversed:NO]]];
 }
 
 - (void)applySortOrder:(NCRoomSortOrder)sortOrder
