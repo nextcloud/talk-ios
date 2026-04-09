@@ -17,18 +17,10 @@
 @class SDWebImageCombinedOperation;
 @class SDWebImageDownloaderRequestModifier;
 
-typedef void (^LeaveRoomCompletionBlock)(NSInteger errorCode, NSError *error);
-typedef void (^ParticipantModificationCompletionBlock)(NSError *error);
-
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
-
-typedef void (^GetMessageContextInRoomCompletionBlock)(NSArray *messages, NSError *error, NSInteger statusCode);
 
 typedef void (^PollCompletionBlock)(NCPoll *poll, NSError *error, NSInteger statusCode);
 typedef void (^PollDraftsCompletionBlock)(NSArray *polls, NSError *error, NSInteger statusCode);
-
-typedef void (^SendSignalingMessagesCompletionBlock)(NSError *error);
-typedef void (^PullSignalingMessagesCompletionBlock)(NSDictionary *messages, NSError *error);
 
 typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
 typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
@@ -52,14 +44,6 @@ typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger sta
 
 typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *error);
 typedef void (^SetUserStatusCompletionBlock)(NSError *error);
-
-typedef void (^GetWipeStatusCompletionBlock)(BOOL wipe, NSError *error);
-typedef void (^ConfirmWipeCompletionBlock)(NSError *error);
-
-typedef void (^SubscribeToNextcloudServerCompletionBlock)(NSDictionary *responseDict, NSError *error);
-typedef void (^UnsubscribeToNextcloudServerCompletionBlock)(NSError *error);
-typedef void (^SubscribeToPushProxyCompletionBlock)(NSError *error);
-typedef void (^UnsubscribeToPushProxyCompletionBlock)(NSError *error);
 
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
@@ -89,9 +73,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSInteger)banAPIVersionForAccount:(TalkAccount *)account;
 - (NSString *)filesPathForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
-
-// Chat Controller
-- (NSURLSessionDataTask *)getMessageContextInRoom:(NSString *)token forMessageId:(NSInteger)messageId inThread:(NSInteger)threadId withLimit:(NSInteger)limit forAccount:(TalkAccount *)account withCompletionBlock:(GetMessageContextInRoomCompletionBlock)block;
 
 // Polls Controller
 - (NSURLSessionDataTask *)createPollWithQuestion:(NSString *)question options:(NSArray *)options resultMode:(NCPollResultMode)resultMode maxVotes:(NSInteger)maxVotes inRoom:(NSString *)token asDraft:(BOOL)asDraft forAccount:(TalkAccount *)account withCompletionBlock:(PollCompletionBlock)block;

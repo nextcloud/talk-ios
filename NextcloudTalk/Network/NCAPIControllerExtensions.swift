@@ -2465,6 +2465,7 @@ import NextcloudKit
     }
 
     @discardableResult
+    // swiftlint:disable:next function_parameter_count
     public func getSharedItems(ofType type: String, fromLastMessageId messageId: Int, inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItems: [NCChatMessage]?, _ lastKnownMessageId: Int, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2490,6 +2491,31 @@ import NextcloudKit
                 completionBlock(dataDict.compactMap({ NCChatMessage(dictionary: $0.value) }), headerLastKnownMessage, nil)
             } else {
                 completionBlock(nil, -1, ocsError)
+            }
+        }
+    }
+
+    public func getMessageContext(inRoom token: String, forMessageId messageId: Int, inThread threadId: Int, withLimit limit: Int = 50, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [NCChatMessage]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/context", withAPIVersion: apiVersion, for: account)
+
+        var parameters: [String: Any] = [
+            "limit": limit
+        ]
+
+        if threadId > 0 {
+            parameters["threadId"] = threadId
+        }
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, ocsError in
+            if let dataArrayDict = ocs?.dataArrayDict {
+                completionBlock(dataArrayDict.map({ NCChatMessage(dictionary: $0, andAccountId: account.accountId) }), nil)
+            } else {
+                completionBlock(nil, ocsError)
             }
         }
     }
