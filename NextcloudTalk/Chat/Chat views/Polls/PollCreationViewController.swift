@@ -225,11 +225,13 @@ import UIKit
     }
 
     func createPoll(asDraft: Bool) {
+        guard let account = room.account else { return }
+
         let resultMode: NCPollResultMode = anonymousPollSwitch.isOn ? .hidden : .public
         let maxVotes: Int = multipleAnswersSwitch.isOn ? 0 : 1
 
         showPollCreationUI()
-        NCAPIController.sharedInstance().createPoll(withQuestion: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: room.token, asDraft: asDraft, for: room.account) { _, error, _ in
+        NCAPIController.sharedInstance().createPoll(withQuestion: question, withOptions: options, withResultMode: resultMode, withMaxVotes: maxVotes, asDraft: asDraft, inRoom: room.token, forAccount: account) { _, error in
             self.removePollCreationUI()
             if error != nil {
                 self.showCreationError()
@@ -242,13 +244,13 @@ import UIKit
     }
 
     func saveEditedPollDraftButtonPressed() {
-        guard let draftId = editingDraftId else { return }
+        guard let draftId = editingDraftId, let account = room.account else { return }
 
         let resultMode: NCPollResultMode = anonymousPollSwitch.isOn ? .hidden : .public
         let maxVotes: Int = multipleAnswersSwitch.isOn ? 0 : 1
 
         showPollCreationUI()
-        NCAPIController.sharedInstance().editPollDraft(withId: draftId, question: question, options: options, resultMode: resultMode, maxVotes: maxVotes, inRoom: room.token, for: room.account) { _, error, _ in
+        NCAPIController.sharedInstance().editPollDraft(withId: draftId, withQuestion: question, withOptions: options, withResultMode: resultMode, withMaxVotes: maxVotes, inRoom: room.token, forAccount: account) { _, error in
             self.removePollCreationUI()
             if error != nil {
                 self.showEditionError()

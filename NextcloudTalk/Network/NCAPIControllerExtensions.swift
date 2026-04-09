@@ -2638,4 +2638,115 @@ import NextcloudKit
         }
     }
 
+    // MARK: - Polls controller
+
+    public func createPoll(withQuestion question: String,
+                           withOptions options: [String],
+                           withResultMode resultMode: NCPollResultMode,
+                           withMaxVotes maxVotes: Int,
+                           asDraft draft: Bool,
+                           inRoom token: String,
+                           forAccount account: TalkAccount,
+                           completionBlock: @escaping (_ poll: NCPoll, _ error: Error?) -> Void) {
+
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.pollsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+
+        let parameters: [String: Any] = [
+            "question": question,
+            "options": options,
+            "resultMode": resultMode.rawValue,
+            "draft": draft,
+            "maxVotes": maxVotes
+        ]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+        }
+    }
+
+    public func getPoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.pollsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIVersion: apiVersion, forAccount: account)
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+        }
+    }
+
+    public func editPollDraft(withId draftId: Int,
+                              withQuestion question: String,
+                              withOptions options: [String],
+                              withResultMode resultMode: NCPollResultMode,
+                              withMaxVotes maxVotes: Int,
+                              inRoom token: String,
+                              forAccount account: TalkAccount,
+                              completionBlock: @escaping (_ poll: NCPoll, _ error: Error?) -> Void) {
+
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.pollsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/draft/\(draftId)", withAPIVersion: apiVersion, forAccount: account)
+
+        let parameters: [String: Any] = [
+            "question": question,
+            "options": options,
+            "resultMode": resultMode.rawValue,
+            "maxVotes": maxVotes
+        ]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+        }
+    }
+
+    public func getPollDrafts(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ polls: [NCPoll]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.pollsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/drafts", withAPIVersion: apiVersion, forAccount: account)
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            let drafts = ocsResponse?.dataArrayDict?.compactMap({ NCPoll.initWithPollDictionary($0) })
+            completionBlock(drafts, ocsError)
+        }
+    }
+
+    public func voteOnPoll(withId pollId: Int, inRoom token: String, withOptions options: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.pollsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIVersion: apiVersion, forAccount: account)
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: ["optionIds": options]) { ocsResponse, ocsError in
+            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+        }
+    }
+
+    public func closePoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let apiVersion = self.pollsAPIVersion(forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIVersion: apiVersion, forAccount: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
+            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+        }
+    }
 }

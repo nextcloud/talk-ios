@@ -351,7 +351,7 @@ import PassKit
         self.present(navigationViewController, animated: true, completion: nil)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: room.token, for: activeAccount) { poll, error, _ in
+        NCAPIController.sharedInstance().getPoll(withId: pollId, inRoom: room.token, forAccount: activeAccount) { poll, error in
             if let poll = poll, error == nil {
                 pollViewController.updatePoll(poll: poll)
             }

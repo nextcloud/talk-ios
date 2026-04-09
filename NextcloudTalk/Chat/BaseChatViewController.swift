@@ -3984,7 +3984,7 @@ import SwiftUI
         // TODO: Recheck if this behavior is fixed on iOS 26+.
         self.textView.resignFirstResponder()
 
-        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: self.account) { poll, error, _ in
+        NCAPIController.sharedInstance().getPoll(withId: pollId, inRoom: self.room.token, forAccount: self.account) { poll, error in
             if error == nil, let poll {
                 pollVC.updatePoll(poll: poll)
             }
