@@ -315,4 +315,40 @@ final class IntegrationChatTest: TestBase {
         await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
+    func testShareOverview() async throws {
+        try skipWithoutCapability(capability: kCapabilityRichObjectListMedia)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        let room = try await createUniqueRoom(prefix: "Rich object room", withAccount: activeAccount)
+        let richObject = GeoLocationRichObject(latitude: 48.858093, longitude: 2.294694, name: "Tour Eiffel")
+
+        var exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: room.token, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+
+        exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().getSharedItemsOverview(inRoom: room.token, withLimit: -1, forAccount: activeAccount) { sharedItemsOverview, error in
+            XCTAssertNil(error)
+            XCTAssertNotNil(sharedItemsOverview?["location"]?.first)
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+
+        exp = expectation(description: "\(#function)\(#line)")
+        NCAPIController.sharedInstance().getSharedItems(ofType: "location", fromLastMessageId: 0, inRoom: room.token, withLimit: -1, forAccount: activeAccount) { sharedItems, lastKnownMessageId, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(sharedItems?.count, 1)
+            XCTAssertGreaterThan(lastKnownMessageId, 0)
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
 }

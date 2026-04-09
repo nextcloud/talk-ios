@@ -67,8 +67,8 @@ import PassKit
         showFetchingItemsPlaceholderView()
 
         NCAPIController.sharedInstance()
-            .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, withLimit: itemLimit,
-                            inRoom: room.token, for: account) { items, lastItemId, error, _ in
+            .getSharedItems(ofType: itemType, fromLastMessageId: currentLastItemId, inRoom: room.token,
+                            withLimit: itemLimit, forAccount: account) { items, lastItemId, error in
                 if error == nil, let sharedItems = items as? [NCChatMessage] {
                     // Remove deleted files
                     var filteredItems: [NCChatMessage] = []
@@ -107,9 +107,9 @@ import PassKit
         showFetchingItemsPlaceholderView()
 
         NCAPIController.sharedInstance()
-            .getSharedItemsOverview(inRoom: room.token, withLimit: itemsOverviewLimit, for: account) { itemsOverview, error, _ in
+            .getSharedItemsOverview(inRoom: room.token, withLimit: itemsOverviewLimit, forAccount: account) { itemsOverview, error in
                 if error == nil {
-                    self.sharedItemsOverview = itemsOverview as? [String: [NCChatMessage]] ?? [:]
+                    self.sharedItemsOverview = itemsOverview ?? [:]
                     let availableItemTypes = self.availableItemTypes()
                     if availableItemTypes.isEmpty {
                         self.hideFetchingItemsPlaceholderView()

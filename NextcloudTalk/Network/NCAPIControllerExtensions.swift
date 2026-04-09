@@ -2434,4 +2434,64 @@ import NextcloudKit
         }
     }
 
+    @discardableResult
+    public func getSharedItemsOverview(inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItemsOverview: [String: [NCChatMessage]]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share/overview", withAPIVersion: apiVersion, for: account)
+        var parameters: [String: Any] = [:]
+
+        if limit > -1 {
+            parameters["limit"] = limit
+        }
+
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let dataDict = ocsResponse?.dataDict as? [String: [[String: Any]]] {
+                // e.g. ["location": [message1, message2, ...], "audio": ...]
+                var result: [String: [NCChatMessage]] = [:]
+
+                for (key, value) in dataDict {
+                    result[key] = value.compactMap({ NCChatMessage(dictionary: $0) })
+                }
+
+                completionBlock(result, nil)
+            } else {
+                completionBlock(nil, ocsError)
+            }
+        }
+    }
+
+    @discardableResult
+    public func getSharedItems(ofType type: String, fromLastMessageId messageId: Int, inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItems: [NCChatMessage]?, _ lastKnownMessageId: Int, _ error: Error?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let apiVersion = self.chatAPIVersion(for: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, for: account)
+        var parameters: [String: Any] = [
+            "objectType": type
+        ]
+
+        if messageId > -1 {
+            parameters["lastKnownMessageId"] = messageId
+        }
+
+        if limit > -1 {
+            parameters["limit"] = limit
+        }
+
+        return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            if let dataDict = ocsResponse?.dataDict as? [String: [String: Any]] {
+                let headerLastKnownMessage = Int(ocsResponse?.value(forHTTPHeaderField: "x-chat-last-given")) ?? -1
+                completionBlock(dataDict.compactMap({ NCChatMessage(dictionary: $0.value) }), headerLastKnownMessage, nil)
+            } else {
+                completionBlock(nil, -1, ocsError)
+            }
+        }
+    }
+
 }
