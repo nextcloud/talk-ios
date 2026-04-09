@@ -50,6 +50,9 @@ extern NSInteger const APIv2;
 extern NSInteger const APIv3;
 extern NSInteger const APIv4;
 extern NSInteger const kReceivedChatMessagesLimit;
+extern NSString * const kDavEndpoint;
+extern NSString * const kNCOCSAPIVersion;
+extern NSString * const kNCSpreedAPIVersionBase;
 
 @interface NCAPIController : NSObject
 
@@ -62,17 +65,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (void)createAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)removeAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
-- (NSInteger)conversationAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)callAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)chatAPIVersionForAccount:(TalkAccount *)accounts;
-- (NSInteger)reactionsAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)pollsAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)breakoutRoomsAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)signalingAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)federationAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)banAPIVersionForAccount:(TalkAccount *)account;
-- (NSInteger)botsAPIVersionForAccount:(TalkAccount *)account;
-- (NSString *)filesPathForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
 // Polls Controller
@@ -122,8 +114,6 @@ extern NSInteger const kReceivedChatMessagesLimit;
 - (NSURLSessionDataTask *)setUserStatus:(NSString *)status forAccount:(TalkAccount *)account withCompletionBlock:(SetUserStatusCompletionBlock)block;
 
 // Internal method exposed for swift extension
-- (NSString * _Nonnull)getRequestURLForConversationEndpoint:(NSString *_Nonnull)endpoint forAccount:(TalkAccount *_Nonnull)account;
-- (NSString * _Nonnull)getRequestURLForEndpoint:(NSString *_Nonnull)endpoint withAPIVersion:(NSInteger)apiVersion forAccount:(TalkAccount *_Nonnull)account;
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;
 - (NSInteger)getResponseStatusCode:(NSURLResponse *)response;
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;

@@ -130,7 +130,7 @@ public class NCRoomParticipant: NSObject {
 
     public var participantId: String? {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        if NCAPIController.sharedInstance().conversationAPIVersion(for: activeAccount) >= APIv3 {
+        if NCAPIController.sharedInstance().conversationAPIVersion(forAccount: activeAccount) >= APIv3 {
             return String(attendeeId)
         }
 
