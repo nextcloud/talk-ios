@@ -5,6 +5,7 @@
 
 import Foundation
 import NextcloudKit
+import SDWebImage
 
 @objc extension NCAPIController {
 
@@ -2865,15 +2866,223 @@ import NextcloudKit
 
     // MARK: - User actions
 
-    public func getUserActions(forUser userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ polls: [String: Any]?, _ error: Error?) -> Void) {
+    public func getUserActions(forUser userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ actions: [String: Any]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
-              let encodedUser = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+              let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = "\(account.server)/ocs/v2.php/hovercard/v1/\(encodedUser)"
+        let urlString = "\(account.server)/ocs/v2.php/hovercard/v1/\(encodedUserId)"
 
         apiSessionManager.getOcs(urlString, account: account, parameters: ["format": "json"]) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError)
+        }
+    }
+
+    // MARK: - User profile
+
+    public func getUserProfile(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfile: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/cloud/user"
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: ["format": "json"]) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError)
+        }
+    }
+
+    public func getUserProfileEditableFields(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfileEditableFields: [String]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/cloud/user/fields"
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: ["format": "json"]) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.ocsDict?["data"] as? [String], ocsError)
+        }
+    }
+
+    public func setUserProfileField(_ field: String, withValue value: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedUserId = account.userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/cloud/users/\(encodedUserId)"
+        let parameters = [
+            "format": "json",
+            "key": field,
+            "value": value
+        ]
+
+        // Ignore status code for now https://github.com/nextcloud/server/pull/26679
+        apiSessionManager.putOcs(urlString, account: account, parameters: parameters, checkResponseStatusCode: false) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    public func setUserProfileImage(_ image: UIImage, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let imageData = image.jpegData(compressionQuality: 0.7)
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/spreed/temp-user-avatar"
+
+        apiSessionManager.post(urlString, parameters: nil) { formData in
+            formData.appendPart(withFileData: imageData, name: "files[]", fileName: "avatar.jpg", mimeType: "image/jpeg")
+        } progress: { _ in
+        } success: { _, _ in
+            completionBlock(nil)
+        } failure: { _, error in
+            completionBlock(error)
+        }
+    }
+
+    public func removeUserProfileImage(forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/spreed/temp-user-avatar"
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    internal func getProfileImagePath(forAccount account: TalkAccount, withStyle style: UIUserInterfaceStyle) -> String? {
+        let fileManager = FileManager.default
+
+        guard let documentsPath = fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)?.path,
+              let accountHost = URL(string: account.server)?.host()
+        else { return nil }
+
+        let fileName: String
+
+        if style == .dark {
+            fileName = "\(account.userId)-\(accountHost)-dark.png"
+        } else {
+            fileName = "\(account.userId)-\(accountHost).png"
+        }
+
+        return (documentsPath as NSString).appendingPathComponent(fileName)
+    }
+
+    public func saveProfileImage(forAccount account: TalkAccount) {
+        self.getAndStoreProfileImage(forAccount: account, withStyle: .light)
+    }
+
+    public func getAndStoreProfileImage(forAccount account: TalkAccount, withStyle style: UIUserInterfaceStyle) {
+        var operation: SDWebImageCombinedOperation?
+
+        // When getting our own profile image, we need to ignore any cache to always get the latest version
+        operation = self.getUserAvatar(forUser: account.userId, withStyle: style, ignoreCache: true, forAccount: account, completionBlock: { image, error in
+            guard let token = operation?.loaderOperation as? SDWebImageDownloadToken,
+                  let response = token.response as? HTTPURLResponse,
+                  let image
+            else { return }
+
+            var hasCustomAvatar = false
+
+            try? RLMRealm.default().transaction {
+                let query = NSPredicate(format: "accountId = %@", account.accountId)
+                if let customHeader = response.value(forHTTPHeaderField: "X-NC-IsCustomAvatar"),
+                   let managedAccount = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
+
+                    hasCustomAvatar = (customHeader == "1")
+                    managedAccount.hasCustomAvatar = hasCustomAvatar
+                }
+            }
+
+            if let pngData = image.pngData(), let filePath = self.getProfileImagePath(forAccount: account, withStyle: style) {
+                try? (pngData as NSData).write(toFile: filePath)
+            }
+
+            if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId) {
+                // If supported, try to fetch the dark version of the avatar as well
+                if style == .light, !hasCustomAvatar, serverCapabilities.versionMajor >= 25 {
+                    self.getAndStoreProfileImage(forAccount: account, withStyle: .dark)
+                }
+            }
+
+            NotificationCenter.default.post(name: .NCUserProfileImageUpdated, object: self)
+        })
+    }
+
+    public func userProfileImage(forAccount account: TalkAccount, withStyle style: UIUserInterfaceStyle) -> UIImage? {
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        else { return nil }
+
+        if style == .dark, !account.hasCustomAvatar && serverCapabilities.versionMajor >= 25 {
+            if let filePath = self.getProfileImagePath(forAccount: account, withStyle: .dark) {
+                return UIImage(contentsOfFile: filePath)
+            }
+        } else {
+            if let filePath = self.getProfileImagePath(forAccount: account, withStyle: .light) {
+                return UIImage(contentsOfFile: filePath)
+            }
+        }
+
+        return nil
+    }
+
+    public func removeProfileImage(forAccount account: TalkAccount) {
+        let fileManager = FileManager.default
+
+        if let filePathLight = self.getProfileImagePath(forAccount: account, withStyle: .light) {
+            try? fileManager.removeItem(atPath: filePathLight)
+        }
+
+        if let filePathDark = self.getProfileImagePath(forAccount: account, withStyle: .dark) {
+            try? fileManager.removeItem(atPath: filePathDark)
+        }
+    }
+
+    // MARK: - User avatar
+
+    public func getUserAvatar(forUser userId: String, withStyle style: UIUserInterfaceStyle, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
+        return self.getUserAvatar(forUser: userId, withStyle: style, ignoreCache: false, forAccount: account, completionBlock: completionBlock)
+    }
+
+    public func getUserAvatar(forUser userId: String, withStyle style: UIUserInterfaceStyle, ignoreCache: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        else { return nil }
+
+        // Since https://github.com/nextcloud/server/pull/31010 we can only request avatars in 64px or 512px
+        // As we never request lower than 96px, we always get 512px anyway
+        let avatarSize = 512
+
+        var urlString = "\(account.server)/index.php/avatar/\(encodedUserId)/\(avatarSize)"
+
+        if style == .dark, serverCapabilities.versionMajor >= 25 {
+            urlString = "\(urlString)/dark"
+        }
+
+        guard let url = URL(string: urlString) else { return nil }
+
+        var options: SDWebImageOptions
+
+        if ignoreCache {
+            // In case we want to ignore our local caches, we can't provide SDWebImageRefreshCached, as this will
+            // always use NSURLCache and could still return a cached value here
+            options = [.retryFailed, .fromLoaderOnly]
+        } else {
+            // We want to refresh our cache when the NSURLCache determines that the resource is not fresh anymore
+            // see: https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
+            // Could be removed when all conversations have a avatarVersion, see https://github.com/nextcloud/spreed/issues/9320
+            options = [.retryFailed, .refreshCached]
+        }
+
+        let requestModifier = self.getRequestModifier(for: account)!
+
+        return SDWebImageManager.shared.loadImage(with: url, options: options, context: [.downloadRequestModifier: requestModifier], progress: nil) { image, _, error, _, _, _ in
+            if let error {
+                // When the request was cancelled before completing, we expect no completion handler to be called
+                if (error as NSError).code != SDWebImageError.cancelled.rawValue {
+                    completionBlock(nil, error)
+                }
+            } else if let image {
+                completionBlock(image, nil)
+            }
         }
     }
 

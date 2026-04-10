@@ -359,7 +359,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getUserProfileForAccount:account withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
+    [[NCAPIController sharedInstance] getUserProfileForAccount:account completionBlock:^(NSDictionary *userProfile, NSError *error) {
         if (!error) {
             id emailObject = [userProfile objectForKey:kUserProfileEmail];
             NSString *email = emailObject;

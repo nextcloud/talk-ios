@@ -95,7 +95,7 @@ extension UserProfileTableViewController {
 
     func setPhoneNumber(_ phoneNumber: String) {
         self.setModifyingProfileUI()
-        NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, for: account) { error, _ in
+        NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, forAccount: account) { error in
             if error != nil {
                 self.showProfileModificationErrorForField(inTextField: self.kPhoneTextFieldTag, textField: nil)
             } else {
