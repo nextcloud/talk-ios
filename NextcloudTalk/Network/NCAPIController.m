@@ -192,39 +192,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return requestModifier;
 }
 
-#pragma mark - File previews
-
-- (SDWebImageCombinedOperation *)getPreviewForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account withCompletionBlock:(GetPreviewForFileCompletionBlock)block
-{
-    NSString *urlString;
-
-    if (width > 0) {
-        urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=%ld&y=%ld&forceIcon=1", account.server, fileId, (long)width, (long)height];
-    } else {
-        urlString = [NSString stringWithFormat:@"%@/index.php/core/preview?fileId=%@&x=-1&y=%ld&a=1&forceIcon=1", account.server, fileId, (long)height];
-    }
-
-    NSURL *url = [NSURL URLWithString:urlString];
-
-    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached;
-    SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
-
-    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:@{SDWebImageContextDownloadRequestModifier : requestModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-        if (error) {
-            // When the request was cancelled before completing, we expect no completion handler to be called
-            if (block && error.code != SDWebImageErrorCancelled) {
-                block(nil, fileId, error);
-            }
-
-            return;
-        }
-
-        if (image && block) {
-            block(image, fileId, nil);
-        }
-    }];
-}
-
 #pragma mark - User Status
 
 - (NSURLSessionDataTask *)getUserStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetUserStatusCompletionBlock)block

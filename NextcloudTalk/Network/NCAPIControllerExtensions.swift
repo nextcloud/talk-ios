@@ -3310,4 +3310,37 @@ import SDWebImage
         }
     }
 
+    // MARK: - File previews
+
+    public func getPreviewForFile(_ fileId: String, width: Int, height: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
+        var urlString: String
+
+        if width > 0 {
+            urlString = "\(account.server)/index.php/core/preview?fileId=\(fileId)&x=\(width)&y=\(height)&forceIcon=1"
+        } else {
+            urlString = "\(account.server)/index.php/core/preview?fileId=\(fileId)&x=-1&y=\(height)&a=1&forceIcon=1"
+        }
+
+        let url = URL(string: urlString)
+        guard let url else { return nil }
+
+        let options: SDWebImageOptions = [.retryFailed, .refreshCached]
+        let requestModifier = self.getRequestModifier(for: account)!
+
+        let context: [SDWebImageContextOption: Any] = [
+            .downloadRequestModifier: requestModifier
+        ]
+
+        return SDWebImageManager.shared.loadImage(with: url, options: options, context: context, progress: nil) { image, _, error, _, _, _ in
+            if let error {
+                // When the request was cancelled before completing, we expect no completion handler to be called
+                if (error as NSError).code != SDWebImageError.cancelled.rawValue {
+                    completionBlock(nil, error)
+                }
+            } else if let image {
+                completionBlock(image, nil)
+            }
+        }
+    }
+
 }
