@@ -3133,4 +3133,51 @@ import SDWebImage
         }
     }
 
+    public func getFederatedUserAvatar(forUser userId: String, inRoom token: String?, withStyle style: UIUserInterfaceStyle, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        else { return nil }
+
+        var encodedToken = "new"
+
+        if let token, let tempEncodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
+            encodedToken = tempEncodedToken
+        }
+
+        var endpoint = "proxy/\(encodedToken)/user-avatar/512"
+
+        if style == .dark {
+            endpoint = "\(endpoint)/dark"
+        }
+
+        endpoint = "\(endpoint)?cloudId=\(encodedUserId)"
+
+        let avatarAPIVersion = 1
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarAPIVersion, forAccount: account)
+        let url = URL(string: urlString)
+
+        guard let url else { return nil }
+
+        // See getAvatarForRoom for explanation
+        let options: SDWebImageOptions = [.retryFailed, .refreshCached, .queryDiskDataSync]
+        let requestModifier = self.getRequestModifier(for: account)!
+
+        // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
+        let context: [SDWebImageContextOption: Any] = [
+            .downloadRequestModifier: requestModifier,
+            .imageThumbnailPixelSize: CGSize(width: 120, height: 120)
+        ]
+
+        return SDWebImageManager.shared.loadImage(with: url, options: options, context: context, progress: nil) { image, _, error, _, _, _ in
+            if let error {
+                // When the request was cancelled before completing, we expect no completion handler to be called
+                if (error as NSError).code != SDWebImageError.cancelled.rawValue {
+                    completionBlock(nil, error)
+                }
+            } else if let image {
+                completionBlock(image, nil)
+            }
+        }
+    }
+
 }
