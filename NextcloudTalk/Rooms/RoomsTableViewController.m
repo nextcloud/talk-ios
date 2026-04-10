@@ -55,6 +55,7 @@ typedef enum RoomsSections {
     NCUnifiedSearchController *_unifiedSearchController;
     PlaceholderView *_roomsBackgroundView;
     UIBarButtonItem *_newConversationButton;
+    UIBarButtonItem *_filterButton;
     UIBarButtonItem *_settingsButton;
     UIButton *_profileButton;
     NCUserStatus *_activeUserStatus;
@@ -63,6 +64,7 @@ typedef enum RoomsSections {
     NSIndexPath *_lastRoomWithMentionIndexPath;
     UIButton *_unreadMentionsBottomButton;
     NCNavigationController *_contextChatNavigationController;
+    RoomsFilter _activeFilter;
 }
 
 @property (nonatomic, copy, nullable) void (^contextMenuActionBlock)(void);
@@ -94,7 +96,6 @@ typedef enum RoomsSections {
     _searchController.searchResultsUpdater = self;
     [_searchController.searchBar sizeToFit];
 
-    [self setupSearchBar];
     [self setupNavigationBar];
     
     // We want ourselves to be the delegate for the result table so didSelectRowAtIndexPath is called for both tables.
@@ -166,16 +167,12 @@ typedef enum RoomsSections {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userHasThreadsUpdated:) name:NCUserHasThreadsFlagUpdatedNotification object:nil];
 }
 
-- (void)setupSearchBar
+- (void)configureFilterButtonInToolbar
 {
-    _searchController.searchBar.scopeButtonTitles = [self getFilters];
-    _searchController.scopeBarActivation = UISearchControllerScopeBarActivationOnSearchActivation;
-
 #if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
     if (@available(iOS 26, *)) {
         if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
             TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-            RoomsFilter currentFilter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
 
             NSMutableArray *menuChildren = [[NSMutableArray alloc] init];
             [menuChildren addObject:[self getFiltersSectionReversed:YES]];
@@ -188,7 +185,7 @@ typedef enum RoomsSections {
 
             UIBarButtonItem *filterBarButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease"] menu:menu];
 
-            if (currentFilter != kRoomsFilterAll) {
+            if (_activeFilter != kRoomsFilterAll) {
                 filterBarButton.style = UIBarButtonItemStyleProminent;
                 filterBarButton.tintColor = [NCAppBranding elementColor];
             }
@@ -200,7 +197,6 @@ typedef enum RoomsSections {
             ] animated:YES];
 
             [self.navigationController setToolbarHidden:NO];
-            _searchController.scopeBarActivation = UISearchControllerScopeBarActivationManual;
         }
     }
 #endif
@@ -209,7 +205,7 @@ typedef enum RoomsSections {
 - (void)setupNavigationBar
 {
     [self setNavigationLogoButton];
-    [self createNewConversationButton];
+    [self configureRightBarButtonItems];
     [self createRefreshControl];
 
     self.navigationItem.searchController = _searchController;
@@ -239,10 +235,11 @@ typedef enum RoomsSections {
     self.navigationItem.titleView.accessibilityLabel = talkAppName;
 }
 
-- (void)createNewConversationButton
+- (void)configureRightBarButtonItems
 {
     NSMutableArray *rightItems = [[NSMutableArray alloc] init];
 
+    // New conversation button
     if ([[NCSettingsController sharedInstance] canCreateGroupAndPublicRooms] ||
         [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
 
@@ -254,15 +251,17 @@ typedef enum RoomsSections {
         [rightItems addObject:_newConversationButton];
     }
 
-    // Sort button (only when not already in the iOS 26 toolbar menu)
-    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
-    if ([[NCSettingsController sharedInstance] isRoomsSortingSupportedForAccountId:account.accountId] && ![self hasSortMenuInToolbar]) {
-        UIBarButtonItem *sortButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease.circle"]
-                                                                        menu:[self getSortMenu]];
-        sortButton.accessibilityLabel = NSLocalizedString(@"Sort conversations", nil);
-        [rightItems addObject:sortButton];
+    // Filter and sort button (only when not already in the iOS 26 toolbar menu)
+    if (![self hasFilterAndSortMenuInToolbar]) {
+        _filterButton = [[UIBarButtonItem alloc] initWithImage:nil menu:[self getFilterAndSortMenu]];
+        _filterButton.image = [UIImage systemImageNamed:(_activeFilter != kRoomsFilterAll) ? @"line.3.horizontal.decrease.circle.fill" : @"line.3.horizontal.decrease.circle"];
+        _filterButton.accessibilityLabel = NSLocalizedString(@"Filter and sort conversations", nil);
+        [rightItems addObject:_filterButton];
+    } else {
+        [self configureFilterButtonInToolbar];
     }
 
+    // iOS 26 style
 #if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
     if (@available(iOS 26.0, *)) {
         _newConversationButton.tintColor = [NCAppBranding elementColor];
@@ -283,7 +282,7 @@ typedef enum RoomsSections {
     self.navigationItem.rightBarButtonItems = rightItems;
 }
 
-- (BOOL)hasSortMenuInToolbar
+- (BOOL)hasFilterAndSortMenuInToolbar
 {
 #if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
     if (@available(iOS 26, *)) {
@@ -424,7 +423,6 @@ typedef enum RoomsSections {
 
 - (void)serverCapabilitiesUpdated:(NSNotification *)notification
 {
-    [self setupSearchBar];
     [self setupNavigationBar];
 }
 
@@ -464,11 +462,11 @@ typedef enum RoomsSections {
 - (void)activeAccountDidChange:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        self->_activeFilter = kRoomsFilterAll;
         [self refreshRoomList];
 
         // Setup the navigation bar here, otherwise it would only be updated
         // when the capabilities were updated, which fails when the server is not reachable.
-        [self setupSearchBar];
         [self setupNavigationBar];
     });
 }
@@ -727,20 +725,12 @@ typedef enum RoomsSections {
 - (void)willDismissSearchController:(UISearchController *)searchController
 {
     _searchController.searchBar.text = @"";
-    _searchController.searchBar.selectedScopeButtonIndex = kRoomsFilterAll;
-
-    [self filterRooms];
-}
-
-- (void)searchBar:(UISearchBar *)searchBar selectedScopeButtonIndexDidChange:(NSInteger)selectedScope
-{
     [self filterRooms];
 }
 
 - (void)filterRooms
 {
-    RoomsFilter filter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
-    NSArray *filteredRooms = [self filterRoomsWithFilter:filter];
+    NSArray *filteredRooms = [self filterRoomsWithFilter:_activeFilter];
 
     NSString *searchString = _searchController.searchBar.text;
     if (searchString.length == 0) {
@@ -921,16 +911,6 @@ typedef enum RoomsSections {
     }
 }
 
-- (NSArray *)getFilters
-{
-    NSMutableArray *filters = [[NSMutableArray alloc] init];
-    for (NSNumber *filter in [self availableFilters]) {
-        [filters addObject:[self filterName:filter.intValue]];
-    }
-
-    return [NSArray arrayWithArray:filters];
-}
-
 #pragma mark - Sort menu
 
 - (UIMenu *)getSortOrderSectionReversed:(BOOL)reversed
@@ -1008,21 +988,25 @@ typedef enum RoomsSections {
 - (UIMenu *)getFiltersSectionReversed:(BOOL)reversed
 {
     __weak typeof(self) weakSelf = self;
-    RoomsFilter currentFilter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
     NSMutableArray *filterActions = [[NSMutableArray alloc] init];
 
     for (NSNumber *filterId in [self availableFilters]) {
-        UIAction *action = [UIAction actionWithTitle:[self filterName:filterId.intValue]
-                                               image:[self filterImage:filterId.intValue]
+        RoomsFilter filterValue = (RoomsFilter)filterId.intValue;
+
+        UIAction *action = [UIAction actionWithTitle:[self filterName:filterValue]
+                                               image:[self filterImage:filterValue]
                                           identifier:nil
                                              handler:^(UIAction *action) {
-            weakSelf.navigationItem.searchController.searchBar.selectedScopeButtonIndex = filterId.intValue;
-            [weakSelf filterRooms];
-            [weakSelf setupSearchBar];
-            [weakSelf updateMentionsIndicator];
+            typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+
+            strongSelf->_activeFilter = filterValue;
+            [strongSelf filterRooms];
+            [strongSelf configureRightBarButtonItems];
+            [strongSelf updateMentionsIndicator];
         }];
 
-        action.state = (filterId.intValue == currentFilter) ? UIMenuElementStateOn : UIMenuElementStateOff;
+        action.state = (filterValue == _activeFilter) ? UIMenuElementStateOn : UIMenuElementStateOff;
         [filterActions addObject:action];
     }
 
@@ -1035,9 +1019,19 @@ typedef enum RoomsSections {
                         children:children];
 }
 
-- (UIMenu *)getSortMenu
+- (UIMenu *)getFilterAndSortMenu
 {
-    return [UIMenu menuWithTitle:@"" children:@[[self getSortOrderSectionReversed:NO], [self getGroupModeSectionReversed:NO]]];
+    TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
+    NSMutableArray *children = [[NSMutableArray alloc] init];
+
+    if ([[NCSettingsController sharedInstance] isRoomsSortingSupportedForAccountId:account.accountId]) {
+        [children addObject:[self getSortOrderSectionReversed:NO]];
+        [children addObject:[self getGroupModeSectionReversed:NO]];
+    }
+
+    [children addObject:[self getFiltersSectionReversed:NO]];
+
+    return [UIMenu menuWithTitle:@"" children:children];
 }
 
 - (void)applySortOrder:(NCRoomSortOrder)sortOrder
@@ -1049,7 +1043,7 @@ typedef enum RoomsSections {
             [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:account.accountId withCompletionBlock:^(NSError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshRoomList];
-                    [self setupSearchBar];
+                    [self configureRightBarButtonItems];
                 });
             }];
         }
@@ -1065,7 +1059,7 @@ typedef enum RoomsSections {
             [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:account.accountId withCompletionBlock:^(NSError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshRoomList];
-                    [self setupSearchBar];
+                    [self configureRightBarButtonItems];
                 });
             }];
         }
@@ -1101,9 +1095,8 @@ typedef enum RoomsSections {
     [_roomsBackgroundView.loadingView stopAnimating];
     [_roomsBackgroundView.loadingView setHidden:YES];
 
-    RoomsFilter filter = (RoomsFilter) _searchController.searchBar.selectedScopeButtonIndex;
-    [_roomsBackgroundView setImage:[self filterPlaceholderImage:filter]];
-    [_roomsBackgroundView.placeholderTextView setText:[self filterPlaceholderText:filter]];
+    [_roomsBackgroundView setImage:[self filterPlaceholderImage:_activeFilter]];
+    [_roomsBackgroundView.placeholderTextView setText:[self filterPlaceholderText:_activeFilter]];
     [_roomsBackgroundView.placeholderView setHidden:(_rooms.count > 0)];
 }
 
@@ -1129,7 +1122,6 @@ typedef enum RoomsSections {
             [self updateUserStatus];
             [self getUserThreads];
             [self startRefreshRoomsTimer];
-            [self setupSearchBar];
             [self setupNavigationBar];
         }
             break;
