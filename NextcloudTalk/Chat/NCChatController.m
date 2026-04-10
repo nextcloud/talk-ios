@@ -984,9 +984,9 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
 
         [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:message.message
-                                                             originalName:YES
+                                                           isOriginalName:YES
                                                                forAccount:activeAccount
-                                                      withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
+                                                          completionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
             if (fileServerURL && fileServerPath) {
                 NSMutableDictionary *talkMetaData = [NSMutableDictionary new];
                 [talkMetaData setObject:@"voice-message" forKey:@"messageType"];

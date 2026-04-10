@@ -631,7 +631,7 @@ import MBProgressHUD
 
             self.uploadGroup.enter()
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, originalName: true, for: self.account) { fileServerURL, fileServerPath, _, errorDescription in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
                 if let fileServerURL, let fileServerPath {
                     self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
                 } else {
@@ -690,7 +690,7 @@ import MBProgressHUD
                     talkMetaData["threadId"] = thread.threadId
                 }
 
-                NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: filePath, toRoom: self.room.token, talkMetaData: talkMetaData, referenceId: nil) { error in
+                NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account, atPath: filePath, toRoom: self.room.token, withTalkMetaData: talkMetaData, withReferenceId: nil) { error in
                     if let error {
                         NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)
@@ -701,7 +701,7 @@ import MBProgressHUD
                     self.uploadGroup.leave()
                 }
             } else if nkError.errorCode == 404 || nkError.errorCode == 409 {
-                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: self.account) { created, _ in
+                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(forAccount: self.account) { created, _ in
                     if created {
                         self.uploadFile(to: fileServerURL, with: filePath, with: item)
                     } else {

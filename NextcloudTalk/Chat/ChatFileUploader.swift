@@ -33,12 +33,12 @@ import NextcloudKit
 
             switch error.errorCode {
             case 0:
-                NCAPIController.sharedInstance().shareFileOrFolder(for: activeAccount,
+                NCAPIController.sharedInstance().shareFileOrFolder(forAccount: activeAccount,
                                                                    atPath: fileServerPath,
                                                                    toRoom: room.token,
-                                                                   talkMetaData: talkMetaData,
-                                                                   referenceId: temporaryMessage?.referenceId) { shareError in
-                    if let shareError = shareError {
+                                                                   withTalkMetaData: talkMetaData,
+                                                                   withReferenceId: temporaryMessage?.referenceId) { shareError in
+                    if let shareError {
                         NSLog("Failed to share voice message: \(shareError.localizedDescription)")
                         completion(403, "Failed to share voice message")
                     } else {
@@ -46,7 +46,7 @@ import NextcloudKit
                     }
                 }
             case 404, 409:
-                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: activeAccount) { created, _ in
+                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(forAccount: activeAccount) { created, _ in
                     if created {
                         uploadFile(localPath: localPath, fileServerURL: fileServerURL, fileServerPath: fileServerPath, talkMetaData: talkMetaData, temporaryMessage: temporaryMessage, room: room, completion: completion)
                     } else {

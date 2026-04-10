@@ -19,11 +19,6 @@
 
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
-typedef void (^ReadFolderCompletionBlock)(NSArray *items, NSError *error);
-typedef void (^ShareFileOrFolderCompletionBlock)(NSError *error);
-typedef void (^GetFileUniqueNameCompletionBlock)(NSString *fileServerURL, NSString *fileServerPath, NSInteger errorCode, NSString *errorDescription);
-typedef void (^CheckAttachmentFolderCompletionBlock)(BOOL created, NSInteger errorCode);
-
 typedef void (^GetUserActionsCompletionBlock)(NSDictionary *userActions, NSError *error);
 
 typedef void (^GetUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
@@ -64,12 +59,6 @@ extern NSString * const kNCSpreedAPIVersionBase;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
-// DAV client
-- (void)readFolderForAccount:(TalkAccount *)account atPath:(NSString *)path depth:(NSString *)depth withCompletionBlock:(ReadFolderCompletionBlock)block;
-- (void)shareFileOrFolderForAccount:(TalkAccount *)account atPath:(NSString *)path toRoom:(NSString *)token talkMetaData:(NSDictionary *)talkMetaData referenceId:(NSString *)referenceId withCompletionBlock:(ShareFileOrFolderCompletionBlock)block;
-- (void)uniqueNameForFileUploadWithName:(NSString *)fileName originalName:(BOOL)isOriginalName forAccount:(TalkAccount *)account withCompletionBlock:(GetFileUniqueNameCompletionBlock)block;
-- (void)checkOrCreateAttachmentFolderForAccount:(TalkAccount *)account withCompletionBlock:(CheckAttachmentFolderCompletionBlock)block;
-
 // User avatars
 - (SDWebImageCombinedOperation *)getUserAvatarForUser:(NSString *)userId usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block;
 - (SDWebImageCombinedOperation *)getFederatedUserAvatarForUser:(NSString *)userId inRoom:(NSString *)token usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetFederatedUserAvatarImageForUserCompletionBlock)block;
@@ -108,5 +97,4 @@ extern NSString * const kNCSpreedAPIVersionBase;
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;
 - (void)checkProxyResponseHeaders:(NSString * _Nullable)proxyHash forAccount:(TalkAccount *)account forRoom:(NSString *)token;
 - (void)initSessionManagers;
-
 @end
