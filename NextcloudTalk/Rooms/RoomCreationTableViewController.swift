@@ -247,9 +247,9 @@ enum RoomVisibilityOption: Int {
         self.roomCreationErrors = []
 
         // Room avatar
-        if self.selectedAvatarImage != nil {
+        if let selectedAvatarImage = self.selectedAvatarImage {
             self.roomCreationGroup.enter()
-            NCAPIController.sharedInstance().setAvatarForRoomWithToken(token, image: self.selectedAvatarImage, account: self.account) { error in
+            NCAPIController.sharedInstance().setAvatar(forRoom: token, withImage: selectedAvatarImage, forAccount: self.account) { error in
                 if let error {
                     NCLog.log(String(format: "Failed to set room avatar. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
@@ -257,9 +257,9 @@ enum RoomVisibilityOption: Int {
 
                 self.roomCreationGroup.leave()
             }
-        } else if self.selectedEmojiImage != nil {
+        } else if self.selectedEmojiImage != nil, let selectedEmoji = self.selectedEmoji, let selectedEmojiBackgroundColor = self.selectedEmojiBackgroundColor {
             self.roomCreationGroup.enter()
-            NCAPIController.sharedInstance().setEmojiAvatarForRoomWithToken(token, withEmoji: self.selectedEmoji, andColor: self.selectedEmojiBackgroundColor, account: self.account) { error in
+            NCAPIController.sharedInstance().setEmojiAvatar(forRoom: token, withEmoji: selectedEmoji, withColor: selectedEmojiBackgroundColor, forAccount: self.account) { error in
                 if let error {
                     NCLog.log(String(format: "Failed to set room emoji avatar. Error: %@", error.localizedDescription))
                     self.roomCreationErrors.append(error.localizedDescription)
