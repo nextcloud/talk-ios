@@ -19,8 +19,6 @@
 
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
-typedef void (^GetUserActionsCompletionBlock)(NSDictionary *userActions, NSError *error);
-
 typedef void (^GetUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
 typedef void (^GetFederatedUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
 
@@ -29,10 +27,6 @@ typedef void (^SetAvatarForConversationWithImageCompletionBlock)(NSError *error)
 typedef void (^RemoveAvatarForConversationWithImageCompletionBlock)(NSError *error);
 
 typedef void (^GetPreviewForFileCompletionBlock)(UIImage *image, NSString *fileId, NSError *error);
-
-typedef void (^GetUserProfileCompletionBlock)(NSDictionary *userProfile, NSError *error);
-typedef void (^GetUserProfileEditableFieldsCompletionBlock)(NSArray *userProfileEditableFields, NSError *error);
-typedef void (^SetUserProfileFieldCompletionBlock)(NSError *error, NSInteger statusCode);
 
 typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *error);
 typedef void (^SetUserStatusCompletionBlock)(NSError *error);
@@ -60,7 +54,6 @@ extern NSString * const kNCSpreedAPIVersionBase;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
 // User avatars
-- (SDWebImageCombinedOperation *)getUserAvatarForUser:(NSString *)userId usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetUserAvatarImageForUserCompletionBlock)block;
 - (SDWebImageCombinedOperation *)getFederatedUserAvatarForUser:(NSString *)userId inRoom:(NSString *)token usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetFederatedUserAvatarImageForUserCompletionBlock)block;
 
 // Conversation avatars
@@ -74,16 +67,6 @@ extern NSString * const kNCSpreedAPIVersionBase;
 // File previews
 - (SDWebImageCombinedOperation *)getPreviewForFile:(NSString *)fileId width:(NSInteger)width height:(NSInteger)height usingAccount:(TalkAccount *)account withCompletionBlock:(GetPreviewForFileCompletionBlock)block;
 
-// User Profile
-- (NSURLSessionDataTask *)getUserProfileForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileCompletionBlock)block;
-- (NSURLSessionDataTask *)getUserProfileEditableFieldsForAccount:(TalkAccount *)account withCompletionBlock:(GetUserProfileEditableFieldsCompletionBlock)block;
-- (NSURLSessionDataTask *)setUserProfileField:(NSString *)field withValue:(NSString*)value forAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block;
-- (NSURLSessionDataTask *)removeUserProfileImageForAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block;
-- (NSURLSessionDataTask *)setUserProfileImage:(UIImage *)image forAccount:(TalkAccount *)account withCompletionBlock:(SetUserProfileFieldCompletionBlock)block;
-- (void)saveProfileImageForAccount:(TalkAccount *)account;
-- (UIImage *)userProfileImageForAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style;
-- (void)removeProfileImageForAccount:(TalkAccount *)account;
-
 // User Status
 - (NSURLSessionDataTask *)getUserStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetUserStatusCompletionBlock)block;
 - (NSURLSessionDataTask *)setUserStatus:(NSString *)status forAccount:(TalkAccount *)account withCompletionBlock:(SetUserStatusCompletionBlock)block;
@@ -94,4 +77,5 @@ extern NSString * const kNCSpreedAPIVersionBase;
 - (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;
 - (void)checkProxyResponseHeaders:(NSString * _Nullable)proxyHash forAccount:(TalkAccount *)account forRoom:(NSString *)token;
 - (void)initSessionManagers;
+
 @end

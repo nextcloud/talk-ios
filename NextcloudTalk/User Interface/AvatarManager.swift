@@ -176,7 +176,7 @@ import SDWebImage
     }
 
     private func getUserAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        return NCAPIController.sharedInstance().getUserAvatar(forUser: actorId, using: account, with: style) { image, _ in
+        return NCAPIController.sharedInstance().getUserAvatar(forUser: actorId, withStyle: style, forAccount: account) { image, _ in
             if image != nil {
                 completionBlock(image)
             } else {

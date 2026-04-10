@@ -90,9 +90,12 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
             currentValue = account.twitter
         }
         textField.text = newValue
+
+        guard let field else { return }
+
         self.setModifyingProfileUI()
         if newValue != currentValue {
-            NCAPIController.sharedInstance().setUserProfileField(field, withValue: newValue, for: account) { error, _ in
+            NCAPIController.sharedInstance().setUserProfileField(field, withValue: newValue, forAccount: account) { error in
                 if error != nil {
                     self.showProfileModificationErrorForField(inTextField: tag, textField: textField)
                 } else {
