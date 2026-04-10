@@ -1141,6 +1141,9 @@
 /* No comment provided by engineer. */
 "Files" = "Files";
 
+/* No comment provided by engineer. */
+"Filter and sort conversations" = "Filter and sort conversations";
+
 /* Title for available conversations filters */
 "Filters" = "Filters";
 
