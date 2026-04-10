@@ -2862,4 +2862,19 @@ import NextcloudKit
             }
         }
     }
+
+    // MARK: - User actions
+
+    public func getUserActions(forUser userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ polls: [String: Any]?, _ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedUser = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return }
+
+        let urlString = "\(account.server)/ocs/v2.php/hovercard/v1/\(encodedUser)"
+
+        apiSessionManager.getOcs(urlString, account: account, parameters: ["format": "json"]) { ocsResponse, ocsError in
+            completionBlock(ocsResponse?.dataDict, ocsError)
+        }
+    }
+
 }
