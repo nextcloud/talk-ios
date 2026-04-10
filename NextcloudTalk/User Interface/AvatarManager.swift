@@ -189,7 +189,7 @@ import SDWebImage
     }
 
     private func getFederatedUserAvatar(forId actorId: String, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, inRoom: roomToken, using: account, with: style) { image, _ in
+        return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, inRoom: roomToken, withStyle: style, forAccount: account) { image, _ in
             if image != nil {
                 completionBlock(image)
             } else {

@@ -192,53 +192,6 @@ NSInteger const kReceivedChatMessagesLimit = 100;
     return requestModifier;
 }
 
-#pragma mark - User avatars
-
-- (SDWebImageCombinedOperation *)getFederatedUserAvatarForUser:(NSString *)userId inRoom:(NSString *)token usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetFederatedUserAvatarImageForUserCompletionBlock)block
-{
-    NSString *encodedToken = @"new";
-    if (token.length > 0) {
-        encodedToken = [token stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    }
-    NSString *endpoint = [NSString stringWithFormat:@"proxy/%@/user-avatar/512", encodedToken];
-
-    if (style == UIUserInterfaceStyleDark) {
-        endpoint = [NSString stringWithFormat:@"%@/dark", endpoint];
-    }
-
-    NSString *encodedUserId = [userId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    endpoint = [NSString stringWithFormat:@"%@?cloudId=%@", endpoint, encodedUserId];
-
-    NSInteger avatarAPIVersion = 1;
-    NSString *urlString = [self getRequestURLForEndpoint:endpoint withAPIVersion:avatarAPIVersion forAccount:account];
-    NSURL *url = [NSURL URLWithString:urlString];
-
-    // See getAvatarForRoom for explanation
-    SDWebImageOptions options = SDWebImageRetryFailed | SDWebImageRefreshCached | SDWebImageQueryDiskDataSync;
-    SDWebImageDownloaderRequestModifier *requestModifier = [self getRequestModifierForAccount:account];
-
-    // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
-    SDWebImageContext *context = @{
-        SDWebImageContextDownloadRequestModifier : requestModifier,
-        SDWebImageContextImageThumbnailPixelSize : @(CGSizeMake(120, 120))
-    };
-
-    return [[SDWebImageManager sharedManager] loadImageWithURL:url options:options context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-        if (error) {
-            // When the request was cancelled before completing, we expect no completion handler to be called
-            if (block && error.code != SDWebImageErrorCancelled) {
-                block(nil, error);
-            }
-
-            return;
-        }
-
-        if (image && block) {
-            block(image, nil);
-        }
-    }];
-}
-
 #pragma mark - Conversation avatars
 
 - (SDWebImageCombinedOperation *)getAvatarForRoom:(NCRoom *)room withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block

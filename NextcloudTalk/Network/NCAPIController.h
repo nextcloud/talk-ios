@@ -19,9 +19,6 @@
 
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
-typedef void (^GetUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
-typedef void (^GetFederatedUserAvatarImageForUserCompletionBlock)(UIImage *image, NSError *error);
-
 typedef void (^GetAvatarForConversationWithImageCompletionBlock)(UIImage *image, NSError *error);
 typedef void (^SetAvatarForConversationWithImageCompletionBlock)(NSError *error);
 typedef void (^RemoveAvatarForConversationWithImageCompletionBlock)(NSError *error);
@@ -52,9 +49,6 @@ extern NSString * const kNCSpreedAPIVersionBase;
 - (void)removeAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
-
-// User avatars
-- (SDWebImageCombinedOperation *)getFederatedUserAvatarForUser:(NSString *)userId inRoom:(NSString *)token usingAccount:(TalkAccount *)account withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetFederatedUserAvatarImageForUserCompletionBlock)block;
 
 // Conversation avatars
 - (SDWebImageCombinedOperation *)getAvatarForRoom:(NCRoom *)room withStyle:(UIUserInterfaceStyle)style withCompletionBlock:(GetAvatarForConversationWithImageCompletionBlock)block;
