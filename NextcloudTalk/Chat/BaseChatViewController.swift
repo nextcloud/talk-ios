@@ -1280,7 +1280,7 @@ import SwiftUI
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     var talkMetaData: [String: Any] = ["messageType": "voice-message"]
 
@@ -1816,7 +1816,7 @@ import SwiftUI
             let url = URL(fileURLWithPath: filePath)
             let contactFileName = "\(contact.identifier).vcf"
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: self.account) { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil, temporaryMessage: nil)
                 } else {
@@ -2052,7 +2052,7 @@ import SwiftUI
                 self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
             }
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     var talkMetaData: [String: Any] = ["messageType": "voice-message"]
 

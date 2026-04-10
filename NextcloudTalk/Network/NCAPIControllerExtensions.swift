@@ -2749,4 +2749,164 @@ import NextcloudKit
             completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
         }
     }
+
+    // MARK: Dav client
+
+    internal func serverFilePath(forFileName fileName: String, forAccount account: TalkAccount) -> String? {
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        else { return nil }
+
+        return "\(serverCapabilities.attachmentsFolder)/\(fileName)"
+    }
+
+    internal func serverFileURL(forfilePath filePath: String, forAccount account: TalkAccount) -> String? {
+        return "\(account.server)\(self.filesPath(forAccount: account))\(filePath)"
+    }
+
+    internal func attachmentFolderServerURL(forAccount account: TalkAccount) -> String? {
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        else { return nil }
+
+        return "\(account.server)\(self.filesPath(forAccount: account))\(serverCapabilities.attachmentsFolder)"
+    }
+
+    internal func alternativeName(forFileName fileName: String, isOriginal: Bool) -> String {
+        // TODO: Move to swift foundation methods
+
+        let fileExtension = (fileName as NSString).pathExtension
+        let nameWithoutExtension = (fileName as NSString).deletingPathExtension
+        var alternativeName = nameWithoutExtension
+        var newSuffix = " (1)"
+
+        if !isOriginal {
+            // Check if the name ends with ` (n)`
+            // swiftlint:disable:next force_try
+            let regex = try! NSRegularExpression(pattern: " \\((\\d+)\\)$", options: .caseInsensitive)
+            if let match = regex.firstMatch(in: nameWithoutExtension, range: .init(location: 0, length: nameWithoutExtension.count)),
+                let suffixRange = Range(match.range(at: 0), in: nameWithoutExtension) {
+
+                let suffixNumber = Int(nameWithoutExtension[suffixRange]) ?? 1
+                newSuffix = " \(suffixNumber + 1)"
+                alternativeName = nameWithoutExtension.replacingCharacters(in: suffixRange, with: "")
+            }
+        }
+
+        alternativeName = "\(alternativeName)\(newSuffix)\(fileExtension)"
+
+        return alternativeName
+    }
+
+    public func readFolder(forAccount account: TalkAccount, atPath path: String?, withDepth depth: String, completionBlock: @escaping (_ items: [NKFile]?, _ error: Error?) -> Void) {
+        self.setupNCCommunication(for: account)
+
+        let serverUrlString = "\(account.server)\(self.filesPath(forAccount: account))/\(path ?? "")"
+
+        // We don't need all properties, so we limit the request to the needed ones to reduce size and processing time
+        let body = """
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+        <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">\
+            <d:prop>\
+                <d:getlastmodified />\
+                <d:getcontenttype />\
+                <d:resourcetype />\
+                <fileid xmlns=\"http://owncloud.org/ns\"/>\
+                <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>\
+                <has-preview xmlns=\"http://nextcloud.org/ns\"/>\
+            </d:prop>\
+        </d:propfind>
+"""
+
+        let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: serverUrlString, depth: depth, showHiddenFiles: false, includeHiddenFiles: [], requestBody: body.data(using: .utf8), options: options) { _, files, _, error in
+            if error.errorCode == 0 {
+                completionBlock(files, nil)
+            } else {
+                completionBlock(nil, NSError(domain: NSURLErrorDomain, code: error.errorCode))
+            }
+        }
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    public func shareFileOrFolder(forAccount account: TalkAccount, atPath path: String, toRoom token: String, withTalkMetaData talkMetaData: [String: Any]?, withReferenceId referenceId: String?, completionBlock: @escaping (_ error: Error?) -> Void) {
+        let urlString = "\(account.server)/ocs/v2.php/apps/files_sharing/api/v1/shares"
+
+        var parameters: [String: Any] = [
+            "path": path,
+            "shareType": 10,
+            "shareWith": token
+        ]
+
+        if let referenceId {
+            parameters["referenceId"] = referenceId
+        }
+
+        if let talkMetaData, let jsonData = try? JSONSerialization.data(withJSONObject: talkMetaData) {
+            parameters["talkMetaData"] = jsonData
+        }
+
+        var apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+
+        // TODO: Workaround for ShareExtension, still needed?
+        if apiSessionManager == nil {
+            self.initSessionManagers()
+            apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        }
+
+        guard let apiSessionManager else { return }
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            if let ocsError {
+                // Do not return error when re-sharing a file or folder.
+                if ocsError.responseStatusCode != 403 {
+                    completionBlock(ocsError)
+                    return
+                }
+            }
+
+            completionBlock(nil)
+        }
+    }
+
+    func uniqueNameForFileUpload(withName fileName: String, isOriginalName: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ fileServerURL: String?, _ fileServerPath: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        self.setupNCCommunication(for: account)
+
+        guard let fileServerPath = self.serverFilePath(forFileName: fileName, forAccount: account),
+              let fileServerURL = self.serverFileURL(forfilePath: fileServerPath, forAccount: account)
+        else { return }
+
+        let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: fileServerURL, depth: "0", showHiddenFiles: false, includeHiddenFiles: [], requestBody: nil, options: options) { _, files, _, error in
+            if error.errorCode == 0, files.count == 1 {
+                // File already exists
+                let alternativeName = self.alternativeName(forFileName: fileName, isOriginal: isOriginalName)
+                self.uniqueNameForFileUpload(withName: alternativeName, isOriginalName: false, forAccount: account, completionBlock: completionBlock)
+            } else if error.errorCode == 404 {
+                // File does not exist
+                completionBlock(fileServerURL, fileServerPath, 0, nil)
+            } else {
+                print("Error checking file name: \(error.errorDescription)")
+                completionBlock(nil, nil, error.errorCode, error.errorDescription)
+            }
+        }
+    }
+
+    func checkOrCreateAttachmentFolder(forAccount account: TalkAccount, completionBlock: @escaping (_ created: Bool, _ statusCode: Int) -> Void) {
+        self.setupNCCommunication(for: account)
+
+        guard let attachmentFolderServerURL = self.attachmentFolderServerURL(forAccount: account)
+        else { return }
+
+        let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: attachmentFolderServerURL, depth: "0", showHiddenFiles: false, includeHiddenFiles: [], requestBody: nil, options: options) { _, _, _, error in
+            if error.errorCode == 404 {
+                // Attachment folder does not exist
+                NextcloudKit.shared.createFolder(serverUrlFileName: attachmentFolderServerURL, options: options) { _, _, _, error in
+                    completionBlock(error.errorCode == 0, error.errorCode)
+                }
+            } else {
+                print("Error checking attachment folder: \(error.errorDescription)")
+                completionBlock(false, error.errorCode)
+            }
+        }
+    }
 }

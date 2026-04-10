@@ -137,7 +137,7 @@
 
 - (void)getItemsInDirectory
 {
-    [[NCAPIController sharedInstance] readFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:_path depth:@"1" withCompletionBlock:^(NSArray *items, NSError *error) {
+    [[NCAPIController sharedInstance] readFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:_path withDepth:@"1" completionBlock:^(NSArray<NKFile *> *items, NSError *error) {
         if (!error) {
             NSMutableArray *itemsInDirectory = [NSMutableArray new];
             for (NKFile *item in items) {
@@ -188,7 +188,7 @@
         [talkMetaData setObject:@(_threadId) forKey:@"threadId"];
     }
 
-    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token talkMetaData:talkMetaData referenceId: nil withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] shareFileOrFolderForAccount:[[NCDatabaseManager sharedInstance] activeAccount] atPath:path toRoom:_token withTalkMetaData:talkMetaData withReferenceId: nil completionBlock:^(NSError *error) {
         if (!error) {
             [self dismissViewControllerAnimated:YES completion:nil];
         } else {
