@@ -18,7 +18,7 @@ import SDWebImage
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: room.accountId) {
             // Server supports conversation avatars -> try to get the avatar using this API
 
-            return NCAPIController.sharedInstance().getAvatarFor(room, with: style) { image, _ in
+            return NCAPIController.sharedInstance().getAvatar(forRoom: room, withStyle: style) { image, _ in
                 completionBlock(image)
             }
         } else {

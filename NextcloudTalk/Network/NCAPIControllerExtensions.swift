@@ -2974,7 +2974,7 @@ import SDWebImage
         var operation: SDWebImageCombinedOperation?
 
         // When getting our own profile image, we need to ignore any cache to always get the latest version
-        operation = self.getUserAvatar(forUser: account.userId, withStyle: style, ignoreCache: true, forAccount: account, completionBlock: { image, error in
+        operation = self.getUserAvatar(forUser: account.userId, withStyle: style, ignoreCache: true, forAccount: account, completionBlock: { image, _ in
             guard let token = operation?.loaderOperation as? SDWebImageDownloadToken,
                   let response = token.response as? HTTPURLResponse,
                   let image
@@ -3087,8 +3087,7 @@ import SDWebImage
     }
 
     public func getFederatedUserAvatar(forUser userId: String, inRoom token: String?, withStyle style: UIUserInterfaceStyle, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
-        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
         var encodedToken = "new"
@@ -3130,6 +3129,137 @@ import SDWebImage
             } else if let image {
                 completionBlock(image, nil)
             }
+        }
+    }
+
+    // MARK: - Conversation avatars
+
+    public func getAvatar(forRoom room: NCRoom, withStyle style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
+        guard let encodedToken = room.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId)
+        else { return nil }
+
+        var endpoint = "room/\(encodedToken)/avatar"
+
+        if style == .dark {
+            endpoint = "\(endpoint)/dark"
+        }
+
+        // For non-one-to-one conversation we do have a valid avatarVersion which we can use to cache the avatar
+        // For one-to-one conversations we rely on the caching that is specified by the server via cache-control header
+        if room.type != .oneToOne {
+            endpoint = "\(endpoint)?avatarVersion=\(room.avatarVersion ?? "")"
+        }
+
+        let avatarAPIVersion = 1
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarAPIVersion, forAccount: account)
+        let url = URL(string: urlString)
+
+        guard let url else { return nil }
+
+        /*
+         SDWebImageRetryFailed:         By default SDWebImage blacklists URLs that failed to load and does not try to
+                                        load these URLs again, but we want to retry these.
+                                        Also see https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems#handle-image-refresh
+
+         SDWebImageRefreshCached:       By default the cache-control header returned by the webserver is ignored and
+                                        images are cached forever. With this parameter we let NSURLCache determine
+                                        if a resource needs to be reloaded from the server again.
+                                        Could be removed if this endpoint returns an avatar version for all calls.
+                                        Also see https://github.com/nextcloud/spreed/issues/9320
+
+         SDWebImageQueryDiskDataSync:   SDImage loads data from the disk cache on a separate (async) queue. This leads
+                                        to 2 problems: 1. It can cause some flickering on a reload, 2. It causes UIImage methods
+                                        being called to leak memory. This is noticeable in NSE with a tight memory constraint.
+                                        SVG images rendered to UIImage with SVGKit will leak data and make NSE crash.
+         */
+
+        var options: SDWebImageOptions = [.retryFailed, .queryDiskDataSync]
+
+        // Since we do not have a valid avatarVersion for one-to-one conversations, we need to rely on the
+        // cache-control header by the server and therefore on NSURLCache
+        // Note: There seems to be an issue with NSURLCache to correctly cache URLs that contain a query parameter
+        // so it's currently only suiteable for one-to-ones that don't have a correct avatarVersion anyway
+        if room.type == .oneToOne {
+            options = [.retryFailed, .queryDiskDataSync, .refreshCached]
+        }
+
+        let requestModifier = self.getRequestModifier(for: account)!
+
+        // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
+        let context: [SDWebImageContextOption: Any] = [
+            .downloadRequestModifier: requestModifier,
+            .imageThumbnailPixelSize: CGSize(width: 120, height: 120)
+        ]
+
+        return SDWebImageManager.shared.loadImage(with: url, options: options, context: context, progress: nil) { image, _, error, _, _, _ in
+            if let error {
+                // When the request was cancelled before completing, we expect no completion handler to be called
+                if (error as NSError).code != SDWebImageError.cancelled.rawValue {
+                    completionBlock(nil, error)
+                }
+            } else if let image {
+                completionBlock(image, nil)
+            }
+        }
+    }
+
+    public func setAvatar(forRoom token: String, withImage image: UIImage, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let imageData = image.jpegData(compressionQuality: 0.7)
+        else { return }
+
+        let endpoint = "room/\(encodedToken)/avatar"
+        let avatarVersion = 1
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarVersion, forAccount: account)
+
+        apiSessionManager.post(urlString, parameters: nil) { formData in
+            formData.appendPart(withFileData: imageData, name: "file", fileName: "avatar.jpg", mimeType: "image/jpeg")
+        } progress: { _ in
+        } success: { _, _ in
+            completionBlock(nil)
+        } failure: { _, error in
+            completionBlock(error)
+        }
+    }
+
+    public func setEmojiAvatar(forRoom token: String, withEmoji emoji: String, withColor color: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let endpoint = "room/\(encodedToken)/avatar/emoji"
+        let avatarVersion = 1
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarVersion, forAccount: account)
+
+        var parameters = [
+            "emoji": emoji
+        ]
+
+        let rawColor = color.replacingOccurrences(of: "#", with: "")
+
+        if !rawColor.isEmpty {
+            parameters["color"] = rawColor
+        }
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    public func removeAvatar(forRoom room: NCRoom, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let encodedToken = room.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId),
+              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else { return }
+
+        let endpoint = "room/\(encodedToken)/avatar"
+        let avatarVersion = 1
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarVersion, forAccount: account)
+
+        apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
+            completionBlock(ocsError)
         }
     }
 

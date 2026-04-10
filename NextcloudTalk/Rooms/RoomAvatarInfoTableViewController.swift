@@ -315,7 +315,7 @@ enum RoomAvatarInfoSection: Int {
             // Need to dismiss cropViewController first before showing the activityIndicator
             self.showModifyingView()
 
-            NCAPIController.sharedInstance().setAvatarFor(self.room, with: image) { error in
+            NCAPIController.sharedInstance().setAvatar(forRoom: self.room.token, withImage: image, forAccount: .active) { error in
                 if error != nil {
                     let errorDialog = UIAlertController(title: NSLocalizedString("An error occurred while setting the avatar", comment: ""), message: nil, preferredStyle: .alert)
                     let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)
@@ -351,7 +351,7 @@ enum RoomAvatarInfoSection: Int {
     func avatarEditViewRemoveAvatar(_ controller: AvatarEditView?) {
         self.showModifyingView()
 
-        NCAPIController.sharedInstance().removeAvatar(for: room) { error in
+        NCAPIController.sharedInstance().removeAvatar(forRoom: room) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("An error occurred while removing the avatar", comment: ""), withMessage: nil)
             }
@@ -365,7 +365,7 @@ enum RoomAvatarInfoSection: Int {
     func didSelectEmoji(emoji: NSString, color: NSString, image: UIImage) {
         self.showModifyingView()
 
-        NCAPIController.sharedInstance().setEmojiAvatarFor(room, withEmoji: emoji as String, andColor: color as String) { error in
+        NCAPIController.sharedInstance().setEmojiAvatar(forRoom: room.token, withEmoji: emoji as String, withColor: color as String, forAccount: .active) { error in
             if error != nil {
                 let errorDialog = UIAlertController(title: NSLocalizedString("An error occurred while setting the avatar", comment: ""), message: nil, preferredStyle: .alert)
                 let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)
