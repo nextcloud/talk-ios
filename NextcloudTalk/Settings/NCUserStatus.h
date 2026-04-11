@@ -26,7 +26,7 @@ extern NSString * const kUserStatusOffline;
 @property (nonatomic, copy) NSString *icon;
 @property (nonatomic, assign) NSInteger clearAt;
 
-+ (instancetype)userStatusWithDictionary:(NSDictionary *)userStatusDict;
++ (instancetype)userStatusWithDictionary:(NSDictionary * _Nullable)userStatusDict;
 + (NSString *)readableUserStatusFromUserStatus:(NSString *)userStatus;
 + (UIImage *)getOnlineSFIcon;
 + (UIImage *)getAwaySFIcon;

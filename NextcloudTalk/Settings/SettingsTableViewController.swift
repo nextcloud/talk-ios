@@ -237,9 +237,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 
     func getActiveUserStatus() {
-        NCAPIController.sharedInstance().getUserStatus(for: activeAccount) { userStatus, error in
-            if let userStatus = userStatus, error == nil {
-                self.activeUserStatus = NCUserStatus(dictionary: userStatus)
+        NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { userStatus in
+            if let userStatus {
+                self.activeUserStatus = userStatus
                 self.tableView.reloadData()
             }
         }

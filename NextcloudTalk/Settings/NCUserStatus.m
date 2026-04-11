@@ -14,7 +14,7 @@ NSString * const kUserStatusOffline     = @"offline";
 
 @implementation NCUserStatus
 
-+ (instancetype)userStatusWithDictionary:(NSDictionary *)userStatusDict
++ (instancetype)userStatusWithDictionary:(NSDictionary * _Nullable)userStatusDict
 {
     if (!userStatusDict) {
         return nil;

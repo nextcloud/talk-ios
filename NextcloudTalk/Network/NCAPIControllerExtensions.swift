@@ -3301,4 +3301,34 @@ import SDWebImage
         }
     }
 
+    // MARK: - User status
+
+    public func getUserStatus(forAccount account: TalkAccount, completionBlock: @escaping (_ userStatus: NCUserStatus?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/user_status/api/v1/user_status"
+
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, _ in
+            completionBlock(NCUserStatus(dictionary: ocsResponse?.dataDict))
+        }
+    }
+
+    public func setUserStatus(_ status: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/user_status/api/v1/user_status/status"
+
+        apiSessionManager.putOcs(urlString, account: account, parameters: ["statusType": status]) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
 }

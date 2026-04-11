@@ -490,7 +490,7 @@ typedef enum RoomsSections {
         [[NCRoomsManager shared] resendOfflineMessagesWithCompletionBlock:nil];
     }
 
-    [self getUserStatusWithCompletionBlock:nil];
+    [self updateUserStatus];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
@@ -524,7 +524,7 @@ typedef enum RoomsSections {
 {
     [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
-    [self getUserStatusWithCompletionBlock:nil];
+    [self updateUserStatus];
 
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
@@ -534,7 +534,7 @@ typedef enum RoomsSections {
 
 - (void)userStatusViewDidDisappear
 {
-    [self getUserStatusWithCompletionBlock:nil];
+    [self updateUserStatus];
 }
 
 #pragma mark - Title menu
@@ -550,19 +550,21 @@ typedef enum RoomsSections {
             return;
         }
 
-        [self getUserStatusWithCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
-            if (error) {
+        [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount completionBlock:^(NCUserStatus * _Nullable userStatus) {
+            if (userStatus == nil) {
                 completion(@[]);
                 return;
             }
 
-            NCUserStatus *userStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
             UIImage *userStatusImage = [userStatus getSFUserStatusIcon];
             UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus delegate:self];
 
             UIAction *onlineOption = [UIAction actionWithTitle:[userStatus readableUserStatusOrMessage] image:userStatusImage identifier:nil handler:^(UIAction *action) {
                 [self presentViewController:vc animated:YES completion:nil];
             }];
+
+            self->_activeUserStatus = userStatus;
+            [self updateProfileButtonImage];
 
             completion(@[onlineOption]);
         }];
@@ -978,7 +980,7 @@ typedef enum RoomsSections {
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
             [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:isAppActive onlyLastModified:NO];
-            [self getUserStatusWithCompletionBlock:nil];
+            [self updateUserStatus];
             [self getUserThreads];
             [self startRefreshRoomsTimer];
             [self setupNavigationBar];
@@ -1171,19 +1173,13 @@ typedef enum RoomsSections {
     }
 }
 
-- (void)getUserStatusWithCompletionBlock:(GetUserStatusCompletionBlock)block
+- (void)updateUserStatus
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount withCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
-        if (!error) {
-            self->_activeUserStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
+    [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount completionBlock:^(NCUserStatus * _Nullable userStatus) {
+        if (userStatus) {
+            self->_activeUserStatus = userStatus;
             [self updateProfileButtonImage];
-
-            if (block) {
-                block(userStatusDict, nil);
-            }
-        } else if (block) {
-            block(nil, error);
         }
     }];
 }
