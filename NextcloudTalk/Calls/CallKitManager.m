@@ -6,7 +6,6 @@
 #import "CallKitManager.h"
 #import <CallKit/CXError.h>
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
@@ -440,7 +439,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         for (NSMutableDictionary *user in peers) {
             NSString *userId = [user objectForKey:@"userId"];
             BOOL isUserActorType = YES;
-            if (callAPIVersion >= APIv3) {
+            if (callAPIVersion >= NCAPIController.shared.APIv3) {
                 userId = [user objectForKey:@"actorId"];
                 isUserActorType = [[user objectForKey:@"actorType"] isEqualToString:@"users"];
             }

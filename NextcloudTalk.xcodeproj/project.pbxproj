@@ -739,13 +739,6 @@
 			);
 			target = 1FA93D9B2D70FCC200DF6CDF /* TalkIntents */;
 		};
-		1F9629712E8E6C9D00EC9BEE /* Exceptions for "Rooms" folder in "NextcloudTalkTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				NCRoomParticipant.swift,
-			);
-			target = 1F6D8C2F2B2E3756004376B8 /* NextcloudTalkTests */;
-		};
 		1F9629752E8E6CD800EC9BEE /* Exceptions for "Settings" folder in "NotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -1127,7 +1120,6 @@
 				1F96296D2E8E6C8600EC9BEE /* Exceptions for "Rooms" folder in "NotificationServiceExtension" target */,
 				1F96296E2E8E6C8600EC9BEE /* Exceptions for "Rooms" folder in "ShareExtension" target */,
 				1F96296F2E8E6C8600EC9BEE /* Exceptions for "Rooms" folder in "BroadcastUploadExtension" target */,
-				1F9629712E8E6C9D00EC9BEE /* Exceptions for "Rooms" folder in "NextcloudTalkTests" target */,
 				1F9629702E8E6C8600EC9BEE /* Exceptions for "Rooms" folder in "TalkIntents" target */,
 			);
 			path = Rooms;

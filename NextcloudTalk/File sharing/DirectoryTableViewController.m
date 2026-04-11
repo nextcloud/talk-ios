@@ -9,7 +9,6 @@
 
 #import "UIImageView+AFNetworking.h"
 
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCAppBranding.h"
 #import "NCSettingsController.h"

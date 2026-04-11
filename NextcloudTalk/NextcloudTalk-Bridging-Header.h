@@ -13,7 +13,6 @@
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
 #import "HeaderWithButton.h"
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContactsManager.h"
 #import "NCDatabaseManager.h"

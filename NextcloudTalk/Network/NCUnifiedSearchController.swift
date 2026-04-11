@@ -21,7 +21,7 @@ import NextcloudKit
     }
 
     func searchMessages(completionHandler: @escaping ([NKSearchEntry]?) -> Void) {
-        NCAPIController.sharedInstance().setupNCCommunication(for: account)
+        NCAPIController.sharedInstance().setupNCCommunication(forAccount: account)
 
         NextcloudKit.shared.searchProvider("talk-message",
                                            account: account.accountId,

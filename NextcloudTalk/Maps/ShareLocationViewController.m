@@ -8,7 +8,6 @@
 #import <CoreLocation/CoreLocation.h>
 
 #import "GeoLocationRichObject.h"
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 
 #import "NextcloudTalk-Swift.h"

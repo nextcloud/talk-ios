@@ -21,7 +21,6 @@
 #import "ARDCaptureController.h"
 
 #import "CallKitManager.h"
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
@@ -1644,7 +1643,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         if ([userSessionId isEqualToString:sessionId]) {
             TalkActor *actor = [[TalkActor alloc] initWithActorId:[user objectForKey:@"userId"] actorType:@"users" actorDisplayName:[user objectForKey:@"displayName"]];
 
-            if (callAPIVersion >= APIv3) {
+            if (callAPIVersion >= NCAPIController.shared.APIv3) {
                 [actor setId:[user objectForKey:@"actorId"]];
                 [actor setType:[user objectForKey:@"actorType"]];
             }

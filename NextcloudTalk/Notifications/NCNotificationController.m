@@ -8,7 +8,6 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import "CallKitManager.h"
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
 #import "NCSettingsController.h"
