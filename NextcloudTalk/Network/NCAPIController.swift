@@ -9,7 +9,7 @@ import SDWebImage
 import SDWebImageSVGKitPlugin
 
 @objcMembers
-class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKCommonDelegate {
+class NCAPIController: NSObject, NKCommonDelegate {
 
     static let shared = NCAPIController()
 
@@ -182,7 +182,6 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return requestModifier
     }
 
-
     // MARK: - API versions
 
     public func conversationAPIVersion(forAccount account: TalkAccount) -> Int {
@@ -288,6 +287,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func joinRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) -> URLSessionTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -322,6 +322,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func exitRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -404,6 +405,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func getNoteToSelfRoom(forAccount account: TalkAccount, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
@@ -458,6 +460,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         self.createRoom(forAccount: account, withParameters: parameters, completionBlock: completionBlock)
     }
 
+    @nonobjc
     public func renameRoom(_ token: String, forAccount account: TalkAccount, withName roomName: String, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -471,6 +474,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setRoomDescription(_ description: String?, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -484,6 +488,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setMentionPermissions(_ permissions: NCRoomMentionPermissions, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -497,6 +502,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func makeRoomPublic(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -509,6 +515,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func makeRoomPrivate(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -521,6 +528,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func deleteRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -533,6 +541,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func unbindRoomFromObject(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -545,6 +554,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setPassword(_ password: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?, _ errorDescription: String?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -656,6 +666,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return (ocsResponse != nil)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func setReadOnlyState(state: NCRoomReadOnlyState, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -669,6 +680,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func setLobbyState(state: NCRoomLobbyState, withTimer timer: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -687,6 +699,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func setSIPState(state: NCRoomSIPState, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -700,6 +713,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func setListableScope(scope: NCRoomListableScope, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -713,6 +727,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return try await apiSessionManager.putOcs(urlString, account: account, parameters: parameters)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func setMessageExpiration(messageExpiration: NCMessageExpiration, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -728,6 +743,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Participants
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func getParticipants(forRoom token: String, forAccount account: TalkAccount) async throws -> [NCRoomParticipant] {
@@ -767,6 +783,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func removeAttendee(_ attendeeId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -780,6 +797,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func removeParticipant(_ participant: String, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -793,6 +811,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func removeGuest(_ guest: String, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -822,8 +841,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         case promoteToModerator, demoteToParticipant
     }
 
-    @MainActor
     @nonobjc
+    @MainActor
     @discardableResult
     public func changeModerationPermission(forParticipantId participantId: String, withType type: ModeratorPermissionChangeType, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -844,6 +863,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func resendInvitation(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -985,6 +1005,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Mentions
 
+    @nonobjc
     public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ mentions: [MentionSuggestion]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -1012,6 +1033,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Ban
 
+    @nonobjc
+    // swiftlint:disable:next function_parameter_count
     public func banActor(for accountId: String, in roomToken: String, with actorType: String, with actorId: String, with internalNote: String?, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
@@ -1040,6 +1063,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func listBans(for accountId: String, in roomToken: String, completionBlock: @escaping (_ bannedActors: [BannedActor]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
@@ -1058,6 +1082,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func unbanActor(for accountId: String, in roomToken: String, with banId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
@@ -1170,6 +1195,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Out-of-office
 
+    @nonobjc
     public func getCurrentUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ absenceData: CurrentUserAbsence?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -1211,6 +1237,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func clearUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -1641,9 +1668,9 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Message pinning
 
+    @nonobjc
     @MainActor
     @discardableResult
-    @nonobjc
     public func pinMessage(_ messageId: Int, inRoom token: String, pinUntil until: Int?, forAccount account: TalkAccount) async throws -> NCChatMessage? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1663,6 +1690,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return NCChatMessage(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func unpinMessage(_ messageId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> NCChatMessage? {
@@ -1678,6 +1706,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return NCChatMessage(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
     public func unpinMessageForSelf(_ messageId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> NCChatMessage? {
@@ -1724,8 +1753,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Message scheduling
 
-    @MainActor
     @nonobjc
+    @MainActor
     public func getScheduledMessages(forRoom token: String, forAccount account: TalkAccount) async throws -> [ScheduledMessage] {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1741,9 +1770,9 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return dataArrayDict.compactMap { ScheduledMessage(dictionary: $0, withAccount: account) }
     }
 
+    @nonobjc
     @MainActor
     @discardableResult
-    @nonobjc
     public func scheduleMessage(_ message: String, inRoom token: String, sendAt: Int, replyTo: Int? = nil, silent: Bool? = nil, threadTitle: String? = nil, threadId: Int? = nil, forAccount account: TalkAccount) async throws -> ScheduledMessage? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1765,8 +1794,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return ScheduledMessage(dictionary: result.dataDict, withAccount: account)
     }
 
-    @MainActor
     @nonobjc
+    @MainActor
     public func editScheduledMessage(_ messageId: String, withMessage message: String, inRoom token: String, sendAt: Int, silent: Bool? = nil, threadTitle: String? = nil, forAccount account: TalkAccount) async throws -> ScheduledMessage {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1788,6 +1817,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return updatedMessage
     }
 
+    @nonobjc
     @MainActor
     public func deleteScheduledMessage(_ messageId: String, inRoom token: String, forAccount account: TalkAccount) async throws {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -1802,8 +1832,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Password policy
 
-    @MainActor
     @nonobjc
+    @MainActor
     public func validatePassword(password: String, forAccount account: TalkAccount) async throws -> (passed: Bool, reason: String?) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { throw ApiControllerError.preconditionError }
@@ -1831,8 +1861,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Bots
 
-    @MainActor
     @nonobjc
+    @MainActor
     public func getBots(forRoom token: String, forAccount account: TalkAccount) async throws -> [Bot] {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1848,8 +1878,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return dataArrayDict.compactMap { Bot(dictionary: $0) }
     }
 
-    @MainActor
     @nonobjc
+    @MainActor
     public func enableBot(withId botId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> Bot? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1862,8 +1892,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         return Bot(dictionary: result.dataDict)
     }
 
-    @MainActor
     @nonobjc
+    @MainActor
     public func disableBot(withId botId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> Bot? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1964,6 +1994,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2009,6 +2040,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Server notification
 
+    @nonobjc
     @discardableResult
     public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         // TODO: Do we need to manually ensure the session manager exist (see objc workaround)
@@ -2023,6 +2055,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @MainActor
     public func deleteServerNotification(withId notificationId: Int, forAccount account: TalkAccount) async throws {
         // This method is currently only used in tests
@@ -2228,6 +2261,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Reactions controller
 
+    @nonobjc
     public func addReaction(_ reaction: String, toMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2246,6 +2280,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func removeReaction(_ reaction: String, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2264,6 +2299,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func getReactions(_ reaction: String?, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2289,7 +2325,6 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Reference handling
 
-    @objc
     public func getReference(forUrlString referenceUrl: String, forAccount account: TalkAccount, completionBlock: @escaping (_ referenceDict: [String: Any]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
@@ -2366,6 +2401,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Remind me later
 
+    @nonobjc
     public func setReminder(forMessage message: NCChatMessage, withTimestamp timestamp: Int, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let account = message.account,
               let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2380,6 +2416,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func deleteReminder(forMessage message: NCChatMessage, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let account = message.account,
               let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2394,6 +2431,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func getReminder(forMessage message: NCChatMessage, completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let account = message.account,
               let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2410,6 +2448,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Settings
 
+    @nonobjc
     private func setUserSetting(withKey key: String, toValue value: Any, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
@@ -2425,12 +2464,14 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setReadStatusPrivacySettingEnabled(_ enabled: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         self.setUserSetting(withKey: "read_status_privacy", toValue: enabled, forAccount: account) { error in
             completionBlock(error)
         }
     }
 
+    @nonobjc
     public func setTypingPrivacySettingEnabled(_ enabled: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         self.setUserSetting(withKey: "typing_privacy", toValue: enabled, forAccount: account) { error in
             completionBlock(error)
@@ -2666,6 +2707,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func deleteChatMessage(inRoom token: String, withMessageId messageId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2680,6 +2722,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func editChatMessage(inRoom token: String, withMessageId messageId: Int, withMessage message: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2694,6 +2737,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func clearChatHistory(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2708,6 +2752,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func shareRichObject(_ richObject: [AnyHashable: Any], inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2750,6 +2795,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     public func getSharedItemsOverview(inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItemsOverview: [String: [NCChatMessage]]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
@@ -2780,6 +2826,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     @discardableResult
     // swiftlint:disable:next function_parameter_count
     public func getSharedItems(ofType type: String, fromLastMessageId messageId: Int, inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItems: [NCChatMessage]?, _ lastKnownMessageId: Int, _ error: Error?) -> Void) -> URLSessionDataTask? {
@@ -2838,6 +2885,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - Polls controller
 
+    @nonobjc
+    // swiftlint:disable:next function_parameter_count
     public func createPoll(withQuestion question: String,
                            withOptions options: [String],
                            withResultMode resultMode: NCPollResultMode,
@@ -2867,6 +2916,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func getPoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2880,6 +2930,8 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
+    // swiftlint:disable:next function_parameter_count
     public func editPollDraft(withId draftId: Int,
                               withQuestion question: String,
                               withOptions options: [String],
@@ -2908,6 +2960,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func getPollDrafts(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ polls: [NCPoll]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2922,6 +2975,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func voteOnPoll(withId pollId: Int, inRoom token: String, withOptions options: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2935,6 +2989,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func closePoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -3115,6 +3170,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - User actions
 
+    @nonobjc
     public func getUserActions(forUser userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ actions: [String: Any]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -3140,6 +3196,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func getUserProfileEditableFields(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfileEditableFields: [String]?, _ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
@@ -3151,6 +3208,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setUserProfileField(_ field: String, withValue value: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = account.userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -3169,6 +3227,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setUserProfileImage(_ image: UIImage, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let imageData = image.jpegData(compressionQuality: 0.7)
@@ -3186,6 +3245,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func removeUserProfileImage(forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
@@ -3256,7 +3316,6 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         })
     }
 
-    @objc
     public func userProfileImage(forAccount account: TalkAccount, withStyle style: UIUserInterfaceStyle) -> UIImage? {
         guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
         else { return nil }
@@ -3288,10 +3347,12 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - User avatar
 
+    @nonobjc
     public func getUserAvatar(forUser userId: String, withStyle style: UIUserInterfaceStyle, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
         return self.getUserAvatar(forUser: userId, withStyle: style, ignoreCache: false, forAccount: account, completionBlock: completionBlock)
     }
 
+    @nonobjc
     public func getUserAvatar(forUser userId: String, withStyle style: UIUserInterfaceStyle, ignoreCache: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
         guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let requestModifier = self.getRequestModifier(forAccount: account)
@@ -3335,6 +3396,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func getFederatedUserAvatar(forUser userId: String, inRoom token: String?, withStyle style: UIUserInterfaceStyle, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
         guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let requestModifier = self.getRequestModifier(forAccount: account)
@@ -3452,6 +3514,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setAvatar(forRoom token: String, withImage image: UIImage, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
@@ -3472,6 +3535,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setEmojiAvatar(forRoom token: String, withEmoji emoji: String, withColor color: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let apiSessionManager = self.apiSessionManagers[account.accountId]
@@ -3496,6 +3560,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func removeAvatar(forRoom room: NCRoom, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let encodedToken = room.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId),
@@ -3513,6 +3578,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
 
     // MARK: - File previews
 
+    @nonobjc
     public func getPreviewForFile(_ fileId: String, width: Int, height: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
         var urlString: String
 
@@ -3561,6 +3627,7 @@ class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKC
         }
     }
 
+    @nonobjc
     public func setUserStatus(_ status: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
