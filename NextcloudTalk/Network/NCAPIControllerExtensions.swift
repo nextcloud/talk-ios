@@ -2784,15 +2784,20 @@ import SDWebImage
             // swiftlint:disable:next force_try
             let regex = try! NSRegularExpression(pattern: " \\((\\d+)\\)$", options: .caseInsensitive)
             if let match = regex.firstMatch(in: nameWithoutExtension, range: .init(location: 0, length: nameWithoutExtension.count)),
-                let suffixRange = Range(match.range(at: 0), in: nameWithoutExtension) {
+                let fullSuffixRange = Range(match.range(at: 0), in: nameWithoutExtension),
+                let numberSuffixRange = Range(match.range(at: 1), in: nameWithoutExtension) {
 
-                let suffixNumber = Int(nameWithoutExtension[suffixRange]) ?? 1
-                newSuffix = " \(suffixNumber + 1)"
-                alternativeName = nameWithoutExtension.replacingCharacters(in: suffixRange, with: "")
+                let suffixNumber = Int(nameWithoutExtension[numberSuffixRange]) ?? 1
+                newSuffix = " (\(suffixNumber + 1))"
+                alternativeName = nameWithoutExtension.replacingCharacters(in: fullSuffixRange, with: "")
             }
         }
 
-        alternativeName = "\(alternativeName)\(newSuffix)\(fileExtension)"
+        alternativeName = "\(alternativeName)\(newSuffix)"
+
+        if !fileExtension.isEmpty {
+            alternativeName = "\(alternativeName).\(fileExtension)"
+        }
 
         return alternativeName
     }
