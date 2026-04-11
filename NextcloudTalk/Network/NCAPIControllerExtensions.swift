@@ -3075,8 +3075,7 @@ import SDWebImage
     }
 
     public func getUserAvatar(forUser userId: String, withStyle style: UIUserInterfaceStyle, ignoreCache: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
-        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
         // Since https://github.com/nextcloud/server/pull/31010 we can only request avatars in 64px or 512px
@@ -3085,7 +3084,8 @@ import SDWebImage
 
         var urlString = "\(account.server)/index.php/avatar/\(encodedUserId)/\(avatarSize)"
 
-        if style == .dark, serverCapabilities.versionMajor >= 25 {
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        if style == .dark, let serverCapabilities, serverCapabilities.versionMajor >= 25 {
             urlString = "\(urlString)/dark"
         }
 
