@@ -7,7 +7,6 @@
 
 #import "NCAppBranding.h"
 #import "NCUser.h"
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "PlaceholderView.h"
 

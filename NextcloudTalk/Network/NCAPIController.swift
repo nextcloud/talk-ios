@@ -6,13 +6,182 @@
 import Foundation
 import NextcloudKit
 import SDWebImage
+import SDWebImageSVGKitPlugin
 
-@objc extension NCAPIController {
+@objcMembers
+class NCAPIController: NSObject, URLSessionTaskDelegate, URLSessionDelegate, NKCommonDelegate {
+
+    static let shared = NCAPIController()
+
+    // TODO: Workaround for now to not rewrite every call
+    @available(*, renamed: "shared")
+    static func sharedInstance() -> NCAPIController {
+        return NCAPIController.shared
+    }
+
+    // MARK: - Public var
+    public let kReceivedChatMessagesLimit = 100
+
+    public let APIv1 = 1
+    public let APIv2 = 2
+    public let APIv3 = 3
+    public let APIv4 = 4
+
+    // MARK: - Internal var
+    internal lazy var defaultAPISessionManager: NCAPISessionManager = {
+        let configuration = URLSessionConfiguration.default
+        configuration.httpCookieStorage = nil
+        return NCAPISessionManager(configuration: configuration)
+    }()
+
+    internal var apiSessionManagers = [String: NCAPISessionManager]()
+    internal var longPollingApiSessionManagers = [String: NCAPISessionManager]()
+    internal var calDAVSessionManagers = [String: NCCalDAVSessionManager]()
+
+    // MARK: - Private var
+    private let kDavEndpoint = "/remote.php/dav"
+    private let kNCOCSAPIVersion = "/ocs/v2.php"
+    private let kNCSpreedAPIVersionBase = "/apps/spreed/api/v"
+
+    private var authTokenCache: [String: String] = [:]
+    private var requestModifierCache: [String: SDWebImageDownloaderRequestModifier] = [:]
 
     enum ApiControllerError: Error {
         case preconditionError
         case unexpectedOcsResponse
     }
+
+    // MARK: - Init
+
+    override init() {
+        super.init()
+
+        self.initSessionManagers()
+        self.initImageDownloaders()
+    }
+
+    private func initSessionManagers() {
+        for account in NCDatabaseManager.sharedInstance().allAccounts() {
+            self.createAPISessionManager(forAccount: account)
+        }
+    }
+
+    public func createAPISessionManager(forAccount account: TalkAccount) {
+        let accountId = account.accountId
+
+        // Make sure there are no old entries in our caches when we create APISessionManagers
+        self.authTokenCache.removeValue(forKey: accountId)
+        self.requestModifierCache.removeValue(forKey: accountId)
+
+        guard let authHeader = self.authHeader(forAccount: account)
+        else { return }
+
+        // API session manager
+        let configuration = URLSessionConfiguration.default
+        let cookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
+        configuration.httpCookieStorage = cookieStorage
+        let apiSessionManager = NCAPISessionManager(configuration: configuration)
+        apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+
+        // As we can run max. 30s in the background, the default timeout should be lower than 30 to avoid being killed by the OS
+        apiSessionManager.requestSerializer.timeoutInterval = TimeInterval(25)
+        apiSessionManagers[accountId] = apiSessionManager
+
+        // Long-polling session manager
+        let longConfiguration = URLSessionConfiguration.default
+        let longCookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
+        longConfiguration.httpCookieStorage = longCookieStorage
+        let longApiSessionManager = NCAPISessionManager(configuration: longConfiguration)
+        longApiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        longPollingApiSessionManagers[accountId] = longApiSessionManager
+
+        // CalDAV session manager
+        let calDAVConfiguration = URLSessionConfiguration.default
+        let calDAVCookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
+        calDAVConfiguration.httpCookieStorage = calDAVCookieStorage
+        let calDAVSessionManager = NCCalDAVSessionManager(configuration: calDAVConfiguration)
+        calDAVSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        calDAVSessionManagers[accountId] = calDAVSessionManager
+    }
+
+    public func removeAPISessionManager(forAccount account: TalkAccount) {
+        self.authTokenCache.removeValue(forKey: account.accountId)
+        self.requestModifierCache.removeValue(forKey: account.accountId)
+        self.apiSessionManagers.removeValue(forKey: account.accountId)
+        self.longPollingApiSessionManagers.removeValue(forKey: account.accountId)
+        self.calDAVSessionManagers.removeValue(forKey: account.accountId)
+    }
+
+    private func authHeader(forAccount account: TalkAccount) -> String? {
+        if let cachedHeader = self.authTokenCache[account.accountId] {
+            return cachedHeader
+        }
+
+        guard let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId)
+        else { return nil }
+
+        let userTokenString = "\(account.user):\(token)"
+        let data = userTokenString.data(using: .utf8)!
+        let base64Encoded = data.base64EncodedString()
+
+        let authHeader = "Basic \(base64Encoded)"
+        self.authTokenCache[account.accountId] = authHeader
+
+        return authHeader
+    }
+
+    public func setupNCCommunication(forAccount account: TalkAccount) {
+        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId),
+              let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId)
+        else { return }
+
+        NextcloudKit.shared.setup(account: account.accountId, user: account.user, userId: account.userId, password: token, urlBase: account.server, userAgent: NCAppBranding.userAgent(), nextcloudVersion: serverCapabilities.versionMajor, delegate: self)
+    }
+
+    private func initImageDownloaders() {
+        // The defaults for the shared url cache are very low, use some sane values for caching. Apple only caches assets <= 5% of the available space.
+        // Otherwise some (user) avatars will never be cached and always requested
+        let sharedURLCache = URLCache(memoryCapacity: 20 * 1024 * 1024, diskCapacity: 100 * 1024 * 1024)
+        URLCache.shared = sharedURLCache
+
+        // By default SDWebImageDownloader defaults to 6 concurrent downloads (see SDWebImageDownloaderConfig)
+
+        // Make sure we support download SVGs with SDImageDownloader
+        SDImageCodersManager.shared.addCoder(SDImageSVGKCoder.shared)
+
+        // Make sure we support self-signed certificates we trusted before
+        SDWebImageDownloader.shared.config.operationClass = NCWebImageDownloaderOperation.self
+
+        // Limit the cache size to 100 MB and prevent uploading to iCloud
+        // Don't set the path to an app group in order to prevent crashes
+        SDImageCache.shared.config.shouldDisableiCloud = true
+        SDImageCache.shared.config.maxDiskSize = 100 * 1024 * 1024
+        SDImageCache.shared.config.maxDiskAge = 60 * 60 * 24 * 7 * 4 // 4 weeks
+
+        // We expire the cache once on app launch, see AppDelegate
+        SDImageCache.shared.config.shouldRemoveExpiredDataWhenTerminate = false
+        SDImageCache.shared.config.shouldRemoveExpiredDataWhenEnterBackground = false
+        SDWebImageDownloader.shared.setValue(NCAppBranding.userAgent(), forHTTPHeaderField: "User-Agent")
+    }
+
+    private func getRequestModifier(forAccount account: TalkAccount) -> SDWebImageDownloaderRequestModifier? {
+        if let cachedModifier = self.requestModifierCache[account.accountId] {
+            return cachedModifier
+        }
+
+        guard let authHeader = self.authHeader(forAccount: account)
+        else { return nil }
+
+        let headers = [
+            "Authorization": authHeader
+        ]
+
+        let requestModifier = SDWebImageDownloaderRequestModifier(headers: headers)
+        self.requestModifierCache[account.accountId] = requestModifier
+
+        return requestModifier
+    }
+
 
     // MARK: - API versions
 
@@ -121,7 +290,7 @@ import SDWebImage
 
     @discardableResult
     public func joinRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) -> URLSessionTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -155,7 +324,7 @@ import SDWebImage
 
     @discardableResult
     public func exitRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -172,7 +341,7 @@ import SDWebImage
     }
 
     public func getRooms(forAccount account: TalkAccount, updateStatus: Bool, modifiedSince: Int, completionBlock: @escaping (_ rooms: [[String: AnyObject]]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         var urlString = self.getRequestURL(forConversationEndpoint: "room", forAccount: account)
@@ -210,7 +379,7 @@ import SDWebImage
     }
 
     public func getRoom(forAccount account: TalkAccount, withToken token: String, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -236,7 +405,7 @@ import SDWebImage
     }
 
     public func getNoteToSelfRoom(forAccount account: TalkAccount, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/note-to-self", forAccount: account)
@@ -247,7 +416,7 @@ import SDWebImage
     }
 
     public func getListableRooms(forAccount account: TalkAccount, withSerachTerm searchTerm: String?, completionBlock: @escaping (_ rooms: [NCRoom]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "listed-room", forAccount: account)
@@ -264,7 +433,7 @@ import SDWebImage
     }
 
     public func createRoom(forAccount account: TalkAccount, withParameters parameters: [String: Any], completionBlock: @escaping (_ room: NCRoom?, _ error: OcsError?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room", forAccount: account)
@@ -290,7 +459,7 @@ import SDWebImage
     }
 
     public func renameRoom(_ token: String, forAccount account: TalkAccount, withName roomName: String, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -303,7 +472,7 @@ import SDWebImage
     }
 
     public func setRoomDescription(_ description: String?, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -316,7 +485,7 @@ import SDWebImage
     }
 
     public func setMentionPermissions(_ permissions: NCRoomMentionPermissions, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -329,7 +498,7 @@ import SDWebImage
     }
 
     public func makeRoomPublic(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -341,7 +510,7 @@ import SDWebImage
     }
 
     public func makeRoomPrivate(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -353,7 +522,7 @@ import SDWebImage
     }
 
     public func deleteRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -365,7 +534,7 @@ import SDWebImage
     }
 
     public func unbindRoomFromObject(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -377,7 +546,7 @@ import SDWebImage
     }
 
     public func setPassword(_ password: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?, _ errorDescription: String?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -396,7 +565,7 @@ import SDWebImage
     }
 
     public func addRoomToFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -408,7 +577,7 @@ import SDWebImage
     }
 
     public func removeRoomFromFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -421,7 +590,7 @@ import SDWebImage
 
     @MainActor
     public func setImportantState(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -439,7 +608,7 @@ import SDWebImage
 
     @MainActor
     public func setSensitiveState(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -457,7 +626,7 @@ import SDWebImage
 
     @MainActor
     public func setNotificationLevel(level: NCRoomNotificationLevel, forRoom token: String, forAccount account: TalkAccount) async -> Bool {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return false }
 
@@ -473,7 +642,7 @@ import SDWebImage
 
     @MainActor
     public func setCallNotificationLevel(enabled: Bool, forRoom token: String, forAccount account: TalkAccount) async -> Bool {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return false }
 
@@ -490,7 +659,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func setReadOnlyState(state: NCRoomReadOnlyState, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -503,7 +672,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func setLobbyState(state: NCRoomLobbyState, withTimer timer: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -521,7 +690,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func setSIPState(state: NCRoomSIPState, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -534,7 +703,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func setListableScope(scope: NCRoomListableScope, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -547,7 +716,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func setMessageExpiration(messageExpiration: NCMessageExpiration, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -562,7 +731,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func getParticipants(forRoom token: String, forAccount account: TalkAccount) async throws -> [NCRoomParticipant] {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -584,7 +753,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func addParticipant(_ participant: String, ofType type: String?, toRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -601,7 +770,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func removeAttendee(_ attendeeId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -614,7 +783,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func removeParticipant(_ participant: String, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -627,7 +796,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func removeGuest(_ guest: String, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -640,7 +809,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func removeSelf(fromRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -657,7 +826,7 @@ import SDWebImage
     @nonobjc
     @discardableResult
     public func changeModerationPermission(forParticipantId participantId: String, withType type: ModeratorPermissionChangeType, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -678,7 +847,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func resendInvitation(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -699,7 +868,7 @@ import SDWebImage
         let apiVersion = self.federationAPIVersion(forAccount: account)
         let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, forAccount: account)
 
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(false)
             return
@@ -715,7 +884,7 @@ import SDWebImage
         let apiVersion = self.federationAPIVersion(forAccount: account)
         let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, forAccount: account)
 
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(false)
             return
@@ -727,7 +896,7 @@ import SDWebImage
     }
 
     public func getFederationInvitations(for accountId: String, completionBlock: @escaping (_ invitations: [FederationInvitation]?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[accountId],
               let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)
         else {
             completionBlock(nil)
@@ -747,7 +916,7 @@ import SDWebImage
 
     public func getRoomCapabilities(for accountId: String, token: String, completionBlock: @escaping (_ roomCapabilities: [String: AnyObject]?, _ proxyHash: String?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil, nil)
@@ -765,7 +934,7 @@ import SDWebImage
 
     @discardableResult
     public func getSignalingSettings(for account: TalkAccount, forRoom roomToken: String?, completionBlock: @escaping (_ signalingSettings: SignalingSettings?, _ error: (any Error)?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil, nil)
             return nil
@@ -789,7 +958,7 @@ import SDWebImage
 
     @MainActor
     public func sendSignalingMessages(_ messages: String, toRoom token: String, forAccount account: TalkAccount) async throws {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -802,7 +971,7 @@ import SDWebImage
     // Use non-async method here to allow cancellation from objc (as we can return a URLSessionDataTask)
     @discardableResult
     public func pullSignalingMessages(fromRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [[String: AnyObject]]?, _ error: Error?) -> Void) -> URLSessionTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -818,7 +987,7 @@ import SDWebImage
 
     public func getMentionSuggestions(for accountId: String, in roomToken: String, with searchString: String, completionBlock: @escaping (_ mentions: [MentionSuggestion]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
         else {
@@ -846,7 +1015,7 @@ import SDWebImage
     public func banActor(for accountId: String, in roomToken: String, with actorType: String, with actorId: String, with internalNote: String?, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(false)
             return
@@ -874,7 +1043,7 @@ import SDWebImage
     public func listBans(for accountId: String, in roomToken: String, completionBlock: @escaping (_ bannedActors: [BannedActor]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil)
             return
@@ -892,7 +1061,7 @@ import SDWebImage
     public func unbanActor(for accountId: String, in roomToken: String, with banId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(false)
             return
@@ -920,7 +1089,7 @@ import SDWebImage
     @nonobjc
     public func summarizeChat(forAccountId accountId: String, inRoom roomToken: String, fromMessageId messageId: Int, completionBlock: @escaping (_ status: SummarizeChatStatus, _ taskId: Int?, _ nextOffset: Int?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(.failed, nil, nil)
@@ -977,7 +1146,7 @@ import SDWebImage
     @nonobjc
     public func getAiTaskById(for accountId: String, withTaskId taskId: Int, completionBlock: @escaping (_ status: AiTaskStatus, _ output: String?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(.failed, nil)
             return
@@ -1003,7 +1172,7 @@ import SDWebImage
 
     public func getCurrentUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ absenceData: CurrentUserAbsence?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil)
@@ -1024,7 +1193,7 @@ import SDWebImage
     @nonobjc
     public func getUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ absenceData: UserAbsence?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil)
@@ -1044,7 +1213,7 @@ import SDWebImage
 
     public func clearUserAbsence(forAccountId accountId: String, forUserId userId: String, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(false)
@@ -1077,7 +1246,7 @@ import SDWebImage
     @nonobjc
     public func setUserAbsence(forAccountId accountId: String, forUserId userId: String, withAbsence absenceData: UserAbsence, completionBlock: @escaping (_ response: SetUserAbsenceResponse) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(.unknownError)
@@ -1101,7 +1270,7 @@ import SDWebImage
 
     @discardableResult
     public func getCallNotificationState(for account: TalkAccount, forRoom roomToken: String, completionBlock: @escaping (_ callNotificationState: CallNotificationState) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(.unknown)
@@ -1130,7 +1299,7 @@ import SDWebImage
 
     public func archiveRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(false)
             return
@@ -1146,7 +1315,7 @@ import SDWebImage
 
     public func unarchiveRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ success: Bool) -> Void) {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(false)
             return
@@ -1164,7 +1333,7 @@ import SDWebImage
 
     @nonobjc
     public func testPushnotifications(forAccount account: TalkAccount) async throws -> (message: String, notificationId: Int?) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { throw ApiControllerError.preconditionError }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v3/test/self"
@@ -1184,7 +1353,7 @@ import SDWebImage
     @nonobjc
     func upcomingEvents(_ room: NCRoom, forAccount account: TalkAccount, completionBlock: @escaping (_ events: [CalendarEvent]) -> Void) {
         guard let encodedRoomLink = room.linkURL?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock([])
             return
@@ -1206,7 +1375,7 @@ import SDWebImage
 
     func getUserGroups(forAccount account: TalkAccount, completionBlock: @escaping (_ groupIds: [String]?, _ error: Error?) -> Void) {
         guard let encodedUserId = account.userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))
             return
@@ -1224,7 +1393,7 @@ import SDWebImage
     }
 
     func getUserTeams(forAccount account: TalkAccount, completionBlock: @escaping (_ teamIds: [String]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))
             return
@@ -1245,7 +1414,7 @@ import SDWebImage
     // MARK: - File operations
 
     func getFileById(forAccount account: TalkAccount, withFileId fileId: String, completionBlock: @escaping (_ file: NKFile?, _ error: NKError?) -> Void) {
-        self.setupNCCommunication(for: account)
+        self.setupNCCommunication(forAccount: account)
 
         let body = """
             <?xml version=\"1.0\" encoding=\"UTF-8\"?>\
@@ -1301,7 +1470,7 @@ import SDWebImage
     @nonobjc
     func getUserProfile(forUserId userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ info: ProfileInfo?) -> Void) {
         guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil)
             return
@@ -1325,7 +1494,7 @@ import SDWebImage
     @nonobjc
     public func getThreads(for accountId: String, in roomToken: String, withLimit limit: Int = 50, completionBlock: @escaping (_ threads: [NCThread]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil)
@@ -1351,7 +1520,7 @@ import SDWebImage
 
     public func getSubscribedThreads(for accountId: String, withLimit limit: Int = 100, andOffset offset: Int = 0, completionBlock: @escaping (_ threads: [NCThread]?, _ error: Error?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil, NSError(domain: "", code: 0, userInfo: nil))
             return
@@ -1390,7 +1559,7 @@ import SDWebImage
     @nonobjc
     public func getThread(for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil)
@@ -1415,7 +1584,7 @@ import SDWebImage
     @nonobjc
     public func renameThread(with threadTitle: String, for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil)
@@ -1444,7 +1613,7 @@ import SDWebImage
     @nonobjc
     public func setNotificationLevelForThread(for accountId: String, in roomToken: String, threadId: Int, level: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(nil)
@@ -1476,7 +1645,7 @@ import SDWebImage
     @discardableResult
     @nonobjc
     public func pinMessage(_ messageId: Int, inRoom token: String, pinUntil until: Int?, forAccount account: TalkAccount) async throws -> NCChatMessage? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1497,7 +1666,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func unpinMessage(_ messageId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> NCChatMessage? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1512,7 +1681,7 @@ import SDWebImage
     @MainActor
     @discardableResult
     public func unpinMessageForSelf(_ messageId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> NCChatMessage? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1558,7 +1727,7 @@ import SDWebImage
     @MainActor
     @nonobjc
     public func getScheduledMessages(forRoom token: String, forAccount account: TalkAccount) async throws -> [ScheduledMessage] {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1576,7 +1745,7 @@ import SDWebImage
     @discardableResult
     @nonobjc
     public func scheduleMessage(_ message: String, inRoom token: String, sendAt: Int, replyTo: Int? = nil, silent: Bool? = nil, threadTitle: String? = nil, threadId: Int? = nil, forAccount account: TalkAccount) async throws -> ScheduledMessage? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1599,7 +1768,7 @@ import SDWebImage
     @MainActor
     @nonobjc
     public func editScheduledMessage(_ messageId: String, withMessage message: String, inRoom token: String, sendAt: Int, silent: Bool? = nil, threadTitle: String? = nil, forAccount account: TalkAccount) async throws -> ScheduledMessage {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1621,7 +1790,7 @@ import SDWebImage
 
     @MainActor
     public func deleteScheduledMessage(_ messageId: String, inRoom token: String, forAccount account: TalkAccount) async throws {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1636,7 +1805,7 @@ import SDWebImage
     @MainActor
     @nonobjc
     public func validatePassword(password: String, forAccount account: TalkAccount) async throws -> (passed: Bool, reason: String?) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { throw ApiControllerError.preconditionError }
 
         // Check capabilities directly, otherwise NCSettingsController introduces new dependencies in NotificationServiceExtension
@@ -1665,7 +1834,7 @@ import SDWebImage
     @MainActor
     @nonobjc
     public func getBots(forRoom token: String, forAccount account: TalkAccount) async throws -> [Bot] {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1682,7 +1851,7 @@ import SDWebImage
     @MainActor
     @nonobjc
     public func enableBot(withId botId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> Bot? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1696,7 +1865,7 @@ import SDWebImage
     @MainActor
     @nonobjc
     public func disableBot(withId botId: Int, forRoom token: String, forAccount account: TalkAccount) async throws -> Bot? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1711,7 +1880,7 @@ import SDWebImage
 
     @MainActor
     public func requestAssistance(inRoom token: String, forAccount account: TalkAccount) async throws {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1723,7 +1892,7 @@ import SDWebImage
 
     @MainActor
     public func stopRequestingAssistance(inRoom token: String, forAccount account: TalkAccount) async throws {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
@@ -1737,7 +1906,7 @@ import SDWebImage
 
     @discardableResult
     public func getPeersForCall(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ peers: [[String: AnyObject]]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -1759,7 +1928,7 @@ import SDWebImage
                          forAccount account: TalkAccount,
                          completionBlock: @escaping (_ error: Error?, _ statusCode: Int) -> Void) -> URLSessionTask? {
 
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -1783,7 +1952,7 @@ import SDWebImage
 
     @discardableResult
     public func leaveCall(inRoom token: String, forAllParticipants allParticipants: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -1797,7 +1966,7 @@ import SDWebImage
 
     @discardableResult
     public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -1828,7 +1997,7 @@ import SDWebImage
 
     @discardableResult
     public func getServerCapabilities(forAccount account: TalkAccount, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v1.php/cloud/capabilities"
@@ -1844,7 +2013,7 @@ import SDWebImage
     public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         // TODO: Do we need to manually ensure the session manager exist (see objc workaround)
         // This method is currently only used in tests as NSE is using the endpoint directly
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/\(notificationId)"
@@ -1857,7 +2026,7 @@ import SDWebImage
     @MainActor
     public func deleteServerNotification(withId notificationId: Int, forAccount account: TalkAccount) async throws {
         // This method is currently only used in tests
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { throw ApiControllerError.preconditionError }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/\(notificationId)"
@@ -1866,7 +2035,7 @@ import SDWebImage
     }
 
     public func executeNotificationAction(_ action: NCNotificationAction, forAccount account: TalkAccount, completionBlock: ((_ error: Error?) -> Void)?) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         guard let actionLink = action.actionLink else {
@@ -1905,7 +2074,7 @@ import SDWebImage
 
     @discardableResult
     public func checkNotificationExistance(withIds notificationIds: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ notification: [Int]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/exists"
@@ -1923,7 +2092,7 @@ import SDWebImage
 
     @discardableResult
     public func searchContacts(forAccount account: TalkAccount, withPhoneNumbers phoneNumbers: [String: [String]], completionBlock: @escaping (_ contacts: [String: String]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v2.php/cloud/users/search/by-phone"
@@ -1944,7 +2113,7 @@ import SDWebImage
 
     @discardableResult
     public func getContacts(forAccount account: TalkAccount, forRoom room: String?, forGroupRoom groupRoom: Bool, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v2.php/core/autocomplete/get"
@@ -1988,7 +2157,7 @@ import SDWebImage
     // TODO: Can be combined with 'getContacts(forAccount:)' at some point
     @discardableResult
     public func searchUsers(forAccount account: TalkAccount, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v2.php/core/autocomplete/get"
@@ -2016,7 +2185,7 @@ import SDWebImage
 
     @nonobjc
     public func getAvailableTranslations(forAccount account: TalkAccount, completionBlock: @escaping (_ translations: [NCTranslation]?, _ langugageDetection: Bool, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = "\(account.server)/ocs/v2.php/translation/languages"
@@ -2038,7 +2207,7 @@ import SDWebImage
 
     @nonobjc
     public func translateMessage(_ message: String, fromLanguage from: String?, toLanguage to: String, forAccount account: TalkAccount, completionBlock: @escaping (_ translationDict: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = "\(account.server)/ocs/v2.php/translation/translate"
@@ -2060,7 +2229,7 @@ import SDWebImage
     // MARK: - Reactions controller
 
     public func addReaction(_ reaction: String, toMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2078,7 +2247,7 @@ import SDWebImage
     }
 
     public func removeReaction(_ reaction: String, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2096,7 +2265,7 @@ import SDWebImage
     }
 
     public func getReactions(_ reaction: String?, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2120,8 +2289,9 @@ import SDWebImage
 
     // MARK: - Reference handling
 
+    @objc
     public func getReference(forUrlString referenceUrl: String, forAccount account: TalkAccount, completionBlock: @escaping (_ referenceDict: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = "\(account.server)/ocs/v2.php/references/resolve"
@@ -2139,7 +2309,7 @@ import SDWebImage
     // MARK: - Recording
 
     public func startRecording(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2155,7 +2325,7 @@ import SDWebImage
     }
 
     public func stopRecording(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2167,7 +2337,7 @@ import SDWebImage
     }
 
     public func dismissStoredRecordingNotification(withTimestamp timestamp: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2179,7 +2349,7 @@ import SDWebImage
     }
 
     public func shareStoredRecording(withTimestamp timestamp: String, withFileId fileId: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2198,7 +2368,7 @@ import SDWebImage
 
     public func setReminder(forMessage message: NCChatMessage, withTimestamp timestamp: Int, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let account = message.account,
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2212,7 +2382,7 @@ import SDWebImage
 
     public func deleteReminder(forMessage message: NCChatMessage, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let account = message.account,
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2226,7 +2396,7 @@ import SDWebImage
 
     public func getReminder(forMessage message: NCChatMessage, completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let account = message.account,
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+              let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2241,7 +2411,7 @@ import SDWebImage
     // MARK: - Settings
 
     private func setUserSetting(withKey key: String, toValue value: Any, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = self.getRequestURL(forEndpoint: "settings/user", withAPIVersion: 1, forAccount: account)
@@ -2270,7 +2440,7 @@ import SDWebImage
     // MARK: - Push Notifications
 
     public func subscribeAccount(_ account: TalkAccount, withPublicKey publicKey: Data, toNextcloudServerWithCompletionBlock completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let devicePublicKey = String(data: publicKey, encoding: .utf8)
         else { return }
 
@@ -2287,7 +2457,7 @@ import SDWebImage
     }
 
     public func unsubscribeAccount(_ account: TalkAccount, fromNextcloudServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/push"
@@ -2422,9 +2592,9 @@ import SDWebImage
         let apiSessionManager: NCAPISessionManager?
 
         if timeout {
-            apiSessionManager = longPollingApiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+            apiSessionManager = longPollingApiSessionManagers[account.accountId]
         } else {
-            apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+            apiSessionManager = apiSessionManagers[account.accountId]
         }
 
         guard let apiSessionManager else { return nil }
@@ -2481,12 +2651,12 @@ import SDWebImage
             parameters["threadTitle"] = threadTitle
         }
 
-        var apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        var apiSessionManager = apiSessionManagers[account.accountId]
 
         // TODO: Workaround for ShareExtension, still needed?
         if apiSessionManager == nil {
             self.initSessionManagers()
-            apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+            apiSessionManager = apiSessionManagers[account.accountId]
         }
 
         guard let apiSessionManager else { return nil }
@@ -2498,7 +2668,7 @@ import SDWebImage
 
     @discardableResult
     public func deleteChatMessage(inRoom token: String, withMessageId messageId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2512,7 +2682,7 @@ import SDWebImage
 
     @discardableResult
     public func editChatMessage(inRoom token: String, withMessageId messageId: Int, withMessage message: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2526,7 +2696,7 @@ import SDWebImage
 
     @discardableResult
     public func clearChatHistory(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2540,7 +2710,7 @@ import SDWebImage
 
     @discardableResult
     public func shareRichObject(_ richObject: [AnyHashable: Any], inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2554,7 +2724,7 @@ import SDWebImage
 
     @discardableResult
     public func setChatReadMarker(_ lastReadMessage: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2568,7 +2738,7 @@ import SDWebImage
 
     @discardableResult
     public func markChatAsUnread(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2582,7 +2752,7 @@ import SDWebImage
 
     @discardableResult
     public func getSharedItemsOverview(inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItemsOverview: [String: [NCChatMessage]]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2613,7 +2783,7 @@ import SDWebImage
     @discardableResult
     // swiftlint:disable:next function_parameter_count
     public func getSharedItems(ofType type: String, fromLastMessageId messageId: Int, inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItems: [NCChatMessage]?, _ lastKnownMessageId: Int, _ error: Error?) -> Void) -> URLSessionDataTask? {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
@@ -2642,7 +2812,7 @@ import SDWebImage
     }
 
     public func getMessageContext(inRoom token: String, forMessageId messageId: Int, inThread threadId: Int, withLimit limit: Int = 50, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [NCChatMessage]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2677,7 +2847,7 @@ import SDWebImage
                            forAccount account: TalkAccount,
                            completionBlock: @escaping (_ poll: NCPoll, _ error: Error?) -> Void) {
 
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2698,7 +2868,7 @@ import SDWebImage
     }
 
     public func getPoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2719,7 +2889,7 @@ import SDWebImage
                               forAccount account: TalkAccount,
                               completionBlock: @escaping (_ poll: NCPoll, _ error: Error?) -> Void) {
 
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2739,7 +2909,7 @@ import SDWebImage
     }
 
     public func getPollDrafts(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ polls: [NCPoll]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2753,7 +2923,7 @@ import SDWebImage
     }
 
     public func voteOnPoll(withId pollId: Int, inRoom token: String, withOptions options: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2766,7 +2936,7 @@ import SDWebImage
     }
 
     public func closePoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2830,7 +3000,7 @@ import SDWebImage
     }
 
     public func readFolder(forAccount account: TalkAccount, atPath path: String?, withDepth depth: String, completionBlock: @escaping (_ items: [NKFile]?, _ error: Error?) -> Void) {
-        self.setupNCCommunication(for: account)
+        self.setupNCCommunication(forAccount: account)
 
         let serverUrlString = "\(account.server)\(self.filesPath(forAccount: account))/\(path ?? "")"
 
@@ -2877,12 +3047,12 @@ import SDWebImage
             parameters["talkMetaData"] = jsonData
         }
 
-        var apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        var apiSessionManager = apiSessionManagers[account.accountId]
 
         // TODO: Workaround for ShareExtension, still needed?
         if apiSessionManager == nil {
             self.initSessionManagers()
-            apiSessionManager = apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+            apiSessionManager = apiSessionManagers[account.accountId]
         }
 
         guard let apiSessionManager else { return }
@@ -2901,7 +3071,7 @@ import SDWebImage
     }
 
     func uniqueNameForFileUpload(withName fileName: String, isOriginalName: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ fileServerURL: String?, _ fileServerPath: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-        self.setupNCCommunication(for: account)
+        self.setupNCCommunication(forAccount: account)
 
         guard let fileServerPath = self.serverFilePath(forFileName: fileName, forAccount: account),
               let fileServerURL = self.serverFileURL(forfilePath: fileServerPath, forAccount: account)
@@ -2924,7 +3094,7 @@ import SDWebImage
     }
 
     func checkOrCreateAttachmentFolder(forAccount account: TalkAccount, completionBlock: @escaping (_ created: Bool, _ statusCode: Int) -> Void) {
-        self.setupNCCommunication(for: account)
+        self.setupNCCommunication(forAccount: account)
 
         guard let attachmentFolderServerURL = self.attachmentFolderServerURL(forAccount: account)
         else { return }
@@ -2946,7 +3116,7 @@ import SDWebImage
     // MARK: - User actions
 
     public func getUserActions(forUser userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ actions: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -2960,7 +3130,7 @@ import SDWebImage
     // MARK: - User profile
 
     public func getUserProfile(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfile: [String: Any]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = "\(account.server)/ocs/v2.php/cloud/user"
@@ -2971,7 +3141,7 @@ import SDWebImage
     }
 
     public func getUserProfileEditableFields(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfileEditableFields: [String]?, _ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = "\(account.server)/ocs/v2.php/cloud/user/fields"
@@ -2982,7 +3152,7 @@ import SDWebImage
     }
 
     public func setUserProfileField(_ field: String, withValue value: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedUserId = account.userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
@@ -3000,7 +3170,7 @@ import SDWebImage
     }
 
     public func setUserProfileImage(_ image: UIImage, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let imageData = image.jpegData(compressionQuality: 0.7)
         else { return }
 
@@ -3017,7 +3187,7 @@ import SDWebImage
     }
 
     public func removeUserProfileImage(forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/spreed/temp-user-avatar"
@@ -3086,6 +3256,7 @@ import SDWebImage
         })
     }
 
+    @objc
     public func userProfileImage(forAccount account: TalkAccount, withStyle style: UIUserInterfaceStyle) -> UIImage? {
         guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
         else { return nil }
@@ -3122,7 +3293,8 @@ import SDWebImage
     }
 
     public func getUserAvatar(forUser userId: String, withStyle style: UIUserInterfaceStyle, ignoreCache: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
-        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let requestModifier = self.getRequestModifier(forAccount: account)
         else { return nil }
 
         // Since https://github.com/nextcloud/server/pull/31010 we can only request avatars in 64px or 512px
@@ -3151,8 +3323,6 @@ import SDWebImage
             options = [.retryFailed, .refreshCached]
         }
 
-        let requestModifier = self.getRequestModifier(for: account)!
-
         return SDWebImageManager.shared.loadImage(with: url, options: options, context: [.downloadRequestModifier: requestModifier], progress: nil) { image, _, error, _, _, _ in
             if let error {
                 // When the request was cancelled before completing, we expect no completion handler to be called
@@ -3166,7 +3336,8 @@ import SDWebImage
     }
 
     public func getFederatedUserAvatar(forUser userId: String, inRoom token: String?, withStyle style: UIUserInterfaceStyle, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
-        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        guard let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let requestModifier = self.getRequestModifier(forAccount: account)
         else { return nil }
 
         var encodedToken = "new"
@@ -3191,7 +3362,6 @@ import SDWebImage
 
         // See getAvatarForRoom for explanation
         let options: SDWebImageOptions = [.retryFailed, .refreshCached, .queryDiskDataSync]
-        let requestModifier = self.getRequestModifier(for: account)!
 
         // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
         let context: [SDWebImageContextOption: Any] = [
@@ -3215,7 +3385,8 @@ import SDWebImage
 
     public func getAvatar(forRoom room: NCRoom, withStyle style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
         guard let encodedToken = room.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId)
+              let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId),
+              let requestModifier = self.getRequestModifier(forAccount: account)
         else { return nil }
 
         var endpoint = "room/\(encodedToken)/avatar"
@@ -3263,8 +3434,6 @@ import SDWebImage
             options = [.retryFailed, .queryDiskDataSync, .refreshCached]
         }
 
-        let requestModifier = self.getRequestModifier(for: account)!
-
         // Make sure we get at least a 120x120 image when retrieving an SVG with SVGKit
         let context: [SDWebImageContextOption: Any] = [
             .downloadRequestModifier: requestModifier,
@@ -3284,7 +3453,7 @@ import SDWebImage
     }
 
     public func setAvatar(forRoom token: String, withImage image: UIImage, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let imageData = image.jpegData(compressionQuality: 0.7)
         else { return }
@@ -3305,7 +3474,7 @@ import SDWebImage
 
     public func setEmojiAvatar(forRoom token: String, withEmoji emoji: String, withColor color: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let endpoint = "room/\(encodedToken)/avatar/emoji"
@@ -3330,7 +3499,7 @@ import SDWebImage
     public func removeAvatar(forRoom room: NCRoom, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let encodedToken = room.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId),
-              let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+              let apiSessionManager = self.apiSessionManagers[account.accountId]
         else { return }
 
         let endpoint = "room/\(encodedToken)/avatar"
@@ -3354,10 +3523,11 @@ import SDWebImage
         }
 
         let url = URL(string: urlString)
-        guard let url else { return nil }
+        guard let url,
+              let requestModifier = self.getRequestModifier(forAccount: account)
+        else { return nil }
 
         let options: SDWebImageOptions = [.retryFailed, .refreshCached]
-        let requestModifier = self.getRequestModifier(for: account)!
 
         let context: [SDWebImageContextOption: Any] = [
             .downloadRequestModifier: requestModifier
@@ -3378,7 +3548,7 @@ import SDWebImage
     // MARK: - User status
 
     public func getUserStatus(forAccount account: TalkAccount, completionBlock: @escaping (_ userStatus: NCUserStatus?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil)
             return
@@ -3392,7 +3562,7 @@ import SDWebImage
     }
 
     public func setUserStatus(_ status: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId]
         else {
             completionBlock(nil)
             return
@@ -3402,6 +3572,17 @@ import SDWebImage
 
         apiSessionManager.putOcs(urlString, account: account, parameters: ["statusType": status]) { _, ocsError in
             completionBlock(ocsError)
+        }
+    }
+
+    // MARK: - NKCommon Delegate
+
+    public func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        // The pinning check
+        if CCCertificate.sharedManager().checkTrustedChallenge(challenge) {
+            completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+        } else {
+            completionHandler(.performDefaultHandling, nil)
         }
     }
 

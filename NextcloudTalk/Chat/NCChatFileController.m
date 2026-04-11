@@ -7,7 +7,6 @@
 
 @import NextcloudKit;
 
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 
 #import "NextcloudTalk-Swift.h"

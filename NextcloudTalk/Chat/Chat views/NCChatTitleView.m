@@ -5,7 +5,6 @@
 
 #import "NCChatTitleView.h"
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCUserStatus.h"
 

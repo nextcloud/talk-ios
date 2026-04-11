@@ -9,7 +9,6 @@
 #import "NextcloudTalk-Swift.h"
 
 #import "CCCertificate.h"
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"

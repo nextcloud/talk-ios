@@ -190,7 +190,7 @@ struct RoomInfoParticipantsSection: View {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let conversationAPIVersion = NCAPIController.sharedInstance().conversationAPIVersion(forAccount: activeAccount)
 
-        if conversationAPIVersion >= APIv3 {
+        if conversationAPIVersion >= NCAPIController.shared.APIv3 {
             do {
                 try await NCAPIController.sharedInstance().removeAttendee(participant.attendeeId, forRoom: room.token, forAccount: activeAccount)
             } catch {

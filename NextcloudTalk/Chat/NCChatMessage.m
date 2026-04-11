@@ -5,7 +5,6 @@
 
 #import "NCChatMessage.h"
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 
 #import "NextcloudTalk-Swift.h"

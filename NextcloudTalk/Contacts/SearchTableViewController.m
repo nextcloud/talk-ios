@@ -5,7 +5,6 @@
 
 #import "SearchTableViewController.h"
 
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCUser.h"
 #import "PlaceholderView.h"

@@ -18,7 +18,7 @@ import NextcloudKit
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        NCAPIController.sharedInstance().setupNCCommunication(for: activeAccount)
+        NCAPIController.sharedInstance().setupNCCommunication(forAccount: activeAccount)
 
         NextcloudKit.shared.upload(serverUrlFileName: fileServerURL,
                                    fileNameLocalPath: localPath,

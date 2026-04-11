@@ -21,7 +21,7 @@ struct ClearStatusMessageIntent: AppIntent {
                 return
             }
 
-            NCAPIController.sharedInstance().setupNCCommunication(for: talkAccount)
+            NCAPIController.sharedInstance().setupNCCommunication(forAccount: talkAccount)
 
             NextcloudKit.shared.clearMessage { _, error in
                 if error.errorCode != 0 {

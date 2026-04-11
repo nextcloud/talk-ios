@@ -8,7 +8,6 @@
 #import <Intents/Intents.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
@@ -16,6 +15,7 @@
 #import "PlaceholderView.h"
 #import "ShareTableViewCell.h"
 #import "NCKeyChainController.h"
+
 #import "NextcloudTalk-Swift.h"
 
 @interface ShareViewController () <UISearchControllerDelegate, UISearchResultsUpdating, ShareConfirmationViewControllerDelegate>

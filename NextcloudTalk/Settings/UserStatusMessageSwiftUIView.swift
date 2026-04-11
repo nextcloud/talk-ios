@@ -156,7 +156,7 @@ struct UserStatusMessageSwiftUIView: View {
 
     func getStatus() {
         isLoading = true
-        NCAPIController.sharedInstance().setupNCCommunication(for: .active)
+        NCAPIController.sharedInstance().setupNCCommunication(forAccount: .active)
         NextcloudKit.shared.getUserStatus { _, clearAt, icon, message, messageId, _, _, _, _, _, error in
             if error.errorCode == 0 {
                 userHasStatusSet = !(icon?.isEmpty ?? true) || !(message?.isEmpty ?? true)

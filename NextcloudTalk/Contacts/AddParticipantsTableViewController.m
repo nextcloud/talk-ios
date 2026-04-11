@@ -5,7 +5,6 @@
 
 #import "AddParticipantsTableViewController.h"
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
 #import "NCDatabaseManager.h"

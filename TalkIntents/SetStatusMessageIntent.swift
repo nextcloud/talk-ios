@@ -81,7 +81,7 @@ struct SetStatusMessageIntent: AppIntent {
                 return
             }
 
-            NCAPIController.sharedInstance().setupNCCommunication(for: talkAccount)
+            NCAPIController.sharedInstance().setupNCCommunication(forAccount: talkAccount)
             NextcloudKit.shared.setCustomMessageUserDefined(statusIcon: nil, message: statusMessage, clearAt: clearAt.getTimeInterval()) { _, error in
                 if error.errorCode != 0 {
                     let intentError = TalkIntentError.message(NSLocalizedString("An error occurred while setting status message", comment: ""))

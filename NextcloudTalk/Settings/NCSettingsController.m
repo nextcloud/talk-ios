@@ -9,7 +9,6 @@
 
 #import "JDStatusBarNotification.h"
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
