@@ -19,11 +19,6 @@
 
 typedef void (^LeaveCallCompletionBlock)(NSError *error);
 
-typedef void (^GetPreviewForFileCompletionBlock)(UIImage *image, NSString *fileId, NSError *error);
-
-typedef void (^GetUserStatusCompletionBlock)(NSDictionary *userStatus, NSError *error);
-typedef void (^SetUserStatusCompletionBlock)(NSError *error);
-
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
 extern NSInteger const APIv3;
@@ -45,10 +40,6 @@ extern NSString * const kNCSpreedAPIVersionBase;
 - (void)removeAPISessionManagerForAccount:(TalkAccount *)account;
 - (void)setupNCCommunicationForAccount:(TalkAccount *)account;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
-
-// User Status
-- (NSURLSessionDataTask *)getUserStatusForAccount:(TalkAccount *)account withCompletionBlock:(GetUserStatusCompletionBlock)block;
-- (NSURLSessionDataTask *)setUserStatus:(NSString *)status forAccount:(TalkAccount *)account withCompletionBlock:(SetUserStatusCompletionBlock)block;
 
 // Internal method exposed for swift extension
 - (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;

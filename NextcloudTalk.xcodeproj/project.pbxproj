@@ -759,6 +759,7 @@
 				NCKeyChainController.m,
 				NCLog.swift,
 				NCUserDefaults.m,
+				NCUserStatus.m,
 				NCUtils.swift,
 				UserAbsence.swift,
 			);

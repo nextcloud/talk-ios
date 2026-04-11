@@ -60,7 +60,7 @@ struct SetStatusIntent: AppIntent {
                 return
             }
 
-            NCAPIController.sharedInstance().setUserStatus(userStatus.toApiParameter(), for: talkAccount) { error in
+            NCAPIController.sharedInstance().setUserStatus(userStatus.toApiParameter(), forAccount: talkAccount) { error in
                 if error != nil {
                     let intentError = TalkIntentError.message(NSLocalizedString("An error occurred while setting user status", comment: ""))
 
