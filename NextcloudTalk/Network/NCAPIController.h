@@ -40,10 +40,6 @@ extern NSString * const kNCSpreedAPIVersionBase;
 - (SDWebImageDownloaderRequestModifier *)getRequestModifierForAccount:(TalkAccount *)account;
 
 // Internal method exposed for swift extension
-- (void)checkResponseHeaders:(NSDictionary *)headers forAccount:(TalkAccount *)account;
-- (NSInteger)getResponseStatusCode:(NSURLResponse *)response;
-- (void)checkResponseStatusCode:(NSInteger)statusCode forAccount:(TalkAccount *)account;
-- (void)checkProxyResponseHeaders:(NSString * _Nullable)proxyHash forAccount:(TalkAccount *)account forRoom:(NSString *)token;
 - (void)initSessionManagers;
 
 @end

@@ -94,6 +94,31 @@ import SDWebImage
 
     // MARK: - Rooms Controller
 
+    private func checkProxyHeaders(for task: URLSessionDataTask, forRoom token: String, forAccount account: TalkAccount) {
+        guard let response = task.response as? HTTPURLResponse,
+              let proxyHash = response.value(forHTTPHeaderField: "X-Nextcloud-Talk-Proxy-Hash"),
+              !proxyHash.isEmpty
+        else { return }
+
+        let query = NSPredicate(format: "token = %@ AND accountId = %@", token, account.accountId)
+
+        // Ensure the room is known to us locally, otherwise don't try to fetch room capabilities
+        guard let managedRoom = NCRoom.objects(with: query).firstObject() else { return }
+
+        let federatedCapabilities = NCDatabaseManager.sharedInstance().federatedCapabilities(forAccountId: managedRoom.accountId, remoteServer: managedRoom.remoteServer, roomToken: managedRoom.token)
+
+        if proxyHash == managedRoom.lastReceivedProxyHash, federatedCapabilities != nil {
+            // The proxy hash is equal to our last known proxy hash and we are also able to retrieve capabilities locally -> skip fetching capabilities
+            return
+        }
+
+        self.getRoomCapabilities(for: account.accountId, token: token) { roomCapabilities, proxyHash in
+            if let roomCapabilities, let proxyHash {
+                NCDatabaseManager.sharedInstance().setFederatedCapabilities(roomCapabilities, forAccountId: account.accountId, remoteServer: managedRoom.remoteServer, roomToken: token, withProxyHash: proxyHash)
+            }
+        }
+    }
+
     @discardableResult
     public func joinRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) -> URLSessionTask? {
         guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
@@ -108,7 +133,9 @@ import SDWebImage
                 return
             }
 
-            self.checkProxyResponseHeaders(ocsResponse?.value(forHTTPHeaderField: "X-Nextcloud-Talk-Proxy-Hash"), for: account, forRoom: token)
+            if let task = ocsResponse?.task {
+                self.checkProxyHeaders(for: task, forRoom: token, forAccount: account)
+            }
 
             var room: NCRoom?
 
