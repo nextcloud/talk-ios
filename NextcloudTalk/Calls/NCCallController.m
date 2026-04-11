@@ -383,7 +383,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     _joinCallTask = nil;
 }
 
-- (void)leaveCallInServerForAll:(BOOL)allParticipants withCompletionBlock:(LeaveCallCompletionBlock)block
+- (void)leaveCallInServerForAll:(BOOL)allParticipants withCompletionBlock:(void (^)(NSError *error))block
 {
     if (_userInCall) {
         [[NCAPIController sharedInstance] leaveCallInRoom:_room.token forAllParticipants:allParticipants forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {

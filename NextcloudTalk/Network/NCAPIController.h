@@ -17,8 +17,6 @@
 @class SDWebImageCombinedOperation;
 @class SDWebImageDownloaderRequestModifier;
 
-typedef void (^LeaveCallCompletionBlock)(NSError *error);
-
 extern NSInteger const APIv1;
 extern NSInteger const APIv2;
 extern NSInteger const APIv3;
