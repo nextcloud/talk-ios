@@ -112,6 +112,7 @@ extension XCTestCase {
         let newConversationNavBar = app.navigationBars["New conversation"]
         XCTAssert(newConversationNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
         app.typeText(newConversationName)
-        newConversationNavBar.buttons["Create"].tap()
+
+        waitForReady(object: newConversationNavBar.buttons["Create"]).tap()
     }
 }
