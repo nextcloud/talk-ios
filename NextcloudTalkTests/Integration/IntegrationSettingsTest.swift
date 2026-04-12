@@ -15,7 +15,8 @@ final class IntegrationSettingsTest: TestBase {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let accountId = activeAccount.accountId
 
-        XCTAssertFalse(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.readStatusPrivacy)
+        // Don't check initial state here, as otherwise the tests are not repeatable
+        // XCTAssertFalse(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.readStatusPrivacy)
 
         let exp = expectation(description: "\(#function)\(#line)")
         NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(true, forAccount: activeAccount) { error in
@@ -38,7 +39,8 @@ final class IntegrationSettingsTest: TestBase {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let accountId = activeAccount.accountId
 
-        XCTAssertFalse(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.typingPrivacy)
+        // Don't check initial state here, as otherwise the tests are not repeatable
+        // XCTAssertFalse(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.typingPrivacy)
 
         let exp = expectation(description: "\(#function)\(#line)")
         NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(true, forAccount: activeAccount) { error in
