@@ -208,25 +208,20 @@ jobs:
         -retry-tests-on-failure \
         -resultBundlePath 'testResult.xcresult'
 
-    - name: Print test results with xcresultparser
+    - name: Parse test results with xcresultparser & xctesthtmlreport
       if: ${{ !cancelled() }}
       run: |
-        brew install xcresultparser
+        brew install xcresultparser xctesthtmlreport
         xcresultparser -o cli testResult.xcresult
-
-    - name: Create result page with xhtmlresult
-      if: ${{ !failure() }}
-      run: |
-        brew install xctesthtmlreport
         xchtmlreport -i -z testResult.xcresult
+        mv index.html testResults-${{ matrix.configs.talkbranch }}.html        
 
-    - name: Upload result page from xhtmlresult
+    - name: Upload result page from xchtmlresult
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-      if: ${{ !failure() }}
+      if: ${{ !cancelled() }}
       with:
-        name: testResults-${{ matrix.configs.talkbranch }}.html
-        path: 'index.html'
-        archive: false
+        path: 'testResults-${{ matrix.configs.talkbranch }}.html'
+        archive: false # This ignores the name parameter, therefore we rename in the create step
 
     - name: Print logs
       if: ${{ !cancelled() }}
