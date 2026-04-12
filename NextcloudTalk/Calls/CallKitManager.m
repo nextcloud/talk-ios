@@ -435,11 +435,11 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
             return;
         }
 
-        NSInteger callAPIVersion = [[NCAPIController sharedInstance] callAPIVersionForAccount:account];
+        NSInteger callAPIVersion = [ObjcNCAPIVersion getAPIVersionForType:NCAPITypeCall withAccount:account];
         for (NSMutableDictionary *user in peers) {
             NSString *userId = [user objectForKey:@"userId"];
             BOOL isUserActorType = YES;
-            if (callAPIVersion >= NCAPIController.shared.APIv3) {
+            if (callAPIVersion >= NCAPIVersionAPIv3) {
                 userId = [user objectForKey:@"actorId"];
                 isUserActorType = [[user objectForKey:@"actorType"] isEqualToString:@"users"];
             }

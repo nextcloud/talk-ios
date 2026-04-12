@@ -22,11 +22,6 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - Public var
     public let kReceivedChatMessagesLimit = 100
 
-    public let APIv1 = 1
-    public let APIv2 = 2
-    public let APIv3 = 3
-    public let APIv4 = 4
-
     // MARK: - Private var
     private let kDavEndpoint = "/remote.php/dav"
     private let kNCOCSAPIVersion = "/ocs/v2.php"
@@ -196,81 +191,23 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return requestModifier
     }
 
-    // MARK: - API versions
-
-    public func conversationAPIVersion(forAccount account: TalkAccount) -> Int {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationV4, forAccountId: account.accountId) {
-            return APIv4
-        }
-
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadStatus, forAccountId: account.accountId) {
-            return APIv3
-        }
-
-        return APIv2
-    }
-
-    public func callAPIVersion(forAccount account: TalkAccount) -> Int {
-        return self.conversationAPIVersion(forAccount: account)
-    }
-
-    public func chatAPIVersion(forAccount account: TalkAccount) -> Int {
-        return APIv1
-    }
-
-    public func reactionsAPIVersion(forAccount account: TalkAccount) -> Int {
-        return APIv1
-    }
-
-    public func pollsAPIVersion(forAccount account: TalkAccount) -> Int {
-        return APIv1
-    }
-
-    public func breakoutRoomsAPIVersion(forAccount account: TalkAccount) -> Int {
-        return APIv1
-    }
-
-    public func federationAPIVersion(forAccount account: TalkAccount) -> Int {
-        return APIv1
-    }
-
-    public func banAPIVersion(forAccount account: TalkAccount) -> Int {
-        return APIv1
-    }
-
-    public func botsAPIVersion(forAccount account: TalkAccount) -> Int {
-        return APIv1
-    }
-
-    public func signalingAPIVersion(forAccount account: TalkAccount) -> Int {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySignalingV3, forAccountId: account.accountId) {
-            return APIv3
-        }
-
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySIPSupport, forAccountId: account.accountId) {
-            return APIv2
-        }
-
-        return APIv1
-    }
-
     // MARK: - Utils
 
     public func authenticationBackendUrl(forAccount account: TalkAccount) -> String {
-        let signalingApiVersion = self.signalingAPIVersion(forAccount: account)
-        return self.getRequestURL(forEndpoint: "signaling/backend", withAPIVersion: signalingApiVersion, forAccount: account)
+        return self.getRequestURL(forEndpoint: "signaling/backend", withAPIType: .signaling, forAccount: account)
     }
 
-    public func filesPath(forAccount account: TalkAccount) -> String {
+    internal func filesPath(forAccount account: TalkAccount) -> String {
         return "\(kDavEndpoint)/files/\(account.userId)"
     }
 
-    public func getRequestURL(forConversationEndpoint endpoint: String, forAccount account: TalkAccount) -> String {
-        let conversationApi = self.conversationAPIVersion(forAccount: account)
-        return self.getRequestURL(forEndpoint: endpoint, withAPIVersion: conversationApi, forAccount: account)
+    internal func getRequestURL(forConversationEndpoint endpoint: String, forAccount account: TalkAccount) -> String {
+        return self.getRequestURL(forEndpoint: endpoint, withAPIType: .conversation, forAccount: account)
     }
 
-    public func getRequestURL(forEndpoint endpoint: String, withAPIVersion apiVersion: Int, forAccount account: TalkAccount) -> String {
+    @nonobjc
+    internal func getRequestURL(forEndpoint endpoint: String, withAPIType apiType: NCAPIType, forAccount account: TalkAccount) -> String {
+        let apiVersion = NCAPIVersion(forType: apiType, withAccount: account).rawValue
         return "\(account.server)\(kNCOCSAPIVersion)\(kNCSpreedAPIVersionBase)\(apiVersion)/\(endpoint)"
     }
 
@@ -702,7 +639,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let endpoint = self.conversationAPIVersion(forAccount: account) >= APIv4 ? "room/\(encodedToken)/webinar/lobby" : "room/\(encodedToken)/webinary/lobby"
+        let endpoint = NCAPIVersion(forType: .conversation, withAccount: account) >= NCAPIVersion.APIv4 ? "room/\(encodedToken)/webinar/lobby" : "room/\(encodedToken)/webinary/lobby"
         let urlString = self.getRequestURL(forConversationEndpoint: endpoint, forAccount: account)
         var parameters: [String: Int] = ["state": state.rawValue]
 
@@ -866,7 +803,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/moderators", forAccount: account)
         var parameters = ["participant": participantId]
 
-        if self.conversationAPIVersion(forAccount: account) >= APIv3 {
+        if NCAPIVersion(forType: .conversation, withAccount: account) >= .APIv3 {
             parameters = ["attendeeId": participantId]
         }
 
@@ -899,8 +836,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     public func acceptFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
-        let apiVersion = self.federationAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIType: .federation, forAccount: account)
 
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else {
@@ -915,8 +851,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     public func rejectFederationInvitation(for accountId: String, with invitationId: Int, completionBlock: @escaping (_ success: Bool) -> Void) {
         let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)!
-        let apiVersion = self.federationAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "federation/invitation/\(invitationId)", withAPIType: .federation, forAccount: account)
 
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else {
@@ -937,8 +872,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.federationAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "federation/invitation", withAPIType: .federation, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             let invitations = ocs?.dataArrayDict?.map { FederationInvitation(dictionary: $0, for: accountId) }
@@ -974,8 +908,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return nil
         }
 
-        let apiVersion = self.signalingAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "signaling/settings", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/settings", withAPIType: .signaling, forAccount: account)
 
         var parameters: [String: Any]?
 
@@ -996,8 +929,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.signalingAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIType: .signaling, forAccount: account)
 
         try await apiSessionManager.postOcs(urlString, account: account, parameters: ["messages": messages])
     }
@@ -1009,8 +941,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.signalingAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIType: .signaling, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
@@ -1030,8 +961,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/mentions", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/mentions", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: Any] = [
             "limit": 20,
@@ -1058,8 +988,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.banAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIType: .ban, forAccount: account)
 
         var parameters: [String: Any] = [
             "actorType": actorType,
@@ -1087,8 +1016,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.banAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)", withAPIType: .ban, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocs, _ in
             let actorBans = ocs?.dataArrayDict?.map { BannedActor(dictionary: $0) }
@@ -1106,8 +1034,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.banAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)/\(banId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "ban/\(encodedToken)/\(banId)", withAPIType: .ban, forAccount: account)
 
         apiSessionManager.delete(urlString, parameters: nil) { _, _ in
             completionBlock(true)
@@ -1135,8 +1062,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/summarize", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/summarize", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: Int] = [
             "fromMessageId": messageId
@@ -1318,8 +1244,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return nil
         }
 
-        let apiVersion = self.callAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)/notification-state", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)/notification-state", withAPIType: .call, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             if ocsResponse?.responseStatusCode == 200 {
@@ -1346,8 +1271,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.conversationAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIType: .conversation, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account) { _, error in
             completionBlock(error == nil)
@@ -1362,8 +1286,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.conversationAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "room/\(encodedToken)/archive", withAPIType: .conversation, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, error in
             completionBlock(error == nil)
@@ -1542,8 +1465,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/recent", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/recent", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: Any] = [
             "limit": limit
@@ -1567,8 +1489,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/subscribed-threads", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/subscribed-threads", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: Any] = [
             "limit": limit,
@@ -1607,8 +1528,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIType: .chat, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account, parameters: nil) { ocs, _ in
             guard let threadDict = ocs?.dataDict as? [String: Any] else {
@@ -1632,8 +1552,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: String] = [
             "threadTitle": threadTitle
@@ -1661,8 +1580,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)/notify", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/threads/\(threadId)/notify", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: Int] = [
             "level": level
@@ -1690,8 +1608,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIType: .chat, forAccount: account)
 
         var parameters = [String: Int]()
 
@@ -1712,8 +1629,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin", withAPIType: .chat, forAccount: account)
 
         let ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
 
@@ -1728,8 +1644,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin/self", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/pin/self", withAPIType: .chat, forAccount: account)
 
         let ocsResponse = try await apiSessionManager.deleteOcs(urlString, account: account)
 
@@ -1774,8 +1689,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIType: .chat, forAccount: account)
 
         let ocsResponse = try await apiSessionManager.getOcs(urlString, account: account)
 
@@ -1792,8 +1706,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: Any?] = [
             "message": message,
@@ -1815,8 +1728,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIType: .chat, forAccount: account)
 
         let parameters: [String: Any?] = [
             "message": message,
@@ -1838,8 +1750,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/schedule/\(messageId)", withAPIType: .chat, forAccount: account)
 
         try await apiSessionManager.deleteOcs(urlString, account: account)
     }
@@ -1882,8 +1793,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.botsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)", withAPIType: .bots, forAccount: account)
 
         let ocsResponse = try await apiSessionManager.getOcs(urlString, account: account)
 
@@ -1899,8 +1809,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.botsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)/\(botId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)/\(botId)", withAPIType: .bots, forAccount: account)
 
         let result = try await apiSessionManager.postOcs(urlString, account: account)
         return Bot(dictionary: result.dataDict)
@@ -1913,8 +1822,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.botsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)/\(botId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "bot/\(encodedToken)/\(botId)", withAPIType: .bots, forAccount: account)
 
         let result = try await apiSessionManager.deleteOcs(urlString, account: account)
         return Bot(dictionary: result.dataDict)
@@ -1928,8 +1836,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.breakoutRoomsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIType: .breakoutRooms, forAccount: account)
 
         try await apiSessionManager.postOcs(urlString, account: account)
     }
@@ -1940,8 +1847,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
-        let apiVersion = self.breakoutRoomsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "breakout-rooms/\(encodedToken)/request-assistance", withAPIType: .breakoutRooms, forAccount: account)
 
         try await apiSessionManager.deleteOcs(urlString, account: account)
     }
@@ -1954,8 +1860,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataArrayDict, ocsError?.error, ocsError?.responseStatusCode ?? 0)
@@ -1976,8 +1881,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
 
         var parameters: [String: Any] = [
             "flags": flags.rawValue,
@@ -2000,8 +1904,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account, parameters: ["all": allParticipants]) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -2015,8 +1918,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.callAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
 
         var parameters: [String: Any] = [:]
 
@@ -2280,8 +2182,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.reactionsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIType: .reactions, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account, parameters: ["reaction": reaction]) { ocsResponse, ocsError in
             if let ocsResponse {
@@ -2299,8 +2200,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.reactionsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIType: .reactions, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account, parameters: ["reaction": reaction]) { ocsResponse, ocsError in
             if let ocsResponse {
@@ -2318,8 +2218,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.reactionsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "reaction/\(encodedToken)/\(messageId)", withAPIType: .reactions, forAccount: account)
         var parameters: [String: Any] = [:]
 
         if let reaction {
@@ -2361,7 +2260,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIType: .recording, forAccount: account)
 
         // Status 1 -> Video recording
         // Status 2 -> Audio recording (not supported for now)
@@ -2377,7 +2276,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIVersion: 1, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIType: .recording, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -2389,7 +2288,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/notification", withAPIVersion: 1, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/notification", withAPIType: .recording, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account, parameters: ["timestamp": timestamp]) { _, ocsError in
             completionBlock(ocsError?.error)
@@ -2401,7 +2300,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/share-chat", withAPIVersion: 1, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/share-chat", withAPIType: .recording, forAccount: account)
         let parameters = [
             "timestamp": timestamp,
             "fileId": fileId
@@ -2421,8 +2320,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIType: .chat, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account, parameters: ["timestamp": timestamp]) { _, ocsError in
             completionBlock(ocsError)
@@ -2436,8 +2334,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIType: .chat, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError)
@@ -2451,8 +2348,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = message.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(message.messageId)/reminder", withAPIType: .chat, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError)
@@ -2466,7 +2362,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
-        let urlString = self.getRequestURL(forEndpoint: "settings/user", withAPIVersion: 1, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "settings/user", withAPIType: .settings, forAccount: account)
         let parameters: [String: Any] = [
             "key": key,
             "value": value
@@ -2621,8 +2517,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIType: .chat, forAccount: account)
 
         var limitParameter = limit
 
@@ -2683,8 +2578,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIType: .chat, forAccount: account)
 
         var parameters: [String: Any] = [
             "message": message
@@ -2718,8 +2612,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIType: .chat, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError, ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0)
@@ -2733,8 +2626,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)", withAPIType: .chat, forAccount: account)
 
         return apiSessionManager.putOcs(urlString, account: account, parameters: ["message": message]) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError, ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0)
@@ -2748,8 +2640,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)", withAPIType: .chat, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataDict, ocsError)
@@ -2763,8 +2654,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIType: .chat, forAccount: account)
 
         return apiSessionManager.postOcs(urlString, account: account, parameters: richObject) { _, ocsError in
             completionBlock(ocsError)
@@ -2777,8 +2667,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIType: .chat, forAccount: account)
 
         return apiSessionManager.postOcs(urlString, account: account, parameters: ["lastReadMessage": lastReadMessage]) { _, ocsError in
             completionBlock(ocsError)
@@ -2791,8 +2680,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/read", withAPIType: .chat, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError)
@@ -2806,8 +2694,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share/overview", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share/overview", withAPIType: .chat, forAccount: account)
         var parameters: [String: Any] = [:]
 
         if limit > -1 {
@@ -2838,8 +2725,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/share", withAPIType: .chat, forAccount: account)
         var parameters: [String: Any] = [
             "objectType": type
         ]
@@ -2867,8 +2753,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.chatAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/context", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/\(messageId)/context", withAPIType: .chat, forAccount: account)
 
         var parameters: [String: Any] = [
             "limit": limit
@@ -2904,8 +2789,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.pollsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)", withAPIType: .polls, forAccount: account)
 
         let parameters: [String: Any] = [
             "question": question,
@@ -2926,8 +2810,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.pollsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
@@ -2949,8 +2832,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.pollsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/draft/\(draftId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/draft/\(draftId)", withAPIType: .polls, forAccount: account)
 
         let parameters: [String: Any] = [
             "question": question,
@@ -2970,8 +2852,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.pollsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/drafts", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/drafts", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             let drafts = ocsResponse?.dataArrayDict?.compactMap({ NCPoll.initWithPollDictionary($0) })
@@ -2985,8 +2866,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.pollsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account, parameters: ["optionIds": options]) { ocsResponse, ocsError in
             completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
@@ -2999,8 +2879,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
 
-        let apiVersion = self.pollsAPIVersion(forAccount: account)
-        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIVersion: apiVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
@@ -3413,8 +3292,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         endpoint = "\(endpoint)?cloudId=\(encodedUserId)"
 
-        let avatarAPIVersion = 1
-        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarAPIVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIType: .avatar, forAccount: account)
         let url = URL(string: urlString)
 
         guard let url else { return nil }
@@ -3460,8 +3338,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             endpoint = "\(endpoint)?avatarVersion=\(room.avatarVersion ?? "")"
         }
 
-        let avatarAPIVersion = 1
-        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarAPIVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIType: .avatar, forAccount: account)
         let url = URL(string: urlString)
 
         guard let url else { return nil }
@@ -3519,8 +3396,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return }
 
         let endpoint = "room/\(encodedToken)/avatar"
-        let avatarVersion = 1
-        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIType: .avatar, forAccount: account)
 
         apiSessionManager.post(urlString, parameters: nil) { formData in
             formData.appendPart(withFileData: imageData, name: "file", fileName: "avatar.jpg", mimeType: "image/jpeg")
@@ -3539,8 +3415,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return }
 
         let endpoint = "room/\(encodedToken)/avatar/emoji"
-        let avatarVersion = 1
-        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIType: .avatar, forAccount: account)
 
         var parameters = [
             "emoji": emoji
@@ -3565,8 +3440,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return }
 
         let endpoint = "room/\(encodedToken)/avatar"
-        let avatarVersion = 1
-        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIVersion: avatarVersion, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIType: .avatar, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError)
