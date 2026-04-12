@@ -214,6 +214,20 @@ jobs:
         brew install xcresultparser
         xcresultparser -o cli testResult.xcresult
 
+    - name: Create result page with xhtmlresult
+      if: ${{ !failure() }}
+      run: |
+        brew install xctesthtmlreport
+        xchtmlreport -i -z testResult.xcresult
+
+    - name: Upload result page from xhtmlresult
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      if: ${{ !failure() }}
+      with:
+        name: testResults-${{ matrix.configs.talkbranch }}.html
+        path: 'index.html'
+        archive: false
+
     - name: Print logs
       if: ${{ !cancelled() }}
       run: |
