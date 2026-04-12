@@ -14,7 +14,7 @@ struct NCCalendar {
 extension NCAPIController {
 
     func getCalendars(forAccount account: TalkAccount, completionBlock: @escaping (_ calendars: [NCCalendar]) -> Void) {
-        guard let calDAVSessionManager = self.calDAVSessionManagers[account.accountId]
+        guard let calDAVSessionManager = self.getCalDAVSessionManager(forAccountId: account.accountId)
         else {
             completionBlock([])
             return
@@ -98,7 +98,7 @@ extension NCAPIController {
 
     // swiftlint:disable:next function_parameter_count
     public func createMeeting(account: TalkAccount, token: String, title: String?, description: String?, start: Int, end: Int, calendarUri: String, attendeeIds: [Int]?, completionBlock: @escaping (_ error: CreateMeetingResponse) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(.unknownError)
