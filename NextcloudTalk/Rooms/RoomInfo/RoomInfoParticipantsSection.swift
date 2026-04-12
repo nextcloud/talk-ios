@@ -188,9 +188,8 @@ struct RoomInfoParticipantsSection: View {
 
     func removeParticipant(participant: NCRoomParticipant) async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let conversationAPIVersion = NCAPIController.sharedInstance().conversationAPIVersion(forAccount: activeAccount)
 
-        if conversationAPIVersion >= NCAPIController.shared.APIv3 {
+        if NCAPIVersion(forType: .conversation, withAccount: activeAccount) >= .APIv3 {
             do {
                 try await NCAPIController.sharedInstance().removeAttendee(participant.attendeeId, forRoom: room.token, forAccount: activeAccount)
             } catch {
