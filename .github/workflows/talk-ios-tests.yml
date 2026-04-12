@@ -208,10 +208,16 @@ jobs:
         -retry-tests-on-failure \
         -resultBundlePath 'testResult.xcresult'
 
-    - name: Print logs
-      if: always()
+    - name: Print test results with xcresultparser
+      if: ${{ !cancelled() }}
       run: |
-        cat server/data/nextcloud.log        
+        brew install xcresultparser
+        xcresultparser -o cli testResult.xcresult
+
+    - name: Print logs
+      if: ${{ !cancelled() }}
+      run: |
+        cat server/data/nextcloud.log
 
     - name: Upload test results
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
