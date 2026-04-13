@@ -60,15 +60,14 @@ struct RoomInfoGuestSection: View {
     }
 
     func resendInvitations() {
-        NCAPIController.sharedInstance().resendInvitation(toParticipant: nil, inRoom: room.token, for: room.account!) { error in
-            if error == nil {
+        Task {
+            do {
+                try await NCAPIController.sharedInstance().resendInvitation(toParticipant: nil, inRoom: room.token, forAccount: room.account!)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Invitations resent", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 NCRoomsManager.shared.updateRoom(room.token)
-
-                return
+            } catch {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not resend email invitations", comment: ""), withMessage: nil)
             }
-
-            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not resend email invitations", comment: ""), withMessage: nil)
         }
     }
 }

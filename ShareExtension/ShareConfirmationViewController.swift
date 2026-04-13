@@ -331,7 +331,7 @@ import MBProgressHUD
         super.viewDidLoad()
 
         // Configure communication lib
-        let userToken = NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId)
+        guard let userToken = NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId) else { return }
         let userAgent = "Mozilla/5.0 (iOS) Nextcloud-Talk v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")"
 
         NextcloudKit.shared.setup(account: self.account.accountId,
@@ -549,7 +549,7 @@ import MBProgressHUD
     // MARK: - Actions
 
     func sendSharedText() {
-        NCAPIController.sharedInstance().sendChatMessage(self.shareTextView.text, toRoom: self.room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
+        NCAPIController.sharedInstance().sendChatMessage(self.shareTextView.text, toRoom: self.room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, forAccount: self.account) { error in
             if let error {
                 NCLog.log(String(format: "Failed to share text. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFail(self)
@@ -563,7 +563,9 @@ import MBProgressHUD
     }
 
     func sendObjectShare() {
-        NCAPIController.sharedInstance().shareRichObject(self.objectShareMessage?.richObjectFromObjectShare, inRoom: self.room.token, for: self.account) { error in
+        guard let richObjectFromObjectShare = objectShareMessage?.richObjectFromObjectShare else { return }
+
+        NCAPIController.sharedInstance().shareRichObject(richObjectFromObjectShare, inRoom: self.room.token, forAccount: self.account) { error in
             if let error {
                 NCLog.log(String(format: "Failed to share rich object. Error: %@", error.localizedDescription))
                 self.delegate?.shareConfirmationViewControllerDidFail(self)
@@ -629,7 +631,7 @@ import MBProgressHUD
 
             self.uploadGroup.enter()
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, originalName: true, for: self.account) { fileServerURL, fileServerPath, _, errorDescription in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
                 if let fileServerURL, let fileServerPath {
                     self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
                 } else {
@@ -688,7 +690,7 @@ import MBProgressHUD
                     talkMetaData["threadId"] = thread.threadId
                 }
 
-                NCAPIController.sharedInstance().shareFileOrFolder(for: self.account, atPath: filePath, toRoom: self.room.token, talkMetaData: talkMetaData, referenceId: nil) { error in
+                NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account, atPath: filePath, toRoom: self.room.token, withTalkMetaData: talkMetaData, withReferenceId: nil) { error in
                     if let error {
                         NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
                         self.uploadErrors.append(error.localizedDescription)
@@ -699,7 +701,7 @@ import MBProgressHUD
                     self.uploadGroup.leave()
                 }
             } else if nkError.errorCode == 404 || nkError.errorCode == 409 {
-                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(for: self.account) { created, _ in
+                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(forAccount: self.account) { created, _ in
                     if created {
                         self.uploadFile(to: fileServerURL, with: filePath, with: item)
                     } else {

@@ -55,16 +55,11 @@ class PollDraftsViewController: UITableViewController {
 
     // MARK: - Poll drafts
     private func getPollDrafts() {
-        NCAPIController.sharedInstance().getPollDrafts(inRoom: room.token, for: room.account) { drafts, error, _ in
+        guard let account = room.account else { return }
+
+        NCAPIController.sharedInstance().getPollDrafts(inRoom: room.token, forAccount: account) { drafts, error in
             if error == nil, let drafts {
-                var draftsArray: [NCPoll] = []
-                let draftDicts: [[String: Any]] = drafts.compactMap { $0 as? [String: Any] }
-                for draftDict in draftDicts {
-                    if let draft = NCPoll.initWithPollDictionary(draftDict) {
-                        draftsArray.append(draft)
-                    }
-                }
-                self.drafts = draftsArray
+                self.drafts = drafts
                 self.tableView.reloadData()
             }
 
@@ -109,10 +104,12 @@ class PollDraftsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        guard let account = room.account else { return nil }
+
         return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { _ in
             let deleteAction = UIAction(title: NSLocalizedString("Delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { [unowned self] _ in
                 let draft = self.drafts[indexPath.row]
-                NCAPIController.sharedInstance().closePoll(withId: draft.pollId, inRoom: room.token, for: room.account) { _, error, _ in
+                NCAPIController.sharedInstance().closePoll(withId: draft.pollId, inRoom: room.token, forAccount: account) { _, error in
                     if error == nil {
                         self.getPollDrafts()
                     } else {

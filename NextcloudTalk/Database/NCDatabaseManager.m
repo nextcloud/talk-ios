@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 87;
+uint64_t const kTalkDatabaseSchemaVersion           = 88;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -832,7 +832,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     return @[];
 }
 
-- (NSArray *)translationsArrayFromTranslationsJSONString:(NSString *)translations
+- (NSArray<NCTranslation *> *)translationsArrayFromTranslationsJSONString:(NSString *)translations
 {
     NSArray *translationsArray = @[];
     NSData *data = [translations dataUsingEncoding:NSUTF8StringEncoding];
@@ -850,7 +850,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     return translationsArray;
 }
 
-- (NSArray *)translationsFromTranslationsArray:(NSArray *)translations
+- (NSArray<NCTranslation *> *)translationsFromTranslationsArray:(NSArray *)translations
 {
     NSMutableArray *availableTranslations = [NSMutableArray new];
     for (NSDictionary *translationDict in translations) {

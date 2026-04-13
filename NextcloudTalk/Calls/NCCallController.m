@@ -21,7 +21,6 @@
 #import "ARDCaptureController.h"
 
 #import "CallKitManager.h"
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "NCSignalingController.h"
@@ -179,7 +178,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [NCLog log:[NSString stringWithFormat:@"Join call in NCCallController for token %@", self.room.token]];
 
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall silentFor:_silentFor recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCallInRoom:_room.token withCallFlags:[self joinCallFlags] joinSilently:_silentCall joinSilentlyFor:_silentFor withRecordingConsent:_recordingConsent forAccount:_account completionBlock:^(NSError * _Nullable error , NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [NCLog log:[NSString stringWithFormat:@"Did join call in NCCallController for token %@", self.room.token]];
@@ -260,7 +259,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [self createLocalMedia];
 
-    _joinCallTask = [[NCAPIController sharedInstance] joinCall:_room.token withCallFlags:[self joinCallFlags] silently:_silentCall silentFor:_silentFor recordingConsent:_recordingConsent forAccount:_account withCompletionBlock:^(NSError *error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCallInRoom:_room.token withCallFlags:[self joinCallFlags] joinSilently:_silentCall joinSilentlyFor:_silentFor withRecordingConsent:_recordingConsent forAccount:_account completionBlock:^(NSError * _Nullable error, NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [self.delegate callControllerDidJoinCall:self];
@@ -345,7 +344,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)rejoinCallUsingInternalSignaling
 {
-    [[NCAPIController sharedInstance] leaveCall:_room.token forAllParticipants:NO forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] leaveCallInRoom:_room.token forAllParticipants:NO forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {
         if (!error) {
             self->_shouldRejoinCallUsingInternalSignaling = YES;
         }
@@ -383,10 +382,10 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     _joinCallTask = nil;
 }
 
-- (void)leaveCallInServerForAll:(BOOL)allParticipants withCompletionBlock:(LeaveCallCompletionBlock)block
+- (void)leaveCallInServerForAll:(BOOL)allParticipants withCompletionBlock:(void (^)(NSError *error))block
 {
     if (_userInCall) {
-        [[NCAPIController sharedInstance] leaveCall:_room.token forAllParticipants:allParticipants forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] leaveCallInRoom:_room.token forAllParticipants:allParticipants forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {
             block(error);
         }];
     } else {
@@ -540,13 +539,13 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     }
 
     if (raised) {
-        [[NCAPIController sharedInstance] requestAssistanceInRoom:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] requestAssistanceInRoom:_room.token forAccount:_account completionHandler:^(NSError * _Nullable error) {
             if (error) {
                 NSLog(@"Error requesting assistance");
             }
         }];
     } else {
-        [[NCAPIController sharedInstance] stopRequestingAssistanceInRoom:_room.token forAccount:_account withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] stopRequestingAssistanceInRoom:_room.token forAccount:_account completionHandler:^(NSError * _Nullable error) {
             if (error) {
                 NSLog(@"Error on stop requesting assisntance");
             }
@@ -579,7 +578,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)startRecording
 {
-    [[NCAPIController sharedInstance] startRecording:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] startRecordingInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Could not start call recording. Error: %@", error.description);
         }
@@ -588,7 +587,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)stopRecording
 {
-    [[NCAPIController sharedInstance] stopRecording:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] stopRecordingInRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Could not stop call recording. Error: %@", error.description);
         }
@@ -813,7 +812,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)getPeersForCall
 {
-    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCall:_room.token forAccount:_account withCompletionBlock:^(NSMutableArray *peers, NSError *error, NSInteger statusCode) {
+    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCallInRoom:_room.token forAccount:_account completionBlock:^(NSArray<NSDictionary<NSString *,id> *> * _Nullable peers, NSError *error, NSInteger statusCode) {
         if (error) {
             return;
         }
@@ -1644,7 +1643,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         if ([userSessionId isEqualToString:sessionId]) {
             TalkActor *actor = [[TalkActor alloc] initWithActorId:[user objectForKey:@"userId"] actorType:@"users" actorDisplayName:[user objectForKey:@"displayName"]];
 
-            if (callAPIVersion >= APIv3) {
+            if (callAPIVersion >= NCAPIController.shared.APIv3) {
                 [actor setId:[user objectForKey:@"actorId"]];
                 [actor setType:[user objectForKey:@"actorType"]];
             }

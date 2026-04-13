@@ -89,8 +89,8 @@ struct UserSelectionSwiftUIView: View {
         self.isSearching = true
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        self.searchTask = NCAPIController.sharedInstance().searchUsers(for: activeAccount, withSearchParam: searchQuery) { _, _, userList, _ in
-            userData = userList as? [NCUser] ?? []
+        self.searchTask = NCAPIController.sharedInstance().searchUsers(forAccount: activeAccount, withSearchParam: searchQuery) { userList, _ in
+            userData = userList ?? []
             self.isSearching = false
         }
     }

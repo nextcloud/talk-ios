@@ -633,7 +633,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     func getMenuUserAction(for message: NCChatMessage, completionBlock: @escaping ([UIMenuElement]) -> Void) {
         guard let account = message.account else { return }
 
-        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, using: account) { userActionsRaw, error in
+        NCAPIController.sharedInstance().getUserActions(forUser: message.actorId, forAccount: account) { userActionsRaw, error in
             guard error == nil,
                   let userActionsDict = userActionsRaw as? [String: AnyObject],
                   let userActions = userActionsDict["actions"] as? [[String: String]],

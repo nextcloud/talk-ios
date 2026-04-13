@@ -5,7 +5,6 @@
 
 #import "CallParticipantViewCell.h"
 
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 
 #import "NextcloudTalk-Swift.h"

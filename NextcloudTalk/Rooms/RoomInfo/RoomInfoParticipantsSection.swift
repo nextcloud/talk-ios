@@ -150,20 +150,20 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func changeModerationPermission(forParticipant participant: NCRoomParticipant, canModerate: Bool) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let method = canModerate ? NCAPIController.sharedInstance().promoteParticipant : NCAPIController.sharedInstance().demoteModerator
+        guard let participantId = participant.participantId else { return }
 
-        _ = method(participant.participantId, room.token, activeAccount) { error in
-            if error != nil {
+        Task {
+            do {
+                try await NCAPIController.sharedInstance().changeModerationPermission(forParticipantId: participantId, withType: canModerate ? .promoteToModerator : .demoteToParticipant, inRoom: room.token, forAccount: room.account!)
+                self.getParticipants()
+            } catch {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change moderation permissions of the participant", comment: ""), withMessage: nil)
             }
-
-            self.getParticipants()
         }
     }
 
     func sendCallNotification(forParticipant participant: NCRoomParticipant) {
-        NCAPIController.sharedInstance().sendCallNotification(toParticipant: String(participant.attendeeId), inRoom: room.token, for: room.account!) { error in
+        NCAPIController.sharedInstance().sendCallNotification(toParticipant: String(participant.attendeeId), inRoom: room.token, forAccount: room.account!) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not send call notification", comment: ""), withMessage: nil)
             } else {
@@ -175,23 +175,22 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func resendInvitation(forParticipant participant: NCRoomParticipant) {
-        NCAPIController.sharedInstance().resendInvitation(toParticipant: String(participant.attendeeId), inRoom: room.token, for: room.account!) { error in
-            if error == nil {
+        Task {
+            do {
+                try await NCAPIController.sharedInstance().resendInvitation(toParticipant: String(participant.attendeeId), inRoom: room.token, forAccount: room.account!)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Invitation resent", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 NCRoomsManager.shared.updateRoom(room.token)
-
-                return
+            } catch {
+                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not resend email invitations", comment: ""), withMessage: nil)
             }
-
-            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not resend email invitations", comment: ""), withMessage: nil)
         }
     }
 
     func removeParticipant(participant: NCRoomParticipant) async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let conversationAPIVersion = NCAPIController.sharedInstance().conversationAPIVersion(for: activeAccount)
+        let conversationAPIVersion = NCAPIController.sharedInstance().conversationAPIVersion(forAccount: activeAccount)
 
-        if conversationAPIVersion >= APIv3 {
+        if conversationAPIVersion >= NCAPIController.shared.APIv3 {
             do {
                 try await NCAPIController.sharedInstance().removeAttendee(participant.attendeeId, forRoom: room.token, forAccount: activeAccount)
             } catch {

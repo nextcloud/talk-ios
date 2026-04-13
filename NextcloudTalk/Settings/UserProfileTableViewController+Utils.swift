@@ -11,7 +11,7 @@ extension UserProfileTableViewController {
 
     func getUserProfileEditableFields() {
         editButton.isEnabled = false
-        NCAPIController.sharedInstance().getUserProfileEditableFields(for: account) { userProfileEditableFields, error in
+        NCAPIController.sharedInstance().getUserProfileEditableFields(forAccount: account) { userProfileEditableFields, error in
             if error == nil {
                 if let userProfileEditableFields = userProfileEditableFields as NSArray? {
                     self.editableFields = userProfileEditableFields
@@ -250,9 +250,9 @@ extension UserProfileTableViewController {
         }
     }
 
-    func setUserProfileField(_ field: String?, scopeValue scope: String?) {
+    func setUserProfileField(_ field: String, scopeValue scope: String) {
         setModifyingProfileUI()
-        NCAPIController.sharedInstance().setUserProfileField(field, withValue: scope, for: account) { [self] error, _ in
+        NCAPIController.sharedInstance().setUserProfileField(field, withValue: scope, forAccount: account) { [self] error in
             if error != nil {
                 showScopeModificationError()
             } else {

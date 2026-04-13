@@ -14,7 +14,7 @@ struct NCCalendar {
 extension NCAPIController {
 
     func getCalendars(forAccount account: TalkAccount, completionBlock: @escaping (_ calendars: [NCCalendar]) -> Void) {
-        guard let calDAVSessionManager = self.calDAVSessionManagers.object(forKey: account.accountId) as? NCCalDAVSessionManager
+        guard let calDAVSessionManager = self.calDAVSessionManagers[account.accountId]
         else {
             completionBlock([])
             return
@@ -96,16 +96,16 @@ extension NCAPIController {
         }
     }
 
-    // swiftlint:disable function_parameter_count
+    // swiftlint:disable:next function_parameter_count
     public func createMeeting(account: TalkAccount, token: String, title: String?, description: String?, start: Int, end: Int, calendarUri: String, attendeeIds: [Int]?, completionBlock: @escaping (_ error: CreateMeetingResponse) -> Void) {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager,
+        guard let apiSessionManager = self.apiSessionManagers[account.accountId],
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
             completionBlock(.unknownError)
             return
         }
 
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/meeting", for: account)
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/meeting", forAccount: account)
         var parameters: [String: Any] = ["calendarUri": calendarUri]
         parameters["start"] = start
         parameters["end"] = end

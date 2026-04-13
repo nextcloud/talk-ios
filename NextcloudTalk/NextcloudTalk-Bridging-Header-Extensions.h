@@ -6,7 +6,6 @@
 #ifndef NextcloudTalk_Bridging_Header_Extensions_h
 #define NextcloudTalk_Bridging_Header_Extensions_h
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"
@@ -30,6 +29,10 @@
 #import "NCUserDefaults.h"
 #import "NCIntentController.h"
 #import "NCTypes.h"
+
+#import "AFNetworking.h"
+#import "NCUser.h"
+#import "NCPoll.h"
 
 
 #endif /* NextcloudTalk_Bridging_Header_h */

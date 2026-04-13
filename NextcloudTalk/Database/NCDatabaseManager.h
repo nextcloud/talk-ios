@@ -156,7 +156,7 @@ extern NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification;
 - (BOOL)hasAvailableTranslationsForAccountId:(NSString *)accountId;
 - (BOOL)hasTranslationProvidersForAccountId:(NSString *)accountId;
 - (NSArray<NCTranslation *> *)availableTranslationsForAccountId:(NSString *)accountId;
-- (NSArray *)translationsFromTranslationsArray:(NSArray *)translations;
+- (NSArray<NCTranslation *> *)translationsFromTranslationsArray:(NSArray *)translations;
 
 // Federation invitations
 - (void)increasePendingFederationInvitationForAccountId:(NSString *)accountId;

@@ -5,7 +5,6 @@
 
 #import "NCChatController.h"
 
-#import "NCAPIController.h"
 #import "NCChatBlock.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
@@ -163,7 +162,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         }
 
         // Break in case we found the ensured message and we hit the visible message limit
-        if (reachedEnsuredMessageId && numberOfStoredVisibleMessages >= kReceivedChatMessagesLimit) {
+        if (reachedEnsuredMessageId && numberOfStoredVisibleMessages >= NCAPIController.shared.kReceivedChatMessagesLimit) {
             break;
         }
     }
@@ -458,7 +457,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         [self->_pullMessagesTask cancel];
     }];
 
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO limit:kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO limit:NCAPIController.shared.kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (expired) {
             if (block) {
                 block(error);
@@ -733,12 +732,12 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
                                                                           history:YES
                                                                includeLastMessage:forInitialChatHistory
                                                                           timeout:NO
-                                                                            limit:kReceivedChatMessagesLimit
+                                                                            limit:NCAPIController.shared.kReceivedChatMessagesLimit
                                                             lastCommonReadMessage:_room.lastCommonReadMessage
                                                                     setReadMarker:YES
                                                           markNotificationsAsRead:YES
                                                                        forAccount:_account
-                                                              withCompletionBlock:^(NSArray *messages,
+                                                                  completionBlock:^(NSArray *messages,
                                                                                     NSInteger lastKnownMessage,
                                                                                     NSInteger lastCommonReadMessage,
                                                                                     NSError *error,
@@ -848,7 +847,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout limit:kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout limit:NCAPIController.shared.kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
@@ -939,7 +938,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         }];
     }
 
-    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token threadTitle:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token threadTitle:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account completionBlock:^(NSError *error) {
         if (referenceId) {
             [userInfo setObject:referenceId forKey:@"referenceId"];
         }
@@ -984,9 +983,9 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
 
         [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:message.message
-                                                             originalName:YES
+                                                           isOriginalName:YES
                                                                forAccount:activeAccount
-                                                      withCompletionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
+                                                          completionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
             if (fileServerURL && fileServerPath) {
                 NSMutableDictionary *talkMetaData = [NSMutableDictionary new];
                 [talkMetaData setObject:@"voice-message" forKey:@"messageType"];
@@ -1095,7 +1094,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 - (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId inThread:_threadId withLimit:limit forAccount:self.account withCompletionBlock:^(NSArray *messages, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId inThread:_threadId withLimit:limit forAccount:self.account completionBlock:^(NSArray<NCChatMessage *> *messages, NSError *error) {
         if (error) {
             if (block) {
                 block(nil);
@@ -1104,12 +1103,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
             return;
         }
 
-        NSMutableArray *chatMessages = [[NSMutableArray alloc] initWithCapacity:messages.count];
-
-        for (NSDictionary *messageDict in messages) {
-            NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self.account.accountId];
-            [chatMessages addObject:message];
-
+        for (NCChatMessage *message in messages) {
             if (!message.file) {
                 continue;
             }
@@ -1123,7 +1117,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         }
 
         if (block) {
-            block(chatMessages);
+            block(messages);
         }
     }];
 }
@@ -1139,7 +1133,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         return;
     }
 
-    [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:0 history:YES includeLastMessage:YES timeout:NO limit:1 lastCommonReadMessage:0 setReadMarker:NO markNotificationsAsRead:NO forAccount:_account withCompletionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:0 history:YES includeLastMessage:YES timeout:NO limit:1 lastCommonReadMessage:0 setReadMarker:NO markNotificationsAsRead:NO forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
         if (error) {
             NSLog(@"Could not get single message from server. Error: %@", error.description);
             block(nil);

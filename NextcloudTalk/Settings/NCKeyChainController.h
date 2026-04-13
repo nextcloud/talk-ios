@@ -18,7 +18,7 @@ extern NSString * const kNCPushKitTokenKey;
 
 + (instancetype)sharedInstance;
 - (void)setToken:(NSString *)token forAccountId:(NSString *)accountId;
-- (NSString *)tokenForAccountId:(NSString *)accountId;
+- (NSString * _Nullable)tokenForAccountId:(NSString *)accountId;
 - (void)setPushNotificationPublicKey:(NSData *)privateKey forAccountId:(NSString *)accountId;
 - (NSData * _Nullable)pushNotificationPublicKeyForAccountId:(NSString *)accountId;
 - (void)setPushNotificationPrivateKey:(NSData *)privateKey forAccountId:(NSString *)accountId;

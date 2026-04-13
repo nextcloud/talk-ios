@@ -93,7 +93,7 @@ class ThreadCreationViewController: InputbarViewController, UITextFieldDelegate 
         message.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParameters)
         message.messageParametersJSONString = messageParameters
 
-        NCAPIController.sharedInstance().sendChatMessage(message.sendingMessage, toRoom: room.token, threadTitle: title, replyTo: -1, referenceId: nil, silently: false, for: account) { error in
+        NCAPIController.sharedInstance().sendChatMessage(message.sendingMessage, toRoom: room.token, threadTitle: title, replyTo: -1, referenceId: nil, silently: false, forAccount: account) { error in
             if error == nil {
                 NCDatabaseManager.sharedInstance().updateHasThreads(forAccountId: self.account.accountId, with: true)
                 self.dismiss(animated: true)

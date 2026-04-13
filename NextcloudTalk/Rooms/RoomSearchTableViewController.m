@@ -7,7 +7,6 @@
 
 @import NextcloudKit;
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCRoom.h"

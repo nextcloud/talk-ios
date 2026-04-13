@@ -7,7 +7,6 @@
 
 #import <Contacts/Contacts.h>
 
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCSettingsController.h"
 #import "ABContact.h"
@@ -141,7 +140,7 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
 
 - (void)searchForPhoneNumbers:(NSDictionary *)phoneNumbers forAccount:(TalkAccount *)account
 {
-    [[NCAPIController sharedInstance] searchContactsForAccount:account withPhoneNumbers:phoneNumbers andCompletionBlock:^(NSDictionary *contacts, NSError *error) {
+    [[NCAPIController sharedInstance] searchContactsForAccount:account withPhoneNumbers:phoneNumbers completionBlock:^(NSDictionary<NSString *,NSString *> * _Nullable contacts, NSError *error) {
         if (!error) {
             BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateContacts" expirationHandler:nil];
             RLMRealm *realm = [RLMRealm defaultRealm];
