@@ -258,10 +258,25 @@ jobs:
         -retry-tests-on-failure \
         -resultBundlePath 'testResult.xcresult'
 
-    - name: Print logs
-      if: always()
+    - name: Parse test results with xcresultparser & xctesthtmlreport
+      if: ${{ !cancelled() }}
       run: |
-        cat server/data/nextcloud.log        
+        brew install xcresultparser xctesthtmlreport
+        xcresultparser -o cli testResult.xcresult
+        xchtmlreport -i -z testResult.xcresult
+        mv index.html testResults-${{ matrix.configs.talkbranch }}.html        
+
+    - name: Upload result page from xchtmlresult
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      if: ${{ !cancelled() }}
+      with:
+        path: 'testResults-${{ matrix.configs.talkbranch }}.html'
+        archive: false # This ignores the name parameter, therefore we rename in the create step
+
+    - name: Print logs
+      if: ${{ !cancelled() }}
+      run: |
+        cat server/data/nextcloud.log
 
     - name: Upload test results
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
