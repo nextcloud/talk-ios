@@ -6,6 +6,17 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld aktiv bott</string>
+			<key>other</key>
+			<string>%ld aktiva bottar</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
@@ -187,6 +198,17 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Lösenordet måste vara minst %d tecken långt</string>
+			<key>other</key>
+			<string>Lösenordet måste vara minst %d tecken långt</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
