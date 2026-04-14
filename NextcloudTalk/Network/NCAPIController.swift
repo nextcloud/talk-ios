@@ -3086,7 +3086,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return }
 
         let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
-        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: fileServerURL, depth: "0", showHiddenFiles: false, includeHiddenFiles: [], requestBody: nil, options: options) { _, files, _, error in
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: fileServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, options: options) { _, files, _, error in
             if error.errorCode == 0, files.count == 1 {
                 // File already exists
                 let alternativeName = self.alternativeName(forFileName: fileName, isOriginal: isOriginalName)
@@ -3108,7 +3108,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return }
 
         let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
-        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: attachmentFolderServerURL, depth: "0", showHiddenFiles: false, includeHiddenFiles: [], requestBody: nil, options: options) { _, _, _, error in
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: attachmentFolderServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, options: options) { _, _, _, error in
             if error.errorCode == 404 {
                 // Attachment folder does not exist
                 NextcloudKit.shared.createFolder(serverUrlFileName: attachmentFolderServerURL, options: options) { _, _, _, error in
