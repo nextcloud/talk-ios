@@ -565,13 +565,13 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         }
     }
 
-    public func joinCall(withCallToken token: String, withVideo video: Bool, asInitiator initiator: Bool, recordingConsent: Bool) {
+    public func joinCall(withCallToken token: String, withVideo video: Bool, asInitiator initiator: Bool, silently: Bool, recordingConsent: Bool) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: token) { roomDict, error in
             guard error == nil else { return }
 
             if let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
-                CallKitManager.sharedInstance().startCall(room.token, withVideoEnabled: video, andDisplayName: room.displayName, asInitiator: initiator, silently: true, recordingConsent: recordingConsent, withAccountId: activeAccount.accountId)
+                CallKitManager.sharedInstance().startCall(room.token, withVideoEnabled: video, andDisplayName: room.displayName, asInitiator: initiator, silently: silently, recordingConsent: recordingConsent, withAccountId: activeAccount.accountId)
             }
         }
     }
@@ -702,7 +702,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
         // Add some delay so CallKit doesn't fail requesting new call
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.joinCall(withCallToken: token, withVideo: true, asInitiator: false, recordingConsent: true)
+            self.joinCall(withCallToken: token, withVideo: true, asInitiator: false, silently: true, recordingConsent: true)
         }
     }
 
@@ -751,7 +751,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         else { return }
 
         self.checkForAccountChange(pushNotification.accountId)
-        self.joinCall(withCallToken: pushNotification.roomToken, withVideo: false, asInitiator: false, recordingConsent: false)
+        self.joinCall(withCallToken: pushNotification.roomToken, withVideo: false, asInitiator: false, silently: true, recordingConsent: false)
     }
 
     func joinVideoCallAccepted(notification: Notification) {
@@ -759,7 +759,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         else { return }
 
         self.checkForAccountChange(pushNotification.accountId)
-        self.joinCall(withCallToken: pushNotification.roomToken, withVideo: true, asInitiator: false, recordingConsent: false)
+        self.joinCall(withCallToken: pushNotification.roomToken, withVideo: true, asInitiator: false, silently: true, recordingConsent: false)
     }
 
     func joinChat(notification: Notification) {
