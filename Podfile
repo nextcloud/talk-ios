@@ -12,7 +12,6 @@ end
 def main_dependencies
   common_dependencies_ext
   pod 'MaterialComponents/ActivityIndicator'
-  pod 'Toast', '~> 4.0.0'
   pod 'MZTimerLabel'
   pod 'MobileVLCKit', '~> 3.5.0'
 end

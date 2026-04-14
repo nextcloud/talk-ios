@@ -12,6 +12,7 @@ import Realm
 import ContactsUI
 import QuickLook
 import SwiftUI
+import Toast
 
 @objcMembers public class BaseChatViewController: InputbarViewController,
                                                   UITextFieldDelegate,
@@ -1401,7 +1402,7 @@ import SwiftUI
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
 
                 if statusCode == 202 {
-                    self.view.makeToast(NSLocalizedString("Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services", comment: ""), duration: 5, position: CSToastPositionCenter)
+                    self.view.makeToast(NSLocalizedString("Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services", comment: ""), duration: 5, position: .center)
                 } else if statusCode == 200 {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Message deleted successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
@@ -1832,7 +1833,7 @@ import SwiftUI
 
     func showVoiceMessageRecordHint() {
         let toastPosition = CGPoint(x: self.textInputbar.center.x, y: self.textInputbar.center.y - self.textInputbar.frame.size.height)
-        self.view.makeToast(NSLocalizedString("Tap and hold to record a voice message, release the button to send it.", comment: ""), duration: 3, position: toastPosition)
+        self.view.makeToast(NSLocalizedString("Tap and hold to record a voice message, release the button to send it.", comment: ""), duration: 3, point: toastPosition, title: nil, image: nil, completion: nil)
     }
 
     func showVoiceMessageRecordingView() {

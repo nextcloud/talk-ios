@@ -7,7 +7,6 @@
 
 #import "AFNetworking.h"
 #import "JDStatusBarNotification.h"
-#import "UIView+Toast.h"
 
 #import "AuthenticationViewController.h"
 #import "NCAppBranding.h"
@@ -46,7 +45,6 @@
 {
     self = [super init];
     if (self) {
-        [self configureToasts];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appStateHasChanged:) name:NSNotification.NCAppStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionStateHasChanged:) name:NSNotification.NCConnectionStateHasChangedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(presentTalkNotInstalledWarningAlert) name:NCTalkNotInstalledNotification object:nil];
@@ -60,17 +58,6 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
-
-- (void)configureToasts
-{
-    CSToastStyle *style = [[CSToastStyle alloc] initWithDefaultStyle];
-    style.messageFont = [UIFont systemFontOfSize:15.0];
-    style.backgroundColor = [UIColor colorWithWhite:0.3 alpha:1];
-    style.cornerRadius = 5.0;
-    
-    [CSToastManager setSharedStyle:style];
-}
-
 
 - (void)presentLoginViewController
 {

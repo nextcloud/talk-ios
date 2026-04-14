@@ -87,6 +87,7 @@
 		1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
+		1FBB6EE32F8ECE5B003CBA30 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 1FBB6EE22F8ECE5B003CBA30 /* Toast */; };
 		1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */; };
 		1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3242CC054BC00D28138 /* UICKeyChainStore */; };
 		1FC4B3272CC0562600D28138 /* UICKeyChainStore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3262CC0562600D28138 /* UICKeyChainStore */; };
@@ -1278,6 +1279,7 @@
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
 				2C90E5691EDDE13A0093D85A /* UIKit.framework in Frameworks */,
 				80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */,
+				1FBB6EE32F8ECE5B003CBA30 /* Toast in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				1FC4B3362CC0586A00D28138 /* libPhoneNumber in Frameworks */,
@@ -1736,6 +1738,7 @@
 				2C349B832D71A058004EC882 /* SwiftyXMLParser */,
 				1F899F202EF9E5FF00890727 /* SwiftyRSA */,
 				1F89A8432EFAC35D00890727 /* SwiftyRSA */,
+				1FBB6EE22F8ECE5B003CBA30 /* Toast */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1931,6 +1934,7 @@
 				1F549B672D3A9AA500E9AA9E /* XCRemoteSwiftPackageReference "DebouncedOnChange" */,
 				2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */,
 				1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */,
+				1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -2140,9 +2144,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2157,9 +2165,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3467,6 +3479,14 @@
 				revision = b41626b697d5d30d714943a0601f0a6ac677a37d;
 			};
 		};
+		1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scalessec/Toast-Swift";
+			requirement = {
+				kind = revision;
+				revision = d780ff8fe55659b4fddf1fbfaf930d967f35d9ea;
+			};
+		};
 		1FC4B3202CC0538B00D28138 /* XCRemoteSwiftPackageReference "JDStatusBarNotification" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/calimarkus/JDStatusBarNotification.git";
@@ -3770,6 +3790,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */;
 			productName = WebRTC;
+		};
+		1FBB6EE22F8ECE5B003CBA30 /* Toast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */;
+			productName = Toast;
 		};
 		1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */ = {
 			isa = XCSwiftPackageProductDependency;

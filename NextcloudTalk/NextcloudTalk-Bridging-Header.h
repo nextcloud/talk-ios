@@ -29,7 +29,6 @@
 #import "PlaceholderView.h"
 #import "RoomsTableViewController.h"
 #import "ShareTableViewCell.h"
-#import "UIView+Toast.h"
 #import "TOCroppedImageAttributes.h"
 #import "TOCropViewController.h"
 #import "TOCropViewControllerTransitioning.h"
