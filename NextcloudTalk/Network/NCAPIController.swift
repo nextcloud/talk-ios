@@ -2941,7 +2941,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
 
         if let talkMetaData, let jsonData = try? JSONSerialization.data(withJSONObject: talkMetaData) {
-            parameters["talkMetaData"] = jsonData
+            parameters["talkMetaData"] = String(data: jsonData, encoding: .utf8)!
         }
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
