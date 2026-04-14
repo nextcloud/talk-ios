@@ -5,15 +5,16 @@
 
 #import <UIKit/UIKit.h>
 
-#import "MZTimerLabel.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface VoiceMessageRecordingView : UIView
 
 @property (weak, nonatomic) IBOutlet UIImageView *recordingImageView;
 @property (weak, nonatomic) IBOutlet UILabel *slideToCancelHintLabel;
-@property (weak, nonatomic) IBOutlet MZTimerLabel *recordingTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *recordingTimeLabel;
+
+- (void)stopTimeLabelTimer;
+- (NSInteger)getTimeCounted;
 
 @end
 

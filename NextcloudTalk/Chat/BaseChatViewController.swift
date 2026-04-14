@@ -1860,6 +1860,9 @@ import Toast
 
     func hideVoiceMessageRecordingView() {
         self.voiceMessageRecordingView?.isHidden = true
+        self.voiceMessageRecordingView?.removeFromSuperview()
+        self.voiceMessageRecordingView?.stopTimeLabelTimer()
+        self.voiceMessageRecordingView = nil
     }
 
     // MARK: - Expanded voice message recording
@@ -2334,7 +2337,7 @@ import Toast
                 if slideY > maxSlideY, !self.recordCancelled {
                     if !isVoiceRecordingLocked {
                         self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock"), for: .normal)
-                        let offset = self.voiceMessageRecordingView?.recordingTimeLabel?.getTimeCounted()
+                        let offset = self.voiceMessageRecordingView?.getTimeCounted()
                         let intOffset = Int(offset!.magnitude)
                         showExpandedVoiceMessageRecordingView(offset: intOffset)
                         print("LOCKED")

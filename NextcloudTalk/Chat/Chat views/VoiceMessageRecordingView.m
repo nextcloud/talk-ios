@@ -9,6 +9,8 @@
 
 @property (strong, nonatomic) IBOutlet UIView *contentView;
 @property (weak, nonatomic) IBOutlet UIView *leftBackgroundView;
+@property (weak, nonatomic) NSTimer *labelTimer;
+@property (assign, nonatomic) NSInteger startTimestamp;
 
 @end
 
@@ -27,11 +29,9 @@
 
         self.contentView.backgroundColor = [UIColor systemBackgroundColor];
         self.leftBackgroundView.backgroundColor = [UIColor systemBackgroundColor];
-        
-        [self.recordingTimeLabel setTimerType:MZTimerLabelTypeStopWatch];
-        [self.recordingTimeLabel setTimeFormat:@"mm:ss"];
-        [self.recordingTimeLabel start];
-        
+
+        [self startTimeLabelTimer];
+
         [self.recordingImageView setImage:[UIImage systemImageNamed:@"mic.fill"]];
         [self.recordingImageView setTintColor:[UIColor systemRedColor]];
         [self.recordingImageView setContentMode:UIViewContentModeScaleAspectFit];
@@ -46,6 +46,36 @@
     }
     
     return self;
+}
+
+- (void)startTimeLabelTimer
+{
+    [self.recordingTimeLabel setText:@"00:00"];
+    self.startTimestamp = [[NSDate date] timeIntervalSince1970];
+    self.labelTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(updateTimeLabel) userInfo:nil repeats:YES];
+
+}
+
+- (void)stopTimeLabelTimer
+{
+    [self.labelTimer invalidate];
+}
+
+- (NSInteger)getTimeCounted
+{
+    NSInteger currentTimestamp = [[NSDate date] timeIntervalSince1970];
+    return currentTimestamp - self.startTimestamp;
+}
+
+- (void)updateTimeLabel
+{
+    NSInteger duration = [self getTimeCounted];
+
+    NSInteger minutes = duration / 60;
+    NSInteger seconds = duration % 60;
+
+    NSString *labelText = [NSString stringWithFormat:@"%02ld:%02ld", minutes, seconds];
+    [self.recordingTimeLabel setText: labelText];
 }
 
 @end
