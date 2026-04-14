@@ -17,6 +17,15 @@ extension XCTestCase {
         return object
     }
 
+    @discardableResult
+    func waitForCount(query: XCUIElementQuery, count: Int, timeout: Double = TestConstants.timeoutShort) -> XCUIElementQuery {
+        let enabledPredicate = NSPredicate(format: "count == %d", count)
+        expectation(for: enabledPredicate, evaluatedWith: query, handler: nil)
+        waitForExpectations(timeout: timeout, handler: nil)
+
+        return query
+    }
+
     // Based on https://stackoverflow.com/a/47947315
     @discardableResult
     func waitForEitherElementToExist(_ elementA: XCUIElement, _ elementB: XCUIElement, _ timeout: TimeInterval) -> XCUIElement {
@@ -112,6 +121,7 @@ extension XCTestCase {
         let newConversationNavBar = app.navigationBars["New conversation"]
         XCTAssert(newConversationNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
         app.typeText(newConversationName)
-        newConversationNavBar.buttons["Create"].tap()
+
+        waitForReady(object: newConversationNavBar.buttons["Create"]).tap()
     }
 }

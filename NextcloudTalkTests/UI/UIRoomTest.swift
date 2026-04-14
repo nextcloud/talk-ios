@@ -184,6 +184,8 @@ final class UIRoomTest: XCTestCase {
         let testMessage = "TestMessage"
         let replyMessage = "ReplyMessage"
 
+        // Note: This will not work as of 26.3, the TextView cannot be found, as long as it is inside of an UIToolbar
+        // When switching UIToolbar -> UIView the TextView is correctly found
         let toolbar = app.toolbars["Toolbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
@@ -207,7 +209,9 @@ final class UIRoomTest: XCTestCase {
         textView.tap()
         app.typeText(replyMessage)
         sendMessageButton.tap()
-        XCTAssert(app.otherElements["MessageSending"].waitForNonExistence(timeout: TestConstants.timeoutShort))
+
+        // Two messages should now be in the sent state
+        waitForCount(query: app.images.matching(identifier: "MessageSent"), count: 2, timeout: TestConstants.timeoutShort)
     }
 
     func testChatViewControllerMentions() {
