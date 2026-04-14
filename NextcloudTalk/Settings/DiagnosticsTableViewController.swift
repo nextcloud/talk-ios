@@ -105,7 +105,7 @@ class DiagnosticsTableViewController: UITableViewController {
         self.serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)!
         self.signalingConfiguration = NCSettingsController.sharedInstance().signalingConfigurations[account.accountId] as? SignalingSettings
         self.externalSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId)
-        self.signalingVersion = NCAPIController.sharedInstance().signalingAPIVersion(forAccount: account)
+        self.signalingVersion = NCAPIVersion(forType: .signaling, withAccount: account).rawValue
 
         // Build signaling sections based on external signaling server
         signalingSections.append(AllSignalingSections.kSignalingSectionMode.rawValue)

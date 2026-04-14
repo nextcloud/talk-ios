@@ -116,8 +116,6 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         [[NCDatabaseManager sharedInstance] createAccountForUser:user inServer:server];
         [[NCDatabaseManager sharedInstance] setActiveAccountWithAccountId:accountId];
         [[NCKeyChainController sharedInstance] setToken:token forAccountId:accountId];
-        TalkAccount *talkAccount = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId];
-        [[NCAPIController sharedInstance] createAPISessionManagerForAccount:talkAccount];
         [self subscribeForPushNotificationsForAccountId:accountId withCompletionBlock:nil];
         [self createAccountsFile];
     } else {
