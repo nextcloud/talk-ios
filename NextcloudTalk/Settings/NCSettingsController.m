@@ -9,7 +9,6 @@
 
 #import "JDStatusBarNotification.h"
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
@@ -180,9 +179,9 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
             [[NCConnectionController shared] checkAppState];
 
             // If the token was marked for remote wipe, confirm the wipe
-            [[NCAPIController sharedInstance] checkWipeStatusForAccount:account withCompletionBlock:^(BOOL wipe, NSError *error) {
+            [[NCAPIController sharedInstance] checkWipeStatusForAccount:account completionBlock:^(BOOL wipe, NSError *error) {
                 if (wipe) {
-                    [[NCAPIController sharedInstance] confirmWipeForAccount:account withCompletionBlock:nil];
+                    [[NCAPIController sharedInstance] confirmWipeForAccount:account completionBlock:nil];
                 }
             }];
         }
@@ -359,7 +358,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getUserProfileForAccount:account withCompletionBlock:^(NSDictionary *userProfile, NSError *error) {
+    [[NCAPIController sharedInstance] getUserProfileForAccount:account completionBlock:^(NSDictionary *userProfile, NSError *error) {
         if (!error) {
             id emailObject = [userProfile objectForKey:kUserProfileEmail];
             NSString *email = emailObject;
@@ -631,7 +630,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:account withCompletionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:account completionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
         if (!error && [serverCapabilities isKindOfClass:[NSDictionary class]]) {
             BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateCapabilitiesTransaction" expirationHandler:nil];
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:account.accountId];

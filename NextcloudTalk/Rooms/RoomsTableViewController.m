@@ -13,7 +13,6 @@
 #import "JDStatusBarNotification.h"
 
 #import "CCCertificate.h"
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCNotificationController.h"
@@ -490,7 +489,7 @@ typedef enum RoomsSections {
         [[NCRoomsManager shared] resendOfflineMessagesWithCompletionBlock:nil];
     }
 
-    [self getUserStatusWithCompletionBlock:nil];
+    [self updateUserStatus];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         // Dispatch to main, otherwise the traitCollection is not updated yet and profile buttons shows wrong style
@@ -524,7 +523,7 @@ typedef enum RoomsSections {
 {
     [[NCRoomsManager shared] updateRoomsAndChatsUpdatingUserStatus:YES onlyLastModified:NO withCompletionBlock:nil];
 
-    [self getUserStatusWithCompletionBlock:nil];
+    [self updateUserStatus];
 
     // Actuate `Peek` feedback (weak boom)
     AudioServicesPlaySystemSound(1519);
@@ -534,7 +533,7 @@ typedef enum RoomsSections {
 
 - (void)userStatusViewDidDisappear
 {
-    [self getUserStatusWithCompletionBlock:nil];
+    [self updateUserStatus];
 }
 
 #pragma mark - Title menu
@@ -550,19 +549,21 @@ typedef enum RoomsSections {
             return;
         }
 
-        [self getUserStatusWithCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
-            if (error) {
+        [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount completionBlock:^(NCUserStatus * _Nullable userStatus) {
+            if (userStatus == nil) {
                 completion(@[]);
                 return;
             }
 
-            NCUserStatus *userStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
             UIImage *userStatusImage = [userStatus getSFUserStatusIcon];
             UIViewController *vc = [UserStatusSwiftUIViewFactory createWithUserStatus:userStatus delegate:self];
 
             UIAction *onlineOption = [UIAction actionWithTitle:[userStatus readableUserStatusOrMessage] image:userStatusImage identifier:nil handler:^(UIAction *action) {
                 [self presentViewController:vc animated:YES completion:nil];
             }];
+
+            self->_activeUserStatus = userStatus;
+            [self updateProfileButtonImage];
 
             completion(@[onlineOption]);
         }];
@@ -755,7 +756,7 @@ typedef enum RoomsSections {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     // Search for contacts
     _resultTableViewController.users = @[];
-    [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil groupRoom:NO withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil forGroupRoom:NO withSearchParam:searchString completionBlock:^(NSArray<NCUser *> * _Nullable contactList, NSError *error) {
         if (!error) {
             NSArray *users = [self usersWithoutOneToOneConversations:contactList];
             if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
@@ -978,7 +979,7 @@ typedef enum RoomsSections {
             [self setProfileButton];
             BOOL isAppActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
             [[NCRoomsManager shared] updateRoomsUpdatingUserStatus:isAppActive onlyLastModified:NO];
-            [self getUserStatusWithCompletionBlock:nil];
+            [self updateUserStatus];
             [self getUserThreads];
             [self startRefreshRoomsTimer];
             [self setupNavigationBar];
@@ -1171,19 +1172,13 @@ typedef enum RoomsSections {
     }
 }
 
-- (void)getUserStatusWithCompletionBlock:(GetUserStatusCompletionBlock)block
+- (void)updateUserStatus
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount withCompletionBlock:^(NSDictionary *userStatusDict, NSError *error) {
-        if (!error) {
-            self->_activeUserStatus = [NCUserStatus userStatusWithDictionary:userStatusDict];
+    [[NCAPIController sharedInstance] getUserStatusForAccount:activeAccount completionBlock:^(NCUserStatus * _Nullable userStatus) {
+        if (userStatus) {
+            self->_activeUserStatus = userStatus;
             [self updateProfileButtonImage];
-
-            if (block) {
-                block(userStatusDict, nil);
-            }
-        } else if (block) {
-            block(nil, error);
         }
     }];
 }
@@ -1286,7 +1281,7 @@ typedef enum RoomsSections {
 
 - (void)markRoomAsRead:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error marking room as read: %@", error.description);
         }
@@ -1296,7 +1291,7 @@ typedef enum RoomsSections {
 
 - (void)markRoomAsUnread:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] withCompletionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Error marking chat as unread: %@", error.description);
         }
@@ -1503,7 +1498,7 @@ typedef enum RoomsSections {
      createRoomForAccount:[[NCDatabaseManager sharedInstance] activeAccount] withInvite:user.userId
      ofType:kNCRoomTypeOneToOne
      andName:nil
-     completionBlock:^(NCRoom *room, NSError *error) {
+     completionBlock:^(NCRoom *room, OcsError *error) {
         if (!error && room.token != nil) {
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NCSelectedUserForChatNotification

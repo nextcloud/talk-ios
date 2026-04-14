@@ -30,7 +30,6 @@ typedef void (^CheckNotificationExistanceCompletionBlock)(NSError *error);
 - (void)showIncomingCallForPushNotification:(NCPushNotification *)pushNotification;
 - (void)showIncomingCallForOldAccount;
 - (void)removeAllNotificationsForAccountId:(NSString *)accountId;
-- (void)checkForNewNotificationsWithCompletionBlock:(CheckForNewNotificationsCompletionBlock)block;
 - (void)checkNotificationExistanceWithCompletionBlock:(CheckNotificationExistanceCompletionBlock)block;
 
 @end

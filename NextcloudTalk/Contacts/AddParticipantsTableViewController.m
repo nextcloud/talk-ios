@@ -5,7 +5,6 @@
 
 #import "AddParticipantsTableViewController.h"
 
-#import "NCAPIController.h"
 #import "NCAppBranding.h"
 #import "NCContact.h"
 #import "NCDatabaseManager.h"
@@ -250,7 +249,7 @@
     [roomBuilder roomName:roomName];
 
     [self showAddingParticipantsView];
-    [[NCAPIController sharedInstance] createRoomForAccount:_room.account withParameters:roomBuilder.roomParameters completionBlock:^(NCRoom *room, NSError *error) {
+    [[NCAPIController sharedInstance] createRoomForAccount:_room.account withParameters:roomBuilder.roomParameters completionBlock:^(NCRoom *room, OcsError *error) {
         [self removeAddingParticipantsView];
         if (error) {
             UIAlertController * alert = [UIAlertController
@@ -315,7 +314,7 @@
 - (void)getPossibleParticipants
 {
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    [[NCAPIController sharedInstance] getContactsForAccount:activeAccount forRoom:_room.token groupRoom:YES withSearchParam:nil andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsForAccount:activeAccount forRoom:_room.token forGroupRoom:YES withSearchParam:nil completionBlock:^(NSArray<NCUser *> * _Nullable contactList, NSError *error) {
         if (!error) {
             NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:nil];
             NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];
@@ -336,7 +335,7 @@
 {
     [_searchParticipantsTask cancel];
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
-    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token groupRoom:YES withSearchParam:searchString andCompletionBlock:^(NSArray *indexes, NSMutableDictionary *contacts, NSMutableArray *contactList, NSError *error) {
+    _searchParticipantsTask = [[NCAPIController sharedInstance] getContactsForAccount:[[NCDatabaseManager sharedInstance] activeAccount] forRoom:_room.token forGroupRoom:YES withSearchParam:searchString completionBlock:^(NSArray<NCUser *> * _Nullable contactList, NSError *error) {
         if (!error) {
             NSMutableArray *storedContacts = [NCContact contactsForAccountId:activeAccount.accountId contains:searchString];
             NSMutableArray *combinedContactList = [NCUser combineUsersArray:storedContacts withUsersArray:contactList];

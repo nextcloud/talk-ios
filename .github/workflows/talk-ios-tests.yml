@@ -25,7 +25,10 @@ permissions:
 env:
   WORKSPACE: NextcloudTalk.xcworkspace
   DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.5
+  SIMULATOR_MODEL: iPhone 16
+  SIMULATOR_VERSION: "18.5"
   SCHEME: NextcloudTalk
+  XCODE_VERSION: "26.2"
 
 jobs:
   build:
@@ -65,15 +68,15 @@ jobs:
       run: |
         pod install
 
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+    - name: Setup Xcode ${{ env.XCODE_VERSION }}
+      uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
       with:
-        xcode-version: '26.2'
+        xcode-version: ${{ env.XCODE_VERSION }}
 
-    - name: Install iOS 18.5
+    - name: Install iOS ${{ env.SIMULATOR_VERSION }}
       run: |
         xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
-        xcodebuild -downloadPlatform iOS -buildVersion 18.5
+        xcodebuild -downloadPlatform iOS -buildVersion ${{ env.SIMULATOR_VERSION }}
 
     - name: Build NextcloudTalk iOS for testing
       run: |
@@ -102,11 +105,36 @@ jobs:
       matrix:
         # Test with stable23 as well to find regressions in older versions
         configs: [
-          { talkbranch: 'stable23', serverbranch: 'stable23', phpversion: '8.0' },
-          { talkbranch: 'stable31', serverbranch: 'stable31', phpversion: '8.3' },
-          { talkbranch: 'stable32', serverbranch: 'stable32', phpversion: '8.3' },
-          { talkbranch: 'stable33', serverbranch: 'stable33', phpversion: '8.3' },
-          { talkbranch: 'main', serverbranch: 'master', phpversion: '8.3' }
+          {
+            serverbranch: 'stable23',
+            talkbranch: 'stable23',
+            notificationsbranch: 'stable23',
+            phpversion: '8.0'
+          },
+          {
+            serverbranch: 'stable31',
+            talkbranch: 'stable31',
+            notificationsbranch: 'stable31',
+            phpversion: '8.3'
+          },
+          {
+            serverbranch: 'stable32',
+            talkbranch: 'stable32',
+            notificationsbranch: 'stable32',
+            phpversion: '8.3'
+          },
+          {
+            serverbranch: 'stable33',
+            talkbranch: 'stable33',
+            notificationsbranch: 'stable33',
+            phpversion: '8.3'
+          },
+          {
+            serverbranch: 'master',
+            talkbranch: 'main',
+            notificationsbranch: 'master',
+            phpversion: '8.3'
+          }
         ]
 
     steps:
@@ -156,8 +184,20 @@ jobs:
         path: server/apps/spreed
         ref: ${{ matrix.configs.talkbranch }}
 
-    - name: Set up production dependencies
+    - name: Checkout notifications app
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
+        repository: nextcloud/notifications
+        path: server/apps/notifications
+        ref: ${{ matrix.configs.notificationsbranch }}
+
+    - name: Set up production dependencies spreed
       working-directory: server/apps/spreed
+      run: composer i --no-dev
+
+    - name: Set up production dependencies notifications
+      working-directory: server/apps/notifications
       run: composer i --no-dev 
 
     - name: Set up Nextcloud
@@ -170,6 +210,7 @@ jobs:
         ./server/occ config:system:set memcache.local --value='\OC\Memcache\APCu'
         ./server/occ config:system:set memcache.distributed --value='\OC\Memcache\APCu'
         ./server/occ app:enable --force spreed
+        ./server/occ app:enable --force notifications
         ./server/occ background:cron
         OC_PASS=alice ./server/occ user:add --password-from-env alice
         PHP_CLI_SERVER_WORKERS=10 php -S localhost:8080 -t server/ &
@@ -186,18 +227,27 @@ jobs:
       run: |
         source ./ci-setup-rooms.sh
 
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+    - name: Setup Xcode ${{ env.XCODE_VERSION }}
+      uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
       with:
-        xcode-version: '26.2'
+        xcode-version: ${{ env.XCODE_VERSION }}
 
-    - name: Install iOS 18.5
+    - name: Install iOS ${{ env.SIMULATOR_VERSION }}
       run: |
         xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
-        xcodebuild -downloadPlatform iOS -buildVersion 18.5
+        xcodebuild -downloadPlatform iOS -buildVersion ${{ env.SIMULATOR_VERSION }}
+
+    - name: Boot simulator
+      uses: futureware-tech/simulator-action@e89aa8f93d3aec35083ff49d2854d07f7186f7f5 # v5.0.0
+      with:
+        model: ${{ env.SIMULATOR_MODEL }}
+        os_version: ${{ env.SIMULATOR_VERSION }}
+        wait_for_boot: true
 
     - name: Test NextcloudTalk iOS
       run: |
+        xcrun simctl privacy booted grant camera com.nextcloud.Talk
+
         set -o pipefail && \
         xcodebuild test-without-building \
         -xctestrun $(find . -type f -name '*.xctestrun') \

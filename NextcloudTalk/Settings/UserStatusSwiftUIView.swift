@@ -106,9 +106,9 @@ struct UserStatusSwiftUIView: View {
 
     func getUserStatus() {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getUserStatus(for: activeAccount) { [self] userStatusDict, error in
-            if error == nil && userStatusDict != nil {
-                userStatus = NCUserStatus(dictionary: userStatusDict!)
+        NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { [self] userStatus in
+            if let userStatus {
+                self.userStatus = userStatus
             }
         }
     }

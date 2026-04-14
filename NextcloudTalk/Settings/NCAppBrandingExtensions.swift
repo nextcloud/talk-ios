@@ -34,7 +34,7 @@ extension NCAppBranding {
         let appDisplayName = Bundle.main.infoDictionary?["CFBundleDisplayName"] ?? "Unknown app"
         let deviceName = UIDevice.current.name
 
-        return "\(deviceName) (\(appDisplayName)"
+        return "\(deviceName) (\(appDisplayName))"
     }
 
 }

@@ -7,6 +7,10 @@ import XCTest
 import Foundation
 @testable import NextcloudTalk
 
+enum TestCaseError: Error {
+    case expectedValueNotFound
+}
+
 extension XCTestCase {
 
     // TODO: This should probably be part of APIController
@@ -61,9 +65,33 @@ extension XCTestCase {
         }
     }
 
-    func sendMessage(message: String, inRoom token: String, withAccount account: TalkAccount) async throws -> NCChatMessage {
+    func joinRoom(withToken token: String, withAccount account: TalkAccount) async throws -> NCRoomController {
+        let exp = expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
+            XCTAssertNil(notification.userInfo?["error"])
+            XCTAssertNil(notification.userInfo?["statusCode"])
+            XCTAssertNil(notification.userInfo?["errorReason"])
+
+            XCTAssertEqual(notification.userInfo?[stringForKey: "token"], token)
+
+            return true
+        }
+
+        NCRoomsManager.shared.joinRoom(token, forCall: false)
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+
+        return try XCTUnwrap(NCRoomsManager.shared.activeRooms[token])
+    }
+
+    struct ReceiveMessageDetails {
+        var lastKnownMessage: Int
+        var lastCommonReadMessage: Int
+        var statusCode: Int
+    }
+
+    @discardableResult
+    func sendMessage(message: String, inRoom token: String, withAccount account: TalkAccount) async throws -> (message: NCChatMessage, details: ReceiveMessageDetails) {
         return try await withCheckedThrowingContinuation { continuation in
-            NCAPIController.sharedInstance().sendChatMessage(message, toRoom: token, threadTitle: "", replyTo: 0, referenceId: "", silently: false, for: account) { error in
+            NCAPIController.sharedInstance().sendChatMessage(message, toRoom: token, threadTitle: "", replyTo: 0, referenceId: "", silently: false, forAccount: account) { error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
@@ -72,31 +100,33 @@ extension XCTestCase {
                 NCAPIController.sharedInstance().receiveChatMessages(ofRoom: token,
                                                                      fromLastMessageId: 0,
                                                                      inThread: 0,
-                                                                     history: true,
+                                                                     history: false,
                                                                      includeLastMessage: true,
                                                                      timeout: false,
                                                                      limit: 0,
                                                                      lastCommonReadMessage: 0,
                                                                      setReadMarker: false,
                                                                      markNotificationsAsRead: false,
-                                                                     for: account) { messages, _, _, error, _ in
+                                                                     forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, statusCode in
 
                     if let error {
                         continuation.resume(throwing: error)
                         return
                     }
 
-                    for rawMessage in messages! {
-                        if let dictMessage = rawMessage as? [AnyHashable: Any] {
-                            let chatMessage = NCChatMessage(dictionary: dictMessage)!
+                    for dictMessage in messages! {
+                        let chatMessage = NCChatMessage(dictionary: dictMessage, andAccountId: account.accountId)!
 
-                            if chatMessage.message == message {
-                                continuation.resume(returning: chatMessage)
+                        if chatMessage.message == message {
+                            XCTAssertEqual(chatMessage.token, token)
+                            let details = ReceiveMessageDetails(lastKnownMessage: lastKnownMessage, lastCommonReadMessage: lastCommonReadMessage, statusCode: statusCode)
+                            continuation.resume(returning: (chatMessage, details))
 
-                                return
-                            }
+                            return
                         }
                     }
+
+                    continuation.resume(throwing: TestCaseError.expectedValueNotFound)
                 }
             }
         }

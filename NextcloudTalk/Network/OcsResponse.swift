@@ -14,12 +14,16 @@ import Foundation
         return data as? [String: AnyObject]
     }()
 
-    lazy var responseStatusCode: Int = {
+    private lazy var response: HTTPURLResponse? = {
         guard let response = task?.response,
               let httpResponse = response as? HTTPURLResponse
-        else { return 0 }
+        else { return nil }
 
-        return httpResponse.statusCode
+        return httpResponse
+    }()
+
+    lazy var responseStatusCode: Int = {
+        return response?.statusCode ?? 0
     }()
 
     lazy var ocsDict: [String: AnyObject]? = {
@@ -33,6 +37,10 @@ import Foundation
     lazy var dataArrayDict: [[String: AnyObject]]? = {
         return ocsDict?["data"] as? [[String: AnyObject]]
     }()
+
+    func value(forHTTPHeaderField field: String) -> String? {
+        return response?.value(forHTTPHeaderField: field)
+    }
 
     init(withData data: Any?, withTask task: URLSessionDataTask?) {
         self.data = data

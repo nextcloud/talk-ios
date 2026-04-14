@@ -141,8 +141,7 @@ import UIKit
         guard let poll else {return}
 
         footerView.primaryButton.isEnabled = false
-        NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions,
-                                                    for: .active) { responsePoll, error, _ in
+        NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions, forAccount: .active) { responsePoll, error in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
                 self.editingVote = false
@@ -201,7 +200,7 @@ import UIKit
     func closePoll() {
         guard let poll else {return}
 
-        NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, for: .active) { responsePoll, error, _ in
+        NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, forAccount: .active) { responsePoll, error in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
                 self.editingVote = false
@@ -252,11 +251,11 @@ import UIKit
     }
 
     func createPollDraft() {
-        guard let poll else {return}
+        guard let poll, let account = room.account else {return}
 
         showActivityIndicatorView()
 
-        NCAPIController.sharedInstance().createPoll(withQuestion: poll.question, options: poll.options, resultMode: poll.resultMode, maxVotes: poll.maxVotes, inRoom: room.token, asDraft: true, for: room.account) { _, error, _ in
+        NCAPIController.sharedInstance().createPoll(withQuestion: poll.question, withOptions: poll.options, withResultMode: poll.resultMode, withMaxVotes: poll.maxVotes, asDraft: true, inRoom: room.token, forAccount: account) { _, error in
             if error == nil {
                 self.showDraftCreationSuccess()
             } else {

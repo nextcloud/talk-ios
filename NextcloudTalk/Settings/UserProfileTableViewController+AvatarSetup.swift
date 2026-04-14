@@ -11,7 +11,7 @@ extension UserProfileTableViewController {
         let headerView = AvatarEditView()
         headerView.delegate = self
 
-        headerView.avatarImageView?.image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle)
+        headerView.avatarImageView?.image = NCAPIController.sharedInstance().userProfileImage(forAccount: account, withStyle: self.traitCollection.userInterfaceStyle)
 
         headerView.nameLabel?.text = account.userDisplayName
         headerView.nameLabel?.isHidden = self.isEditable
@@ -81,7 +81,7 @@ extension UserProfileTableViewController {
     }
 
     func sendUserProfileImage(image: UIImage) {
-        NCAPIController.sharedInstance().setUserProfileImage(image, for: account) { error, _ in
+        NCAPIController.sharedInstance().setUserProfileImage(image, forAccount: account) { error in
             if error == nil {
                 self.refreshUserProfile()
             } else {
@@ -92,7 +92,7 @@ extension UserProfileTableViewController {
     }
 
     func removeUserProfileImage() {
-        NCAPIController.sharedInstance().removeUserProfileImage(for: account) { error, _ in
+        NCAPIController.sharedInstance().removeUserProfileImage(forAccount: account) { error in
             if error == nil {
                 self.refreshUserProfile()
             } else {

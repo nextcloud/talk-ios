@@ -70,11 +70,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         var result: [String: UIImage] = [:]
 
         for account in NCDatabaseManager.sharedInstance().allAccounts() {
-            guard let account = account as? TalkAccount else {
-                continue
-            }
-
-            if let image = NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle) {
+            if let image = NCAPIController.sharedInstance().userProfileImage(forAccount: account, withStyle: self.traitCollection.userInterfaceStyle) {
                 result[account.accountId] = image
             }
         }
@@ -241,9 +237,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 
     func getActiveUserStatus() {
-        NCAPIController.sharedInstance().getUserStatus(for: activeAccount) { userStatus, error in
-            if let userStatus = userStatus, error == nil {
-                self.activeUserStatus = NCUserStatus(dictionary: userStatus)
+        NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { userStatus in
+            if let userStatus {
+                self.activeUserStatus = userStatus
                 self.tableView.reloadData()
             }
         }
@@ -338,13 +334,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             textField.tag = kPhoneTextFieldTag
         }
         setPhoneAction = UIAlertAction(title: NSLocalizedString("Set", comment: ""), style: .default, handler: { _ in
-            let phoneNumber = setPhoneNumberDialog.textFields?[0].text
+            guard let phoneNumber = setPhoneNumberDialog.textFields?[0].text else { return }
 
-            NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, for: self.activeAccount) { error, _ in
+            NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, forAccount: self.activeAccount) { error in
                 if error != nil {
-                    if let phoneNumber = phoneNumber {
-                        self.presentPhoneNumberErrorDialog(phoneNumber: phoneNumber)
-                    }
+                    self.presentPhoneNumberErrorDialog(phoneNumber: phoneNumber)
                     print("Error setting phone number ", error ?? "")
                 } else {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Phone number set successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
@@ -456,7 +450,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     @objc func readStatusValueChanged(_ sender: Any?) {
         readStatusSwitch.isEnabled = false
 
-        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, for: activeAccount) { error in
+        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(!readStatusSwitch.isOn, forAccount: activeAccount) { error in
             if error == nil {
                 NCSettingsController.sharedInstance().getCapabilitiesForAccountId(self.activeAccount.accountId) { error in
                     if error == nil {
@@ -487,7 +481,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     @objc func typingIndicatorValueChanged(_ sender: Any?) {
         typingIndicatorSwitch.isEnabled = false
 
-        NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(!typingIndicatorSwitch.isOn, for: activeAccount) { error in
+        NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(!typingIndicatorSwitch.isOn, forAccount: activeAccount) { error in
             if error == nil {
                 NCSettingsController.sharedInstance().getCapabilitiesForAccountId(self.activeAccount.accountId) { error in
                     if error == nil {
@@ -1014,7 +1008,7 @@ extension SettingsTableViewController {
             return avatar
         }
 
-        return NCAPIController.sharedInstance().userProfileImage(for: account, with: self.traitCollection.userInterfaceStyle)
+        return NCAPIController.sharedInstance().userProfileImage(forAccount: account, withStyle: self.traitCollection.userInterfaceStyle)
     }
 
     func updateTotalImageCacheSize() {

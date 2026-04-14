@@ -89,7 +89,7 @@ enum NewRoomOption: Int {
     // MARK: - Contacts
 
     func getPossibleContacts() {
-        NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: "") { _, _, contactList, error in
+        NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: "new", forGroupRoom: false, withSearchParam: "") { contactList, error in
             if error == nil, let contactList = contactList as? [NCUser] {
                 let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: nil)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
@@ -121,7 +121,7 @@ enum NewRoomOption: Int {
 
     func searchForContactsWithSearchParameter(_ searchParameter: String) {
         searchRequest?.cancel()
-        searchRequest = NCAPIController.sharedInstance().getContactsFor(account, forRoom: "new", groupRoom: false, withSearchParam: searchParameter) { _, _, contactList, error in
+        searchRequest = NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: "new", forGroupRoom: false, withSearchParam: searchParameter) { contactList, error in
             if error == nil, let contactList = contactList as? [NCUser] {
                 let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: searchParameter)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)

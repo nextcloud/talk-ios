@@ -1216,7 +1216,7 @@ import SwiftUI
             if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: self.account.accountId) {
 
                 if message.isObjectShare {
-                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, for: self.account) { error in
+                    NCAPIController.sharedInstance().shareRichObject(message.richObjectFromObjectShare, inRoom: room.token, forAccount: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -1224,7 +1224,7 @@ import SwiftUI
                         }
                     }
                 } else {
-                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, for: self.account) { error in
+                    NCAPIController.sharedInstance().sendChatMessage(message.parsedMessage().string, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, forAccount: self.account) { error in
                         if error == nil {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -1280,7 +1280,7 @@ import SwiftUI
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     var talkMetaData: [String: Any] = ["messageType": "voice-message"]
 
@@ -1395,7 +1395,7 @@ import SwiftUI
             self.updateMessage(withMessageId: deletingMessage.messageId, updatedMessage: deletingMessage)
         }
 
-        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, for: self.account) { messageDict, error, statusCode in
+        NCAPIController.sharedInstance().deleteChatMessage(inRoom: self.room.token, withMessageId: message.messageId, forAccount: self.account) { messageDict, error, statusCode in
             if error == nil,
                let messageDict,
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
@@ -1784,7 +1784,7 @@ import SwiftUI
     public func shareLocationViewController(_ viewController: ShareLocationViewController, didSelectLocationWithLatitude latitude: Double, longitude: Double, andName name: String) {
         let richObject = GeoLocationRichObject(latitude: latitude, longitude: longitude, name: name)
 
-        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, for: self.account) { error in
+        NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, forAccount: self.account) { error in
             if let error {
                 print("Error sharing rich object: \(error)")
             }
@@ -1816,7 +1816,7 @@ import SwiftUI
             let url = URL(fileURLWithPath: filePath)
             let contactFileName = "\(contact.identifier).vcf"
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, originalName: true, for: self.account) { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil, temporaryMessage: nil)
                 } else {
@@ -2052,7 +2052,7 @@ import SwiftUI
                 self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
             }
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, originalName: true, for: activeAccount, withCompletionBlock: { fileServerURL, fileServerPath, _, _ in
+            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
                 if let fileServerURL, let fileServerPath {
                     var talkMetaData: [String: Any] = ["messageType": "voice-message"]
 
@@ -2898,7 +2898,7 @@ import SwiftUI
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: reaction, forAccount: self.account.accountId)
 
-        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
+        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: self.room.token, forAccount: self.account) { _, error in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while adding a reaction to a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2911,7 +2911,7 @@ import SwiftUI
     func removeReaction(reaction: String, from message: NCChatMessage) {
         self.setTemporaryReaction(reaction: reaction, withState: .removing, toMessage: message)
 
-        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { _, error, _ in
+        NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: self.room.token, forAccount: self.account) { _, error in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("An error occurred while removing a reaction from a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                 self.removeTemporaryReaction(reaction: reaction, forMessageId: message.messageId)
@@ -2989,7 +2989,7 @@ import SwiftUI
         reactionsVC.room = self.room
         self.presentWithNavigation(reactionsVC, animated: true)
 
-        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, for: self.account) { reactionsDict, error, _ in
+        NCAPIController.sharedInstance().getReactions(nil, fromMessage: message.messageId, inRoom: self.room.token, forAccount: self.account) { reactionsDict, error in
             if error == nil,
                let reactions = reactionsDict as? [String: [[String: AnyObject]]] {
 
@@ -3974,7 +3974,7 @@ import SwiftUI
         // TODO: Recheck if this behavior is fixed on iOS 26+.
         self.textView.resignFirstResponder()
 
-        NCAPIController.sharedInstance().getPollWithId(pollId, inRoom: self.room.token, for: self.account) { poll, error, _ in
+        NCAPIController.sharedInstance().getPoll(withId: pollId, inRoom: self.room.token, forAccount: self.account) { poll, error in
             if error == nil, let poll {
                 pollVC.updatePoll(poll: poll)
             }

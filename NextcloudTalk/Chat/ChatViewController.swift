@@ -2068,7 +2068,7 @@ import SwiftUI
             editingMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParametersJSONString)
             editingMessage.messageParametersJSONString = messageParametersJSONString
 
-            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, for: account) { messageDict, error, _ in
+            NCAPIController.sharedInstance().editChatMessage(inRoom: editingMessage.token, withMessageId: editingMessage.messageId, withMessage: editingMessage.sendingMessage, forAccount: account) { messageDict, error, _ in
                 if error != nil {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred while editing a message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
                     return
@@ -2214,7 +2214,7 @@ import SwiftUI
     func getSetReminderOptions(for message: NCChatMessage) -> [UIMenuElement] {
         var reminderOptions: [UIMenuElement] = []
 
-        let setReminderCompletion: SetReminderForMessage = { (error: Error?) in
+        let setReminderCompletion: ((_ error: Error?) -> Void) = { (error: Error?) in
             if error != nil {
                 NotificationPresenter.shared().present(text: NSLocalizedString("Error occurred when creating a reminder", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
             } else {
@@ -2224,8 +2224,7 @@ import SwiftUI
 
         for timeOption in self.getPredefinedTimeMessageOptions() {
             let timeAction = UIAction(title: timeOption.title, subtitle: timeOption.subtitle) { _ in
-                let timestamp = String(timeOption.timestamp)
-                NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
+                NCAPIController.sharedInstance().setReminder(forMessage: message, withTimestamp: timeOption.timestamp, completionBlock: setReminderCompletion)
             }
 
             reminderOptions.append(timeAction)
@@ -2235,6 +2234,7 @@ import SwiftUI
         let customReminderAction = UIAction(title: NSLocalizedString("Pick date & time", comment: ""), image: .init(systemName: "calendar.badge.clock")) { [weak self] _ in
             DispatchQueue.main.async {
                 guard let self else { return }
+
                 self.interactingMessage = message
                 self.lastMessageBeforeInteraction = self.tableView?.indexPathsForVisibleRows?.last
 
@@ -2245,8 +2245,7 @@ import SwiftUI
                 self.datePickerTextField.getDate { buttonTapped, selectedDate in
                     guard buttonTapped == .done, let selectedDate else { return }
 
-                    let timestamp = String(Int(selectedDate.timeIntervalSince1970))
-                    NCAPIController.sharedInstance().setReminderFor(message, withTimestamp: timestamp, withCompletionBlock: setReminderCompletion)
+                    NCAPIController.sharedInstance().setReminder(forMessage: message, withTimestamp: Int(selectedDate.timeIntervalSince1970), completionBlock: setReminderCompletion)
                 }
             }
         }
@@ -2499,14 +2498,14 @@ import SwiftUI
         // Remind me later
         if !message.isTemporary, !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
             let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
-                NCAPIController.sharedInstance().getReminderFor(message) { [weak self] response, error in
+                NCAPIController.sharedInstance().getReminder(forMessage: message) { [weak self] response, error in
                     guard let self else { return }
 
                     var menuOptions: [UIMenuElement] = []
                     menuOptions.append(contentsOf: self.getSetReminderOptions(for: message))
 
                     if error == nil,
-                       let responseDict = response as? [String: Any],
+                       let responseDict = response,
                        let timestamp = responseDict["timestamp"] as? Int {
 
                         // There's already an existing reminder set for this message
@@ -2514,7 +2513,7 @@ import SwiftUI
                         let timestampDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
 
                         let clearAction = UIAction(title: NSLocalizedString("Clear reminder", comment: ""), image: .init(systemName: "trash")) { _ in
-                            NCAPIController.sharedInstance().deleteReminder(for: message) { error in
+                            NCAPIController.sharedInstance().deleteReminder(forMessage: message) { error in
                                 if error == nil {
                                     NotificationPresenter.shared().present(text: NSLocalizedString("Reminder was successfully cleared", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                                 } else {

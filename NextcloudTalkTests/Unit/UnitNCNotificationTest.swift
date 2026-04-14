@@ -45,7 +45,6 @@ final class UnitNCNotificationTest: XCTestCase {
           }
         """
 
-        // swiftlint:disable:next force_cast
         let dataDict = try JSONSerialization.jsonObject(with: notificationJsonData.data(using: .utf8)!) as! [String: Any]
         let notification = NCNotification(dictionary: dataDict)
 
@@ -107,7 +106,6 @@ final class UnitNCNotificationTest: XCTestCase {
           }
         """
 
-        // swiftlint:disable:next force_cast
         let dataDict = try JSONSerialization.jsonObject(with: notificationJsonData.data(using: .utf8)!) as! [String: Any]
         let notification = NCNotification(dictionary: dataDict)
 
@@ -164,7 +162,6 @@ final class UnitNCNotificationTest: XCTestCase {
         }
     """
 
-        // swiftlint:disable:next force_cast
         let dataDict = try JSONSerialization.jsonObject(with: notificationJsonData.data(using: .utf8)!) as! [String: Any]
         let notification = NCNotification(dictionary: dataDict)
 

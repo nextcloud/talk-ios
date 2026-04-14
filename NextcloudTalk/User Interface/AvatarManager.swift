@@ -18,7 +18,7 @@ import SDWebImage
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: room.accountId) {
             // Server supports conversation avatars -> try to get the avatar using this API
 
-            return NCAPIController.sharedInstance().getAvatarFor(room, with: style) { image, _ in
+            return NCAPIController.sharedInstance().getAvatar(forRoom: room, withStyle: style) { image, _ in
                 completionBlock(image)
             }
         } else {
@@ -176,7 +176,7 @@ import SDWebImage
     }
 
     private func getUserAvatar(forId actorId: String, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        return NCAPIController.sharedInstance().getUserAvatar(forUser: actorId, using: account, with: style) { image, _ in
+        return NCAPIController.sharedInstance().getUserAvatar(forUser: actorId, withStyle: style, forAccount: account) { image, _ in
             if image != nil {
                 completionBlock(image)
             } else {
@@ -189,7 +189,7 @@ import SDWebImage
     }
 
     private func getFederatedUserAvatar(forId actorId: String, withRoomToken roomToken: String?, withStyle style: UIUserInterfaceStyle, usingAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, inRoom: roomToken, using: account, with: style) { image, _ in
+        return NCAPIController.sharedInstance().getFederatedUserAvatar(forUser: actorId, inRoom: roomToken, withStyle: style, forAccount: account) { image, _ in
             if image != nil {
                 completionBlock(image)
             } else {

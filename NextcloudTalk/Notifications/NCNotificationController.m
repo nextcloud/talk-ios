@@ -8,7 +8,6 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import "CallKitManager.h"
-#import "NCAPIController.h"
 #import "NCDatabaseManager.h"
 #import "NCIntentController.h"
 #import "NCSettingsController.h"
@@ -77,11 +76,11 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
 
     if (pushNotification.type == NCPushNotificationTypeDelete) {
         NSNumber *notificationId = @(pushNotification.notificationId);
-        [self removeNotificationWithNotificationIds:@[notificationId] forAccountId:pushNotification.accountId];
+        [self removeNotificationWithNotificationIds:@[notificationId] forAccountId:pushNotification.accountId withCompletionBlock:nil];
     } else if (pushNotification.type == NCPushNotificationTypeDeleteAll) {
         [self removeAllNotificationsForAccountId:pushNotification.accountId];
     } else if (pushNotification.type == NCPushNotificationTypeDeleteMultiple) {
-        [self removeNotificationWithNotificationIds:pushNotification.notificationIds forAccountId:pushNotification.accountId];
+        [self removeNotificationWithNotificationIds:pushNotification.notificationIds forAccountId:pushNotification.accountId withCompletionBlock:nil];
     } else {
         NSLog(@"Push Notification of an unknown type received");
     }
@@ -264,9 +263,12 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     [self updateAppIconBadgeNumber];
 }
 
-- (void)removeNotificationWithNotificationIds:(NSArray *)notificationIds forAccountId:(NSString *)accountId
+- (void)removeNotificationWithNotificationIds:(NSArray *)notificationIds forAccountId:(NSString *)accountId withCompletionBlock:(void (^)(void))completion
 {
     if (!notificationIds) {
+        if (completion) {
+            completion();
+        }
         return;
     }
     
@@ -327,96 +329,10 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }];
 
     dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
+        if (completion) {
+            completion();
+        }
         [bgTask stopBackgroundTask];
-    });
-}
-
-- (void)checkForNewNotificationsWithCompletionBlock:(CheckForNewNotificationsCompletionBlock)block
-{
-    dispatch_group_t notificationsGroup = dispatch_group_create();
-
-    for (TalkAccount *account in [[NCDatabaseManager sharedInstance] allAccounts]) {
-        ServerCapabilities *serverCapabilities = [[NCDatabaseManager sharedInstance] serverCapabilitiesForAccountId:account.accountId];
-
-        if (!serverCapabilities || [serverCapabilities.notificationsCapabilities count] == 0) {
-            continue;
-        }
-
-        dispatch_group_enter(notificationsGroup);
-
-        [[NCAPIController sharedInstance] getServerNotificationsForAccount:account withLastETag:account.lastNotificationETag withCompletionBlock:^(NSArray *notifications, NSString* ETag, NSString *userStatus, NSError *error) {
-            if (error) {
-                dispatch_group_leave(notificationsGroup);
-                return;
-            }
-
-            // Don't show notifications if the user has status "do not disturb"
-            BOOL suppressNotifications = (serverCapabilities.userStatus && [userStatus isEqualToString:kUserStatusDND]);
-
-            NSInteger lastNotificationId = 0;
-            NSMutableArray *activeServerNotificationsIds = [NSMutableArray new];
-
-            for (NSDictionary *notification in notifications) {
-                NCNotification *serverNotification = [[NCNotification alloc] initWithDictionary:notification];
-
-                // Only process Talk notifications
-                if (!serverNotification || ![serverNotification.app isEqualToString:kNCPNAppIdKey]) {
-                    continue;
-                }
-
-                [activeServerNotificationsIds addObject:@(serverNotification.notificationId)];
-
-                if (lastNotificationId < serverNotification.notificationId) {
-                    lastNotificationId = serverNotification.notificationId;
-                }
-
-                if (suppressNotifications || serverNotification.notificationType != kNCNotificationTypeChat) {
-                    continue;
-                }
-
-                if (account.lastNotificationId != 0 && serverNotification.notificationId > account.lastNotificationId) {
-                    // Don't show notifications if this is the first time we retrieve notifications for this account
-                    // Otherwise after adding a new account all unread notifications from the server would be shown
-
-                    [self showLocalNotificationForChatNotification:serverNotification forAccountId:account.accountId];
-                }
-            }
-
-            RLMRealm *realm = [RLMRealm defaultRealm];
-            [realm transactionWithBlock:^{
-                NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", account.accountId];
-                TalkAccount *managedAccount = [TalkAccount objectsWithPredicate:query].firstObject;
-                managedAccount.lastNotificationETag = ETag;
-
-                if (managedAccount.lastNotificationId < lastNotificationId) {
-                    managedAccount.lastNotificationId = lastNotificationId;
-                }
-            }];
-
-            // Remove notifications that have been treated for the server
-            [self->_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
-                for (UNNotification *notification in notifications) {
-                    NSString *notificationAccountId = [notification.request.content.userInfo objectForKey:@"accountId"];
-                    NSInteger notificationIdentifier = [[notification.request.content.userInfo objectForKey:@"notificationId"]
-                                                        integerValue];
-                    NCLocalNotificationType localNotificationType = (NCLocalNotificationType)[[notification.request.content.userInfo objectForKey:@"localNotificationType"] integerValue];
-
-                    if ([notificationAccountId isEqualToString:account.accountId] && ![activeServerNotificationsIds containsObject:@(notificationIdentifier)] && (localNotificationType == 0 || localNotificationType == kNCLocalNotificationTypeChatNotification)) {
-                        [self->_notificationCenter removeDeliveredNotificationsWithIdentifiers:@[notification.request.identifier]];
-                        [[NCDatabaseManager sharedInstance] decreaseUnreadBadgeNumberForAccountId:account.accountId];
-                    }
-                }
-                [self updateAppIconBadgeNumber];
-                dispatch_group_leave(notificationsGroup);
-            }];
-        }];
-    }
-
-    dispatch_group_notify(notificationsGroup, dispatch_get_main_queue(), ^{
-        // Notify backgroundFetch that we're finished
-        if (block) {
-            block(nil);
-        }
     });
 }
 
@@ -434,6 +350,8 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         [_notificationCenter getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
             NSMutableArray *notificationIdsOnDevice = [[NSMutableArray alloc] init];
 
+            // TODO: Instead of storing just the IDs, we can also store the identifier and directly
+            // remove the notification instead of iterating again removeNotificationWithNotificationIds
             for (UNNotification *notification in notifications) {
                 UNNotificationRequest *notificationRequest = notification.request;
                 NSString *notificationAccountId = [notificationRequest.content.userInfo objectForKey:@"accountId"];
@@ -453,7 +371,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                 return;
             }
 
-            [[NCAPIController sharedInstance] checkNotificationExistance:notificationIdsOnDevice forAccount:account withCompletionBlock:^(NSArray *notificationIds, NSError *error) {
+            [[NCAPIController sharedInstance] checkNotificationExistanceWithIds:notificationIdsOnDevice forAccount:account completionBlock:^(NSArray<NSNumber *> * _Nullable notificationIds, NSError * _Nullable error) {
                 if (error) {
                     dispatch_group_leave(notificationsGroup);
                     return;
@@ -465,11 +383,14 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                 }
 
                 // In case there are still notifications on the device (that are not on the server anymore) remove them
-                if ([notificationIdsOnDevice count] > 0) {
-                    [self removeNotificationWithNotificationIds:notificationIdsOnDevice forAccountId:account.accountId];
+                if ([notificationIdsOnDevice count] == 0) {
+                    dispatch_group_leave(notificationsGroup);
+                    return;
                 }
 
-                dispatch_group_leave(notificationsGroup);
+                [self removeNotificationWithNotificationIds:notificationIdsOnDevice forAccountId:account.accountId withCompletionBlock:^{
+                    dispatch_group_leave(notificationsGroup);
+                }];
             }];
         }];
     }
@@ -554,7 +475,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[NCAPIController sharedInstance] sendChatMessage:pushNotification.responseUserText toRoom:pushNotification.roomToken threadTitle:nil replyTo:-1 referenceId:nil silently:NO forAccount:pushAccount withCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] sendChatMessage:pushNotification.responseUserText toRoom:pushNotification.roomToken threadTitle:nil replyTo:-1 referenceId:nil silently:NO forAccount:pushAccount completionBlock:^(NSError *error) {
 
             if (error) {
                 NSLog(@"Could not send chat message. Error: %@", error.description);
@@ -628,7 +549,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^(UIAlertAction * _Nonnull action) {
                 [[NCDatabaseManager sharedInstance] decreasePendingFederationInvitationForAccountId:account.accountId];
-                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:nil];
             }];
 
             [alert addAction:tempButton];
@@ -667,7 +588,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                                                                  withFileId:fileId
                                                                     forRoom:serverNotification.roomToken
                                                                  forAccount:account
-                                                        withCompletionBlock:^(NSError *error) {
+                                                        completionBlock:^(NSError *error) {
             if (error) {
                 NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:serverNotification.roomToken forKey:@"roomToken"];
                 [userInfo setValue:@(kNCLocalNotificationTypeFailedToShareRecording) forKey:@"localNotificationType"];
@@ -683,7 +604,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         [[NCAPIController sharedInstance] dismissStoredRecordingNotificationWithTimestamp:notificationTimestamp
                                                                                   forRoom:serverNotification.roomToken
                                                                                forAccount:account
-                                                                      withCompletionBlock:^(NSError *error) {
+                                                                      completionBlock:^(NSError *error) {
             [bgTask stopBackgroundTask];
         }];
     } else {
@@ -698,7 +619,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
             UIAlertAction* tempButton = [UIAlertAction actionWithTitle:notificationAction.actionLabel
                                                                  style:UIAlertActionStyleDefault
                                                                handler:^(UIAlertAction * _Nonnull action) {
-                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+                [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:nil];
             }];
 
             [alert addAction:tempButton];
@@ -742,7 +663,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         NCNotificationAction *notificationAction = [[NCNotificationAction alloc] initWithDictionary:dict];
 
         if (notificationAction && notificationAction.actionType == NCNotificationActionTypeKNotificationActionTypeDelete) {
-            [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account withCompletionBlock:nil];
+            [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:nil];
         }
     }
 }

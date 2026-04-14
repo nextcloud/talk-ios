@@ -17,11 +17,11 @@ import Foundation
     private func checkHeaders(for task: URLSessionDataTask, for account: TalkAccount) {
         guard let response = task.response as? HTTPURLResponse else { return }
 
-        if let modifiedSince = response.allHeaderFields["x-nextcloud-talk-modified-before"] as? String, !modifiedSince.isEmpty {
+        if let modifiedSince = response.value(forHTTPHeaderField: "x-nextcloud-talk-modified-before"), !modifiedSince.isEmpty {
             NCDatabaseManager.sharedInstance().updateLastModifiedSince(forAccountId: account.accountId, with: modifiedSince)
         }
 
-        if let configurationHash = response.allHeaderFields["x-nextcloud-talk-hash"] as? String, configurationHash != account.lastReceivedConfigurationHash {
+        if let configurationHash = response.value(forHTTPHeaderField: "x-nextcloud-talk-hash"), configurationHash != account.lastReceivedConfigurationHash {
             if account.lastReceivedConfigurationHash != nil {
                 // We previously stored a configuration hash which now changed -> Update settings and capabilities
                 let userInfo: [AnyHashable: Any] = [
@@ -56,15 +56,15 @@ import Foundation
 
     @discardableResult
     @available(*, renamed: "getOcs()")
-    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
+    public func getOcs(_ URLString: String, account: TalkAccount?, parameters: Any? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
         return self.get(URLString, parameters: parameters, progress: nil) { task, data in
-            if checkResponseHeaders {
+            if checkResponseHeaders, let account {
                 self.checkHeaders(for: task, for: account)
             }
 
             completion?(OcsResponse(withData: data, withTask: task), nil)
         } failure: { task, error in
-            if checkResponseStatusCode, let task {
+            if checkResponseStatusCode, let task, let account {
                 self.checkStatusCode(for: task, for: account)
             }
 
@@ -117,7 +117,7 @@ import Foundation
     // MARK: - Async/Await wrapper
 
     @discardableResult
-    public func getOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
+    public func getOcs(_ URLString: String, account: TalkAccount?, parameters: Any? = nil, checkResponseStatusCode: Bool = true) async throws -> OcsResponse {
         return try await withCheckedThrowingContinuation { continuation in
             getOcs(URLString, account: account, parameters: parameters, checkResponseStatusCode: checkResponseStatusCode) { response, error in
                 if let error {

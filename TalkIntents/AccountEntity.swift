@@ -20,7 +20,7 @@ struct AccountEntity: AppEntity {
         userDisplayName = account.userDisplayName
         server = account.server.replacingOccurrences(of: "https://", with: "")
 
-        if let image = NCAPIController.sharedInstance().userProfileImage(for: account, with: .light) {
+        if let image = NCAPIController.sharedInstance().userProfileImage(forAccount: account, withStyle: .light) {
             let roundedImage = NCUtils.roundedImage(fromImage: image)
             imageData = roundedImage.pngData()
         }

@@ -213,7 +213,7 @@ extension BaseChatTableViewCell {
             self.filePreviewImageView?.setImage(placeholderImage)
         }
 
-        fileCurrentRequest = NCAPIController.sharedInstance().getPreviewForFile(file.parameterId, width: -1, height: requestedHeight, using: account) { [weak self] image, _, error in
+        fileCurrentRequest = NCAPIController.sharedInstance().getPreviewForFile(file.parameterId, width: -1, height: requestedHeight, forAccount: account) { [weak self] image, error in
             guard let self, let imageView = self.filePreviewImageView else { return }
 
             if error == nil, let image {
