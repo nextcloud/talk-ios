@@ -84,6 +84,9 @@ final class UIRoomTest: XCTestCase {
         // Open conversation settings
         chatTitleView.tap()
 
+        // Wait for admin participant to be visible (so participant list is loaded)
+        XCTAssert(app.staticTexts["admin"].waitForExistence(timeout: TestConstants.timeoutShort))
+
         // Leave open conversation
         let leaveButton = app.buttons["Leave conversation"]
         app.scrollTo(leaveButton)
