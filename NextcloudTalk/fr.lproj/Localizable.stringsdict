@@ -47,6 +47,19 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@participantsincall@</string>
+		<key>participantsincall</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld participant dans cet appel</string>
+			<key>many</key>
+			<string>%ld participants dans cet appel</string>
+			<key>other</key>
+			<string>%ld participants dans cet appel</string>
+		</dict>
 	</dict>
 	<key>%d minutes ago</key>
 	<dict>
@@ -196,6 +209,19 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Le mot de passe doit comporter au moins %d caractères</string>
+			<key>many</key>
+			<string>Le mot de passe doit comporter au moins %d caractères</string>
+			<key>other</key>
+			<string>Le mot de passe doit comporter au moins %d caractères</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
