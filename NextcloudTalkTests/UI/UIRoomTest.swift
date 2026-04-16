@@ -64,6 +64,22 @@ final class UIRoomTest: XCTestCase {
         let app = launchAndLogin()
         let openConversationName = "OpenConversationTest"
 
+        // Check if the open conversation already exist in conversations list
+        let conversationStaticText = app.tables.cells.staticTexts[openConversationName]
+        let alreadyJoined = conversationStaticText.waitForExistence(timeout: 3.0)
+        if alreadyJoined {
+            // Try to leave the open conversation
+            conversationStaticText.press(forDuration: 2.0)
+            let leaveConversation = app.buttons["Leave conversation"]
+            XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutShort))
+
+            leaveConversation.tap()
+            let alert = app.alerts.element.staticTexts["Leave conversation"]
+            XCTAssert(alert.waitForExistence(timeout: TestConstants.timeoutShort))
+
+            app.buttons["Leave"].tap()
+        }
+
         waitForReady(object: app.buttons["Create or join a conversation"]).tap()
         waitForReady(object: app.tables.cells.staticTexts["Join open conversations"]).tap()
         waitForReady(object: app.tables.cells.staticTexts[openConversationName]).tap()
