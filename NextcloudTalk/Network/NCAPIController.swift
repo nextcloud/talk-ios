@@ -691,7 +691,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @MainActor
     public func setRoomSortOrder(_ sortOrder: NCRoomSortOrder, forAccount account: TalkAccount) async -> Bool {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return false }
 
         let value: String = (sortOrder == .alphabetical) ? "alphabetical" : "activity"
@@ -704,7 +704,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @MainActor
     public func setRoomGroupMode(_ groupMode: NCRoomGroupMode, forAccount account: TalkAccount) async -> Bool {
-        guard let apiSessionManager = self.apiSessionManagers.object(forKey: account.accountId) as? NCAPISessionManager
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return false }
 
         let value: String
