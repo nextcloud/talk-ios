@@ -123,7 +123,7 @@ import Foundation
         }
 
         self.dismiss(animated: true)
-        NCRoomsManager.shared.updateRoom(self.room.token)
+        NCRoomsManager.shared.updateRoom(room.token, forAccount: self.account)
     }
 
     func didPressDeleteScheduled(for message: NCChatMessage, at indexPath: IndexPath) async {
@@ -138,7 +138,7 @@ import Foundation
 
         if self.messages.values.isEmpty {
             self.dismiss(animated: true)
-            NCRoomsManager.shared.updateRoom(self.room.token)
+            NCRoomsManager.shared.updateRoom(room.token, forAccount: room.account!)
         }
     }
 

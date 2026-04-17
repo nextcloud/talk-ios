@@ -645,7 +645,7 @@ import SwiftUI
         }
 
         if !self.offlineMode {
-            NCRoomsManager.shared.joinRoom(self.room.token, forCall: false)
+            NCRoomsManager.shared.joinRoom(self.room.token, forAccountId: self.account.accountId, forCall: false)
         }
 
         // Check if there are summary tasks still running, but not yet finished
@@ -725,7 +725,7 @@ import SwiftUI
         self.checkForNewStoredMessages()
 
         if !self.offlineMode {
-            NCRoomsManager.shared.joinRoom(self.room.token, forCall: false)
+            NCRoomsManager.shared.joinRoom(self.room.token, forAccountId: self.account.accountId, forCall: false)
         }
 
         self.startObservingExpiredMessages()
@@ -743,7 +743,7 @@ import SwiftUI
         self.chatController.stop()
         self.messageExpirationTimer?.invalidate()
         self.stopTyping(force: false)
-        NCRoomsManager.shared.leaveChat(inRoom: self.room.token)
+        NCRoomsManager.shared.leaveChat(inRoom: self.room.token, forAccount: self.account)
     }
 
     func connectionStateHasChanged(notification: Notification) {
@@ -757,7 +757,7 @@ import SwiftUI
                 offlineMode = false
                 startReceivingMessagesAfterJoin = true
                 self.removeOfflineFooterView()
-                NCRoomsManager.shared.joinRoom(self.room.token, forCall: false)
+                NCRoomsManager.shared.joinRoom(self.room.token, forAccountId: self.account.accountId, forCall: false)
             }
         default:
             break
@@ -1303,7 +1303,7 @@ import SwiftUI
             return
         }
 
-        NCRoomsManager.shared.leaveChat(inRoom: self.room.token)
+        NCRoomsManager.shared.leaveChat(inRoom: self.room.token, forAccount: self.account)
 
         // Remove chat view controller pointer if this chat is owned by rooms manager
         // and the chat view is moving from parent view controller
@@ -2002,7 +2002,7 @@ import SwiftUI
     }
 
     func updateRoomInformation() {
-        NCRoomsManager.shared.updateRoom(self.room.token)
+        NCRoomsManager.shared.updateRoom(self.room.token, forAccount: self.account)
     }
 
     func shouldPresentLobbyView() -> Bool {

@@ -55,7 +55,7 @@ struct RoomInfoGuestSection: View {
                 NCUserInterfaceController.sharedInstance().presentShareLinkDialog(for: room, inViewContoller: nil, for: nil)
             }
 
-            NCRoomsManager.shared.updateRoom(room.token)
+            NCRoomsManager.shared.updateRoom(room.token, forAccount: room.account!)
         }
     }
 
@@ -64,7 +64,7 @@ struct RoomInfoGuestSection: View {
             do {
                 try await NCAPIController.sharedInstance().resendInvitation(toParticipant: nil, inRoom: room.token, forAccount: room.account!)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Invitations resent", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
-                NCRoomsManager.shared.updateRoom(room.token)
+                NCRoomsManager.shared.updateRoom(room.token, forAccount: room.account!)
             } catch {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not resend email invitations", comment: ""), withMessage: nil)
             }

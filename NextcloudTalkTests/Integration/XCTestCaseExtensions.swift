@@ -76,7 +76,7 @@ extension XCTestCase {
             return true
         }
 
-        NCRoomsManager.shared.joinRoom(token, forCall: false)
+        NCRoomsManager.shared.joinRoom(token, forAccountId: account.accountId, forCall: false)
         await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
 
         return try XCTUnwrap(NCRoomsManager.shared.activeRooms[token])

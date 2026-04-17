@@ -43,6 +43,7 @@ class CallViewController: UIViewController,
     public weak var delegate: CallViewControllerDelegate?
 
     public var room: NCRoom
+    public var account: TalkAccount
     public var audioDisabledAtStart = false
     public var videoDisabledAtStart = false
     public var voiceChatModeAtStart = false
@@ -131,8 +132,9 @@ class CallViewController: UIViewController,
     private var currentCallState: CallState = .joining
     private var previousParticipants: [String] = []
 
-    public init(for room: NCRoom, asUser displayName: String, audioOnly: Bool) {
+    public init(for room: NCRoom, withAccount account: TalkAccount, asUser displayName: String, audioOnly: Bool) {
         self.room = room
+        self.account = account
         self.displayName = displayName
         self.isAudioOnly = audioOnly
 
@@ -414,10 +416,11 @@ class CallViewController: UIViewController,
     // MARK: - Rooms manager notification
 
     func didJoinRoom(notification: NSNotification) {
-        guard let token = notification.userInfo?["token"] as? String, token == self.room.token
+        guard let token = notification.userInfo?[stringForKey: "token"], token == self.room.token,
+              let accountId = notification.userInfo?[stringForKey: "accountId"], accountId == self.account.accountId
         else { return }
 
-        if let error = notification.userInfo?["error"] as? NSError, let reason = notification.userInfo?["errorReason"] as? String {
+        if notification.userInfo?["error"] != nil, let reason = notification.userInfo?[stringForKey: "errorReason"] {
             self.presentJoinError(reason)
             return
         }
@@ -933,7 +936,7 @@ class CallViewController: UIViewController,
         }
 
         // Connect to new call
-        NCRoomsManager.shared.updateRoom(token) { roomDict, error in
+        NCRoomsManager.shared.updateRoom(token, forAccount: self.account) { roomDict, error in
             guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: self.room.accountId)
             else {
                 print("Error getting room to switch")
@@ -965,7 +968,7 @@ class CallViewController: UIViewController,
                 self.callController = nil
 
                 // Join new room
-                NCRoomsManager.shared.joinRoom(token, forCall: true)
+                NCRoomsManager.shared.joinRoom(token, forAccountId: self.account.accountId, forCall: true)
             }
         }
     }

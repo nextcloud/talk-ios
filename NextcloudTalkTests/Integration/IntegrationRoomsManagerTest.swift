@@ -27,7 +27,8 @@ final class IntegrationRoomsManagerTest: TestBase {
             return true
         }
 
-        NCRoomsManager.shared.joinRoom(roomToken, forCall: false)
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCRoomsManager.shared.joinRoom(roomToken, forAccountId: activeAccount.accountId, forCall: false)
 
         waitForExpectations(timeout: TestConstants.timeoutShort)
     }
@@ -69,7 +70,7 @@ final class IntegrationRoomsManagerTest: TestBase {
         }
 
         // Try to join the room
-        NCRoomsManager.shared.joinRoom(roomToken, forCall: false)
+        NCRoomsManager.shared.joinRoom(roomToken, forAccountId: activeAccount.accountId, forCall: false)
 
         waitForExpectations(timeout: TestConstants.timeoutShort)
 
@@ -86,7 +87,7 @@ final class IntegrationRoomsManagerTest: TestBase {
         }
 
         // Try to leave the room
-        NCRoomsManager.shared.leaveChat(inRoom: roomToken)
+        NCRoomsManager.shared.leaveChat(inRoom: roomToken, forAccount: activeAccount)
 
         waitForExpectations(timeout: TestConstants.timeoutShort)
     }

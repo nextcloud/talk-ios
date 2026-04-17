@@ -472,6 +472,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         [userInfo setValue:@(initiator) forKey:@"initiator"];
         [userInfo setValue:@(silently) forKey:@"silentCall"];
         [userInfo setValue:@(recordingConsent) forKey:@"recordingConsent"];
+        [userInfo setValue:accountId forKey:@"accountId"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
                                                             object:self
                                                           userInfo:userInfo];
@@ -621,6 +622,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         [userInfo setValue:@(call.initiator) forKey:@"initiator"];
         [userInfo setValue:@(call.silentCall) forKey:@"silentCall"];
         [userInfo setValue:@(call.recordingConsent) forKey:@"recordingConsent"];
+        [userInfo setValue:call.accountId forKey:@"accountId"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidStartCallNotification
                                                             object:self
                                                           userInfo:userInfo];
@@ -642,6 +644,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:call.token forKey:@"roomToken"];
         [userInfo setValue:@(call.update.hasVideo) forKey:@"hasVideo"];
         [userInfo setValue:@(call.reportedWhileInCall) forKey:@"waitForCallEnd"];
+        [userInfo setValue:call.accountId forKey:@"accountId"];
         [[NSNotificationCenter defaultCenter] postNotificationName:CallKitManagerDidAnswerCallNotification
                                                             object:self
                                                           userInfo:userInfo];

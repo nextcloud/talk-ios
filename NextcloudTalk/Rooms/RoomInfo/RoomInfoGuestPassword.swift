@@ -43,9 +43,11 @@ struct RoomInfoGuestPassword: View {
     }
 
     func setPassword(to value: String) {
+        guard let account = room.account else { return }
+
         isActionRunning = true
 
-        NCAPIController.sharedInstance().setPassword(value, forRoom: room.token, forAccount: room.account!) { error, errorDescription in
+        NCAPIController.sharedInstance().setPassword(value, forRoom: room.token, forAccount: account) { error, errorDescription in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change password protection settings", comment: ""), withMessage: errorDescription)
             }
@@ -54,7 +56,7 @@ struct RoomInfoGuestPassword: View {
             NSLocalizedString("Conversation password has been removed", comment: "") :
             NSLocalizedString("Conversation password has been saved", comment: "")
             NotificationPresenter.shared().present(text: message, dismissAfterDelay: 5.0, includedStyle: .success)
-            NCRoomsManager.shared.updateRoom(room.token)
+            NCRoomsManager.shared.updateRoom(room.token, forAccount: account)
             isActionRunning = false
         }
     }
