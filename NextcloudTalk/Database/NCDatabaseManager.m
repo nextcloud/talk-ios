@@ -233,6 +233,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     TalkAccount *activeAccount = [TalkAccount objectsWithPredicate:query].firstObject;
     activeAccount.active = YES;
     [realm commitWriteTransaction];
+    [NCLog log:[NSString stringWithFormat:@"Set active account to %@", accountId]];
 }
 
 - (NSString *)accountIdForUser:(NSString *)user inServer:(NSString *)server
