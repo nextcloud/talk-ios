@@ -663,7 +663,11 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
         NCNotificationAction *notificationAction = [[NCNotificationAction alloc] initWithDictionary:dict];
 
         if (notificationAction && notificationAction.actionType == NCNotificationActionTypeKNotificationActionTypeDelete) {
-            [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:nil];
+            [[NCAPIController sharedInstance] executeNotificationAction:notificationAction forAccount:account completionBlock:^(NSError * _Nullable error) {
+                [bgTask stopBackgroundTask];
+            }];
+
+            break;
         }
     }
 }
