@@ -6,6 +6,21 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld aktyvus botas</string>
+			<key>few</key>
+			<string>%ld aktyvūs botai</string>
+			<key>many</key>
+			<string>%ld aktyvių botų</string>
+			<key>other</key>
+			<string>%ld aktyvių botų</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
@@ -51,6 +66,21 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@participantsincall@</string>
+		<key>participantsincall</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld dalyvis šiame skambutyje</string>
+			<key>few</key>
+			<string>%ld dalyviai šiame skambutyje</string>
+			<key>many</key>
+			<string>%ld dalyvių šiame skambutyje</string>
+			<key>other</key>
+			<string>%ld dalyvių šiame skambutyje</string>
+		</dict>
 	</dict>
 	<key>%d minutes ago</key>
 	<dict>
@@ -156,21 +186,81 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@options@</string>
+		<key>options</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d parinktis</string>
+			<key>few</key>
+			<string>%d parinktys</string>
+			<key>many</key>
+			<string>%d parinkčių</string>
+			<key>other</key>
+			<string>%d parinkčių</string>
+		</dict>
 	</dict>
 	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Šis pokalbis bus automatiškai ištrintas visiems per %ld dieną, kai nebus jokios veiklos.</string>
+			<key>few</key>
+			<string>Šis pokalbis bus automatiškai ištrintas visiems per %ld dienas, kai nebus jokios veiklos.</string>
+			<key>many</key>
+			<string>Šis pokalbis bus automatiškai ištrintas visiems per %ld dienų, kai nebus jokios veiklos.</string>
+			<key>other</key>
+			<string>Šis pokalbis bus automatiškai ištrintas visiems per %ld dienų, kai nebus jokios veiklos.</string>
+		</dict>
 	</dict>
 	<key>%ld replies</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@replies@</string>
+		<key>replies</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld atsakymas</string>
+			<key>few</key>
+			<string>%ld atsakymai</string>
+			<key>many</key>
+			<string>%ld atsakymų</string>
+			<key>other</key>
+			<string>%ld atsakymų</string>
+		</dict>
 	</dict>
 	<key>Password needs to be at least %d characters long</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Slaptažodis turi būti bent %d simbolio ilgio</string>
+			<key>few</key>
+			<string>Slaptažodis turi būti bent %d simbolių ilgio</string>
+			<key>many</key>
+			<string>Slaptažodis turi būti bent %d simbolių ilgio</string>
+			<key>other</key>
+			<string>Slaptažodis turi būti bent %d simbolių ilgio</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
