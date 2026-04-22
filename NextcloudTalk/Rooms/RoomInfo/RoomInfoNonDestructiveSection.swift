@@ -33,14 +33,16 @@ struct RoomInfoNonDestructiveSection: View {
     }
 
     func archiveConversation() {
+        guard let account = room.account else { return }
+
         let method = room.isArchived ? NCAPIController.sharedInstance().unarchiveRoom : NCAPIController.sharedInstance().archiveRoom
 
-        method(room.token, room.account!) { success in
+        method(room.token, account) { success in
             if !success {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change archived conversation setting", comment: ""), withMessage: nil)
             }
 
-            NCRoomsManager.shared.updateRoom(room.token)
+            NCRoomsManager.shared.updateRoom(room.token, forAccount: account )
         }
     }
 }

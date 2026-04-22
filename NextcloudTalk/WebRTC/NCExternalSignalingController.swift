@@ -352,7 +352,7 @@ public enum NCExternalSignalingSendMessageStatus {
         if let currentRoom, sessionChanged {
             self.delegate?.externalSignalingControllerWillRejoinCall(self)
 
-            NCRoomsManager.shared.rejoinRoomForCall(currentRoom) { _, _, _, _, _ in
+            NCRoomsManager.shared.rejoinRoomForCall(currentRoom, forAccount: self.account) { _, _, _, _, _ in
                 self.delegate?.externalSignalingControllerShouldRejoinCall(self)
             }
         }
@@ -522,7 +522,7 @@ public enum NCExternalSignalingSendMessageStatus {
         // Otherwise we would loose participant information for example when a recording is started
         if self.currentRoom != newRoomId {
             self.participantsMap = [:]
-            self.currentRoom = newRoomId
+            self.currentRoom = newRoomId.isEmpty ? nil : newRoomId
         }
 
         if let messageId = messageDict["id"] as? String {

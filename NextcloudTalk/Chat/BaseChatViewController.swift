@@ -762,7 +762,7 @@ import Toast
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully scheduled", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
 
                 self.clearInputAfterSend()
-                NCRoomsManager.shared.updateRoom(self.room.token)
+                NCRoomsManager.shared.updateRoom(self.room.token, forAccount: self.account)
             } catch {
                 print(error)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message scheduling failed", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
@@ -1162,6 +1162,7 @@ import Toast
     func didPressReplyPrivately(for message: NCChatMessage) {
         var userInfo: [String: String] = [:]
         userInfo["actorId"] = message.actorId
+        userInfo["accountId"] = self.account.accountId
         NotificationCenter.default.post(name: .NCChatViewControllerReplyPrivatelyNotification, object: self, userInfo: userInfo)
     }
 
