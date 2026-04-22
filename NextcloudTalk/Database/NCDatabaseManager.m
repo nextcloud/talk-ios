@@ -94,7 +94,7 @@ NSString * const kCapabilityBotV1                   = @"bots-v1";
 NSString * const kNotificationsCapabilityExists     = @"exists";
 NSString * const kNotificationsCapabilityTestPush   = @"test-push";
 
-NSString * const kMinimumRequiredTalkCapability     = kCapabilityForceMute; // Talk 9.0 is the minimum required version
+NSString * const kMinimumRequiredTalkCapability     = kCapabilityConversationV4; // Talk 12.0 is the minimum required version
 
 NSString * const NCDatabaseManagerPendingFederationInvitationsDidChange = @"NCDatabaseManagerPendingFederationInvitationsDidChange";
 NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCDatabaseManagerRoomCapabilitiesChangedNotification";

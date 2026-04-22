@@ -435,14 +435,10 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
             return;
         }
 
-        NSInteger callAPIVersion = [ObjcNCAPIVersion getAPIVersionForType:NCAPITypeCall withAccount:account];
         for (NSMutableDictionary *user in peers) {
-            NSString *userId = [user objectForKey:@"userId"];
-            BOOL isUserActorType = YES;
-            if (callAPIVersion >= NCAPIVersionAPIv3) {
-                userId = [user objectForKey:@"actorId"];
-                isUserActorType = [[user objectForKey:@"actorType"] isEqualToString:@"users"];
-            }
+            NSString *userId = [user objectForKey:@"actorId"];
+            BOOL isUserActorType = [[user objectForKey:@"actorType"] isEqualToString:@"users"];;
+
             if ([account.userId isEqualToString:userId] && isUserActorType) {
                 // Account is already in a call (answered the call on a different device) -> no need to keep ringing
                 [self endCallWithUUID:call.uuid];
