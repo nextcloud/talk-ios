@@ -103,7 +103,7 @@
 
 - (void)pullSignalingMessages
 {
-    _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSArray<NSDictionary<NSString *,id> *> * _Nullable messages, NSError * _Nullable error) {
+    _pullSignalingMessagesTask = [[NCAPIController sharedInstance] pullSignalingMessagesFromRoom:_room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSArray<NSDictionary<NSString *,id> *> * _Nullable messages, OcsError * _Nullable error) {
         if (self->_shouldStopPullingMessages) {
             return;
         }

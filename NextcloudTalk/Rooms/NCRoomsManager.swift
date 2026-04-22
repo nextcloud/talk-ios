@@ -235,7 +235,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 NCLog.log("Could not update room. Error: \(error.localizedDescription)")
 
                 NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRoom, object: self, userInfo: ["error": error])
-                completion?([:], error as NSError)
+                completion?([:], error)
 
                 return
             }
