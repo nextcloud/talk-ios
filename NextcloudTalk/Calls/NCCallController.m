@@ -178,7 +178,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [NCLog log:[NSString stringWithFormat:@"Join call in NCCallController for token %@", self.room.token]];
 
-    _joinCallTask = [[NCAPIController sharedInstance] joinCallInRoom:_room.token withCallFlags:[self joinCallFlags] joinSilently:_silentCall joinSilentlyFor:_silentFor withRecordingConsent:_recordingConsent forAccount:_account completionBlock:^(NSError * _Nullable error , NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCallInRoom:_room.token withCallFlags:[self joinCallFlags] joinSilently:_silentCall joinSilentlyFor:_silentFor withRecordingConsent:_recordingConsent forAccount:_account completionBlock:^(OcsError * _Nullable error , NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [NCLog log:[NSString stringWithFormat:@"Did join call in NCCallController for token %@", self.room.token]];
@@ -199,7 +199,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
                 self->_joinedCallOnce = YES;
                 self->_joinCallAttempts = 0;
             } else {
-                if (error.code == NSURLErrorCancelled) {
+                if ([error underlyingError].code == NSURLErrorCancelled) {
                     self->_joinCallAttempts = 0;
                     return;
                 }
@@ -259,7 +259,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [self createLocalMedia];
 
-    _joinCallTask = [[NCAPIController sharedInstance] joinCallInRoom:_room.token withCallFlags:[self joinCallFlags] joinSilently:_silentCall joinSilentlyFor:_silentFor withRecordingConsent:_recordingConsent forAccount:_account completionBlock:^(NSError * _Nullable error, NSInteger statusCode) {
+    _joinCallTask = [[NCAPIController sharedInstance] joinCallInRoom:_room.token withCallFlags:[self joinCallFlags] joinSilently:_silentCall joinSilentlyFor:_silentFor withRecordingConsent:_recordingConsent forAccount:_account completionBlock:^(OcsError * _Nullable error, NSInteger statusCode) {
         [[WebRTCCommon shared] dispatch:^{
             if (!error) {
                 [self.delegate callControllerDidJoinCall:self];
@@ -307,7 +307,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
         [self stopCallController];
 
-        [self leaveCallInServerForAll:NO withCompletionBlock:^(NSError *error) {
+        [self leaveCallInServerForAll:NO withCompletionBlock:^(OcsError *error) {
             if (error) {
                 NSLog(@"Could not leave call. Error: %@", error.description);
             }
@@ -344,7 +344,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)rejoinCallUsingInternalSignaling
 {
-    [[NCAPIController sharedInstance] leaveCallInRoom:_room.token forAllParticipants:NO forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {
+    [[NCAPIController sharedInstance] leaveCallInRoom:_room.token forAllParticipants:NO forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(OcsError * _Nullable error) {
         if (!error) {
             self->_shouldRejoinCallUsingInternalSignaling = YES;
         }
@@ -382,10 +382,10 @@ static NSString * const kNCScreenTrackKind  = @"screen";
     _joinCallTask = nil;
 }
 
-- (void)leaveCallInServerForAll:(BOOL)allParticipants withCompletionBlock:(void (^)(NSError *error))block
+- (void)leaveCallInServerForAll:(BOOL)allParticipants withCompletionBlock:(void (^)(OcsError *error))block
 {
     if (_userInCall) {
-        [[NCAPIController sharedInstance] leaveCallInRoom:_room.token forAllParticipants:allParticipants forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError * _Nullable error) {
+        [[NCAPIController sharedInstance] leaveCallInRoom:_room.token forAllParticipants:allParticipants forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(OcsError * _Nullable error) {
             block(error);
         }];
     } else {
@@ -397,7 +397,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 {
     [self stopCallController];
 
-    [self leaveCallInServerForAll:allParticipants withCompletionBlock:^(NSError *error) {
+    [self leaveCallInServerForAll:allParticipants withCompletionBlock:^(OcsError *error) {
         if (error) {
             NSLog(@"Could not leave call. Error: %@", error.description);
         }
@@ -812,7 +812,7 @@ static NSString * const kNCScreenTrackKind  = @"screen";
 
 - (void)getPeersForCall
 {
-    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCallInRoom:_room.token forAccount:_account completionBlock:^(NSArray<NSDictionary<NSString *,id> *> * _Nullable peers, NSError *error, NSInteger statusCode) {
+    _getPeersForCallTask = [[NCAPIController sharedInstance] getPeersForCallInRoom:_room.token forAccount:_account completionBlock:^(NSArray<NSDictionary<NSString *,id> *> * _Nullable peers, OcsError *error, NSInteger statusCode) {
         if (error) {
             return;
         }

@@ -240,7 +240,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func joinRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: Error?, _ statusCode: Int, _ statusReason: String?) -> Void) -> URLSessionTask? {
+    public func joinRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ sessionId: String?, _ room: NCRoom?, _ error: OcsError?, _ statusCode: Int, _ statusReason: String?) -> Void) -> URLSessionTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -249,7 +249,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         return apiSessionManager.postOcs(urlString, account: account) { ocsResponse, ocsError in
             if let ocsError {
-                completionBlock(nil, nil, ocsError.error, ocsError.responseStatusCode, ocsError.errorKey)
+                completionBlock(nil, nil, ocsError, ocsError.responseStatusCode, ocsError.errorKey)
                 return
             }
 
@@ -275,7 +275,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func exitRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionTask? {
+    public func exitRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -283,16 +283,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants/active", forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
-            if let ocsError {
-                completionBlock(ocsError.error)
-                return
-            }
-
-            completionBlock(nil)
+            completionBlock(ocsError)
         }
     }
 
-    public func getRooms(forAccount account: TalkAccount, updateStatus: Bool, modifiedSince: Int, completionBlock: @escaping (_ rooms: [[String: AnyObject]]?, _ error: Error?) -> Void) {
+    public func getRooms(forAccount account: TalkAccount, updateStatus: Bool, modifiedSince: Int, completionBlock: @escaping (_ rooms: [[String: AnyObject]]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -326,11 +321,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
             // TODO: Move away from generic dictionary return type
             // let rooms = ocs?.dataArrayDict.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
-            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
+            completionBlock(ocsResponse?.dataArrayDict, ocsError)
         }
     }
 
-    public func getRoom(forAccount account: TalkAccount, withToken token: String, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
+    public func getRoom(forAccount account: TalkAccount, withToken token: String, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -338,7 +333,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataDict, ocsError?.error)
+            completionBlock(ocsResponse?.dataDict, ocsError)
         }
     }
 
@@ -357,18 +352,18 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func getNoteToSelfRoom(forAccount account: TalkAccount, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: Error?) -> Void) {
+    public func getNoteToSelfRoom(forAccount account: TalkAccount, completionBlock: @escaping (_ room: [String: AnyObject]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/note-to-self", forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataDict, ocsError?.error)
+            completionBlock(ocsResponse?.dataDict, ocsError)
         }
     }
 
-    public func getListableRooms(forAccount account: TalkAccount, withSerachTerm searchTerm: String?, completionBlock: @escaping (_ rooms: [NCRoom]?, _ error: Error?) -> Void) {
+    public func getListableRooms(forAccount account: TalkAccount, withSerachTerm searchTerm: String?, completionBlock: @escaping (_ rooms: [NCRoom]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -381,7 +376,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             let rooms = ocsResponse?.dataArrayDict?.compactMap { NCRoom(dictionary: $0, andAccountId: account.accountId) }
-            completionBlock(rooms, ocsError?.error)
+            completionBlock(rooms, ocsError)
         }
     }
 
@@ -412,7 +407,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func renameRoom(_ token: String, forAccount account: TalkAccount, withName roomName: String, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func renameRoom(_ token: String, forAccount account: TalkAccount, withName roomName: String, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -421,12 +416,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let parameters: [String: String] = ["roomName": roomName]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
-    public func setRoomDescription(_ description: String?, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func setRoomDescription(_ description: String?, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -435,12 +430,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let parameters: [String: String] = ["description": description ?? ""]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
-    public func setMentionPermissions(_ permissions: NCRoomMentionPermissions, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func setMentionPermissions(_ permissions: NCRoomMentionPermissions, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -449,12 +444,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let parameters: [String: Int] = ["mentionPermissions": permissions.rawValue]
 
         apiSessionManager.putOcs(urlString, account: account, parameters: parameters) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
-    public func makeRoomPublic(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func makeRoomPublic(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -462,12 +457,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
-    public func makeRoomPrivate(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func makeRoomPrivate(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -475,12 +470,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/public", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
-    public func deleteRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func deleteRoom(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -488,12 +483,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
-    public func unbindRoomFromObject(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func unbindRoomFromObject(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -501,12 +496,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/object", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
-    public func setPassword(_ password: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?, _ errorDescription: String?) -> Void) {
+    public func setPassword(_ password: String, forRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?, _ errorDescription: String?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -518,14 +513,14 @@ class NCAPIController: NSObject, NKCommonDelegate {
             // When password does not match the password-policy, we receive a 400
             if ocsError?.responseStatusCode == 400 {
                 // message is already translated server-side
-                completionBlock(ocsError?.error, ocsError?.errorMessage)
+                completionBlock(ocsError, ocsError?.errorMessage)
             } else {
-                completionBlock(ocsError?.error, nil)
+                completionBlock(ocsError, nil)
             }
         }
     }
 
-    public func addRoomToFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func addRoomToFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -533,11 +528,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
-    public func removeRoomFromFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func removeRoomFromFavorites(_ token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -545,7 +540,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/favorite", forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
@@ -901,7 +896,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - Signaling
 
     @discardableResult
-    public func getSignalingSettings(for account: TalkAccount, forRoom roomToken: String?, completionBlock: @escaping (_ signalingSettings: SignalingSettings?, _ error: (any Error)?) -> Void) -> URLSessionDataTask? {
+    public func getSignalingSettings(for account: TalkAccount, forRoom roomToken: String?, completionBlock: @escaping (_ signalingSettings: SignalingSettings?, _ error: Error?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else {
             completionBlock(nil, nil)
@@ -919,7 +914,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
 
         return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            completionBlock(SignalingSettings(dictionary: ocsResponse?.dataDict), ocsError?.error)
+            completionBlock(SignalingSettings(dictionary: ocsResponse?.dataDict), ocsError?.underlyingError)
         }
     }
 
@@ -936,7 +931,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // Use non-async method here to allow cancellation from objc (as we can return a URLSessionDataTask)
     @discardableResult
-    public func pullSignalingMessages(fromRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [[String: AnyObject]]?, _ error: Error?) -> Void) -> URLSessionTask? {
+    public func pullSignalingMessages(fromRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [[String: AnyObject]]?, _ error: OcsError?) -> Void) -> URLSessionTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -944,7 +939,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIType: .signaling, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error)
+            completionBlock(ocsResponse?.dataArrayDict, ocsError)
         }
     }
 
@@ -1348,10 +1343,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = "\(account.server)/ocs/v2.php/cloud/users/\(encodedUserId)/groups"
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            if ocsError?.error == nil, let groupdIds = ocsResponse?.dataDict?["groups"] as? [String] {
+            if ocsError?.underlyingError == nil, let groupdIds = ocsResponse?.dataDict?["groups"] as? [String] {
                 completionBlock(groupdIds, nil)
             } else {
-                completionBlock(nil, ocsError?.error)
+                completionBlock(nil, ocsError?.underlyingError)
             }
         }
     }
@@ -1366,11 +1361,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = "\(account.server)/ocs/v2.php/apps/circles/probecircles"
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            if ocsError?.error == nil, let teamsDicts = ocsResponse?.dataArrayDict {
+            if ocsError?.underlyingError == nil, let teamsDicts = ocsResponse?.dataArrayDict {
                 let teamIds = teamsDicts.compactMap { $0["id"] as? String }
                 completionBlock(teamIds, nil)
             } else {
-                completionBlock(nil, ocsError?.error)
+                completionBlock(nil, ocsError?.underlyingError)
             }
         }
     }
@@ -1497,7 +1492,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            if let error = ocsError?.error {
+            if let error = ocsError?.underlyingError {
                 completionBlock(nil, error)
             } else if let threads = ocsResponse?.dataArrayDict?.map({ NCThread(dictionary: $0, andAccountId: accountId) }) {
                 NCThread.storeOrUpdateThreads(threads)
@@ -1855,7 +1850,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - Call controller
 
     @discardableResult
-    public func getPeersForCall(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ peers: [[String: AnyObject]]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
+    public func getPeersForCall(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ peers: [[String: AnyObject]]?, _ error: OcsError?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -1863,7 +1858,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataArrayDict, ocsError?.error, ocsError?.responseStatusCode ?? 0)
+            completionBlock(ocsResponse?.dataArrayDict, ocsError, ocsError?.responseStatusCode ?? 0)
         }
     }
 
@@ -1875,7 +1870,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                          joinSilentlyFor silentFor: [String],
                          withRecordingConsent recordingConsent: Bool,
                          forAccount account: TalkAccount,
-                         completionBlock: @escaping (_ error: Error?, _ statusCode: Int) -> Void) -> URLSessionTask? {
+                         completionBlock: @escaping (_ error: OcsError?, _ statusCode: Int) -> Void) -> URLSessionTask? {
 
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -1894,12 +1889,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
 
         return apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error, ocsError?.responseStatusCode ?? 0)
+            completionBlock(ocsError, ocsError?.responseStatusCode ?? 0)
         }
     }
 
     @discardableResult
-    public func leaveCall(inRoom token: String, forAllParticipants allParticipants: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func leaveCall(inRoom token: String, forAllParticipants allParticipants: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -1907,13 +1902,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
 
         return apiSessionManager.deleteOcs(urlString, account: account, parameters: ["all": allParticipants]) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     @nonobjc
     @discardableResult
-    public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -1927,30 +1922,30 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
 
         return apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError)
         }
     }
 
     // MARK: - Server capabilities
 
     @discardableResult
-    public func getServerCapabilities(forServer server: String, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func getServerCapabilities(forServer server: String, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         let urlString = "\(server)/ocs/v1.php/cloud/capabilities"
 
         return defaultAPISessionManager.getOcs(urlString, account: nil, parameters: ["format": "json"]) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataDict, ocsError?.error)
+            completionBlock(ocsResponse?.dataDict, ocsError)
         }
     }
 
     @discardableResult
-    public func getServerCapabilities(forAccount account: TalkAccount, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func getServerCapabilities(forAccount account: TalkAccount, completionBlock: @escaping (_ serverCapabilities: [AnyHashable: Any]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v1.php/cloud/capabilities"
 
         return apiSessionManager.getOcs(urlString, account: account, parameters: ["format": "json"]) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataDict, ocsError?.error)
+            completionBlock(ocsResponse?.dataDict, ocsError)
         }
     }
 
@@ -1958,7 +1953,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         // This method is currently only used in tests as NSE is using the endpoint directly
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
@@ -1966,7 +1961,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/\(notificationId)"
 
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(NCNotification(dictionary: ocsResponse?.dataDict), ocsError?.error)
+            completionBlock(NCNotification(dictionary: ocsResponse?.dataDict), ocsError)
         }
     }
 
@@ -2021,7 +2016,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @discardableResult
-    public func checkNotificationExistance(withIds notificationIds: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ notification: [Int]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func checkNotificationExistance(withIds notificationIds: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ notification: [Int]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
 
@@ -2039,7 +2034,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - Contacts controller
 
     @discardableResult
-    public func searchContacts(forAccount account: TalkAccount, withPhoneNumbers phoneNumbers: [String: [String]], completionBlock: @escaping (_ contacts: [String: String]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func searchContacts(forAccount account: TalkAccount, withPhoneNumbers phoneNumbers: [String: [String]], completionBlock: @escaping (_ contacts: [String: String]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
 
@@ -2052,15 +2047,15 @@ class NCAPIController: NSObject, NKCommonDelegate {
         // Ignore status code for now https://github.com/nextcloud/server/pull/26679
         return apiSessionManager.postOcs(urlString, account: account, parameters: parameters, checkResponseStatusCode: false) { ocsResponse, ocsError in
             if let contactsDict = ocsResponse?.dataDict as? [String: String] {
-                completionBlock(contactsDict, ocsError?.error)
+                completionBlock(contactsDict, ocsError)
             } else {
-                completionBlock(nil, ocsError?.error)
+                completionBlock(nil, ocsError)
             }
         }
     }
 
     @discardableResult
-    public func getContacts(forAccount account: TalkAccount, forRoom room: String?, forGroupRoom groupRoom: Bool, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func getContacts(forAccount account: TalkAccount, forRoom room: String?, forGroupRoom groupRoom: Bool, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
 
@@ -2095,16 +2090,16 @@ class NCAPIController: NSObject, NKCommonDelegate {
                     .compactMap( { NCUser(dictionary: $0) })
                     .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
 
-                completionBlock(contacts, ocsError?.error)
+                completionBlock(contacts, ocsError)
             } else {
-                completionBlock(nil, ocsError?.error)
+                completionBlock(nil, ocsError)
             }
         }
     }
 
     // TODO: Can be combined with 'getContacts(forAccount:)' at some point
     @discardableResult
-    public func searchUsers(forAccount account: TalkAccount, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func searchUsers(forAccount account: TalkAccount, withSearchParam searchParam: String?, completionBlock: @escaping (_ contacts: [NCUser]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
 
@@ -2122,9 +2117,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
                     .compactMap( { NCUser(dictionary: $0) })
                     .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
 
-                completionBlock(contacts, ocsError?.error)
+                completionBlock(contacts, ocsError)
             } else {
-                completionBlock(nil, ocsError?.error)
+                completionBlock(nil, ocsError)
             }
         }
     }
@@ -2132,7 +2127,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - Translations controller
 
     @nonobjc
-    public func getAvailableTranslations(forAccount account: TalkAccount, completionBlock: @escaping (_ translations: [NCTranslation]?, _ langugageDetection: Bool, _ error: Error?) -> Void) {
+    public func getAvailableTranslations(forAccount account: TalkAccount, completionBlock: @escaping (_ translations: [NCTranslation]?, _ langugageDetection: Bool, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -2146,15 +2141,15 @@ class NCAPIController: NSObject, NKCommonDelegate {
                     availableTranslations = NCDatabaseManager.sharedInstance().translations(fromTranslationsArray: translations)
                 }
 
-                completionBlock(availableTranslations, translationDict["languageDetection"] as? Bool ?? false, ocsError?.error)
+                completionBlock(availableTranslations, translationDict["languageDetection"] as? Bool ?? false, ocsError)
             } else {
-                completionBlock(nil, false, ocsError?.error)
+                completionBlock(nil, false, ocsError)
             }
         }
     }
 
     @nonobjc
-    public func translateMessage(_ message: String, fromLanguage from: String?, toLanguage to: String, forAccount account: TalkAccount, completionBlock: @escaping (_ translationDict: [String: Any]?, _ error: Error?) -> Void) {
+    public func translateMessage(_ message: String, fromLanguage from: String?, toLanguage to: String, forAccount account: TalkAccount, completionBlock: @escaping (_ translationDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -2170,14 +2165,14 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataDict ?? ocsError?.dataDict, ocsError?.error)
+            completionBlock(ocsResponse?.dataDict ?? ocsError?.dataDict, ocsError)
         }
     }
 
     // MARK: - Reactions controller
 
     @nonobjc
-    public func addReaction(_ reaction: String, toMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
+    public func addReaction(_ reaction: String, toMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -2195,7 +2190,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func removeReaction(_ reaction: String, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
+    public func removeReaction(_ reaction: String, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -2213,7 +2208,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func getReactions(_ reaction: String?, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: Error?) -> Void) {
+    public func getReactions(_ reaction: String?, fromMessage messageId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ reactionsDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -2237,7 +2232,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // MARK: - Reference handling
 
-    public func getReference(forUrlString referenceUrl: String, forAccount account: TalkAccount, completionBlock: @escaping (_ referenceDict: [String: Any]?, _ error: Error?) -> Void) {
+    public func getReference(forUrlString referenceUrl: String, forAccount account: TalkAccount, completionBlock: @escaping (_ referenceDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -2267,7 +2262,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let parameters = ["status": 1]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError?.underlyingError)
         }
     }
 
@@ -2279,7 +2274,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)", withAPIType: .recording, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError?.underlyingError)
         }
     }
 
@@ -2291,7 +2286,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "recording/\(encodedToken)/notification", withAPIType: .recording, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account, parameters: ["timestamp": timestamp]) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError?.underlyingError)
         }
     }
 
@@ -2307,7 +2302,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError?.underlyingError)
         }
     }
 
@@ -2389,7 +2384,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // MARK: - Push Notifications
 
-    public func subscribeAccount(_ account: TalkAccount, withPublicKey publicKey: Data, toNextcloudServerWithCompletionBlock completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: Error?) -> Void) {
+    public func subscribeAccount(_ account: TalkAccount, withPublicKey publicKey: Data, toNextcloudServerWithCompletionBlock completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let devicePublicKey = String(data: publicKey, encoding: .utf8)
         else { return }
@@ -2406,7 +2401,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
-    public func unsubscribeAccount(_ account: TalkAccount, fromNextcloudServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func unsubscribeAccount(_ account: TalkAccount, fromNextcloudServerWithCompletionBlock completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -2460,7 +2455,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = "\(account.server)/index.php/core/wipe/check"
 
         defaultAPISessionManager.postOcs(urlString, account: account, parameters: ["token": token]) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.responseDict?["wipe"] != nil, ocsError?.error)
+            completionBlock(ocsResponse?.responseDict?["wipe"] != nil, ocsError?.underlyingError)
         }
     }
 
@@ -2474,7 +2469,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = "\(account.server)/index.php/core/wipe/success"
 
         defaultAPISessionManager.postOcs(urlString, account: account, parameters: ["token": token]) { _, ocsError in
-            completionBlock?(ocsError?.error)
+            completionBlock?(ocsError?.underlyingError)
         }
     }
 
@@ -2512,7 +2507,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                                     setReadMarker: Bool,
                                     markNotificationsAsRead: Bool,
                                     forAccount account: TalkAccount,
-                                    completionBlock: @escaping (_ messages: [[String: Any]]?, _ lastKnownMessage: Int, _ lastCommonReadMessage: Int, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
+                                    completionBlock: @escaping (_ messages: [[String: Any]]?, _ lastKnownMessage: Int, _ lastCommonReadMessage: Int, _ error: OcsError?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
 
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2556,9 +2551,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
                 let headerLastKnownMessage = Int(ocsResponse.value(forHTTPHeaderField: "x-chat-last-given")) ?? -1
                 let headerLastCommonRead = Int(ocsResponse.value(forHTTPHeaderField: "x-chat-last-common-read")) ?? -1
 
-                completionBlock(messageDict, headerLastKnownMessage, headerLastCommonRead, ocsError?.error, ocsResponse.responseStatusCode)
+                completionBlock(messageDict, headerLastKnownMessage, headerLastCommonRead, ocsError, ocsResponse.responseStatusCode)
             } else {
-                completionBlock(nil, -1, -1, ocsError?.error, ocsError?.responseStatusCode ?? 0)
+                completionBlock(nil, -1, -1, ocsError, ocsError?.responseStatusCode ?? 0)
             }
         }
     }
@@ -2572,7 +2567,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                                 referenceId: String?,
                                 silently: Bool,
                                 forAccount account: TalkAccount,
-                                completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+                                completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
 
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
@@ -2607,7 +2602,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func deleteChatMessage(inRoom token: String, withMessageId messageId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
+    public func deleteChatMessage(inRoom token: String, withMessageId messageId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: OcsError?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2621,7 +2616,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func editChatMessage(inRoom token: String, withMessageId messageId: Int, withMessage message: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
+    public func editChatMessage(inRoom token: String, withMessageId messageId: Int, withMessage message: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: OcsError?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2635,7 +2630,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func clearChatHistory(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func clearChatHistory(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ message: [String: Any]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2649,7 +2644,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func shareRichObject(_ richObject: [AnyHashable: Any], inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func shareRichObject(_ richObject: [AnyHashable: Any], inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2662,7 +2657,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @discardableResult
-    public func setChatReadMarker(_ lastReadMessage: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func setChatReadMarker(_ lastReadMessage: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2675,7 +2670,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @discardableResult
-    public func markChatAsUnread(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func markChatAsUnread(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2689,7 +2684,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func getSharedItemsOverview(inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItemsOverview: [String: [NCChatMessage]]?, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func getSharedItemsOverview(inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItemsOverview: [String: [NCChatMessage]]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2720,7 +2715,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     @nonobjc
     @discardableResult
     // swiftlint:disable:next function_parameter_count
-    public func getSharedItems(ofType type: String, fromLastMessageId messageId: Int, inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItems: [NCChatMessage]?, _ lastKnownMessageId: Int, _ error: Error?) -> Void) -> URLSessionDataTask? {
+    public func getSharedItems(ofType type: String, fromLastMessageId messageId: Int, inRoom token: String, withLimit limit: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ sharedItems: [NCChatMessage]?, _ lastKnownMessageId: Int, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
@@ -2748,7 +2743,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
-    public func getMessageContext(inRoom token: String, forMessageId messageId: Int, inThread threadId: Int, withLimit limit: Int = 50, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [NCChatMessage]?, _ error: Error?) -> Void) {
+    public func getMessageContext(inRoom token: String, forMessageId messageId: Int, inThread threadId: Int, withLimit limit: Int = 50, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [NCChatMessage]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -2783,7 +2778,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                            asDraft draft: Bool,
                            inRoom token: String,
                            forAccount account: TalkAccount,
-                           completionBlock: @escaping (_ poll: NCPoll, _ error: Error?) -> Void) {
+                           completionBlock: @escaping (_ poll: NCPoll, _ error: OcsError?) -> Void) {
 
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2805,7 +2800,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func getPoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
+    public func getPoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -2826,7 +2821,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                               withMaxVotes maxVotes: Int,
                               inRoom token: String,
                               forAccount account: TalkAccount,
-                              completionBlock: @escaping (_ poll: NCPoll, _ error: Error?) -> Void) {
+                              completionBlock: @escaping (_ poll: NCPoll, _ error: OcsError?) -> Void) {
 
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2847,7 +2842,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func getPollDrafts(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ polls: [NCPoll]?, _ error: Error?) -> Void) {
+    public func getPollDrafts(inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ polls: [NCPoll]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -2861,7 +2856,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func voteOnPoll(withId pollId: Int, inRoom token: String, withOptions options: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
+    public func voteOnPoll(withId pollId: Int, inRoom token: String, withOptions options: [Int], forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -2874,7 +2869,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func closePoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: Error?) -> Void) {
+    public func closePoll(withId pollId: Int, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ poll: NCPoll?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -3047,7 +3042,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - User actions
 
     @nonobjc
-    public func getUserActions(forUser userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ actions: [String: Any]?, _ error: Error?) -> Void) {
+    public func getUserActions(forUser userId: String, forAccount account: TalkAccount, completionBlock: @escaping (_ actions: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedUserId = userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -3061,7 +3056,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // MARK: - User profile
 
-    public func getUserProfile(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfile: [String: Any]?, _ error: Error?) -> Void) {
+    public func getUserProfile(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfile: [String: Any]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -3073,7 +3068,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func getUserProfileEditableFields(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfileEditableFields: [String]?, _ error: Error?) -> Void) {
+    public func getUserProfileEditableFields(forAccount account: TalkAccount, completionBlock: @escaping (_ userProfileEditableFields: [String]?, _ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -3085,7 +3080,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func setUserProfileField(_ field: String, withValue value: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func setUserProfileField(_ field: String, withValue value: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedUserId = account.userId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return }
@@ -3122,7 +3117,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func removeUserProfileImage(forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func removeUserProfileImage(forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
 
@@ -3409,7 +3404,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func setEmojiAvatar(forRoom token: String, withEmoji emoji: String, withColor color: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func setEmojiAvatar(forRoom token: String, withEmoji emoji: String, withColor color: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return }
@@ -3433,7 +3428,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func removeAvatar(forRoom room: NCRoom, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func removeAvatar(forRoom room: NCRoom, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let encodedToken = room.token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
               let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId),
               let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
@@ -3499,7 +3494,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func setUserStatus(_ status: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func setUserStatus(_ status: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else {
             completionBlock(nil)

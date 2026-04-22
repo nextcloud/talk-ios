@@ -32,10 +32,11 @@ extern NSString * const NCSettingsControllerDidChangeActiveAccountNotification;
 
 @class NCExternalSignalingController;
 @class SignalingSettings;
+@class OcsError;
 
-typedef void (^UpdatedProfileCompletionBlock)(NSError *error);
+typedef void (^UpdatedProfileCompletionBlock)(OcsError *error);
 typedef void (^LogoutCompletionBlock)(NSError *error);
-typedef void (^GetCapabilitiesCompletionBlock)(NSError *error);
+typedef void (^GetCapabilitiesCompletionBlock)(OcsError *error);
 typedef void (^UpdateSignalingConfigCompletionBlock)(NCExternalSignalingController * _Nullable signalingServer, NSError * _Nullable error);
 typedef void (^SubscribeForPushNotificationsCompletionBlock)(BOOL success);
 typedef void (^EnsureSignalingConfigCompletionBlock)(NCExternalSignalingController * _Nullable signalingServer);

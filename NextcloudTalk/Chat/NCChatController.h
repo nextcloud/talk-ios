@@ -7,11 +7,12 @@
 
 #import "NCChatMessage.h"
 
-typedef void (^UpdateHistoryInBackgroundCompletionBlock)(NSError *error);
+@class OcsError;
+@class NCRoom;
+
+typedef void (^UpdateHistoryInBackgroundCompletionBlock)(OcsError *error);
 typedef void (^GetMessagesContextCompletionBlock)(NSArray<NCChatMessage *> * _Nullable messages);
 typedef void (^GetSingleMessageCompletionBlock)(NCChatMessage* _Nullable message);
-
-@class NCRoom;
 
 extern NSString * const NCChatControllerDidReceiveInitialChatHistoryNotification;
 extern NSString * const NCChatControllerDidReceiveInitialChatHistoryOfflineNotification;;
