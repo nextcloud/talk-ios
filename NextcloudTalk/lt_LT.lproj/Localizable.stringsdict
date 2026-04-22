@@ -19,7 +19,7 @@
 			<key>many</key>
 			<string>%ld aktyvių botų</string>
 			<key>other</key>
-			<string>%ld aktyvių botų</string>
+			<string>%ld aktyvūs botai</string>
 		</dict>
 	</dict>
 	<key>%d votes</key>
