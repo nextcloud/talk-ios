@@ -6,6 +6,15 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>other</key>
+			<string>%ld faol botlar</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
@@ -39,6 +48,15 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@participantsincall@</string>
+		<key>participantsincall</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>other</key>
+			<string>Ushbu qo'ng'iroqdagi %ld ishtirokchilar</string>
+		</dict>
 	</dict>
 	<key>%d minutes ago</key>
 	<dict>
@@ -156,6 +174,15 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>other</key>
+			<string>Parol kamida %d ta belgidan iborat bo'lishi kerak</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
