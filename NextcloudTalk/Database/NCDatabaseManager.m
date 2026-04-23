@@ -444,6 +444,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.hasTranslationProviders = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"has-translation-providers"] boolValue];
     capabilities.attachmentsAllowed = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
+    capabilities.conversationSubfoldersEnabled = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"conversation-subfolders"] boolValue];
     capabilities.talkVersion = [capabilitiesDict objectForKey:@"version"];
 
     NSDictionary *talkConfig = [capabilitiesDict objectForKey:@"config"];

@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL canCreate;
 @property BOOL attachmentsAllowed;
 @property NSString *attachmentsFolder;
+@property BOOL conversationSubfoldersEnabled;
 @property BOOL readStatusPrivacy;
 @property BOOL typingPrivacy;
 @property BOOL callEnabled;

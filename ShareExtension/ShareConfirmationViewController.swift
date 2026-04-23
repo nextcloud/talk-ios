@@ -626,18 +626,51 @@ import MBProgressHUD
             }
         }
 
+        // Check if conversation subfolders feature is supported
+        if room.supportsConversationSubfolders {
+            let fileNames = self.shareItemController.shareItems.compactMap { $0.fileName }
+            NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: fileNames, forAccount: self.account) { draftFolder, _, error in
+                if let error {
+                    NCLog.log(String(format: "Probe conversation attachment folder failed: %@", error.localizedDescription))
+                    return
+                }
+                self.startUploads(draftFolderPath: draftFolder, bgTask: bgTask)
+            }
+        } else {
+            self.startUploads(draftFolderPath: nil, bgTask: bgTask)
+        }
+    }
+
+    private func startUploads(draftFolderPath: String?, bgTask: BGTaskHelper) {
         for shareItem in self.shareItemController.shareItems {
             NSLog("Uploading \(shareItem.fileURL.absoluteString)")
 
             self.uploadGroup.enter()
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
-                if let fileServerURL, let fileServerPath {
+            if let draftFolderPath {
+                let tempName = UUID().uuidString + "-" + shareItem.fileName
+                let draftPath = "\(draftFolderPath)/\(tempName)"
+                shareItem.draftFolderPath = draftPath
+
+                // Server path (add leading slash)
+                let fileServerPath = "/\(draftPath)"
+
+                if let fileServerURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: fileServerPath, forAccount: account) {
                     self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
                 } else {
-                    NCLog.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
-                    self.uploadErrors.append(errorDescription ?? "Unknown error")
+                    NCLog.log("Error creating server path for upload")
+                    self.uploadErrors.append(NSLocalizedString("Error creating server path for upload", comment: ""))
                     self.uploadGroup.leave()
+                }
+            } else {
+                NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
+                    if let fileServerURL, let fileServerPath {
+                        self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
+                    } else {
+                        NCLog.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
+                        self.uploadErrors.append(errorDescription ?? "Unknown error")
+                        self.uploadGroup.leave()
+                    }
                 }
             }
         }
@@ -690,15 +723,37 @@ import MBProgressHUD
                     talkMetaData["threadId"] = thread.threadId
                 }
 
-                NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account, atPath: filePath, toRoom: self.room.token, withTalkMetaData: talkMetaData, withReferenceId: nil) { error in
-                    if let error {
-                        NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
-                        self.uploadErrors.append(error.localizedDescription)
-                    } else {
-                        self.uploadSuccess.append(item)
-                    }
+                if let draftPath = item.draftFolderPath {
+                    NCAPIController.sharedInstance().postConversationAttachment(inRoom: self.room.token,
+                                                                                filePath: draftPath,
+                                                                                fileName: item.fileName,
+                                                                                referenceId: nil,
+                                                                                talkMetaData: talkMetaData,
+                                                                                forAccount: self.account) { error in
+                        if let error {
+                            NCLog.log(String(format: "Failed to post attachment. Error: %@", error.localizedDescription))
+                            self.uploadErrors.append(error.localizedDescription)
+                        } else {
+                            self.uploadSuccess.append(item)
+                        }
 
-                    self.uploadGroup.leave()
+                        self.uploadGroup.leave()
+                    }
+                } else {
+                    NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account,
+                                                                       atPath: filePath,
+                                                                       toRoom: self.room.token,
+                                                                       withTalkMetaData: talkMetaData,
+                                                                       withReferenceId: nil) { error in
+                        if let error {
+                            NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
+                            self.uploadErrors.append(error.localizedDescription)
+                        } else {
+                            self.uploadSuccess.append(item)
+                        }
+
+                        self.uploadGroup.leave()
+                    }
                 }
             } else if nkError.errorCode == 404 || nkError.errorCode == 409 {
                 NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(forAccount: self.account) { created, _ in
