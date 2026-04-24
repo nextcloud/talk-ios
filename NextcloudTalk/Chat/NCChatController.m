@@ -1001,6 +1001,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
                 [ChatFileUploader uploadFileWithLocalPath:message.file.fileStatus.fileLocalPath
                                             fileServerURL:fileServerURL
                                            fileServerPath:fileServerPath
+                                                draftPath:nil
                                              talkMetaData:talkMetaData
                                          temporaryMessage:message
                                                      room:self.room

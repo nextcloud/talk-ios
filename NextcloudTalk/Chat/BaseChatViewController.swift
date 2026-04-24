@@ -1282,23 +1282,44 @@ import Toast
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
-                if let fileServerURL, let fileServerPath {
-                    var talkMetaData: [String: Any] = ["messageType": "voice-message"]
 
-                    if message.parentMessageId > 0 {
-                        talkMetaData["replyTo"] = message.parentMessageId
+            var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+
+            if message.parentMessageId > 0 {
+                talkMetaData["replyTo"] = message.parentMessageId
+            }
+
+            if let thread = self.thread {
+                talkMetaData["threadId"] = thread.threadId
+            }
+
+            if room.supportsConversationSubfolders {
+                NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: [originalMessage], forAccount: self.account) { draftFolder, _, error in
+                    if let draftFolder {
+                        let tempName = UUID().uuidString + "-" + originalMessage
+                        let draftPath = "\(draftFolder)/\(tempName)"
+
+                        // Server path (add leading slash)
+                        let fileServerPath = "/\(draftPath)"
+
+                        if let fileServerURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: fileServerPath, forAccount: self.account) {
+                            self.uploadFileAtPath(localPath: message.file().fileStatus!.fileLocalPath!, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, draftPath: draftPath, withMetaData: talkMetaData, temporaryMessage: message)
+                        } else {
+                            NCLog.log("Error creating server path for upload")
+                        }
+                    } else {
+                        NCLog.log("Probe conversation attachment folder failed")
                     }
-
-                    if let thread = self.thread {
-                        talkMetaData["threadId"] = thread.threadId
-                    }
-
-                    self.uploadFileAtPath(localPath: message.file().fileStatus!.fileLocalPath!, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: message)
-                } else {
-                    NSLog("Could not find unique name for voice message file.")
                 }
-            })
+            } else {
+                NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: originalMessage, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
+                    if let fileServerURL, let fileServerPath {
+                        self.uploadFileAtPath(localPath: message.file().fileStatus!.fileLocalPath!, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, draftPath: nil, withMetaData: talkMetaData, temporaryMessage: message)
+                    } else {
+                        NSLog("Could not find unique name for voice message file.")
+                    }
+                })
+            }
         }
     }
 
@@ -1811,18 +1832,38 @@ import Toast
 
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         let folderPath = paths[0]
-        let filePath = (folderPath as NSString).appendingPathComponent("contact.vcf")
+        let filePath = (folderPath as NSString).appendingPathComponent(UUID().uuidString + ".vcf")
 
         do {
             try vcString?.write(toFile: filePath, atomically: true, encoding: .utf8)
             let url = URL(fileURLWithPath: filePath)
             let contactFileName = "\(contact.identifier).vcf"
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, _ in
-                if let fileServerURL, let fileServerPath {
-                    self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: nil, temporaryMessage: nil)
-                } else {
-                    print("Could not find unique name for contact file")
+            if room.supportsConversationSubfolders {
+                NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: [contactFileName], forAccount: self.account) { draftFolder, _, error in
+                    if let draftFolder {
+                        let tempName = UUID().uuidString + "-" + contactFileName
+                        let draftPath = "\(draftFolder)/\(tempName)"
+
+                        // Server path (add leading slash)
+                        let fileServerPath = "/\(draftPath)"
+
+                        if let fileServerURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: fileServerPath, forAccount: self.account) {
+                            self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, draftPath: draftPath, withMetaData: nil, temporaryMessage: nil)
+                        } else {
+                            NCLog.log("Error creating server path for upload")
+                        }
+                    } else {
+                        NCLog.log("Probe conversation attachment folder failed")
+                    }
+                }
+            } else {
+                NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: contactFileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, _ in
+                    if let fileServerURL, let fileServerPath {
+                        self.uploadFileAtPath(localPath: url.path, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, draftPath: nil, withMetaData: nil, temporaryMessage: nil)
+                    } else {
+                        print("Could not find unique name for contact file")
+                    }
                 }
             }
         } catch {
@@ -2057,33 +2098,54 @@ import Toast
                 self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
             }
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
-                if let fileServerURL, let fileServerPath {
-                    var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+            var talkMetaData: [String: Any] = ["messageType": "voice-message"]
 
-                    if let replyToMessageId = replyToMessage?.messageId {
-                        talkMetaData["replyTo"] = replyToMessageId
+            if let replyToMessageId = replyToMessage?.messageId {
+                talkMetaData["replyTo"] = replyToMessageId
+            }
+
+            if let thread = self.thread {
+                talkMetaData["threadId"] = thread.threadId
+            }
+
+            if room.supportsConversationSubfolders {
+                NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: [audioFileName], forAccount: self.account) { draftFolder, _, error in
+                    if let draftFolder {
+                        let tempName = UUID().uuidString + "-" + audioFileName
+                        let draftPath = "\(draftFolder)/\(tempName)"
+
+                        // Server path (add leading slash)
+                        let fileServerPath = "/\(draftPath)"
+
+                        if let fileServerURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: fileServerPath, forAccount: self.account) {
+                            self.uploadFileAtPath(localPath: destinationFilePath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, draftPath: draftPath, withMetaData: talkMetaData, temporaryMessage: temporaryMessage)
+                        } else {
+                            NCLog.log("Error creating server path for upload")
+                        }
+                    } else {
+                        NCLog.log("Probe conversation attachment folder failed")
                     }
-
-                    if let thread = self.thread {
-                        talkMetaData["threadId"] = thread.threadId
-                    }
-
-                    self.uploadFileAtPath(localPath: destinationFilePath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, withMetaData: talkMetaData, temporaryMessage: temporaryMessage)
-                } else {
-                    NSLog("Could not find unique name for voice message file.")
                 }
-            })
+            } else {
+                NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: audioFileName, isOriginalName: true, forAccount: activeAccount, completionBlock: { fileServerURL, fileServerPath, _, _ in
+                    if let fileServerURL, let fileServerPath {
+                        self.uploadFileAtPath(localPath: destinationFilePath, withFileServerURL: fileServerURL, andFileServerPath: fileServerPath, draftPath: nil, withMetaData: talkMetaData, temporaryMessage: temporaryMessage)
+                    } else {
+                        NSLog("Could not find unique name for voice message file.")
+                    }
+                })
+            }
         } else {
             print("Temporary message could not be created")
         }
     }
 
-    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, withMetaData talkMetaData: [String: Any]?, temporaryMessage: NCChatMessage?) {
+    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, draftPath: String?, withMetaData talkMetaData: [String: Any]?, temporaryMessage: NCChatMessage?) {
 
         ChatFileUploader.uploadFile(localPath: localPath,
                                     fileServerURL: fileServerURL,
                                     fileServerPath: fileServerPath,
+                                    draftPath: draftPath,
                                     talkMetaData: talkMetaData,
                                     temporaryMessage: temporaryMessage,
                                     room: self.room) { statusCode, errorMessage in
