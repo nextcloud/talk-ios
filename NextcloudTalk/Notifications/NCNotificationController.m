@@ -371,7 +371,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
                 return;
             }
 
-            [[NCAPIController sharedInstance] checkNotificationExistanceWithIds:notificationIdsOnDevice forAccount:account completionBlock:^(NSArray<NSNumber *> * _Nullable notificationIds, NSError * _Nullable error) {
+            [[NCAPIController sharedInstance] checkNotificationExistanceWithIds:notificationIdsOnDevice forAccount:account completionBlock:^(NSArray<NSNumber *> * _Nullable notificationIds, OcsError * _Nullable error) {
                 if (error) {
                     dispatch_group_leave(notificationsGroup);
                     return;
@@ -475,7 +475,7 @@ NSString * const NCNotificationActionFederationInvitationReject     = @"REJECT_F
     }];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[NCAPIController sharedInstance] sendChatMessage:pushNotification.responseUserText toRoom:pushNotification.roomToken threadTitle:nil replyTo:-1 referenceId:nil silently:NO forAccount:pushAccount completionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] sendChatMessage:pushNotification.responseUserText toRoom:pushNotification.roomToken threadTitle:nil replyTo:-1 referenceId:nil silently:NO forAccount:pushAccount completionBlock:^(OcsError *error) {
 
             if (error) {
                 NSLog(@"Could not send chat message. Error: %@", error.description);

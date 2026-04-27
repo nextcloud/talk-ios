@@ -7,11 +7,11 @@ import Foundation
 
 @objcMembers public class OcsError: NSObject, CustomNSError {
 
-    let error: NSError
+    let underlyingError: NSError
     let task: URLSessionDataTask?
 
     lazy var responseDict: [String: AnyObject]? = {
-        guard let errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey] as? Data,
+        guard let errorData = underlyingError.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey] as? Data,
               let errorDict = try? JSONSerialization.jsonObject(with: errorData) as? [AnyHashable: Any]
         else { return nil }
 
@@ -48,11 +48,11 @@ import Foundation
     }
 
     public override var description: String {
-        return error.description
+        return underlyingError.description
     }
 
     init(withError error: NSError, withTask task: URLSessionDataTask?) {
-        self.error = error
+        self.underlyingError = error
         self.task = task
     }
 }

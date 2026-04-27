@@ -268,7 +268,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
     
-    [self getCapabilitiesForAccountId:accountId withCompletionBlock:^(NSError *error) {
+    [self getCapabilitiesForAccountId:accountId withCompletionBlock:^(OcsError *error) {
         if (error) {
             return;
         }
@@ -356,7 +356,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getUserProfileForAccount:account completionBlock:^(NSDictionary *userProfile, NSError *error) {
+    [[NCAPIController sharedInstance] getUserProfileForAccount:account completionBlock:^(NSDictionary *userProfile, OcsError *error) {
         if (!error) {
             id emailObject = [userProfile objectForKey:kUserProfileEmail];
             NSString *email = emailObject;
@@ -468,7 +468,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
     }
 
     if (removingAccount.deviceIdentifier) {
-        [[NCAPIController sharedInstance] unsubscribeAccount:removingAccount fromNextcloudServerWithCompletionBlock:^(NSError *error) {
+        [[NCAPIController sharedInstance] unsubscribeAccount:removingAccount fromNextcloudServerWithCompletionBlock:^(OcsError *error) {
             if (!error) {
                 NSLog(@"Unsubscribed from NC server!!!");
             } else {
@@ -628,7 +628,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
         return;
     }
 
-    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:account completionBlock:^(NSDictionary *serverCapabilities, NSError *error) {
+    [[NCAPIController sharedInstance] getServerCapabilitiesForAccount:account completionBlock:^(NSDictionary *serverCapabilities, OcsError *error) {
         if (!error && [serverCapabilities isKindOfClass:[NSDictionary class]]) {
             BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"NCUpdateCapabilitiesTransaction" expirationHandler:nil];
             [[NCDatabaseManager sharedInstance] setServerCapabilities:serverCapabilities forAccountId:account.accountId];

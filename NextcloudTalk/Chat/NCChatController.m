@@ -457,7 +457,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         [self->_pullMessagesTask cancel];
     }];
 
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO limit:NCAPIController.shared.kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:lastChatBlock.newestMessageId inThread:_threadId history:NO includeLastMessage:NO timeout:NO limit:NCAPIController.shared.kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:NO markNotificationsAsRead:NO forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, OcsError *error, NSInteger statusCode) {
         if (expired) {
             if (block) {
                 block(error);
@@ -632,7 +632,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         lastReadMessageId = _room.lastReadMessage;
     }
 
-    [self fetchHistoryUntilVisibleFromMessageId:lastReadMessageId forInitialChatHistory:YES isFirstIteration:YES completion:^(NSArray *messages, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    [self fetchHistoryUntilVisibleFromMessageId:lastReadMessageId forInitialChatHistory:YES isFirstIteration:YES completion:^(NSArray *messages, NSInteger lastCommonReadMessage, OcsError *error, NSInteger statusCode) {
         if (error) {
             if ([self isChatBeingBlocked:statusCode]) {
                 [self notifyChatIsBlocked];
@@ -658,7 +658,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
     [userInfo setObject:_room.token forKey:@"room"];
 
-    [self fetchHistoryUntilVisibleFromMessageId:messageId forInitialChatHistory:NO isFirstIteration:YES completion:^(NSArray *messages, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    [self fetchHistoryUntilVisibleFromMessageId:messageId forInitialChatHistory:NO isFirstIteration:YES completion:^(NSArray *messages, NSInteger lastCommonReadMessage, OcsError *error, NSInteger statusCode) {
         if (statusCode == 304) {
             [self updateHistoryFlagInFirstBlock];
         }
@@ -682,7 +682,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 }
 
 
-- (void)fetchHistoryUntilVisibleFromMessageId:(NSInteger)messageId forInitialChatHistory:(BOOL)forInitialChatHistory isFirstIteration:(BOOL)isFirstIteration completion:(void (^)(NSArray *messages, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode))completion
+- (void)fetchHistoryUntilVisibleFromMessageId:(NSInteger)messageId forInitialChatHistory:(BOOL)forInitialChatHistory isFirstIteration:(BOOL)isFirstIteration completion:(void (^)(NSArray *messages, NSInteger lastCommonReadMessage, OcsError *error, NSInteger statusCode))completion
 {
     NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
 
@@ -740,7 +740,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
                                                                   completionBlock:^(NSArray *messages,
                                                                                     NSInteger lastKnownMessage,
                                                                                     NSInteger lastCommonReadMessage,
-                                                                                    NSError *error,
+                                                                                    OcsError *error,
                                                                                     NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
@@ -847,7 +847,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     _stopChatMessagesPoll = NO;
     [_pullMessagesTask cancel];
-    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout limit:NCAPIController.shared.kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    _pullMessagesTask = [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:_threadId history:NO includeLastMessage:NO timeout:timeout limit:NCAPIController.shared.kReceivedChatMessagesLimit lastCommonReadMessage:_room.lastCommonReadMessage setReadMarker:YES markNotificationsAsRead:YES forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, OcsError *error, NSInteger statusCode) {
         if (self->_stopChatMessagesPoll) {
             return;
         }
@@ -899,7 +899,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
         [self checkLastCommonReadMessage:lastCommonReadMessage];
         
-        if (error.code != -999) {
+        if ([error underlyingError].code != NSURLErrorCancelled) {
             NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
             [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
         }
@@ -938,7 +938,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         }];
     }
 
-    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token threadTitle:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account completionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] sendChatMessage:message toRoom:_room.token threadTitle:nil replyTo:replyTo referenceId:referenceId silently:silently forAccount:_account completionBlock:^(OcsError *error) {
         if (referenceId) {
             [userInfo setObject:referenceId forKey:@"referenceId"];
         }
@@ -1094,7 +1094,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 - (void)getMessageContextForMessageId:(NSInteger)messageId withLimit:(NSInteger)limit withCompletionBlock:(GetMessagesContextCompletionBlock)block
 {
-    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId inThread:_threadId withLimit:limit forAccount:self.account completionBlock:^(NSArray<NCChatMessage *> *messages, NSError *error) {
+    [[NCAPIController sharedInstance] getMessageContextInRoom:self.room.token forMessageId:messageId inThread:_threadId withLimit:limit forAccount:self.account completionBlock:^(NSArray<NCChatMessage *> *messages, OcsError *error) {
         if (error) {
             if (block) {
                 block(nil);
@@ -1133,7 +1133,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         return;
     }
 
-    [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:0 history:YES includeLastMessage:YES timeout:NO limit:1 lastCommonReadMessage:0 setReadMarker:NO markNotificationsAsRead:NO forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, NSError *error, NSInteger statusCode) {
+    [[NCAPIController sharedInstance] receiveChatMessagesOfRoom:_room.token fromLastMessageId:messageId inThread:0 history:YES includeLastMessage:YES timeout:NO limit:1 lastCommonReadMessage:0 setReadMarker:NO markNotificationsAsRead:NO forAccount:_account completionBlock:^(NSArray *messages, NSInteger lastKnownMessage, NSInteger lastCommonReadMessage, OcsError *error, NSInteger statusCode) {
         if (error) {
             NSLog(@"Could not get single message from server. Error: %@", error.description);
             block(nil);

@@ -365,13 +365,13 @@ typedef enum RoomsSections {
 
 - (void)roomsDidUpdate:(NSNotification *)notification
 {
-    NSError *error = [notification.userInfo objectForKey:@"error"];
+    OcsError *error = [notification.userInfo objectForKey:@"error"];
     if (error) {
         NSLog(@"Error while trying to get rooms: %@", error);
-        if ([error code] == NSURLErrorServerCertificateUntrusted) {
+        if ([error underlyingError].code == NSURLErrorServerCertificateUntrusted) {
             NSLog(@"Untrusted certificate");
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
+                [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error underlyingError].localizedDescription viewController:self delegate:self];
             });
             
         }
@@ -756,7 +756,7 @@ typedef enum RoomsSections {
     TalkAccount *account = [[NCDatabaseManager sharedInstance] activeAccount];
     // Search for contacts
     _resultTableViewController.users = @[];
-    [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil forGroupRoom:NO withSearchParam:searchString completionBlock:^(NSArray<NCUser *> * _Nullable contactList, NSError *error) {
+    [[NCAPIController sharedInstance] getContactsForAccount:account forRoom:nil forGroupRoom:NO withSearchParam:searchString completionBlock:^(NSArray<NCUser *> * _Nullable contactList, OcsError *error) {
         if (!error) {
             NSArray *users = [self usersWithoutOneToOneConversations:contactList];
             if ([[NCSettingsController sharedInstance] isContactSyncEnabled] && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityPhonebookSearch]) {
@@ -770,7 +770,7 @@ typedef enum RoomsSections {
     // Search for listable rooms
     if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityListableRooms]) {
         _resultTableViewController.listableRooms = @[];
-        [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSerachTerm:searchString completionBlock:^(NSArray<NCRoom *> * _Nullable rooms, NSError * _Nullable error) {
+        [[NCAPIController sharedInstance] getListableRoomsForAccount:account withSerachTerm:searchString completionBlock:^(NSArray<NCRoom *> * _Nullable rooms, OcsError * _Nullable error) {
             if (!error) {
                 self->_resultTableViewController.listableRooms = rooms;
             }
@@ -1281,7 +1281,7 @@ typedef enum RoomsSections {
 
 - (void)markRoomAsRead:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] setChatReadMarker:room.lastMessage.messageId inRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(OcsError *error) {
         if (error) {
             NSLog(@"Error marking room as read: %@", error.description);
         }
@@ -1291,7 +1291,7 @@ typedef enum RoomsSections {
 
 - (void)markRoomAsUnread:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] markChatAsUnreadInRoom:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(OcsError *error) {
         if (error) {
             NSLog(@"Error marking chat as unread: %@", error.description);
         }
@@ -1301,7 +1301,7 @@ typedef enum RoomsSections {
 
 - (void)addRoomToFavorites:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] addRoomToFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(OcsError *error) {
         if (error) {
             NSLog(@"Error adding room to favorites: %@", error.description);
         }
@@ -1311,7 +1311,7 @@ typedef enum RoomsSections {
 
 - (void)removeRoomFromFavorites:(NCRoom *)room
 {
-    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(NSError *error) {
+    [[NCAPIController sharedInstance] removeRoomFromFavorites:room.token forAccount:[[NCDatabaseManager sharedInstance] activeAccount] completionBlock:^(OcsError *error) {
         if (error) {
             NSLog(@"Error removing room from favorites: %@", error.description);
         }
@@ -1463,7 +1463,7 @@ typedef enum RoomsSections {
         if (room) {
             [self presentContextChatInRoom:room inThread:thread forMessageId:messageId];
         } else {
-            [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken completionBlock:^(NSDictionary *roomDict, NSError *error) {
+            [[NCAPIController sharedInstance] getRoomForAccount:activeAccount withToken:roomToken completionBlock:^(NSDictionary *roomDict, OcsError *error) {
                 if (!error) {
                     NCRoom *room = [NCRoom roomWithDictionary:roomDict andAccountId:activeAccount.accountId];
                     [self presentContextChatInRoom:room inThread:thread forMessageId:messageId];
