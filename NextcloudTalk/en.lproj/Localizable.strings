@@ -217,6 +217,9 @@
 /* No comment provided by engineer. */
 "Alphabetical order" = "Alphabetical order";
 
+/* Sort conversations alphabetically */
+"Alphabetically" = "Alphabetically";
+
 /* No comment provided by engineer. */
 "Also open to guest app users" = "Also open to guest app users";
 
@@ -477,6 +480,9 @@
 
 /* No comment provided by engineer. */
 "Busy" = "Busy";
+
+/* Sort conversations by recent activity */
+"By activity" = "By activity";
 
 /* No comment provided by engineer. */
 "Cached files" = "Cached files";
@@ -1135,6 +1141,9 @@
 /* No comment provided by engineer. */
 "Files" = "Files";
 
+/* No comment provided by engineer. */
+"Filter and sort conversations" = "Filter and sort conversations";
+
 /* Title for available conversations filters */
 "Filters" = "Filters";
 
@@ -1185,6 +1194,9 @@
 
 /* No comment provided by engineer. */
 "Go to message" = "Go to message";
+
+/* Show group conversations before private ones */
+"Group first" = "Group first";
 
 /* No comment provided by engineer. */
 "guest" = "guest";
@@ -1583,6 +1595,9 @@
 /* No comment provided by engineer. */
 "No followed threads" = "No followed threads";
 
+/* Do not group conversations by type */
+"No grouping" = "No grouping";
+
 /* No comment provided by engineer. */
 "No messages found to summarize" = "No messages found to summarize";
 
@@ -1816,6 +1831,9 @@
 
 /* No comment provided by engineer. */
 "Private" = "Private";
+
+/* Show private conversations before group ones */
+"Private first" = "Private first";
 
 /* No comment provided by engineer. */
 "Profile" = "Profile";
@@ -2119,6 +2137,9 @@
 
 /* No comment provided by engineer. */
 "Some messages not shown, will be downloaded when online" = "Some messages not shown, will be downloaded when online";
+
+/* Title for conversations sorting options */
+"Sort conversations" = "Sort conversations";
 
 /* No comment provided by engineer. */
 "Source code" = "Source code";

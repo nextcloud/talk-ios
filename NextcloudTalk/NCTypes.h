@@ -202,4 +202,17 @@ typedef NS_ENUM(NSInteger, DetailedOptionsSelectorType) {
     DetailedOptionsSelectorTypeAccounts
 };
 
+typedef NS_ENUM(NSInteger, NCRoomSortOrder) {
+    NCRoomSortOrderUnsupported = -1,
+    NCRoomSortOrderActivity = 0,
+    NCRoomSortOrderAlphabetical
+};
+
+typedef NS_ENUM(NSInteger, NCRoomGroupMode) {
+    NCRoomGroupModeUnsupported = -1,
+    NCRoomGroupModeNone = 0,
+    NCRoomGroupModeGroupFirst,
+    NCRoomGroupModePrivateFirst
+};
+
 #endif
