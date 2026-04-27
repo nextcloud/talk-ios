@@ -189,17 +189,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
             self.activityIndicatorView.stopAnimating()
             self.activityIndicatorView.isHidden = true
 
-            if let error = error as? NSError {
-                if error.code == NSURLErrorServerCertificateUntrusted {
+            if let error {
+                if error.underlyingError.code == NSURLErrorServerCertificateUntrusted {
                     DispatchQueue.main.async {
                         CCCertificate.sharedManager()
                             .presentViewControllerCertificate(
-                                withTitle: error.localizedDescription,
+                                withTitle: error.underlyingError.localizedDescription,
                                 viewController: self,
                                 delegate: self)
                     }
                 } else {
-                    self.showServerNotFoundAlert(withError: error.localizedDescription)
+                    self.showServerNotFoundAlert(withError: error.underlyingError.localizedDescription)
                 }
             } else {
                 if let serverCapabilities = serverCapabilities as? [String: Any] {

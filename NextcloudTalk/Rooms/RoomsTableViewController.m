@@ -365,13 +365,13 @@ typedef enum RoomsSections {
 
 - (void)roomsDidUpdate:(NSNotification *)notification
 {
-    NSError *error = [notification.userInfo objectForKey:@"error"];
+    OcsError *error = [notification.userInfo objectForKey:@"error"];
     if (error) {
         NSLog(@"Error while trying to get rooms: %@", error);
-        if ([error code] == NSURLErrorServerCertificateUntrusted) {
+        if ([error underlyingError].code == NSURLErrorServerCertificateUntrusted) {
             NSLog(@"Untrusted certificate");
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error localizedDescription] viewController:self delegate:self];
+                [[CCCertificate sharedManager] presentViewControllerCertificateWithTitle:[error underlyingError].localizedDescription viewController:self delegate:self];
             });
             
         }
