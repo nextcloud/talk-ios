@@ -34,20 +34,12 @@ public class NCRoomParticipant: NSObject {
     var statusMessage: String?
     var invitedActorId: String?
 
-    // Deprecated in conversation APIv3
-    var userId: String?
-
-    // Deprecated in conversation APIv4
-    var sessionId: String?
-
     init(dictionary: [String: Any]) {
         self.attendeeId = dictionary["attendeeId"] as? Int ?? 0
         self.actorId = dictionary["actorId"] as? String
         self.displayName = dictionary["displayName"] as? String ?? ""
         self.lastPing = dictionary["lastPing"] as? Int ?? 0
-        self.sessionId = dictionary["sessionId"] as? String
         self.sessionIds = dictionary["sessionIds"] as? [String]
-        self.userId = dictionary["userId"] as? String
 
         if let attendeeTypeRaw = dictionary["actorType"] as? String,
            let attendeeType = AttendeeType(rawValue: attendeeTypeRaw) {
@@ -101,7 +93,7 @@ public class NCRoomParticipant: NSObject {
 
     public var isAppUser: Bool {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        return participantId == activeAccount.userId
+        return actorType == .user && actorId == activeAccount.userId
     }
 
     public var isBridgeBotUser: Bool {
@@ -125,24 +117,7 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var isOffline: Bool {
-        return (sessionId == "0" || sessionId == nil) && (sessionIds ?? []).isEmpty
-    }
-
-    public var participantId: String? {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        if NCAPIVersion(forType: .conversation, withAccount: activeAccount) >= .APIv3 {
-            return String(attendeeId)
-        }
-
-        if let actorId {
-            return actorId
-        }
-
-        if isGuest {
-            return sessionId
-        }
-
-        return userId
+        return (sessionIds ?? []).isEmpty
     }
 
     public var detailedName: String {

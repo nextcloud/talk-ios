@@ -150,11 +150,9 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func changeModerationPermission(forParticipant participant: NCRoomParticipant, canModerate: Bool) {
-        guard let participantId = participant.participantId else { return }
-
         Task {
             do {
-                try await NCAPIController.sharedInstance().changeModerationPermission(forParticipantId: participantId, withType: canModerate ? .promoteToModerator : .demoteToParticipant, inRoom: room.token, forAccount: room.account!)
+                try await NCAPIController.sharedInstance().changeModerationPermission(forAttendeeId: participant.attendeeId, withType: canModerate ? .promoteToModerator : .demoteToParticipant, inRoom: room.token, forAccount: room.account!)
                 self.getParticipants()
             } catch {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not change moderation permissions of the participant", comment: ""), withMessage: nil)
@@ -189,28 +187,14 @@ struct RoomInfoParticipantsSection: View {
     func removeParticipant(participant: NCRoomParticipant) async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        if NCAPIVersion(forType: .conversation, withAccount: activeAccount) >= .APIv3 {
-            do {
-                try await NCAPIController.sharedInstance().removeAttendee(participant.attendeeId, forRoom: room.token, forAccount: activeAccount)
-            } catch {
-                NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not remove participant", comment: ""), withMessage: nil)
-            }
-
-            self.getParticipants()
-            return
-        }
-
-        guard let participantId = participant.participantId else { return }
-
-        let method = participant.isGuest ? NCAPIController.sharedInstance().removeGuest : NCAPIController.sharedInstance().removeParticipant
-
         do {
-            _ = try await method(participantId, room.token, activeAccount)
+            try await NCAPIController.sharedInstance().removeAttendee(participant.attendeeId, forRoom: room.token, forAccount: activeAccount)
         } catch {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not remove participant", comment: ""), withMessage: nil)
         }
 
         self.getParticipants()
+        return
     }
 
     func banParticipant(participant: NCRoomParticipant, withInternalNote internalNote: String) {

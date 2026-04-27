@@ -748,34 +748,6 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
     }
 
-    @nonobjc
-    @MainActor
-    @discardableResult
-    public func removeParticipant(_ participant: String, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
-              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        else { throw ApiControllerError.preconditionError }
-
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/participants", forAccount: account)
-        let parameters: [String: String] = ["participant": participant]
-
-        return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
-    }
-
-    @nonobjc
-    @MainActor
-    @discardableResult
-    public func removeGuest(_ guest: String, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
-        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
-              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        else { throw ApiControllerError.preconditionError }
-
-        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/guests", forAccount: account)
-        let parameters: [String: String] = ["participant": guest]
-
-        return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
-    }
-
     @MainActor
     @discardableResult
     public func removeSelf(fromRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
@@ -795,17 +767,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
     @nonobjc
     @MainActor
     @discardableResult
-    public func changeModerationPermission(forParticipantId participantId: String, withType type: ModeratorPermissionChangeType, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+    public func changeModerationPermission(forAttendeeId attendeeId: Int, withType type: ModeratorPermissionChangeType, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { throw ApiControllerError.preconditionError }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/moderators", forAccount: account)
-        var parameters = ["participant": participantId]
-
-        if NCAPIVersion(forType: .conversation, withAccount: account) >= .APIv3 {
-            parameters = ["attendeeId": participantId]
-        }
+        let parameters = ["attendeeId": attendeeId]
 
         if type == .promoteToModerator {
             return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
