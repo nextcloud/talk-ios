@@ -15,7 +15,6 @@
 @property (nonatomic, assign) CGFloat uploadProgress;
 @property (nonatomic, assign) BOOL isImage;
 @property (nonatomic, strong) NSString *caption;
-@property (nonatomic, strong) NSString *draftFolderPath;
 
 + (instancetype)initWithURL:(NSURL *)fileURL withName:(NSString *)fileName withPlaceholderImage:(UIImage *)placeholderImage isImage:(BOOL)isImage;
 

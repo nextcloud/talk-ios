@@ -650,13 +650,10 @@ import MBProgressHUD
             if let draftFolderPath {
                 let tempName = UUID().uuidString + "-" + shareItem.fileName
                 let draftPath = "\(draftFolderPath)/\(tempName)"
-                shareItem.draftFolderPath = draftPath
-
-                // Server path (add leading slash)
                 let fileServerPath = "/\(draftPath)"
 
                 if let fileServerURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: fileServerPath, forAccount: account) {
-                    self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
+                    self.uploadFile(to: fileServerURL, with: fileServerPath, draftFolderPath: draftPath, with: shareItem)
                 } else {
                     NCLog.log("Error creating server path for upload")
                     self.uploadErrors.append(NSLocalizedString("Error creating server path for upload", comment: ""))
@@ -665,7 +662,7 @@ import MBProgressHUD
             } else {
                 NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
                     if let fileServerURL, let fileServerPath {
-                        self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
+                        self.uploadFile(to: fileServerURL, with: fileServerPath, draftFolderPath: nil, with: shareItem)
                     } else {
                         NCLog.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
                         self.uploadErrors.append(errorDescription ?? "Unknown error")
@@ -700,7 +697,7 @@ import MBProgressHUD
         }
     }
 
-    func uploadFile(to fileServerURL: String, with filePath: String, with item: ShareItem) {
+    func uploadFile(to fileServerURL: String, with filePath: String, draftFolderPath: String?, with item: ShareItem) {
         NextcloudKit.shared.upload(serverUrlFileName: fileServerURL, fileNameLocalPath: item.filePath) { _ in
             NSLog("Upload task")
         } progressHandler: { progress in
@@ -723,9 +720,9 @@ import MBProgressHUD
                     talkMetaData["threadId"] = thread.threadId
                 }
 
-                if let draftPath = item.draftFolderPath {
+                if let draftFolderPath {
                     NCAPIController.sharedInstance().postConversationAttachment(inRoom: self.room.token,
-                                                                                filePath: draftPath,
+                                                                                filePath: draftFolderPath,
                                                                                 fileName: item.fileName,
                                                                                 referenceId: nil,
                                                                                 talkMetaData: talkMetaData,
@@ -758,7 +755,7 @@ import MBProgressHUD
             } else if nkError.errorCode == 404 || nkError.errorCode == 409 {
                 NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(forAccount: self.account) { created, _ in
                     if created {
-                        self.uploadFile(to: fileServerURL, with: filePath, with: item)
+                        self.uploadFile(to: fileServerURL, with: filePath, draftFolderPath: nil, with: item)
                     } else {
                         self.uploadErrors.append(nkError.errorDescription)
                         self.uploadGroup.leave()
