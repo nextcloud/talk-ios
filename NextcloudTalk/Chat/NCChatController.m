@@ -980,55 +980,85 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 - (void)sendChatMessage:(NCChatMessage *)message {
     if ([message.messageType isEqualToString:kMessageTypeVoiceMessage]) {
-        TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
+        NSMutableDictionary *talkMetaData = [NSMutableDictionary new];
+        [talkMetaData setObject:@"voice-message" forKey:@"messageType"];
 
-        [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:message.message
-                                                           isOriginalName:YES
-                                                               forAccount:activeAccount
-                                                          completionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
-            if (fileServerURL && fileServerPath) {
-                NSMutableDictionary *talkMetaData = [NSMutableDictionary new];
-                [talkMetaData setObject:@"voice-message" forKey:@"messageType"];
+        if (message.parentMessageId > 0) {
+            [talkMetaData setObject:@(message.parentMessageId) forKey:@"replyTo"];
+        }
 
-                if (message.parentMessageId > 0) {
-                    [talkMetaData setObject:@(message.parentMessageId) forKey:@"replyTo"];
+        if ([self isThreadController]) {
+            [talkMetaData setObject:@(self.threadId) forKey:@"threadId"];
+        }
+
+        void (^uploadCompletion)(NSInteger, NSString *) = ^(NSInteger statusCode, NSString *errorMessage) {
+            switch (statusCode) {
+                case 200:
+                    NSLog(@"Successfully uploaded and shared voice message.");
+                    break;
+                case 403:
+                    NSLog(@"Failed to share voice message.");
+                    break;
+                case 404:
+                case 409:
+                    NSLog(@"Failed to check or create attachment folder.");
+                    break;
+                case 507:
+                    NSLog(@"User storage quota exceeded.");
+                    break;
+                default:
+                    NSLog(@"Failed to upload voice message with error code: %ld", (long)statusCode);
+                    break;
+            }
+        };
+
+        if (_room.supportsConversationSubfolders) {
+            NSString *fileName = message.message;
+
+            [[NCAPIController sharedInstance] probeConversationAttachmentFolderInRoom:_room.token
+                                                                        withFileNames:@[fileName]
+                                                                           forAccount:_account
+                                                                      completionBlock:^(NSString *draftFolder,
+                                                                                        NSArray *renames,
+                                                                                        NSError *error) {
+                if (error || !draftFolder) {
+                    NSLog(@"Could not probe conversation attachment folder for voice message.");
+                    return;
                 }
 
-                if ([self isThreadController]) {
-                    [talkMetaData setObject:@(self.threadId) forKey:@"threadId"];
-                }
+                NSString *tempName = [NSString stringWithFormat:@"%@-%@", [NSUUID UUID].UUIDString, fileName];
+                NSString *draftPath = [NSString stringWithFormat:@"%@/%@", draftFolder, tempName];
+                NSString *serverPath = [NSString stringWithFormat:@"/%@", draftPath];
+                NSString *fileServerURL = [NSString stringWithFormat:@"%@/remote.php/dav/files/%@%@", self->_account.server, self->_account.userId, serverPath];
 
                 [ChatFileUploader uploadFileWithLocalPath:message.file.fileStatus.fileLocalPath
                                             fileServerURL:fileServerURL
-                                           fileServerPath:fileServerPath
-                                                draftPath:nil
+                                           fileServerPath:serverPath
+                                                draftPath:draftPath
                                              talkMetaData:talkMetaData
                                          temporaryMessage:message
                                                      room:self.room
-                                               completion:^(NSInteger statusCode, NSString *errorMessage) {
-                    switch (statusCode) {
-                        case 200:
-                            NSLog(@"Successfully uploaded and shared voice message.");
-                            break;
-                        case 403:
-                            NSLog(@"Failed to share voice message.");
-                            break;
-                        case 404:
-                        case 409:
-                            NSLog(@"Failed to check or create attachment folder.");
-                            break;
-                        case 507:
-                            NSLog(@"User storage quota exceeded.");
-                            break;
-                        default:
-                            NSLog(@"Failed to upload voice message with error code: %ld", (long)statusCode);
-                            break;
-                    }
-                }];
-            } else {
-                NSLog(@"Could not find unique name for voice message file.");
-            }
-        }];
+                                               completion:uploadCompletion];
+            }];
+        } else {
+            [[NCAPIController sharedInstance] uniqueNameForFileUploadWithName:message.message
+                                                               isOriginalName:YES
+                                                                   forAccount:_account
+                                                              completionBlock:^(NSString *fileServerURL, NSString *fileServerPath, NSInteger _, NSString *__) {
+                if (fileServerURL && fileServerPath) {
+                    [ChatFileUploader uploadFileWithLocalPath:message.file.fileStatus.fileLocalPath
+                                                fileServerURL:fileServerURL
+                                               fileServerPath:fileServerPath
+                                                    draftPath:nil
+                                                 talkMetaData:talkMetaData
+                                             temporaryMessage:message
+                                                         room:self.room
+                                                   completion:uploadCompletion];
+                } else {
+                    NSLog(@"Could not find unique name for voice message file.");
+                }
+            }];
+        }
     } else {
         [self sendChatMessage:message.sendingMessage replyTo:message.parentMessageId referenceId:message.referenceId silently:message.isSilent];
     }

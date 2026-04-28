@@ -3043,7 +3043,6 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // MARK: - Conversation attachment folder
 
-    @nonobjc
     public func probeConversationAttachmentFolder(inRoom token: String,
                                                   withFileNames fileNames: [String],
                                                   forAccount account: TalkAccount,
@@ -3073,7 +3072,6 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
-    @nonobjc
     public func postConversationAttachment(inRoom token: String,
                                            filePath: String,
                                            fileName: String,
