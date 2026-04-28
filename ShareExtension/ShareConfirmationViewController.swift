@@ -632,6 +632,18 @@ import MBProgressHUD
             NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: fileNames, forAccount: self.account) { draftFolder, _, error in
                 if let error {
                     NCLog.log(String(format: "Probe conversation attachment folder failed: %@", error.localizedDescription))
+                    DispatchQueue.main.async {
+                        self.stopAnimatingSharingIndicator()
+                        self.hud?.hide(animated: true)
+                        bgTask.stopBackgroundTask()
+                        let alert = UIAlertController(
+                            title: NSLocalizedString("Upload failed", comment: ""),
+                            message: NSLocalizedString("Could not prepare upload folder", comment: ""),
+                            preferredStyle: .alert
+                        )
+                        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+                        self.present(alert, animated: true)
+                    }
                     return
                 }
                 self.startUploads(draftFolderPath: draftFolder, bgTask: bgTask)
