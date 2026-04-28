@@ -758,6 +758,9 @@
 "Could not login with QR code" = "Could not login with QR code";
 
 /* No comment provided by engineer. */
+"Could not prepare upload folder" = "Could not prepare upload folder";
+
+/* No comment provided by engineer. */
 "Could not remove participant" = "Could not remove participant";
 
 /* No comment provided by engineer. */
