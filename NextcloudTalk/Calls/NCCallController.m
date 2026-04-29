@@ -1636,17 +1636,10 @@ static NSString * const kNCScreenTrackKind  = @"screen";
         return [_externalSignalingController getParticipantFromSessionId:sessionId].actor;
     }
 
-    NSInteger callAPIVersion = [ObjcNCAPIVersion getAPIVersionForType:NCAPITypeCall withAccount:_account];
-
     for (NSMutableDictionary *user in _peersInCall) {
         NSString *userSessionId = [user objectForKey:@"sessionId"];
         if ([userSessionId isEqualToString:sessionId]) {
-            TalkActor *actor = [[TalkActor alloc] initWithActorId:[user objectForKey:@"userId"] actorType:@"users" actorDisplayName:[user objectForKey:@"displayName"]];
-
-            if (callAPIVersion >= NCAPIVersionAPIv3) {
-                [actor setId:[user objectForKey:@"actorId"]];
-                [actor setType:[user objectForKey:@"actorType"]];
-            }
+            TalkActor *actor = [[TalkActor alloc] initWithActorId:[user objectForKey:@"actorId"] actorType:[user objectForKey:@"actorType"] actorDisplayName:[user objectForKey:@"displayName"]];
 
             return actor;
         }

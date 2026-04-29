@@ -427,16 +427,19 @@ final class IntegrationRoomTest: TestBase {
         let participantAlice = try XCTUnwrap(participants.first(where: { $0.displayName == "alice" }))
 
         // Promote alice to moderator
-        try await NCAPIController.sharedInstance().changeModerationPermission(forParticipantId: participantAlice.participantId!, withType: .promoteToModerator, inRoom: room.token, forAccount: activeAccount)
+        try await NCAPIController.sharedInstance().changeModerationPermission(forAttendeeId: participantAlice.attendeeId, withType: .promoteToModerator, inRoom: room.token, forAccount: activeAccount)
         participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
 
         XCTAssertTrue(participants.contains { $0.displayName == "alice" && $0.canModerate })
 
         // Demote alice to participant
-        try await NCAPIController.sharedInstance().changeModerationPermission(forParticipantId: participantAlice.participantId!, withType: .demoteToParticipant, inRoom: room.token, forAccount: activeAccount)
+        try await NCAPIController.sharedInstance().changeModerationPermission(forAttendeeId: participantAlice.attendeeId, withType: .demoteToParticipant, inRoom: room.token, forAccount: activeAccount)
         participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
 
         XCTAssertTrue(participants.contains { $0.displayName == "alice" && !$0.canModerate })
+
+        // Also check that the test user is in the room and correctly identified as the app user
+        XCTAssertTrue(participants.contains { $0.displayName == "admin" && $0.isAppUser })
 
         // Try to remove admin which should fail, as admin is the last moderator
         do {

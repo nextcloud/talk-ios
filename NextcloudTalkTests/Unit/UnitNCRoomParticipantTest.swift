@@ -114,7 +114,6 @@ final class UnitNCRoomParticipantTest: TestBaseRealm {
         XCTAssertEqual(participant.status, "busy")
         XCTAssertEqual(participant.statusIcon, "💬")
         XCTAssertEqual(participant.statusMessage, "In a call")
-        XCTAssertNil(participant.userId)
     }
 
 }
