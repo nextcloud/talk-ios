@@ -433,6 +433,9 @@
 /* No comment provided by engineer. */
 "Attendees" = "Attendees";
 
+/* Join a call in audio only mode */
+"Audio only" = "Audio only";
+
 /* No comment provided by engineer. */
 "Audio options" = "Audio options";
 
@@ -1212,6 +1215,9 @@
 
 /* No comment provided by engineer. */
 "hours" = "hours";
+
+/* No comment provided by engineer. */
+"How do you want to join the call?" = "How do you want to join the call?";
 
 /* No comment provided by engineer. */
 "If you delete the conversation, it will also be deleted for %@" = "If you delete the conversation, it will also be deleted for %@";
@@ -2431,6 +2437,9 @@
 
 /* No comment provided by engineer. */
 "Version" = "Version";
+
+/* Join a call in video call mode */
+"Video call" = "Video call";
 
 /* No comment provided by engineer. */
 "Video quality" = "Video quality";
