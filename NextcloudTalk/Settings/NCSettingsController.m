@@ -776,7 +776,7 @@ NSString * const kDidReceiveCallsFromOldAccount = @"receivedCallsFromOldAccount"
 
     BGTaskHelper *bgTask = [BGTaskHelper startBackgroundTaskWithName:@"PushProxySubscription" expirationHandler:nil];
 
-    [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] withPublicKey:keyPair.publicKey toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, NSError *error) {
+    [[NCAPIController sharedInstance] subscribeAccount:[[NCDatabaseManager sharedInstance] talkAccountForAccountId:accountId] withPublicKey:keyPair.publicKey toNextcloudServerWithCompletionBlock:^(NSDictionary *responseDict, OcsError *error) {
         if (!error) {
             [NCLog log:@"Subscribed to NC server successfully."];
 
