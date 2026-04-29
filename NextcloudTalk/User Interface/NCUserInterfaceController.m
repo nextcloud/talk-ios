@@ -459,14 +459,30 @@
                                   actionWithTitle:NSLocalizedString(@"Audio only", @"Join a call in audio only mode")
                                   style:UIAlertActionStyleDefault
                                   handler:^(UIAlertAction * _Nonnull action) {
-        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:NO andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+        if (room.recordingConsent) {
+            [[NCUserInterfaceController sharedInstance] presentRecordingConsentAlertForRoom:room confirmed:^(BOOL confirmed) {
+                if (confirmed) {
+                    [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:NO andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+                }
+            }];
+        } else {
+            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:NO andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+        }
     }];
 
     UIAlertAction *videoAction = [UIAlertAction
                                   actionWithTitle:NSLocalizedString(@"Video call", @"Join a call in video call mode")
                                   style:UIAlertActionStyleDefault
                                   handler:^(UIAlertAction * _Nonnull action) {
-        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:YES andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+        if (room.recordingConsent) {
+            [[NCUserInterfaceController sharedInstance] presentRecordingConsentAlertForRoom:room confirmed:^(BOOL confirmed) {
+                if (confirmed) {
+                    [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:YES andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+                }
+            }];
+        } else {
+            [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:YES andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+        }
     }];
 
     UIAlertAction *cancelAction = [UIAlertAction
@@ -479,6 +495,33 @@
 
     [alert addAction:audioAction];
     [alert addAction:videoAction];
+    [alert addAction:cancelAction];
+
+    [self presentAlertViewController:alert];
+}
+
+- (void)presentRecordingConsentAlertForRoom:(NCRoom *)room confirmed:(void(^)(BOOL confirmed))completion
+{
+    NSString *title = [NSString stringWithFormat:@"⚠️ %@", NSLocalizedString(@"The call might be recorded", nil)];
+    NSString *message = NSLocalizedString(@"The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.", nil);
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                  message:message
+                                                           preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction *joinAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Give consent and join call", @"Give consent to the recording of the call and join that call")
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * _Nonnull action) {
+        if (completion) { completion(YES); }
+    }];
+
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * _Nonnull action) {
+        if (completion) { completion(NO); }
+    }];
+
+    [alert addAction:joinAction];
     [alert addAction:cancelAction];
 
     [self presentAlertViewController:alert];

@@ -42,6 +42,7 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 - (void)presentSettingsViewController;
 - (void)presentShareLinkDialogForRoom:(NCRoom *)room inViewContoller:(UITableViewController *)viewController forIndexPath:(NSIndexPath *)indexPath;
 - (void)presentVoiceRoomJoinAlertForRoom:(NCRoom *)room;
+- (void)presentRecordingConsentAlertForRoom:(NCRoom *)room confirmed:(void(^)(BOOL confirmed))completion;
 - (void)logOutAccountWithAccountId:(NSString *)accountId;
 
 @end
