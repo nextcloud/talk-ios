@@ -227,7 +227,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         }
     }
 
-    public func updateRoom(_ token: String, withCompletionBlock completion: ((_ roomDict: [String: AnyObject]?, _ error: Error?) -> Void)? = nil) {
+    public func updateRoom(_ token: String, withCompletionBlock completion: ((_ roomDict: [String: AnyObject]?, _ error: OcsError?) -> Void)? = nil) {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: token) { roomDict, error in
