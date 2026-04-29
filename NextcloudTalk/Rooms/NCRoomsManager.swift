@@ -229,13 +229,13 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         }
     }
 
-    public func updateRoom(_ token: String, forAccount account: TalkAccount, withCompletionBlock completion: ((_ roomDict: [String: AnyObject]?, _ error: Error?) -> Void)? = nil) {
+    public func updateRoom(_ token: String, forAccount account: TalkAccount, withCompletionBlock completion: ((_ roomDict: [String: AnyObject]?, _ error: OcsError?) -> Void)? = nil) {
         NCAPIController.sharedInstance().getRoom(forAccount: account, withToken: token) { roomDict, error in
             if let error {
                 NCLog.log("Could not update room. Error: \(error.localizedDescription)")
 
                 NotificationCenter.default.post(name: .NCRoomsManagerDidUpdateRoom, object: self, userInfo: ["error": error])
-                completion?([:], error as NSError)
+                completion?([:], error)
 
                 return
             }
