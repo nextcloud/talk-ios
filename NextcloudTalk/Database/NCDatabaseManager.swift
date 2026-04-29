@@ -64,37 +64,15 @@ import Foundation
 
         // Sort rooms
         let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)
+        var groupMode: NCRoomGroupMode = .none
+        var sortOrder: NCRoomSortOrder = .activity
 
-        unmanagedRooms.sort { (first: NCRoom, second: NCRoom) in
-            // 1. Favorites
-            if first.isFavorite != second.isFavorite {
-                return first.isFavorite
-            }
-
-            if let capabilities {
-                let groupMode = NCRoomGroupMode(rawValue: capabilities.roomsGroupMode) ?? .none
-                let sortOrder = NCRoomSortOrder(rawValue: capabilities.roomsSortOrder) ?? .activity
-
-                // 2. Group mode
-                if groupMode == .groupFirst || groupMode == .privateFirst {
-                    let firstIsOneToOne = (first.type == .oneToOne || first.type == .formerOneToOne)
-                    let secondIsOneToOne = (second.type == .oneToOne || second.type == .formerOneToOne)
-
-                    if firstIsOneToOne != secondIsOneToOne {
-                        let oneToOneFirst = groupMode == .privateFirst
-                        return firstIsOneToOne == oneToOneFirst
-                    }
-                }
-
-                // 3. Sort order
-                if sortOrder == .alphabetical {
-                    return first.displayName.localizedCaseInsensitiveCompare(second.displayName) == .orderedAscending
-                }
-            }
-
-            // Default: Recent activity
-            return first.lastActivity > second.lastActivity
+        if let capabilities {
+            groupMode = NCRoomGroupMode(rawValue: capabilities.roomsGroupMode) ?? groupMode
+            sortOrder = NCRoomSortOrder(rawValue: capabilities.roomsSortOrder) ?? sortOrder
         }
+
+        unmanagedRooms.sortRooms(withGroupMode: groupMode, withSortOrder: sortOrder)
 
         return unmanagedRooms
     }

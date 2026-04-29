@@ -1040,7 +1040,7 @@ typedef enum RoomsSections {
 
     [[NCAPIController sharedInstance] setRoomSortOrder:sortOrder forAccount:account completionHandler:^(BOOL success) {
         if (success) {
-            [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:account.accountId withCompletionBlock:^(NSError *error) {
+            [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:account.accountId withCompletionBlock:^(OcsError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshRoomList];
                     [self configureRightBarButtonItems];
@@ -1056,7 +1056,7 @@ typedef enum RoomsSections {
 
     [[NCAPIController sharedInstance] setRoomGroupMode:groupMode forAccount:account completionHandler:^(BOOL success) {
         if (success) {
-            [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:account.accountId withCompletionBlock:^(NSError *error) {
+            [[NCSettingsController sharedInstance] getCapabilitiesForAccountId:account.accountId withCompletionBlock:^(OcsError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshRoomList];
                     [self configureRightBarButtonItems];
