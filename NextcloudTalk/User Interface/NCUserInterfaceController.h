@@ -41,6 +41,7 @@ typedef void (^PresentCallControllerCompletionBlock)(void);
 - (void)presentLoginViewControllerForServerURL:(NSString *)serverURL withUser:(NSString *)user;
 - (void)presentSettingsViewController;
 - (void)presentShareLinkDialogForRoom:(NCRoom *)room inViewContoller:(UITableViewController *)viewController forIndexPath:(NSIndexPath *)indexPath;
+- (void)presentVoiceRoomJoinAlertForRoom:(NCRoom *)room;
 - (void)logOutAccountWithAccountId:(NSString *)accountId;
 
 @end

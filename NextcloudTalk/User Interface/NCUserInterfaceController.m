@@ -448,6 +448,42 @@
     };
 }
 
+- (void)presentVoiceRoomJoinAlertForRoom:(NCRoom *)room
+{
+    UIAlertController *alert = [UIAlertController
+                                alertControllerWithTitle:room.displayName
+                                message:NSLocalizedString(@"How do you want to join the call?", nil)
+                                preferredStyle:UIAlertControllerStyleActionSheet];
+
+    UIAlertAction *audioAction = [UIAlertAction
+                                  actionWithTitle:NSLocalizedString(@"Audio only", @"Join a call in audio only mode")
+                                  style:UIAlertActionStyleDefault
+                                  handler:^(UIAlertAction * _Nonnull action) {
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:NO andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+    }];
+
+    UIAlertAction *videoAction = [UIAlertAction
+                                  actionWithTitle:NSLocalizedString(@"Video call", @"Join a call in video call mode")
+                                  style:UIAlertActionStyleDefault
+                                  handler:^(UIAlertAction * _Nonnull action) {
+        [[CallKitManager sharedInstance] startCall:room.token withVideoEnabled:YES andDisplayName:room.displayName asInitiator:YES silently:YES recordingConsent:YES withAccountId:room.account.accountId];
+    }];
+
+    UIAlertAction *cancelAction = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                                   style:UIAlertActionStyleCancel
+                                   handler:nil];
+
+    [audioAction setValue:[UIImage systemImageNamed:@"mic"] forKey:@"image"];
+    [videoAction setValue:[UIImage systemImageNamed:@"video"] forKey:@"image"];
+
+    [alert addAction:audioAction];
+    [alert addAction:videoAction];
+    [alert addAction:cancelAction];
+
+    [self presentAlertViewController:alert];
+}
+
 #pragma mark - Notifications
 
 - (void)appStateHasChanged:(NSNotification *)notification

@@ -72,6 +72,7 @@ NSString * const NCRoomObjectTypeExtendedConversation   = @"extended_conversatio
     room.lastPinnedId = [[roomDict objectForKey:@"lastPinnedId"] integerValue];
     room.hiddenPinnedId = [[roomDict objectForKey:@"hiddenPinnedId"] integerValue];
     room.hasScheduledMessages = [[roomDict objectForKey:@"hasScheduledMessages"] boolValue];
+    room.attributes = [[roomDict objectForKey:@"attributes"] integerValue];
 
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
@@ -191,6 +192,7 @@ NSString * const NCRoomObjectTypeExtendedConversation   = @"extended_conversatio
     managedRoom.lastPinnedId = room.lastPinnedId;
     managedRoom.hiddenPinnedId = room.hiddenPinnedId;
     managedRoom.hasScheduledMessages = room.hasScheduledMessages;
+    managedRoom.attributes = room.attributes;
 }
 
 + (NSString *)primaryKey {
