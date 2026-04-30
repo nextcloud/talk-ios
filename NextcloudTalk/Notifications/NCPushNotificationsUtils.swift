@@ -26,9 +26,16 @@ public class NCPushNotificationsUtils: NSObject {
             }
 
             let devicePrivateKey = try RsaPrivateKey(pemEncoded: devicePrivateKeyPem)
-            let clearMessage = try encryptedMessage.decrypted(with: devicePrivateKey, padding: .PKCS1)
 
-            return try clearMessage.string(encoding: .utf8)
+            do {
+                // As of 2026 PKCS1 padding is still the default, so try that first
+                let clearMessage = try encryptedMessage.decrypted(with: devicePrivateKey, padding: .PKCS1)
+                return try clearMessage.string(encoding: .utf8)
+            } catch SwiftyRSAError.dataToStringConversionFailed {
+                // If data to string conversation failed (because of wrong padding), try again with OAEP
+                let clearMessage = try encryptedMessage.decrypted(with: devicePrivateKey, padding: .OAEP)
+                return try clearMessage.string(encoding: .utf8)
+            }
         } catch {
             print("decryptPushNotificationError: \(error)")
         }
