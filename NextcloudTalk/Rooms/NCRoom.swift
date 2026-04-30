@@ -374,10 +374,8 @@ import SwiftyAttributes
 
     // MARK: - Room Attributes
 
-    private static let voiceRoomAttributeBit: Int = 1
-
     public var isVoiceRoom: Bool {
-        return (self.attributes & NCRoom.voiceRoomAttributeBit) != 0
+        return self.attributes.contains(.voiceRoom)
     }
 
 }
