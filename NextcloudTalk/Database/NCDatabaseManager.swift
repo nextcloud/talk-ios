@@ -62,10 +62,17 @@ import Foundation
             unmanagedRooms.append(NCRoom(value: managedRoom))
         }
 
-        // Sort by favorites first, then by lastActivity
-        unmanagedRooms.sort { first, second in
-            (first.isFavorite ? 1 : 0, first.lastActivity) > (second.isFavorite ? 1 : 0, second.lastActivity)
+        // Sort rooms
+        let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)
+        var groupMode: NCRoomGroupMode = .none
+        var sortOrder: NCRoomSortOrder = .activity
+
+        if let capabilities {
+            groupMode = NCRoomGroupMode(rawValue: capabilities.roomsGroupMode) ?? groupMode
+            sortOrder = NCRoomSortOrder(rawValue: capabilities.roomsSortOrder) ?? sortOrder
         }
+
+        unmanagedRooms.sortRooms(withGroupMode: groupMode, withSortOrder: sortOrder)
 
         return unmanagedRooms
     }

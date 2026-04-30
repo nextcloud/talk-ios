@@ -8,6 +8,40 @@ import XCTest
 
 final class UnitNCRooms: TestBaseRealm {
 
+    private func createRoom(withDisplayName displayName: String, withType type: NCRoomType, isFavorite favorite: Bool, withLastActivity lastActivity: Int) -> NCRoom {
+        let room = NCRoom()
+        room.displayName = displayName
+        room.type = type
+        room.isFavorite = favorite
+        room.lastActivity = lastActivity
+
+        return room
+    }
+
+    func testRoomSort() throws {
+        let favOneToOne = self.createRoom(withDisplayName: "FavRoom1 1-1", withType: .oneToOne, isFavorite: true, withLastActivity: 0)
+        let favGroup = self.createRoom(withDisplayName: "FavRoom1 Group", withType: .group, isFavorite: true, withLastActivity: 0)
+        let room1 = self.createRoom(withDisplayName: "Room1", withType: .group, isFavorite: false, withLastActivity: 1)
+        let room2 = self.createRoom(withDisplayName: "Room2", withType: .group, isFavorite: false, withLastActivity: 2)
+        let activity1 = self.createRoom(withDisplayName: "Activity1", withType: .oneToOne, isFavorite: false, withLastActivity: 123)
+        let activity2 = self.createRoom(withDisplayName: "Activity2", withType: .oneToOne, isFavorite: false, withLastActivity: 456)
+
+        let startArray = [
+            activity2, activity1,
+            favGroup, favOneToOne,
+            room2, room1
+        ]
+
+        var test1Begin = startArray
+        test1Begin.sortRooms(withGroupMode: .privateFirst, withSortOrder: .activity)
+
+        let test1Expected = [
+            favOneToOne, favGroup, activity2, activity1, room2, room1
+        ]
+
+        XCTAssertEqual(test1Begin, test1Expected)
+    }
+
     func testEventVisibility() throws {
         let nonEventRoom = NCRoom()
         XCTAssertTrue(nonEventRoom.isVisible)
