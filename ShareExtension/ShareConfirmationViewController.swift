@@ -631,7 +631,7 @@ import MBProgressHUD
             let fileNames = self.shareItemController.shareItems.compactMap { $0.fileName }
             NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: fileNames, forAccount: self.account) { draftFolder, _, error in
                 if let error {
-                    NCLog.log(String(format: "Probe conversation attachment folder failed: %@", error.localizedDescription))
+                    NCLog.log("Probe conversation attachment folder failed: \(error.localizedDescription)")
                     DispatchQueue.main.async {
                         self.stopAnimatingSharingIndicator()
                         self.hud?.hide(animated: true)
@@ -740,7 +740,7 @@ import MBProgressHUD
                                                                                 talkMetaData: talkMetaData,
                                                                                 forAccount: self.account) { error in
                         if let error {
-                            NCLog.log(String(format: "Failed to post attachment. Error: %@", error.localizedDescription))
+                            NCLog.log("Failed to post attachment. Error: \(error.localizedDescription)")
                             self.uploadErrors.append(error.localizedDescription)
                         } else {
                             self.uploadSuccess.append(item)

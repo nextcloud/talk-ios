@@ -3062,13 +3062,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             guard let dataDict = ocsResponse?.dataDict else {
-                completionBlock(nil, nil, ocsError?.error)
+                completionBlock(nil, nil, ocsError?.underlyingError)
                 return
             }
 
             let folder = dataDict["folder"] as? String
             let renames = dataDict["renames"] as? [[String: String]]
-            completionBlock(folder, renames, ocsError?.error)
+            completionBlock(folder, renames, ocsError?.underlyingError)
         }
     }
 
@@ -3094,12 +3094,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
             "fileName": fileName
         ]
 
-        if let referenceId {
-            parameters["referenceId"] = referenceId
-        } else {
-            // Required by API: missing referenceId results in a 400 response
-            parameters["referenceId"] = "temp-\(Date().timeIntervalSince1970 * 1000)"
-        }
+        // Required by API: missing referenceId results in a 400 response
+        parameters["referenceId"] = referenceId ?? "temp-\(Date().timeIntervalSince1970 * 1000)"
 
         if let talkMetaData,
            let jsonData = try? JSONSerialization.data(withJSONObject: talkMetaData),
@@ -3108,7 +3104,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
-            completionBlock(ocsError?.error)
+            completionBlock(ocsError?.underlyingError)
         }
     }
 
