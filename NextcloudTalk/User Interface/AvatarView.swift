@@ -158,6 +158,10 @@ import SDWebImage
             if let statusImage = statusImageWith(name: "globe", color: .label, padding: 3) {
                 setUserStatusImage(statusImage)
             }
+        } else if room.isVoiceRoom {
+            if let statusImage = statusImageWith(name: "speaker.wave.2.fill", color: .label, padding: 3) {
+                setUserStatusImage(statusImage)
+            }
         }
 
         self.room = room

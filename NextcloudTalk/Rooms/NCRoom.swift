@@ -372,4 +372,10 @@ import SwiftyAttributes
         return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: self)
     }
 
+    // MARK: - Room Attributes
+
+    public var isVoiceRoom: Bool {
+        return self.attributes.contains(.voiceRoom)
+    }
+
 }

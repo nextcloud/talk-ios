@@ -205,19 +205,13 @@ import SwiftUI
 
         button.showIndicator()
         if self.room.recordingConsent {
-            let alert = UIAlertController(title: "⚠️" + NSLocalizedString("The call might be recorded", comment: ""),
-                                          message: NSLocalizedString("The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.", comment: ""),
-                                          preferredStyle: .alert)
+            NCUserInterfaceController.sharedInstance().presentRecordingConsentAlert(for: self.room) { confirmed in
+                if confirmed {
+                    CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, asInitiator: !self.room.hasCall, silently: silently, recordingConsent: true, withAccountId: self.room.accountId)
+                }
 
-            alert.addAction(.init(title: NSLocalizedString("Give consent and join call", comment: "Give consent to the recording of the call and join that call"), style: .default) { _ in
-                CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, asInitiator: !self.room.hasCall, silently: silently, recordingConsent: true, withAccountId: self.room.accountId)
-            })
-
-            alert.addAction(.init(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
                 button.hideIndicator()
-            })
-
-            NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+            }
 
         } else {
             CallKitManager.sharedInstance().startCall(self.room.token, withVideoEnabled: video, andDisplayName: self.room.displayName, asInitiator: !self.room.hasCall, silently: silently, recordingConsent: false, withAccountId: self.room.accountId)

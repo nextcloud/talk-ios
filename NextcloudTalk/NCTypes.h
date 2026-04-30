@@ -84,6 +84,11 @@ typedef NS_ENUM(NSInteger, NCRoomSIPState) {
     NCRoomSIPStateEnabledWithoutPIN
 };
 
+typedef NS_OPTIONS(NSInteger, NCRoomAttribute) {
+    NCRoomAttributeNone = 0,
+    NCRoomAttributeVoiceRoom = 1
+};
+
 typedef NS_OPTIONS(NSInteger, NCPermission) {
     NCPermissionDefaultPermissions = 0,
     NCPermissionCustomPermissions = 1,

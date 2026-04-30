@@ -440,6 +440,11 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             return
         }
 
+        if room.isVoiceRoom {
+            NCUserInterfaceController.sharedInstance().presentVoiceRoomJoinAlert(for: room)
+            return
+        }
+
         if self.activeRooms[roomToken] != nil {
             // Workaround until external signaling supports multi-room
             if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId) {
