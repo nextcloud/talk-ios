@@ -210,5 +210,21 @@
 			<string>Password needs to be at least %d characters long</string>
 		</dict>
 	</dict>
+	<key>Uploading %ld elements</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Uploading %ld element</string>
+			<key>other</key>
+			<string>Uploading %ld elements</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
