@@ -11,6 +11,7 @@ import NextcloudKit
     public static func uploadFile(localPath: String,
                                   fileServerURL: String,
                                   fileServerPath: String,
+                                  draftPath: String? = nil,
                                   talkMetaData: [String: Any]?,
                                   temporaryMessage: NCChatMessage?,
                                   room: NCRoom,
@@ -33,16 +34,33 @@ import NextcloudKit
 
             switch error.errorCode {
             case 0:
-                NCAPIController.sharedInstance().shareFileOrFolder(forAccount: activeAccount,
-                                                                   atPath: fileServerPath,
-                                                                   toRoom: room.token,
-                                                                   withTalkMetaData: talkMetaData,
-                                                                   withReferenceId: temporaryMessage?.referenceId) { shareError in
-                    if let shareError {
-                        NSLog("Failed to share voice message: \(shareError.localizedDescription)")
-                        completion(403, "Failed to share voice message")
-                    } else {
-                        completion(200, nil)
+                if let draftPath {
+                    let fileName = URL(fileURLWithPath: localPath).lastPathComponent
+                    NCAPIController.sharedInstance().postConversationAttachment(inRoom: room.token,
+                                                                                filePath: draftPath,
+                                                                                fileName: fileName,
+                                                                                referenceId: temporaryMessage?.referenceId,
+                                                                                talkMetaData: talkMetaData,
+                                                                                forAccount: activeAccount) { error in
+                        if let error {
+                            NSLog("Failed to share voice message: \(error.localizedDescription)")
+                            completion(403, "Failed to share voice message")
+                        } else {
+                            completion(200, nil)
+                        }
+                    }
+                } else {
+                    NCAPIController.sharedInstance().shareFileOrFolder(forAccount: activeAccount,
+                                                                       atPath: fileServerPath,
+                                                                       toRoom: room.token,
+                                                                       withTalkMetaData: talkMetaData,
+                                                                       withReferenceId: temporaryMessage?.referenceId) { shareError in
+                        if let shareError {
+                            NSLog("Failed to share voice message: \(shareError.localizedDescription)")
+                            completion(403, "Failed to share voice message")
+                        } else {
+                            completion(200, nil)
+                        }
                     }
                 }
             case 404, 409:

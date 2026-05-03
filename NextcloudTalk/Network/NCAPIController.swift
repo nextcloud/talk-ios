@@ -3041,6 +3041,73 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
+    // MARK: - Conversation attachment folder
+
+    public func probeConversationAttachmentFolder(inRoom token: String,
+                                                  withFileNames fileNames: [String],
+                                                  forAccount account: TalkAccount,
+                                                  completionBlock: @escaping (_ folder: String?, _ renames: [[String: String]]?, _ error: Error?) -> Void) {
+
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil, nil, nil)
+            return
+        }
+
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/attachment/folder", withAPIType: .chat, forAccount: account)
+        let parameters: [String: Any] = [
+            "fileNames": fileNames
+        ]
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            guard let dataDict = ocsResponse?.dataDict else {
+                completionBlock(nil, nil, ocsError?.underlyingError)
+                return
+            }
+
+            let folder = dataDict["folder"] as? String
+            let renames = dataDict["renames"] as? [[String: String]]
+            completionBlock(folder, renames, ocsError?.underlyingError)
+        }
+    }
+
+    public func postConversationAttachment(inRoom token: String,
+                                           filePath: String,
+                                           fileName: String,
+                                           referenceId: String?,
+                                           talkMetaData: [String: Any]?,
+                                           forAccount account: TalkAccount,
+                                           completionBlock: @escaping (_ error: Error?) -> Void) {
+
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            completionBlock(nil)
+            return
+        }
+
+        let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/attachment", withAPIType: .chat, forAccount: account)
+
+        var parameters: [String: Any] = [
+            "filePath": filePath,
+            "fileName": fileName
+        ]
+
+        // Required by API: missing referenceId results in a 400 response
+        parameters["referenceId"] = referenceId ?? "temp-\(Date().timeIntervalSince1970 * 1000)"
+
+        if let talkMetaData,
+           let jsonData = try? JSONSerialization.data(withJSONObject: talkMetaData),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            parameters["talkMetaData"] = jsonString
+        }
+
+        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+            completionBlock(ocsError?.underlyingError)
+        }
+    }
+
     // MARK: - User actions
 
     @nonobjc

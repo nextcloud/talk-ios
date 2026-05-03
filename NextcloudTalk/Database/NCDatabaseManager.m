@@ -16,7 +16,7 @@
 
 NSString *const kTalkDatabaseFolder                 = @"Library/Application Support/Talk";
 NSString *const kTalkDatabaseFileName               = @"talk.realm";
-uint64_t const kTalkDatabaseSchemaVersion           = 89;
+uint64_t const kTalkDatabaseSchemaVersion           = 90;
 
 NSString * const kCapabilitySystemMessages          = @"system-messages";
 NSString * const kCapabilityNotificationLevels      = @"notification-levels";
@@ -444,6 +444,7 @@ NSString * const NCDatabaseManagerRoomCapabilitiesChangedNotification = @"NCData
     capabilities.hasTranslationProviders = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"chat"] objectForKey:@"has-translation-providers"] boolValue];
     capabilities.attachmentsAllowed = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"allowed"] boolValue];
     capabilities.attachmentsFolder = [[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"folder"];
+    capabilities.conversationSubfoldersEnabled = [[[[capabilitiesDict objectForKey:@"config"] objectForKey:@"attachments"] objectForKey:@"conversation-subfolders"] boolValue];
     capabilities.talkVersion = [capabilitiesDict objectForKey:@"version"];
 
     NSDictionary *talkConfig = [capabilitiesDict objectForKey:@"config"];

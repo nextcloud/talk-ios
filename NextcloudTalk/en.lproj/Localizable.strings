@@ -758,6 +758,9 @@
 "Could not login with QR code" = "Could not login with QR code";
 
 /* No comment provided by engineer. */
+"Could not prepare upload folder" = "Could not prepare upload folder";
+
+/* No comment provided by engineer. */
 "Could not remove participant" = "Could not remove participant";
 
 /* No comment provided by engineer. */
@@ -1092,6 +1095,9 @@
 
 /* No comment provided by engineer. */
 "Enter a password" = "Enter a password";
+
+/* No comment provided by engineer. */
+"Error creating server path for upload" = "Error creating server path for upload";
 
 /* No comment provided by engineer. */
 "Error occurred when creating a reminder" = "Error occurred when creating a reminder";

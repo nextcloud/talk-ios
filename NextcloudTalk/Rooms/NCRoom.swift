@@ -180,6 +180,16 @@ extension Array where Element == NCRoom {
         self.type != .changelog && self.type != .noteToSelf
     }
 
+    public var supportsConversationSubfolders: Bool {
+        if self.isFederated {
+            return false
+        }
+
+        guard let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId) else { return false }
+
+        return capabilities.conversationSubfoldersEnabled
+    }
+
     public var supportsUpcomingEvents: Bool {
         if self.type == .formerOneToOne || self.type == .changelog || self.type == .noteToSelf {
             return false

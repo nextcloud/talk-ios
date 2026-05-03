@@ -626,18 +626,60 @@ import MBProgressHUD
             }
         }
 
+        // Check if conversation subfolders feature is supported
+        if room.supportsConversationSubfolders {
+            let fileNames = self.shareItemController.shareItems.compactMap { $0.fileName }
+            NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: fileNames, forAccount: self.account) { draftFolder, _, error in
+                if let error {
+                    NCLog.log("Probe conversation attachment folder failed: \(error.localizedDescription)")
+                    DispatchQueue.main.async {
+                        self.stopAnimatingSharingIndicator()
+                        self.hud?.hide(animated: true)
+                        bgTask.stopBackgroundTask()
+                        let alert = UIAlertController(
+                            title: NSLocalizedString("Upload failed", comment: ""),
+                            message: NSLocalizedString("Could not prepare upload folder", comment: ""),
+                            preferredStyle: .alert
+                        )
+                        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+                        self.present(alert, animated: true)
+                    }
+                    return
+                }
+                self.startUploads(draftFolderPath: draftFolder, bgTask: bgTask)
+            }
+        } else {
+            self.startUploads(draftFolderPath: nil, bgTask: bgTask)
+        }
+    }
+
+    private func startUploads(draftFolderPath: String?, bgTask: BGTaskHelper) {
         for shareItem in self.shareItemController.shareItems {
             NSLog("Uploading \(shareItem.fileURL.absoluteString)")
 
             self.uploadGroup.enter()
 
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
-                if let fileServerURL, let fileServerPath {
-                    self.uploadFile(to: fileServerURL, with: fileServerPath, with: shareItem)
+            if let draftFolderPath {
+                let tempName = UUID().uuidString + "-" + shareItem.fileName
+                let draftPath = "\(draftFolderPath)/\(tempName)"
+                let fileServerPath = "/\(draftPath)"
+
+                if let fileServerURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: fileServerPath, forAccount: account) {
+                    self.uploadFile(to: fileServerURL, with: fileServerPath, draftFolderPath: draftPath, with: shareItem)
                 } else {
-                    NCLog.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
-                    self.uploadErrors.append(errorDescription ?? "Unknown error")
+                    NCLog.log("Error creating server path for upload")
+                    self.uploadErrors.append(NSLocalizedString("Error creating server path for upload", comment: ""))
                     self.uploadGroup.leave()
+                }
+            } else {
+                NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
+                    if let fileServerURL, let fileServerPath {
+                        self.uploadFile(to: fileServerURL, with: fileServerPath, draftFolderPath: nil, with: shareItem)
+                    } else {
+                        NCLog.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
+                        self.uploadErrors.append(errorDescription ?? "Unknown error")
+                        self.uploadGroup.leave()
+                    }
                 }
             }
         }
@@ -667,7 +709,7 @@ import MBProgressHUD
         }
     }
 
-    func uploadFile(to fileServerURL: String, with filePath: String, with item: ShareItem) {
+    func uploadFile(to fileServerURL: String, with filePath: String, draftFolderPath: String?, with item: ShareItem) {
         NextcloudKit.shared.upload(serverUrlFileName: fileServerURL, fileNameLocalPath: item.filePath) { _ in
             NSLog("Upload task")
         } progressHandler: { progress in
@@ -690,20 +732,42 @@ import MBProgressHUD
                     talkMetaData["threadId"] = thread.threadId
                 }
 
-                NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account, atPath: filePath, toRoom: self.room.token, withTalkMetaData: talkMetaData, withReferenceId: nil) { error in
-                    if let error {
-                        NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
-                        self.uploadErrors.append(error.localizedDescription)
-                    } else {
-                        self.uploadSuccess.append(item)
-                    }
+                if let draftFolderPath {
+                    NCAPIController.sharedInstance().postConversationAttachment(inRoom: self.room.token,
+                                                                                filePath: draftFolderPath,
+                                                                                fileName: item.fileName,
+                                                                                referenceId: nil,
+                                                                                talkMetaData: talkMetaData,
+                                                                                forAccount: self.account) { error in
+                        if let error {
+                            NCLog.log("Failed to post attachment. Error: \(error.localizedDescription)")
+                            self.uploadErrors.append(error.localizedDescription)
+                        } else {
+                            self.uploadSuccess.append(item)
+                        }
 
-                    self.uploadGroup.leave()
+                        self.uploadGroup.leave()
+                    }
+                } else {
+                    NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account,
+                                                                       atPath: filePath,
+                                                                       toRoom: self.room.token,
+                                                                       withTalkMetaData: talkMetaData,
+                                                                       withReferenceId: nil) { error in
+                        if let error {
+                            NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
+                            self.uploadErrors.append(error.localizedDescription)
+                        } else {
+                            self.uploadSuccess.append(item)
+                        }
+
+                        self.uploadGroup.leave()
+                    }
                 }
             } else if nkError.errorCode == 404 || nkError.errorCode == 409 {
                 NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(forAccount: self.account) { created, _ in
                     if created {
-                        self.uploadFile(to: fileServerURL, with: filePath, with: item)
+                        self.uploadFile(to: fileServerURL, with: filePath, draftFolderPath: nil, with: item)
                     } else {
                         self.uploadErrors.append(nkError.errorDescription)
                         self.uploadGroup.leave()
