@@ -124,10 +124,7 @@ class NotificationService: UNNotificationServiceExtension {
         }
 
         // Get the total number of unread notifications
-        var unreadNotifications = 0
-        for case let talkAccount as TalkAccount in TalkAccount.allObjects() {
-            unreadNotifications += talkAccount.unreadBadgeNumber
-        }
+        let unreadNotifications = NCDatabaseManager.sharedInstance().numberOfUnreadNotifications()
 
         self.bestAttemptContent?.body = pushNotification.bodyForRemoteAlerts()
         self.bestAttemptContent?.threadIdentifier = pushNotification.roomToken
