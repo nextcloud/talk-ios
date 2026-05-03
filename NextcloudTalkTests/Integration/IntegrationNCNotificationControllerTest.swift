@@ -33,7 +33,7 @@ final class IntegrationNCNotificationControllerTest: TestBase {
 
         // Try to retrieve the created notification
         let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getServerNotification(withId: notificationId, forAccount: activeAccount) { notification, error in
+        NCAPIController.sharedInstance().getServerNotification(withId: notificationId, forAccount: activeAccount) { notification, _, error in
             XCTAssertEqual(notification?.notificationId, notificationId)
 
             // Check the existance of the notification

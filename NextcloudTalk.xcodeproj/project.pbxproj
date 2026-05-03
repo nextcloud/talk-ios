@@ -465,7 +465,7 @@
 		1F2058712CEBE4E200AAA673 /* Exceptions for "NotificationServiceExtension" folder in "NotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				NotificationService.m,
+				NotificationService.swift,
 			);
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 		};
@@ -681,13 +681,6 @@
 				FederationInvitation.swift,
 			);
 			target = 1FA93D9B2D70FCC200DF6CDF /* TalkIntents */;
-		};
-		1F9629442E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "NotificationServiceExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				MapViewController.xib,
-			);
-			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 		};
 		1F9629452E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "ShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -1022,8 +1015,6 @@
 		};
 		1F9629252E8E6A2100EC9BEE /* Calls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Calls;
 			sourceTree = "<group>";
 		};
@@ -1051,8 +1042,6 @@
 		};
 		1F9629362E8E6B8D00EC9BEE /* Database */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Database;
 			sourceTree = "<group>";
 		};
@@ -1069,22 +1058,17 @@
 		};
 		1F9629412E8E6BEB00EC9BEE /* File sharing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "File sharing";
 			sourceTree = "<group>";
 		};
 		1F9629422E8E6BFD00EC9BEE /* Login */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Login;
 			sourceTree = "<group>";
 		};
 		1F9629432E8E6C0A00EC9BEE /* Maps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				1F9629442E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "NotificationServiceExtension" target */,
 				1F9629452E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "ShareExtension" target */,
 			);
 			path = Maps;
@@ -1092,8 +1076,6 @@
 		};
 		1F9629462E8E6C2300EC9BEE /* Media Viewer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "Media Viewer";
 			sourceTree = "<group>";
 		};
@@ -1132,15 +1114,11 @@
 		};
 		1F9629722E8E6CB000EC9BEE /* Screensharing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Screensharing;
 			sourceTree = "<group>";
 		};
 		1F9629732E8E6CC100EC9BEE /* Security */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Security;
 			sourceTree = "<group>";
 		};
@@ -1157,8 +1135,6 @@
 		};
 		1F9629792E8E6CEF00EC9BEE /* Siri */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Siri;
 			sourceTree = "<group>";
 		};
@@ -1187,8 +1163,6 @@
 		};
 		1F9629882E8E6E2900EC9BEE /* Sounds */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Sounds;
 			sourceTree = "<group>";
 		};
