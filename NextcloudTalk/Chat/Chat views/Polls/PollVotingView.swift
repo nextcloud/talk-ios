@@ -141,7 +141,7 @@ import UIKit
         guard let poll else {return}
 
         footerView.primaryButton.isEnabled = false
-        NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions, forAccount: .active) { responsePoll, error in
+        NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: userSelectedOptions, forAccount: .activeAccount) { responsePoll, error in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
                 self.editingVote = false
@@ -200,7 +200,7 @@ import UIKit
     func closePoll() {
         guard let poll else {return}
 
-        NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, forAccount: .active) { responsePoll, error in
+        NCAPIController.sharedInstance().closePoll(withId: poll.pollId, inRoom: room.token, forAccount: .activeAccount) { responsePoll, error in
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
                 self.editingVote = false

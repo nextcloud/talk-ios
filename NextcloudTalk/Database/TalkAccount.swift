@@ -33,7 +33,8 @@ import SwiftyAttributes
         return emojis
     }
 
-    public static var active: TalkAccount {
+    // Cannot use "active" here, as it shadows the active property on Realm
+    public static var activeAccount: TalkAccount {
         return NCDatabaseManager.sharedInstance().activeAccount()
     }
 }
