@@ -159,51 +159,65 @@ class NotificationService: UNNotificationServiceExtension {
             self.bestAttemptContent?.userInfo = dataDict
 
             if serverNotification.notificationType == .chat {
-                // Only try to adjust the title/body if there are rich parameters
-                // E.g. for sensitive conversations, there are none, so we use the server provided title/body
-                if !serverNotification.subjectRichParameters.isEmpty {
-                    let attributedMessage = NSAttributedString(string: serverNotification.message)
-                    let markdownMessage = SwiftMarkdownObjCBridge.parseMarkdown(markdownString: attributedMessage)
-
-                    self.bestAttemptContent?.title = serverNotification.chatMessageTitle
-                    self.bestAttemptContent?.body = markdownMessage.string
-                }
-
-                if let fileDict = serverNotification.messageRichParameters["file"] as? [String: Any], fileDict[boolForKey: "preview-available"] ?? false {
-                    // First try to create the conversation notification, and only afterwards try to retrieve the image preview
-                    self.createConversationNotification(withPushNotification: pushNotification) {
-                        guard let fileId = fileDict[stringForKey: "id"] else {
-                            self.showBestAttemptNotification()
-                            return
-                        }
-
-                        SDWebImageDownloader.shared.config.downloadTimeout = 25.0
-                        NCAPIController.shared.getPreviewForFile(fileId, width: 0, height: 512, forAccount: account) { image, _ in
-                            if let image, let attachment = self.getNotificationAttachment(fromImage: image, forAccountId: account.accountId) {
-                                self.bestAttemptContent?.attachments = [attachment]
-                            }
-
-                            self.showBestAttemptNotification()
-                        }
-                    }
-
-                    // Stop here because the downloader completion blocks will take care of creating the conversation notification
-                    return
-                }
+                self.handleChatNotification(withServerNotification: serverNotification, withPushNotification: pushNotification, forAccount: account)
             } else if serverNotification.notificationType == .recording {
-                self.bestAttemptContent?.categoryIdentifier = "CATEGORY_RECORDING"
-                self.bestAttemptContent?.title = serverNotification.subject
-                self.bestAttemptContent?.body = serverNotification.message
+                self.handleRecordingNotification(withServerNotification: serverNotification, withPushNotification: pushNotification, forAccount: account)
             } else if serverNotification.notificationType == .federation {
-                self.bestAttemptContent?.categoryIdentifier = "CATEGORY_FEDERATION"
-                self.bestAttemptContent?.title = serverNotification.subject
-                self.bestAttemptContent?.body = serverNotification.message
+                self.handleFederationNotification(withServerNotification: serverNotification, withPushNotification: pushNotification, forAccount: account)
+            }
+        }
+    }
 
-                NCDatabaseManager.sharedInstance().increasePendingFederationInvitation(forAccountId: account.accountId)
+    private func handleChatNotification(withServerNotification serverNotification: NCNotification, withPushNotification pushNotification: NCPushNotification, forAccount account: TalkAccount) {
+        // Only try to adjust the title/body if there are rich parameters
+        // E.g. for sensitive conversations, there are none, so we use the server provided title/body
+        if !serverNotification.subjectRichParameters.isEmpty {
+            let attributedMessage = NSAttributedString(string: serverNotification.message)
+            let markdownMessage = SwiftMarkdownObjCBridge.parseMarkdown(markdownString: attributedMessage)
+
+            self.bestAttemptContent?.title = serverNotification.chatMessageTitle
+            self.bestAttemptContent?.body = markdownMessage.string
+        }
+
+        guard let fileDict = serverNotification.messageRichParameters["file"] as? [String: Any], fileDict[boolForKey: "preview-available"] ?? false else {
+            // No file/no preview -> show notification
+            self.createAndShowConversationNotification(withPushNotification: pushNotification)
+            return
+        }
+
+        // First try to create the conversation notification, and only afterwards try to retrieve the image preview
+        self.createConversationNotification(withPushNotification: pushNotification) {
+            guard let fileId = fileDict[stringForKey: "id"] else {
+                self.showBestAttemptNotification()
+                return
             }
 
-            self.createAndShowConversationNotification(withPushNotification: pushNotification)
+            SDWebImageDownloader.shared.config.downloadTimeout = 25.0
+            NCAPIController.shared.getPreviewForFile(fileId, width: 0, height: 512, forAccount: account) { image, _ in
+                if let image, let attachment = self.getNotificationAttachment(fromImage: image, forAccountId: account.accountId) {
+                    self.bestAttemptContent?.attachments = [attachment]
+                }
+
+                self.showBestAttemptNotification()
+            }
         }
+    }
+
+    private func handleRecordingNotification(withServerNotification serverNotification: NCNotification, withPushNotification pushNotification: NCPushNotification, forAccount account: TalkAccount) {
+        self.bestAttemptContent?.categoryIdentifier = "CATEGORY_RECORDING"
+        self.bestAttemptContent?.title = serverNotification.subject
+        self.bestAttemptContent?.body = serverNotification.message
+
+        self.createAndShowConversationNotification(withPushNotification: pushNotification)
+    }
+
+    private func handleFederationNotification(withServerNotification serverNotification: NCNotification, withPushNotification pushNotification: NCPushNotification, forAccount account: TalkAccount) {
+        self.bestAttemptContent?.categoryIdentifier = "CATEGORY_FEDERATION"
+        self.bestAttemptContent?.title = serverNotification.subject
+        self.bestAttemptContent?.body = serverNotification.message
+
+        NCDatabaseManager.sharedInstance().increasePendingFederationInvitation(forAccountId: account.accountId)
+        self.createAndShowConversationNotification(withPushNotification: pushNotification)
     }
 
     private func createConversationNotification(withPushNotification pushNotification: NCPushNotification, withCompletionBlock completionBlock: @escaping () -> Void) {
