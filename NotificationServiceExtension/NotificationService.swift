@@ -13,18 +13,11 @@ class NotificationService: UNNotificationServiceExtension {
     private var bestAttemptContent: UNMutableNotificationContent?
     private var sendMessageIntent: INSendMessageIntent?
 
-    // swiftlint:disable:next cyclomatic_complexity
-    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-        self.contentHandler = contentHandler
-        self.bestAttemptContent = request.content.mutableCopy() as? UNMutableNotificationContent
-
-        self.bestAttemptContent?.title = ""
-        self.bestAttemptContent?.body = NSLocalizedString("You received a new notification", comment: "")
-
+    // TODO: We should share this for all extensions
+    private func configureDatabase() -> Bool {
         // Configure database
         guard let containerBase = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier) else {
-            self.showBestAttemptNotification()
-            return
+            return false
         }
 
         let databaseUrl = containerBase.appending(path: kTalkDatabaseFolder, directoryHint: .isDirectory).appending(path: kTalkDatabaseFileName, directoryHint: .notDirectory)
@@ -32,8 +25,7 @@ class NotificationService: UNNotificationServiceExtension {
         guard !FileManager.default.fileExists(atPath: databaseUrl.path()) else {
             print("Database does not exist -> main app needs to run before extension")
 
-            self.showBestAttemptNotification()
-            return
+            return false
         }
 
         var currentSchemaVersion: UInt64 = 0
@@ -44,16 +36,14 @@ class NotificationService: UNNotificationServiceExtension {
         } catch {
             print("Reading schemaVersion failed: \(error.localizedDescription)")
 
-            self.showBestAttemptNotification()
-            return
+            return false
         }
 
         if currentSchemaVersion != kTalkDatabaseSchemaVersion {
             print("Current schemaVersion is \(currentSchemaVersion), app schemaVersion is \(kTalkDatabaseSchemaVersion)")
             print("Database needs migration -> don't open database from extension")
 
-            self.showBestAttemptNotification()
-            return
+            return false
         }
 
         let configuration = RLMRealmConfiguration.default()
@@ -61,6 +51,23 @@ class NotificationService: UNNotificationServiceExtension {
         configuration.schemaVersion = kTalkDatabaseSchemaVersion
         configuration.objectClasses = [TalkAccount.self, NCRoom.self, ServerCapabilities.self, FederatedCapabilities.self]
         RLMRealmConfiguration.setDefault(configuration)
+
+        return true
+    }
+
+    // swiftlint:disable:next cyclomatic_complexity
+    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+        self.contentHandler = contentHandler
+        self.bestAttemptContent = request.content.mutableCopy() as? UNMutableNotificationContent
+
+        self.bestAttemptContent?.title = ""
+        self.bestAttemptContent?.body = NSLocalizedString("You received a new notification", comment: "")
+
+        guard self.configureDatabase() else {
+            // Without a working database, nothing left to do here
+            self.showBestAttemptNotification()
+            return
+        }
 
         // We don't want to use a memory cache in NSE, because we only have a total of 24MB before we get killed by the OS
         SDImageCache.shared.config.shouldCacheImagesInMemory = false
