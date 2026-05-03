@@ -155,8 +155,8 @@ class NotificationService: UNNotificationServiceExtension {
             }
 
             // Add the serverNotification as userInfo as well -> this can later be used to access the actions directly
-            userInfo["serverNotification"] = serverNotification
-            self.bestAttemptContent?.userInfo = dataDict
+            userInfo["serverNotification"] = dataDict
+            self.bestAttemptContent?.userInfo = userInfo
 
             if serverNotification.notificationType == .chat {
                 self.handleChatNotification(withServerNotification: serverNotification, withPushNotification: pushNotification, forAccount: account)
