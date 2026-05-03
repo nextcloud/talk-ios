@@ -158,12 +158,15 @@ class NotificationService: UNNotificationServiceExtension {
             userInfo["serverNotification"] = dataDict
             self.bestAttemptContent?.userInfo = userInfo
 
-            if serverNotification.notificationType == .chat {
+            switch serverNotification.notificationType {
+            case .chat:
                 self.handleChatNotification(withServerNotification: serverNotification, withPushNotification: pushNotification, forAccount: account)
-            } else if serverNotification.notificationType == .recording {
+            case .recording:
                 self.handleRecordingNotification(withServerNotification: serverNotification, withPushNotification: pushNotification, forAccount: account)
-            } else if serverNotification.notificationType == .federation {
+            case .federation:
                 self.handleFederationNotification(withServerNotification: serverNotification, withPushNotification: pushNotification, forAccount: account)
+            default:
+                self.showBestAttemptNotification()
             }
         }
     }
@@ -179,7 +182,9 @@ class NotificationService: UNNotificationServiceExtension {
             self.bestAttemptContent?.body = markdownMessage.string
         }
 
-        guard let fileDict = serverNotification.messageRichParameters["file"] as? [String: Any], fileDict[boolForKey: "preview-available"] ?? false else {
+        guard let fileDict = serverNotification.messageRichParameters["file"] as? [String: Any],
+              let file = NCMessageFileParameter(dictionary: fileDict), file.previewAvailable else {
+
             // No file/no preview -> show notification
             self.createAndShowConversationNotification(withPushNotification: pushNotification)
             return
@@ -187,13 +192,8 @@ class NotificationService: UNNotificationServiceExtension {
 
         // First try to create the conversation notification, and only afterwards try to retrieve the image preview
         self.createConversationNotification(withPushNotification: pushNotification) {
-            guard let fileId = fileDict[stringForKey: "id"] else {
-                self.showBestAttemptNotification()
-                return
-            }
-
             SDWebImageDownloader.shared.config.downloadTimeout = 25.0
-            NCAPIController.shared.getPreviewForFile(fileId, width: 0, height: 512, forAccount: account) { image, _ in
+            NCAPIController.shared.getPreviewForFile(file.parameterId, width: 0, height: 512, forAccount: account) { image, _ in
                 if let image, let attachment = self.getNotificationAttachment(fromImage: image, forAccountId: account.accountId) {
                     self.bestAttemptContent?.attachments = [attachment]
                 }
