@@ -10,7 +10,7 @@ echo 'Generating Localizable.strings file...'
 CURRENT_BRANCH=$(git branch --show-current)
 STABLE_BRANCH=$(<.tx/backport)
 
-if [ "$CURRENT_BRANCH" != $STABLE_BRANCH ]; then
+if [[ "$CURRENT_BRANCH" != $STABLE_BRANCH && ! "$CURRENT_BRANCH" =~ ^backport/[[:digit:]]+/"$STABLE_BRANCH"$ ]]; then
   echo "Not on $STABLE_BRANCH branch, cloning $STABLE_BRANCH branch"
 
   REMOTE_URL=$(git config --get remote.origin.url)
