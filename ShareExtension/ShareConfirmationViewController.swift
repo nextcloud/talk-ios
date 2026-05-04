@@ -604,11 +604,7 @@ import MBProgressHUD
 
         self.hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         self.hud?.mode = .annularDeterminate
-        self.hud?.label.text = String(format: NSLocalizedString("Uploading %ld elements", comment: ""), self.shareItemController.shareItems.count)
-
-        if self.shareItemController.shareItems.count == 1 {
-            self.hud?.label.text = NSLocalizedString("Uploading 1 element", comment: "")
-        }
+        self.hud?.label.text = String.localizedStringWithFormat(NSLocalizedString("Uploading %ld elements", comment: ""), self.shareItemController.shareItems.count)
 
         self.uploadGroup = DispatchGroup()
         self.uploadErrors = []
