@@ -1022,8 +1022,6 @@
 		};
 		1F9629252E8E6A2100EC9BEE /* Calls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Calls;
 			sourceTree = "<group>";
 		};
@@ -1051,8 +1049,6 @@
 		};
 		1F9629362E8E6B8D00EC9BEE /* Database */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Database;
 			sourceTree = "<group>";
 		};
@@ -1069,15 +1065,11 @@
 		};
 		1F9629412E8E6BEB00EC9BEE /* File sharing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "File sharing";
 			sourceTree = "<group>";
 		};
 		1F9629422E8E6BFD00EC9BEE /* Login */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Login;
 			sourceTree = "<group>";
 		};
@@ -1092,8 +1084,6 @@
 		};
 		1F9629462E8E6C2300EC9BEE /* Media Viewer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "Media Viewer";
 			sourceTree = "<group>";
 		};
@@ -1132,15 +1122,11 @@
 		};
 		1F9629722E8E6CB000EC9BEE /* Screensharing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Screensharing;
 			sourceTree = "<group>";
 		};
 		1F9629732E8E6CC100EC9BEE /* Security */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Security;
 			sourceTree = "<group>";
 		};
@@ -1157,8 +1143,6 @@
 		};
 		1F9629792E8E6CEF00EC9BEE /* Siri */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Siri;
 			sourceTree = "<group>";
 		};
@@ -1187,8 +1171,6 @@
 		};
 		1F9629882E8E6E2900EC9BEE /* Sounds */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Sounds;
 			sourceTree = "<group>";
 		};
@@ -3444,7 +3426,7 @@
 			repositoryURL = "https://github.com/nextcloud-deps/realm-swift-binary";
 			requirement = {
 				kind = revision;
-				revision = cab57855cff4612dc8c290191b41f5036befb2ec;
+				revision = eca2e73265b2abaee75b99bac31b6bd2f02dbdc1;
 			};
 		};
 		1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */ = {
@@ -3476,7 +3458,7 @@
 			repositoryURL = "https://github.com/nextcloud-releases/talk-clients-webrtc";
 			requirement = {
 				kind = revision;
-				revision = b41626b697d5d30d714943a0601f0a6ac677a37d;
+				revision = 01a2cc9c4c2afcb266bc56c7f6228b737d8b4cdd;
 			};
 		};
 		1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
