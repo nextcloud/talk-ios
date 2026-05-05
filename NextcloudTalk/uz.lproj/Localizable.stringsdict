@@ -184,5 +184,10 @@
 			<string>Parol kamida %d ta belgidan iborat bo'lishi kerak</string>
 		</dict>
 	</dict>
+	<key>Uploading %ld elements</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@uploadingelements@</string>
+	</dict>
 </dict>
 </plist>

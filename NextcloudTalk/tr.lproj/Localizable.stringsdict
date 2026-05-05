@@ -199,5 +199,10 @@
 			<string>Parola en az %d karakter uzunluğunda olmalıdır</string>
 		</dict>
 	</dict>
+	<key>Uploading %ld elements</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@uploadingelements@</string>
+	</dict>
 </dict>
 </plist>

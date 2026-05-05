@@ -247,5 +247,10 @@
 			<string>Je třeba, aby heslo bylo alespoň %d znaky dlouhé</string>
 		</dict>
 	</dict>
+	<key>Uploading %ld elements</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@uploadingelements@</string>
+	</dict>
 </dict>
 </plist>

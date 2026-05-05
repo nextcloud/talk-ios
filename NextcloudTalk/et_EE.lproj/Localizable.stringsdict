@@ -210,5 +210,10 @@
 			<string>Salasõna peab olema vähemalt %d sümbolit pikk</string>
 		</dict>
 	</dict>
+	<key>Uploading %ld elements</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@uploadingelements@</string>
+	</dict>
 </dict>
 </plist>
