@@ -199,5 +199,10 @@
 			<string>O contrasinal debe ter polo menos %d caracteres</string>
 		</dict>
 	</dict>
+	<key>Uploading %ld elements</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@uploadingelements@</string>
+	</dict>
 </dict>
 </plist>
