@@ -266,6 +266,21 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Įkeliamas %ld elementas</string>
+			<key>few</key>
+			<string>Įkeliami %ld elementai</string>
+			<key>many</key>
+			<string>Įkeliama %ld elementų</string>
+			<key>other</key>
+			<string>Įkeliama %ld elementų</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
