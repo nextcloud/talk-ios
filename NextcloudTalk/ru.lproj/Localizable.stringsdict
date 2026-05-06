@@ -6,6 +6,21 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld активный бот</string>
+			<key>few</key>
+			<string>%ld активных бота</string>
+			<key>many</key>
+			<string>%ld активных ботов</string>
+			<key>other</key>
+			<string>%ld активных ботов</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
@@ -24,7 +39,7 @@
 			<key>many</key>
 			<string>%d голосов</string>
 			<key>other</key>
-			<string>%d голоса</string>
+			<string>%d голосов</string>
 		</dict>
 	</dict>
 	<key>%ld participants</key>
@@ -51,6 +66,21 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@participantsincall@</string>
+		<key>participantsincall</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld участник в этом звонке</string>
+			<key>few</key>
+			<string>%ld участника в этом звонке</string>
+			<key>many</key>
+			<string>%ld участников в этом звонке</string>
+			<key>other</key>
+			<string>%ld участников в этом звонке</string>
+		</dict>
 	</dict>
 	<key>%d minutes ago</key>
 	<dict>
@@ -156,6 +186,21 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@options@</string>
+		<key>options</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d вариант</string>
+			<key>few</key>
+			<string>вариантов: %d</string>
+			<key>many</key>
+			<string>вариантов: %d</string>
+			<key>other</key>
+			<string>вариантов: %d</string>
+		</dict>
 	</dict>
 	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
 	<dict>
@@ -181,16 +226,61 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@replies@</string>
+		<key>replies</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld ответ</string>
+			<key>few</key>
+			<string>ответов: %ld</string>
+			<key>many</key>
+			<string>ответов: %ld</string>
+			<key>other</key>
+			<string>ответов: %ld</string>
+		</dict>
 	</dict>
 	<key>Password needs to be at least %d characters long</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Длина пароля должна быть не менее %d символов</string>
+			<key>few</key>
+			<string>Длина пароля должна быть не менее %d символов</string>
+			<key>many</key>
+			<string>Длина пароля должна быть не менее %d символов</string>
+			<key>other</key>
+			<string>Длина пароля должна быть не менее %d символов</string>
+		</dict>
 	</dict>
 	<key>Uploading %ld elements</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Загрузка %ld элемент</string>
+			<key>few</key>
+			<string>Загрузка %ld элементов</string>
+			<key>many</key>
+			<string>Загрузка %ld элементов</string>
+			<key>other</key>
+			<string>Загрузка %ld элементов</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
