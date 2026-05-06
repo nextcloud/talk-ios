@@ -1669,9 +1669,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
                let apppassword = data["apppassword"] as? String {
 
                 completionBlock(apppassword)
+            } else {
+                completionBlock(nil)
             }
-
-            completionBlock(nil)
         } failure: { _, _ in
             completionBlock(nil)
         }
