@@ -1026,7 +1026,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
                     return;
                 }
 
-                NSString *tempName = [NSString stringWithFormat:@"%@-%@", [NSUUID UUID].UUIDString, fileName];
+                NSString *tempName = [NSString stringWithFormat:@"%@.%@", [NSUUID UUID].UUIDString, [NSURL URLWithString:fileName].pathExtension];
                 NSString *draftPath = [NSString stringWithFormat:@"%@/%@", draftFolder, tempName];
                 NSString *serverPath = [NSString stringWithFormat:@"/%@", draftPath];
                 NSString *fileServerURL = [NSString stringWithFormat:@"%@/remote.php/dav/files/%@%@", self->_account.server, self->_account.userId, serverPath];

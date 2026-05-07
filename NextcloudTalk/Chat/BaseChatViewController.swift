@@ -4116,7 +4116,7 @@ import Toast
                     failure("Probe conversation attachment folder returned no folder")
                     return
                 }
-                let tempName = UUID().uuidString + "-" + fileName
+                let tempName = UUID().uuidString + "." + (URL(string: fileName)?.pathExtension ?? "")
                 let draftPath = "\(draftFolder)/\(tempName)"
                 let fileServerPath = "/\(draftPath)"
 
