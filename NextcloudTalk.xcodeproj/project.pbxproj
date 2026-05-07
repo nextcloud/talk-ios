@@ -471,7 +471,7 @@
 		1F2058712CEBE4E200AAA673 /* Exceptions for "NotificationServiceExtension" folder in "NotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				NotificationService.m,
+				NotificationService.swift,
 			);
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 		};
@@ -687,13 +687,6 @@
 				FederationInvitation.swift,
 			);
 			target = 1FA93D9B2D70FCC200DF6CDF /* TalkIntents */;
-		};
-		1F9629442E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "NotificationServiceExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				MapViewController.xib,
-			);
-			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 		};
 		1F9629452E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "ShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -1082,7 +1075,6 @@
 		1F9629432E8E6C0A00EC9BEE /* Maps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				1F9629442E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "NotificationServiceExtension" target */,
 				1F9629452E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "ShareExtension" target */,
 			);
 			path = Maps;

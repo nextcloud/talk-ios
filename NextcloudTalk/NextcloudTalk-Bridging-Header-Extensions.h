@@ -33,6 +33,7 @@
 #import "AFNetworking.h"
 #import "NCUser.h"
 #import "NCPoll.h"
+#import "NCPushNotification.h"
 
 
 #endif /* NextcloudTalk_Bridging_Header_h */

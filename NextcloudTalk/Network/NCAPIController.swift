@@ -1955,15 +1955,15 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
-        // This method is currently only used in tests as NSE is using the endpoint directly
+    public func getServerNotification(withId notificationId: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ notification: NCNotification?, _ dataDict: [String: Any]?, _ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else { return nil }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/notifications/\(notificationId)"
 
+        // TODO: Since we need NSSecureCoding compatibility for the notification, we currently also pass in the dictionary for the NotificationServiceExtension
         return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(NCNotification(dictionary: ocsResponse?.dataDict), ocsError)
+            completionBlock(NCNotification(dictionary: ocsResponse?.dataDict), ocsResponse?.dataDict, ocsError)
         }
     }
 
@@ -3514,6 +3514,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - File previews
 
     @nonobjc
+    @discardableResult
     public func getPreviewForFile(_ fileId: String, width: Int, height: Int, forAccount account: TalkAccount, completionBlock: @escaping (_ image: UIImage?, _ error: Error?) -> Void) -> SDWebImageCombinedOperation? {
         var urlString: String
 
