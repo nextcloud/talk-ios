@@ -758,7 +758,12 @@ import Toast
                     replyToMessage = replyMessageView.message
                 }
 
-                try await NCAPIController.sharedInstance().scheduleMessage(self.textView.text, inRoom: self.room.token, sendAt: timestamp, replyTo: replyToMessage?.messageId, silent: silently, threadId: self.thread?.threadId, forAccount: self.account)
+                let messageParameters = self.mentionsDict.asJSONString() ?? ""
+                let temporaryMessage = NCChatMessage()
+                temporaryMessage.messageParametersJSONString = messageParameters
+                temporaryMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParameters)
+
+                try await NCAPIController.sharedInstance().scheduleMessage(temporaryMessage.sendingMessage, inRoom: self.room.token, sendAt: timestamp, replyTo: replyToMessage?.messageId, silent: silently, threadId: self.thread?.threadId, forAccount: self.account)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully scheduled", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
 
                 self.clearInputAfterSend()
