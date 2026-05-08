@@ -656,7 +656,9 @@ import MBProgressHUD
             self.uploadGroup.enter()
 
             if let draftFolderPath {
-                let tempName = UUID().uuidString + "." + shareItem.fileURL.pathExtension
+                let fileExtension = shareItem.fileURL.pathExtension
+                let extensionSuffix = fileExtension.isEmpty ? "" : ".\(fileExtension)"
+                let tempName = UUID().uuidString + extensionSuffix
                 let draftPath = "\(draftFolderPath)/\(tempName)"
                 let fileServerPath = "/\(draftPath)"
 
