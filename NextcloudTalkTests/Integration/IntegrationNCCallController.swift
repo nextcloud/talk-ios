@@ -15,7 +15,7 @@ final class IntegrationNCCallController: TestBase {
         let roomController = try await joinRoom(withToken: room.token, withAccount: activeAccount)
 
         let callControllerDelegate = NCCallControllerDelegateMock()
-        let callController = NCCallController(delegate: callControllerDelegate, in: room, forAudioOnlyCall: false, withSessionId: roomController.userSessionId, andVoiceChatMode: true)
+        let callController = NCCallController(delegate: callControllerDelegate, room: room, account: activeAccount, isAudioOnly: false, userSessionId: roomController.userSessionId, voiceChatMode: true)
 
         callController.startCall()
         await fulfillment(of: [callControllerDelegate.expectationDidJoin], timeout: TestConstants.timeoutShort)
