@@ -292,6 +292,23 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Ag uaslódáil %ld eilimint</string>
+			<key>two</key>
+			<string>Ag uaslódáil %ld eilimintí</string>
+			<key>few</key>
+			<string>Ag uaslódáil %ld eilimintí</string>
+			<key>many</key>
+			<string>Ag uaslódáil %ld eilimintí</string>
+			<key>other</key>
+			<string>Ag uaslódáil %ld eilimintí</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
