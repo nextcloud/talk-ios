@@ -934,13 +934,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // Use non-async method here to allow cancellation from objc (as we can return a URLSessionDataTask)
     @discardableResult
     public func pullSignalingMessages(fromRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ messages: [[String: AnyObject]]?, _ error: OcsError?) -> Void) -> URLSessionTask? {
-        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+        guard let longPollingApiSessionManager = self.getLongPollingAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
         let urlString = self.getRequestURL(forEndpoint: "signaling/\(encodedToken)", withAPIType: .signaling, forAccount: account)
 
-        return apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+        return longPollingApiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
             completionBlock(ocsResponse?.dataArrayDict, ocsError)
         }
     }
