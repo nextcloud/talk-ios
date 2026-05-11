@@ -1844,7 +1844,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             parameters["silentFor"] = silentFor
         }
 
-        return apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
+        return apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
             completionBlock(ocsError, ocsError?.responseStatusCode ?? 0)
         }
     }
