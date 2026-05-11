@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import SwiftyAttributes
 
 @objcMembers public class SignalingParticipant: NSObject {
 
