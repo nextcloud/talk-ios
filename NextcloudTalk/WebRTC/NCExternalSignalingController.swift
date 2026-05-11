@@ -555,6 +555,10 @@ public enum NCExternalSignalingSendMessageStatus {
             for participantDict in joinDict {
                 let participant = SignalingParticipant(withJoinDictionary: participantDict)
 
+                guard let signalingSessionId = participant.signalingSessionId else { continue }
+
+                self.participantsMap[signalingSessionId] = participant
+
                 if !participant.isFederated, participant.userId == self.account.userId {
                     print("App user joined room")
                     continue
@@ -563,14 +567,12 @@ public enum NCExternalSignalingSendMessageStatus {
                 // Only notify if another participant joined the room and not ourselves from a different device
                 print("Participant joined room")
 
-                guard let currentRoom, let signalingSessionId = participant.signalingSessionId
-                else { continue }
+                guard let currentRoom else { continue }
 
                 var userInfo = [String: String]()
                 userInfo["roomToken"] = currentRoom
                 userInfo["sessionId"] = signalingSessionId
 
-                self.participantsMap[signalingSessionId] = participant
                 NotificationCenter.default.post(name: .extSignalingDidReceiveJoinOfParticipant, object: self, userInfo: userInfo)
             }
         } else if eventType == "leave" {
