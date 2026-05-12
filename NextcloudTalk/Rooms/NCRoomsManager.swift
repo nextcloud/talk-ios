@@ -727,13 +727,13 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     }
 
     private func checkForAccountChange(_ accountId: String?) {
-        guard let accountId else { return }
-
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        if activeAccount.accountId == accountId {
-            // Leave chat before changing accounts
-            self.chatViewController?.leaveChat()
-        }
+
+        guard let accountId, accountId != activeAccount.accountId else { return }
+
+        // Leave chat before changing accounts
+        self.chatViewController?.leaveChat()
+
         // Set notification account active
         NCSettingsController.sharedInstance().setActiveAccountWithAccountId(accountId)
     }
