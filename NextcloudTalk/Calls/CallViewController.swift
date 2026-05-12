@@ -106,7 +106,6 @@ class CallViewController: UIViewController,
     private var tapGestureForDetailedView: UITapGestureRecognizer?
     private var detailedViewTimer: Timer?
     private var proximityTimer: Timer?
-    private var displayName: String?
     private var isAudioOnly = false
     private var isDetailedViewVisible = false
     private var userDisabledVideo = false
@@ -132,10 +131,9 @@ class CallViewController: UIViewController,
     private var currentCallState: CallState = .joining
     private var previousParticipants: [String] = []
 
-    public init(for room: NCRoom, withAccount account: TalkAccount, asUser displayName: String, audioOnly: Bool) {
+    public init(for room: NCRoom, withAccount account: TalkAccount, audioOnly: Bool) {
         self.room = room
         self.account = account
-        self.displayName = displayName
         self.isAudioOnly = audioOnly
 
         super.init(nibName: "CallViewController", bundle: nil)
@@ -165,10 +163,9 @@ class CallViewController: UIViewController,
     }
 
     func startCall(withSessionId sessionId: String) {
-        let callController = NCCallController(delegate: self, in: self.room, forAudioOnlyCall: self.isAudioOnly, withSessionId: sessionId, andVoiceChatMode: self.voiceChatModeAtStart)
+        let callController = NCCallController(delegate: self, room: self.room, account: self.account, isAudioOnly: self.isAudioOnly, userSessionId: sessionId, voiceChatMode: self.voiceChatModeAtStart)
         self.callController = callController
 
-        callController.userDisplayName = self.displayName
         callController.disableAudioAtStart = self.audioDisabledAtStart
         callController.disableVideoAtStart = self.videoDisabledAtStart
         callController.silentCall = self.silentCall
@@ -639,7 +636,7 @@ class CallViewController: UIViewController,
         cell.audioOffIndicator.alpha = isDetailedViewVisible ? 1.0 : 0.0
 
         WebRTCCommon.shared.dispatch {
-            let actor = self.callController?.getActorFromSessionId(peerConnection.peerId) ?? TalkActor()
+            let actor = self.callController?.getActor(fromSessionId: peerConnection.peerId) ?? TalkActor()
 
             if actor.rawDisplayName.isEmpty, let peerName = peerConnection.peerName, !peerName.isEmpty {
                 actor.rawDisplayName = peerName
@@ -663,7 +660,7 @@ class CallViewController: UIViewController,
 
     // MARK: - Call Controller delegate
 
-    func callControllerDidJoinCall(_ callController: NCCallController!) {
+    func callControllerDidJoinCall(_ callController: NCCallController) {
         self.setCallStateForPeersInCall()
 
         // Show chat if it was visible before room switch
@@ -675,7 +672,7 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callControllerDidFailedJoiningCall(_ callController: NCCallController!, statusCode: Int, errorReason: String!) {
+    func callControllerDidFailedJoiningCall(_ callController: NCCallController, statusCode: Int, errorReason: String) {
         DispatchQueue.main.async {
             let isAppActive = UIApplication.shared.applicationState == .active
 
@@ -687,26 +684,26 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callControllerDidEndCall(_ callController: NCCallController!) {
+    func callControllerDidEndCall(_ callController: NCCallController) {
         self.finishCall()
     }
 
-    func callController(_ callController: NCCallController!, peerJoined peer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, peerJoined peer: NCPeerConnection) {
         // Always add a joined peer, even if the peer doesn't publish any streams (yet)
         self.addPeer(peer)
     }
 
-    func callController(_ callController: NCCallController!, peerLeft peer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, peerLeft peer: NCPeerConnection) {
         self.removePeer(peer)
     }
 
-    func callController(_ callController: NCCallController!, didCreateCameraController cameraController: NCCameraController!) {
+    func callController(_ callController: NCCallController, didCreateCameraController cameraController: NCCameraController) {
         DispatchQueue.main.async {
             cameraController.localView = self.localVideoView
         }
     }
 
-    func callControllerDidDrawFirstLocalFrame(_ callController: NCCallController!) {
+    func callControllerDidDrawFirstLocalFrame(_ callController: NCCallController) {
         callController.getVideoEnabledState { isEnabled in
             DispatchQueue.main.async {
                 self.setLocalVideoViewWrapperHidden(!isEnabled)
@@ -714,12 +711,12 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callController(_ callController: NCCallController!, userPermissionsChanged permissions: NCPermission) {
+    func callController(_ callController: NCCallController, userPermissionsChanged permissions: NCPermission) {
         self.setAudioMuteButtonEnabled(permissions.contains(.canPublishAudio) && callController.isMicrophoneAccessAvailable())
         self.setVideoDisableButtonEnabled(permissions.contains(.canPublishVideo) && callController.isCameraAccessAvailable())
     }
 
-    func callController(_ callController: NCCallController!, didCreateLocalAudioTrack audioTrack: RTCAudioTrack?) {
+    func callController(_ callController: NCCallController, didCreateLocalAudioTrack audioTrack: RTCAudioTrack?) {
         guard let audioTrack else {
             // No audio track was created, probably because there are no publishing rights or microphone access was denied
             self.setAudioMuteButtonEnabled(false)
@@ -731,7 +728,7 @@ class CallViewController: UIViewController,
         self.setAudioMuteButtonActive(audioTrack.isEnabled)
     }
 
-    func callController(_ callController: NCCallController!, didCreateLocalVideoTrack videoTrack: RTCVideoTrack?) {
+    func callController(_ callController: NCCallController, didCreateLocalVideoTrack videoTrack: RTCVideoTrack?) {
         guard let videoTrack, !isAudioOnly else {
             // No video track was created, probably because there are no publishing rights or camera access was denied
             self.setVideoDisableButtonEnabled(false)
@@ -749,7 +746,7 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callController(_ callController: NCCallController!, didAdd remoteStream: RTCMediaStream!, ofPeer remotePeer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, didAddStream remoteStream: RTCMediaStream, ofPeer remotePeer: NCPeerConnection) {
         WebRTCCommon.shared.assertQueue()
 
         DispatchQueue.main.async {
@@ -792,11 +789,11 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callController(_ callController: NCCallController!, didRemove remoteStream: RTCMediaStream!, ofPeer remotePeer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, didRemoveStream remoteStream: RTCMediaStream, ofPeer remotePeer: NCPeerConnection) {
 
     }
 
-    func callController(_ callController: NCCallController!, iceStatusChanged state: RTCIceConnectionState, ofPeer peer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, iceStatusChanged state: RTCIceConnectionState, ofPeer peer: NCPeerConnection) {
         if state == .closed {
             DispatchQueue.main.async {
                 if peer.roomType == kRoomTypeVideo {
@@ -812,11 +809,11 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callController(_ callController: NCCallController!, didAdd dataChannel: RTCDataChannel!) {
+    func callController(_ callController: NCCallController, didAddDataChannel dataChannel: RTCDataChannel) {
 
     }
 
-    func callController(_ callController: NCCallController!, didReceiveDataChannelMessage message: String!, fromPeer peer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, didReceiveDataChannelMessage message: String, fromPeer peer: NCPeerConnection) {
         switch message {
         case "audioOn", "audioOff":
             self.updatePeer(peer) { cell in
@@ -847,7 +844,7 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callController(_ callController: NCCallController!, didReceiveNick nick: String!, fromPeer peer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, didReceiveNick nick: String, fromPeer peer: NCPeerConnection) {
         self.updatePeer(peer) { cell in
             cell.displayName = nick
         }
@@ -859,17 +856,18 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callController(_ callController: NCCallController!, didReceiveUnshareScreenFromPeer peer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, didReceiveUnshareScreenFromPeer peer: NCPeerConnection) {
         self.removeScreensharingOfPeer(peer)
     }
 
-    func callController(_ callController: NCCallController!, didReceiveForceMuteActionForPeerId peerId: String!) {
-        if peerId == callController.signalingSessionId() {
+    func callController(_ callController: NCCallController, didReceiveForceMuteActionForPeerId peerId: String) {
+        // TODO: This should be checked in NCCallController
+        if peerId == callController.signalingSessionId {
             self.forceMuteAudio()
         }
     }
 
-    func callController(_ callController: NCCallController!, didReceiveReaction reaction: String!, fromPeer peer: NCPeerConnection!) {
+    func callController(_ callController: NCCallController, didReceiveReaction reaction: String, fromPeer peer: NCPeerConnection) {
         guard !reaction.isEmpty else { return }
 
         DispatchQueue.main.async {
@@ -883,7 +881,7 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callControllerIsReconnectingCall(_ callController: NCCallController!) {
+    func callControllerIsReconnectingCall(_ callController: NCCallController) {
         DispatchQueue.main.async {
             // Cancel any pending operations
             self.pendingPeerInserts = []
@@ -902,13 +900,13 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callControllerWants(toHangUpCall callController: NCCallController!) {
+    func callControllerWants(toHangUpCall callController: NCCallController) {
         DispatchQueue.main.async {
             self.hangup(forAll: false)
         }
     }
 
-    func callControllerDidChangeRecording(_ callController: NCCallController!) {
+    func callControllerDidChangeRecording(_ callController: NCCallController) {
         self.adjustBars()
 
         DispatchQueue.main.async {
@@ -926,7 +924,7 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callController(_ callController: NCCallController!, isSwitchingToCall token: String!, withAudioEnabled audioEnabled: Bool, andVideoEnabled videoEnabled: Bool) {
+    func callController(_ callController: NCCallController, isSwitchingToCall token: String, withAudioEnabled audioEnabled: Bool, andVideoEnabled videoEnabled: Bool) {
         self.setCallState(.switchingToAnotherRoom)
 
         // Close chat before switching to another room
@@ -973,7 +971,7 @@ class CallViewController: UIViewController,
         }
     }
 
-    func callControllerDidChangeScreenrecording(_ callController: NCCallController!) {
+    func callControllerDidChangeScreenrecording(_ callController: NCCallController) {
         self.adjustBars()
     }
 
@@ -1111,7 +1109,7 @@ class CallViewController: UIViewController,
             var participantsInCall: [TalkActor] = []
 
             self.peersInCall.forEach { peerConnection in
-                if let actor = self.callController?.getActorFromSessionId(peerConnection.peerId) {
+                if let actor = self.callController?.getActor(fromSessionId: peerConnection.peerId) {
                     participantsInCall.append(actor)
                 }
             }

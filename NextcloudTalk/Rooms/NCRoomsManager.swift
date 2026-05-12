@@ -528,7 +528,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             return
         }
 
-        let callViewController = CallViewController(for: room, withAccount: account, asUser: account.userDisplayName, audioOnly: !video)
+        let callViewController = CallViewController(for: room, withAccount: account, audioOnly: !video)
         self.callViewController = callViewController
 
         callViewController.videoDisabledAtStart = !videoEnabled
