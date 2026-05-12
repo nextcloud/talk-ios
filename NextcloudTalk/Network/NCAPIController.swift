@@ -129,6 +129,14 @@ class NCAPIController: NSObject, NKCommonDelegate {
         self.apiSessionManagers.removeValue(forKey: account.accountId)
         self.longPollingApiSessionManagers.removeValue(forKey: account.accountId)
         self.calDAVSessionManagers.removeValue(forKey: account.accountId)
+
+        let cookieStorage = self.getHTTPCookieStorage(forAccountId: account.accountId)
+        if let cookies = cookieStorage.cookies {
+            for cookie in cookies {
+                cookieStorage.deleteCookie(cookie)
+            }
+        }
+        self.cookieStorages.removeValue(forKey: account.accountId)
     }
 
     private func authHeader(forAccount account: TalkAccount) -> String? {
