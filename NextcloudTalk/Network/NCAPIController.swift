@@ -36,6 +36,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return NCAPISessionManager(configuration: configuration)
     }()
 
+    private var cookieStorages = [String: HTTPCookieStorage]()
     private var apiSessionManagers = [String: NCAPISessionManager]()
     private var longPollingApiSessionManagers = [String: NCAPISessionManager]()
     private var calDAVSessionManagers = [String: NCCalDAVSessionManager]()
@@ -53,6 +54,18 @@ class NCAPIController: NSObject, NKCommonDelegate {
         self.initImageDownloaders()
     }
 
+    // Ensure we use the same HTTPCookieStorage object for all session managers
+    internal func getHTTPCookieStorage(forAccountId accountId: String) -> HTTPCookieStorage {
+        if let cachedCookieStorage = self.cookieStorages[accountId] {
+            return cachedCookieStorage
+        }
+
+        let newCookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
+        self.cookieStorages[accountId] = newCookieStorage
+
+        return newCookieStorage
+    }
+
     internal func getAPISessionManager(forAccountId accountId: String) -> NCAPISessionManager? {
         if let cachedSessionManager = self.apiSessionManagers[accountId] {
             return cachedSessionManager
@@ -63,8 +76,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return nil }
 
         let configuration = URLSessionConfiguration.default
-        let cookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
-        configuration.httpCookieStorage = cookieStorage
+        configuration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let apiSessionManager = NCAPISessionManager(configuration: configuration)
         apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
 
@@ -85,8 +97,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return nil }
 
         let longConfiguration = URLSessionConfiguration.default
-        let longCookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
-        longConfiguration.httpCookieStorage = longCookieStorage
+        longConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let longApiSessionManager = NCAPISessionManager(configuration: longConfiguration)
         longApiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
         longPollingApiSessionManagers[accountId] = longApiSessionManager
@@ -104,8 +115,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         else { return nil }
 
         let calDAVConfiguration = URLSessionConfiguration.default
-        let calDAVCookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
-        calDAVConfiguration.httpCookieStorage = calDAVCookieStorage
+        calDAVConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let calDAVSessionManager = NCCalDAVSessionManager(configuration: calDAVConfiguration)
         calDAVSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
         calDAVSessionManagers[accountId] = calDAVSessionManager
