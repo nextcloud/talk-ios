@@ -14,8 +14,8 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 
 ## Prerequisites
 
-- [Nextcloud server](https://github.com/nextcloud/server) version 14 or higher (that fulfills [ATS requirements](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW57)).
-- [Nextcloud Talk](https://github.com/nextcloud/spreed) version 4.0 or higher.
+- [Nextcloud server](https://github.com/nextcloud/server) version 22 or higher (that fulfills [ATS requirements](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW57)).
+- [Nextcloud Talk](https://github.com/nextcloud/spreed) version 12.0 or higher.
 - [CocoaPods](https://cocoapods.org/)
 
 ## Development setup
@@ -54,17 +54,17 @@ You got stuck while working on a issue or need some pointers? Feel free to ask i
 
 We are using our own builds of the WebRTC library. They can be found in this [repository](https://github.com/nextcloud-releases/talk-clients-webrtc).
 
-Current version: [137.7151.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/137.7151.0).
+Current version: [147.7727.0](https://github.com/nextcloud-releases/talk-clients-webrtc/releases/tag/147.7727.0).
 
 ## Running tests locally
 
-The tests included in `talk-ios` require a running Nextcloud instance. To run this locally, make sure you have a working docker enviroment and run the file `start-instance-for-tests.sh` - this will install a Nextcloud instance, install Nextcloud Talk and wait for everything to be up and running. By default this uses the `main` branch of Nextcloud and NextcloudTalk. You can edit the file to specify a different branch (e.g. `stable27`).
+The tests included in `talk-ios` require a running Nextcloud instance. To run this locally, make sure you have a working docker enviroment and run the file `start-instance-for-tests.sh` - this will install a Nextcloud instance, install Nextcloud Talk and wait for everything to be up and running. By default this uses the `main` branch of Nextcloud and NextcloudTalk. You can edit the file to specify a different branch (e.g. `stable33`).
 After that you can run the tests directly from Xcode or alternatively from the command line you can use:
 
 ```
 xcodebuild test -workspace NextcloudTalk.xcworkspace \
     -scheme "NextcloudTalk" \
-    -destination "platform=iOS Simulator,name=iPhone 14,OS=16.2" \
+    -destination "platform=iOS Simulator,name=iPhone 16,OS=18.5" \
     -test-iterations 3 \
     -retry-tests-on-failure
 ```
