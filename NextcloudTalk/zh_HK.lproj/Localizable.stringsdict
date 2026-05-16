@@ -188,6 +188,15 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>other</key>
+			<string>正在上傳 %ld 元素</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
