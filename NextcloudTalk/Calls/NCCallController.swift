@@ -1409,7 +1409,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             self.processUnshareScreen(signalingMessage)
 
         case .control:
-            self.processUnshareScreen(signalingMessage)
+            self.processControl(signalingMessage)
 
         case .mute, .unmute:
             self.processMuteUnmute(signalingMessage)
