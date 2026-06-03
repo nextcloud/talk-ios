@@ -1070,7 +1070,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         WebRTCCommon.shared.dispatch {
             if Int(Date().timeIntervalSince1970) < timeout {
-                print("Re-requesting an offer to sesison \(sessionId)")
+                print("Re-requesting an offer to session \(sessionId)")
                 externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType)
             } else {
                 DispatchQueue.main.async {
