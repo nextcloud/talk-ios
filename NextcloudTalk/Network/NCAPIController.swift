@@ -36,10 +36,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return NCAPISessionManager(configuration: configuration)
     }()
 
-    private var cookieStorages = [String: HTTPCookieStorage]()
-    private var apiSessionManagers = [String: NCAPISessionManager]()
-    private var longPollingApiSessionManagers = [String: NCAPISessionManager]()
-    private var calDAVSessionManagers = [String: NCCalDAVSessionManager]()
+    // It's possible that we access the dictionary from multiple threads (e.g. in background-fetch)
+    // therefore we use NSCache as it is thread-safe - swift dictionaries are not
+    private var cookieStorages = NSCache<NSString, HTTPCookieStorage>()
+    private var apiSessionManagers = NSCache<NSString, NCAPISessionManager>()
+    private var longPollingApiSessionManagers = NSCache<NSString, NCAPISessionManager>()
+    private var calDAVSessionManagers = NSCache<NSString, NCCalDAVSessionManager>()
 
     enum ApiControllerError: Error {
         case preconditionError
@@ -56,18 +58,18 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // Ensure we use the same HTTPCookieStorage object for all session managers
     internal func getHTTPCookieStorage(forAccountId accountId: String) -> HTTPCookieStorage {
-        if let cachedCookieStorage = self.cookieStorages[accountId] {
+        if let cachedCookieStorage = self.cookieStorages.object(forKey: accountId as NSString) {
             return cachedCookieStorage
         }
 
         let newCookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
-        self.cookieStorages[accountId] = newCookieStorage
+        self.cookieStorages.setObject(newCookieStorage, forKey: accountId as NSString)
 
         return newCookieStorage
     }
 
-    internal func getAPISessionManager(forAccountId accountId: String) -> NCAPISessionManager? {
-        if let cachedSessionManager = self.apiSessionManagers[accountId] {
+    public func getAPISessionManager(forAccountId accountId: String) -> NCAPISessionManager? {
+        if let cachedSessionManager = self.apiSessionManagers.object(forKey: accountId as NSString) {
             return cachedSessionManager
         }
 
@@ -82,13 +84,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         // As we can run max. 30s in the background, the default timeout should be lower than 30 to avoid being killed by the OS
         apiSessionManager.requestSerializer.timeoutInterval = TimeInterval(25)
-        apiSessionManagers[accountId] = apiSessionManager
+        apiSessionManagers.setObject(apiSessionManager, forKey: accountId as NSString)
 
         return apiSessionManager
     }
 
     internal func getLongPollingAPISessionManager(forAccountId accountId: String) -> NCAPISessionManager? {
-        if let cachedSessionManager = self.longPollingApiSessionManagers[accountId] {
+        if let cachedSessionManager = self.longPollingApiSessionManagers.object(forKey: accountId as NSString) {
             return cachedSessionManager
         }
 
@@ -100,13 +102,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
         longConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let longApiSessionManager = NCAPISessionManager(configuration: longConfiguration)
         longApiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
-        longPollingApiSessionManagers[accountId] = longApiSessionManager
+        longPollingApiSessionManagers.setObject(longApiSessionManager, forKey: accountId as NSString)
 
         return longApiSessionManager
     }
 
     internal func getCalDAVSessionManager(forAccountId accountId: String) -> NCCalDAVSessionManager? {
-        if let cachedSessionManager = self.calDAVSessionManagers[accountId] {
+        if let cachedSessionManager = self.calDAVSessionManagers.object(forKey: accountId as NSString) {
             return cachedSessionManager
         }
 
@@ -118,7 +120,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         calDAVConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let calDAVSessionManager = NCCalDAVSessionManager(configuration: calDAVConfiguration)
         calDAVSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
-        calDAVSessionManagers[accountId] = calDAVSessionManager
+        calDAVSessionManagers.setObject(calDAVSessionManager, forKey: accountId as NSString)
 
         return calDAVSessionManager
     }
@@ -126,9 +128,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
     public func removeAPISessionManager(forAccount account: TalkAccount) {
         self.authTokenCache.removeValue(forKey: account.accountId)
         self.requestModifierCache.removeValue(forKey: account.accountId)
-        self.apiSessionManagers.removeValue(forKey: account.accountId)
-        self.longPollingApiSessionManagers.removeValue(forKey: account.accountId)
-        self.calDAVSessionManagers.removeValue(forKey: account.accountId)
+        self.apiSessionManagers.removeObject(forKey: account.accountId as NSString)
+        self.longPollingApiSessionManagers.removeObject(forKey: account.accountId as NSString)
+        self.calDAVSessionManagers.removeObject(forKey: account.accountId as NSString)
 
         let cookieStorage = self.getHTTPCookieStorage(forAccountId: account.accountId)
         if let cookies = cookieStorage.cookies {
@@ -136,7 +138,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                 cookieStorage.deleteCookie(cookie)
             }
         }
-        self.cookieStorages.removeValue(forKey: account.accountId)
+        self.cookieStorages.removeObject(forKey: account.accountId as NSString)
     }
 
     private func authHeader(forAccount account: TalkAccount) -> String? {
