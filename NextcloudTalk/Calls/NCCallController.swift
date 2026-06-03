@@ -1462,8 +1462,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func processCandidate(_ signalingMessage: NCSignalingMessage) {
-        let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType)
-        if let peerConnectionWrapper, let candidateMessage = signalingMessage as? NCICECandidateMessage {
+        let peerConnectionWrapper = self.getOrCreatePeerConnectionWrapper(forSessionId: signalingMessage.from, withSid: signalingMessage.sid, ofType: signalingMessage.roomType)
+        if let candidateMessage = signalingMessage as? NCICECandidateMessage {
             peerConnectionWrapper.add(candidateMessage.candidate)
         }
     }
