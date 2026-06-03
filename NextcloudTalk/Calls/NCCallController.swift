@@ -125,7 +125,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private var joinCallFlags: CallFlag {
-        var flags = CallFlag()
+        var flags: CallFlag = [.inCall]
 
         if room.canPublishAudio {
             flags.insert(.withAudio)
