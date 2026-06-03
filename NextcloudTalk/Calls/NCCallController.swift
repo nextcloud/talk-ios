@@ -1472,7 +1472,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         guard let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType)
         else { return }
 
-        let peerKey = self.getPeerKey(withSessionId: signalingMessage.from, ofType: signalingMessage.roomType, forOwnScreenshare: false)
+        let peerKey = self.getPeerKey(withSessionId: signalingMessage.from, ofType: kRoomTypeScreen, forOwnScreenshare: false)
 
         if let screensharePeer = self.connectionsDict[peerKey] {
             screensharePeer.close()
