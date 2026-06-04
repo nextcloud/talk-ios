@@ -125,7 +125,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private var joinCallFlags: CallFlag {
-        var flags = CallFlag()
+        var flags: CallFlag = [.inCall]
 
         if room.canPublishAudio {
             flags.insert(.withAudio)
@@ -1070,7 +1070,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         WebRTCCommon.shared.dispatch {
             if Int(Date().timeIntervalSince1970) < timeout {
-                print("Re-requesting an offer to sesison \(sessionId)")
+                print("Re-requesting an offer to session \(sessionId)")
                 externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType)
             } else {
                 DispatchQueue.main.async {
@@ -1409,7 +1409,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             self.processUnshareScreen(signalingMessage)
 
         case .control:
-            self.processUnshareScreen(signalingMessage)
+            self.processControl(signalingMessage)
 
         case .mute, .unmute:
             self.processMuteUnmute(signalingMessage)
@@ -1462,8 +1462,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func processCandidate(_ signalingMessage: NCSignalingMessage) {
-        let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType)
-        if let peerConnectionWrapper, let candidateMessage = signalingMessage as? NCICECandidateMessage {
+        let peerConnectionWrapper = self.getOrCreatePeerConnectionWrapper(forSessionId: signalingMessage.from, withSid: signalingMessage.sid, ofType: signalingMessage.roomType)
+        if let candidateMessage = signalingMessage as? NCICECandidateMessage {
             peerConnectionWrapper.add(candidateMessage.candidate)
         }
     }
@@ -1472,7 +1472,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         guard let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType)
         else { return }
 
-        let peerKey = self.getPeerKey(withSessionId: signalingMessage.from, ofType: signalingMessage.roomType, forOwnScreenshare: false)
+        let peerKey = self.getPeerKey(withSessionId: signalingMessage.from, ofType: kRoomTypeScreen, forOwnScreenshare: false)
 
         if let screensharePeer = self.connectionsDict[peerKey] {
             screensharePeer.close()
