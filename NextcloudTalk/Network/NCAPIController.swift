@@ -27,8 +27,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
     private let kNCOCSAPIVersion = "/ocs/v2.php"
     private let kNCSpreedAPIVersionBase = "/apps/spreed/api/v"
 
-    private var authTokenCache: [String: String] = [:]
-    private var requestModifierCache: [String: SDWebImageDownloaderRequestModifier] = [:]
+    private var authTokenCache = NSCache<NSString, NSString>()
+    private var requestModifierCache = NSCache<NSString, SDWebImageDownloaderRequestModifier>()
 
     private lazy var defaultAPISessionManager: NCAPISessionManager = {
         let configuration = URLSessionConfiguration.default
@@ -126,8 +126,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     public func removeAPISessionManager(forAccount account: TalkAccount) {
-        self.authTokenCache.removeValue(forKey: account.accountId)
-        self.requestModifierCache.removeValue(forKey: account.accountId)
+        self.authTokenCache.removeObject(forKey: account.accountId as NSString)
+        self.requestModifierCache.removeObject(forKey: account.accountId as NSString)
         self.apiSessionManagers.removeObject(forKey: account.accountId as NSString)
         self.longPollingApiSessionManagers.removeObject(forKey: account.accountId as NSString)
         self.calDAVSessionManagers.removeObject(forKey: account.accountId as NSString)
@@ -142,8 +142,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     private func authHeader(forAccount account: TalkAccount) -> String? {
-        if let cachedHeader = self.authTokenCache[account.accountId] {
-            return cachedHeader
+        if let cachedHeader = self.authTokenCache.object(forKey: account.accountId as NSString) {
+            return cachedHeader as String
         }
 
         guard let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId)
@@ -154,7 +154,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let base64Encoded = data.base64EncodedString()
 
         let authHeader = "Basic \(base64Encoded)"
-        self.authTokenCache[account.accountId] = authHeader
+        self.authTokenCache.setObject(authHeader as NSString, forKey: account.accountId as NSString)
 
         return authHeader
     }
@@ -194,7 +194,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     private func getRequestModifier(forAccount account: TalkAccount) -> SDWebImageDownloaderRequestModifier? {
-        if let cachedModifier = self.requestModifierCache[account.accountId] {
+        if let cachedModifier = self.requestModifierCache.object(forKey: account.accountId as NSString) {
             return cachedModifier
         }
 
@@ -206,7 +206,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         let requestModifier = SDWebImageDownloaderRequestModifier(headers: headers)
-        self.requestModifierCache[account.accountId] = requestModifier
+        self.requestModifierCache.setObject(requestModifier, forKey: account.accountId as NSString)
 
         return requestModifier
     }
