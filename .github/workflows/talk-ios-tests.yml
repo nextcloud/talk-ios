@@ -165,6 +165,7 @@ jobs:
         # Temporary workaround for missing pcntl_* in PHP 8.3: ini-values: apc.enable_cli=on
         ini-values: apc.enable_cli=on, disable_functions=
       env:
+        fail-fast: true
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Checkout server
