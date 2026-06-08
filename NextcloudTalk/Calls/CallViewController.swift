@@ -2183,23 +2183,23 @@ class CallViewController: UIViewController,
 
     func showReaction(_ callReactionView: CallReactionView) {
         let callViewSize = self.view.bounds.size
-        let calLReactionSize = callReactionView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        let callReactionSize = callReactionView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
 
         let minLeftPosition = callViewSize.width * 0.05
         let maxLeftPosition = callViewSize.width * 0.2
 
         var randomLeftPosition = minLeftPosition + CGFloat.random(in: 0 ... maxLeftPosition - minLeftPosition + 1)
 
-        let startPosition = callViewSize.height - self.view.safeAreaInsets.bottom - calLReactionSize.height
+        let startPosition = callViewSize.height - self.view.safeAreaInsets.bottom - callReactionSize.height - bottomBarView.bounds.height
         let minTopPosition = startPosition / 2
         let maxTopPosition = minTopPosition * 1.2
         let randomTopPosition = minTopPosition + CGFloat.random(in: 0 ... maxTopPosition - minTopPosition + 1)
 
-        if callViewSize.width - calLReactionSize.width < 0 {
+        if callViewSize.width - callReactionSize.width < 0 {
             randomLeftPosition = minLeftPosition
         }
 
-        let reactionInitialPosition = CGRect(x: randomLeftPosition, y: startPosition, width: calLReactionSize.width, height: calLReactionSize.height)
+        let reactionInitialPosition = CGRect(x: randomLeftPosition, y: startPosition, width: callReactionSize.width, height: callReactionSize.height)
 
         callReactionView.frame = reactionInitialPosition
 
