@@ -800,7 +800,7 @@ import MBProgressHUD
             UIView.transition(with: self.itemToolbar, duration: 0.3, options: .transitionCrossDissolve) {
                 self.cropItemButton.isEnabled = item.isImage
                 self.previewItemButton.isEnabled = QLPreviewController.canPreview(item.fileURL as QLPreviewItem)
-                self.addItemButton.isEnabled = self.shareItemController.shareItems.count < 5
+                self.addItemButton.isEnabled = self.shareItemController.shareItems.count < 20
             }
         } else {
             self.cropItemButton.isEnabled = false
