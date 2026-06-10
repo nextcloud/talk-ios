@@ -171,11 +171,14 @@ import UIKit
             }
             let menu = UIMenu(children: [menuAction])
             let menuButton = UIBarButtonItem(
-                image: UIImage(systemName: "ellipsis.circle"),
+                image: UIImage(systemName: "ellipsis"),
                 menu: menu
             )
 
             navigationItem.rightBarButtonItem = menuButton
+            if #unavailable(iOS 26.0) {
+                navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
+            }
         } else {
             navigationItem.rightBarButtonItem = nil
         }
