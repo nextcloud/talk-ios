@@ -101,36 +101,30 @@
     NSMutableArray *items = [[NSMutableArray alloc] init];
     
     UIAction *alphabeticalAction = [UIAction actionWithTitle:NSLocalizedString(@"Alphabetical order", nil)
-                                                       image:[self imageForSortingOption:NCAlphabeticalSorting]
+                                                       image:[UIImage systemImageNamed:@"character.square"]
                                                   identifier:nil
                                                      handler:^(UIAction *action) {
         [[NCSettingsController sharedInstance] setPreferredFileSorting:NCAlphabeticalSorting];
         [self sortItemsInDirectory];
     }];
 
+    alphabeticalAction.state = [[NCSettingsController sharedInstance] getPreferredFileSorting] == NCAlphabeticalSorting;
+
     UIAction *modificationDateAction = [UIAction actionWithTitle:NSLocalizedString(@"Modification date", nil)
-                                                           image:[self imageForSortingOption:NCModificationDateSorting]
+                                                           image:[UIImage systemImageNamed:@"clock"]
                                                       identifier:nil
                                                          handler:^(UIAction *action) {
         [[NCSettingsController sharedInstance] setPreferredFileSorting:NCModificationDateSorting];
         [self sortItemsInDirectory];
     }];
 
+    modificationDateAction.state = [[NCSettingsController sharedInstance] getPreferredFileSorting] == NCModificationDateSorting;
+
     [items addObject:alphabeticalAction];
     [items addObject:modificationDateAction];
 
     _sortingButton.menu = [UIMenu menuWithTitle:@"" children:items];
 }
-
-- (UIImage *)imageForSortingOption:(NCPreferredFileSorting)option
-{
-    if ([[NCSettingsController sharedInstance] getPreferredFileSorting] == option) {
-        return [UIImage systemImageNamed:@"checkmark"];
-    }
-
-    return nil;
-}
-
 
 #pragma mark - Files
 
@@ -203,7 +197,7 @@
 - (void)configureNavigationBar
 {
     // Sorting button
-    _sortingButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"ellipsis.circle"]
+    _sortingButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"arrow.up.arrow.down"]
                                                       style:UIBarButtonItemStylePlain
                                                      target:self
                                                      action:nil];
