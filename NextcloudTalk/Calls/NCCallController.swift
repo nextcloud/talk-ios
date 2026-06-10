@@ -902,7 +902,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
 
         // Do not add local stream when using a MCU or to screensharing peers
-        if self.externalSignalingController?.hasMCU == false {
+        if self.externalSignalingController == nil || self.externalSignalingController?.hasMCU == false {
             let peerConnection = peerConnectionWrapper?.getPeerConnection()
 
             if !screensharingPeer {
