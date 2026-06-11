@@ -88,7 +88,7 @@ import UIKit
         self.isOwnPoll = poll.actorId == activeAccountUserId && poll.actorType == "users"
         self.canModeratePoll = self.isOwnPoll || room.isUserOwnerOrModerator
         self.userVoted = !poll.votedSelf.isEmpty
-        self.userVotedOptions = poll.votedSelf as? [Int] ?? []
+        self.userVotedOptions = poll.votedSelf
         self.userSelectedOptions = self.userVotedOptions
         self.showPollResults = (userVoted && !editingVote) || !isPollOpen
         self.showIntermediateResults = showPollResults && isPollOpen && poll.resultMode == .hidden
@@ -278,7 +278,7 @@ import UIKit
         case PollSection.kPollSectionQuestion.rawValue:
             return poll?.question != nil ?  1 : 0
         case PollSection.kPollSectionOptions.rawValue:
-            return poll?.options?.count ?? 0
+            return poll?.options.count ?? 0
         default:
             return 0
         }
@@ -316,13 +316,13 @@ import UIKit
         case PollSection.kPollSectionOptions.rawValue:
             if !showPollResults || showIntermediateResults {
                 cell = UITableViewCell(style: .value1, reuseIdentifier: pollOptionCellIdentifier)
-                cell.textLabel?.text = poll?.options[indexPath.row] as? String
+                cell.textLabel?.text = poll?.options[indexPath.row]
                 cell.textLabel?.numberOfLines = 4
                 cell.textLabel?.lineBreakMode = .byWordWrapping
                 cell.textLabel?.sizeToFit()
                 var checkboxImageView = UIImageView(image: UIImage(systemName: "circle"))
                 checkboxImageView.tintColor = UIColor.tertiaryLabel
-                let votedSelf = poll?.votedSelf as? [Int] ?? []
+                let votedSelf = poll?.votedSelf ?? []
                 if userSelectedOptions.contains(indexPath.row) || (showIntermediateResults && votedSelf.contains(indexPath.row)) {
                     checkboxImageView = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
                     checkboxImageView.tintColor = NCAppBranding.elementColor()
@@ -333,14 +333,14 @@ import UIKit
                 cell.accessoryView = checkboxImageView
             } else {
                 let resultCell = tableView.dequeueReusableCell(withIdentifier: "PollResultCellIdentifier", for: indexPath) as? PollResultTableViewCell
-                resultCell?.optionLabel.text = poll?.options[indexPath.row] as? String
-                let votesDict = poll?.votes as? [String: Int] ?? [:]
+                resultCell?.optionLabel.text = poll?.options[indexPath.row]
+                let votesDict = poll?.votes ?? [:]
                 let optionVotes = votesDict["option-" + String(indexPath.row)] ?? 0
                 let totalVotes = poll?.numVoters == 0 ? 1: poll?.numVoters ?? 1
                 let progress = Float(optionVotes) / Float(totalVotes)
                 resultCell?.optionProgressView.progress = progress
                 resultCell?.resultLabel.text = String(Int(progress * 100)) + "%"
-                let votedSelf = poll?.votedSelf as? [Int] ?? []
+                let votedSelf = poll?.votedSelf ?? []
                 if votedSelf.contains(indexPath.row) {
                     resultCell?.highlightResult()
                 }

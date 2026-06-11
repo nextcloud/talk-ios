@@ -19,7 +19,6 @@
 #import "NCChatFileController.h"
 #import "NCSignalingMessage.h"
 #import "NCSignalingController.h"
-#import "NCPoll.h"
 #import "NCSettingsController.h"
 #import "NCUserDefaults.h"
 #import "NCUserInterfaceController.h"

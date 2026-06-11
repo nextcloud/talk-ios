@@ -32,7 +32,6 @@
 
 #import "AFNetworking.h"
 #import "NCUser.h"
-#import "NCPoll.h"
 #import "NCPushNotification.h"
 
 
