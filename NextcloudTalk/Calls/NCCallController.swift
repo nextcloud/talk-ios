@@ -1441,7 +1441,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         var peerName: String?
 
         if signalingMessage.messageType() == .offer, let peerConnectionWrapper,
-           !signalingMessage.sid.isEmpty, signalingMessage.sid != peerConnectionWrapper.sid {
+           let sid = signalingMessage.sid, !sid.isEmpty, sid != peerConnectionWrapper.sid {
 
             // Remember the peerName for the new connectionWrapper
             peerName = peerConnectionWrapper.peerName
