@@ -653,6 +653,7 @@ NSTimeInterval const kCallKitManagerCheckCallStateEverySeconds  = 5.0;
 {
     CallKitCall *call = [_calls objectForKey:action.callUUID];
     if (call) {
+        // Token can be `null` here, when we were unable to decrypt the push notification (e.g. we received one for an old account)
         [NCLog log:[NSString stringWithFormat:@"CallKit provider end call action for token %@", call.token]];
 
         call.isRinging = NO;
