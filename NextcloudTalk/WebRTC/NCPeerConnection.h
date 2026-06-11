@@ -43,7 +43,7 @@
 
 @property (nonatomic, copy, readonly) NSString *peerIdentifier; // "peerId-sid"
 @property (nonatomic, copy) NSString *peerId;
-@property (nonatomic, copy) NSString *sid;
+@property (nonatomic, copy) NSString * _Nullable sid;
 @property (nonatomic, copy) NSString *peerName;
 @property (nonatomic, copy) NSString *roomType;
 @property (nonatomic, assign) BOOL isAudioOnly;

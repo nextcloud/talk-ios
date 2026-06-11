@@ -17,7 +17,7 @@ extern NSString *const kRoomTypeScreen;
 
 @property(nonatomic, readonly) NSString *from;
 @property(nonatomic, readonly) NSString *to;
-@property(nonatomic, readonly) NSString *sid;
+@property(nonatomic, readonly) NSString * _Nullable sid;
 @property(nonatomic, readonly) NSString *type;
 @property(nonatomic, readonly) NSDictionary *payload;
 @property(nonatomic, readonly) NSString *roomType;
