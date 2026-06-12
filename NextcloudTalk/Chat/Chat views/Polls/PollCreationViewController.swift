@@ -99,7 +99,7 @@ import UIKit
 
         // Assign poll draft values
         self.question = draft.question
-        self.options = draft.options.compactMap { $0 as? String }
+        self.options = draft.options
         self.anonymousPollSwitch.isOn = draft.resultMode == .hidden
         self.multipleAnswersSwitch.isOn = draft.maxVotes == 0
 

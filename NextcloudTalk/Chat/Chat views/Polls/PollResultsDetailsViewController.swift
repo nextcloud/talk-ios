@@ -7,22 +7,8 @@ import UIKit
 
 @objcMembers class PollResultsDetailsViewController: UITableViewController {
 
-    struct PollResultDetail {
-        let actorDisplayName: String
-        let actorId: String
-        let actorType: String
-        let optionId: Int
-
-        init(dictionary: [String: Any]) {
-            self.actorDisplayName = dictionary["actorDisplayName"] as? String ?? ""
-            self.actorId = dictionary["actorId"] as? String ?? ""
-            self.actorType = dictionary["actorType"] as? String ?? ""
-            self.optionId = dictionary["optionId"] as? Int ?? 0
-        }
-    }
-
     var poll: NCPoll
-    var resultsDetails: [Int: [PollResultDetail]] = [:]
+    var resultsDetails: [Int: [NCPoll.PollResultDetail]] = [:]
     var sortedOptions: [Int] = []
 
     public var room: NCRoom
@@ -61,18 +47,7 @@ import UIKit
         self.tableView.register(UINib(nibName: kShareTableCellNibName, bundle: .main), forCellReuseIdentifier: kShareCellIdentifier)
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 54, bottom: 0, right: 0)
 
-        // Create resultsDetails dictionary
-        for detail in poll.details {
-            if let resultDetail = detail as? [String: Any] {
-                let pollResultDetail = PollResultDetail(dictionary: resultDetail)
-                if var value = resultsDetails[pollResultDetail.optionId] {
-                    value.append(pollResultDetail)
-                    resultsDetails[pollResultDetail.optionId] = value
-                } else {
-                    resultsDetails[pollResultDetail.optionId] = [pollResultDetail]
-                }
-            }
-        }
+        resultsDetails = Dictionary(grouping: poll.details, by: \.optionId)
         sortedOptions = Array(resultsDetails.keys).sorted()
     }
 
@@ -90,7 +65,7 @@ import UIKit
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let option = sortedOptions[section]
-        return poll.options[option] as? String
+        return poll.options[option]
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

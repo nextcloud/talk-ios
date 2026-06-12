@@ -2800,7 +2800,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                            asDraft draft: Bool,
                            inRoom token: String,
                            forAccount account: TalkAccount,
-                           completionBlock: @escaping (_ poll: NCPoll, _ error: OcsError?) -> Void) {
+                           completionBlock: @escaping (_ poll: NCPoll?, _ error: OcsError?) -> Void) {
 
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2817,7 +2817,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+            completionBlock(NCPoll(dict: ocsResponse?.dataDict), ocsError)
         }
     }
 
@@ -2830,7 +2830,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+            completionBlock(NCPoll(dict: ocsResponse?.dataDict), ocsError)
         }
     }
 
@@ -2843,7 +2843,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                               withMaxVotes maxVotes: Int,
                               inRoom token: String,
                               forAccount account: TalkAccount,
-                              completionBlock: @escaping (_ poll: NCPoll, _ error: OcsError?) -> Void) {
+                              completionBlock: @escaping (_ poll: NCPoll?, _ error: OcsError?) -> Void) {
 
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -2859,7 +2859,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+            completionBlock(NCPoll(dict: ocsResponse?.dataDict), ocsError)
         }
     }
 
@@ -2872,7 +2872,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/drafts", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
-            let drafts = ocsResponse?.dataArrayDict?.compactMap({ NCPoll.initWithPollDictionary($0) })
+            let drafts = ocsResponse?.dataArrayDict?.compactMap({ NCPoll(dict: $0) })
             completionBlock(drafts, ocsError)
         }
     }
@@ -2886,7 +2886,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.postOcs(urlString, account: account, parameters: ["optionIds": options]) { ocsResponse, ocsError in
-            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+            completionBlock(NCPoll(dict: ocsResponse?.dataDict), ocsError)
         }
     }
 
@@ -2899,7 +2899,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = self.getRequestURL(forEndpoint: "poll/\(encodedToken)/\(pollId)", withAPIType: .polls, forAccount: account)
 
         apiSessionManager.deleteOcs(urlString, account: account) { ocsResponse, ocsError in
-            completionBlock(NCPoll.initWithPollDictionary(ocsResponse?.dataDict), ocsError)
+            completionBlock(NCPoll(dict: ocsResponse?.dataDict), ocsError)
         }
     }
 
