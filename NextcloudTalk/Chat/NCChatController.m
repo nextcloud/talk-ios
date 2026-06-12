@@ -28,10 +28,15 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 @interface NCChatController ()
 
+@property (nonatomic, assign) BOOL startProcessingChatRelayMessages;
+@property (nonatomic, assign) BOOL chatRelayCatchUpInProgress;
 @property (nonatomic, assign) BOOL stopChatMessagesPoll;
 @property (nonatomic, strong) TalkAccount *account;
 @property (nonatomic, strong) NSURLSessionTask *getHistoryTask;
 @property (nonatomic, strong) NSURLSessionTask *pullMessagesTask;
+@property (nonatomic, strong) NSMutableArray *chatRelayMessagesBuffer;
+@property (nonatomic, strong) dispatch_queue_t chatRelayMessagesQueue;
+@property (nonatomic, strong) NCExternalSignalingController *externalSignalingController;
 
 @end
 
@@ -41,9 +46,7 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     self = [super init];
     if (self) {
-        _room = room;
-        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
-
+        [self commonInitForRoom:room];
         [[AllocationTracker shared] addAllocation:@"NCChatController"];
     }
     
@@ -54,19 +57,32 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 {
     self = [super init];
     if (self) {
-        _room = room;
         _threadId = threadId;
-        _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
-
+        [self commonInitForRoom:room];
         [[AllocationTracker shared] addAllocation:@"NCChatController"];
     }
 
     return self;
 }
 
+- (void)commonInitForRoom:(NCRoom *)room
+{
+    _room = room;
+    _account = [[NCDatabaseManager sharedInstance] talkAccountForAccountId:_room.accountId];
+
+    _externalSignalingController = [[NCSettingsController sharedInstance] externalSignalingControllerForAccountId:_account.accountId];
+    if (_externalSignalingController.hasChatRelay) {
+        _chatRelayMessagesQueue = dispatch_queue_create("chat.relay.message.queue", DISPATCH_QUEUE_SERIAL);
+        _chatRelayMessagesBuffer = [NSMutableArray new];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveChatMessageFromExternalSignaling:) name:NSNotification.ExtSignalingDidReceiveChatMessage object:_externalSignalingController];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReconnectExternalSignaling:) name:NSNotification.ExtSignalingDidReconnect object:_externalSignalingController];
+    }
+}
+
 - (void)dealloc
 {
     [[AllocationTracker shared] removeAllocation:@"NCChatController"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (BOOL)isThreadController
@@ -401,6 +417,24 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
     [sortedMessages sortUsingDescriptors:descriptors];
     
     return sortedMessages;
+}
+
+#pragma mark - External Signaling Controller
+
+- (void)didReceiveChatMessageFromExternalSignaling:(NSNotification *)notification
+{
+    NSString *roomToken = [notification.userInfo objectForKey:@"roomid"];
+    NSDictionary *messageDict = [[[notification.userInfo objectForKey:@"data"] objectForKey:@"chat"] objectForKey:@"comment"];
+    if ([roomToken isEqualToString:_room.token]) {
+        dispatch_async(_chatRelayMessagesQueue, ^{
+            if (!self->_startProcessingChatRelayMessages) {
+                [self->_chatRelayMessagesBuffer addObject:messageDict];
+                return;
+            }
+
+            [self handleChatRelayMessage:messageDict];
+        });
+    }
 }
 
 #pragma mark - Chat
@@ -900,10 +934,156 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
         [self checkLastCommonReadMessage:lastCommonReadMessage];
         
         if ([error underlyingError].code != NSURLErrorCancelled) {
+            BOOL shouldStartLongPolling = statusCode == 304;
             NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
-            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:YES];
+
+            if (shouldStartLongPolling && self->_externalSignalingController.hasChatRelay) {
+                [NCLog log:@"Chat is up to date, now processing new messages from the chat relay"];
+                [self startProcessingChatRelayMessages];
+                return;
+            }
+
+            [self startReceivingChatMessagesFromMessagesId:lastChatBlock.newestMessageId withTimeout:shouldStartLongPolling];
         }
     }];
+}
+
+- (void)startProcessingChatRelayMessages
+{
+    dispatch_async(self.chatRelayMessagesQueue, ^{
+        self.chatRelayCatchUpInProgress = NO;
+        self.startProcessingChatRelayMessages = YES;
+        [self flushChatRelayMessagesBuffer];
+    });
+}
+
+- (void)flushChatRelayMessagesBuffer
+{
+    if (self.chatRelayMessagesBuffer.count == 0) {
+        return;
+    }
+
+    [self.chatRelayMessagesBuffer sortUsingDescriptors:@[
+        [NSSortDescriptor sortDescriptorWithKey:@"id" ascending:YES]
+    ]];
+
+    // Snapshot and clear first so messages arriving meanwhile aren't lost. Not strictly needed
+    // since everything runs on the same serial queue, but just in case.
+    NSArray *bufferedMessages = [self.chatRelayMessagesBuffer copy];
+    [self.chatRelayMessagesBuffer removeAllObjects];
+
+    for (NSDictionary *messageDict in bufferedMessages) {
+        [self handleChatRelayMessage:messageDict];
+    }
+}
+
+// Falls back to a chat API catch-up when a chat relay message can't be reliably rendered from its
+// payload (file/object shares, call_ended, unknown system messages). Incoming chat relay messages
+// are buffered while the catch-up runs.
+- (void)triggerChatRelayCatchUp
+{
+    // If a catch-up is already running, skip: it fetches everything up to now, and messages
+    // arriving meanwhile are buffered and re-checked when it finishes.
+    if (self.chatRelayCatchUpInProgress) {
+        return;
+    }
+
+    self.chatRelayCatchUpInProgress = YES;
+    self.startProcessingChatRelayMessages = NO;
+
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
+    NSInteger fromMessageId = lastChatBlock.newestMessageId;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self startReceivingChatMessagesFromMessagesId:fromMessageId withTimeout:NO];
+    });
+}
+
+- (void)handleChatRelayMessage:(NSDictionary *)messageDict
+{
+    NCChatMessage *message = [NCChatMessage messageWithDictionary:messageDict andAccountId:self->_account.accountId];
+    if (!message) {
+        // We couldn't parse the payload, fetch from the chat API instead of dropping the message.
+        [NCLog log:@"Could not parse a message received over the chat relay, catching up over the chat API"];
+        [self triggerChatRelayCatchUp];
+        return;
+    }
+
+    // In thread controllers we only care about messages belonging to the thread.
+    if ([self isThreadController] && message.threadId != self->_threadId) {
+        return;
+    }
+
+    NCChatBlock *lastChatBlock = [self chatBlocksForRoomOrThread].lastObject;
+    NSInteger lastNewestMessageId = lastChatBlock.newestMessageId;
+
+    // Skip messages we already stored (e.g. already covered by a previous chat API catch-up).
+    if (message.messageId <= lastNewestMessageId) {
+        return;
+    }
+
+    NSDictionary *storableMessageDict = [self storableDictForChatRelayMessage:message withDict:messageDict];
+    if (!storableMessageDict) {
+        // The message can't be reliably handled from the chat relay payload, fetch it over the chat API.
+        [self triggerChatRelayCatchUp];
+        return;
+    }
+
+    [self updateLastChatBlockWithNewestKnown:message.messageId];
+    [self storeMessages:@[storableMessageDict]];
+    [self checkForNewMessagesFromMessageId:lastNewestMessageId];
+
+    [NCLog log:@"Stored a new message received over the chat relay"];
+}
+
+// Returns the dictionary to store for a chat relay message, or nil if it must be fetched over the chat API.
+- (NSDictionary *)storableDictForChatRelayMessage:(NCChatMessage *)message withDict:(NSDictionary *)messageDict
+{
+    // Messages with file/object attachments carry parameters that don't match the chat API response
+    // (e.g. file path and link), so they always need to be fetched over the chat API.
+    if (message.hasFileParameter) {
+        [NCLog log:@"A message received over the chat relay has a file attachment, fetching it from the chat API instead"];
+        return nil;
+    }
+
+    // System messages are not localized in the chat relay payload, so we localize them on the client.
+    if (message.isSystemMessage) {
+        BOOL silentCall = [[[messageDict objectForKey:@"call"] objectForKey:@"silent"] boolValue];
+        NSString *localizedMessage = [NCSystemMessageLocalizer localizedSystemMessageFor:message in:_room account:_account silentCall:silentCall];
+        if (!localizedMessage) {
+            // Can't be localized client-side (call_ended, file/object shared, unknown type).
+            [NCLog log:[NSString stringWithFormat:@"System message '%@' received over the chat relay can't be localized on the client, fetching it from the chat API instead", message.systemMessage]];
+            return nil;
+        }
+
+        // Patch the payload's message with the localized template so that storeMessages, which
+        // re-parses the dictionary, persists the localized text.
+        NSMutableDictionary *localizedMessageDict = [messageDict mutableCopy];
+        [localizedMessageDict setObject:localizedMessage forKey:@"message"];
+        return localizedMessageDict;
+    }
+
+    return messageDict;
+}
+
+- (void)didReconnectExternalSignaling:(NSNotification *)notification
+{
+    if (self->_stopChatMessagesPoll || !self->_externalSignalingController.hasChatRelay) {
+        return;
+    }
+
+    // If the session was resumed, the signaling server replays the chat relay messages we missed
+    // while disconnected (within its ~30s resume window), so there is nothing to catch up on. Only
+    // a new session means those messages were lost and we need to catch up over the chat API.
+    BOOL sessionChanged = [[notification.userInfo objectForKey:@"sessionChanged"] boolValue];
+    if (!sessionChanged) {
+        return;
+    }
+
+    [NCLog log:@"Signaling session was not resumed, catching up on any missed messages over the chat API"];
+
+    dispatch_async(self->_chatRelayMessagesQueue, ^{
+        [self triggerChatRelayCatchUp];
+    });
 }
 
 - (void)startReceivingNewChatMessages
@@ -914,6 +1094,8 @@ NSString * const NCChatControllerDidReceiveThreadNotFoundNotification           
 
 - (void)stopReceivingNewChatMessages
 {
+    _startProcessingChatRelayMessages = NO;
+    _chatRelayCatchUpInProgress = NO;
     _stopChatMessagesPoll = YES;
     [_pullMessagesTask cancel];
 }

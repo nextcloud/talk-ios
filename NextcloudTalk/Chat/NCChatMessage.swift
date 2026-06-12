@@ -49,6 +49,12 @@ import SwiftyAttributes
         return self.messageType == kMessageTypeVoiceMessage
     }
 
+    // Whether the message carries a file/media attachment (file, file2, …). Unlike `file()`, this
+    // is also true for messages with multiple file parameters.
+    public var hasFileParameter: Bool {
+        return self.messageParameters.keys.contains { ($0 as? String)?.hasPrefix("file") ?? false }
+    }
+
     public var isCommandMessage: Bool {
         return self.messageType == kMessageTypeCommand
     }
@@ -74,7 +80,7 @@ import SwiftyAttributes
 
         // Check if user is allowed to delete a message
         let sameUser = self.isMessage(from: account.userId)
-        let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
+        let moderatorUser = !room.isOneToOne && (room.participantType == .owner || room.participantType == .moderator)
 
         let serverCanDeleteMessage = commentDeletion || objectDeletion
         let userCanDeleteMessage = sameUser || moderatorUser
@@ -94,7 +100,7 @@ import SwiftyAttributes
         serverCanEditMessage = serverCanEditMessage && self.messageType == kMessageTypeComment && !self.isObjectShare
 
         let sameUser = self.isMessage(from: account.userId)
-        let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
+        let moderatorUser = !room.isOneToOne && (room.participantType == .owner || room.participantType == .moderator)
         let botInOneToOne = room.type == .oneToOne && self.actorType == AttendeeType.bots.rawValue && self.actorId.starts(with: NCAttendeeBotPrefix)
 
         let userCanEditMessage = sameUser || moderatorUser || botInOneToOne
