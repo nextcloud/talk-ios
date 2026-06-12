@@ -74,7 +74,7 @@ import SwiftyAttributes
 
         // Check if user is allowed to delete a message
         let sameUser = self.isMessage(from: account.userId)
-        let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
+        let moderatorUser = !room.isOneToOne && (room.participantType == .owner || room.participantType == .moderator)
 
         let serverCanDeleteMessage = commentDeletion || objectDeletion
         let userCanDeleteMessage = sameUser || moderatorUser
@@ -94,7 +94,7 @@ import SwiftyAttributes
         serverCanEditMessage = serverCanEditMessage && self.messageType == kMessageTypeComment && !self.isObjectShare
 
         let sameUser = self.isMessage(from: account.userId)
-        let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
+        let moderatorUser = !room.isOneToOne && (room.participantType == .owner || room.participantType == .moderator)
         let botInOneToOne = room.type == .oneToOne && self.actorType == AttendeeType.bots.rawValue && self.actorId.starts(with: NCAttendeeBotPrefix)
 
         let userCanEditMessage = sameUser || moderatorUser || botInOneToOne

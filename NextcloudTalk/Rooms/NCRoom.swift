@@ -18,8 +18,8 @@ extension Array where Element == NCRoom {
 
             // 2. Group mode
             if groupMode == .groupFirst || groupMode == .privateFirst {
-                let firstIsOneToOne = (first.type == .oneToOne || first.type == .formerOneToOne)
-                let secondIsOneToOne = (second.type == .oneToOne || second.type == .formerOneToOne)
+                let firstIsOneToOne = first.isOneToOne
+                let secondIsOneToOne = second.isOneToOne
 
                 if firstIsOneToOne != secondIsOneToOne {
                     let oneToOneFirst = groupMode == .privateFirst
@@ -83,6 +83,10 @@ extension Array where Element == NCRoom {
 
     public var isPublic: Bool {
         return self.type == .public
+    }
+
+    public var isOneToOne: Bool {
+        return self.type == .oneToOne || self.type == .formerOneToOne
     }
 
     public var isFederated: Bool {
@@ -239,7 +243,7 @@ extension Array where Element == NCRoom {
     }
 
     public var isNameEditable: Bool {
-        return self.canModerate && self.type != .oneToOne && self.type != .formerOneToOne
+        return self.canModerate && !self.isOneToOne
     }
 
     private var isLockedOneToOne: Bool {
@@ -258,7 +262,7 @@ extension Array where Element == NCRoom {
     }
 
     public var hasUnreadMention: Bool {
-        if self.type == .oneToOne || self.type == .formerOneToOne {
+        if self.isOneToOne {
             return self.unreadMessages > 0
         }
 
