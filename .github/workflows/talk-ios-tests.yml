@@ -112,12 +112,6 @@ jobs:
             phpversion: '8.0'
           },
           {
-            serverbranch: 'stable31',
-            talkbranch: 'stable31',
-            notificationsbranch: 'stable31',
-            phpversion: '8.3'
-          },
-          {
             serverbranch: 'stable32',
             talkbranch: 'stable32',
             notificationsbranch: 'stable32',
@@ -127,6 +121,12 @@ jobs:
             serverbranch: 'stable33',
             talkbranch: 'stable33',
             notificationsbranch: 'stable33',
+            phpversion: '8.3'
+          },
+          {
+            serverbranch: 'stable34',
+            talkbranch: 'stable34',
+            notificationsbranch: 'stable34',
             phpversion: '8.3'
           },
           {
