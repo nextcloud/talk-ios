@@ -1380,6 +1380,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityCirclesSupport, forAccountId: account.accountId)
+        else {
+            completionBlock([], nil)
+            return
+        }
+
         let urlString = "\(account.server)/ocs/v2.php/apps/circles/probecircles"
 
         apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
