@@ -681,6 +681,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
             guard let sender = messageDict["sender"] as? [AnyHashable: Any],
                   let fromSession = sender["sessionid"] as? String,
+                  let participant = self.getParticipant(fromSessionId: fromSession),
                   let currentRoom
             else { return }
 
@@ -691,12 +692,10 @@ public enum NCExternalSignalingSendMessageStatus {
                 userInfo["userId"] = fromUser
             }
 
-            if let participant = self.getParticipant(fromSessionId: fromSession) {
-                userInfo["isFederated"] = participant.isFederated
+            userInfo["isFederated"] = participant.isFederated
 
-                if let displayName = participant.displayName {
-                    userInfo["displayName"] = displayName
-                }
+            if let displayName = participant.displayName {
+                userInfo["displayName"] = displayName
             }
 
             if messageType == "startedTyping" {
