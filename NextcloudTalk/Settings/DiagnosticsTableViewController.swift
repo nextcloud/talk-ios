@@ -683,7 +683,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
         if indexPath.row == LogsSections.kLogsSectionShowLogs.rawValue {
             cell.accessoryType = .disclosureIndicator
-            cell.textLabel?.text = NSLocalizedString("Browse logfiles", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Browse log files", comment: "")
             cell.detailTextLabel?.text = nil
         }
 
