@@ -511,7 +511,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     @objc func includeInRecentsValueChanged(_ sender: Any?) {
         NCUserDefaults.setIncludeCallsInRecentsEnabled(includeInRecentsSwitch.isOn)
-        CallKitManager.sharedInstance().setDefaultProviderConfiguration()
+        CallKitManager.sharedInstance().setIncludeInRecents(toValue: includeInRecentsSwitch.isOn)
     }
 
     // MARK: - Advanced actions

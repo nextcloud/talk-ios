@@ -39,7 +39,6 @@
 #import "NCMessageTextView.h"
 #import "ReplyMessageView.h"
 #import "VoiceMessageRecordingView.h"
-#import "CallKitManager.h"
 
 #import "GeoLocationRichObject.h"
 #import "NCChatMessage.h"
