@@ -71,6 +71,20 @@
         }
     }
 
+    public static func getLogfiles() -> [URL] {
+        guard let logfilePath else { return [] }
+
+        let fileManager = FileManager.default
+
+        guard let files = try? fileManager.contentsOfDirectory(at: logfilePath, includingPropertiesForKeys: nil)
+        else { return [] }
+
+        // Sort descending by file name so the most recent logfile is listed first
+        return files
+            .filter { $0.lastPathComponent.hasPrefix("debug-") && $0.lastPathComponent.hasSuffix(".log") }
+            .sorted { $0.lastPathComponent > $1.lastPathComponent }
+    }
+
     public static func removeOldLogfiles() {
         guard let logfilePath else { return }
 

@@ -479,6 +479,9 @@
 "Bots" = "Bots";
 
 /* No comment provided by engineer. */
+"Browse log files" = "Browse log files";
+
+/* No comment provided by engineer. */
 "Browse poll drafts" = "Browse poll drafts";
 
 /* No comment provided by engineer. */
@@ -1400,6 +1403,9 @@
 "Logged out" = "Logged out";
 
 /* No comment provided by engineer. */
+"Logs" = "Logs";
+
+/* No comment provided by engineer. */
 "Long absence message" = "Long absence message";
 
 /* TRANSLATORS this is a video quality option (Video quality : Low) */
@@ -2020,6 +2026,9 @@
 
 /* No comment provided by engineer. */
 "Search for places" = "Search for places";
+
+/* No comment provided by engineer. */
+"Select" = "Select";
 
 /* Replacement in case of out of office */
 "Select a replacement" = "Select a replacement";
