@@ -62,16 +62,16 @@ class LogfilesTableViewController: UITableViewController, QLPreviewControllerDat
     private func updateExportButton() {
         let selectedCount = tableView.indexPathsForSelectedRows?.count ?? 0
 
-        // Only offer the export action when more than one logfile is selected
-        if isEditing, selectedCount > 1 {
-            self.navigationItem.leftBarButtonItem = exportBarButtonItem
+        // Offer the export action next to the cancel button once at least one logfile is selected
+        if isEditing, selectedCount > 0 {
+            self.navigationItem.rightBarButtonItems = [selectBarButtonItem, exportBarButtonItem]
         } else {
-            self.navigationItem.leftBarButtonItem = nil
+            self.navigationItem.rightBarButtonItems = [selectBarButtonItem]
         }
     }
 
     @objc func exportButtonPressed() {
-        guard let selectedIndexPaths = tableView.indexPathsForSelectedRows, selectedIndexPaths.count > 1 else { return }
+        guard let selectedIndexPaths = tableView.indexPathsForSelectedRows, !selectedIndexPaths.isEmpty else { return }
 
         let selectedFiles = selectedIndexPaths.map { logfiles[$0.row] }
 
