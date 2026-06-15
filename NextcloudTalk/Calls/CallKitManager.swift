@@ -118,7 +118,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
 
         NCLog.log("Report incoming call for token \(token) for account \(accountId). Protected data is \(protectedDataAvailable)")
 
-        let ongoingCalls = self.calls.count > 0
+        let ongoingCalls = !self.calls.isEmpty
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if NCSettingsController.sharedInstance().isEndToEndEncryptedCallingEnabled(forAccount: activeAccount.accountId) {
@@ -207,7 +207,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
 
             self.calls[callUUID] = call
 
-            var userInfo: [String: Any] = [
+            let userInfo: [String: Any] = [
                 "roomToken": token,
                 "localNotificationType": notificationType.rawValue,
                 "accountId": accountId
@@ -334,7 +334,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     private func presentMissedCallNotification(for call: CallKitCall?) {
         guard let call, let token = call.token, let accountId = call.accountId else { return }
 
-        var userInfo: [String: Any] = [
+        let userInfo: [String: Any] = [
             "roomToken": token,
             "displayName": call.displayName,
             "localNotificationType": NCLocalNotificationType.missedCall.rawValue,
@@ -449,7 +449,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
 
     public func startCall(_ token: String, withVideoEnabled videoEnabled: Bool, andDisplayName displayName: String, asInitiator initiator: Bool, silently: Bool, recordingConsent: Bool, withAccountId accountId: String) {
         if NCSettingsController.sharedInstance().isEndToEndEncryptedCallingEnabled(forAccount: accountId) {
-            var userInfo: [String: Any] = [
+            let userInfo: [String: Any] = [
                 "roomToken": token,
                 "localNotificationType": NCLocalNotificationType.endToEndEncryptionUnsupported.rawValue,
                 "accountId": accountId
@@ -460,7 +460,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         }
 
         if !CallKitManager.isCallKitAvailable() {
-            var userInfo: [String: Any] = [
+            let userInfo: [String: Any] = [
                 "roomToken": token,
                 "isVideoEnabled": videoEnabled,
                 "initiator": initiator,
@@ -532,7 +532,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     private func presentRecordingConsentRequiredNotification(for call: CallKitCall?) {
         guard let call, let token = call.token, let accountId = call.accountId else { return }
 
-        var userInfo: [String: Any] = [
+        let userInfo: [String: Any] = [
             "roomToken": token,
             "displayName": call.displayName,
             "localNotificationType": NCLocalNotificationType.recordingConsentRequired.rawValue,
@@ -600,7 +600,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
 
             // Report outgoing call
             provider.reportOutgoingCall(with: action.callUUID, connectedAt: Date())
-            var userInfo: [String: Any] = [
+            let userInfo: [String: Any] = [
                 "roomToken": action.handle.value,
                 "isVideoEnabled": action.isVideo,
                 "initiator": call.initiator,
@@ -623,7 +623,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             self.stopCallStateTimer(forCallUUID: uuid)
 
             self.stopHangUpTimer(forCallUUID: uuid)
-            var userInfo: [String: Any] = [
+            let userInfo: [String: Any] = [
                 "roomToken": token,
                 "hasVideo": call.update?.hasVideo ?? false,
                 "waitForCallEnd": call.reportedWhileInCall,
