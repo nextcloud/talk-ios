@@ -159,6 +159,14 @@ import AVFoundation
         return dateFormatter.string(from: date)
     }
 
+    public static func readableDate(fromDate date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .none
+
+        return dateFormatter.string(from: date)
+    }
+
     public static func readableDateTime(fromDate date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium

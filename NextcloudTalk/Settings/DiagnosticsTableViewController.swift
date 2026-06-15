@@ -16,6 +16,7 @@ class DiagnosticsTableViewController: UITableViewController {
         case kDiagnosticsSectionServer
         case kDiagnosticsSectionTalk
         case kDiagnosticsSectionSignaling
+        case kDiagnosticsSectionLogs
         case kDiagnosticsSectionReset
         case kDiagnosticsSectionCount
     }
@@ -67,6 +68,11 @@ class DiagnosticsTableViewController: UITableViewController {
         case kSignalingSectionStunServers
         case kSignalingSectionTurnServers
         case kSignalingSectionCount
+    }
+
+    enum LogsSections: Int {
+        case kLogsSectionShowLogs = 0
+        case kLogsSectionCount
     }
 
     enum ResetSections: Int {
@@ -211,6 +217,9 @@ class DiagnosticsTableViewController: UITableViewController {
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
             return signalingSections.count
 
+        case DiagnosticsSections.kDiagnosticsSectionLogs.rawValue:
+            return LogsSections.kLogsSectionCount.rawValue
+
         case DiagnosticsSections.kDiagnosticsSectionReset.rawValue:
             return ResetSections.kResetSectionCount.rawValue
 
@@ -235,6 +244,9 @@ class DiagnosticsTableViewController: UITableViewController {
 
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
             return NSLocalizedString("Signaling", comment: "")
+
+        case DiagnosticsSections.kDiagnosticsSectionLogs.rawValue:
+            return NSLocalizedString("Logs", comment: "")
 
         case DiagnosticsSections.kDiagnosticsSectionReset.rawValue:
             return NSLocalizedString("Reset", comment: "Title for a section where different reset options are shown")
@@ -261,6 +273,9 @@ class DiagnosticsTableViewController: UITableViewController {
         case DiagnosticsSections.kDiagnosticsSectionSignaling.rawValue:
             return signalingCell(for: indexPath)
 
+        case DiagnosticsSections.kDiagnosticsSectionLogs.rawValue:
+            return logsCell(for: indexPath)
+
         case DiagnosticsSections.kDiagnosticsSectionReset.rawValue:
             return resetCell(for: indexPath)
 
@@ -286,6 +301,11 @@ class DiagnosticsTableViewController: UITableViewController {
                   indexPath.row == TalkSections.kTalkSectionVersion.rawValue {
 
             presentCapabilitiesDetails()
+
+        } else if indexPath.section == DiagnosticsSections.kDiagnosticsSectionLogs.rawValue,
+                  indexPath.row == LogsSections.kLogsSectionShowLogs.rawValue {
+
+            presentLogfiles()
 
         } else if indexPath.section == DiagnosticsSections.kDiagnosticsSectionReset.rawValue,
                   indexPath.row == ResetSections.kResetSectionStoredMessages.rawValue {
@@ -656,6 +676,20 @@ class DiagnosticsTableViewController: UITableViewController {
         return cell
     }
 
+    func logsCell(for indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierSubtitleAccessory, for: indexPath)
+        cell.accessoryType = .none
+        cell.accessoryView = nil
+
+        if indexPath.row == LogsSections.kLogsSectionShowLogs.rawValue {
+            cell.accessoryType = .disclosureIndicator
+            cell.textLabel?.text = NSLocalizedString("Browse logfiles", comment: "")
+            cell.detailTextLabel?.text = nil
+        }
+
+        return cell
+    }
+
     func resetCell(for indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == ResetSections.kResetSectionStoredMessages.rawValue {
             let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifierAction, for: indexPath)
@@ -746,6 +780,13 @@ class DiagnosticsTableViewController: UITableViewController {
                                                        withTitle: NSLocalizedString("Capabilities", comment: ""))
 
         self.navigationController?.pushViewController(capabilitiesVC, animated: true)
+    }
+
+    // MARK: Logfiles
+
+    func presentLogfiles() {
+        let logfilesVC = LogfilesTableViewController()
+        self.navigationController?.pushViewController(logfilesVC, animated: true)
     }
 
     // MARK: Reset actions
