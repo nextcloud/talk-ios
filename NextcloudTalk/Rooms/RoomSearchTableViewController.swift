@@ -27,13 +27,16 @@ class RoomSearchTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         self.tableView.register(UINib(nibName: RoomTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: RoomTableViewCell.identifier)
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = UITableView.automaticDimension
         self.tableView.tableFooterView = UIView(frame: .zero)
+
         // Align header's title to ContactsTableViewCell's label
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 52, bottom: 0, right: 0)
         self.tableView.separatorInsetReference = .fromAutomaticInsets
+
         // Contacts placeholder view
         roomSearchBackgroundView.setImage(UIImage(named: "conversations-placeholder"))
         roomSearchBackgroundView.placeholderTextView.text = NSLocalizedString("No results found", comment: "")

@@ -56,6 +56,12 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
     private var contextMenuActionBlock: (() -> Void)?
 
+    // While a context menu is being displayed we defer room list reloads, otherwise reloading the
+    // table moves the cells out from under the floating context menu preview, making it overlay
+    // unrelated cells. Any refresh that arrives meanwhile is coalesced and applied once the menu ends.
+    private var isContextMenuActive = false
+    private var pendingRoomListRefresh = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -301,6 +307,11 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         super.viewWillDisappear(animated)
 
         stopRefreshRoomsTimer()
+
+        // Reset deferred-refresh state in case the context menu was dismissed by navigating away
+        // without a willEndContextMenuInteraction callback, so refreshes aren't skipped indefinitely.
+        isContextMenuActive = false
+        pendingRoomListRefresh = false
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -942,6 +953,13 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     // MARK: - User Interface
 
     @objc func refreshRoomList() {
+        // Don't reload while a context menu is open, as that would detach the preview from its cell.
+        // The refresh is applied once the context menu interaction ends.
+        if isContextMenuActive {
+            pendingRoomListRefresh = true
+            return
+        }
+
         let account = NCDatabaseManager.sharedInstance().activeAccount()
         let accountRooms = NCDatabaseManager.sharedInstance().roomsForAccountId(account.accountId, withRealm: nil)
         allRooms = accountRooms
@@ -2011,15 +2029,10 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             return nil
         }
 
-        if #available(iOS 26.0, *) {
-            // Don't provide a preview here in case of iOS 26 as it just looks bad
-            return nil
-        }
-
         guard let indexPath = configuration.identifier as? IndexPath else { return nil }
 
-        // Use a snapshot here to not interfere with room refresh
-        guard let cell = self.tableView.cellForRow(at: indexPath) else { return nil }
+        // Use a snapshot and a new cell (from dataSource) here to not interfere with room refresh
+        guard let cell = self.tableView.dataSource?.tableView(self.tableView, cellForRowAt: indexPath) else { return nil }
         guard let previewView = cell.contentView.snapshotView(afterScreenUpdates: false) else { return nil }
         previewView.backgroundColor = .systemBackground
 
@@ -2038,16 +2051,32 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         return UITargetedPreview(view: previewView, parameters: previewParameter, target: previewTarget)
     }
 
+    override func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
+        if tableView != self.tableView {
+            return
+        }
+
+        isContextMenuActive = true
+    }
+
     override func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
         if tableView != self.tableView {
             return
         }
 
         animator?.addCompletion {
+            self.isContextMenuActive = false
+
             // Wait until the context menu is completely hidden before we execute any method
             if let contextMenuActionBlock = self.contextMenuActionBlock {
                 contextMenuActionBlock()
                 self.contextMenuActionBlock = nil
+            }
+
+            // Apply any room list refresh that was deferred while the context menu was visible
+            if self.pendingRoomListRefresh {
+                self.pendingRoomListRefresh = false
+                self.refreshRoomList()
             }
         }
     }
