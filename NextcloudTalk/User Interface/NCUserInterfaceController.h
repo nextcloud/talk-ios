@@ -8,12 +8,12 @@
 
 #import "NCNotificationController.h"
 #import "NCPushNotification.h"
-#import "RoomsTableViewController.h"
 #import "NCRoom.h"
 
 @class NCSplitViewController;
 @class ChatViewController;
 @class CallViewController;
+@class RoomsTableViewController;
 
 typedef void (^PresentCallControllerCompletionBlock)(void);
 
