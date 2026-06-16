@@ -1199,7 +1199,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     // MARK: - External signaling controller delegate
 
     func externalSignalingController(_ externalSignalingController: NCExternalSignalingController, didReceivedSignalingMessage signalingMessageDict: [AnyHashable: Any]) {
-        guard let signalingMessage = NCSignalingMessage(fromExternalSignalingJSONDictionary: signalingMessageDict)
+        guard let signalingMessage = NCSignalingMessage.messageFromExternalSignalingJSONDictionary(signalingMessageDict)
         else { return }
 
         WebRTCCommon.shared.dispatch {
@@ -1264,7 +1264,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
                 }
             } else if messageType == "message" {
                 if let jsonData = message["data"] as? String {
-                    if let signalingMessage = NCSignalingMessage(fromJSONString: jsonData) {
+                    if let signalingMessage = NCSignalingMessage.messageFromJSONString(jsonData) {
                         self.processSignalingMessage(signalingMessage)
                     }
                 }
