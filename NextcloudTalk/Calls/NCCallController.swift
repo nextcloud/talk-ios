@@ -1531,8 +1531,9 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func processReaction(_ signalingMessage: NCSignalingMessage) {
-        guard let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType),
-              let reaction = signalingMessage.payload["reaction"] as? String
+        guard let reactionMessage = signalingMessage as? NCReactionMessage,
+              let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType),
+              let reaction = reactionMessage.reaction
         else { return }
 
         self.delegate?.callController(self, didReceiveReaction: reaction, fromPeer: peerConnectionWrapper)
