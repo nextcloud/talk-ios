@@ -4,12 +4,11 @@
 //
 
 import Foundation
-import WebRTC
 
 public let kRoomTypeVideo = "video"
 public let kRoomTypeScreen = "screen"
 
-private enum SignalingKey {
+enum SignalingKey {
     static let event = "ev"
     static let function = "fn"
     static let sessionId = "sessionId"
@@ -31,9 +30,10 @@ private enum SignalingKey {
     static let status = "status"
     static let broadcaster = "broadcaster"
     static let sdp = "sdp"
+    static let reaction = "reaction"
 }
 
-private enum MessageTypeValue {
+enum MessageTypeValue {
     static let offer = "offer"
     static let answer = "answer"
     static let prAnswer = "pranswer"
@@ -209,7 +209,7 @@ public class NCSignalingMessage: NSObject {
 
     // MARK: - Helpers
 
-    fileprivate struct ParsedValues {
+    struct ParsedValues {
         let from: String?
         let to: String?
         let sid: String?
@@ -220,7 +220,7 @@ public class NCSignalingMessage: NSObject {
 
     // Extracts the common signaling values, taking into account that when using an external signaling
     // server the relevant values are nested in the "data" dictionary and "from" comes from the "sender".
-    fileprivate static func parsedValues(from values: [AnyHashable: Any], useDataAsPayload: Bool = false) -> ParsedValues {
+    static func parsedValues(from values: [AnyHashable: Any], useDataAsPayload: Bool = false) -> ParsedValues {
         var dataDict = values
         var from = values[SignalingKey.from] as? String
         var payload = values[SignalingKey.payload] as? [AnyHashable: Any]
@@ -237,384 +237,5 @@ public class NCSignalingMessage: NSObject {
                             roomType: dataDict[SignalingKey.roomType] as? String,
                             broadcaster: dataDict[SignalingKey.broadcaster] as? String,
                             payload: payload)
-    }
-}
-
-// MARK: - ICE candidate
-
-@objcMembers
-public class NCICECandidateMessage: NCSignalingMessage {
-
-    public private(set) var candidate: RTCIceCandidate!
-
-    public init!(candidate: RTCIceCandidate, from: String?, to: String?, sid: String?, roomType: String?, broadcaster: String?) {
-        self.candidate = candidate
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.candidate, payload: [:], roomType: roomType, broadcaster: broadcaster)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        var dataDict = values
-        var from = values[SignalingKey.from] as? String
-
-        if let sender = values[SignalingKey.sender] as? [AnyHashable: Any] {
-            from = sender[SignalingKey.externalSessionId] as? String
-            dataDict = values[SignalingKey.data] as? [AnyHashable: Any] ?? [:]
-        }
-
-        let payloadDict = dataDict[SignalingKey.payload] as? [AnyHashable: Any] ?? [:]
-        let candidateDict = payloadDict[MessageTypeValue.candidate] as? [AnyHashable: Any] ?? [:]
-
-        self.candidate = NCICECandidateMessage.iceCandidate(fromJSONDictionary: candidateDict)
-        super.init(from: from,
-                   to: dataDict[SignalingKey.to] as? String,
-                   sid: dataDict[SignalingKey.sid] as? String,
-                   type: MessageTypeValue.candidate,
-                   payload: [:],
-                   roomType: dataDict[SignalingKey.roomType] as? String,
-                   broadcaster: dataDict[SignalingKey.broadcaster] as? String)
-    }
-
-    public override func functionDict() -> [AnyHashable: Any] {
-        return [
-            SignalingKey.to: self.to ?? "",
-            SignalingKey.roomType: self.roomType ?? "",
-            SignalingKey.type: self.type ?? "",
-            SignalingKey.sid: self.sid ?? "",
-            SignalingKey.payload: [
-                SignalingKey.type: self.type ?? "",
-                MessageTypeValue.candidate: NCICECandidateMessage.jsonDictionary(from: self.candidate)
-            ]
-        ]
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .candidate
-    }
-
-    private static func iceCandidate(fromJSONDictionary dict: [AnyHashable: Any]) -> RTCIceCandidate {
-        let mid = dict["sdpMid"] as? String
-        let sdp = dict["candidate"] as? String ?? ""
-        let mLineIndex = (dict["sdpMLineIndex"] as? NSNumber)?.int32Value ?? 0
-
-        return RTCIceCandidate(sdp: sdp, sdpMLineIndex: mLineIndex, sdpMid: mid)
-    }
-
-    private static func jsonDictionary(from candidate: RTCIceCandidate) -> [AnyHashable: Any] {
-        return [
-            "sdpMLineIndex": NSNumber(value: candidate.sdpMLineIndex),
-            "sdpMid": candidate.sdpMid ?? "",
-            "candidate": candidate.sdp
-        ]
-    }
-}
-
-// MARK: - Session description
-
-@objcMembers
-public class NCSessionDescriptionMessage: NCSignalingMessage {
-
-    public private(set) var sessionDescription: RTCSessionDescription!
-    public private(set) var nick: String?
-
-    public init!(sessionDescription: RTCSessionDescription, from: String?, to: String?, sid: String?, roomType: String?, broadcaster: String?, nick: String?) {
-        let type = NCSessionDescriptionMessage.type(for: sessionDescription)
-
-        self.sessionDescription = sessionDescription
-        self.nick = nick
-        super.init(from: from,
-                   to: to,
-                   sid: sid,
-                   type: type,
-                   payload: [SignalingKey.type: type, SignalingKey.sdp: sessionDescription.sdp],
-                   roomType: roomType,
-                   broadcaster: broadcaster)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        var dataDict = values
-        var from = values[SignalingKey.from] as? String
-
-        if let sender = values[SignalingKey.sender] as? [AnyHashable: Any] {
-            from = sender[SignalingKey.externalSessionId] as? String
-            dataDict = values[SignalingKey.data] as? [AnyHashable: Any] ?? [:]
-        }
-
-        let payloadDict = dataDict[SignalingKey.payload] as? [AnyHashable: Any] ?? [:]
-        let description = NCSessionDescriptionMessage.sessionDescription(fromJSONDictionary: payloadDict)
-        let type = NCSessionDescriptionMessage.type(for: description)
-
-        self.sessionDescription = description
-        self.nick = payloadDict[SignalingKey.nick] as? String
-        super.init(from: from,
-                   to: dataDict[SignalingKey.to] as? String,
-                   sid: dataDict[SignalingKey.sid] as? String,
-                   type: type,
-                   payload: [SignalingKey.type: type, SignalingKey.sdp: description.sdp],
-                   roomType: dataDict[SignalingKey.roomType] as? String,
-                   broadcaster: dataDict[SignalingKey.broadcaster] as? String)
-    }
-
-    public override func functionDict() -> [AnyHashable: Any] {
-        return [
-            SignalingKey.to: self.to ?? "",
-            SignalingKey.roomType: self.roomType ?? "",
-            SignalingKey.type: self.type ?? "",
-            SignalingKey.sid: self.sid ?? "",
-            SignalingKey.broadcaster: self.broadcaster ?? "",
-            SignalingKey.payload: [
-                SignalingKey.type: self.type ?? "",
-                SignalingKey.sdp: self.sessionDescription.sdp,
-                SignalingKey.nick: self.nick ?? ""
-            ]
-        ]
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return self.type == MessageTypeValue.offer ? .offer : .answer
-    }
-
-    private static func type(for sessionDescription: RTCSessionDescription) -> String {
-        switch sessionDescription.type {
-        case .offer:
-            return MessageTypeValue.offer
-        case .answer:
-            return MessageTypeValue.answer
-        default:
-            assertionFailure("Unexpected SDP type")
-            return ""
-        }
-    }
-
-    private static func sessionDescription(fromJSONDictionary dict: [AnyHashable: Any]) -> RTCSessionDescription {
-        let typeString = dict[SignalingKey.type] as? String ?? ""
-        let sdp = dict[SignalingKey.sdp] as? String ?? ""
-
-        let type: RTCSdpType
-        switch typeString {
-        case MessageTypeValue.answer:
-            type = .answer
-        case MessageTypeValue.prAnswer:
-            type = .prAnswer
-        default:
-            type = .offer
-        }
-
-        return RTCSessionDescription(type: type, sdp: sdp)
-    }
-}
-
-// MARK: - Unshare screen
-
-@objcMembers
-public class NCUnshareScreenMessage: NCSignalingMessage {
-
-    public init!(from: String?, to: String?, sid: String?, roomType: String?, payload: [AnyHashable: Any]?) {
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.unshareScreen, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.unshareScreen, payload: [:], roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .unshareScreen
-    }
-}
-
-// MARK: - Control
-
-@objcMembers
-public class NCControlMessage: NCSignalingMessage {
-
-    public init!(from: String?, to: String?, sid: String?, roomType: String?, payload: [AnyHashable: Any]?) {
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.control, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values, useDataAsPayload: true)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.control, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .control
-    }
-}
-
-// MARK: - Mute
-
-@objcMembers
-public class NCMuteMessage: NCSignalingMessage {
-
-    public init!(from: String?, to: String?, sid: String?, roomType: String?, payload: [AnyHashable: Any]?) {
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.mute, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.mute, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .mute
-    }
-}
-
-// MARK: - Unmute
-
-@objcMembers
-public class NCUnmuteMessage: NCSignalingMessage {
-
-    public init!(from: String?, to: String?, sid: String?, roomType: String?, payload: [AnyHashable: Any]?) {
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.unmute, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.unmute, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .unmute
-    }
-}
-
-// MARK: - Nick changed
-
-@objcMembers
-public class NCNickChangedMessage: NCSignalingMessage {
-
-    public init!(from: String?, to: String?, sid: String?, roomType: String?, payload: [AnyHashable: Any]?) {
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.nickChanged, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.nickChanged, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .nickChanged
-    }
-}
-
-// MARK: - Raise hand
-
-@objcMembers
-public class NCRaiseHandMessage: NCSignalingMessage {
-
-    public init!(from: String?, to: String?, sid: String?, roomType: String?, payload: [AnyHashable: Any]?) {
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.raiseHand, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.raiseHand, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .raiseHand
-    }
-}
-
-// MARK: - Recording
-
-@objcMembers
-public class NCRecordingMessage: NCSignalingMessage {
-
-    public private(set) var status: Int = 0
-
-    public init(values: [AnyHashable: Any]) {
-        let dataDict = values[SignalingKey.data] as? [AnyHashable: Any] ?? [:]
-        let recordingDict = dataDict[MessageTypeValue.recording] as? [AnyHashable: Any] ?? [:]
-
-        if let number = recordingDict[SignalingKey.status] as? NSNumber {
-            self.status = number.intValue
-        } else if let string = recordingDict[SignalingKey.status] as? String {
-            self.status = (string as NSString).integerValue
-        }
-
-        super.init(from: nil, to: nil, sid: nil, type: MessageTypeValue.recording, payload: recordingDict, roomType: nil, broadcaster: nil)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .recording
-    }
-}
-
-// MARK: - Reaction
-
-@objcMembers
-public class NCReactionMessage: NCSignalingMessage {
-
-    public private(set) var reaction: String?
-
-    public init!(from: String?, to: String?, sid: String?, roomType: String?, payload: [AnyHashable: Any]?) {
-        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.reaction, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.reaction, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .reaction
-    }
-}
-
-// MARK: - Started typing
-
-@objcMembers
-public class NCStartedTypingMessage: NCSignalingMessage {
-
-    public init!(from: String?, sendTo to: String?, withPayload payload: [AnyHashable: Any]?, forRoomType roomType: String?) {
-        super.init(from: from, to: to, sid: NCSignalingMessage.getMessageSid(), type: MessageTypeValue.startedTyping, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.startedTyping, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func functionDict() -> [AnyHashable: Any] {
-        return [
-            SignalingKey.to: self.to ?? "",
-            SignalingKey.roomType: self.roomType ?? "",
-            SignalingKey.type: self.type ?? "",
-            SignalingKey.payload: self.payload ?? [:]
-        ]
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .startedTyping
-    }
-}
-
-// MARK: - Stopped typing
-
-@objcMembers
-public class NCStoppedTypingMessage: NCSignalingMessage {
-
-    public init!(from: String?, sendTo to: String?, withPayload payload: [AnyHashable: Any]?, forRoomType roomType: String?) {
-        super.init(from: from, to: to, sid: NCSignalingMessage.getMessageSid(), type: MessageTypeValue.stoppedTyping, payload: payload, roomType: roomType, broadcaster: nil)
-    }
-
-    public init(values: [AnyHashable: Any]) {
-        let parsed = NCSignalingMessage.parsedValues(from: values)
-        super.init(from: parsed.from, to: parsed.to, sid: parsed.sid, type: MessageTypeValue.stoppedTyping, payload: parsed.payload, roomType: parsed.roomType, broadcaster: parsed.broadcaster)
-    }
-
-    public override func functionDict() -> [AnyHashable: Any] {
-        return [
-            SignalingKey.to: self.to ?? "",
-            SignalingKey.roomType: self.roomType ?? "",
-            SignalingKey.type: self.type ?? "",
-            SignalingKey.payload: self.payload ?? [:]
-        ]
-    }
-
-    public override func messageType() -> NCSignalingMessageType {
-        return .stoppedTyping
     }
 }
