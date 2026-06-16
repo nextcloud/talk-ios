@@ -74,7 +74,6 @@
 
 #import "DRCellSlideGestureRecognizer.h"
 #import "NCTypes.h"
-#import "NCChatController.h"
 
 #import "ARDCaptureController.h"
 #import "NCScreensharingController.h"
