@@ -405,6 +405,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
     @objc private func appWillResignActive(_ notification: Notification) {
         stopRefreshRoomsTimer()
+        self.tableView.contextMenuInteraction?.dismissMenu()
     }
 
     @objc private func roomCreated(_ notification: Notification) {
