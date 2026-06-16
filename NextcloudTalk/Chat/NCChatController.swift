@@ -5,6 +5,23 @@
 
 import Foundation
 
+public extension NSNotification.Name {
+    static let NCChatControllerDidReceiveInitialChatHistory = NSNotification.Name("NCChatControllerDidReceiveInitialChatHistoryNotification")
+    static let NCChatControllerDidReceiveInitialChatHistoryOffline = NSNotification.Name("NCChatControllerDidReceiveInitialChatHistoryOfflineNotification")
+    static let NCChatControllerDidReceiveChatHistory = NSNotification.Name("NCChatControllerDidReceiveChatHistoryNotification")
+    static let NCChatControllerDidReceiveChatMessages = NSNotification.Name("NCChatControllerDidReceiveChatMessagesNotification")
+    static let NCChatControllerDidSendChatMessage = NSNotification.Name("NCChatControllerDidSendChatMessageNotification")
+    static let NCChatControllerDidReceiveChatBlocked = NSNotification.Name("NCChatControllerDidReceiveChatBlockedNotification")
+    static let NCChatControllerDidReceiveNewerCommonReadMessage = NSNotification.Name("NCChatControllerDidReceiveNewerCommonReadMessageNotification")
+    static let NCChatControllerDidReceiveUpdateMessage = NSNotification.Name("NCChatControllerDidReceiveUpdateMessageNotification")
+    static let NCChatControllerDidReceiveHistoryCleared = NSNotification.Name("NCChatControllerDidReceiveHistoryClearedNotification")
+    static let NCChatControllerDidReceiveCallStartedMessage = NSNotification.Name("NCChatControllerDidReceiveCallStartedMessageNotification")
+    static let NCChatControllerDidReceiveCallEndedMessage = NSNotification.Name("NCChatControllerDidReceiveCallEndedMessageNotification")
+    static let NCChatControllerDidReceiveMessagesInBackground = NSNotification.Name("NCChatControllerDidReceiveMessagesInBackgroundNotification")
+    static let NCChatControllerDidReceiveThreadMessage = NSNotification.Name("NCChatControllerDidReceiveThreadMessageNotification")
+    static let NCChatControllerDidReceiveThreadNotFound = NSNotification.Name("NCChatControllerDidReceiveThreadNotFoundNotification")
+}
+
 public class NCChatController: NSObject {
 
     public var room: NCRoom
@@ -1066,21 +1083,4 @@ public class NCChatController: NSObject {
             }
         }
     }
-}
-
-public extension NSNotification.Name {
-    static let NCChatControllerDidReceiveInitialChatHistory = NSNotification.Name("NCChatControllerDidReceiveInitialChatHistoryNotification")
-    static let NCChatControllerDidReceiveInitialChatHistoryOffline = NSNotification.Name("NCChatControllerDidReceiveInitialChatHistoryOfflineNotification")
-    static let NCChatControllerDidReceiveChatHistory = NSNotification.Name("NCChatControllerDidReceiveChatHistoryNotification")
-    static let NCChatControllerDidReceiveChatMessages = NSNotification.Name("NCChatControllerDidReceiveChatMessagesNotification")
-    static let NCChatControllerDidSendChatMessage = NSNotification.Name("NCChatControllerDidSendChatMessageNotification")
-    static let NCChatControllerDidReceiveChatBlocked = NSNotification.Name("NCChatControllerDidReceiveChatBlockedNotification")
-    static let NCChatControllerDidReceiveNewerCommonReadMessage = NSNotification.Name("NCChatControllerDidReceiveNewerCommonReadMessageNotification")
-    static let NCChatControllerDidReceiveUpdateMessage = NSNotification.Name("NCChatControllerDidReceiveUpdateMessageNotification")
-    static let NCChatControllerDidReceiveHistoryCleared = NSNotification.Name("NCChatControllerDidReceiveHistoryClearedNotification")
-    static let NCChatControllerDidReceiveCallStartedMessage = NSNotification.Name("NCChatControllerDidReceiveCallStartedMessageNotification")
-    static let NCChatControllerDidReceiveCallEndedMessage = NSNotification.Name("NCChatControllerDidReceiveCallEndedMessageNotification")
-    static let NCChatControllerDidReceiveMessagesInBackground = NSNotification.Name("NCChatControllerDidReceiveMessagesInBackgroundNotification")
-    static let NCChatControllerDidReceiveThreadMessage = NSNotification.Name("NCChatControllerDidReceiveThreadMessageNotification")
-    static let NCChatControllerDidReceiveThreadNotFound = NSNotification.Name("NCChatControllerDidReceiveThreadNotFoundNotification")
 }
