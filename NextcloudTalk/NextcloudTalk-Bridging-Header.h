@@ -26,7 +26,7 @@
 #import "NotificationCenterNotifications.h"
 #import "MapViewController.h"
 #import "PlaceholderView.h"
-#import "RoomsTableViewController.h"
+#import "UIBarButtonItem+LegacyBadge.h"
 #import "ShareTableViewCell.h"
 #import "TOCroppedImageAttributes.h"
 #import "TOCropViewController.h"
