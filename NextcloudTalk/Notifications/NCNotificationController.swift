@@ -62,11 +62,11 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         }
 
         switch pushNotification.type {
-        case .NCPushNotificationTypeDelete:
+        case .delete:
             self.removeNotification(withNotificationIds: [NSNumber(value: pushNotification.notificationId)], forAccountId: pushNotification.accountId, withCompletionBlock: nil)
-        case .NCPushNotificationTypeDeleteAll:
+        case .deleteAll:
             self.removeAllNotifications(forAccountId: pushNotification.accountId)
-        case .NCPushNotificationTypeDeleteMultiple:
+        case .deleteMultiple:
             self.removeNotification(withNotificationIds: pushNotification.notificationIds as? [NSNumber], forAccountId: pushNotification.accountId, withCompletionBlock: nil)
         default:
             NSLog("Push Notification of an unknown type received")
@@ -395,11 +395,11 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
             if let textInputResponse = response as? UNTextInputNotificationResponse {
                 pushNotification.responseUserText = textInputResponse.userText
                 self.handlePushNotificationResponse(withUserText: pushNotification)
-            } else if pushNotification.type == .NCPushNotificationTypeRecording {
+            } else if pushNotification.type == .recording {
                 self.handlePushNotificationResponseForRecording(serverNotification, withActionIdentifier: response.actionIdentifier, forAccount: account)
-            } else if pushNotification.type == .NCPUshNotificationTypeFederation {
+            } else if pushNotification.type == .federation {
                 self.handlePushNotificationResponseForFederation(serverNotification, withActionIdentifier: response.actionIdentifier, forAccount: account)
-            } else if pushNotification.type == .NCPushNotificationTypeReminder {
+            } else if pushNotification.type == .reminder {
                 self.handlePushNotificationResponseForReminder(serverNotification, withActionIdentifier: response.actionIdentifier, forAccount: account)
             } else {
                 self.handlePushNotificationResponse(pushNotification)
@@ -604,9 +604,9 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         }
 
         switch pushNotification.type {
-        case .NCPushNotificationTypeCall:
+        case .call:
             NCUserInterfaceController.sharedInstance().presentAlert(for: pushNotification)
-        case .NCPushNotificationTypeRoom, .NCPushNotificationTypeChat:
+        case .room, .chat:
             NCUserInterfaceController.sharedInstance().presentChat(for: pushNotification)
         default:
             break

@@ -176,7 +176,7 @@ typedef NS_ENUM(NSInteger, NCPushNotificationType) {
     NCPushNotificationTypeDeleteMultiple,
     NCPushNotificationTypeAdminNotification,
     NCPushNotificationTypeRecording,
-    NCPUshNotificationTypeFederation,
+    NCPushNotificationTypeFederation,
     NCPushNotificationTypeReminder
 };
 
