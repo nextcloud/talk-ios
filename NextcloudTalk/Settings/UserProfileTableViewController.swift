@@ -162,11 +162,11 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         case ProfileSection.kProfileSectionName.rawValue:
             return textInputCellWith(text: account.userDisplayName,
                                      tag: kNameTextFieldTag,
-                                     interactionEnabled: editableFields.contains(kUserProfileDisplayName))
+                                     interactionEnabled: editableFields.contains(UserProfileField.displayName))
         case ProfileSection.kProfileSectionEmail.rawValue:
             return textInputCellWith(text: account.email,
                                      tag: kEmailTextFieldTag,
-                                     interactionEnabled: editableFields.contains(kUserProfileEmail),
+                                     interactionEnabled: editableFields.contains(UserProfileField.email),
                                      keyBoardType: .emailAddress,
                                      autocapitalizationType: .none,
                                      placeHolder: NSLocalizedString("Your email address", comment: ""))
@@ -182,19 +182,19 @@ class UserProfileTableViewController: UITableViewController, DetailedOptionsSele
         case ProfileSection.kProfileSectionAddress.rawValue:
             return textInputCellWith(text: account.address,
                                      tag: kAddressTextFieldTag,
-                                     interactionEnabled: editableFields.contains(kUserProfileAddress),
+                                     interactionEnabled: editableFields.contains(UserProfileField.address),
                                      placeHolder: NSLocalizedString("Your postal address", comment: ""))
         case ProfileSection.kProfileSectionWebsite.rawValue:
             return textInputCellWith(text: account.website,
                                      tag: kWebsiteTextFieldTag,
-                                     interactionEnabled: editableFields.contains(kUserProfileWebsite),
+                                     interactionEnabled: editableFields.contains(UserProfileField.website),
                                      keyBoardType: .URL,
                                      autocapitalizationType: .none,
                                      placeHolder: NSLocalizedString("Link https://…", comment: ""))
         case ProfileSection.kProfileSectionTwitter.rawValue:
             return textInputCellWith(text: account.twitter,
                                      tag: kTwitterTextFieldTag,
-                                     interactionEnabled: editableFields.contains(kUserProfileTwitter),
+                                     interactionEnabled: editableFields.contains(UserProfileField.twitter),
                                      keyBoardType: .emailAddress,
                                      autocapitalizationType: .none,
                                      placeHolder: NSLocalizedString("Twitter handle @…", comment: ""))

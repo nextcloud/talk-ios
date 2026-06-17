@@ -18,25 +18,29 @@ extension NSNotification.Name {
 
 // MARK: - User profile keys
 
-let kUserProfileUserId = "id"
-let kUserProfileDisplayName = "displayname"
-let kUserProfileDisplayNameScope = "displaynameScope"
-let kUserProfileEmail = "email"
-let kUserProfileEmailScope = "emailScope"
-let kUserProfilePhone = "phone"
-let kUserProfilePhoneScope = "phoneScope"
-let kUserProfileAddress = "address"
-let kUserProfileAddressScope = "addressScope"
-let kUserProfileWebsite = "website"
-let kUserProfileWebsiteScope = "websiteScope"
-let kUserProfileTwitter = "twitter"
-let kUserProfileTwitterScope = "twitterScope"
-let kUserProfileAvatarScope = "avatarScope"
+enum UserProfileField {
+    static let userId = "id"
+    static let displayName = "displayname"
+    static let displayNameScope = "displaynameScope"
+    static let email = "email"
+    static let emailScope = "emailScope"
+    static let phone = "phone"
+    static let phoneScope = "phoneScope"
+    static let address = "address"
+    static let addressScope = "addressScope"
+    static let website = "website"
+    static let websiteScope = "websiteScope"
+    static let twitter = "twitter"
+    static let twitterScope = "twitterScope"
+    static let avatarScope = "avatarScope"
+}
 
-let kUserProfileScopePrivate = "v2-private"
-let kUserProfileScopeLocal = "v2-local"
-let kUserProfileScopeFederated = "v2-federated"
-let kUserProfileScopePublished = "v2-published"
+enum UserProfileScope {
+    static let `private` = "v2-private"
+    static let local = "v2-local"
+    static let federated = "v2-federated"
+    static let published = "v2-published"
+}
 
 private let kPreferredFileSorting = "preferredFileSorting"
 private let kContactSyncEnabled = "contactSyncEnabled"
@@ -320,7 +324,7 @@ public class NCSettingsController: NSObject {
                 return
             }
 
-            let email = (userProfile[kUserProfileEmail] as? String) ?? ""
+            let email = (userProfile[UserProfileField.email] as? String) ?? ""
 
             let bgTask = BGTaskHelper.startBackgroundTask(withName: "NCSetUserProfile")
             let realm = RLMRealm.default()
@@ -330,22 +334,22 @@ public class NCSettingsController: NSObject {
                     return
                 }
 
-                managedActiveAccount.userId = (userProfile[kUserProfileUserId] as? String) ?? ""
+                managedActiveAccount.userId = (userProfile[UserProfileField.userId] as? String) ?? ""
                 // "display-name" is returned by /cloud/user endpoint
-                // change to kUserProfileDisplayName ("displayName") when using /cloud/users/{userId} endpoint
+                // change to UserProfileField.displayName ("displayName") when using /cloud/users/{userId} endpoint
                 managedActiveAccount.userDisplayName = (userProfile["display-name"] as? String) ?? ""
-                managedActiveAccount.userDisplayNameScope = (userProfile[kUserProfileDisplayNameScope] as? String) ?? ""
-                managedActiveAccount.phone = (userProfile[kUserProfilePhone] as? String) ?? ""
-                managedActiveAccount.phoneScope = (userProfile[kUserProfilePhoneScope] as? String) ?? ""
+                managedActiveAccount.userDisplayNameScope = (userProfile[UserProfileField.displayNameScope] as? String) ?? ""
+                managedActiveAccount.phone = (userProfile[UserProfileField.phone] as? String) ?? ""
+                managedActiveAccount.phoneScope = (userProfile[UserProfileField.phoneScope] as? String) ?? ""
                 managedActiveAccount.email = email
-                managedActiveAccount.emailScope = (userProfile[kUserProfileEmailScope] as? String) ?? ""
-                managedActiveAccount.address = (userProfile[kUserProfileAddress] as? String) ?? ""
-                managedActiveAccount.addressScope = (userProfile[kUserProfileAddressScope] as? String) ?? ""
-                managedActiveAccount.website = (userProfile[kUserProfileWebsite] as? String) ?? ""
-                managedActiveAccount.websiteScope = (userProfile[kUserProfileWebsiteScope] as? String) ?? ""
-                managedActiveAccount.twitter = (userProfile[kUserProfileTwitter] as? String) ?? ""
-                managedActiveAccount.twitterScope = (userProfile[kUserProfileTwitterScope] as? String) ?? ""
-                managedActiveAccount.avatarScope = (userProfile[kUserProfileAvatarScope] as? String) ?? ""
+                managedActiveAccount.emailScope = (userProfile[UserProfileField.emailScope] as? String) ?? ""
+                managedActiveAccount.address = (userProfile[UserProfileField.address] as? String) ?? ""
+                managedActiveAccount.addressScope = (userProfile[UserProfileField.addressScope] as? String) ?? ""
+                managedActiveAccount.website = (userProfile[UserProfileField.website] as? String) ?? ""
+                managedActiveAccount.websiteScope = (userProfile[UserProfileField.websiteScope] as? String) ?? ""
+                managedActiveAccount.twitter = (userProfile[UserProfileField.twitter] as? String) ?? ""
+                managedActiveAccount.twitterScope = (userProfile[UserProfileField.twitterScope] as? String) ?? ""
+                managedActiveAccount.avatarScope = (userProfile[UserProfileField.avatarScope] as? String) ?? ""
 
                 let unmanagedUpdatedAccount = TalkAccount(value: managedActiveAccount)
                 NCAPIController.sharedInstance().saveProfileImage(forAccount: unmanagedUpdatedAccount)

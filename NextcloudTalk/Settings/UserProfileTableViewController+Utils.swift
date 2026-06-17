@@ -141,13 +141,13 @@ extension UserProfileTableViewController {
     }
 
     func imageForScope(scope: String) -> UIImage? {
-        if scope == kUserProfileScopePrivate {
+        if scope == UserProfileScope.private {
             return UIImage(systemName: "iphone")
-        } else if scope == kUserProfileScopeLocal {
+        } else if scope == UserProfileScope.local {
             return UIImage(systemName: "lock")
-        } else if scope == kUserProfileScopeFederated {
+        } else if scope == UserProfileScope.federated {
             return UIImage(systemName: "person.2")
-        } else if scope == kUserProfileScopePublished {
+        } else if scope == UserProfileScope.published {
             return UIImage(systemName: "network")
         }
         return nil
@@ -163,31 +163,31 @@ extension UserProfileTableViewController {
         let title: String
 
         if sender.tag == kNameTextFieldTag {
-            field = kUserProfileDisplayNameScope
+            field = UserProfileField.displayNameScope
             currentValue = account.userDisplayNameScope
             title = NSLocalizedString("Full name", comment: "")
         } else if sender.tag == kEmailTextFieldTag {
-            field = kUserProfileEmailScope
+            field = UserProfileField.emailScope
             currentValue = account.emailScope
             title = NSLocalizedString("Email", comment: "")
         } else if sender.tag == kPhoneTextFieldTag {
-            field = kUserProfilePhoneScope
+            field = UserProfileField.phoneScope
             currentValue = account.phoneScope
             title = NSLocalizedString("Phone number", comment: "")
         } else if sender.tag == kAddressTextFieldTag {
-            field = kUserProfileAddressScope
+            field = UserProfileField.addressScope
             currentValue = account.addressScope
             title = NSLocalizedString("Address", comment: "")
         } else if sender.tag == kWebsiteTextFieldTag {
-            field = kUserProfileWebsiteScope
+            field = UserProfileField.websiteScope
             currentValue = account.websiteScope
             title = NSLocalizedString("Website", comment: "")
         } else if sender.tag == kTwitterTextFieldTag {
-            field = kUserProfileTwitterScope
+            field = UserProfileField.twitterScope
             currentValue = account.twitterScope
             title = NSLocalizedString("Twitter", comment: "")
         } else if sender.tag == kAvatarScopeButtonTag {
-            field = kUserProfileAvatarScope
+            field = UserProfileField.avatarScope
             currentValue = account.avatarScope
             title = NSLocalizedString("Profile picture", comment: "")
         } else {
@@ -200,28 +200,28 @@ extension UserProfileTableViewController {
     func presentScopeSelector(field: String, currentValue: String, title: String) {
         var options = [DetailedOption]()
 
-        let privateOption = setupDetailedOption(identifier: kUserProfileScopePrivate,
+        let privateOption = setupDetailedOption(identifier: UserProfileScope.private,
                                                 image: UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration),
                                                 title: NSLocalizedString("Private", comment: ""),
                                                 subtitle: NSLocalizedString("Only visible to people matched via phone number integration", comment: ""),
-                                                selected: currentValue == kUserProfileScopePrivate)
-        let localOption = setupDetailedOption(identifier: kUserProfileScopeLocal,
+                                                selected: currentValue == UserProfileScope.private)
+        let localOption = setupDetailedOption(identifier: UserProfileScope.local,
                                               image: UIImage(systemName: "lock")?.applyingSymbolConfiguration(iconConfiguration),
                                               title: NSLocalizedString("Local", comment: ""),
                                               subtitle: NSLocalizedString("Only visible to people on this instance and guests", comment: ""),
-                                              selected: currentValue == kUserProfileScopeLocal)
-        let federatedOption = setupDetailedOption(identifier: kUserProfileScopeFederated,
+                                              selected: currentValue == UserProfileScope.local)
+        let federatedOption = setupDetailedOption(identifier: UserProfileScope.federated,
                                                   image: UIImage(systemName: "person.2")?.applyingSymbolConfiguration(iconConfiguration),
                                                   title: NSLocalizedString("Federated", comment: ""),
                                                   subtitle: NSLocalizedString("Only synchronize to trusted servers", comment: ""),
-                                                  selected: currentValue == kUserProfileScopeFederated)
-        let publishedOption = setupDetailedOption(identifier: kUserProfileScopePublished,
+                                                  selected: currentValue == UserProfileScope.federated)
+        let publishedOption = setupDetailedOption(identifier: UserProfileScope.published,
                                                   image: UIImage(systemName: "network")?.applyingSymbolConfiguration(iconConfiguration),
                                                   title: NSLocalizedString("Published", comment: ""),
                                                   subtitle: NSLocalizedString("Synchronize to trusted servers and the global and public address book", comment: ""),
-                                                  selected: currentValue == kUserProfileScopePublished)
+                                                  selected: currentValue == UserProfileScope.published)
 
-        if field != kUserProfileDisplayNameScope && field != kUserProfileEmailScope {
+        if field != UserProfileField.displayNameScope && field != UserProfileField.emailScope {
             options.append(privateOption)
         }
 
