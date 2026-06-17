@@ -503,8 +503,8 @@ public class NCSettingsController: NSObject {
     }
 
     public func ensureSignalingConfiguration(forAccountId accountId: String, with settings: SignalingSettings?, withCompletionBlock block: @escaping (_ signalingServer: NCExternalSignalingController?) -> Void) {
-        if self.signalingConfigurations[accountId] != nil {
-            block(self.externalSignalingControllers[accountId])
+        if let signalingController = self.externalSignalingControllers[accountId] {
+            block(signalingController)
             return
         }
 
