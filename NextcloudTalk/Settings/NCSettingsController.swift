@@ -531,10 +531,8 @@ public class NCSettingsController: NSObject {
     }
 
     public func connectDisconnectedExternalSignalingControllers() {
-        for extSignalingController in self.externalSignalingControllers.values {
-            if extSignalingController.disconnected {
-                extSignalingController.connect()
-            }
+        for extSignalingController in self.externalSignalingControllers.values where extSignalingController.disconnected {
+            extSignalingController.connect()
         }
     }
 
