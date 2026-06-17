@@ -15,6 +15,7 @@ import Foundation
 
 @objc extension NSNotification {
     public static let ExtSignalingDidReceiveChatMessage = Notification.Name.extSignalingDidReceiveChatMessage
+    public static let ExtSignalingDidReconnect = Notification.Name.extSignalingDidReconnect
 }
 
 extension Notification.Name {
@@ -24,6 +25,7 @@ extension Notification.Name {
     static let extSignalingDidReceiveStartedTyping = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveStartedTypingNotification")
     static let extSignalingDidReceiveStoppedTyping = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveStoppedTypingNotification")
     static let extSignalingDidReceiveChatMessage = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveChatMessageNotification")
+    static let extSignalingDidReconnect = Notification.Name(rawValue: "NCExternalSignalingControllerDidReconnectNotification")
 }
 
 public typealias SendMessageCompletionBlock = (_ task: URLSessionWebSocketTask?, _ status: NCExternalSignalingSendMessageStatus) -> Void
@@ -370,6 +372,10 @@ public enum NCExternalSignalingSendMessageStatus {
             }
         }
 
+        // Notify that we (re)connected, passing whether the session changed. If the session was
+        // resumed the server replays the chat relay messages we missed while disconnected (within
+        // its ~30s resume window); if a new session was created those messages are lost.
+        NotificationCenter.default.post(name: .extSignalingDidReconnect, object: self, userInfo: ["sessionChanged": sessionChanged])
     }
 
     func errorResponseReceived(messageDict: [AnyHashable: Any]) {

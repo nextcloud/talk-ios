@@ -34,6 +34,7 @@ public class NCChatController: NSObject {
     private var pullMessagesTask: URLSessionDataTask?
 
     private var chatRelayActive = false
+    private var chatRelayCatchUpInProgress = false
     private var chatRelayMessagesBuffer: [[String: Any]] = []
     private var chatRelayMessagesQueue: DispatchQueue?
     private var externalSignalingController: NCExternalSignalingController?
@@ -424,6 +425,7 @@ public class NCChatController: NSObject {
         externalSignalingController = signalingController
         chatRelayMessagesQueue = DispatchQueue(label: "chat.relay.message.queue")
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChatMessageFromExternalSignaling(_:)), name: .extSignalingDidReceiveChatMessage, object: signalingController)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReconnectExternalSignaling(_:)), name: .extSignalingDidReconnect, object: signalingController)
     }
 
     @objc private func didReceiveChatMessageFromExternalSignaling(_ notification: Notification) {
@@ -441,6 +443,7 @@ public class NCChatController: NSObject {
 
     private func startProcessingChatRelayMessages() {
         chatRelayMessagesQueue?.async {
+            self.chatRelayCatchUpInProgress = false
             self.chatRelayActive = true
             self.flushChatRelayMessagesBuffer()
         }
@@ -448,20 +451,99 @@ public class NCChatController: NSObject {
 
     private func flushChatRelayMessagesBuffer() {
         guard !chatRelayMessagesBuffer.isEmpty else { return }
+
         chatRelayMessagesBuffer.sort { ($0["id"] as? Int ?? 0) < ($1["id"] as? Int ?? 0) }
-        for messageDict in chatRelayMessagesBuffer {
+
+        // Snapshot and clear first so messages arriving meanwhile aren't lost.
+        let bufferedMessages = chatRelayMessagesBuffer
+        chatRelayMessagesBuffer.removeAll()
+
+        for messageDict in bufferedMessages {
             handleChatRelayMessage(messageDict)
         }
-        chatRelayMessagesBuffer.removeAll()
+    }
+
+    // Falls back to a chat API catch-up when a chat relay message can't be reliably rendered from its
+    // payload (file/object shares, call_ended, unknown system messages). Incoming chat relay messages
+    // are buffered while the catch-up runs.
+    private func triggerChatRelayCatchUp() {
+        guard !chatRelayCatchUpInProgress else { return }
+
+        chatRelayCatchUpInProgress = true
+        chatRelayActive = false
+
+        let lastChatBlock = chatBlocksForRoomOrThread().last
+        let fromMessageId = lastChatBlock?.newestMessageId ?? 0
+        DispatchQueue.main.async {
+            self.startReceivingChatMessages(fromMessagesId: fromMessageId, withTimeout: false)
+        }
     }
 
     private func handleChatRelayMessage(_ messageDict: [String: Any]) {
+        guard let message = NCChatMessage(dictionary: messageDict as [AnyHashable: Any], andAccountId: account.accountId) else {
+            NCLog.log("Could not parse a message received over the chat relay, catching up over the chat API")
+            triggerChatRelayCatchUp()
+            return
+        }
+
+        if isThreadController, message.threadId != threadId {
+            return
+        }
+
         let lastChatBlock = chatBlocksForRoomOrThread().last
         let lastNewestMessageId = lastChatBlock?.newestMessageId ?? 0
-        guard let message = NCChatMessage(dictionary: messageDict as [AnyHashable: Any], andAccountId: account.accountId) else { return }
+
+        if message.messageId <= lastNewestMessageId {
+            return
+        }
+
+        guard let storableMessageDict = storableDict(forChatRelayMessage: message, withDict: messageDict) else {
+            triggerChatRelayCatchUp()
+            return
+        }
+
         updateLastChatBlock(withNewestKnown: message.messageId)
-        storeMessages([messageDict])
+        storeMessages([storableMessageDict])
         checkForNewMessages(fromMessageId: lastNewestMessageId)
+
+        NCLog.log("Stored a new message received over the chat relay")
+    }
+
+    // Returns the dictionary to store for a chat relay message, or nil if it must be fetched over the chat API.
+    private func storableDict(forChatRelayMessage message: NCChatMessage, withDict messageDict: [String: Any]) -> [String: Any]? {
+        // Messages with file/object attachments carry parameters that don't match the chat API response
+        // (e.g. file path and link), so they always need to be fetched over the chat API.
+        if message.hasFileParameter {
+            NCLog.log("A message received over the chat relay has a file attachment, fetching it from the chat API instead")
+            return nil
+        }
+
+        // System messages are not localized in the chat relay payload, so we localize them on the client.
+        if message.isSystemMessage {
+            let silentCall = ((messageDict["call"] as? [String: Any])?["silent"] as? Bool) ?? false
+            guard let localizedMessage = NCSystemMessageLocalizer.localizedSystemMessage(for: message, in: room, account: account, silentCall: silentCall) else {
+                NCLog.log("System message '\(message.systemMessage ?? "")' received over the chat relay can't be localized on the client, fetching it from the chat API instead")
+                return nil
+            }
+            var localizedMessageDict = messageDict
+            localizedMessageDict["message"] = localizedMessage
+            return localizedMessageDict
+        }
+
+        return messageDict
+    }
+
+    @objc private func didReconnectExternalSignaling(_ notification: Notification) {
+        guard !stopChatMessagesPoll, externalSignalingController?.hasChatRelay == true else { return }
+
+        let sessionChanged = notification.userInfo?["sessionChanged"] as? Bool ?? false
+        guard sessionChanged else { return }
+
+        NCLog.log("Signaling session was not resumed, catching up on any missed messages over the chat API")
+
+        chatRelayMessagesQueue?.async {
+            self.triggerChatRelayCatchUp()
+        }
     }
 
     // MARK: - Chat
@@ -899,7 +981,7 @@ public class NCChatController: NSObject {
                 let shouldStartLongPolling = statusCode == 304
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
                 if shouldStartLongPolling, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
-                    NSLog("Starting chat relay")
+                    NCLog.log("Chat is up to date, now processing new messages from the chat relay")
                     self.startProcessingChatRelayMessages()
                     return
                 }
@@ -915,6 +997,7 @@ public class NCChatController: NSObject {
 
     public func stopReceivingNewChatMessages() {
         chatRelayActive = false
+        chatRelayCatchUpInProgress = false
         stopChatMessagesPoll = true
         pullMessagesTask?.cancel()
     }
