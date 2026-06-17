@@ -16,7 +16,7 @@ struct RoomInfoSIPInfoSection: View {
 
         return Section(header: Text("SIP dial-in")) {
             // TODO: SwiftUI Text does not support data detectors?
-            let signalingConfig = NCSettingsController.sharedInstance().signalingConfigurations.object(forKey: room.account!.accountId) as? SignalingSettings
+            let signalingConfig = NCSettingsController.sharedInstance().signalingConfiguration(forAccountId: room.account!.accountId)
             Text(signalingConfig?.sipDialinInfo ?? "")
 
             HStack {

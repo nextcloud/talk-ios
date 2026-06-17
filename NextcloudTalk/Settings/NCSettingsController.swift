@@ -56,9 +56,11 @@ public class NCSettingsController: NSObject {
         return NCSettingsController.shared
     }
 
+    private typealias AccountId = String
+
     public var videoSettingsModel = ARDSettingsModel()
-    public var signalingConfigurations = NSMutableDictionary() // accountId -> signalingConfiguration
-    public var externalSignalingControllers = NSMutableDictionary() // accountId -> externalSignalingController
+    private var signalingConfigurations: [AccountId: SignalingSettings] = [:]
+    private var externalSignalingControllers: [AccountId: NCExternalSignalingController] = [:]
 
     private var updateAlertController: UIAlertController?
     private var updateAlertControllerAccountId: String?
@@ -483,7 +485,7 @@ public class NCSettingsController: NSObject {
 
         let bgTask = BGTaskHelper.startBackgroundTask(withName: "NCSetSignalingConfiguration")
 
-        if let extSignalingController = self.externalSignalingControllers[accountId] as? NCExternalSignalingController {
+        if let extSignalingController = self.externalSignalingControllers[accountId] {
             extSignalingController.disconnect()
         }
 
@@ -498,7 +500,7 @@ public class NCSettingsController: NSObject {
 
     public func ensureSignalingConfiguration(forAccountId accountId: String, with settings: SignalingSettings?, withCompletionBlock block: @escaping (_ signalingServer: NCExternalSignalingController?) -> Void) {
         if self.signalingConfigurations[accountId] != nil {
-            block(self.externalSignalingControllers[accountId] as? NCExternalSignalingController)
+            block(self.externalSignalingControllers[accountId])
             return
         }
 
@@ -516,12 +518,16 @@ public class NCSettingsController: NSObject {
         }
     }
 
+    public func signalingConfiguration(forAccountId accountId: String) -> SignalingSettings? {
+        return self.signalingConfigurations[accountId]
+    }
+
     public func externalSignalingController(forAccountId accountId: String) -> NCExternalSignalingController? {
-        return self.externalSignalingControllers[accountId] as? NCExternalSignalingController
+        return self.externalSignalingControllers[accountId]
     }
 
     public func connectDisconnectedExternalSignalingControllers() {
-        for case let extSignalingController as NCExternalSignalingController in self.externalSignalingControllers.allValues {
+        for extSignalingController in self.externalSignalingControllers.values {
             if extSignalingController.disconnected {
                 extSignalingController.connect()
             }
@@ -529,7 +535,7 @@ public class NCSettingsController: NSObject {
     }
 
     public func disconnectAllExternalSignalingControllers() {
-        for case let extSignalingController as NCExternalSignalingController in self.externalSignalingControllers.allValues {
+        for extSignalingController in self.externalSignalingControllers.values {
             extSignalingController.disconnect()
         }
     }

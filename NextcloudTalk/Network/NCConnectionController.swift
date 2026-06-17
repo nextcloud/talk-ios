@@ -86,7 +86,7 @@ class NCConnectionController: NSObject {
         }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let signalingConfig = NCSettingsController.sharedInstance().signalingConfigurations.object(forKey: activeAccount.accountId)
+        let signalingConfig = NCSettingsController.sharedInstance().signalingConfiguration(forAccountId: activeAccount.accountId)
 
         if activeAccount.user.isEmpty || activeAccount.userDisplayName.isEmpty {
             self.appState = .missingUserProfile
