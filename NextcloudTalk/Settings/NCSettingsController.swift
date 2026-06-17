@@ -487,11 +487,15 @@ public class NCSettingsController: NSObject {
 
         if let extSignalingController = self.externalSignalingControllers[accountId] {
             extSignalingController.disconnect()
+            self.externalSignalingControllers.removeValue(forKey: accountId)
         }
 
-        let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId)
-        let extSignalingController = account.map { NCExternalSignalingController(account: $0, serverUrl: server, ticket: ticket) }
-        self.externalSignalingControllers[accountId] = extSignalingController
+        var extSignalingController: NCExternalSignalingController?
+
+        if let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId) {
+            extSignalingController = NCExternalSignalingController(account: account, serverUrl: server, ticket: ticket)
+            self.externalSignalingControllers[accountId] = extSignalingController
+        }
 
         bgTask.stopBackgroundTask()
 
