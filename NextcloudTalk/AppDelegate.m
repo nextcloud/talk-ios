@@ -20,9 +20,7 @@
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
 #import "NCKeyChainController.h"
-#import "NCNotificationController.h"
 #import "NCPushNotification.h"
-#import "NCSettingsController.h"
 #import "NCUserInterfaceController.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -295,7 +293,7 @@
 - (void)registerInteractivePushNotification
 {
     // Reply directly to a chat notification action/category
-    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction actionWithIdentifier:NCNotificationActionReplyToChat
+    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction actionWithIdentifier:NCNotificationController.actionReplyToChat
                                                                                           title:NSLocalizedString(@"Reply", nil)
                                                                                         options:UNNotificationActionOptionAuthenticationRequired];
     
@@ -305,11 +303,11 @@
                                                                               options:UNNotificationCategoryOptionNone];
 
     // Recording actions/category
-    UNNotificationAction *recordingShareAction = [UNNotificationAction actionWithIdentifier:NCNotificationActionShareRecording
+    UNNotificationAction *recordingShareAction = [UNNotificationAction actionWithIdentifier:NCNotificationController.actionShareRecording
                                                                                       title:NSLocalizedString(@"Share to chat", nil)
                                                                                     options:UNNotificationActionOptionAuthenticationRequired];
 
-    UNNotificationAction *recordingDismissAction = [UNNotificationAction actionWithIdentifier:NCNotificationActionDismissRecordingNotification
+    UNNotificationAction *recordingDismissAction = [UNNotificationAction actionWithIdentifier:NCNotificationController.actionDismissRecordingNotification
                                                                                       title:NSLocalizedString(@"Dismiss notification", nil)
                                                                                     options:UNNotificationActionOptionAuthenticationRequired | UNNotificationActionOptionDestructive];
 
@@ -319,11 +317,11 @@
                                                                                        options:UNNotificationCategoryOptionNone];
 
     // Federation invitation
-    UNNotificationAction *federationAccept = [UNNotificationAction actionWithIdentifier:NCNotificationActionFederationInvitationAccept
+    UNNotificationAction *federationAccept = [UNNotificationAction actionWithIdentifier:NCNotificationController.actionFederationInvitationAccept
                                                                                   title:NSLocalizedString(@"Accept", nil)
                                                                                 options:UNNotificationActionOptionAuthenticationRequired];
 
-    UNNotificationAction *federationReject = [UNNotificationAction actionWithIdentifier:NCNotificationActionFederationInvitationReject
+    UNNotificationAction *federationReject = [UNNotificationAction actionWithIdentifier:NCNotificationController.actionFederationInvitationReject
                                                                                   title:NSLocalizedString(@"Reject", nil)
                                                                                 options:UNNotificationActionOptionAuthenticationRequired | UNNotificationActionOptionDestructive];
 

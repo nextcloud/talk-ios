@@ -55,4 +55,9 @@ import Foundation
         self.underlyingError = error
         self.task = task
     }
+
+    // Convenience factory for a generic error without an underlying network request
+    public static func genericError() -> OcsError {
+        return OcsError(withError: NSError(domain: NSCocoaErrorDomain, code: 0, userInfo: nil), withTask: nil)
+    }
 }

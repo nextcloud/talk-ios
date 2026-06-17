@@ -11,7 +11,6 @@
 #import "AuthenticationViewController.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
 #import "NotificationCenterNotifications.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -219,7 +218,7 @@
         _pendingLocalNotification = userInfo;
         return;
     }
-    [[NSNotificationCenter defaultCenter] postNotificationName:NCLocalNotificationJoinChatNotification
+    [[NSNotificationCenter defaultCenter] postNotificationName:NSNotification.NCLocalNotificationJoinChat
                                                         object:self
                                                       userInfo:userInfo];
 }

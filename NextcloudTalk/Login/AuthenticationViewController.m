@@ -11,7 +11,6 @@
 #import "CCCertificate.h"
 #import "NCAppBranding.h"
 #import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
 
 NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flow";
 

@@ -11,7 +11,6 @@
 
 #import "NCDatabaseManager.h"
 #import "NCAppBranding.h"
-#import "NCSettingsController.h"
 #import "PlaceholderView.h"
 
 #import "NextcloudTalk-Swift.h"

@@ -122,8 +122,8 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         let settings = NCSettingsController.sharedInstance().videoSettingsModel
         let formats = RTCCameraVideoCapturer.supportedFormats(for: device)
 
-        let targetWidth = settings?.currentVideoResolutionWidthFromStore() ?? 0
-        let targetHeight = settings?.currentVideoResolutionHeightFromStore() ?? 0
+        let targetWidth = settings.currentVideoResolutionWidthFromStore()
+        let targetHeight = settings.currentVideoResolutionHeightFromStore()
         var selectedFormat: AVCaptureDevice.Format?
         var currentDiff = INT_MAX
 
