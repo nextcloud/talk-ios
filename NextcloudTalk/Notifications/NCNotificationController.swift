@@ -143,7 +143,7 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
 
     public func showIncomingCall(forPushNotification pushNotification: NCPushNotification) {
         if CallKitManager.isCallKitAvailable() {
-            CallKitManager.sharedInstance().reportIncomingCall(pushNotification.roomToken, withDisplayName: "Incoming call", forAccountId: pushNotification.accountId)
+            CallKitManager.sharedInstance().reportIncomingCall(pushNotification.roomToken, withDisplayName: NSLocalizedString("Incoming call", comment: ""), forAccountId: pushNotification.accountId)
         } else {
             CallKitManager.sharedInstance().reportIncomingCallForNonCallKitDevices(withPushNotification: pushNotification)
         }
