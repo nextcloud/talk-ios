@@ -33,6 +33,11 @@ public class NCChatController: NSObject {
     private var getHistoryTask: URLSessionDataTask?
     private var pullMessagesTask: URLSessionDataTask?
 
+    private var chatRelayActive = false
+    private var chatRelayMessagesBuffer: [[String: Any]] = []
+    private var chatRelayMessagesQueue: DispatchQueue?
+    private var externalSignalingController: NCExternalSignalingController?
+
     public init!(for room: NCRoom) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId) else { return nil }
 
@@ -41,6 +46,7 @@ public class NCChatController: NSObject {
 
         super.init()
 
+        setupChatRelay()
         AllocationTracker.shared.addAllocation("NCChatController")
     }
 
@@ -53,10 +59,12 @@ public class NCChatController: NSObject {
 
         super.init()
 
+        setupChatRelay()
         AllocationTracker.shared.addAllocation("NCChatController")
     }
 
     deinit {
+        NotificationCenter.default.removeObserver(self)
         AllocationTracker.shared.removeAllocation("NCChatController")
     }
 
@@ -406,6 +414,54 @@ public class NCChatController: NSObject {
         sortedMessages.sort { $0.messageId < $1.messageId }
 
         return sortedMessages
+    }
+
+    // MARK: - External Signaling / Chat Relay
+
+    private func setupChatRelay() {
+        guard let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId),
+              signalingController.hasChatRelay else { return }
+        externalSignalingController = signalingController
+        chatRelayMessagesQueue = DispatchQueue(label: "chat.relay.message.queue")
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChatMessageFromExternalSignaling(_:)), name: .extSignalingDidReceiveChatMessage, object: signalingController)
+    }
+
+    @objc private func didReceiveChatMessageFromExternalSignaling(_ notification: Notification) {
+        guard let roomToken = notification.userInfo?["roomid"] as? String, roomToken == room.token,
+              let messageDict = ((notification.userInfo?["data"] as? [String: Any])?["chat"] as? [String: Any])?["comment"] as? [String: Any]
+        else { return }
+        chatRelayMessagesQueue?.async {
+            if !self.chatRelayActive {
+                self.chatRelayMessagesBuffer.append(messageDict)
+                return
+            }
+            self.handleChatRelayMessage(messageDict)
+        }
+    }
+
+    private func startProcessingChatRelayMessages() {
+        chatRelayMessagesQueue?.async {
+            self.chatRelayActive = true
+            self.flushChatRelayMessagesBuffer()
+        }
+    }
+
+    private func flushChatRelayMessagesBuffer() {
+        guard !chatRelayMessagesBuffer.isEmpty else { return }
+        chatRelayMessagesBuffer.sort { ($0["id"] as? Int ?? 0) < ($1["id"] as? Int ?? 0) }
+        for messageDict in chatRelayMessagesBuffer {
+            handleChatRelayMessage(messageDict)
+        }
+        chatRelayMessagesBuffer.removeAll()
+    }
+
+    private func handleChatRelayMessage(_ messageDict: [String: Any]) {
+        let lastChatBlock = chatBlocksForRoomOrThread().last
+        let lastNewestMessageId = lastChatBlock?.newestMessageId ?? 0
+        guard let message = NCChatMessage(dictionary: messageDict as [AnyHashable: Any], andAccountId: account.accountId) else { return }
+        updateLastChatBlock(withNewestKnown: message.messageId)
+        storeMessages([messageDict])
+        checkForNewMessages(fromMessageId: lastNewestMessageId)
     }
 
     // MARK: - Chat
@@ -840,8 +896,14 @@ public class NCChatController: NSObject {
             self.checkLastCommonReadMessage(lastCommonReadMessage)
 
             if error?.underlyingError.code != NSURLErrorCancelled {
+                let shouldStartLongPolling = statusCode == 304
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
-                self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: true)
+                if shouldStartLongPolling, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
+                    NSLog("Starting chat relay")
+                    self.startProcessingChatRelayMessages()
+                    return
+                }
+                self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: shouldStartLongPolling)
             }
         }
     }
@@ -852,6 +914,7 @@ public class NCChatController: NSObject {
     }
 
     public func stopReceivingNewChatMessages() {
+        chatRelayActive = false
         stopChatMessagesPoll = true
         pullMessagesTask?.cancel()
     }
