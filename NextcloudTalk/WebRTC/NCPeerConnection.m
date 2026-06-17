@@ -16,7 +16,6 @@
 
 #import "ARDSDPUtils.h"
 
-#import "NCSignalingMessage.h"
 #import "NextcloudTalk-Swift.h"
 
 

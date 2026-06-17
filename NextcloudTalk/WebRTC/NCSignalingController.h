@@ -6,9 +6,9 @@
 #import <Foundation/Foundation.h>
 
 #import "NCRoom.h"
-#import "NCSignalingMessage.h"
 
 @class NCSignalingController;
+@class NCSignalingMessage;
 @class SignalingSettings;
 
 @protocol NCSignalingControllerObserver <NSObject>
