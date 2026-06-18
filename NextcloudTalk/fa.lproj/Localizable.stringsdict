@@ -6,6 +6,17 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld ربات فعال</string>
+			<key>other</key>
+			<string>%ld ربات فعال</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
@@ -18,9 +29,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d vote</string>
+			<string>%d رأی</string>
 			<key>other</key>
-			<string>%d votes</string>
+			<string>%d رأی</string>
 		</dict>
 	</dict>
 	<key>%ld participants</key>
@@ -34,15 +45,26 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld participant</string>
+			<string>%ld شرکت‌کننده</string>
 			<key>other</key>
-			<string>%ld participants</string>
+			<string>%ld شرکت‌کننده</string>
 		</dict>
 	</dict>
 	<key>%ld participants in this call</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@participantsincall@</string>
+		<key>participantsincall</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld شرکت‌کننده در این تماس</string>
+			<key>other</key>
+			<string>%ld شرکت‌کننده در این تماس</string>
+		</dict>
 	</dict>
 	<key>%d minutes ago</key>
 	<dict>
@@ -55,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d minute ago</string>
+			<string>%d دقیقه قبل</string>
 			<key>other</key>
-			<string>%d minutes ago</string>
+			<string>%d دقیقه قبل</string>
 		</dict>
 	</dict>
 	<key>%d hours ago</key>
@@ -71,9 +93,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d hour ago</string>
+			<string>%d ساعت قبل</string>
 			<key>other</key>
-			<string>%d hours ago</string>
+			<string>%d ساعت قبل</string>
 		</dict>
 	</dict>
 	<key>%d days ago</key>
@@ -87,9 +109,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d day ago</string>
+			<string>%d روز قبل</string>
 			<key>other</key>
-			<string>%d days ago</string>
+			<string>%d روز قبل</string>
 		</dict>
 	</dict>
 	<key>%ld notifications</key>
@@ -103,40 +125,106 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%ld notification</string>
+			<string>%ld اعلان</string>
 			<key>other</key>
-			<string>%ld notifications</string>
+			<string>%ld اعلان</string>
 		</dict>
 	</dict>
 	<key>You have %ld pending invitations</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@pendinginvitations@</string>
+		<key>pendinginvitations</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>شما %ld دعوت‌نامه در انتظار تایید دارید</string>
+			<key>other</key>
+			<string>شما %ld دعوت‌نامه در انتظار تایید دارید</string>
+		</dict>
 	</dict>
 	<key>%d options</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@options@</string>
+		<key>options</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d گزینه</string>
+			<key>other</key>
+			<string>%d گزینه</string>
+		</dict>
 	</dict>
 	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>این گفتگو در صورت عدم فعالیت، پس از %ld روز به صورت خودکار برای همه حذف خواهد شد.</string>
+			<key>other</key>
+			<string>این گفتگو در صورت عدم فعالیت، پس از %ld روز به صورت خودکار برای همه حذف خواهد شد.</string>
+		</dict>
 	</dict>
 	<key>%ld replies</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@replies@</string>
+		<key>replies</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%ld پاسخ</string>
+			<key>other</key>
+			<string>%ld پاسخ</string>
+		</dict>
 	</dict>
 	<key>Password needs to be at least %d characters long</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@characters@</string>
+		<key>characters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>رمز عبور باید حداقل %d کاراکتر باشد</string>
+			<key>other</key>
+			<string>رمز عبور باید حداقل %d کاراکتر باشد</string>
+		</dict>
 	</dict>
 	<key>Uploading %ld elements</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>در حال بارگذاری %ld فایل</string>
+			<key>other</key>
+			<string>در حال بارگذاری %ld فایل</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
