@@ -482,7 +482,7 @@ public class NCChatController: NSObject {
 
     private func handleChatRelayMessage(_ messageDict: [String: Any]) {
         guard let message = NCChatMessage(dictionary: messageDict as [AnyHashable: Any], andAccountId: account.accountId) else {
-            NCLog.log("Could not parse a message received over the chat relay, catching up over the chat API")
+            print("Could not parse a message received over the chat relay, catching up over the chat API")
             triggerChatRelayCatchUp()
             return
         }
@@ -512,7 +512,7 @@ public class NCChatController: NSObject {
         storeMessages([storableMessageDict])
         checkForNewMessages(fromMessageId: lastNewestMessageId)
 
-        NCLog.log("Stored a new message received over the chat relay")
+        print("Stored a new message received over the chat relay")
     }
 
     // Returns the dictionary to store for a chat relay message, or nil if it must be fetched over the chat API.
@@ -520,7 +520,7 @@ public class NCChatController: NSObject {
         // Messages with file/object attachments carry parameters that don't match the chat API response
         // (e.g. file path and link), so they always need to be fetched over the chat API.
         if message.hasFileParameter {
-            NCLog.log("A message received over the chat relay has a file attachment, fetching it from the chat API instead")
+            print("A message received over the chat relay has a file attachment, fetching it from the chat API instead")
             return nil
         }
 
@@ -528,7 +528,7 @@ public class NCChatController: NSObject {
         if message.isSystemMessage {
             let silentCall = ((messageDict["call"] as? [String: Any])?["silent"] as? Bool) ?? false
             guard let localizedMessage = NCSystemMessageLocalizer.localizedSystemMessage(for: message, in: room, account: account, silentCall: silentCall) else {
-                NCLog.log("System message '\(message.systemMessage ?? "")' received over the chat relay can't be localized on the client, fetching it from the chat API instead")
+                print("System message '\(message.systemMessage ?? "")' received over the chat relay can't be localized on the client, fetching it from the chat API instead")
                 return nil
             }
             var localizedMessageDict = messageDict
@@ -580,7 +580,7 @@ public class NCChatController: NSObject {
         let sessionChanged = notification.userInfo?["sessionChanged"] as? Bool ?? false
         guard sessionChanged else { return }
 
-        NCLog.log("Signaling session was not resumed, catching up on any missed messages over the chat API")
+        print("Signaling session was not resumed, catching up on any missed messages over the chat API")
 
         chatRelayMessagesQueue?.async {
             self.triggerChatRelayCatchUp()
@@ -1023,7 +1023,7 @@ public class NCChatController: NSObject {
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
 
                 if shouldStartLongPolling, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
-                    NCLog.log("Chat is up to date, now processing new messages from the chat relay")
+                    print("Chat is up to date, now processing new messages from the chat relay")
                     self.startProcessingChatRelayMessages()
                     return
                 }
