@@ -430,8 +430,9 @@ public class NCChatController: NSObject {
 
     @objc private func didReceiveChatMessageFromExternalSignaling(_ notification: Notification) {
         guard let roomToken = notification.userInfo?["roomid"] as? String, roomToken == room.token,
-              let messageDict = ((notification.userInfo?["data"] as? [String: Any])?["chat"] as? [String: Any])?["comment"] as? [String: Any]
-        else { return }
+              let chatDict = (notification.userInfo?["data"] as? [String: Any])?["chat"] as? [String: Any],
+              let messageDict = chatDict["comment"] as? [String: Any] else { return }
+
         chatRelayMessagesQueue?.async {
             if !self.chatRelayActive {
                 self.chatRelayMessagesBuffer.append(messageDict)
@@ -497,6 +498,11 @@ public class NCChatController: NSObject {
             return
         }
 
+        if message.systemMessage == "reaction" || message.systemMessage == "reaction_revoked" || message.systemMessage == "reaction_deleted" {
+            handleReactionRelayMessage(message, withDict: messageDict, lastNewestMessageId: lastNewestMessageId)
+            return
+        }
+
         guard let storableMessageDict = storableDict(forChatRelayMessage: message, withDict: messageDict) else {
             triggerChatRelayCatchUp()
             return
@@ -531,6 +537,41 @@ public class NCChatController: NSObject {
         }
 
         return messageDict
+    }
+
+    // Handles reaction system messages received via the chat relay. The relay broadcasts reactionsSelf
+    // from the actor's perspective (not per-user), so we replace it with the correct value computed
+    // from the current DB state plus the self-actor delta before passing to storeMessages — mirroring
+    // the web's fromRealtime reactionsSelf computation in messagesStore.js (PR #16349).
+    private func handleReactionRelayMessage(_ message: NCChatMessage, withDict messageDict: [String: Any], lastNewestMessageId: Int) {
+        var storableDict = messageDict
+
+        if var parentDict = messageDict["parent"] as? [String: Any] {
+            var selfReactions: [String] = []
+            if let parentId = message.parentId,
+               let parentInDB = NCChatMessage.objects(where: "internalId = %@", parentId).firstObject() as? NCChatMessage,
+               let jsonString = parentInDB.reactionsSelfJSONString, !jsonString.isEmpty,
+               let data = jsonString.data(using: .utf8),
+               let parsed = try? JSONSerialization.jsonObject(with: data) as? [String] {
+                selfReactions = parsed
+            }
+
+            let selfIsActor = message.actorType == "users" && message.actorId == account.userId
+            if selfIsActor, let emoji = message.message, !emoji.isEmpty {
+                if message.systemMessage == "reaction" && !selfReactions.contains(emoji) {
+                    selfReactions.append(emoji)
+                } else if message.systemMessage == "reaction_revoked" {
+                    selfReactions.removeAll { $0 == emoji }
+                }
+            }
+
+            parentDict["reactionsSelf"] = selfReactions
+            storableDict["parent"] = parentDict
+        }
+
+        updateLastChatBlock(withNewestKnown: message.messageId)
+        storeMessages([storableDict])
+        checkForNewMessages(fromMessageId: lastNewestMessageId)
     }
 
     @objc private func didReconnectExternalSignaling(_ notification: Notification) {
@@ -980,11 +1021,13 @@ public class NCChatController: NSObject {
             if error?.underlyingError.code != NSURLErrorCancelled {
                 let shouldStartLongPolling = statusCode == 304
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
+
                 if shouldStartLongPolling, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
                     NCLog.log("Chat is up to date, now processing new messages from the chat relay")
                     self.startProcessingChatRelayMessages()
                     return
                 }
+
                 self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: shouldStartLongPolling)
             }
         }
