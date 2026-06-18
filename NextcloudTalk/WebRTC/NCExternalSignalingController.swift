@@ -637,7 +637,9 @@ public enum NCExternalSignalingSendMessageStatus {
         else { return }
 
         if messageType == "chat" {
-            NotificationCenter.default.post(name: .extSignalingDidReceiveChatMessage, object: self, userInfo: messageDict)
+            if hasChatRelay {
+                NotificationCenter.default.post(name: .extSignalingDidReceiveChatMessage, object: self, userInfo: messageDict)
+            }
         } else if messageType == "recording" {
             self.delegate?.externalSignalingController(self, didReceivedSignalingMessage: messageDict)
         } else {
