@@ -675,9 +675,15 @@ public class NCSettingsController: NSObject {
             return
         }
 
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId) else {
+            NCLog.log("Error while subscribing: Account not available")
+            block?(false)
+            return
+        }
+
         let bgTask = BGTaskHelper.startBackgroundTask(withName: "PushProxySubscription")
 
-        NCAPIController.sharedInstance().subscribeAccount(NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId), withPublicKey: keyPair.publicKey, toNextcloudServerWithCompletionBlock: { responseDict, error in
+        NCAPIController.sharedInstance().subscribeAccount(account, withPublicKey: keyPair.publicKey, toNextcloudServerWithCompletionBlock: { responseDict, error in
             guard error == nil else {
                 NCLog.log("Error while subscribing to NC server. Error: \(error?.description ?? "")")
                 block?(false)
@@ -705,7 +711,7 @@ public class NCSettingsController: NSObject {
             managedAccount?.deviceSignature = signature
             try? realm.commitWriteTransaction()
 
-            NCAPIController.sharedInstance().subscribeAccount(NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId), toPushServerWithCompletionBlock: { error in
+            NCAPIController.sharedInstance().subscribeAccount(account, toPushServerWithCompletionBlock: { error in
                 guard error == nil else {
                     NCLog.log("Error while subscribing to Push Notification server. Error: \(error?.localizedDescription ?? "")")
                     NCLog.log("Push notification, public key: \(publicKey)")
