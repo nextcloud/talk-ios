@@ -192,8 +192,13 @@ public class NCSettingsController: NSObject {
     }
 
     private func createUpdateAlertController(forAccountId accountId: String) {
-        let appStoreURLString = "itms-apps://itunes.apple.com/app/id"
-        let canOpenAppStore = URL(string: appStoreURLString).map { UIApplication.shared.canOpenURL($0) } ?? false
+        let appStoreUrlString = "itms-apps://itunes.apple.com/app/id"
+
+        guard let appStoreUrl = URL(string: appStoreUrlString) else {
+            return
+        }
+
+        let canOpenAppStore = UIApplication.shared.canOpenURL(appStoreUrl)
 
         let messageNotification = NSLocalizedString("The app is too old and no longer supported by this server.", comment: "")
         let messageAction = canOpenAppStore ? NSLocalizedString("Please update.", comment: "") : NSLocalizedString("Please contact your system administrator.", comment: "")
@@ -207,7 +212,7 @@ public class NCSettingsController: NSObject {
         if canOpenAppStore {
             let updateButton = UIAlertAction(title: NSLocalizedString("Update", comment: ""), style: .default) { _ in
                 NCAPIController.sharedInstance().getAppStoreAppId { appId, _ in
-                    if let appId, !appId.isEmpty, let appStoreURL = URL(string: "\(appStoreURLString)\(appId)") {
+                    if let appId, !appId.isEmpty, let appStoreURL = URL(string: "\(appStoreUrlString)\(appId)") {
                         UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
                     }
 
