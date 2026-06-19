@@ -18,7 +18,6 @@
 #import "SLKTextViewController.h"
 #import "NCMessageTextView.h"
 #import "ReplyMessageView.h"
-#import "NCSettingsController.h"
 #import "NCKeyChainController.h"
 #import "CCCertificate.h"
 

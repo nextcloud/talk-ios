@@ -8,7 +8,6 @@
 #import <Contacts/Contacts.h>
 
 #import "NCDatabaseManager.h"
-#import "NCSettingsController.h"
 #import "ABContact.h"
 #import "NCContact.h"
 

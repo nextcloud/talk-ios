@@ -72,21 +72,21 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
         self.waitingForModification = false
         activeTextField = nil
         if tag == kNameTextFieldTag {
-            field = kUserProfileDisplayName
+            field = UserProfileField.displayName
             currentValue = account.userDisplayName
         } else if tag == kEmailTextFieldTag {
-            field = kUserProfileEmail
+            field = UserProfileField.email
             currentValue = account.email
         } else if tag == kPhoneTextFieldTag {
             return
         } else if tag == kAddressTextFieldTag {
-            field = kUserProfileAddress
+            field = UserProfileField.address
             currentValue = account.address
         } else if tag == kWebsiteTextFieldTag {
-            field = kUserProfileWebsite
+            field = UserProfileField.website
             currentValue = account.website
         } else if tag == kTwitterTextFieldTag {
-            field = kUserProfileTwitter
+            field = UserProfileField.twitter
             currentValue = account.twitter
         }
         textField.text = newValue

@@ -18,7 +18,6 @@
 #import "NCDatabaseManager.h"
 #import "NCChatFileController.h"
 #import "NCSignalingController.h"
-#import "NCSettingsController.h"
 #import "NCUserDefaults.h"
 #import "NCUserInterfaceController.h"
 #import "NCUserStatus.h"

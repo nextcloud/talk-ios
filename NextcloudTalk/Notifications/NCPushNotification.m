@@ -61,7 +61,7 @@ NSString * const NCPushNotificationJoinVideoCallAcceptedNotification    = @"NCPu
     } else if ([type isEqualToString:kNCPNTypeRecording]) {
         pushNotification.type = NCPushNotificationTypeRecording;
     } else if ([type isEqualToString:kNCPNTypeFederation]) {
-        pushNotification.type = NCPUshNotificationTypeFederation;
+        pushNotification.type = NCPushNotificationTypeFederation;
     } else if ([type isEqualToString:kNCPNTypeReminder]) {
         pushNotification.type = NCPushNotificationTypeReminder;
     }

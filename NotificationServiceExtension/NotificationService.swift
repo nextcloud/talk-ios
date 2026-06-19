@@ -103,7 +103,7 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
 
-        if pushNotification.type == .NCPushNotificationTypeAdminNotification {
+        if pushNotification.type == .adminNotification {
             // Test notification send through "occ notification:test-push --talk <userid>"
             // No need to increase the badge or query the server about it
 
@@ -131,7 +131,7 @@ class NotificationService: UNNotificationServiceExtension {
         self.bestAttemptContent?.sound = .default
         self.bestAttemptContent?.badge = unreadNotifications as NSNumber
 
-        if pushNotification.type == .NCPushNotificationTypeChat {
+        if pushNotification.type == .chat {
             // Set category for chat messages to allow interactive notifications
             self.bestAttemptContent?.categoryIdentifier = "CATEGORY_CHAT"
         }

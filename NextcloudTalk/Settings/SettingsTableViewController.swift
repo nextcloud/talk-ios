@@ -336,7 +336,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         setPhoneAction = UIAlertAction(title: NSLocalizedString("Set", comment: ""), style: .default, handler: { _ in
             guard let phoneNumber = setPhoneNumberDialog.textFields?[0].text else { return }
 
-            NCAPIController.sharedInstance().setUserProfileField(kUserProfilePhone, withValue: phoneNumber, forAccount: self.activeAccount) { error in
+            NCAPIController.sharedInstance().setUserProfileField(UserProfileField.phone, withValue: phoneNumber, forAccount: self.activeAccount) { error in
                 if error != nil {
                     self.presentPhoneNumberErrorDialog(phoneNumber: phoneNumber)
                     print("Error setting phone number ", error ?? "")
