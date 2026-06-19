@@ -33,8 +33,11 @@ public class NCChatController: NSObject {
     private var getHistoryTask: URLSessionDataTask?
     private var pullMessagesTask: URLSessionDataTask?
 
-    private var chatRelayActive = false
-    private var chatRelayCatchUpInProgress = false
+    private enum ChatRelayState {
+        case inactive, active, catchingUp
+    }
+
+    private var chatRelayState: ChatRelayState = .inactive
     private var chatRelayMessagesBuffer: [[String: Any]] = []
     private var chatRelayMessagesQueue: DispatchQueue?
     private var externalSignalingController: NCExternalSignalingController?
@@ -433,7 +436,7 @@ public class NCChatController: NSObject {
               let messageDict = notification.userInfo?["message"] as? [String: Any] else { return }
 
         chatRelayMessagesQueue?.async {
-            if !self.chatRelayActive {
+            if self.chatRelayState != .active {
                 self.chatRelayMessagesBuffer.append(messageDict)
                 return
             }
@@ -443,8 +446,7 @@ public class NCChatController: NSObject {
 
     private func startProcessingChatRelayMessages() {
         chatRelayMessagesQueue?.async {
-            self.chatRelayCatchUpInProgress = false
-            self.chatRelayActive = true
+            self.chatRelayState = .active
             self.flushChatRelayMessagesBuffer()
         }
     }
@@ -467,10 +469,9 @@ public class NCChatController: NSObject {
     // payload (file/object shares, call_ended, unknown system messages). Incoming chat relay messages
     // are buffered while the catch-up runs.
     private func triggerChatRelayCatchUp() {
-        guard !chatRelayCatchUpInProgress else { return }
+        guard chatRelayState != .catchingUp else { return }
 
-        chatRelayCatchUpInProgress = true
-        chatRelayActive = false
+        chatRelayState = .catchingUp
 
         let lastChatBlock = chatBlocksForRoomOrThread().last
         let fromMessageId = lastChatBlock?.newestMessageId ?? 0
@@ -1038,8 +1039,7 @@ public class NCChatController: NSObject {
     }
 
     public func stopReceivingNewChatMessages() {
-        chatRelayActive = false
-        chatRelayCatchUpInProgress = false
+        chatRelayState = .inactive
         stopChatMessagesPoll = true
         pullMessagesTask?.cancel()
     }
