@@ -429,9 +429,8 @@ public class NCChatController: NSObject {
     }
 
     @objc private func didReceiveChatMessageFromExternalSignaling(_ notification: Notification) {
-        guard let roomToken = notification.userInfo?["roomid"] as? String, roomToken == room.token,
-              let chatDict = (notification.userInfo?["data"] as? [String: Any])?["chat"] as? [String: Any],
-              let messageDict = chatDict["comment"] as? [String: Any] else { return }
+        guard let roomToken = notification.userInfo?["roomToken"] as? String, roomToken == room.token,
+              let messageDict = notification.userInfo?["message"] as? [String: Any] else { return }
 
         chatRelayMessagesQueue?.async {
             if !self.chatRelayActive {
