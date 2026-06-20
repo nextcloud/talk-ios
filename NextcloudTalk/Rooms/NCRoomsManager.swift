@@ -477,7 +477,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 self.showThreadPushNotification = nil
             }
 
-            NCUserInterfaceController.sharedInstance().present(chatViewController)
+            if let chatViewController = self.chatViewController {
+                NCUserInterfaceController.sharedInstance().present(chatViewController)
+            }
         } else {
             print("Not creating new chat room: chatViewController for room \(roomToken) does already exist.")
 

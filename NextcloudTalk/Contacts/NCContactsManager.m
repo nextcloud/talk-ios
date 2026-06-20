@@ -7,7 +7,7 @@
 
 #import <Contacts/Contacts.h>
 
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 #import "ABContact.h"
 #import "NCContact.h"
 

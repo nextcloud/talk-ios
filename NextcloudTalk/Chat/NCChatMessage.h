@@ -7,7 +7,7 @@
 #import <UIKit/UIKit.h>
 #import <Realm/Realm.h>
 
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 #import "NCTypes.h"
 
 extern NSInteger const kChatMessageGroupTimeDifference;

@@ -16,7 +16,7 @@
 #import <SDWebImage/SDWebImageManager.h>
 
 #import "NCIntentController.h"
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 
 #import "NextcloudTalk-Swift.h"
 

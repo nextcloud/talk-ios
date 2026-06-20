@@ -7,7 +7,7 @@
 
 #import <WebRTC/RTCIceServer.h>
 
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 
 #import "NextcloudTalk-Swift.h"
 

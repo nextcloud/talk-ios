@@ -10,7 +10,7 @@
 
 #import "CCCertificate.h"
 #import "NCAppBranding.h"
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 
 NSString * const kNCAuthTokenFlowEndpoint               = @"/index.php/login/flow";
 

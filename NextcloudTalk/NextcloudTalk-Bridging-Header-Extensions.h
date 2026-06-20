@@ -7,9 +7,15 @@
 #define NextcloudTalk_Bridging_Header_Extensions_h
 
 #import "NCAppBranding.h"
-#import "NCDatabaseManager.h"
+#import "TalkCapabilities.h"
+#import "ServerCapabilities.h"
+#import "FederatedCapabilities.h"
 #import "NCRoom.h"
 #import "NCThread.h"
+#import "NCChatMessage.h"
+#import "NCChatBlock.h"
+#import "NCContact.h"
+#import "ABContact.h"
 #import "NCUserStatus.h"
 #import "TalkAccount.h"
 #import "NotificationCenterNotifications.h"

@@ -5,7 +5,10 @@
 
 #import "NCAppBranding.h"
 
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
+#import "TalkCapabilities.h"
+#import "ServerCapabilities.h"
+#import "FederatedCapabilities.h"
 
 #import "NextcloudTalk-Swift.h"
 

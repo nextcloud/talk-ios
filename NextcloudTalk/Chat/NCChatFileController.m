@@ -7,7 +7,7 @@
 
 @import NextcloudKit;
 
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 
 #import "NextcloudTalk-Swift.h"
 
