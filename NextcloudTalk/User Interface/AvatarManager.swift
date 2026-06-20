@@ -15,7 +15,7 @@ import SDWebImage
     // MARK: - Conversation avatars
 
     public func getAvatar(for room: NCRoom, with style: UIUserInterfaceStyle, completionBlock: @escaping (_ image: UIImage?) -> Void) -> SDWebImageCombinedOperation? {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: room.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationAvatars, forAccountId: room.accountId) {
             // Server supports conversation avatars -> try to get the avatar using this API
 
             return NCAPIController.sharedInstance().getAvatar(forRoom: room, withStyle: style) { image, _ in

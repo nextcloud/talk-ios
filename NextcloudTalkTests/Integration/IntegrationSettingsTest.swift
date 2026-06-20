@@ -10,7 +10,7 @@ import Foundation
 final class IntegrationSettingsTest: TestBase {
 
     func testReadPrivacy() async throws {
-        try skipWithoutCapability(capability: kCapabilityChatReadStatus)
+        try skipWithoutCapability(capability: TalkCapability.chatReadStatus)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let accountId = activeAccount.accountId
@@ -34,7 +34,7 @@ final class IntegrationSettingsTest: TestBase {
     }
 
     func testTypingPrivacy() async throws {
-        try skipWithoutCapability(capability: kCapabilityTypingIndicators)
+        try skipWithoutCapability(capability: TalkCapability.typingIndicators)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let accountId = activeAccount.accountId

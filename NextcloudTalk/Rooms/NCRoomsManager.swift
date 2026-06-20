@@ -99,7 +99,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             print("Finished rooms update with \(roomsWithNewMessages?.count ?? 0) rooms with new messages")
 
             // When in low power mode, we only update the conversation list and don't load new messages for each room
-            guard !ProcessInfo.processInfo.isLowPowerModeEnabled, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatKeepNotifications, forAccountId: account.accountId) else {
+            guard !ProcessInfo.processInfo.isLowPowerModeEnabled, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatKeepNotifications, forAccountId: account.accountId) else {
                 completion?(nil)
                 return
             }

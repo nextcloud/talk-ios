@@ -162,7 +162,7 @@ import UIKit
         self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
 
         // Markdown formatting options
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMarkdownMessages) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.markdownMessages) {
             self.textView.registerMarkdownFormattingSymbol("**", withTitle: NSLocalizedString("Bold", comment: "Bold text"))
             self.textView.registerMarkdownFormattingSymbol("_", withTitle: NSLocalizedString("Italic", comment: "Italic text"))
             self.textView.registerMarkdownFormattingSymbol("~~", withTitle: NSLocalizedString("Strikethrough", comment: "Strikethrough text"))

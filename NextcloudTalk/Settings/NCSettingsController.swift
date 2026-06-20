@@ -581,7 +581,7 @@ public class NCSettingsController: NSObject {
         let talkFeatures = serverCapabilities.talkCapabilities.value(forKey: "self") as? [String]
         if talkFeatures == nil || talkFeatures?.isEmpty == true {
             NotificationCenter.default.post(name: .NCTalkNotInstalled, object: self, userInfo: nil)
-        } else if talkFeatures?.contains(kMinimumRequiredTalkCapability) == false {
+        } else if talkFeatures?.contains(TalkCapability.minimumRequired.rawValue) == false {
             NotificationCenter.default.post(name: .NCOutdatedTalkVersion, object: self, userInfo: nil)
         }
     }
@@ -613,7 +613,7 @@ public class NCSettingsController: NSObject {
     public func isRecordingEnabled() -> Bool {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId),
-           NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1) {
+           NCDatabaseManager.sharedInstance().serverHasTalkCapability(.recordingV1) {
             return serverCapabilities.recordingEnabled
         }
         return false

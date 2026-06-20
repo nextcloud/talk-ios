@@ -10,7 +10,7 @@ import Foundation
 final class IntegrationScheduleMeeting: TestBase {
 
     func testScheduleMeeting() async throws {
-        try skipWithoutCapability(capability: kCapabilityScheduleMeeting)
+        try skipWithoutCapability(capability: TalkCapability.scheduleMeeting)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "Schedule Meeting", withAccount: activeAccount)

@@ -22,7 +22,7 @@ extension UserProfileTableViewController {
         headerView.scopeButton?.addTarget(self, action: #selector(showScopeSelectionDialog(_:)), for: .touchUpInside)
         headerView.scopeButton?.isHidden = !(isEditable && showScopes)
 
-        headerView.editView?.isHidden = !(isEditable && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTempUserAvatarAPI, forAccountId: account.accountId))
+        headerView.editView?.isHidden = !(isEditable && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.tempUserAvatarAPI, forAccountId: account.accountId))
 
         // Avatar emojis are not allowed for now
         headerView.emojiButton.isHidden = true

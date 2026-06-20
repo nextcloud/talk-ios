@@ -37,7 +37,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testPinMessage() async throws {
-        try skipWithoutCapability(capability: kCapabilityPinnedMessages)
+        try skipWithoutCapability(capability: TalkCapability.pinnedMessages)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let chatMessage = "Test Message 😀😆"
@@ -61,7 +61,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testScheduleMessages() async throws {
-        try skipWithoutCapability(capability: kCapabilityScheduleMessages)
+        try skipWithoutCapability(capability: TalkCapability.scheduleMessages)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let chatMessage = "Scheduled Message 😀😆"
@@ -105,7 +105,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testMessageReaction() async throws {
-        try skipWithoutCapability(capability: kCapabilityReactions)
+        try skipWithoutCapability(capability: TalkCapability.reactions)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let chatMessage = "React to message 🥳"
@@ -141,7 +141,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testMessageReminder() async throws {
-        try skipWithoutCapability(capability: kCapabilityRemindMeLater)
+        try skipWithoutCapability(capability: TalkCapability.remindMeLater)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let chatMessage = "Reminded message"
@@ -177,7 +177,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testDeleteMessage() async throws {
-        try skipWithoutCapability(capability: kCapabilityDeleteMessages)
+        try skipWithoutCapability(capability: TalkCapability.deleteMessages)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let chatMessage = "Deltable Message"
@@ -203,7 +203,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testEditMessage() async throws {
-        try skipWithoutCapability(capability: kCapabilityEditMessages)
+        try skipWithoutCapability(capability: TalkCapability.editMessages)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let chatMessage = "Editable Message"
@@ -231,7 +231,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testClearHistory() async throws {
-        try skipWithoutCapability(capability: kCapabilityClearHistory)
+        try skipWithoutCapability(capability: TalkCapability.clearHistory)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let chatMessage = "Before clear history Message"
@@ -253,7 +253,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testShareRichObject() async throws {
-        try skipWithoutCapability(capability: kCapabilityLocationSharing)
+        try skipWithoutCapability(capability: TalkCapability.locationSharing)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
@@ -270,7 +270,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testReadMarker() async throws {
-        try skipWithoutCapability(capability: kCapabilityChatReadLast)
+        try skipWithoutCapability(capability: TalkCapability.chatReadLast)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
@@ -316,7 +316,7 @@ final class IntegrationChatTest: TestBase {
     }
 
     func testShareOverview() async throws {
-        try skipWithoutCapability(capability: kCapabilityRichObjectListMedia)
+        try skipWithoutCapability(capability: TalkCapability.richObjectListMedia)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 

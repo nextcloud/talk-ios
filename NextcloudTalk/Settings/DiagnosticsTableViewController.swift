@@ -148,7 +148,7 @@ class DiagnosticsTableViewController: UITableViewController {
 
     func accountSections() -> [AccountSections] {
         var sections: [AccountSections] = [.server, .user, .pushSubscribed]
-        if NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(kNotificationsCapabilityTestPush, forAccountId: account.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(.testPush, forAccountId: account.accountId) {
             sections.append(.testPushNotifications)
         }
 

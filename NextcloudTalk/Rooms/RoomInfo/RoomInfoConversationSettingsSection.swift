@@ -92,7 +92,7 @@ struct RoomInfoConversationSettingsSection: View {
             }
 
             if room.canModerate {
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityListableRooms) {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
                     let listable = Binding<Bool>(get: {
                         self.room.listable != .participantsOnly
                     }, set: {
@@ -124,7 +124,7 @@ struct RoomInfoConversationSettingsSection: View {
                     }
                 }
 
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMentionPermissions) {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mentionPermissions) {
                     let mentionPermission = Binding<Bool>(get: {
                         self.room.mentionPermissions == .everyone
                     }, set: {
@@ -140,7 +140,7 @@ struct RoomInfoConversationSettingsSection: View {
                     })
                 }
 
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityReadOnlyRooms) {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.readOnlyRooms) {
                     let readOnly = Binding<Bool>(get: {
                         self.room.readOnlyState == .readOnly
                     }, set: {

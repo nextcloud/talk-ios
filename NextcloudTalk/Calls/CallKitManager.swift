@@ -281,7 +281,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
                 self.updateCall(call, withDisplayName: room.displayName)
             }
 
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityCallFlags, forAccountId: accountId) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.callFlags, forAccountId: accountId) {
                 let callFlagRaw = roomDict?["callFlag"] as? Int ?? 0
                 let callFlag = CallFlag(rawValue: callFlagRaw)
 
@@ -347,7 +347,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     private func checkCallState(for call: CallKitCall) {
         guard let accountId = call.accountId else { return }
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityCallNotificationState, forAccountId: accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.callNotificationState, forAccountId: accountId) {
             self.checkCallStateWithStateApi(for: call)
         } else {
             self.checkCallStateWithPeers(for: call)

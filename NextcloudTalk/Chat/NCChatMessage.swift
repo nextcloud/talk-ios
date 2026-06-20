@@ -63,13 +63,13 @@ import SwiftyAttributes
         let sixHoursAgoTimestamp = Int(Date().timeIntervalSince1970 - (6 * 3600))
 
         // Check server capability for normal messages
-        var commentDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDeleteMessages, forAccountId: account.accountId)
+        var commentDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.deleteMessages, forAccountId: account.accountId)
         commentDeletion = commentDeletion && self.messageType == kMessageTypeComment
         commentDeletion = commentDeletion && self.file() == nil
         commentDeletion = commentDeletion && !self.isObjectShare
 
         // Check server capability for files or shared objects
-        var objectDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRichObjectDelete)
+        var objectDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.richObjectDelete)
         objectDeletion = objectDeletion && (self.file() != nil || self.isVoiceMessage || self.isObjectShare)
 
         // Check if user is allowed to delete a message
@@ -79,7 +79,7 @@ import SwiftyAttributes
         let serverCanDeleteMessage = commentDeletion || objectDeletion
         let userCanDeleteMessage = sameUser || moderatorUser
 
-        let noTimeLimitForMessageDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDeleteMessagesUnlimited, forAccountId: account.accountId)
+        let noTimeLimitForMessageDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.deleteMessagesUnlimited, forAccountId: account.accountId)
         let deletionAllowedByTime = noTimeLimitForMessageDeletion || (self.timestamp >= sixHoursAgoTimestamp)
 
         return serverCanDeleteMessage && userCanDeleteMessage && deletionAllowedByTime
@@ -90,7 +90,7 @@ import SwiftyAttributes
 
         let twentyFourHoursAgoTimestamp = Int(Date().timeIntervalSince1970 - (24 * 3600))
 
-        var serverCanEditMessage = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityEditMessages, forAccountId: account.accountId)
+        var serverCanEditMessage = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.editMessages, forAccountId: account.accountId)
         serverCanEditMessage = serverCanEditMessage && self.messageType == kMessageTypeComment && !self.isObjectShare
 
         let sameUser = self.isMessage(from: account.userId)
@@ -99,7 +99,7 @@ import SwiftyAttributes
 
         let userCanEditMessage = sameUser || moderatorUser || botInOneToOne
 
-        let noTimeLimitForMessageEdit = (room.type == .noteToSelf) && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityEditMessagesNoteToSelf, forAccountId: account.accountId)
+        let noTimeLimitForMessageEdit = (room.type == .noteToSelf) && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.editMessagesNoteToSelf, forAccountId: account.accountId)
         let editAllowedByTime = noTimeLimitForMessageEdit || (self.timestamp >= twentyFourHoursAgoTimestamp)
 
         return serverCanEditMessage && userCanEditMessage && editAllowedByTime

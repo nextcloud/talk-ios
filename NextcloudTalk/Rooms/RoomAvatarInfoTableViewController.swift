@@ -77,7 +77,7 @@ enum RoomAvatarInfoSection: Int {
     func updateHeaderView() {
         self.headerView.avatarImageView.setAvatar(for: self.room)
 
-        self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: self.room.accountId)
+        self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationAvatars, forAccountId: self.room.accountId)
         self.headerView.trashButton.isHidden = !self.room.isCustomAvatar
 
         // Need to have an explicit size here for the header view
@@ -92,7 +92,7 @@ enum RoomAvatarInfoSection: Int {
         sections.append(RoomAvatarInfoSection.kRoomNameSection.rawValue)
 
         // Room description section
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: self.room.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.roomDescription, forAccountId: self.room.accountId) {
             sections.append(RoomAvatarInfoSection.kRoomDescriptionSection.rawValue)
         }
 
@@ -155,7 +155,7 @@ enum RoomAvatarInfoSection: Int {
         guard self.room.isEvent else { return nil }
 
         // Always add the footer to the last cell
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: self.room.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.roomDescription, forAccountId: self.room.accountId) {
             if section == RoomAvatarInfoSection.kRoomDescriptionSection.rawValue {
                 return NSLocalizedString("This conversation is attached to a calendar event. Edit the event to change the name/description of the conversation.", comment: "")
             }

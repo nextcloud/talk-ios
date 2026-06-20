@@ -577,7 +577,7 @@ import Toast
             temporaryMessage.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: message, parameters: messageParameters)
         }
         temporaryMessage.isSilent = silently
-        temporaryMessage.isMarkdownMessage = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityMarkdownMessages, for: self.room)
+        temporaryMessage.isMarkdownMessage = NCDatabaseManager.sharedInstance().roomHasTalkCapability(.markdownMessages, for: self.room)
 
         let realm = RLMRealm.default()
 
@@ -917,7 +917,7 @@ import Toast
             self.sendCurrentMessage(silently: true)
         })
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMessages, forAccountId: self.account.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.scheduleMessages, forAccountId: self.account.accountId) {
             let sendLaterAction = UIMenu(title: NSLocalizedString("Send later", comment: ""),
                                          image: .init(named: "custom.paperplane.badge.clock"),
                                          children: self.getSendLaterMenu(forSilent: false).reversed())
@@ -982,17 +982,17 @@ import Toast
         var objectItems = [UIMenuElement]()
         objectItems.append(contactShareAction)
 
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityLocationSharing, for: self.room) {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.locationSharing, for: self.room) {
             objectItems.append(shareLocationAction)
         }
 
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityTalkPolls, for: self.room),
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.talkPolls, for: self.room),
             self.room.type != .oneToOne, self.room.type != .noteToSelf {
 
             objectItems.append(pollAction)
         }
 
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityThreads, for: self.room),
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.threads, for: self.room),
            self.thread == nil {
 
             objectItems.append(threadAction)
@@ -1284,7 +1284,7 @@ import Toast
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
+            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
 
@@ -2069,7 +2069,7 @@ import Toast
                 return
             }
 
-            if movedFileToTemporaryDirectory, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
+            if movedFileToTemporaryDirectory, NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
             }
 

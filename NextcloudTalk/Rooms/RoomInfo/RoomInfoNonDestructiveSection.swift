@@ -13,7 +13,7 @@ struct RoomInfoNonDestructiveSection: View {
     private let unarchiveConversationText = NSLocalizedString("Unarchive conversation", comment: "")
 
     var body: (some View)? {
-        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityArchivedConversationsV2) else {
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.archivedConversationsV2) else {
             return Body.none
         }
 

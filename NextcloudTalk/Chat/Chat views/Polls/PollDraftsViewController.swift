@@ -118,7 +118,7 @@ class PollDraftsViewController: UITableViewController {
                 }
             }
 
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityEditDraftPoll, forAccountId: self.room.accountId) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.editDraftPoll, forAccountId: self.room.accountId) {
                 let editAction = UIAction(title: NSLocalizedString("Edit", comment: ""), image: UIImage(systemName: "pencil")) { [unowned self] _ in
                     dismiss(animated: true) {
                         let draft = self.drafts[indexPath.row]

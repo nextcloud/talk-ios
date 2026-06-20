@@ -9,84 +9,95 @@ public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
 public let kTalkDatabaseSchemaVersion: UInt64 = 90
 
-public let kCapabilitySystemMessages = "system-messages"
-public let kCapabilityNotificationLevels = "notification-levels"
-public let kCapabilityInviteGroupsAndMails = "invite-groups-and-mails"
-public let kCapabilityLockedOneToOneRooms = "locked-one-to-one-rooms"
-public let kCapabilityWebinaryLobby = "webinary-lobby"
-public let kCapabilityChatReadMarker = "chat-read-marker"
-public let kCapabilityStartCallFlag = "start-call-flag"
-public let kCapabilityCirclesSupport = "circles-support"
-public let kCapabilityChatReferenceId = "chat-reference-id"
-public let kCapabilityPhonebookSearch = "phonebook-search"
-public let kCapabilityChatReadStatus = "chat-read-status"
-public let kCapabilityReadOnlyRooms = "read-only-rooms"
-public let kCapabilityListableRooms = "listable-rooms"
-public let kCapabilityDeleteMessages = "delete-messages"
-public let kCapabilityCallFlags = "conversation-call-flags"
-public let kCapabilityRoomDescription = "room-description"
-public let kCapabilityTempUserAvatarAPI = "temp-user-avatar-api"
-public let kCapabilityLocationSharing = "geo-location-sharing"
-public let kCapabilityConversationV4 = "conversation-v4"
-public let kCapabilitySIPSupport = "sip-support"
-public let kCapabilitySIPSupportNoPIN = "sip-support-nopin"
-public let kCapabilityVoiceMessage = "voice-message-sharing"
-public let kCapabilitySignalingV3 = "signaling-v3"
-public let kCapabilityClearHistory = "clear-history"
-public let kCapabilityDirectMentionFlag = "direct-mention-flag"
-public let kCapabilityNotificationCalls = "notification-calls"
-public let kCapabilityConversationPermissions = "conversation-permissions"
-public let kCapabilityChatUnread = "chat-unread"
-public let kCapabilityReactions = "reactions"
-public let kCapabilityRichObjectListMedia = "rich-object-list-media"
-public let kCapabilityRichObjectDelete = "rich-object-delete"
-public let kCapabilityUnifiedSearch = "unified-search"
-public let kCapabilityChatPermission = "chat-permission"
-public let kCapabilityMessageExpiration = "message-expiration"
-public let kCapabilitySilentSend = "silent-send"
-public let kCapabilitySilentCall = "silent-call"
-public let kCapabilitySendCallNotification = "send-call-notification"
-public let kCapabilityTalkPolls = "talk-polls"
-public let kCapabilityRaiseHand = "raise-hand"
-public let kCapabilityRecordingV1 = "recording-v1"
-public let kCapabilitySingleConvStatus = "single-conversation-status"
-public let kCapabilityChatKeepNotifications = "chat-keep-notifications"
-public let kCapabilityConversationAvatars = "avatar"
-public let kCapabilityTypingIndicators = "typing-privacy"
-public let kCapabilityPublishingPermissions = "publishing-permissions"
-public let kCapabilityRemindMeLater = "remind-me-later"
-public let kCapabilityMarkdownMessages = "markdown-messages"
-public let kCapabilityNoteToSelf = "note-to-self"
-public let kCapabilityMediaCaption = "media-caption"
-public let kCapabilityEditMessages = "edit-messages"
-public let kCapabilityDeleteMessagesUnlimited = "delete-messages-unlimited"
-public let kCapabilityFederationV1 = "federation-v1"
-public let kCapabilityFederationV2 = "federation-v2"
-public let kCapabilityChatReadLast = "chat-read-last"
-public let kCapabilityBanV1 = "ban-v1"
-public let kCapabilityMentionPermissions = "mention-permissions"
-public let kCapabilityEditMessagesNoteToSelf = "edit-messages-note-to-self"
-public let kCapabilityChatSummary = "chat-summary-api"
-public let kCapabilityArchivedConversationsV2 = "archived-conversations-v2"
-public let kCapabilityCallNotificationState = "call-notification-state-api"
-public let kCapabilityForceMute = "force-mute"
-public let kCapabilityTalkPollsDrafts = "talk-polls-drafts"
-public let kCapabilityEditDraftPoll = "edit-draft-poll"
-public let kCapabilityScheduleMeeting = "schedule-meeting"
-public let kCapabilityConversationCreationAll = "conversation-creation-all"
-public let kCapabilityImportantConversations = "important-conversations"
-public let kCapabilitySensitiveConversations = "sensitive-conversations"
-public let kCapabilityThreads = "threads"
-public let kCapabilityPinnedMessages = "pinned-messages"
-public let kCapabilityScheduleMessages = "scheduled-messages"
-public let kCapabilityReactPermission = "react-permission"
-public let kCapabilityBotV1 = "bots-v1"
+public enum TalkCapability: String {
+    case systemMessages = "system-messages"
+    case notificationLevels = "notification-levels"
+    case inviteGroupsAndMails = "invite-groups-and-mails"
+    case lockedOneToOneRooms = "locked-one-to-one-rooms"
+    case webinaryLobby = "webinary-lobby"
+    case chatReadMarker = "chat-read-marker"
+    case startCallFlag = "start-call-flag"
+    case circlesSupport = "circles-support"
+    case chatReferenceId = "chat-reference-id"
+    case phonebookSearch = "phonebook-search"
+    case chatReadStatus = "chat-read-status"
+    case readOnlyRooms = "read-only-rooms"
+    case listableRooms = "listable-rooms"
+    case deleteMessages = "delete-messages"
+    case callFlags = "conversation-call-flags"
+    case roomDescription = "room-description"
+    case tempUserAvatarAPI = "temp-user-avatar-api"
+    case locationSharing = "geo-location-sharing"
+    case conversationV4 = "conversation-v4"
+    case sipSupport = "sip-support"
+    case sipSupportNoPIN = "sip-support-nopin"
+    case voiceMessage = "voice-message-sharing"
+    case signalingV3 = "signaling-v3"
+    case clearHistory = "clear-history"
+    case directMentionFlag = "direct-mention-flag"
+    case notificationCalls = "notification-calls"
+    case conversationPermissions = "conversation-permissions"
+    case chatUnread = "chat-unread"
+    case reactions = "reactions"
+    case richObjectListMedia = "rich-object-list-media"
+    case richObjectDelete = "rich-object-delete"
+    case unifiedSearch = "unified-search"
+    case chatPermission = "chat-permission"
+    case messageExpiration = "message-expiration"
+    case silentSend = "silent-send"
+    case silentCall = "silent-call"
+    case sendCallNotification = "send-call-notification"
+    case talkPolls = "talk-polls"
+    case raiseHand = "raise-hand"
+    case recordingV1 = "recording-v1"
+    case singleConvStatus = "single-conversation-status"
+    case chatKeepNotifications = "chat-keep-notifications"
+    case conversationAvatars = "avatar"
+    case typingIndicators = "typing-privacy"
+    case publishingPermissions = "publishing-permissions"
+    case remindMeLater = "remind-me-later"
+    case markdownMessages = "markdown-messages"
+    case noteToSelf = "note-to-self"
+    case mediaCaption = "media-caption"
+    case editMessages = "edit-messages"
+    case deleteMessagesUnlimited = "delete-messages-unlimited"
+    case federationV1 = "federation-v1"
+    case federationV2 = "federation-v2"
+    case chatReadLast = "chat-read-last"
+    case banV1 = "ban-v1"
+    case mentionPermissions = "mention-permissions"
+    case editMessagesNoteToSelf = "edit-messages-note-to-self"
+    case chatSummary = "chat-summary-api"
+    case archivedConversationsV2 = "archived-conversations-v2"
+    case callNotificationState = "call-notification-state-api"
+    case forceMute = "force-mute"
+    case talkPollsDrafts = "talk-polls-drafts"
+    case editDraftPoll = "edit-draft-poll"
+    case scheduleMeeting = "schedule-meeting"
+    case conversationCreationAll = "conversation-creation-all"
+    case importantConversations = "important-conversations"
+    case sensitiveConversations = "sensitive-conversations"
+    case threads = "threads"
+    case pinnedMessages = "pinned-messages"
+    case scheduleMessages = "scheduled-messages"
+    case reactPermission = "react-permission"
+    case botV1 = "bots-v1"
 
-public let kNotificationsCapabilityExists = "exists"
-public let kNotificationsCapabilityTestPush = "test-push"
+    // Talk 12.0 is the minimum required version
+    public static let minimumRequired = TalkCapability.conversationV4
+}
 
-// Talk 12.0 is the minimum required version
-public let kMinimumRequiredTalkCapability = kCapabilityConversationV4
+public enum NotificationsCapability: String {
+    case exists = "exists"
+    case testPush = "test-push"
+}
+
+// Objective-C bridge for capabilities still referenced from Objective-C code.
+// These reference the Swift TalkCapability values and can be removed once those call sites are migrated to Swift.
+@objcMembers public class TalkCapabilityObjC: NSObject {
+    public static let singleConvStatus = TalkCapability.singleConvStatus.rawValue
+    public static let conversationCreationAll = TalkCapability.conversationCreationAll.rawValue
+}
 
 public let NCDatabaseManagerPendingFederationInvitationsDidChange = "NCDatabaseManagerPendingFederationInvitationsDidChange"
 
@@ -644,7 +655,7 @@ public extension Notification.Name {
     }
 
     public func serverCanInviteFederatedUsersforAccountId(_ accountId: String) -> Bool {
-        if let serverCapabilities = serverCapabilities(forAccountId: accountId), serverHasTalkCapability(kCapabilityFederationV1, forAccountId: accountId) {
+        if let serverCapabilities = serverCapabilities(forAccountId: accountId), serverHasTalkCapability(.federationV1, forAccountId: accountId) {
             return serverCapabilities.federationEnabled && serverCapabilities.federationOutgoingEnabled
         }
         return false
@@ -814,5 +825,26 @@ public extension Notification.Name {
         unmanagedRooms.sortRooms(withGroupMode: groupMode, withSortOrder: sortOrder)
 
         return unmanagedRooms
+    }
+}
+
+// MARK: - Type-safe capability checks
+
+public extension NCDatabaseManager {
+
+    func serverHasTalkCapability(_ capability: TalkCapability) -> Bool {
+        return serverHasTalkCapability(capability.rawValue)
+    }
+
+    func serverHasTalkCapability(_ capability: TalkCapability, forAccountId accountId: String) -> Bool {
+        return serverHasTalkCapability(capability.rawValue, forAccountId: accountId)
+    }
+
+    func serverHasNotificationsCapability(_ capability: NotificationsCapability, forAccountId accountId: String) -> Bool {
+        return serverHasNotificationsCapability(capability.rawValue, forAccountId: accountId)
+    }
+
+    func roomHasTalkCapability(_ capability: TalkCapability, for room: NCRoom) -> Bool {
+        return roomHasTalkCapability(capability.rawValue, for: room)
     }
 }

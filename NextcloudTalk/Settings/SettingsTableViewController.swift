@@ -156,17 +156,17 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         var options = [Int]()
 
         // Read status privacy setting
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadStatus) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadStatus) {
             options.append(AccountSettingsOptions.kAccountSettingsReadStatusPrivacy.rawValue)
         }
 
         // Typing indicator privacy setting
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTypingIndicators) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.typingIndicators) {
             options.append(AccountSettingsOptions.kAccountSettingsTypingPrivacy.rawValue)
         }
 
         // Contacts sync
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityPhonebookSearch) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.phonebookSearch) {
             options.append(AccountSettingsOptions.kAccountSettingsContactsSync.rawValue)
         }
         return options

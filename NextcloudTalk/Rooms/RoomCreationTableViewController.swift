@@ -103,7 +103,7 @@ enum RoomVisibilityOption: Int {
             self.modifyingView.color = NCAppBranding.themeTextColor()
         }
 
-        self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationAvatars, forAccountId: self.account.accountId)
+        self.headerView.editView.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationAvatars, forAccountId: self.account.accountId)
         // Need to have an explicit size here for the header view
         let size = self.headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         self.headerView.frame = CGRect(origin: .zero, size: size)
@@ -133,7 +133,7 @@ enum RoomVisibilityOption: Int {
         sections.append(RoomCreationSection.kRoomNameSection.rawValue)
 
         // Room description section
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: self.account.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.roomDescription, forAccountId: self.account.accountId) {
             sections.append(RoomCreationSection.kRoomDescriptionSection.rawValue)
         }
 

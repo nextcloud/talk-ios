@@ -80,7 +80,7 @@
 
     NSString *subtitle = nil;
     
-    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:@"single-conversation-status"] /* kCapabilitySingleConvStatus */) {
+    if ([[NCDatabaseManager sharedInstance] serverHasTalkCapability:TalkCapabilityObjC.singleConvStatus]) {
         // User status
         [self.avatarView setStatusFor:room allowCustomStatusIcon:NO];
 

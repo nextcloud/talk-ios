@@ -294,8 +294,8 @@ class CallViewController: UIViewController,
         // as a workaround.
 
         let serverSupportsConversationPermissions =
-        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationPermissions, forAccountId: room.accountId) ||
-        NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag, forAccountId: room.accountId)
+        NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationPermissions, forAccountId: room.accountId) ||
+        NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag, forAccountId: room.accountId)
 
         if serverSupportsConversationPermissions {
             self.setAudioMuteButtonEnabled(room.permissions.contains(.canPublishAudio))
@@ -311,7 +311,7 @@ class CallViewController: UIViewController,
         NotificationCenter.default.addObserver(self, selector: #selector(sensorStateChange(notification:)), name: UIDevice.proximityStateDidChangeNotification, object: nil)
 
         // callStartTime is only available if we have the "recording-v1" capability
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1, forAccountId: room.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.recordingV1, forAccountId: room.accountId) {
             self.callDurationTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(callDurationTimerUpdate), userInfo: nil, repeats: true)
         }
     }
@@ -1258,7 +1258,7 @@ class CallViewController: UIViewController,
             self.reactionButton.isHidden = self.room.callReactions.isEmpty
 
             // Only when the server supports recording-v1 we have access to callStartTime, otherwise hide the label
-            self.callTimeLabel.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1)
+            self.callTimeLabel.isHidden = !NCDatabaseManager.sharedInstance().serverHasTalkCapability(.recordingV1)
 
             let audioController = NCAudioController.shared
             self.speakerButton.isHidden = !audioController.isAudioRouteChangeable
@@ -1304,7 +1304,7 @@ class CallViewController: UIViewController,
             }
 
             if (self.room.canModerate || self.room.type == .oneToOne),
-               NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityPublishingPermissions) {
+               NCDatabaseManager.sharedInstance().serverHasTalkCapability(.publishingPermissions) {
 
                 var alternativeHangUpAction: UIAction
 
@@ -1471,7 +1471,7 @@ class CallViewController: UIViewController,
         }
 
         // Raise hand
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRaiseHand) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.raiseHand) {
             var raiseHandTitle = NSLocalizedString("Raise hand", comment: "")
 
             if isHandRaised {
