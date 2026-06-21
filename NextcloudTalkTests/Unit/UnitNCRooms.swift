@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitNCRooms: TestBaseRealm {
 
     private func createRoom(withDisplayName displayName: String, withType type: NCRoomType, isFavorite favorite: Bool, withLastActivity lastActivity: Int) -> NCRoom {
@@ -18,7 +20,7 @@ final class UnitNCRooms: TestBaseRealm {
         return room
     }
 
-    func testRoomSort() throws {
+    @Test func `room sort`() throws {
         let favOneToOne = self.createRoom(withDisplayName: "FavRoom1 1-1", withType: .oneToOne, isFavorite: true, withLastActivity: 0)
         let favGroup = self.createRoom(withDisplayName: "FavRoom1 Group", withType: .group, isFavorite: true, withLastActivity: 0)
         let room1 = self.createRoom(withDisplayName: "Room1", withType: .group, isFavorite: false, withLastActivity: 1)
@@ -39,19 +41,19 @@ final class UnitNCRooms: TestBaseRealm {
             favOneToOne, favGroup, activity2, activity1, room2, room1
         ]
 
-        XCTAssertEqual(test1Begin, test1Expected)
+        #expect(test1Begin == test1Expected)
     }
 
-    func testEventVisibility() throws {
+    @Test func `event visibility`() throws {
         let nonEventRoom = NCRoom()
-        XCTAssertTrue(nonEventRoom.isVisible)
+        #expect(nonEventRoom.isVisible)
 
         let unfinishedEventRoom = NCRoom()
         unfinishedEventRoom.objectType = NCRoomObjectTypeEvent
         unfinishedEventRoom.objectId = "abcdefg" // "Unfinished" event rooms don't have a timestamp set, but a hash
 
-        XCTAssertTrue(unfinishedEventRoom.isVisible)
-        XCTAssertNil(unfinishedEventRoom.eventTimestamps)
+        #expect(unfinishedEventRoom.isVisible)
+        #expect(unfinishedEventRoom.eventTimestamps == nil)
 
         let timestampNow = Int(Date().timeIntervalSince1970)
         let eventRoom = NCRoom()
@@ -62,22 +64,22 @@ final class UnitNCRooms: TestBaseRealm {
         var end = String(timestampNow + 15 * 3600 + 60)
         eventRoom.objectId = "\(start)#\(end)"
 
-        XCTAssertTrue(eventRoom.isVisible)
-        XCTAssertNotNil(eventRoom.eventTimestamps)
-        XCTAssertTrue(eventRoom.calendarEvent?.isFutureEvent ?? false)
+        #expect(eventRoom.isVisible)
+        #expect(eventRoom.eventTimestamps != nil)
+        #expect(eventRoom.calendarEvent?.isFutureEvent ?? false)
 
         // Always show rooms of events in the past
         start = String(timestampNow - 5 * 3600)
         end = String(timestampNow - 5 * 3600 + 60)
         eventRoom.objectId = "\(start)#\(end)"
-        XCTAssertTrue(eventRoom.isVisible)
-        XCTAssertFalse(eventRoom.calendarEvent?.isFutureEvent ?? true)
+        #expect(eventRoom.isVisible)
+        #expect(!(eventRoom.calendarEvent?.isFutureEvent ?? true))
 
         // Event rooms should only be shown 24h before start
         start = String(timestampNow + 17 * 3600)
         end = String(timestampNow + 17 * 3600 + 60)
         eventRoom.objectId = "\(start)#\(end)"
-        XCTAssertFalse(eventRoom.isVisible)
-        XCTAssertTrue(eventRoom.calendarEvent?.isFutureEvent ?? false)
+        #expect(!eventRoom.isVisible)
+        #expect(eventRoom.calendarEvent?.isFutureEvent ?? false)
     }
 }

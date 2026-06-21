@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
-final class UnitNCNotificationTest: XCTestCase {
+struct UnitNCNotificationTest {
 
-    func testCallNotification() throws {
+    @Test func `call notification`() throws {
         let notificationJsonData = """
           {
             "notification_id": 1425,
@@ -48,23 +49,23 @@ final class UnitNCNotificationTest: XCTestCase {
         let dataDict = try JSONSerialization.jsonObject(with: notificationJsonData.data(using: .utf8)!) as! [String: Any]
         let notification = NCNotification(dictionary: dataDict)
 
-        XCTAssertEqual(notification?.notificationId, 1425)
-        XCTAssertEqual(notification?.objectId, "5tsemb7k")
-        XCTAssertEqual(notification?.objectType, "call")
-        XCTAssertEqual(notification?.app, "spreed")
-        XCTAssertEqual(notification?.subject, "Du hast einen Gruppenanruf in Test verpasst")
-        XCTAssertEqual(notification?.roomToken, "5tsemb7k")
-        XCTAssertEqual(notification?.notificationType, .call)
-        XCTAssertEqual(notification?.datetime, Date(timeIntervalSince1970: 1768694315))
+        #expect(notification?.notificationId == 1425)
+        #expect(notification?.objectId == "5tsemb7k")
+        #expect(notification?.objectType == "call")
+        #expect(notification?.app == "spreed")
+        #expect(notification?.subject == "Du hast einen Gruppenanruf in Test verpasst")
+        #expect(notification?.roomToken == "5tsemb7k")
+        #expect(notification?.notificationType == .call)
+        #expect(notification?.datetime == Date(timeIntervalSince1970: 1768694315))
 
         let firstAction = notification?.notificationActions.first
-        XCTAssertEqual(firstAction?.actionLabel, "Chat anzeigen")
-        XCTAssertEqual(firstAction?.actionType, .kNotificationActionTypeWeb)
-        XCTAssertEqual(firstAction?.actionLink, "https://nextcloud.internal/index.php/call/5tsemb7k")
-        XCTAssertEqual(firstAction?.isPrimaryAction, false)
+        #expect(firstAction?.actionLabel == "Chat anzeigen")
+        #expect(firstAction?.actionType == .kNotificationActionTypeWeb)
+        #expect(firstAction?.actionLink == "https://nextcloud.internal/index.php/call/5tsemb7k")
+        #expect(firstAction?.isPrimaryAction == false)
     }
 
-    func testChatNotification() throws {
+    @Test func `chat notification`() throws {
         let notificationJsonData = """
           {
             "notification_id": 1422,
@@ -109,18 +110,18 @@ final class UnitNCNotificationTest: XCTestCase {
         let dataDict = try JSONSerialization.jsonObject(with: notificationJsonData.data(using: .utf8)!) as! [String: Any]
         let notification = NCNotification(dictionary: dataDict)
 
-        XCTAssertEqual(notification?.notificationId, 1422)
-        XCTAssertEqual(notification?.objectId, "5tsemb7k/3013")
-        XCTAssertEqual(notification?.objectType, "chat")
-        XCTAssertEqual(notification?.app, "spreed")
-        XCTAssertEqual(notification?.subject, "bob ABC 1234 Test hat eine Nachricht in der Unterhaltung Test gesendet")
-        XCTAssertEqual(notification?.chatMessageTitle, "bob ABC 1234 Test in Test")
-        XCTAssertEqual(notification?.roomToken, "5tsemb7k")
-        XCTAssertEqual(notification?.notificationType, .chat)
-        XCTAssertEqual(notification?.datetime, Date(timeIntervalSince1970: 1768694302))
+        #expect(notification?.notificationId == 1422)
+        #expect(notification?.objectId == "5tsemb7k/3013")
+        #expect(notification?.objectType == "chat")
+        #expect(notification?.app == "spreed")
+        #expect(notification?.subject == "bob ABC 1234 Test hat eine Nachricht in der Unterhaltung Test gesendet")
+        #expect(notification?.chatMessageTitle == "bob ABC 1234 Test in Test")
+        #expect(notification?.roomToken == "5tsemb7k")
+        #expect(notification?.notificationType == .chat)
+        #expect(notification?.datetime == Date(timeIntervalSince1970: 1768694302))
     }
 
-    func testThreadNotification() throws {
+    @Test func `thread notification`() throws {
         let notificationJsonData = """
         {
           "notification_id": 1431,
@@ -165,16 +166,16 @@ final class UnitNCNotificationTest: XCTestCase {
         let dataDict = try JSONSerialization.jsonObject(with: notificationJsonData.data(using: .utf8)!) as! [String: Any]
         let notification = NCNotification(dictionary: dataDict)
 
-        XCTAssertEqual(notification?.notificationId, 1431)
-        XCTAssertEqual(notification?.objectId, "5tsemb7k/3019/3017")
-        XCTAssertEqual(notification?.objectType, "chat")
-        XCTAssertEqual(notification?.app, "spreed")
-        XCTAssertEqual(notification?.subject, "bob ABC 1234 Test hat eine Nachricht in der Unterhaltung Test gesendet")
-        XCTAssertEqual(notification?.chatMessageTitle, "bob ABC 1234 Test in Test")
-        XCTAssertEqual(notification?.roomToken, "5tsemb7k")
-        XCTAssertEqual(notification?.threadId, 3017)
-        XCTAssertEqual(notification?.notificationType, .chat)
-        XCTAssertEqual(notification?.datetime, Date(timeIntervalSince1970: 1768695972))
+        #expect(notification?.notificationId == 1431)
+        #expect(notification?.objectId == "5tsemb7k/3019/3017")
+        #expect(notification?.objectType == "chat")
+        #expect(notification?.app == "spreed")
+        #expect(notification?.subject == "bob ABC 1234 Test hat eine Nachricht in der Unterhaltung Test gesendet")
+        #expect(notification?.chatMessageTitle == "bob ABC 1234 Test in Test")
+        #expect(notification?.roomToken == "5tsemb7k")
+        #expect(notification?.threadId == 3017)
+        #expect(notification?.notificationType == .chat)
+        #expect(notification?.datetime == Date(timeIntervalSince1970: 1768695972))
     }
 
 }

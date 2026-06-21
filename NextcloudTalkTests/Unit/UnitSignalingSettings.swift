@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
-final class UnitSignalingSettings: XCTestCase {
+struct UnitSignalingSettings {
 
-    func testSignalingSettings() throws {
+    @Test func `signaling settings`() throws {
         let dataJson =
         """
             {
@@ -49,26 +50,26 @@ final class UnitSignalingSettings: XCTestCase {
         let signalingDict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
         let signalingSettings = SignalingSettings(dictionary: signalingDict)
 
-        XCTAssertEqual(signalingSettings?.server, "https://domain.invalid/standalone-signaling/")
-        XCTAssertEqual(signalingSettings?.signalingMode, "external")
-        XCTAssertEqual(signalingSettings?.ticket, "ticket:user:1234")
+        #expect(signalingSettings?.server == "https://domain.invalid/standalone-signaling/")
+        #expect(signalingSettings?.signalingMode == "external")
+        #expect(signalingSettings?.ticket == "ticket:user:1234")
 
         let stunServers = signalingSettings?.stunServers
         let turnServers = signalingSettings?.turnServers
 
-        XCTAssertEqual(stunServers?.count, 1)
-        XCTAssertEqual(stunServers?[0].urls?.count, 1)
-        XCTAssertEqual(stunServers?[0].urls?[0], "stun:stun.domain.invalid:443")
+        #expect(stunServers?.count == 1)
+        #expect(stunServers?[0].urls?.count == 1)
+        #expect(stunServers?[0].urls?[0] == "stun:stun.domain.invalid:443")
 
-        XCTAssertEqual(turnServers?.count, 1)
-        XCTAssertEqual(turnServers?[0].urls?.count, 2)
-        XCTAssertEqual(turnServers?[0].urls?[0], "turn:turn.domain.invalid:443?transport=udp")
-        XCTAssertEqual(turnServers?[0].urls?[1], "turns:turn.domain.invalid:443?transport=udp")
-        XCTAssertEqual(turnServers?[0].username, "user:name")
-        XCTAssertEqual(turnServers?[0].credential, "password")
+        #expect(turnServers?.count == 1)
+        #expect(turnServers?[0].urls?.count == 2)
+        #expect(turnServers?[0].urls?[0] == "turn:turn.domain.invalid:443?transport=udp")
+        #expect(turnServers?[0].urls?[1] == "turns:turn.domain.invalid:443?transport=udp")
+        #expect(turnServers?[0].username == "user:name")
+        #expect(turnServers?[0].credential == "password")
     }
 
-    func testSignalingSettingsFederation() throws {
+    @Test func `signaling settings with federation`() throws {
         let dataJson =
         """
             {
@@ -117,14 +118,14 @@ final class UnitSignalingSettings: XCTestCase {
         let signalingDict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
         let signalingSettings = SignalingSettings(dictionary: signalingDict)
 
-        XCTAssertNotNil(signalingSettings?.federation)
+        #expect(signalingSettings?.federation != nil)
 
         let federation = signalingSettings?.getFederationJoinDictionary()
 
-        XCTAssertEqual(federation?["signaling"], "https://domain2.invalid/standalone-signaling")
-        XCTAssertEqual(federation?["roomid"], "federation:roomId")
-        XCTAssertEqual(federation?["url"], "https://nextcloud.domain2.invalid/ocs/v2.php/apps/spreed/api/v3/signaling/backend")
-        XCTAssertEqual(federation?["token"], "federation:token")
+        #expect(federation?["signaling"] == "https://domain2.invalid/standalone-signaling")
+        #expect(federation?["roomid"] == "federation:roomId")
+        #expect(federation?["url"] == "https://nextcloud.domain2.invalid/ocs/v2.php/apps/spreed/api/v3/signaling/backend")
+        #expect(federation?["token"] == "federation:token")
     }
 
 }

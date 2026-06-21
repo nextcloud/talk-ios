@@ -3,12 +3,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitNCChatMessageTest: TestBaseRealm {
 
-    func testUnreadMessageSeparatorUrlCheck() throws {
+    @Test func `unread message separator URL check`() throws {
         let message = NCChatMessage()
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
 
@@ -16,10 +18,10 @@ final class UnitNCChatMessageTest: TestBaseRealm {
             cap.referenceApiSupported = true
         }
 
-        XCTAssertFalse(message.containsURL())
+        #expect(!message.containsURL())
     }
 
-    func testMentionRendering() throws {
+    @Test func `mention rendering`() throws {
         let mentionParameters = """
         {
             "mention-user1": {
@@ -35,22 +37,22 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         mentionMessage.messageParametersJSONString = mentionParameters
 
         mentionMessage.message = "{mention-user1}"
-        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "@Username with space")
+        #expect(mentionMessage.parsedMarkdownForChat().string == "@Username with space")
 
         mentionMessage.message = "{\n{mention-user1}"
-        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "{\n@Username with space")
+        #expect(mentionMessage.parsedMarkdownForChat().string == "{\n@Username with space")
 
         mentionMessage.message = "@{mention-user1}"
-        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "@@Username with space")
+        #expect(mentionMessage.parsedMarkdownForChat().string == "@@Username with space")
 
         mentionMessage.message = " abc{mention-user1}abc "
-        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, " abc@Username with spaceabc ")
+        #expect(mentionMessage.parsedMarkdownForChat().string == " abc@Username with spaceabc ")
 
         mentionMessage.message = "{mention-user1}{mention-user2}"
-        XCTAssertEqual(mentionMessage.parsedMarkdownForChat().string, "@Username with space{mention-user2}")
+        #expect(mentionMessage.parsedMarkdownForChat().string == "@Username with space{mention-user2}")
     }
 
-    func testMentionParameters() throws {
+    @Test func `mention parameters`() throws {
         let messageParameters = """
         {
             "actor": {
@@ -87,25 +89,25 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         message.messageParametersJSONString = messageParameters
 
         message.message = "Hello {mention-user1} --- hello {mention-federated-user1} --- hello {mention-call1} 123"
-        XCTAssertEqual(message.parsedMarkdownForChat().string, "Hello @alice --- hello @User1 Displayname --- hello @Group Conversation 123")
+        #expect(message.parsedMarkdownForChat().string == "Hello @alice --- hello @User1 Displayname --- hello @Group Conversation 123")
 
         let mentionsDict = message.mentionMessageParameters
-        XCTAssertEqual(mentionsDict.count, 3)
+        #expect(mentionsDict.count == 3)
 
         let userMention = mentionsDict.first(where: { $0.value.type == "user" && !$0.key.contains("federated") })!.value
-        XCTAssertEqual(userMention.mention?.mentionId, "alice")
+        #expect(userMention.mention?.mentionId == "alice")
 
         let federatedMention = mentionsDict.first(where: { $0.value.type == "user" && $0.key.contains("federated") })!.value
-        XCTAssertEqual(federatedMention.mention?.mentionId, "federated_user/user1@nextcloud.local")
+        #expect(federatedMention.mention?.mentionId == "federated_user/user1@nextcloud.local")
 
         let callMention = mentionsDict.first(where: { $0.value.type == "call" })!.value
-        XCTAssertEqual(callMention.mention?.mentionId, "all")
+        #expect(callMention.mention?.mentionId == "all")
 
-        XCTAssertEqual(message.sendingMessage, "Hello @\"alice\" --- hello @\"federated_user/user1@nextcloud.local\" --- hello @\"all\" 123")
-        XCTAssertEqual(message.sendingMessageWithDisplayNames, "Hello @alice --- hello @User1 Displayname --- hello @Group Conversation 123")
+        #expect(message.sendingMessage == "Hello @\"alice\" --- hello @\"federated_user/user1@nextcloud.local\" --- hello @\"all\" 123")
+        #expect(message.sendingMessageWithDisplayNames == "Hello @alice --- hello @User1 Displayname --- hello @Group Conversation 123")
     }
 
-    func testLastMessageFileUpdate() throws {
+    @Test func `last message file update`() throws {
         let fileMessageParameters = """
         {
             "actor": {
@@ -167,10 +169,10 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         updateMessage.messageParametersJSONString = newFileMessageParameters
 
         NCChatMessage.update(existingMessage, with: updateMessage, isRoomLastMessage: true)
-        XCTAssertEqual(existingMessage.message, "new")
-        XCTAssertEqual(existingMessage.file().path, "Media/photo-1517603250781-c4eac1449a80.jpeg")
+        #expect(existingMessage.message == "new")
+        #expect(existingMessage.file().path == "Media/photo-1517603250781-c4eac1449a80.jpeg")
 
         let parameters = (existingMessage.messageParameters as? [String: Any])?["actor"] as? [String: String]
-        XCTAssertEqual(try XCTUnwrap(parameters)["name"], "bob")
+        #expect(try #require(parameters)["name"] == "bob")
     }
 }

@@ -3,12 +3,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitMessageBodyTextViewTest: TestBaseRealm {
 
-    func testCellWithMarkdownQuoteHeight() throws {
+    @Test func `cell with markdown quote height`() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let testMessage = NCChatMessage(dictionary: [:], andAccountId: activeAccount.accountId)!
 
@@ -19,7 +21,7 @@ final class UnitMessageBodyTextViewTest: TestBaseRealm {
         let messageTextView = MessageBodyTextView()
         messageTextView.attributedText = testMessage.parsedMarkdownForChat()
 
-        XCTAssertEqual(messageTextView.intrinsicContentSize, CGSize(width: 259, height: 20))
+        #expect(messageTextView.intrinsicContentSize == CGSize(width: 259, height: 20))
     }
 
 }

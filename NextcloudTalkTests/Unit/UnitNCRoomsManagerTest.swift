@@ -3,12 +3,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitNCRoomsManagerTest: TestBaseRealm {
 
-    func testOfflineMessageFailure() throws {
+    @Test func `offline message failure`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomToken = "offToken"
 
@@ -34,23 +36,34 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
             realm.add(oldOfflineMessage)
         }
 
-        XCTAssertEqual(NCChatMessage.allObjects().count, 1)
+        #expect(NCChatMessage.allObjects().count == 1)
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        expectation(forNotification: .NCChatControllerDidSendChatMessage, object: NCRoomsManager.shared)
+        let notificationTracker = EventTracker()
+        let completionTracker = EventTracker()
 
-        NCRoomsManager.shared.resendOfflineMessages(forToken: roomToken) {
-            exp.fulfill()
+        await confirmation("Offline message resend completes") { completedConfirm in
+            await confirmation("DidSendChatMessage notification is posted") { notifiedConfirm in
+                let observer = NotificationCenter.default.addObserver(forName: .NCChatControllerDidSendChatMessage, object: NCRoomsManager.shared, queue: .main) { _ in
+                    notificationTracker.signal()
+                    notifiedConfirm()
+                }
+
+                NCRoomsManager.shared.resendOfflineMessages(forToken: roomToken) {
+                    completionTracker.signal()
+                    completedConfirm()
+                }
+
+                await wait { notificationTracker.fired && completionTracker.fired }
+                NotificationCenter.default.removeObserver(observer)
+            }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
-
-        let realmMessage = NCChatMessage.allObjects().firstObject()!
-        XCTAssertTrue(realmMessage.sendingFailed)
-        XCTAssertFalse(realmMessage.isOfflineMessage)
+        let realmMessage = try #require(NCChatMessage.allObjects().firstObject())
+        #expect(realmMessage.sendingFailed)
+        #expect(!realmMessage.isOfflineMessage)
     }
 
-    func testUpdateRoomWithDict() throws {
+    @Test func `update room with dictionary`() throws {
         let dataJson = """
             {
                 "id": 5,
@@ -133,8 +146,8 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
 
         let roomDict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
 
-        XCTAssertEqual(NCChatMessage.allObjects().count, 0)
-        XCTAssertEqual(NCRoom.allObjects().count, 0)
+        #expect(NCChatMessage.allObjects().firstObject() == nil)
+        #expect(NCRoom.allObjects().firstObject() == nil)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
@@ -142,17 +155,17 @@ final class UnitNCRoomsManagerTest: TestBaseRealm {
             NCRoomsManager.shared.updateRoom(withDict: roomDict, withAccount: activeAccount, withTimestamp: Int(Date().timeIntervalSince1970), withRealm: realm)
         }
 
-        XCTAssertEqual(NCChatMessage.allObjects().count, 1)
-        XCTAssertEqual(NCRoom.allObjects().count, 1)
+        #expect(NCChatMessage.allObjects().count == 1)
+        #expect(NCRoom.allObjects().count == 1)
 
-        let message = try XCTUnwrap(NCChatMessage.allObjects().firstObject() as? NCChatMessage)
-        let room = try XCTUnwrap(NCRoom.allObjects().firstObject() as? NCRoom)
+        let message = try #require(NCChatMessage.allObjects().firstObject() as? NCChatMessage)
+        let room = try #require(NCRoom.allObjects().firstObject() as? NCRoom)
 
-        XCTAssertEqual(message.message, "Hey")
-        XCTAssertEqual(message.timestamp, 1769032238)
+        #expect(message.message == "Hey")
+        #expect(message.timestamp == 1769032238)
 
-        XCTAssertEqual(room.name, "Test2")
-        XCTAssertEqual(room.token, "noszqmnh")
+        #expect(room.name == "Test2")
+        #expect(room.token == "noszqmnh")
     }
 
 }

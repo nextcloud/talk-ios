@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Testing
 @testable import NextcloudTalk
 
-final class UnitMentionSuggestionTest: XCTestCase {
+struct UnitMentionSuggestionTest {
 
-    func testLocalMention() throws {
+    @Test func `local mention`() throws {
         let data = [
             "id": "my-id",
             "label": "My Label",
@@ -17,37 +17,37 @@ final class UnitMentionSuggestionTest: XCTestCase {
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.source, "users")
+        #expect(suggestion.source == "users")
 
-        XCTAssertEqual(suggestion.mention.id, "my-id")
-        XCTAssertEqual(suggestion.mention.label, "My Label")
-        XCTAssertEqual(suggestion.mention.idForChat, "@\"my-id\"")
-        XCTAssertEqual(suggestion.mention.labelForChat, "@My Label")
+        #expect(suggestion.mention.id == "my-id")
+        #expect(suggestion.mention.label == "My Label")
+        #expect(suggestion.mention.idForChat == "@\"my-id\"")
+        #expect(suggestion.mention.labelForChat == "@My Label")
     }
 
-    func testLocalGuestMention() throws {
+    @Test func `local guest mention`() throws {
         let data = [
             "id": "guest/guest-id"
         ]
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.mention.id, "guest/guest-id")
-        XCTAssertEqual(suggestion.mention.idForChat, "@\"guest/guest-id\"")
+        #expect(suggestion.mention.id == "guest/guest-id")
+        #expect(suggestion.mention.idForChat == "@\"guest/guest-id\"")
     }
 
-    func testLocalWhitespaceMention() throws {
+    @Test func `local whitespace mention`() throws {
         let data = [
             "id": "my id"
         ]
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.mention.id, "my id")
-        XCTAssertEqual(suggestion.mention.idForChat, "@\"my id\"")
+        #expect(suggestion.mention.id == "my id")
+        #expect(suggestion.mention.idForChat == "@\"my id\"")
     }
 
-    func testMentionId() throws {
+    @Test func `mention ID`() throws {
         let data = [
             "id": "my-id",
             "mentionId": "mention-id"
@@ -55,12 +55,12 @@ final class UnitMentionSuggestionTest: XCTestCase {
 
         let suggestion = MentionSuggestion(dictionary: data)
 
-        XCTAssertEqual(suggestion.mention.id, "my-id")
-        XCTAssertEqual(suggestion.mention.mentionId, "mention-id")
-        XCTAssertEqual(suggestion.mention.idForChat, "@\"mention-id\"")
+        #expect(suggestion.mention.id == "my-id")
+        #expect(suggestion.mention.mentionId == "mention-id")
+        #expect(suggestion.mention.idForChat == "@\"mention-id\"")
     }
 
-    func testMessageParameter() throws {
+    @Test func `message parameter`() throws {
         let data = [
             "id": "my-id",
             "mentionId": "mention-id",
@@ -71,12 +71,12 @@ final class UnitMentionSuggestionTest: XCTestCase {
         let suggestion = MentionSuggestion(dictionary: data)
         let parameter = suggestion.asMessageParameter()
 
-        XCTAssertEqual(parameter.parameterId, "my-id")
-        XCTAssertEqual(parameter.name, "My Label")
-        XCTAssertEqual(parameter.mention?.label, "My Label")
-        XCTAssertEqual(parameter.mention?.mentionId, "mention-id")
-        XCTAssertEqual(parameter.mention?.idForChat, "@\"mention-id\"")
-        XCTAssertEqual(parameter.mention?.labelForChat, "@My Label")
-        XCTAssertEqual(parameter.type, "user")
+        #expect(parameter.parameterId == "my-id")
+        #expect(parameter.name == "My Label")
+        #expect(parameter.mention?.label == "My Label")
+        #expect(parameter.mention?.mentionId == "mention-id")
+        #expect(parameter.mention?.idForChat == "@\"mention-id\"")
+        #expect(parameter.mention?.labelForChat == "@My Label")
+        #expect(parameter.type == "user")
     }
 }

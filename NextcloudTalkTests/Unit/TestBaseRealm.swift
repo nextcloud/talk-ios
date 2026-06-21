@@ -3,15 +3,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
-class TestBaseRealm: XCTestCase {
+@MainActor
+class TestBaseRealm {
 
-    static var fakeAccountId = "fakeAccountId"
-    var realm: RLMRealm!
+    static let fakeAccountId = "fakeAccountId"
+    var realm: RLMRealm
 
-    override func setUpWithError() throws {
+    init() {
         // Setup in memory database
         let config = RLMRealmConfiguration()
         // Use a UUID to create a new/empty database for each test
@@ -24,7 +26,7 @@ class TestBaseRealm: XCTestCase {
         createFakeActiveAccount()
     }
 
-    override func tearDownWithError() throws {
+    deinit {
         // Make sure we correctly remove the fake account again, to clear the capability cache in NCDatabaseManager
         NCDatabaseManager.sharedInstance().removeAccount(withAccountId: TestBaseRealm.fakeAccountId)
     }
@@ -69,5 +71,27 @@ class TestBaseRealm: XCTestCase {
         }
 
         return room
+    }
+
+    /// A small reference-type helper to observe events fired from escaping notification or completion handlers.
+    final class EventTracker {
+        private(set) var signalCount = 0
+        var fired: Bool { signalCount > 0 }
+        func signal() { signalCount += 1 }
+    }
+
+    /// Pumps the run loop until `condition` is satisfied or the timeout elapses.
+    /// Useful for events delivered asynchronously via the run loop (NSNotification) or dispatch queues.
+    /// Returns `true` if the condition was satisfied before the timeout.
+    @discardableResult
+    func wait(timeout: TimeInterval = TestConstants.timeoutShort, until condition: () -> Bool) async -> Bool {
+        let start = Date()
+        while !condition() {
+            if Date().timeIntervalSince(start) >= timeout {
+                return false
+            }
+            try? await Task.sleep(nanoseconds: 5_000_000) // 5ms
+        }
+        return true
     }
 }

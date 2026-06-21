@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Testing
 @testable import NextcloudTalk
 
-final class UnitNCMessageParameterTest: XCTestCase {
+struct UnitNCMessageParameterTest {
 
-    func testMentionIdFromServerLocal() throws {
+    @Test func `mention id from server local`() throws {
         let data = [
             "id": "admin",
             "mention-id": "admin",
@@ -16,22 +16,17 @@ final class UnitNCMessageParameterTest: XCTestCase {
             "type": "user"
         ]
 
-        let parameters = NCMessageParameter(dictionary: data)
+        let parameters = try #require(NCMessageParameter(dictionary: data), "Failed to create message parameters with dictionary")
 
-        guard let parameters else {
-            XCTFail("Failed to create message parameters with dictionary")
-            return
-        }
-
-        XCTAssertEqual(parameters.parameterId, "admin")
-        XCTAssertEqual(parameters.name, "admin displayname")
-        XCTAssertEqual(parameters.mention?.id, "admin")
-        XCTAssertEqual(parameters.mention?.idForChat, "@\"admin\"")
-        XCTAssertEqual(parameters.mention?.label, "admin displayname")
-        XCTAssertEqual(parameters.mention?.labelForChat, "@admin displayname")
+        #expect(parameters.parameterId == "admin")
+        #expect(parameters.name == "admin displayname")
+        #expect(parameters.mention?.id == "admin")
+        #expect(parameters.mention?.idForChat == "@\"admin\"")
+        #expect(parameters.mention?.label == "admin displayname")
+        #expect(parameters.mention?.labelForChat == "@admin displayname")
     }
 
-    func testMentionIdFromServerFederated() throws {
+    @Test func `mention id from server federated`() throws {
         let data = [
             "id": "admin",
             "mention-id": "federated_user/admin@nextcloud.local",
@@ -40,19 +35,14 @@ final class UnitNCMessageParameterTest: XCTestCase {
             "type": "user"
         ]
 
-        let parameters = NCMessageParameter(dictionary: data)
+        let parameters = try #require(NCMessageParameter(dictionary: data), "Failed to create message parameters with dictionary")
 
-        guard let parameters else {
-            XCTFail("Failed to create message parameters with dictionary")
-            return
-        }
-
-        XCTAssertEqual(parameters.parameterId, "admin")
-        XCTAssertEqual(parameters.name, "admin displayname")
-        XCTAssertEqual(parameters.mention?.idForChat, "@\"federated_user/admin@nextcloud.local\"")
+        #expect(parameters.parameterId == "admin")
+        #expect(parameters.name == "admin displayname")
+        #expect(parameters.mention?.idForChat == "@\"federated_user/admin@nextcloud.local\"")
     }
 
-    func testFileMessageParameter() throws {
+    @Test func `file message parameter`() throws {
         let jsonData = """
         {
             "actor": {
@@ -81,29 +71,29 @@ final class UnitNCMessageParameterTest: XCTestCase {
         """
 
         // Parse as NCMessageParameter, does not take something like NCFileMessageParameter into account
-        let messageParameterDict = try XCTUnwrap([String: NCMessageParameter].fromJSONString(jsonData))
-        XCTAssertEqual(messageParameterDict.count, 2)
+        let messageParameterDict = try #require([String: NCMessageParameter].fromJSONString(jsonData))
+        #expect(messageParameterDict.count == 2)
 
-        let fileParameter = try XCTUnwrap(messageParameterDict["file"])
-        XCTAssertEqual(fileParameter.parameterId, "6160")
-        XCTAssertEqual(fileParameter.name, "IMG_0111 (13).jpg")
+        let fileParameter = try #require(messageParameterDict["file"])
+        #expect(fileParameter.parameterId == "6160")
+        #expect(fileParameter.name == "IMG_0111 (13).jpg")
 
         let message = NCChatMessage()
         message.messageParametersJSONString = jsonData
 
-        let messageFile = try XCTUnwrap(message.file())
+        let messageFile = try #require(message.file())
 
-        XCTAssertEqual(messageFile.size, 4127524)
-        XCTAssertEqual(messageFile.path, "Talk/IMG_0111 (13).jpg")
-        XCTAssertEqual(messageFile.mimetype, "image/jpeg")
-        XCTAssertEqual(messageFile.previewAvailable, true)
-        XCTAssertEqual(messageFile.previewAvailable, true)
-        XCTAssertEqual(messageFile.width, 4032)
-        XCTAssertEqual(messageFile.height, 3024)
-        XCTAssertEqual(messageFile.blurhash, "LBC;@m%$%itT?d?J-=-;Q3-=%Np0")
+        #expect(messageFile.size == 4127524)
+        #expect(messageFile.path == "Talk/IMG_0111 (13).jpg")
+        #expect(messageFile.mimetype == "image/jpeg")
+        #expect(messageFile.previewAvailable == true)
+        #expect(messageFile.previewAvailable == true)
+        #expect(messageFile.width == 4032)
+        #expect(messageFile.height == 3024)
+        #expect(messageFile.blurhash == "LBC;@m%$%itT?d?J-=-;Q3-=%Np0")
     }
 
-    func testLegacyFileMessageParameter() throws {
+    @Test func `legacy file message parameter`() throws {
         // In previous versions not all parameters were strings
         // See: https://github.com/nextcloud/spreed/pull/12021
         // See: https://github.com/nextcloud/spreed/pull/13200
@@ -132,17 +122,17 @@ final class UnitNCMessageParameterTest: XCTestCase {
         let message = NCChatMessage()
         message.messageParametersJSONString = jsonData
 
-        let messageFile = try XCTUnwrap(message.file())
+        let messageFile = try #require(message.file())
 
-        XCTAssertEqual(messageFile.parameterId, "6160")
-        XCTAssertEqual(messageFile.size, 4127524)
-        XCTAssertEqual(messageFile.path, "Talk/IMG_0111 (13).jpg")
-        XCTAssertEqual(messageFile.mimetype, "image/jpeg")
-        XCTAssertEqual(messageFile.previewAvailable, true)
-        XCTAssertEqual(messageFile.previewAvailable, true)
-        XCTAssertEqual(messageFile.width, 4032)
-        XCTAssertEqual(messageFile.height, 3024)
-        XCTAssertEqual(messageFile.blurhash, "LBC;@m%$%itT?d?J-=-;Q3-=%Np0")
+        #expect(messageFile.parameterId == "6160")
+        #expect(messageFile.size == 4127524)
+        #expect(messageFile.path == "Talk/IMG_0111 (13).jpg")
+        #expect(messageFile.mimetype == "image/jpeg")
+        #expect(messageFile.previewAvailable == true)
+        #expect(messageFile.previewAvailable == true)
+        #expect(messageFile.width == 4032)
+        #expect(messageFile.height == 3024)
+        #expect(messageFile.blurhash == "LBC;@m%$%itT?d?J-=-;Q3-=%Np0")
     }
 
 }

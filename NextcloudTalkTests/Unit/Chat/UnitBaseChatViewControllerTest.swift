@@ -3,13 +3,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitBaseChatViewControllerTest: TestBaseRealm {
 
-    var baseController: BaseChatViewController!
-    var testMessage: NCChatMessage!
+    // Initialized in `init` because they depend on the active account created by the base class setup.
+    private var baseController: BaseChatViewController!
+    private var testMessage: NCChatMessage!
 
     let fileMessageParameters = """
 {
@@ -35,52 +38,52 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
 }
 """
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override init() {
+        super.init()
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         baseController = BaseChatViewController(forRoom: NCRoom(), withAccount: activeAccount)!
         testMessage = NCChatMessage(dictionary: [:], andAccountId: activeAccount.accountId)
     }
 
-    func testSystemMessageCellHeight() throws {
+    @Test func `system message cell height`() throws {
         testMessage.message = "System Message"
         testMessage.systemMessage = "test_system_message"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 35.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 35.0)
     }
 
-    func testCellHeight() throws {
+    @Test func `cell height`() throws {
         // Normal chat message
         testMessage.message = "test"
         testMessage.messageId = 1
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 101.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 101.0)
 
         // Multiline chat message
         testMessage.message = "test\nasd\nasd"
         testMessage.messageId = 2
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 141.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 141.0)
 
         // Normal chat message with reaction
         testMessage.message = "test"
         testMessage.messageId = 3
         testMessage.setOrUpdateTemporaryReaction("👍", state: .added)
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 141.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 141.0)
     }
 
-    func testGroupedCellHeight() throws {
+    @Test func `grouped cell height`() throws {
         // Grouped chat message
         testMessage.message = "test"
         testMessage.isGroupMessage = true
         testMessage.messageId = 1
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 71.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 71.0)
 
         // Grouped chat message with reaction
         testMessage.messageId = 2
         testMessage.setOrUpdateTemporaryReaction("👍", state: .added)
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 111.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 111.0)
     }
 
-    func testGroupedCellWithQuoteHeight() throws {
+    @Test func `grouped cell with quote height`() throws {
         // Add an existing message to the database
         let existingMessage = NCChatMessage()
         existingMessage.messageId = 1
@@ -95,10 +98,10 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         testMessage.message = "test"
         testMessage.parentId = "internal-1"
         testMessage.isGroupMessage = true
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 171.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 171.0)
     }
 
-    func testCellWithUrlHeight() throws {
+    @Test func `cell with URL height`() throws {
         // Chat message with URL preview
         testMessage.message = "test - https://nextcloud.com"
         testMessage.messageId = 1
@@ -107,15 +110,15 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
             cap.referenceApiSupported = true
         }
 
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 206.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 206.0)
 
         // Test URL with grouped message
         testMessage.isGroupMessage = true
         testMessage.messageId = 2
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 176.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 176.0)
     }
 
-    func testCellWithPollHeight() throws {
+    @Test func `cell with poll height`() throws {
         testMessage.messageParametersJSONString = """
 {
     "actor": {
@@ -132,10 +135,10 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
 """
 
         testMessage.message = "{object}"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 119.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 119.0)
     }
 
-    func testCellWithGeolocationHeight() {
+    @Test func `cell with geolocation height`() {
         testMessage.messageParametersJSONString = """
 {
   "actor": {
@@ -155,33 +158,33 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
 """
 
         testMessage.message = "{object}"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 231.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 231.0)
     }
 
-    func testCellWithFileHeight() {
+    @Test func `cell with file height`() {
         // Test without file caption
         testMessage.messageParametersJSONString = fileMessageParameters
         testMessage.message = "{file}"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 221.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 221.0)
     }
 
-    func testCellWithFileCaptionHeight() {
+    @Test func `cell with file caption height`() {
         testMessage.messageParametersJSONString = fileMessageParameters
         testMessage.message = "File caption..."
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 241.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 241.0)
     }
 
-    func testCellWithFileCaptionUrlHeight() {
+    @Test func `cell with file caption URL height`() {
         updateCapabilities { cap in
             cap.referenceApiSupported = true
         }
 
         testMessage.messageParametersJSONString = fileMessageParameters
         testMessage.message = "File caption... https://nextcloud.com"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 366.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 366.0)
     }
 
-    func testCellWithFileAndQuoteHeight() {
+    @Test func `cell with file and quote height`() {
         testMessage.messageParametersJSONString = fileMessageParameters
         testMessage.message = "File caption..."
 
@@ -196,16 +199,16 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         }
 
         testMessage.parentId = "internal-1"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 311.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 311.0)
     }
 
-    func testCellWithVoiceMessageHeight() {
+    @Test func `cell with voice message height`() {
         testMessage.message = "abc"
         testMessage.messageType = "voice-message"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 133.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 133.0)
     }
 
-    func testCellWithQuoteHeight() throws {
+    @Test func `cell with quote height`() throws {
         // Add an existing message to the database
         let existingMessage = NCChatMessage()
         existingMessage.messageId = 1
@@ -219,7 +222,7 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         // Chat message with a quote
         testMessage.message = "test"
         testMessage.parentId = "internal-1"
-        XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 171.0)
+        #expect(baseController.getCellHeight(for: testMessage, with: 300) == 171.0)
     }
 
 }

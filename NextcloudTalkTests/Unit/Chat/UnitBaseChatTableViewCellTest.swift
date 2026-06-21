@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitBaseChatTableViewCellTest: TestBaseRealm {
 
-    func testSharedDeckCardQuote() throws {
+    @Test func `shared deck card quote`() throws {
         let deckObject = """
 {
     "actor": {

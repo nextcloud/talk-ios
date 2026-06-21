@@ -3,126 +3,138 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
-final class UnitDarwinCenterTest: XCTestCase {
+@Suite(.serialized) @MainActor
+final class UnitDarwinCenterTest {
 
-    override func setUpWithError() throws {
+    private let startedNotification = DarwinNotificationCenter.broadcastStartedNotification
+    private let stoppedNotification = DarwinNotificationCenter.broadcastStoppedNotification
+
+    /// A small reference-type counter that the run-loop-delivered handlers can increment.
+    private final class CallCounter {
+        private(set) var callCount = 0
+        func increment() { callCount += 1 }
+    }
+
+    init() {
         // Reset any remaining handlers for each test
-        for (notificationName, handlerDict) in DarwinNotificationCenter.shared.handlers {
+        let center = DarwinNotificationCenter.shared
+        for (notificationName, handlerDict) in center.handlers {
             for (owner, _) in handlerDict {
-                DarwinNotificationCenter.shared.removeHandler(notificationName: notificationName, owner: owner)
+                center.removeHandler(notificationName: notificationName, owner: owner)
             }
         }
 
-        XCTAssertTrue(DarwinNotificationCenter.shared.handlers.isEmpty)
+        #expect(center.handlers.isEmpty)
     }
 
-    func testDarwinCenterHandlerSingle() throws {
+    /// Darwin notifications are delivered on the run loop, so we need to give it time to run.
+    /// Pumps the run loop until `condition` is satisfied or the timeout elapses.
+    private func wait(timeout: TimeInterval = TestConstants.timeoutShort, until condition: () -> Bool) async {
+        let start = Date()
+        while !condition(), Date().timeIntervalSince(start) < timeout {
+            try? await Task.sleep(nanoseconds: 5_000_000) // 5ms
+        }
+    }
+
+    @Test func `single owner handler lifecycle`() async {
         let center = DarwinNotificationCenter.shared
+        let owner = NSObject()
 
-        let expStarted = expectation(description: "\(#function)\(#line)")
-        let expStopped = expectation(description: "\(#function)\(#line)")
+        let startedCounter = CallCounter()
+        let stoppedCounter = CallCounter()
 
-        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self) {
-            expStarted.fulfill()
+        await confirmation("Started handler is called") { startedConfirm in
+            await confirmation("Stopped handler is called") { stoppedConfirm in
+                center.addHandler(notificationName: startedNotification, owner: owner) {
+                    startedCounter.increment()
+                    startedConfirm()
+                }
+
+                center.addHandler(notificationName: stoppedNotification, owner: owner) {
+                    stoppedCounter.increment()
+                    stoppedConfirm()
+                }
+
+                // Check if the handlers are correctly registered
+                #expect(center.handlers[startedNotification]?.count == 1)
+                #expect(center.handlers[stoppedNotification]?.count == 1)
+
+                // Check if the handlers are correctly called after posting a notification
+                center.postNotification(startedNotification)
+                center.postNotification(stoppedNotification)
+
+                await wait { startedCounter.callCount >= 1 && stoppedCounter.callCount >= 1 }
+            }
         }
-
-        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStoppedNotification, owner: self) {
-            expStopped.fulfill()
-        }
-
-        // Check if the handlers are correctly registered
-        XCTAssertEqual(center.handlers[DarwinNotificationCenter.broadcastStartedNotification]?.count, 1)
-        XCTAssertEqual(center.handlers[DarwinNotificationCenter.broadcastStoppedNotification]?.count, 1)
-
-        // Check if the handlers are correctly called after posting a notification
-        center.postNotification(DarwinNotificationCenter.broadcastStartedNotification)
-        center.postNotification(DarwinNotificationCenter.broadcastStoppedNotification)
-        wait(for: [expStarted, expStopped], timeout: TestConstants.timeoutShort)
 
         // Check if the handlers are correctly cleaned up
-        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self)
-        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStoppedNotification, owner: self)
+        center.removeHandler(notificationName: startedNotification, owner: owner)
+        center.removeHandler(notificationName: stoppedNotification, owner: owner)
 
-        XCTAssertNil(center.handlers[DarwinNotificationCenter.broadcastStartedNotification])
-        XCTAssertNil(center.handlers[DarwinNotificationCenter.broadcastStoppedNotification])
+        #expect(center.handlers[startedNotification] == nil)
+        #expect(center.handlers[stoppedNotification] == nil)
     }
 
-    func testDarwinCenterHandlerMultiple() throws {
+    @Test func `multiple owner handlers`() async {
         let center = DarwinNotificationCenter.shared
 
         let owner1 = NSObject()
-
-        // We need to wait twice for the expectation
-        // 1. Before the handler is removed to ensure it is correctly called
-        // 2. After a notification was posted a second time to ensure the first handler wasn't called multiple times
-        let expSingleStarted = expectation(description: "\(#function)\(#line)")
-        let expSingleStopped = expectation(description: "\(#function)\(#line)")
-        let expSingleStartedEnd = expectation(description: "\(#function)\(#line)")
-        let expSingleStoppedEnd = expectation(description: "\(#function)\(#line)")
-
-        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: owner1) {
-            expSingleStarted.fulfill()
-            expSingleStartedEnd.fulfill()
-        }
-
-        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStoppedNotification, owner: owner1) {
-            expSingleStopped.fulfill()
-            expSingleStoppedEnd.fulfill()
-        }
-
         let owner2 = NSObject()
-        let expStartedSecond = expectation(description: "\(#function)\(#line)")
-        let expStoppedSecond = expectation(description: "\(#function)\(#line)")
 
-        expStartedSecond.expectedFulfillmentCount = 2
-        expStoppedSecond.expectedFulfillmentCount = 2
+        let owner1Started = CallCounter()
+        let owner1Stopped = CallCounter()
+        let owner2Started = CallCounter()
+        let owner2Stopped = CallCounter()
 
-        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: owner2) {
-            expStartedSecond.fulfill()
+        center.addHandler(notificationName: startedNotification, owner: owner1) { owner1Started.increment() }
+        center.addHandler(notificationName: stoppedNotification, owner: owner1) { owner1Stopped.increment() }
+        center.addHandler(notificationName: startedNotification, owner: owner2) { owner2Started.increment() }
+        center.addHandler(notificationName: stoppedNotification, owner: owner2) { owner2Stopped.increment() }
+
+        // Call the handlers a first time, both owners should receive the notifications
+        center.postNotification(startedNotification)
+        center.postNotification(stoppedNotification)
+
+        await wait {
+            owner1Started.callCount >= 1 && owner1Stopped.callCount >= 1 && owner2Started.callCount >= 1 && owner2Stopped.callCount >= 1
         }
-
-        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStoppedNotification, owner: owner2) {
-            expStoppedSecond.fulfill()
-        }
-
-        // Call the handlers a first time
-        center.postNotification(DarwinNotificationCenter.broadcastStartedNotification)
-        center.postNotification(DarwinNotificationCenter.broadcastStoppedNotification)
-
-        wait(for: [expSingleStarted, expSingleStopped], timeout: TestConstants.timeoutShort)
 
         // Remove the handlers of owner1
-        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: owner1)
-        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStoppedNotification, owner: owner1)
+        center.removeHandler(notificationName: startedNotification, owner: owner1)
+        center.removeHandler(notificationName: stoppedNotification, owner: owner1)
 
-        // Call the handlers a second time
-        center.postNotification(DarwinNotificationCenter.broadcastStartedNotification)
-        center.postNotification(DarwinNotificationCenter.broadcastStoppedNotification)
+        // Call the handlers a second time, only owner2 should receive the notifications
+        center.postNotification(startedNotification)
+        center.postNotification(stoppedNotification)
 
-        // Also check the expectations from the first call to make sure, they were only called once and not again
-        // We can't wait for an expectation twice, that's why we use a second expectation
-        wait(for: [expStartedSecond, expStoppedSecond, expSingleStartedEnd, expSingleStoppedEnd], timeout: TestConstants.timeoutShort)
+        await wait { owner2Started.callCount >= 2 && owner2Stopped.callCount >= 2 }
+
+        // Make sure the handlers of owner1 were only called once and not again after they were removed
+        #expect(owner1Started.callCount == 1)
+        #expect(owner1Stopped.callCount == 1)
+        #expect(owner2Started.callCount == 2)
+        #expect(owner2Stopped.callCount == 2)
     }
 
-    func testDarwinCenterUnbalancedRemove() throws {
+    @Test func `unbalanced handler removal`() async {
         let center = DarwinNotificationCenter.shared
+        let owner = NSObject()
 
-        let expStarted = expectation(description: "\(#function)\(#line)")
+        let startedCounter = CallCounter()
 
-        center.addHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self) {
-            expStarted.fulfill()
-        }
+        center.addHandler(notificationName: startedNotification, owner: owner) { startedCounter.increment() }
 
-        center.postNotification(DarwinNotificationCenter.broadcastStartedNotification)
-        wait(for: [expStarted], timeout: TestConstants.timeoutShort)
+        center.postNotification(startedNotification)
+        await wait { startedCounter.callCount >= 1 }
 
         // Remove ourselves twice
-        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self)
-        center.removeHandler(notificationName: DarwinNotificationCenter.broadcastStartedNotification, owner: self)
+        center.removeHandler(notificationName: startedNotification, owner: owner)
+        center.removeHandler(notificationName: startedNotification, owner: owner)
 
-        XCTAssertNil(center.handlers[DarwinNotificationCenter.broadcastStartedNotification])
+        #expect(center.handlers[startedNotification] == nil)
     }
 }

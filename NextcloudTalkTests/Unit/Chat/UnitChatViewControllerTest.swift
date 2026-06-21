@@ -3,12 +3,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitChatViewControllerTest: TestBaseRealm {
 
-    func testExpireMessages() throws {
+    @Test func `expire messages`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Expire Messages Test Room"
         let roomToken = "expToken"
@@ -49,7 +51,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
             realm.add(expMessage2)
         }
 
-        XCTAssertEqual(NCChatMessage.allObjects().count, 2)
+        #expect(NCChatMessage.allObjects().count == 2)
 
         let chatViewController = ChatViewController(forRoom: room, withAccount: activeAccount)!
         let messageArray = [expMessage1, expMessage2].map { NCChatMessage(value: $0) }
@@ -58,18 +60,16 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         chatViewController.removeExpiredMessages()
 
         // Since removeExpiredMessages is dispatched, we need to wait until it was scheduled
-        let exp = expectation(description: "\(#function)\(#line)")
-
-        DispatchQueue.main.async {
-            exp.fulfill()
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                continuation.resume()
+            }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
-
-        XCTAssertEqual(NCChatMessage.allObjects().count, 0)
+        #expect(NCChatMessage.allObjects().firstObject() == nil)
     }
 
-    func testJoinRoomWithEmptyRoomObject() throws {
+    @Test func `join room with empty room object`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "EmptyRoomObject"
         let roomToken = "emptyRoomObject"
@@ -85,12 +85,11 @@ final class UnitChatViewControllerTest: TestBaseRealm {
 
         let chatViewController = ChatViewController(forRoom: room, withAccount: activeAccount)!
 
-        expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
-            XCTAssertNil(notification.userInfo?["error"])
-
-            XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
-
-            return true
+        let joinTracker = EventTracker()
+        let observer = NotificationCenter.default.addObserver(forName: .NCRoomsManagerDidJoinRoom, object: nil, queue: nil) { notification in
+            #expect(notification.userInfo?["error"] == nil)
+            #expect(notification.userInfo?["token"] as? String == roomToken)
+            joinTracker.signal()
         }
 
         let userInfo: [String: Any] = [
@@ -99,37 +98,38 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         ]
 
         NotificationCenter.default.post(name: .NCRoomsManagerDidJoinRoom, object: self, userInfo: userInfo)
+        NotificationCenter.default.removeObserver(observer)
 
-        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+        #expect(joinTracker.fired)
 
-        let exp = expectation(description: "\(#function)\(#line)")
-
-        DispatchQueue.main.async {
-            XCTAssertNotNil(chatViewController.room.token)
-            exp.fulfill()
+        // The room is processed asynchronously on the main queue
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                continuation.resume()
+            }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+        #expect(chatViewController.room.token != nil)
     }
 
-    func testFrequentlyEmojis() throws {
+    @Test func `frequently used emojis`() throws {
         var activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["👍", "❤️", "😂", "😅"])
+        #expect(activeAccount.frequentlyUsedEmojis == ["👍", "❤️", "😂", "😅"])
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "👍", forAccount: activeAccount.accountId)
         activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["👍", "❤️", "😂", "😅"])
+        #expect(activeAccount.frequentlyUsedEmojis == ["👍", "❤️", "😂", "😅"])
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🙈", forAccount: activeAccount.accountId)
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🙈", forAccount: activeAccount.accountId)
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🙈", forAccount: activeAccount.accountId)
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🙈", forAccount: activeAccount.accountId)
         activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["🙈", "👍", "❤️", "😂"])
+        #expect(activeAccount.frequentlyUsedEmojis == ["🙈", "👍", "❤️", "😂"])
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🇫🇮", forAccount: activeAccount.accountId)
         activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["🙈", "🇫🇮", "👍", "❤️"])
+        #expect(activeAccount.frequentlyUsedEmojis == ["🙈", "🇫🇮", "👍", "❤️"])
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🇫🇮", forAccount: activeAccount.accountId)
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🇫🇮", forAccount: activeAccount.accountId)
@@ -137,7 +137,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🇫🇮", forAccount: activeAccount.accountId)
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🇫🇮", forAccount: activeAccount.accountId)
         activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["🇫🇮", "🙈", "👍", "❤️"])
+        #expect(activeAccount.frequentlyUsedEmojis == ["🇫🇮", "🙈", "👍", "❤️"])
 
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "😵‍💫", forAccount: activeAccount.accountId)
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "😵‍💫", forAccount: activeAccount.accountId)
@@ -145,10 +145,10 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🤷‍♂️", forAccount: activeAccount.accountId)
         NCDatabaseManager.sharedInstance().increaseEmojiUsage(forEmoji: "🤷‍♂️", forAccount: activeAccount.accountId)
         activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["🇫🇮", "🙈", "😵‍💫", "🤷‍♂️"])
+        #expect(activeAccount.frequentlyUsedEmojis == ["🇫🇮", "🙈", "😵‍💫", "🤷‍♂️"])
     }
 
-    func testContentInsetAdjustsForOverlayViews() throws {
+    @Test func `content inset adjusts for overlay views`() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = NCRoom()
         room.token = "overlayToken"
@@ -166,7 +166,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
 
         // Initially no overlay -> inset should be 0
         chatViewController.viewDidLayoutSubviews()
-        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 0)
+        #expect(chatViewController.tableView?.contentInset.top == 0)
 
         // Add a ChatOverlayView simulating a pinned message
         let overlayView = ChatOverlayView()
@@ -175,7 +175,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         chatViewController.view.addSubview(overlayView)
 
         chatViewController.viewDidLayoutSubviews()
-        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 80)
+        #expect(chatViewController.tableView?.contentInset.top == 80)
 
         // Add a taller ChatInfoView simulating a retention banner
         let infoView = ChatInfoView()
@@ -185,21 +185,21 @@ final class UnitChatViewControllerTest: TestBaseRealm {
 
         // Should use the tallest overlay
         chatViewController.viewDidLayoutSubviews()
-        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 120)
+        #expect(chatViewController.tableView?.contentInset.top == 120)
 
         // Remove the taller view -> should fall back to the shorter overlay
         infoView.removeFromSuperview()
         chatViewController.viewDidLayoutSubviews()
-        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 80)
+        #expect(chatViewController.tableView?.contentInset.top == 80)
 
         // Hide the remaining overlay via alpha (same as the fade-out animation)
         overlayView.alpha = 0
         chatViewController.viewDidLayoutSubviews()
-        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 0)
+        #expect(chatViewController.tableView?.contentInset.top == 0)
 
         // Remove it fully and confirm inset stays at 0
         overlayView.removeFromSuperview()
         chatViewController.viewDidLayoutSubviews()
-        XCTAssertEqual(chatViewController.tableView?.contentInset.top, 0)
+        #expect(chatViewController.tableView?.contentInset.top == 0)
     }
 }

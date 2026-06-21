@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitNCRoomParticipantTest: TestBaseRealm {
 
     func createRoomParticipant(withDisplayName displayName: String,
@@ -31,7 +33,7 @@ final class UnitNCRoomParticipantTest: TestBaseRealm {
         return participant
     }
 
-    func testSorting() throws {
+    @Test func sorting() throws {
         let team9 = createRoomParticipant(withDisplayName: "9. Team", withActorType: .teams)
         let team8 = createRoomParticipant(withDisplayName: "8. Team", withActorType: .teams)
         let group7 = createRoomParticipant(withDisplayName: "7. Group", withActorType: .group)
@@ -69,10 +71,10 @@ final class UnitNCRoomParticipantTest: TestBaseRealm {
             team8, team9
         ]
 
-        XCTAssertEqual(sorted, expectedParticipants)
+        #expect(sorted == expectedParticipants)
     }
 
-    func testInitWithDictionary() throws {
+    @Test func `init with dictionary`() throws {
         let dataJson = """
             {
                     "roomToken": "tok3n",
@@ -102,18 +104,18 @@ final class UnitNCRoomParticipantTest: TestBaseRealm {
         let participantdict = try JSONSerialization.jsonObject(with: dataJson.data(using: .utf8)!) as! [String: Any]
         let participant = NCRoomParticipant(dictionary: participantdict)
 
-        XCTAssertEqual(participant.attendeeId, 72)
-        XCTAssertEqual(participant.actorId, "admin")
-        XCTAssertEqual(participant.actorType, .user)
-        XCTAssertEqual(participant.participantType, .owner)
-        XCTAssertEqual(participant.displayName, "admin")
-        XCTAssertEqual(participant.lastPing, 1761683745)
-        XCTAssertEqual(participant.sessionIds?[0], "session1")
-        XCTAssertEqual(participant.sessionIds?[1], "session2")
-        XCTAssertEqual(participant.inCall, [.inCall, .withAudio, .withVideo])
-        XCTAssertEqual(participant.status, "busy")
-        XCTAssertEqual(participant.statusIcon, "💬")
-        XCTAssertEqual(participant.statusMessage, "In a call")
+        #expect(participant.attendeeId == 72)
+        #expect(participant.actorId == "admin")
+        #expect(participant.actorType == .user)
+        #expect(participant.participantType == .owner)
+        #expect(participant.displayName == "admin")
+        #expect(participant.lastPing == 1761683745)
+        #expect(participant.sessionIds?[0] == "session1")
+        #expect(participant.sessionIds?[1] == "session2")
+        #expect(participant.inCall == [.inCall, .withAudio, .withVideo])
+        #expect(participant.status == "busy")
+        #expect(participant.statusIcon == "💬")
+        #expect(participant.statusMessage == "In a call")
     }
 
 }

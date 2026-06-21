@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class UnitNCDatabaseManager: TestBaseRealm {
 
-    func testSavingExternalSignalingVersion() throws {
+    @Test func `saving external signaling version`() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let testVersion = "Test version"
         let testVersionUpdated = "Test version updated"
@@ -18,15 +19,15 @@ final class UnitNCDatabaseManager: TestBaseRealm {
         }
 
         var capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-        XCTAssertEqual(capabilities?.externalSignalingServerVersion, testVersion)
+        #expect(capabilities?.externalSignalingServerVersion == testVersion)
 
         NCDatabaseManager.sharedInstance().setExternalSignalingServerVersion(testVersionUpdated, forAccountId: activeAccount.accountId)
 
         capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)
-        XCTAssertEqual(capabilities?.externalSignalingServerVersion, testVersionUpdated)
+        #expect(capabilities?.externalSignalingServerVersion == testVersionUpdated)
     }
 
-    func testRoomsForAccount() throws {
+    @Test func `rooms for account`() throws {
         let nonFavOld = addRoom(withToken: "NonFavOld") { room in
             room.lastActivity = 100
         }
@@ -52,11 +53,11 @@ final class UnitNCDatabaseManager: TestBaseRealm {
         let rooms = NCDatabaseManager.sharedInstance().roomsForAccountId(activeAccount.accountId, withRealm: nil)
         let expectedOrder = [favNew, favOld, nonFavNew, nonFavOld]
 
-        XCTAssertEqual(rooms.count, 4)
+        #expect(rooms.count == 4)
 
         // Check if the order is correct
         for (index, element) in rooms.enumerated() {
-            XCTAssertEqual(expectedOrder[index].token, element.token)
+            #expect(expectedOrder[index].token == element.token)
         }
     }
 }
