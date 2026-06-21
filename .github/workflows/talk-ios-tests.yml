@@ -24,16 +24,16 @@ permissions:
 
 env:
   WORKSPACE: NextcloudTalk.xcworkspace
-  DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.5
-  SIMULATOR_MODEL: iPhone 16
-  SIMULATOR_VERSION: "18.5"
+  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
+  SIMULATOR_MODEL: iPhone 17
+  SIMULATOR_VERSION: "26.5"
   SCHEME: NextcloudTalk
-  XCODE_VERSION: "26.2"
+  XCODE_VERSION: "26.5"
 
 jobs:
   build:
     name: Build
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       # Workaround for eliminating iOS 17 simulators stalling issue
@@ -97,7 +97,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: macos-15
+    runs-on: macos-26
     needs: [build]
 
     strategy:
