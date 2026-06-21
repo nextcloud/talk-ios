@@ -73,6 +73,8 @@ import NextcloudKit
                 }
             case 507:
                 completion(507, "User storage quota exceeded")
+            case 429:
+                completion(429, "Too many requests")
             default:
                 completion(NSInteger(error.errorCode), "Failed to upload voice message with error code: \(error.errorCode)" as NSString)
             }
