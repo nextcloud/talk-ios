@@ -3,13 +3,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationNCCallController: TestBase {
 
-    func testCallJoinLeave() async throws {
+    @Test func `call join leave`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "NCCallController", withAccount: activeAccount)
         let roomController = try await joinRoom(withToken: room.token, withAccount: activeAccount)
@@ -18,23 +19,24 @@ final class IntegrationNCCallController: TestBase {
         let callController = NCCallController(delegate: callControllerDelegate, room: room, account: activeAccount, isAudioOnly: false, userSessionId: roomController.userSessionId, voiceChatMode: true)
 
         callController.startCall()
-        await fulfillment(of: [callControllerDelegate.expectationDidJoin], timeout: TestConstants.timeoutShort)
+        let didJoin = await wait(timeout: TestConstants.timeoutShort) { callControllerDelegate.didJoinCall }
+        #expect(didJoin)
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getPeersForCall(inRoom: room.token, forAccount: activeAccount) { peers, error, statusCode in
-            XCTAssertEqual(statusCode, 0)
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getPeersForCall(inRoom: room.token, forAccount: activeAccount) { peers, error, statusCode in
+                #expect(statusCode == 0)
+                #expect(error == nil)
 
-            // Check if we find our own session in the call
-            XCTAssertTrue(peers!.contains(where: { ($0 as [String: Any])["sessionId"] as! String == roomController.userSessionId }))
+                // Check if we find our own session in the call
+                #expect(peers!.contains(where: { ($0 as [String: Any])["sessionId"] as! String == roomController.userSessionId }))
 
-            exp.fulfill()
+                continuation.resume()
+            }
         }
 
-        await fulfillment(of: [exp])
-
         callController.leaveCall(forAll: true)
-        await fulfillment(of: [callControllerDelegate.expectationDidEndCall], timeout: TestConstants.timeoutShort)
+        let didEnd = await wait(timeout: TestConstants.timeoutShort) { callControllerDelegate.didEndCall }
+        #expect(didEnd)
     }
 
 }

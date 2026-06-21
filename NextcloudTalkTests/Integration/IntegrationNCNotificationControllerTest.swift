@@ -3,49 +3,46 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationNCNotificationControllerTest: TestBase {
 
-    func testNotificationsSelfTest() async throws {
+    @Test func `notifications self test`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if !NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(kNotificationsCapabilityTestPush, forAccountId: activeAccount.accountId) {
-            throw XCTSkip("Missing 'test-push' capability of notifications app")
+            try Test.cancel("Missing 'test-push' capability of notifications app")
         }
 
         let returnsNotificationIdOnTestPush = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)!.versionMajor >= 32
 
         // Create a self-test notification
-        let (message, notificationId) = try await NCAPIController.sharedInstance().testPushnotifications(forAccount: activeAccount)
-        XCTAssertNotEqual(message, "")
+        let (message, optionalNotificationId) = try await NCAPIController.sharedInstance().testPushnotifications(forAccount: activeAccount)
+        #expect(!message.isEmpty)
 
         if !returnsNotificationIdOnTestPush {
             return
         }
 
-        guard returnsNotificationIdOnTestPush, let notificationId else {
-            XCTFail("Did not receive notificationId, but expected it")
-            return
-        }
+        let notificationId = try #require(optionalNotificationId, "Did not receive notificationId, but expected it")
 
         // Try to retrieve the created notification
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getServerNotification(withId: notificationId, forAccount: activeAccount) { notification, _, error in
-            XCTAssertEqual(notification?.notificationId, notificationId)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getServerNotification(withId: notificationId, forAccount: activeAccount) { notification, _, error in
+                #expect(notification?.notificationId == notificationId)
 
-            // Check the existance of the notification
-            NCAPIController.sharedInstance().checkNotificationExistance(withIds: [notificationId], forAccount: activeAccount) { notification, error in
-                XCTAssertNotNil((notification?.first(where: { $0 == notificationId })))
-                XCTAssertNil(error)
+                // Check the existance of the notification
+                NCAPIController.sharedInstance().checkNotificationExistance(withIds: [notificationId], forAccount: activeAccount) { notification, error in
+                    #expect(notification?.first(where: { $0 == notificationId }) != nil)
+                    #expect(error == nil)
 
-                exp.fulfill()
+                    continuation.resume()
+                }
             }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
 
         // Use our own delegate, as we would otherwise immediately remove the notification in NCNotificationController
         let notificationCenterDelegate = UNNotificationCenterDelegateMock()
@@ -64,7 +61,7 @@ final class IntegrationNCNotificationControllerTest: TestBase {
 
         // Check that the notification was correctly delivered
         var deliveredNotifications = await UNUserNotificationCenter.current().deliveredNotifications()
-        XCTAssertTrue(deliveredNotifications.contains(where: { $0.request.content.userInfo[intForKey: "notificationId"] == notificationId }))
+        #expect(deliveredNotifications.contains(where: { $0.request.content.userInfo[intForKey: "notificationId"] == notificationId }))
 
         // Remove the notification from the server
         try await NCAPIController.sharedInstance().deleteServerNotification(withId: notificationId, forAccount: activeAccount)
@@ -72,7 +69,7 @@ final class IntegrationNCNotificationControllerTest: TestBase {
         // Check if we remove the notification correctly (e.g. in a background-fetch)
         try await NCNotificationController.sharedInstance().checkNotificationExistance()
         deliveredNotifications = await UNUserNotificationCenter.current().deliveredNotifications()
-        XCTAssertEqual(deliveredNotifications.count, 0)
+        #expect(deliveredNotifications.isEmpty)
     }
 
 }

@@ -3,13 +3,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationNCSignalingControllerTest: TestBase {
 
-    func testSendingSignalingMessage() async throws {
+    @Test func `sending signaling message`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "NCSignalingController", withAccount: activeAccount)
         let roomController = try await joinRoom(withToken: room.token, withAccount: activeAccount)
@@ -25,21 +26,20 @@ final class IntegrationNCSignalingControllerTest: TestBase {
 
         try await NCAPIController.sharedInstance().sendSignalingMessages(jsonDataString, toRoom: room.token, forAccount: activeAccount)
 
-        let expPull = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().pullSignalingMessages(fromRoom: room.token, forAccount: activeAccount) { messages, error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().pullSignalingMessages(fromRoom: room.token, forAccount: activeAccount) { messages, error in
+                #expect(error == nil)
 
-            XCTAssertNotNil(messages!.contains(where: {
-                guard let data = $0["data"] as? [String: AnyObject] else { return false }
+                #expect(messages!.contains(where: {
+                    guard let data = $0["data"] as? [String: AnyObject] else { return false }
 
-                let payload = data["payload"] as! [String: AnyObject]
-                return payload["action"] as! String == "testAction"
-            }))
+                    let payload = data["payload"] as! [String: AnyObject]
+                    return payload["action"] as! String == "testAction"
+                }))
 
-            expPull.fulfill()
+                continuation.resume()
+            }
         }
-
-        await fulfillment(of: [expPull], timeout: TestConstants.timeoutShort)
     }
 
 }

@@ -3,39 +3,39 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationUserStatus: TestBase {
 
-    func testUserStatus() async throws {
+    @Test func `user status`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if !NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)!.userStatus {
-            throw XCTSkip("Only test when user-status is supported server-side")
+            try Test.cancel("Only test when user-status is supported server-side")
         }
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().setUserStatus(kUserStatusOnline, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().setUserStatus(kUserStatusOnline, forAccount: activeAccount) { error in
+                #expect(error == nil)
 
-            NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { userStatus in
-                XCTAssertEqual(userStatus?.status, kUserStatusOnline)
+                NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { userStatus in
+                    #expect(userStatus?.status == kUserStatusOnline)
 
-                NCAPIController.sharedInstance().setUserStatus(kUserStatusInvisible, forAccount: activeAccount) { error in
-                    XCTAssertNil(error)
+                    NCAPIController.sharedInstance().setUserStatus(kUserStatusInvisible, forAccount: activeAccount) { error in
+                        #expect(error == nil)
 
-                    NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { userStatus in
-                        XCTAssertEqual(userStatus?.status, kUserStatusInvisible)
+                        NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { userStatus in
+                            #expect(userStatus?.status == kUserStatusInvisible)
 
-                        exp.fulfill()
+                            continuation.resume()
+                        }
                     }
                 }
             }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
 }

@@ -3,284 +3,241 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationRoomTest: TestBase {
 
-    func testRoomList() throws {
+    @Test func `room list`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: false, modifiedSince: 0) { rooms, error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: false, modifiedSince: 0) { rooms, error in
+                #expect(error == nil)
 
-            // By default, the room list should never be empty, it should contain atleast the talk changelog room
-            XCTAssertGreaterThan(rooms?.count ?? 0, 0)
+                // By default, the room list should never be empty, it should contain atleast the talk changelog room
+                #expect((rooms?.count ?? 0) > 0)
 
-            exp.fulfill()
+                continuation.resume()
+            }
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func testRoomCreationAndDeletion() throws {
+    @Test func `room creation and deletion`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Integration Test Room " + UUID().uuidString
 
-        let exp = expectation(description: "\(#function)\(#line)")
+        await withCheckedContinuation { continuation in
+            // Create a room
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { _, error in
+                #expect(error == nil)
 
-        // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { _, error in
-            XCTAssertNil(error)
+                self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
 
-            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                    // Delete the room again
+                    NCAPIController.sharedInstance().deleteRoom(room!.token, forAccount: activeAccount) { error in
+                        #expect(error == nil)
 
-                // Delete the room again
-                NCAPIController.sharedInstance().deleteRoom(room!.token, forAccount: activeAccount) { error in
-                    XCTAssertNil(error)
-
-                    self.checkRoomNotExists(roomName: roomName, withAccount: activeAccount) {
-                        exp.fulfill()
+                        self.checkRoomNotExists(roomName: roomName, withAccount: activeAccount) {
+                            continuation.resume()
+                        }
                     }
                 }
             }
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func testNonExistantOneToOneCreation() throws {
+    @Test func `non existant one to one creation`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let exp = expectation(description: "\(#function)\(#line)")
 
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: "non-existant-userid", ofType: .oneToOne, andName: nil) { room, error in
-            XCTAssertNil(room)
-            XCTAssertEqual(error?.responseStatusCode, 404)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: "non-existant-userid", ofType: .oneToOne, andName: nil) { room, error in
+                #expect(room == nil)
+                #expect(error?.responseStatusCode == 404)
 
-            // Not supported on older versions
-            if NCDatabaseManager.sharedInstance().serverCapabilities()!.versionMajor >= 31 {
-                XCTAssertEqual(error?.errorKey, "invite")
+                // Not supported on older versions
+                if NCDatabaseManager.sharedInstance().serverCapabilities()!.versionMajor >= 31 {
+                    #expect(error?.errorKey == "invite")
+                }
+
+                continuation.resume()
             }
-
-            exp.fulfill()
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func testRoomDescription() throws {
+    @Test func `room description`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Description Test Room " + UUID().uuidString
         let roomDescription = "This is a room description"
 
-        let exp = expectation(description: "\(#function)\(#line)")
-
-        var roomToken = ""
-
         // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
-            XCTAssertNil(error)
-
-            roomToken = room?.token ?? ""
-
-            exp.fulfill()
-        }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
-        let expDescription = expectation(description: "\(#function)\(#line)")
-
-        // Set a description
-        NCAPIController.sharedInstance().setRoomDescription(roomDescription, forRoom: roomToken, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
-
-            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
-                XCTAssertEqual(room?.roomDescription, roomDescription)
-                expDescription.fulfill()
+        let roomToken: String = await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
+                #expect(error == nil)
+                continuation.resume(returning: room?.token ?? "")
             }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+        // Set a description
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().setRoomDescription(roomDescription, forRoom: roomToken, forAccount: activeAccount) { error in
+                #expect(error == nil)
+
+                self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                    #expect(room?.roomDescription == roomDescription)
+                    continuation.resume()
+                }
+            }
+        }
     }
 
-    func testRoomRename() throws {
+    @Test func `room rename`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Rename Test Room " + UUID().uuidString
         let roomNameNew = "\(roomName)- New"
 
-        let exp = expectation(description: "\(#function)\(#line)")
-
-        var roomToken = ""
-
         // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
-            XCTAssertNil(error)
-
-            roomToken = room?.token ?? ""
-
-            exp.fulfill()
-        }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
-        let expNewName = expectation(description: "\(#function)\(#line)")
-
-        // Set a new name
-        NCAPIController.sharedInstance().renameRoom(roomToken, forAccount: activeAccount, withName: roomNameNew) { error in
-            XCTAssertNil(error)
-
-            self.checkRoomExists(roomName: roomNameNew, withAccount: activeAccount) { room in
-                XCTAssertEqual(room?.displayName, roomNameNew)
-                expNewName.fulfill()
+        let roomToken: String = await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
+                #expect(error == nil)
+                continuation.resume(returning: room?.token ?? "")
             }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
+        // Set a new name
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().renameRoom(roomToken, forAccount: activeAccount, withName: roomNameNew) { error in
+                #expect(error == nil)
+
+                self.checkRoomExists(roomName: roomNameNew, withAccount: activeAccount) { room in
+                    #expect(room?.displayName == roomNameNew)
+                    continuation.resume()
+                }
+            }
+        }
     }
 
-    func testRoomPublicPrivate() throws {
+    @Test func `room public private`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "PublicPrivate Test Room " + UUID().uuidString
 
-        var exp = expectation(description: "\(#function)\(#line)")
-        var roomToken = ""
-
         // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .group, andName: roomName) { room, error in
-            XCTAssertNil(error)
-
-            roomToken = room?.token ?? ""
-            XCTAssert(room?.type == .group)
-
-            exp.fulfill()
+        let roomToken: String = await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .group, andName: roomName) { room, error in
+                #expect(error == nil)
+                #expect(room?.type == .group)
+                continuation.resume(returning: room?.token ?? "")
+            }
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
 
         // Make room public
-        exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().makeRoomPublic(roomToken, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().makeRoomPublic(roomToken, forAccount: activeAccount) { error in
+                #expect(error == nil)
 
-            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
-                XCTAssertNil(error)
+                NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
+                    #expect(error == nil)
 
-                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
-                XCTAssertNotNil(room)
-                XCTAssert(room?.type == .public)
+                    let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
+                    #expect(room != nil)
+                    #expect(room?.type == .public)
 
-                exp.fulfill()
+                    continuation.resume()
+                }
             }
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
 
         // Make room private again
-        exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().makeRoomPrivate(roomToken, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().makeRoomPrivate(roomToken, forAccount: activeAccount) { error in
+                #expect(error == nil)
 
-            NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
-                XCTAssertNil(error)
+                NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { roomDict, error in
+                    #expect(error == nil)
 
-                let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
-                XCTAssertNotNil(room)
-                XCTAssert(room?.type == .group)
+                    let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId)
+                    #expect(room != nil)
+                    #expect(room?.type == .group)
 
-                exp.fulfill()
+                    continuation.resume()
+                }
             }
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func testRoomPassword() throws {
+    @Test func `room password`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Password Test Room " + UUID().uuidString
 
-        var exp = expectation(description: "\(#function)\(#line)")
-        var roomToken = ""
-
         // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
-            XCTAssertNil(error)
-
-            roomToken = room?.token ?? ""
-
-            exp.fulfill()
+        let roomToken: String = await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
+                #expect(error == nil)
+                continuation.resume(returning: room?.token ?? "")
+            }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
         // Set a password
-        exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().setPassword("1234", forRoom: roomToken, forAccount: activeAccount) { error, _  in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().setPassword("1234", forRoom: roomToken, forAccount: activeAccount) { error, _  in
+                #expect(error == nil)
 
-            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
-                XCTAssertTrue(room?.hasPassword ?? false)
+                self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                    #expect(room?.hasPassword ?? false)
 
-                // Remove password again
-                NCAPIController.sharedInstance().setPassword("", forRoom: roomToken, forAccount: activeAccount) { error, _ in
-                    XCTAssertNil(error)
+                    // Remove password again
+                    NCAPIController.sharedInstance().setPassword("", forRoom: roomToken, forAccount: activeAccount) { error, _ in
+                        #expect(error == nil)
 
-                    self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
-                        XCTAssertFalse(room?.hasPassword ?? true)
+                        self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                            #expect(!(room?.hasPassword ?? true))
 
-                        exp.fulfill()
+                            continuation.resume()
+                        }
                     }
                 }
             }
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func testRoomFavorite() throws {
+    @Test func `room favorite`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let roomName = "Favorite Test Room " + UUID().uuidString
 
-        var exp = expectation(description: "\(#function)\(#line)")
-        var roomToken = ""
-
         // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
-            XCTAssertNil(error)
-
-            roomToken = room?.token ?? ""
-
-            exp.fulfill()
+        let roomToken: String = await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: roomName) { room, error in
+                #expect(error == nil)
+                continuation.resume(returning: room?.token ?? "")
+            }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
-
         // Set as favorite
-        exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().addRoomToFavorites(roomToken, forAccount: activeAccount) { error  in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().addRoomToFavorites(roomToken, forAccount: activeAccount) { error  in
+                #expect(error == nil)
 
-            self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
-                XCTAssertTrue(room?.isFavorite ?? false)
+                self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                    #expect(room?.isFavorite ?? false)
 
-                // Remove from favorite
-                NCAPIController.sharedInstance().removeRoomFromFavorites(roomToken, forAccount: activeAccount) { error in
-                    XCTAssertNil(error)
+                    // Remove from favorite
+                    NCAPIController.sharedInstance().removeRoomFromFavorites(roomToken, forAccount: activeAccount) { error in
+                        #expect(error == nil)
 
-                    self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
-                        XCTAssertFalse(room?.isFavorite ?? true)
+                        self.checkRoomExists(roomName: roomName, withAccount: activeAccount) { room in
+                            #expect(!(room?.isFavorite ?? true))
 
-                        exp.fulfill()
+                            continuation.resume()
+                        }
                     }
                 }
             }
         }
-
-        waitForExpectations(timeout: TestConstants.timeoutLong, handler: nil)
     }
 
-    func testRoomImportantConversation() async throws {
+    @Test func `room important conversation`() async throws {
         try skipWithoutCapability(capability: kCapabilityImportantConversations)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -288,14 +245,14 @@ final class IntegrationRoomTest: TestBase {
 
         // Set to important
         var updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: true, forRoom: room.token, forAccount: activeAccount)
-        XCTAssertTrue(try XCTUnwrap(updatedRoom).isImportant)
+        #expect(try #require(updatedRoom).isImportant)
 
         // Set to unimportant again
         updatedRoom = try await NCAPIController.sharedInstance().setImportantState(enabled: false, forRoom: room.token, forAccount: activeAccount)
-        XCTAssertFalse(try XCTUnwrap(updatedRoom).isImportant)
+        #expect(!(try #require(updatedRoom).isImportant))
     }
 
-    func testRoomSensitiveConversation() async throws {
+    @Test func `room sensitive conversation`() async throws {
         try skipWithoutCapability(capability: kCapabilitySensitiveConversations)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -306,87 +263,86 @@ final class IntegrationRoomTest: TestBase {
         let message = "SensitiveTestMessage"
 
         // Send a message
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, displayName: "", replyTo: 0, referenceId: "", silently: false, for: activeAccount) { error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, displayName: "", replyTo: 0, referenceId: "", silently: false, for: activeAccount) { error in
+                #expect(error == nil)
 
-            let chatController = NCChatController(for: room)!
-            chatController.updateHistoryInBackground { _ in
-                exp.fulfill()
+                let chatController = NCChatController(for: room)!
+                chatController.updateHistoryInBackground { _ in
+                    continuation.resume()
+                }
             }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
          */
 
         // Set to sensitive
         var updatedRoom = try await NCAPIController.sharedInstance().setSensitiveState(enabled: true, forRoom: room.token, forAccount: activeAccount)
-        XCTAssertTrue(try XCTUnwrap(updatedRoom).isSensitive)
+        #expect(try #require(updatedRoom).isSensitive)
 
         // Set to non-sensitive again
         updatedRoom = try await NCAPIController.sharedInstance().setSensitiveState(enabled: false, forRoom: room.token, forAccount: activeAccount)
-        XCTAssertFalse(try XCTUnwrap(updatedRoom).isSensitive)
+        #expect(!(try #require(updatedRoom).isSensitive))
     }
 
-    func testRoomNotificationSettings() async throws {
+    @Test func `room notification settings`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "NotificationConversation", withAccount: activeAccount)
 
         // Test chat notification levels
         _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .always, forRoom: room.token, forAccount: activeAccount)
         var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.always)
+        #expect(try #require(updatedRoom).notificationLevel == NCRoomNotificationLevel.always)
 
         _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .mention, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.mention)
+        #expect(try #require(updatedRoom).notificationLevel == NCRoomNotificationLevel.mention)
 
         _ = await NCAPIController.sharedInstance().setNotificationLevel(level: .never, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationLevel, NCRoomNotificationLevel.never)
+        #expect(try #require(updatedRoom).notificationLevel == NCRoomNotificationLevel.never)
 
         // Test call notification setting
         _ = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: false, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationCalls, false)
+        #expect(try #require(updatedRoom).notificationCalls == false)
 
         _ = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: true, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).notificationCalls, true)
+        #expect(try #require(updatedRoom).notificationCalls == true)
     }
 
-    func testRoomSettings() async throws {
+    @Test func `room settings`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "SettingConversation", withAccount: activeAccount)
 
         // Read only state
         try await NCAPIController.sharedInstance().setReadOnlyState(state: .readOnly, forRoom: room.token, forAccount: activeAccount)
         var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).readOnlyState, .readOnly)
+        #expect(try #require(updatedRoom).readOnlyState == .readOnly)
 
         try await NCAPIController.sharedInstance().setReadOnlyState(state: .readWrite, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).readOnlyState, .readWrite)
+        #expect(try #require(updatedRoom).readOnlyState == .readWrite)
 
         // Lobby state
         try await NCAPIController.sharedInstance().setLobbyState(state: .moderatorsOnly, withTimer: 0, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyState, .moderatorsOnly)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyTimer, 0)
+        #expect(try #require(updatedRoom).lobbyState == .moderatorsOnly)
+        #expect(try #require(updatedRoom).lobbyTimer == 0)
 
         let timestamp = Int(Date().timeIntervalSince1970 + 3600)
         try await NCAPIController.sharedInstance().setLobbyState(state: .moderatorsOnly, withTimer: timestamp, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyState, .moderatorsOnly)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyTimer, timestamp)
+        #expect(try #require(updatedRoom).lobbyState == .moderatorsOnly)
+        #expect(try #require(updatedRoom).lobbyTimer == timestamp)
 
         try await NCAPIController.sharedInstance().setLobbyState(state: .allParticipants, withTimer: 0, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyState, .allParticipants)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).lobbyTimer, 0)
+        #expect(try #require(updatedRoom).lobbyState == .allParticipants)
+        #expect(try #require(updatedRoom).lobbyTimer == 0)
     }
 
-    func testRoomListable() async throws {
+    @Test func `room listable`() async throws {
         try skipWithoutCapability(capability: kCapabilityListableRooms)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -394,14 +350,14 @@ final class IntegrationRoomTest: TestBase {
 
         try await NCAPIController.sharedInstance().setListableScope(scope: .regularUsersOnly, forRoom: room.token, forAccount: activeAccount)
         var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).listable, .regularUsersOnly)
+        #expect(try #require(updatedRoom).listable == .regularUsersOnly)
 
         try await NCAPIController.sharedInstance().setListableScope(scope: .participantsOnly, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).listable, .participantsOnly)
+        #expect(try #require(updatedRoom).listable == .participantsOnly)
     }
 
-    func testRoomMessageExpiration() async throws {
+    @Test func `room message expiration`() async throws {
         try skipWithoutCapability(capability: kCapabilityMessageExpiration)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -409,14 +365,14 @@ final class IntegrationRoomTest: TestBase {
 
         try await NCAPIController.sharedInstance().setMessageExpiration(messageExpiration: .expiration1Day, forRoom: room.token, forAccount: activeAccount)
         var updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).messageExpiration, .expiration1Day)
+        #expect(try #require(updatedRoom).messageExpiration == .expiration1Day)
 
         try await NCAPIController.sharedInstance().setMessageExpiration(messageExpiration: .expirationOff, forRoom: room.token, forAccount: activeAccount)
         updatedRoom = try await NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: room.token)
-        XCTAssertEqual(try XCTUnwrap(updatedRoom).messageExpiration, .expirationOff)
+        #expect(try #require(updatedRoom).messageExpiration == .expirationOff)
     }
 
-    func testRoomParticipants() async throws {
+    @Test func `room participants`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "ParticipantConversation", withAccount: activeAccount)
 
@@ -424,59 +380,59 @@ final class IntegrationRoomTest: TestBase {
         try await NCAPIController.sharedInstance().addParticipant("alice", ofType: "users", toRoom: room.token, forAccount: activeAccount)
         var participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
 
-        let participantAlice = try XCTUnwrap(participants.first(where: { $0.displayName == "alice" }))
+        let participantAlice = try #require(participants.first(where: { $0.displayName == "alice" }))
 
         // Promote alice to moderator
         try await NCAPIController.sharedInstance().changeModerationPermission(forAttendeeId: participantAlice.attendeeId, withType: .promoteToModerator, inRoom: room.token, forAccount: activeAccount)
         participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
 
-        XCTAssertTrue(participants.contains { $0.displayName == "alice" && $0.canModerate })
+        #expect(participants.contains { $0.displayName == "alice" && $0.canModerate })
 
         // Demote alice to participant
         try await NCAPIController.sharedInstance().changeModerationPermission(forAttendeeId: participantAlice.attendeeId, withType: .demoteToParticipant, inRoom: room.token, forAccount: activeAccount)
         participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: activeAccount)
 
-        XCTAssertTrue(participants.contains { $0.displayName == "alice" && !$0.canModerate })
+        #expect(participants.contains { $0.displayName == "alice" && !$0.canModerate })
 
         // Also check that the test user is in the room and correctly identified as the app user
-        XCTAssertTrue(participants.contains { $0.displayName == "admin" && $0.isAppUser })
+        #expect(participants.contains { $0.displayName == "admin" && $0.isAppUser })
 
         // Try to remove admin which should fail, as admin is the last moderator
         do {
             try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: activeAccount)
-            XCTFail("OcsError expected")
+            Issue.record("OcsError expected")
         } catch {
-            let error = try XCTUnwrap(error as? OcsError)
-            XCTAssertEqual(error.responseStatusCode, 400)
+            let error = try #require(error as? OcsError)
+            #expect(error.responseStatusCode == 400)
 
             // Not supported on older versions
             if NCDatabaseManager.sharedInstance().serverCapabilities()!.versionMajor >= 31 {
-                XCTAssertEqual(error.errorKey, "last-moderator")
+                #expect(error.errorKey == "last-moderator")
             }
         }
     }
 
-    func testBotManagement() async throws {
+    @Test func `bot management`() async throws {
         try skipWithoutCapability(capability: kCapabilityBotV1)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "BotConversation", withAccount: activeAccount)
 
         let botList = try await NCAPIController.sharedInstance().getBots(forRoom: room.token, forAccount: activeAccount)
-        XCTAssertEqual(botList.count, 1)
+        #expect(botList.count == 1)
 
-        let bot = try XCTUnwrap(botList.first)
-        XCTAssertEqual(bot.name, "TestBot")
-        XCTAssertEqual(bot.description, "New description")
-        XCTAssertEqual(bot.state, .disabled)
+        let bot = try #require(botList.first)
+        #expect(bot.name == "TestBot")
+        #expect(bot.description == "New description")
+        #expect(bot.state == .disabled)
 
         let enabledBot = try await NCAPIController.sharedInstance().enableBot(withId: bot.id, forRoom: room.token, forAccount: activeAccount)
-        XCTAssertEqual(enabledBot?.name, "TestBot")
-        XCTAssertEqual(enabledBot?.state, .enabled)
+        #expect(enabledBot?.name == "TestBot")
+        #expect(enabledBot?.state == .enabled)
 
         let disabledBot = try await NCAPIController.sharedInstance().disableBot(withId: bot.id, forRoom: room.token, forAccount: activeAccount)
-        XCTAssertEqual(disabledBot?.name, "TestBot")
-        XCTAssertEqual(disabledBot?.state, .disabled)
+        #expect(disabledBot?.name == "TestBot")
+        #expect(disabledBot?.state == .disabled)
     }
 
 }

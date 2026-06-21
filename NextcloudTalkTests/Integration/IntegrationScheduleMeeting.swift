@@ -3,30 +3,26 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationScheduleMeeting: TestBase {
 
-    func testScheduleMeeting() async throws {
+    @Test func `schedule meeting`() async throws {
         try skipWithoutCapability(capability: kCapabilityScheduleMeeting)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "Schedule Meeting", withAccount: activeAccount)
 
-        var firstCalendar: NCCalendar!
-        var exp = expectation(description: "\(#function)\(#line)")
-
-        NCAPIController.sharedInstance().getCalendars(forAccount: activeAccount) { calendars in
-            firstCalendar = calendars.first!
-            exp.fulfill()
+        let firstCalendar: NCCalendar = await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getCalendars(forAccount: activeAccount) { calendars in
+                continuation.resume(returning: calendars.first!)
+            }
         }
 
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
-
-        exp = expectation(description: "\(#function)\(#line)")
-        exp.expectedFulfillmentCount = 4
+        let responseTracker = EventTracker()
 
         NCAPIController.sharedInstance().createMeeting(
             account: activeAccount,
@@ -37,8 +33,8 @@ final class IntegrationScheduleMeeting: TestBase {
             end: Int(Date().timeIntervalSince1970 + 120),
             calendarUri: firstCalendar.calendarUri,
             attendeeIds: nil) { response in
-                XCTAssertEqual(response, .success)
-                exp.fulfill()
+                #expect(response == .success)
+                responseTracker.signal()
             }
 
         NCAPIController.sharedInstance().createMeeting(
@@ -50,8 +46,8 @@ final class IntegrationScheduleMeeting: TestBase {
             end: Int(Date().timeIntervalSince1970),
             calendarUri: firstCalendar.calendarUri,
             attendeeIds: nil) { response in
-                XCTAssertEqual(response, .startError)
-                exp.fulfill()
+                #expect(response == .startError)
+                responseTracker.signal()
             }
 
         NCAPIController.sharedInstance().createMeeting(
@@ -63,8 +59,8 @@ final class IntegrationScheduleMeeting: TestBase {
             end: Int(Date().timeIntervalSince1970 - 60),
             calendarUri: firstCalendar.calendarUri,
             attendeeIds: nil) { response in
-                XCTAssertEqual(response, .endError)
-                exp.fulfill()
+                #expect(response == .endError)
+                responseTracker.signal()
             }
 
         NCAPIController.sharedInstance().createMeeting(
@@ -76,10 +72,11 @@ final class IntegrationScheduleMeeting: TestBase {
             end: Int(Date().timeIntervalSince1970 + 120),
             calendarUri: "abc",
             attendeeIds: nil) { response in
-                XCTAssertEqual(response, .calendarError)
-                exp.fulfill()
+                #expect(response == .calendarError)
+                responseTracker.signal()
             }
 
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+        let allResponded = await wait(timeout: TestConstants.timeoutShort) { responseTracker.signalCount == 4 }
+        #expect(allResponded)
     }
 }

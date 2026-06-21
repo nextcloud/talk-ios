@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
 enum TestCaseError: Error {
     case expectedValueNotFound
 }
 
-extension XCTestCase {
+extension TestBase {
 
     // TODO: This should probably be part of APIController
     func getRoomDict(from rawRoomDict: [Any], for account: TalkAccount) -> [NCRoom] {
@@ -27,11 +27,11 @@ extension XCTestCase {
 
     func checkRoomExists(roomName: String, withAccount account: TalkAccount, completion: ((NCRoom?) -> Void)? = nil) {
         NCAPIController.sharedInstance().getRooms(forAccount: account, updateStatus: false, modifiedSince: 0) { roomsDict, error in
-            XCTAssertNil(error)
+            #expect(error == nil)
 
             let rooms = self.getRoomDict(from: roomsDict!, for: account)
             let room = rooms.first(where: { $0.displayName == roomName })
-            XCTAssertNotNil(room)
+            #expect(room != nil)
 
             completion?(room)
         }
@@ -39,11 +39,11 @@ extension XCTestCase {
 
     func checkRoomNotExists(roomName: String, withAccount account: TalkAccount, completion: (() -> Void)? = nil) {
         NCAPIController.sharedInstance().getRooms(forAccount: account, updateStatus: false, modifiedSince: 0) { roomsDict, error in
-            XCTAssertNil(error)
+            #expect(error == nil)
 
             let rooms = self.getRoomDict(from: roomsDict!, for: account)
             let room = rooms.first(where: { $0.displayName == roomName })
-            XCTAssertNil(room)
+            #expect(room == nil)
 
             completion?()
         }
@@ -59,27 +59,30 @@ extension XCTestCase {
                     return
                 }
 
-                XCTAssertEqual(roomName, room?.displayName)
+                #expect(roomName == room?.displayName)
                 continuation.resume(returning: room!)
             }
         }
     }
 
     func joinRoom(withToken token: String, withAccount account: TalkAccount) async throws -> NCRoomController {
-        let exp = expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
-            XCTAssertNil(notification.userInfo?["error"])
-            XCTAssertNil(notification.userInfo?["statusCode"])
-            XCTAssertNil(notification.userInfo?["errorReason"])
+        let joinTracker = EventTracker()
+        let observer = NotificationCenter.default.addObserver(forName: .NCRoomsManagerDidJoinRoom, object: nil, queue: nil) { notification in
+            #expect(notification.userInfo?["error"] == nil)
+            #expect(notification.userInfo?["statusCode"] == nil)
+            #expect(notification.userInfo?["errorReason"] == nil)
 
-            XCTAssertEqual(notification.userInfo?[stringForKey: "token"], token)
+            #expect(notification.userInfo?[stringForKey: "token"] == token)
 
-            return true
+            joinTracker.signal()
         }
 
         NCRoomsManager.shared.joinRoom(token, forAccountId: account.accountId, forCall: false)
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+        let joined = await wait(timeout: TestConstants.timeoutShort) { joinTracker.fired }
+        NotificationCenter.default.removeObserver(observer)
+        #expect(joined)
 
-        return try XCTUnwrap(NCRoomsManager.shared.activeRooms[token])
+        return try #require(NCRoomsManager.shared.activeRooms[token])
     }
 
     struct ReceiveMessageDetails {
@@ -118,7 +121,7 @@ extension XCTestCase {
                         let chatMessage = NCChatMessage(dictionary: dictMessage, andAccountId: account.accountId)!
 
                         if chatMessage.message == message {
-                            XCTAssertEqual(chatMessage.token, token)
+                            #expect(chatMessage.token == token)
                             let details = ReceiveMessageDetails(lastKnownMessage: lastKnownMessage, lastCommonReadMessage: lastCommonReadMessage, statusCode: statusCode)
                             continuation.resume(returning: (chatMessage, details))
 
@@ -133,13 +136,10 @@ extension XCTestCase {
     }
 
     func skipWithoutCapability(capability: String) throws {
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
+        _ = try #require(NCDatabaseManager.sharedInstance().serverCapabilities(), "Capabilities are missing")
 
-        guard serverCapabilities != nil else {
-            XCTFail("Capabilities are missing")
-            return
+        if !NCDatabaseManager.sharedInstance().serverHasTalkCapability(capability) {
+            try Test.cancel("Capability \(capability) not available -> skipping")
         }
-
-        try XCTSkipIf(!NCDatabaseManager.sharedInstance().serverHasTalkCapability(capability), "Capability \(capability) not available -> skipping")
     }
 }

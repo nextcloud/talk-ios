@@ -3,44 +3,44 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationCapabilities: TestBase {
 
-    func testCapabilitiesServerUrl() async throws {
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getServerCapabilities(forServer: TestConstants.server) { serverCapabilities, error in
-            XCTAssertNil(error)
+    @Test func `capabilities server URL`() async {
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getServerCapabilities(forServer: TestConstants.server) { serverCapabilities, error in
+                #expect(error == nil)
 
-            let capabilities = serverCapabilities!["capabilities"] as! [AnyHashable: Any]
+                let capabilities = serverCapabilities!["capabilities"] as! [AnyHashable: Any]
 
-            // No core for guests
-            // XCTAssertNotNil(capabilities["core"])
-            XCTAssertNotNil(capabilities["spreed"])
+                // No core for guests
+                // #expect(capabilities["core"] != nil)
+                #expect(capabilities["spreed"] != nil)
 
-            exp.fulfill()
+                continuation.resume()
+            }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
-    func testCapabilitiesAccount() async throws {
+    @Test func `capabilities account`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getServerCapabilities(forAccount: activeAccount) { serverCapabilities, error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getServerCapabilities(forAccount: activeAccount) { serverCapabilities, error in
+                #expect(error == nil)
 
-            let capabilities = serverCapabilities!["capabilities"] as! [AnyHashable: Any]
+                let capabilities = serverCapabilities!["capabilities"] as! [AnyHashable: Any]
 
-            XCTAssertNotNil(capabilities["core"])
-            XCTAssertNotNil(capabilities["spreed"])
-            exp.fulfill()
+                #expect(capabilities["core"] != nil)
+                #expect(capabilities["spreed"] != nil)
+
+                continuation.resume()
+            }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
 }

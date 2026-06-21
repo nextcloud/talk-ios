@@ -3,58 +3,57 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationSettingsTest: TestBase {
 
-    func testReadPrivacy() async throws {
+    @Test func `read privacy`() async throws {
         try skipWithoutCapability(capability: kCapabilityChatReadStatus)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let accountId = activeAccount.accountId
 
         // Don't check initial state here, as otherwise the tests are not repeatable
-        // XCTAssertFalse(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.readStatusPrivacy)
+        // #expect(!NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.readStatusPrivacy)
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(true, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().setReadStatusPrivacySettingEnabled(true, forAccount: activeAccount) { error in
+                #expect(error == nil)
 
-            NCSettingsController.sharedInstance().getCapabilitiesForAccountId(accountId) { error in
-                XCTAssertNil(error)
+                NCSettingsController.sharedInstance().getCapabilitiesForAccountId(accountId) { error in
+                    #expect(error == nil)
 
-                XCTAssertTrue(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.readStatusPrivacy)
-                exp.fulfill()
+                    #expect(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.readStatusPrivacy)
+                    continuation.resume()
+                }
             }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
-    func testTypingPrivacy() async throws {
+    @Test func `typing privacy`() async throws {
         try skipWithoutCapability(capability: kCapabilityTypingIndicators)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let accountId = activeAccount.accountId
 
         // Don't check initial state here, as otherwise the tests are not repeatable
-        // XCTAssertFalse(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.typingPrivacy)
+        // #expect(!NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.typingPrivacy)
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(true, forAccount: activeAccount) { error in
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().setTypingPrivacySettingEnabled(true, forAccount: activeAccount) { error in
+                #expect(error == nil)
 
-            NCSettingsController.sharedInstance().getCapabilitiesForAccountId(accountId) { error in
-                XCTAssertNil(error)
+                NCSettingsController.sharedInstance().getCapabilitiesForAccountId(accountId) { error in
+                    #expect(error == nil)
 
-                XCTAssertTrue(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.typingPrivacy)
-                exp.fulfill()
+                    #expect(NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId)!.typingPrivacy)
+                    continuation.resume()
+                }
             }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
 }

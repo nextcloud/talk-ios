@@ -3,21 +3,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
 @testable import NextcloudTalk
 
 class NCCallControllerDelegateMock: NSObject, NCCallControllerDelegate {
 
-    public var expectationDidJoin = XCTestExpectation(description: "DidJoin")
-    public var expectationDidEndCall = XCTestExpectation(description: "DidEndCall")
+    public private(set) var didJoinCall = false
+    public private(set) var didEndCall = false
 
     func callControllerDidJoinCall(_ callController: NCCallController) {
-        expectationDidJoin.fulfill()
+        didJoinCall = true
     }
 
     func callControllerDidEndCall(_ callController: NCCallController) {
-        expectationDidEndCall.fulfill()
+        didEndCall = true
     }
 
     func callControllerDidFailedJoiningCall(_ callController: NCCallController, statusCode: Int, errorReason: String) {

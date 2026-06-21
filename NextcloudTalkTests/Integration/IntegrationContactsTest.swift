@@ -3,47 +3,46 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationContactsTest: TestBase {
 
-    func testGetContacts() async throws {
+    @Test func `get contacts`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().getContacts(forAccount: activeAccount, forRoom: nil, forGroupRoom: false, withSearchParam: nil) { contacts, error in
-            XCTAssertNotNil(contacts)
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getContacts(forAccount: activeAccount, forRoom: nil, forGroupRoom: false, withSearchParam: nil) { contacts, error in
+                #expect(contacts != nil)
+                #expect(error == nil)
 
-            XCTAssertTrue(contacts!.contains(where: { $0.userId == "alice" }))
+                #expect(contacts!.contains(where: { $0.userId == "alice" }))
 
-            exp.fulfill()
+                continuation.resume()
+            }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
-    func testSearchUsers() async throws {
+    @Test func `search users`() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if !NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: activeAccount.accountId)!.absenceSupported {
             // When testing against Nextcloud 23, an internal server error is thrown, as we do not provide the 'itemType' parameter
-            throw XCTSkip("Only test when absence (OOO) is supported server-side")
+            try Test.cancel("Only test when absence (OOO) is supported server-side")
         }
 
-        let exp = expectation(description: "\(#function)\(#line)")
-        NCAPIController.sharedInstance().searchUsers(forAccount: activeAccount, withSearchParam: nil) { contacts, error in
-            XCTAssertNotNil(contacts)
-            XCTAssertNil(error)
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().searchUsers(forAccount: activeAccount, withSearchParam: nil) { contacts, error in
+                #expect(contacts != nil)
+                #expect(error == nil)
 
-            XCTAssertTrue(contacts!.contains(where: { $0.userId == "alice" }))
+                #expect(contacts!.contains(where: { $0.userId == "alice" }))
 
-            exp.fulfill()
+                continuation.resume()
+            }
         }
-
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
 }

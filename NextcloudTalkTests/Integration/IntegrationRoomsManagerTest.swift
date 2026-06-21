@@ -3,93 +3,97 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import XCTest
 import Foundation
+import Testing
 @testable import NextcloudTalk
 
+@Suite(.serialized)
 final class IntegrationRoomsManagerTest: TestBase {
 
-    func testJoinNonExistantRoom() throws {
+    @Test func `join non existant room`() async {
         let roomToken = "nonexistantToken"
 
-        expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
-            XCTAssertEqual(NCRoomsManager.shared.joiningAttempts, 3)
+        let joinTracker = EventTracker()
+        let observer = NotificationCenter.default.addObserver(forName: .NCRoomsManagerDidJoinRoom, object: nil, queue: nil) { notification in
+            #expect(NCRoomsManager.shared.joiningAttempts == 3)
 
-            XCTAssertNotNil(notification.userInfo?["error"])
-            XCTAssertNotNil(notification.userInfo?["statusCode"])
-            XCTAssertNotNil(notification.userInfo?["errorReason"])
+            #expect(notification.userInfo?["error"] != nil)
+            #expect(notification.userInfo?["statusCode"] != nil)
+            #expect(notification.userInfo?["errorReason"] != nil)
 
-            XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
+            #expect(notification.userInfo?["token"] as? String == roomToken)
 
             // There's no NCRoomController when joining fails
-            XCTAssertNil(notification.userInfo?["roomController"])
+            #expect(notification.userInfo?["roomController"] == nil)
 
-            return true
+            joinTracker.signal()
         }
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCRoomsManager.shared.joinRoom(roomToken, forAccountId: activeAccount.accountId, forCall: false)
 
-        waitForExpectations(timeout: TestConstants.timeoutShort)
+        let joinFailed = await wait(timeout: TestConstants.timeoutShort) { joinTracker.fired }
+        NotificationCenter.default.removeObserver(observer)
+        #expect(joinFailed)
     }
 
-    func testJoinLeaveExistantRoom() throws {
+    @Test func `join leave existant room`() async {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        var roomToken = ""
-
-        let exp = expectation(description: "\(#function)\(#line)")
 
         // Create a room
-        NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: "Test Join Room") { room, error in
-            XCTAssertNil(error)
-
-            roomToken = room?.token ?? ""
-
-            exp.fulfill()
+        let roomToken: String = await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(forAccount: activeAccount, withInvite: nil, ofType: .public, andName: "Test Join Room") { room, error in
+                #expect(error == nil)
+                continuation.resume(returning: room?.token ?? "")
+            }
         }
 
-        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+        // Observe the DidJoinRoom notification
+        let joinTracker = EventTracker()
+        let joinObserver = NotificationCenter.default.addObserver(forName: .NCRoomsManagerDidJoinRoom, object: nil, queue: nil) { notification in
+            #expect(NCRoomsManager.shared.joiningAttempts == 0)
 
-        // Setup expectations for the DidJoinRoom notification
-        expectation(forNotification: .NCRoomsManagerDidJoinRoom, object: nil) { notification -> Bool in
-            XCTAssertEqual(NCRoomsManager.shared.joiningAttempts, 0)
+            #expect(notification.userInfo?["error"] == nil)
+            #expect(notification.userInfo?["statusCode"] == nil)
+            #expect(notification.userInfo?["errorReason"] == nil)
 
-            XCTAssertNil(notification.userInfo?["error"])
-            XCTAssertNil(notification.userInfo?["statusCode"])
-            XCTAssertNil(notification.userInfo?["errorReason"])
-
-            XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
+            #expect(notification.userInfo?["token"] as? String == roomToken)
 
             // Check if the NCRoomController was correctly added to the activeRooms dictionary
-            XCTAssertNotNil(NCRoomsManager.shared.activeRooms[roomToken])
+            #expect(NCRoomsManager.shared.activeRooms[roomToken] != nil)
 
             // When successfully joined, the NCRoomController should be included in the notification
-            XCTAssertNotNil(notification.userInfo?["roomController"])
+            #expect(notification.userInfo?["roomController"] != nil)
 
-            return true
+            joinTracker.signal()
         }
 
         // Try to join the room
         NCRoomsManager.shared.joinRoom(roomToken, forAccountId: activeAccount.accountId, forCall: false)
 
-        waitForExpectations(timeout: TestConstants.timeoutShort)
+        let joined = await wait(timeout: TestConstants.timeoutShort) { joinTracker.fired }
+        NotificationCenter.default.removeObserver(joinObserver)
+        #expect(joined)
 
-        // Setup expectations for the DidLeaveRoom notification
-        expectation(forNotification: .NCRoomsManagerDidLeaveRoom, object: nil) { notification -> Bool in
-            XCTAssertNil(notification.userInfo?["error"])
+        // Observe the DidLeaveRoom notification
+        let leaveTracker = EventTracker()
+        let leaveObserver = NotificationCenter.default.addObserver(forName: .NCRoomsManagerDidLeaveRoom, object: nil, queue: nil) { notification in
+            #expect(notification.userInfo?["error"] == nil)
 
-            XCTAssertEqual(notification.userInfo?["token"] as! String, roomToken)
+            #expect(notification.userInfo?["token"] as? String == roomToken)
 
             // Check if the NCRoomController was correctly removed from the activeRooms dictionary
-            XCTAssertNil(NCRoomsManager.shared.activeRooms[roomToken])
+            #expect(NCRoomsManager.shared.activeRooms[roomToken] == nil)
 
-            return true
+            leaveTracker.signal()
         }
 
         // Try to leave the room
         NCRoomsManager.shared.leaveChat(inRoom: roomToken, forAccount: activeAccount)
 
-        waitForExpectations(timeout: TestConstants.timeoutShort)
+        let left = await wait(timeout: TestConstants.timeoutShort) { leaveTracker.fired }
+        NotificationCenter.default.removeObserver(leaveObserver)
+        #expect(left)
     }
 
 }
