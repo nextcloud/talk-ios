@@ -135,7 +135,7 @@ final class UIRoomTest: XCTestCase {
 
         // Send a test message
         let testMessage = "TestMessage"
-        let toolbar = app.toolbars["Toolbar"]
+        let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
         textView.tap()
@@ -203,9 +203,7 @@ final class UIRoomTest: XCTestCase {
         let testMessage = "TestMessage"
         let replyMessage = "ReplyMessage"
 
-        // Note: This will not work as of 26.3, the TextView cannot be found, as long as it is inside of an UIToolbar
-        // When switching UIToolbar -> UIView the TextView is correctly found
-        let toolbar = app.toolbars["Toolbar"]
+        let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
         textView.tap()
@@ -241,7 +239,7 @@ final class UIRoomTest: XCTestCase {
         self.createConversation(for: app, with: newConversationName)
 
         // Select a mention
-        let toolbar = app.toolbars["Toolbar"]
+        let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
         textView.tap()
@@ -346,7 +344,7 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(!shareButton.exists)
 
         // Check that there's no inputbar
-        let toolbar = app.toolbars["Toolbar"]
+        let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(!textView.exists)
     }
@@ -385,7 +383,7 @@ final class UIRoomTest: XCTestCase {
 
         // Verify that we cannot send messages (no chat permission)
         // The toolbar/text input should not be present when user cannot chat
-        let toolbar = app.toolbars["Toolbar"]
+        let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssertFalse(textView.exists, "Text input should not exist when user cannot chat")
     }

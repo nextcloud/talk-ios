@@ -105,7 +105,6 @@ import UIKit
             self.textInputbar.counterStyle = .countdownReversed
         }
 
-        self.textInputbar.isTranslucent = false
         self.textInputbar.semanticContentAttribute = .forceLeftToRight
         self.textInputbar.contentInset = .init(top: 8, left: 4, bottom: 8, right: 4)
         self.textView.textContainerInset = .init(top: 8, left: 8, bottom: 8, right: 8)
@@ -148,8 +147,6 @@ import UIKit
         self.textView.layer.borderWidth = 1.0
         self.textView.layer.borderColor = UIColor.systemGray4.cgColor
 
-        // Hide default top border of UIToolbar
-        self.textInputbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         self.textView.delegate = self
 
         self.autoCompletionView.register(AutoCompletionTableViewCell.self, forCellReuseIdentifier: AutoCompletionTableViewCell.identifier)
