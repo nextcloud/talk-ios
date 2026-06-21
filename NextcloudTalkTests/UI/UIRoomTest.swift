@@ -101,6 +101,7 @@ final class UIRoomTest: XCTestCase {
         chatTitleView.tap()
 
         // Wait for admin participant to be visible (so participant list is loaded)
+        app.swipeUp()
         XCTAssert(app.staticTexts["admin"].waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Leave open conversation
