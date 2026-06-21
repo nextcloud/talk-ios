@@ -28,7 +28,7 @@ env:
   SIMULATOR_MODEL: iPhone 16
   SIMULATOR_VERSION: "18.5"
   SCHEME: NextcloudTalk
-  XCODE_VERSION: "26.2"
+  XCODE_VERSION: "26.4"
 
 jobs:
   build:
