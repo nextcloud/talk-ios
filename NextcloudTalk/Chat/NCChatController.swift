@@ -1018,16 +1018,16 @@ public class NCChatController: NSObject {
             self.checkLastCommonReadMessage(lastCommonReadMessage)
 
             if error?.underlyingError.code != NSURLErrorCancelled {
-                let shouldStartLongPolling = statusCode == 304
+                let chatIsUpToDate = statusCode == 304
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
 
-                if shouldStartLongPolling, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
+                if chatIsUpToDate, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
                     print("Chat is up to date, now processing new messages from the chat relay")
                     self.startProcessingChatRelayMessages()
                     return
                 }
 
-                self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: shouldStartLongPolling)
+                self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: chatIsUpToDate)
             }
         }
     }
