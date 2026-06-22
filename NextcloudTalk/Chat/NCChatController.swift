@@ -556,8 +556,7 @@ public class NCChatController: NSObject {
                 selfReactions = parsed
             }
 
-            let selfIsActor = message.actorType == "users" && message.actorId == account.userId
-            if selfIsActor, let emoji = message.message, !emoji.isEmpty {
+            if message.isMessage(from: account.userId), let emoji = message.message, !emoji.isEmpty {
                 if message.systemMessage == "reaction" && !selfReactions.contains(emoji) {
                     selfReactions.append(emoji)
                 } else if message.systemMessage == "reaction_revoked" {

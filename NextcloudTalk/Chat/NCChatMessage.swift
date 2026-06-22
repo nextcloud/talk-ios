@@ -57,6 +57,20 @@ import SwiftyAttributes
         return self.actorType == "users" && self.actorId == userId
     }
 
+    // Whether the message's "user" parameter (e.g. the target of a moderator promotion/demotion)
+    // refers to the given user.
+    public func userParameterRefersTo(_ userId: String) -> Bool {
+        guard let userParameter = NCMessageParameter(dictionary: self.messageParameters["user"] as? [String: Any]) else {
+            return false
+        }
+        return userParameter.type == "user" && userParameter.parameterId == userId
+    }
+
+    // Whether the message was sent by the command line (e.g. an administrator action).
+    public var isFromCommandLine: Bool {
+        return self.actorId == "cli" && self.actorType == "guests"
+    }
+
     public func isDeletable(for account: TalkAccount, in room: NCRoom) -> Bool {
         guard !self.isDeleting else { return false }
 
