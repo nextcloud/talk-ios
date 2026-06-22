@@ -210,8 +210,9 @@ public class NCChatController: NSObject {
             }
 
             if message.isThreadCreatedMessage {
-                let thread = NCThread.createThread(from: message, andAccountId: message.accountId ?? account.accountId)
-                realm.add(thread)
+                if let thread = NCThread.createThread(from: message, andAccountId: message.accountId ?? account.accountId) {
+                    realm.add(thread)
+                }
             } else if message.isThreadMessage() {
                 NCThread.updateThread(withThreadMessage: message)
             }

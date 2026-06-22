@@ -1495,7 +1495,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
-            if let threads = ocs?.dataArrayDict?.map({ NCThread(dictionary: $0, andAccountId: accountId) }), !threads.isEmpty {
+            if let threads = ocs?.dataArrayDict?.compactMap({ NCThread(dictionary: $0, andAccountId: accountId) }), !threads.isEmpty {
                 NCThread.storeOrUpdateThreads(threads)
                 completionBlock(threads)
             } else {
@@ -1522,7 +1522,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             if let error = ocsError?.underlyingError {
                 completionBlock(nil, error)
-            } else if let threads = ocsResponse?.dataArrayDict?.map({ NCThread(dictionary: $0, andAccountId: accountId) }) {
+            } else if let threads = ocsResponse?.dataArrayDict?.compactMap({ NCThread(dictionary: $0, andAccountId: accountId) }) {
                 NCThread.storeOrUpdateThreads(threads)
 
                 NCDatabaseManager.sharedInstance().updateHasThreads(forAccountId: accountId, with: !threads.isEmpty)

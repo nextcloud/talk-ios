@@ -21,7 +21,7 @@
     return @"internalId";
 }
 
-+ (instancetype)threadWithDictionary:(NSDictionary *)threadInfoDict andAccountId:(NSString *)accountId
++ (nullable instancetype)threadWithDictionary:(NSDictionary *)threadInfoDict andAccountId:(NSString *)accountId
 {
     if (!threadInfoDict || ![threadInfoDict isKindOfClass:[NSDictionary class]]) {
         return nil;
@@ -51,7 +51,7 @@
     return thread;
 }
 
-+ (instancetype)createThreadFromMessage:(NCChatMessage *)message andAccountId:(NSString *)accountId
++ (nullable instancetype)createThreadFromMessage:(NCChatMessage *)message andAccountId:(NSString *)accountId
 {
     if (![message.systemMessage isEqualToString:@"thread_created"]) {
         return nil;
