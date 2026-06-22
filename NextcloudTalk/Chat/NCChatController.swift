@@ -519,7 +519,7 @@ public class NCChatController: NSObject {
     private func storableDict(forChatRelayMessage message: NCChatMessage, withDict messageDict: [String: Any]) -> [String: Any]? {
         // Messages with file/object attachments carry parameters that don't match the chat API response
         // (e.g. file path and link), so they always need to be fetched over the chat API.
-        if message.hasFileParameter {
+        if message.file() != nil {
             print("A message received over the chat relay has a file attachment, fetching it from the chat API instead")
             return nil
         }

@@ -49,12 +49,6 @@ import SwiftyAttributes
         return self.messageType == kMessageTypeVoiceMessage
     }
 
-    // Whether the message carries a file/media attachment (file, file2, …). Unlike `file()`, this
-    // is also true for messages with multiple file parameters.
-    public var hasFileParameter: Bool {
-        return self.messageParameters.keys.contains { ($0 as? String)?.hasPrefix("file") ?? false }
-    }
-
     public var isCommandMessage: Bool {
         return self.messageType == kMessageTypeCommand
     }
