@@ -24,16 +24,16 @@ permissions:
 
 env:
   WORKSPACE: NextcloudTalk.xcworkspace
-  DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=18.5
-  SIMULATOR_MODEL: iPhone 16
-  SIMULATOR_VERSION: "18.5"
+  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
+  SIMULATOR_MODEL: iPhone 17
+  SIMULATOR_VERSION: "26.5"
   SCHEME: NextcloudTalk
-  XCODE_VERSION: "26.2"
+  XCODE_VERSION: "26.5"
 
 jobs:
   build:
     name: Build
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       # Workaround for eliminating iOS 17 simulators stalling issue
@@ -73,11 +73,6 @@ jobs:
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
 
-    - name: Install iOS ${{ env.SIMULATOR_VERSION }}
-      run: |
-        xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
-        xcodebuild -downloadPlatform iOS -buildVersion ${{ env.SIMULATOR_VERSION }}
-
     - name: Build NextcloudTalk iOS for testing
       run: |
         set -o pipefail && \
@@ -97,7 +92,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: macos-15
+    runs-on: macos-26
     needs: [build]
 
     strategy:
@@ -233,11 +228,6 @@ jobs:
       uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
-
-    - name: Install iOS ${{ env.SIMULATOR_VERSION }}
-      run: |
-        xcrun simctl list > /dev/null # Required to prevent the next command from sometimes not working
-        xcodebuild -downloadPlatform iOS -buildVersion ${{ env.SIMULATOR_VERSION }}
 
     - name: Boot simulator
       uses: futureware-tech/simulator-action@e89aa8f93d3aec35083ff49d2854d07f7186f7f5 # v5.0.0
