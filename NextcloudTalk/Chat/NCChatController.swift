@@ -491,6 +491,15 @@ public class NCChatController: NSObject {
             return
         }
 
+        // The backend used to send an incorrect messageId for reaction_revoked system messages, so
+        // we catch up over the chat API instead of rendering them from the relay payload. This is
+        // fixed server-side in https://github.com/nextcloud/spreed/pull/18363, so we can remove this
+        // check after some time, once users have had a chance to upgrade their instances.
+        if message.systemMessage == "reaction_revoked" {
+            triggerChatRelayCatchUp()
+            return
+        }
+
         let lastChatBlock = chatBlocksForRoomOrThread().last
         let lastNewestMessageId = lastChatBlock?.newestMessageId ?? 0
 
