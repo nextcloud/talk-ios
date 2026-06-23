@@ -1052,7 +1052,10 @@ public class NCChatController: NSObject {
     }
 
     public func stopReceivingNewChatMessages() {
-        chatRelayState = .inactive
+        // Reset on the relay queue to keep all chatRelayState access on a single queue.
+        chatRelayMessagesQueue?.async {
+            self.chatRelayState = .inactive
+        }
         stopChatMessagesPoll = true
         pullMessagesTask?.cancel()
     }
