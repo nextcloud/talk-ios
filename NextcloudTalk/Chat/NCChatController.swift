@@ -679,10 +679,24 @@ public class NCChatController: NSObject {
         let lastChatBlock = chatBlocksForRoomOrThread().last
         let storedMessages = getNewStoredMessages(inBlock: lastChatBlock, sinceMessageId: messageId)
 
+        guard !storedMessages.isEmpty else { return }
+
+        // We still get the new messages from the queue of the caller, so the lookup stays ordered
+        // with the stores (relay messages are stored on chat.relay.message.queue and looking them
+        // up on main could race with later stores and post duplicates). The notifications should
+        // be posted on the main thread since the observers perform UI work.
+        if Thread.isMainThread {
+            notify(forNewMessages: storedMessages)
+        } else {
+            DispatchQueue.main.async {
+                self.notify(forNewMessages: storedMessages)
+            }
+        }
+    }
+
+    private func notify(forNewMessages storedMessages: [NCChatMessage]) {
         var userInfo: [AnyHashable: Any] = [:]
         userInfo["room"] = room.token
-
-        guard !storedMessages.isEmpty else { return }
 
         for message in storedMessages {
             // Notify if "call started" have been received
