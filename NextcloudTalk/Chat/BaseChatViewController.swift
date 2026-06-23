@@ -2126,6 +2126,10 @@ import Toast
                     NSLog("User storage quota exceeded")
                     NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""),
                                                   withMessage: NSLocalizedString("User storage quota exceeded", comment: ""))
+                case 429:
+                    NSLog("Too many requests while uploading")
+                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""),
+                                                  withMessage: NSLocalizedString("Too many requests, please try again later", comment: ""))
                 default:
                     NSLog("Failed upload voice message with error code \(statusCode)")
                     NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("Unknown error occurred", comment: ""))

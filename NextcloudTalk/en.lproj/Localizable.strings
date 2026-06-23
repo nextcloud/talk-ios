@@ -2348,6 +2348,9 @@
 /* Remind me tomorrow about that message */
 "Tomorrow" = "Tomorrow";
 
+/* No comment provided by engineer. */
+"Too many requests, please try again later" = "Too many requests, please try again later";
+
 /* TRANSLATORS this is for transcribing a voice message to text */
 "Transcribe" = "Transcribe";
 
