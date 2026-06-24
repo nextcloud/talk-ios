@@ -64,6 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
             autoreleasepool {
                 NCLog.removeOldLogfiles()
                 SDImageCache.shared.diskCache.removeExpiredData()
+                NCAPIController.giphyImageCache.diskCache.removeExpiredData()
                 NCSettingsController.sharedInstance().createAccountsFile()
 
                 for account in NCDatabaseManager.sharedInstance().allAccounts() {

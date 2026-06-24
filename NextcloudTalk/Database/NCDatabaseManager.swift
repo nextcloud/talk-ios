@@ -595,6 +595,7 @@ public extension Notification.Name {
         let notificationsCaps = serverCaps?["notifications"] as? [String: Any]
         let davCaps = serverCaps?["dav"] as? [String: Any]
         let passwordPolicyCaps = serverCaps?["password_policy"] as? [String: Any]
+        let giphyCaps = serverCaps?["integration_giphy"] as? [String: Any]
 
         let capabilities = ServerCapabilities()
         capabilities.accountId = accountId
@@ -629,6 +630,8 @@ public extension Notification.Name {
         capabilities.setValue(notificationsCaps?["ocs-endpoints"] as? [String] ?? [], forKey: "notificationsCapabilities")
         capabilities.passwordPolicyGenerateAPIEndpoint = (passwordPolicyCaps?["api"] as? [String: Any])?["generate"] as? String ?? ""
         capabilities.passwordPolicyValidateAPIEndpoint = (passwordPolicyCaps?["api"] as? [String: Any])?["validate"] as? String ?? ""
+        capabilities.giphyEnabled = (giphyCaps?["enabled"] as? NSNumber)?.boolValue ?? false
+        capabilities.giphyConfigured = (giphyCaps?["configured"] as? NSNumber)?.boolValue ?? false
 
         if let sharingPolicy = (passwordPolicyCaps?["policies"] as? [String: Any])?["sharing"] as? [String: Any] {
             capabilities.passwordPolicyMinLength = (sharingPolicy["minLength"] as? NSNumber)?.intValue ?? 0
