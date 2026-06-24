@@ -42,6 +42,9 @@ public class NCChatController: NSObject {
     private var chatRelayMessagesQueue: DispatchQueue?
     private var externalSignalingController: NCExternalSignalingController?
 
+    // Debounces the read-marker requests we issue while receiving messages over the chat relay. Only accessed on the main queue.
+    private var setReadMarkerWorkItem: DispatchWorkItem?
+
     public init!(for room: NCRoom) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId) else { return nil }
 
@@ -517,11 +520,47 @@ public class NCChatController: NSObject {
             return
         }
 
-        updateLastChatBlock(withNewestKnown: message.messageId)
-        storeMessages([storableMessageDict])
-        checkForNewMessages(fromMessageId: lastNewestMessageId)
+        storeRelayMessage(message, storableDict: storableMessageDict, lastNewestMessageId: lastNewestMessageId)
 
         print("Stored a new message received over the chat relay")
+    }
+
+    // Stores a message received over the chat relay and advances the read marker. Both the regular and
+    // the reaction relay paths funnel through here so the chat block, the stored message, the new-message
+    // notification and the read marker stay in sync.
+    private func storeRelayMessage(_ message: NCChatMessage, storableDict: [String: Any], lastNewestMessageId: Int) {
+        updateLastChatBlock(withNewestKnown: message.messageId)
+        storeMessages([storableDict])
+        checkForNewMessages(fromMessageId: lastNewestMessageId)
+
+        // We only reach this point while the chat relay is active (these methods are only called in the
+        // `.active` state), which is the relay equivalent of polling the chat API with setReadMarker
+        // enabled. Since relay messages are not fetched over the chat API, the read marker is no longer
+        // advanced as a side effect, so we have to set it explicitly to keep the same behaviour.
+        setChatRelayReadMarker(toMessageId: message.messageId)
+    }
+
+    // Marks the newest message received over the chat relay as read on the server. Requests are
+    // debounced so a burst of relay messages (e.g. while flushing the buffer after catching up)
+    // results in a single /read request for the newest message.
+    private func setChatRelayReadMarker(toMessageId messageId: Int) {
+        DispatchQueue.main.async {
+            self.setReadMarkerWorkItem?.cancel()
+
+            let workItem = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+
+                NCAPIController.sharedInstance().setChatReadMarker(messageId, inRoom: self.room.token, forAccount: self.account) { error in
+                    guard error == nil else { return }
+
+                    // Keep our local room in sync so the unread indicators stay correct
+                    NCRoomsManager.shared.updateLastReadMessage(messageId, forRoom: self.room)
+                }
+            }
+
+            self.setReadMarkerWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
+        }
     }
 
     // Returns the dictionary to store for a chat relay message, or nil if it must be fetched over the chat API.
@@ -577,9 +616,7 @@ public class NCChatController: NSObject {
             storableDict["parent"] = parentDict
         }
 
-        updateLastChatBlock(withNewestKnown: message.messageId)
-        storeMessages([storableDict])
-        checkForNewMessages(fromMessageId: lastNewestMessageId)
+        storeRelayMessage(message, storableDict: storableDict, lastNewestMessageId: lastNewestMessageId)
     }
 
     @objc private func didReconnectExternalSignaling(_ notification: Notification) {
