@@ -33,6 +33,18 @@ public class NCChatController: NSObject {
     private var getHistoryTask: URLSessionDataTask?
     private var pullMessagesTask: URLSessionDataTask?
 
+    private enum ChatRelayState {
+        case inactive, active, catchingUp
+    }
+
+    private var chatRelayState: ChatRelayState = .inactive
+    private var chatRelayMessagesBuffer: [[String: Any]] = []
+    private var chatRelayMessagesQueue: DispatchQueue?
+    private var externalSignalingController: NCExternalSignalingController?
+
+    // Debounces the read-marker requests we issue while receiving messages over the chat relay. Only accessed on the main queue.
+    private var setReadMarkerWorkItem: DispatchWorkItem?
+
     public init!(for room: NCRoom) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: room.accountId) else { return nil }
 
@@ -41,6 +53,7 @@ public class NCChatController: NSObject {
 
         super.init()
 
+        setupChatRelay()
         AllocationTracker.shared.addAllocation("NCChatController")
     }
 
@@ -53,10 +66,12 @@ public class NCChatController: NSObject {
 
         super.init()
 
+        setupChatRelay()
         AllocationTracker.shared.addAllocation("NCChatController")
     }
 
     deinit {
+        NotificationCenter.default.removeObserver(self)
         AllocationTracker.shared.removeAllocation("NCChatController")
     }
 
@@ -409,6 +424,215 @@ public class NCChatController: NSObject {
         return sortedMessages
     }
 
+    // MARK: - External Signaling / Chat Relay
+
+    private func setupChatRelay() {
+        guard let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId),
+              signalingController.hasChatRelay else { return }
+        externalSignalingController = signalingController
+        chatRelayMessagesQueue = DispatchQueue(label: "chat.relay.message.queue")
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChatMessageFromExternalSignaling(_:)), name: .extSignalingDidReceiveChatMessage, object: signalingController)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReconnectExternalSignaling(_:)), name: .extSignalingDidReconnect, object: signalingController)
+    }
+
+    @objc private func didReceiveChatMessageFromExternalSignaling(_ notification: Notification) {
+        guard let roomToken = notification.userInfo?["roomToken"] as? String, roomToken == room.token,
+              let messageDict = notification.userInfo?["message"] as? [String: Any] else { return }
+
+        chatRelayMessagesQueue?.async {
+            if self.chatRelayState != .active {
+                self.chatRelayMessagesBuffer.append(messageDict)
+                return
+            }
+            self.handleChatRelayMessage(messageDict)
+        }
+    }
+
+    private func startProcessingChatRelayMessages() {
+        chatRelayMessagesQueue?.async {
+            self.chatRelayState = .active
+            self.flushChatRelayMessagesBuffer()
+        }
+    }
+
+    private func flushChatRelayMessagesBuffer() {
+        guard !chatRelayMessagesBuffer.isEmpty else { return }
+
+        chatRelayMessagesBuffer.sort { ($0["id"] as? Int ?? 0) < ($1["id"] as? Int ?? 0) }
+
+        // Snapshot and clear first so messages arriving meanwhile aren't lost.
+        let bufferedMessages = chatRelayMessagesBuffer
+        chatRelayMessagesBuffer.removeAll()
+
+        for messageDict in bufferedMessages {
+            handleChatRelayMessage(messageDict)
+        }
+    }
+
+    // Falls back to a chat API catch-up when a chat relay message can't be reliably rendered from its
+    // payload (file/object shares, call_ended, unknown system messages). Incoming chat relay messages
+    // are buffered while the catch-up runs.
+    private func triggerChatRelayCatchUp() {
+        guard chatRelayState != .catchingUp else { return }
+
+        chatRelayState = .catchingUp
+
+        let lastChatBlock = chatBlocksForRoomOrThread().last
+        let fromMessageId = lastChatBlock?.newestMessageId ?? 0
+        DispatchQueue.main.async {
+            self.startReceivingChatMessages(fromMessagesId: fromMessageId, withTimeout: false)
+        }
+    }
+
+    private func handleChatRelayMessage(_ messageDict: [String: Any]) {
+        guard let message = NCChatMessage(dictionary: messageDict as [AnyHashable: Any], andAccountId: account.accountId) else {
+            print("Could not parse a message received over the chat relay, catching up over the chat API")
+            triggerChatRelayCatchUp()
+            return
+        }
+
+        if isThreadController, message.threadId != threadId {
+            return
+        }
+
+        // The backend used to send an incorrect messageId for reaction_revoked system messages, so
+        // we catch up over the chat API instead of rendering them from the relay payload. This is
+        // fixed server-side in https://github.com/nextcloud/spreed/pull/18363, so we can remove this
+        // check after some time, once users have had a chance to upgrade their instances.
+        if message.systemMessage == "reaction_revoked" {
+            triggerChatRelayCatchUp()
+            return
+        }
+
+        let lastChatBlock = chatBlocksForRoomOrThread().last
+        let lastNewestMessageId = lastChatBlock?.newestMessageId ?? 0
+
+        if message.messageId <= lastNewestMessageId {
+            return
+        }
+
+        if message.systemMessage == "reaction" || message.systemMessage == "reaction_revoked" || message.systemMessage == "reaction_deleted" {
+            handleReactionRelayMessage(message, withDict: messageDict, lastNewestMessageId: lastNewestMessageId)
+            return
+        }
+
+        guard let storableMessageDict = storableDict(forChatRelayMessage: message, withDict: messageDict) else {
+            triggerChatRelayCatchUp()
+            return
+        }
+
+        storeRelayMessage(message, storableDict: storableMessageDict, lastNewestMessageId: lastNewestMessageId)
+
+        print("Stored a new message received over the chat relay")
+    }
+
+    // Stores a message received over the chat relay and advances the read marker. Both the regular and
+    // the reaction relay paths funnel through here so the chat block, the stored message, the new-message
+    // notification and the read marker stay in sync.
+    private func storeRelayMessage(_ message: NCChatMessage, storableDict: [String: Any], lastNewestMessageId: Int) {
+        updateLastChatBlock(withNewestKnown: message.messageId)
+        storeMessages([storableDict])
+        checkForNewMessages(fromMessageId: lastNewestMessageId)
+
+        // We only reach this point while the chat relay is active (these methods are only called in the
+        // `.active` state), which is the relay equivalent of polling the chat API with setReadMarker
+        // enabled. Since relay messages are not fetched over the chat API, the read marker is no longer
+        // advanced as a side effect, so we have to set it explicitly to keep the same behaviour.
+        setChatRelayReadMarker(toMessageId: message.messageId)
+    }
+
+    // Marks the newest message received over the chat relay as read on the server. Requests are
+    // debounced so a burst of relay messages (e.g. while flushing the buffer after catching up)
+    // results in a single /read request for the newest message.
+    private func setChatRelayReadMarker(toMessageId messageId: Int) {
+        DispatchQueue.main.async {
+            self.setReadMarkerWorkItem?.cancel()
+
+            let workItem = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+
+                NCAPIController.sharedInstance().setChatReadMarker(messageId, inRoom: self.room.token, forAccount: self.account) { error in
+                    guard error == nil else { return }
+
+                    // Keep our local room in sync so the unread indicators stay correct
+                    NCRoomsManager.shared.updateLastReadMessage(messageId, forRoom: self.room)
+                }
+            }
+
+            self.setReadMarkerWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
+        }
+    }
+
+    // Returns the dictionary to store for a chat relay message, or nil if it must be fetched over the chat API.
+    private func storableDict(forChatRelayMessage message: NCChatMessage, withDict messageDict: [String: Any]) -> [String: Any]? {
+        // Messages with file/object attachments carry parameters that don't match the chat API response
+        // (e.g. file path and link), so they always need to be fetched over the chat API.
+        if message.file() != nil {
+            print("A message received over the chat relay has a file attachment, fetching it from the chat API instead")
+            return nil
+        }
+
+        // System messages are not localized in the chat relay payload, so we localize them on the client.
+        if message.isSystemMessage {
+            let silentCall = ((messageDict["call"] as? [String: Any])?["silent"] as? Bool) ?? false
+            guard let localizedMessage = NCSystemMessageLocalizer.localizedSystemMessage(for: message, in: room, account: account, silentCall: silentCall) else {
+                print("System message '\(message.systemMessage ?? "")' received over the chat relay can't be localized on the client, fetching it from the chat API instead")
+                return nil
+            }
+            var localizedMessageDict = messageDict
+            localizedMessageDict["message"] = localizedMessage
+            return localizedMessageDict
+        }
+
+        return messageDict
+    }
+
+    // Handles reaction system messages received via the chat relay. The relay broadcasts reactionsSelf
+    // from the actor's perspective (not per-user), so we replace it with the correct value computed
+    // from the current DB state plus the self-actor delta before passing to storeMessages — mirroring
+    // the web's fromRealtime reactionsSelf computation in messagesStore.js (PR #16349).
+    private func handleReactionRelayMessage(_ message: NCChatMessage, withDict messageDict: [String: Any], lastNewestMessageId: Int) {
+        var storableDict = messageDict
+
+        if var parentDict = messageDict["parent"] as? [String: Any] {
+            var selfReactions: [String] = []
+            if let parentId = message.parentId,
+               let parentInDB = NCChatMessage.objects(where: "internalId = %@", parentId).firstObject() as? NCChatMessage,
+               let jsonString = parentInDB.reactionsSelfJSONString, !jsonString.isEmpty,
+               let data = jsonString.data(using: .utf8),
+               let parsed = try? JSONSerialization.jsonObject(with: data) as? [String] {
+                selfReactions = parsed
+            }
+
+            if message.isMessage(from: account.userId), let emoji = message.message, !emoji.isEmpty {
+                if message.systemMessage == "reaction" && !selfReactions.contains(emoji) {
+                    selfReactions.append(emoji)
+                } else if message.systemMessage == "reaction_revoked" {
+                    selfReactions.removeAll { $0 == emoji }
+                }
+            }
+
+            parentDict["reactionsSelf"] = selfReactions
+            storableDict["parent"] = parentDict
+        }
+
+        storeRelayMessage(message, storableDict: storableDict, lastNewestMessageId: lastNewestMessageId)
+    }
+
+    @objc private func didReconnectExternalSignaling(_ notification: Notification) {
+        guard !stopChatMessagesPoll, externalSignalingController?.hasChatRelay == true else { return }
+
+        let sessionChanged = notification.userInfo?["sessionChanged"] as? Bool ?? false
+        guard sessionChanged else { return }
+
+        print("Signaling session was not resumed, catching up on any missed messages over the chat API")
+
+        chatRelayMessagesQueue?.async {
+            self.triggerChatRelayCatchUp()
+        }
+    }
+
     // MARK: - Chat
 
     public func getTemporaryMessages() -> [NCChatMessage] {
@@ -502,10 +726,24 @@ public class NCChatController: NSObject {
         let lastChatBlock = chatBlocksForRoomOrThread().last
         let storedMessages = getNewStoredMessages(inBlock: lastChatBlock, sinceMessageId: messageId)
 
+        guard !storedMessages.isEmpty else { return }
+
+        // We still get the new messages from the queue of the caller, so the lookup stays ordered
+        // with the stores (relay messages are stored on chat.relay.message.queue and looking them
+        // up on main could race with later stores and post duplicates). The notifications should
+        // be posted on the main thread since the observers perform UI work.
+        if Thread.isMainThread {
+            notify(forNewMessages: storedMessages)
+        } else {
+            DispatchQueue.main.async {
+                self.notify(forNewMessages: storedMessages)
+            }
+        }
+    }
+
+    private func notify(forNewMessages storedMessages: [NCChatMessage]) {
         var userInfo: [AnyHashable: Any] = [:]
         userInfo["room"] = room.token
-
-        guard !storedMessages.isEmpty else { return }
 
         for message in storedMessages {
             // Notify if "call started" have been received
@@ -841,8 +1079,16 @@ public class NCChatController: NSObject {
             self.checkLastCommonReadMessage(lastCommonReadMessage)
 
             if error?.underlyingError.code != NSURLErrorCancelled {
+                let chatIsUpToDate = statusCode == 304
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
-                self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: true)
+
+                if chatIsUpToDate, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
+                    print("Chat is up to date, now processing new messages from the chat relay")
+                    self.startProcessingChatRelayMessages()
+                    return
+                }
+
+                self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: chatIsUpToDate)
             }
         }
     }
@@ -853,6 +1099,10 @@ public class NCChatController: NSObject {
     }
 
     public func stopReceivingNewChatMessages() {
+        // Reset on the relay queue to keep all chatRelayState access on a single queue.
+        chatRelayMessagesQueue?.async {
+            self.chatRelayState = .inactive
+        }
         stopChatMessagesPoll = true
         pullMessagesTask?.cancel()
     }

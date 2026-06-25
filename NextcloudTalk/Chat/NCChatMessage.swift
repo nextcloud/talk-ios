@@ -57,6 +57,20 @@ import SwiftyAttributes
         return self.actorType == "users" && self.actorId == userId
     }
 
+    // Whether the message's "user" parameter (e.g. the target of a moderator promotion/demotion)
+    // refers to the given user.
+    public func userParameterRefersTo(_ userId: String) -> Bool {
+        guard let userParameter = NCMessageParameter(dictionary: self.messageParameters["user"] as? [String: Any]) else {
+            return false
+        }
+        return userParameter.type == "user" && userParameter.parameterId == userId
+    }
+
+    // Whether the message was sent by the command line (e.g. an administrator action).
+    public var isFromCommandLine: Bool {
+        return self.actorId == "cli" && self.actorType == "guests"
+    }
+
     public func isDeletable(for account: TalkAccount, in room: NCRoom) -> Bool {
         guard !self.isDeleting else { return false }
 
@@ -74,7 +88,7 @@ import SwiftyAttributes
 
         // Check if user is allowed to delete a message
         let sameUser = self.isMessage(from: account.userId)
-        let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
+        let moderatorUser = !room.isOneToOne && (room.participantType == .owner || room.participantType == .moderator)
 
         let serverCanDeleteMessage = commentDeletion || objectDeletion
         let userCanDeleteMessage = sameUser || moderatorUser
@@ -94,7 +108,7 @@ import SwiftyAttributes
         serverCanEditMessage = serverCanEditMessage && self.messageType == kMessageTypeComment && !self.isObjectShare
 
         let sameUser = self.isMessage(from: account.userId)
-        let moderatorUser = (room.type != .oneToOne && room.type != .formerOneToOne) && (room.participantType == .owner || room.participantType == .moderator)
+        let moderatorUser = !room.isOneToOne && (room.participantType == .owner || room.participantType == .moderator)
         let botInOneToOne = room.type == .oneToOne && self.actorType == AttendeeType.bots.rawValue && self.actorId.starts(with: NCAttendeeBotPrefix)
 
         let userCanEditMessage = sameUser || moderatorUser || botInOneToOne
