@@ -20,6 +20,7 @@ public extension NSNotification.Name {
     static let NCChatControllerDidReceiveMessagesInBackground = NSNotification.Name("NCChatControllerDidReceiveMessagesInBackgroundNotification")
     static let NCChatControllerDidReceiveThreadMessage = NSNotification.Name("NCChatControllerDidReceiveThreadMessageNotification")
     static let NCChatControllerDidReceiveThreadNotFound = NSNotification.Name("NCChatControllerDidReceiveThreadNotFoundNotification")
+    static let NCChatControllerDidReceiveConversationLocked = NSNotification.Name("NCChatControllerDidReceiveConversationLocked")
 }
 
 public class NCChatController: NSObject {
@@ -798,6 +799,12 @@ public class NCChatController: NSObject {
                 userInfo["historyCleared"] = message
                 NotificationCenter.default.post(name: .NCChatControllerDidReceiveHistoryCleared, object: self, userInfo: userInfo)
                 return
+            }
+            // Notify if "conversation locked" message has been received
+            if message.systemMessage == "read_only" ||
+                message.systemMessage == "read_only_off" {
+                userInfo["locked"] = message.systemMessage == "read_only"
+                NotificationCenter.default.post(name: .NCChatControllerDidReceiveConversationLocked, object: self, userInfo: userInfo)
             }
         }
 

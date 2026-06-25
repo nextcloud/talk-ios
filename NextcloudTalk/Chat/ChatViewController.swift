@@ -550,6 +550,7 @@ import SwiftUI
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveThreadMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveThreadMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveThreadNotFound(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveThreadNotFound, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveHistoryCleared(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveHistoryCleared, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveConversationLocked(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveConversationLocked, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMessagesInBackground(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveMessagesInBackground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeRoomCapabilities(notification:)), name: NSNotification.Name.NCDatabaseManagerRoomCapabilitiesChanged, object: nil)
 
@@ -1856,6 +1857,18 @@ import SwiftUI
             self.hasRequestedInitialHistory = false
             self.chatController.getInitialChatHistory()
         }
+    }
+
+    func didReceiveConversationLocked(notification: Notification) {
+        if notification.object as? NCChatController != self.chatController {
+            return
+        }
+
+        guard let locked = notification.userInfo?["locked"] as? Bool
+        else { return }
+
+        self.room.readOnlyState = locked ? .readOnly : .readWrite
+        self.checkRoomControlsAvailability()
     }
 
     func didReceiveMessagesInBackground(notification: Notification) {
