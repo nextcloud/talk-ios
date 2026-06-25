@@ -61,7 +61,6 @@
 #import "ShareItemController.h"
 #import "ShareLocationViewController.h"
 #import "VoiceMessageTranscribeViewController.h"
-#import "AppDelegate.h"
 #import "NCKeyChainController.h"
 #import "NCIntentController.h"
 #import "CCCertificate.h"

@@ -108,7 +108,7 @@
 		1FF2FD722AB99CCB000C9905 /* BroadcastUploadExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2B4BED05DC4A4EB4761A6C87 /* libPods-TalkIntents.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 237121A4908D37D7D5CC71A4 /* libPods-TalkIntents.a */; };
 		2C0574821EDD9E8E00D9E7F2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574811EDD9E8E00D9E7F2 /* main.m */; };
-		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */; };
+		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.swift */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
 		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
 		2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
@@ -326,8 +326,7 @@
 		237121A4908D37D7D5CC71A4 /* libPods-TalkIntents.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TalkIntents.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextcloudTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C0574811EDD9E8E00D9E7F2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		2C0574841EDD9E8E00D9E7F2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2C05748D1EDD9E8E00D9E7F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2C0574941EDD9E8E00D9E7F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -1373,8 +1372,7 @@
 				1F96297A2E8E6D1200EC9BEE /* User Interface */,
 				1F9629822E8E6D5400EC9BEE /* WebRTC */,
 				2C6085C11FB1063700B36A6E /* NextcloudTalk.entitlements */,
-				2C0574831EDD9E8E00D9E7F2 /* AppDelegate.h */,
-				2C0574841EDD9E8E00D9E7F2 /* AppDelegate.m */,
+				2C0574841EDD9E8E00D9E7F2 /* AppDelegate.swift */,
 				1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */,
 				2CEDA87E26EF91460044552B /* NextcloudTalk-Bridging-Header.h */,
 				2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */,
@@ -2248,7 +2246,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
-				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.m in Sources */,
+				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.swift in Sources */,
 				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
