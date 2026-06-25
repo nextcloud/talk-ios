@@ -332,8 +332,7 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
         let items = [roomLinkURL]
         let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
 
-        let appDisplayName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? ""
-        let emailSubject = String(format: NSLocalizedString("%@ invitation", comment: ""), appDisplayName)
+        let emailSubject = String(format: NSLocalizedString("%@ invitation", comment: ""), talkAppName)
         controller.setValue(emailSubject, forKey: "subject")
 
         // Presentation on iPads
