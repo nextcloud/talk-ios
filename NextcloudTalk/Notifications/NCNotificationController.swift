@@ -279,7 +279,7 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         let notificationsGroup = DispatchGroup()
 
         for account in NCDatabaseManager.sharedInstance().allAccounts() {
-            if !NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(kNotificationsCapabilityExists, forAccountId: account.accountId) {
+            if !NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(.exists, forAccountId: account.accountId) {
                 continue
             }
 

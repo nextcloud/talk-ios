@@ -150,8 +150,8 @@ extension Array where Element == NCRoom {
     public var supportsFederatedCalling: Bool {
         guard self.isFederated else { return false }
 
-        let remoteCapabilitySupported = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityFederationV2, for: self)
-        let localCapabilitySupported = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityFederationV2, forAccountId: self.accountId)
+        let remoteCapabilitySupported = NCDatabaseManager.sharedInstance().roomHasTalkCapability(.federationV2, for: self)
+        let localCapabilitySupported = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.federationV2, forAccountId: self.accountId)
 
         let remoteCallingEnabled = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self)?.callEnabled ?? false
         let localCallingEnabled = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId)?.callEnabled ?? false
@@ -176,7 +176,7 @@ extension Array where Element == NCRoom {
             return false
         }
 
-        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityThreads, forAccountId: self.accountId) &&
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.threads, forAccountId: self.accountId) &&
         self.type != .changelog && self.type != .noteToSelf
     }
 
@@ -195,7 +195,7 @@ extension Array where Element == NCRoom {
             return false
         }
 
-        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityScheduleMeeting, forAccountId: self.accountId)
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.scheduleMeeting, forAccountId: self.accountId)
     }
 
     public var supportsMessageExpirationModeration: Bool {
@@ -203,17 +203,17 @@ extension Array where Element == NCRoom {
             return false
         }
 
-        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMessageExpiration, forAccountId: self.accountId)
+        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.messageExpiration, forAccountId: self.accountId)
     }
 
     public var supportsBanningModeration: Bool {
         let supportedType = self.type == .group || self.type == .public
 
-        return supportedType && self.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBanV1, forAccountId: self.accountId)
+        return supportedType && self.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.banV1, forAccountId: self.accountId)
     }
 
     public var supportsBotsModeration: Bool {
-        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBotV1, forAccountId: self.accountId)
+        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.botV1, forAccountId: self.accountId)
     }
 
     public var isBreakoutRoom: Bool {
@@ -229,7 +229,7 @@ extension Array where Element == NCRoom {
     }
 
     public var canAddParticipants: Bool {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationCreationAll) && self.type == .oneToOne {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationCreationAll) && self.type == .oneToOne {
             // Don't go through NCSettingsController, as that would bring too many dependencies to the extensions
             guard let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: accountId) else { return false }
             return capabilities.canCreate
@@ -243,14 +243,14 @@ extension Array where Element == NCRoom {
     }
 
     private var isLockedOneToOne: Bool {
-        let lockedOneToOne = self.type == .oneToOne && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityLockedOneToOneRooms)
+        let lockedOneToOne = self.type == .oneToOne && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.lockedOneToOneRooms)
         let lockedOther = self.type == .formerOneToOne || self.type == .noteToSelf
 
         return lockedOneToOne || lockedOther
     }
 
     public var userCanStartCall: Bool {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityStartCallFlag) && !self.canStartCall {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.startCallFlag) && !self.canStartCall {
             return false
         }
 
@@ -266,7 +266,7 @@ extension Array where Element == NCRoom {
     }
 
     public var callRecordingIsInActiveState: Bool {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRecordingV1) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.recordingV1) {
             // Starting states and running states are considered active
             if self.callRecording != .stopped && self.callRecording != .failed {
                 return true
@@ -352,7 +352,7 @@ extension Array where Element == NCRoom {
     @nonobjc
     public var parsedRoomDescription: AttributedString? {
         guard
-            NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRoomDescription, forAccountId: accountId),
+            NCDatabaseManager.sharedInstance().serverHasTalkCapability(.roomDescription, forAccountId: accountId),
             let description = self.roomDescription,
             !description.isEmpty
         else { return nil }
@@ -378,8 +378,8 @@ extension Array where Element == NCRoom {
     public var supportsConversationPermissions: Bool {
         // 'conversation-permissions' capability was not added in Talk 13 release, so we check for 'direct-mention-flag' capability
         // as a workaround.
-        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityConversationPermissions, forAccountId: self.accountId) ||
-                NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag, forAccountId: self.accountId)
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationPermissions, forAccountId: self.accountId) ||
+                NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag, forAccountId: self.accountId)
     }
 
     public var canPublishAudio: Bool {
@@ -396,12 +396,12 @@ extension Array where Element == NCRoom {
 
     public var canChat: Bool {
         // For very old servers without chat-permission capability, allow chat
-        return !NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatPermission, for: self) || self.permissions.contains(.chat)
+        return !NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatPermission, for: self) || self.permissions.contains(.chat)
     }
 
     public var canReact: Bool {
         // Check if server supports separate react permission (Talk 24+)
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityReactPermission, for: self) {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.reactPermission, for: self) {
             return self.permissions.contains(.react)
         }
 
@@ -411,7 +411,7 @@ extension Array where Element == NCRoom {
 
     public var canPinMessage: Bool {
         // Pinning is also allowed in 1-1-conversations, therefore check isUserOwnerOrModerator, instead of canModerate
-        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityPinnedMessages, for: self)
+        return self.isUserOwnerOrModerator && NCDatabaseManager.sharedInstance().roomHasTalkCapability(.pinnedMessages, for: self)
     }
 
     // MARK: - Room Attributes

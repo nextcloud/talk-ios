@@ -84,11 +84,11 @@ public class NCRoomParticipant: NSObject {
     }
 
     public var canBeBanned: Bool {
-        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityBanV1) && !isGroup && !isTeam && !isFederated && !canModerate
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.banV1) && !isGroup && !isTeam && !isFederated && !canModerate
     }
 
     public var canBeNotifiedAboutCall: Bool {
-        return !isAppUser && inCall.isEmpty && actorType == .user && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySendCallNotification)
+        return !isAppUser && inCall.isEmpty && actorType == .user && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sendCallNotification)
     }
 
     public var isAppUser: Bool {

@@ -9,7 +9,7 @@
 
 #import "UIImageView+AFNetworking.h"
 
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 #import "NCAppBranding.h"
 #import "PlaceholderView.h"
 

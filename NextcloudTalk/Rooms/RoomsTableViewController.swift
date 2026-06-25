@@ -223,7 +223,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         // New conversation button
         if NCSettingsController.sharedInstance().canCreateGroupAndPublicRooms() ||
-            NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityListableRooms) {
+            NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
 
             let newConversationButton = UIBarButtonItem(image: UIImage(systemName: "plus.circle.fill"), style: .plain, target: self, action: #selector(presentNewRoomViewController))
             newConversationButton.accessibilityLabel = NSLocalizedString("Create or join a conversation", comment: "")
@@ -286,7 +286,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         adaptInterface(forAppState: NCConnectionController.shared.appState)
         adaptInterface(forConnectionState: NCConnectionController.shared.connectionState)
 
-        if NCSettingsController.sharedInstance().isContactSyncEnabled() && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityPhonebookSearch) {
+        if NCSettingsController.sharedInstance().isContactSyncEnabled() && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.phonebookSearch) {
             NCContactsManager.sharedInstance().searchInServer(forAddressBookContacts: false)
         }
     }
@@ -650,7 +650,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         // Search for listable rooms and messages
         if let searchString, !searchString.isEmpty {
             // Set searchingMessages flag if we are going to search for messages
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityUnifiedSearch) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.unifiedSearch) {
                 setLoadMoreButtonHidden(true)
                 resultTableViewController.searchingMessages = true
             }
@@ -698,7 +698,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             guard let self else { return }
             if error == nil {
                 var users = self.usersWithoutOneToOneConversations(contactList ?? [])
-                if NCSettingsController.sharedInstance().isContactSyncEnabled() && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityPhonebookSearch) {
+                if NCSettingsController.sharedInstance().isContactSyncEnabled() && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.phonebookSearch) {
                     let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
                     let addressBookContacts = NCContact.contacts(forAccountId: activeAccount.accountId, contains: nil)
                     users = NCUser.combineUsersArray(addressBookContacts, withUsersArray: users)
@@ -707,7 +707,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             }
         }
         // Search for listable rooms
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityListableRooms) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
             resultTableViewController.listableRooms = []
             NCAPIController.sharedInstance().getListableRooms(forAccount: account, withSerachTerm: searchString) { [weak self] rooms, error in
                 if error == nil {
@@ -716,7 +716,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             }
         }
         // Search for messages
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityUnifiedSearch) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.unifiedSearch) {
             unifiedSearchController = NCUnifiedSearchController(account: account, searchTerm: searchString ?? "")
             resultTableViewController.messages = []
             searchForMessagesWithCurrentSearchTerm()
@@ -1562,8 +1562,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         favoriteAction.backgroundColor = UIColor(red: 0.97, green: 0.80, blue: 0.27, alpha: 1.0) // Favorite yellow
 
         // Mark room as read/unread
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadMarker) &&
-            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadLast)) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker) &&
+            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadLast)) {
 
             let markReadAction = UIContextualAction(style: .normal, title: nil) { _, _, completionHandler in
                 if room.unreadMessages > 0 {
@@ -1690,7 +1690,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         // Set unread messages
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
             let mentioned = room.unreadMentionDirect || room.type == .oneToOne || room.type == .formerOneToOne
             let groupMentioned = room.unreadMention && !room.unreadMentionDirect
             cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: groupMentioned)
@@ -1833,8 +1833,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         actions.append(favAction)
 
         // Mark room as read/unread
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadMarker) &&
-            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatReadLast)) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker) &&
+            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadLast)) {
             if room.unreadMessages > 0 {
                 // Mark room as read
                 let markReadAction = UIAction(title: NSLocalizedString("Mark as read", comment: ""), image: UIImage(systemName: "checkmark.bubble"), identifier: nil) { [weak self] _ in
@@ -1844,7 +1844,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
                 }
 
                 actions.append(markReadAction)
-            } else if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatUnread) {
+            } else if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatUnread) {
                 // Mark room as unread
                 let markUnreadAction = UIAction(title: NSLocalizedString("Mark as unread", comment: ""), image: UIImage(named: "custom.bubble.badge"), identifier: nil) { [weak self] _ in
                     self?.contextMenuActionBlock = {
@@ -1857,7 +1857,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         // Notification levels
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityNotificationLevels) &&
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.notificationLevels) &&
             room.type != .changelog && room.type != .noteToSelf {
 
             var notificationActions: [UIMenuElement] = []
@@ -1868,7 +1868,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             notificationActions.append(actionForNotificationLevel(.never, forRoom: room))
 
             // Call notification
-            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNotificationCalls, for: room) && room.supportsCalling {
+            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.notificationCalls, for: room) && room.supportsCalling {
                 let callNotificationAction = UIAction(title: NSLocalizedString("Notify about calls", comment: ""), image: nil, identifier: nil) { action in
                     let newState = !(action.state == .on)
 
@@ -1893,7 +1893,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             }
 
             // Important conversation
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityImportantConversations) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.importantConversations) {
                 let importantConversationAction = UIAction(title: NSLocalizedString("Important conversation", comment: ""), image: nil, identifier: nil) { action in
                     let newState = !(action.state == .on)
 
@@ -1922,7 +1922,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             }
 
             // Sensitive conversation
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilitySensitiveConversations) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sensitiveConversations) {
                 let sensitiveConversationAction = UIAction(title: NSLocalizedString("Sensitive conversation", comment: ""), image: nil, identifier: nil) { action in
                     let newState = !(action.state == .on)
 
@@ -1965,7 +1965,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         // Archive conversation
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityArchivedConversationsV2) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.archivedConversationsV2) {
             if room.isArchived {
                 let unarchiveAction = UIAction(title: NSLocalizedString("Unarchive conversation", comment: ""), image: UIImage(systemName: "arrow.up.bin"), identifier: nil) { [weak self] _ in
                     self?.unarchiveRoom(room)

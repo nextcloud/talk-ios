@@ -370,7 +370,7 @@ import MBProgressHUD
             }
         }
 
-        var captionAllowed = NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMediaCaption, forAccountId: account.accountId)
+        var captionAllowed = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: account.accountId)
         captionAllowed = captionAllowed && self.shareType == .item
 
         if !captionAllowed {
@@ -612,7 +612,7 @@ import MBProgressHUD
 
         // Add caption to last shareItem
         if let shareItem = self.shareItemController.shareItems.last {
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityMediaCaption, forAccountId: self.account.accountId) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: self.account.accountId) {
                 let messageParameters = self.mentionsDict.asJSONString() ?? ""
                 let message = NCChatMessage()
                 message.message = self.replaceMentionsDisplayNamesWithMentionsKeysInMessage(message: self.textView.text, parameters: messageParameters)

@@ -47,7 +47,7 @@ import SwiftUI
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
 
         // We decide at this point if the unread marker should be with/without summary button, so it doesn't get changed when the room is updated
-        if !self.room.isFederated, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityChatSummary, forAccountId: self.room.accountId),
+        if !self.room.isFederated, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatSummary, forAccountId: self.room.accountId),
            let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
            serverCapabilities.summaryThreshold <= self.room.unreadMessages {
 
@@ -166,7 +166,7 @@ import SwiftUI
         var callOptions: [UIMenuElement] = [audioCallAction, videoCallAction]
 
         // Only show silent call option when starting a call (not when joining)
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilitySilentCall, for: self.room), !room.hasCall {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.silentCall, for: self.room), !room.hasCall {
             var silentImage = UIImage(systemName: "bell.slash")
 
             if startCallSilently {
@@ -836,7 +836,7 @@ import SwiftUI
             }
 
             // Room description
-            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRoomDescription, for: room), !self.room.roomDescription.isEmpty {
+            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.roomDescription, for: room), !self.room.roomDescription.isEmpty {
                 placeholderText += "\n\n" + self.room.roomDescription
             }
 
@@ -1130,7 +1130,7 @@ import SwiftUI
         // Create temporary message
         guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: replyTo, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
 
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReferenceId, for: room) {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
             self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
         }
 
@@ -1148,7 +1148,7 @@ import SwiftUI
 
         // If in offline mode, we don't want to show the voice button
         if !offlineMode, !canPress, !presentedInCall,
-           NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityVoiceMessage, for: room),
+           NCDatabaseManager.sharedInstance().roomHasTalkCapability(.voiceMessage, for: room),
            !room.isFederated {
 
             self.showVoiceMessageRecordButton()
@@ -1889,8 +1889,8 @@ import SwiftUI
             return
         }
 
-        let serverSupportsConversationPermissions = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityConversationPermissions, for: room) ||
-                                                    NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityDirectMentionFlag, for: room)
+        let serverSupportsConversationPermissions = NCDatabaseManager.sharedInstance().roomHasTalkCapability(.conversationPermissions, for: room) ||
+                                                    NCDatabaseManager.sharedInstance().roomHasTalkCapability(.directMentionFlag, for: room)
 
         guard serverSupportsConversationPermissions else { return }
 
@@ -2001,8 +2001,8 @@ import SwiftUI
 
     func shouldPresentLobbyView() -> Bool {
         let serverSupportsConversationPermissions =
-        NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityConversationPermissions, for: room) ||
-        NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityDirectMentionFlag, for: room)
+        NCDatabaseManager.sharedInstance().roomHasTalkCapability(.conversationPermissions, for: room) ||
+        NCDatabaseManager.sharedInstance().roomHasTalkCapability(.directMentionFlag, for: room)
 
         if serverSupportsConversationPermissions, self.room.permissions.contains(.canIgnoreLobby) {
             return false
@@ -2189,7 +2189,7 @@ import SwiftUI
     }
 
     func isMessageReactable(message: NCChatMessage) -> Bool {
-        var isReactable = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityReactions, for: room)
+        var isReactable = NCDatabaseManager.sharedInstance().roomHasTalkCapability(.reactions, for: room)
         isReactable = isReactable && !self.offlineMode
         isReactable = isReactable && self.room.readOnlyState != .readOnly
         isReactable = isReactable && !message.isDeletedMessage && !message.isCommandMessage && !message.sendingFailed && !message.isTemporary
@@ -2487,7 +2487,7 @@ import SwiftUI
         actions.append(UIMenu(title: NSLocalizedString("Copy", comment: ""), image: .init(systemName: "doc.on.doc"), children: copyMenuActions))
 
         // Remind me later
-        if !message.isTemporary, !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityRemindMeLater, for: room) {
+        if !message.isTemporary, !message.sendingFailed, !message.isOfflineMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(.remindMeLater, for: room) {
             let deferredMenuElement = UIDeferredMenuElement.uncached { [weak self] completion in
                 NCAPIController.sharedInstance().getReminder(forMessage: message) { [weak self] response, error in
                     guard let self else { return }
@@ -2568,7 +2568,7 @@ import SwiftUI
 
         // Note to self
         if message.file() == nil, message.poll == nil, !message.isDeletedMessage, room.type != .noteToSelf,
-           NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityNoteToSelf, for: room) {
+           NCDatabaseManager.sharedInstance().roomHasTalkCapability(.noteToSelf, for: room) {
             moreMenuActions.append(UIAction(title: NSLocalizedString("Note to self", comment: ""), image: .init(systemName: "square.and.pencil")) { _ in
                 self.didPressNoteToSelf(for: message)
             })

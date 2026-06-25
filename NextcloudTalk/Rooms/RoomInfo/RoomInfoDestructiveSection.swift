@@ -42,7 +42,7 @@ struct RoomInfoDestructiveSection: View {
             }
 
             if room.canDeleteConversation {
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityClearHistory) {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.clearHistory) {
                     Button(role: .destructive, action: {
                         showClearConfirmation = true
                     }, label: {

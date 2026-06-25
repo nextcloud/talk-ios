@@ -18,10 +18,9 @@
 #import <SDWebImage/SDImageCache.h>
 
 #import "NCAppBranding.h"
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 #import "NCKeyChainController.h"
 #import "NCPushNotification.h"
-#import "NCUserInterfaceController.h"
 
 #import "NextcloudTalk-Swift.h"
 

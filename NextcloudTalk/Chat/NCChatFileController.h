@@ -4,7 +4,7 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 
 @class NCChatFileStatus;
 @class NCMessageFileParameter;

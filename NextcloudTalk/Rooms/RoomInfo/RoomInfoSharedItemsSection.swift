@@ -12,7 +12,7 @@ struct RoomInfoSharedItemsSection: View {
     @Binding var room: NCRoom
 
     var body: (some View)? {
-        guard !room.isFederated, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityRichObjectListMedia) else {
+        guard !room.isFederated, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.richObjectListMedia) else {
             return Body.none
         }
 

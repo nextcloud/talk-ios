@@ -265,7 +265,7 @@ class RoomSearchTableViewController: UITableViewController {
         }
 
         // Set unread messages
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityDirectMentionFlag) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
             let mentioned = room.unreadMentionDirect || room.type == .oneToOne || room.type == .formerOneToOne
             let groupMentioned = room.unreadMention && !room.unreadMentionDirect
             cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: groupMentioned)

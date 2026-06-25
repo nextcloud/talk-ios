@@ -7,8 +7,7 @@
 
 #import "NCAppBranding.h"
 #import "NCContact.h"
-#import "NCDatabaseManager.h"
-#import "NCUserInterfaceController.h"
+#import "TalkAccount.h"
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 
@@ -163,7 +162,7 @@
     // Adding participants to a room
     if (_room && _selectedParticipants.count > 0) {
         // Extending a one2one room
-        if (_room.type == kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:kCapabilityConversationCreationAll]) {
+        if (_room.type == kNCRoomTypeOneToOne && [[NCDatabaseManager sharedInstance] serverHasTalkCapability:TalkCapabilityObjC.conversationCreationAll]) {
             [self extendOne2OneRoom];
 
         // Adding participants to a group room

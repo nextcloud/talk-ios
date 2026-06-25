@@ -1308,7 +1308,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
                 self.forceReconnect()
             } else if let externalSignalingController, externalSignalingController.hasMCU {
                 // If another peer failed using MCU, then request a new offer
-                if let sessionId = peerConnection.peerId, let roomType = peerConnection.roomType {
+                let sessionId = peerConnection.peerId
+                if let roomType = peerConnection.roomType {
                     // Close failed peer connection
                     self.cleanPeerConnection(forSessionId: sessionId, ofType: roomType, forOwnScreenshare: false)
 

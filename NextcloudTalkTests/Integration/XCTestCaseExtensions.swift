@@ -132,7 +132,7 @@ extension XCTestCase {
         }
     }
 
-    func skipWithoutCapability(capability: String) throws {
+    func skipWithoutCapability(capability: TalkCapability) throws {
         let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
 
         guard serverCapabilities != nil else {
@@ -140,6 +140,6 @@ extension XCTestCase {
             return
         }
 
-        try XCTSkipIf(!NCDatabaseManager.sharedInstance().serverHasTalkCapability(capability), "Capability \(capability) not available -> skipping")
+        try XCTSkipIf(!NCDatabaseManager.sharedInstance().serverHasTalkCapability(capability), "Capability \(capability.rawValue) not available -> skipping")
     }
 }

@@ -210,8 +210,9 @@ public class NCChatController: NSObject {
             }
 
             if message.isThreadCreatedMessage {
-                let thread = NCThread.createThread(from: message, andAccountId: message.accountId ?? account.accountId)
-                realm.add(thread)
+                if let thread = NCThread.createThread(from: message, andAccountId: message.accountId ?? account.accountId) {
+                    realm.add(thread)
+                }
             } else if message.isThreadMessage() {
                 NCThread.updateThread(withThreadMessage: message)
             }
@@ -575,7 +576,7 @@ public class NCChatController: NSObject {
         userInfo["room"] = room.token
 
         var lastReadMessageId = 0
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadMarker, for: room) {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReadMarker, for: room) {
             lastReadMessageId = room.lastReadMessage
         }
 
@@ -596,7 +597,7 @@ public class NCChatController: NSObject {
         // If the chat supports read markers and this is not a thread controller, start from the room's last read message.
         // In thread controllers, always start from the latest message (lastReadMessageId = 0) because the room's last read message
         // might be outdated and older than the thread's first message, which would lead to a 304 response.
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadMarker, for: room), !isThreadController {
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReadMarker, for: room), !isThreadController {
             lastReadMessageId = room.lastReadMessage
         }
 

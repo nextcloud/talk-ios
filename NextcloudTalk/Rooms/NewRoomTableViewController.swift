@@ -79,7 +79,7 @@ enum NewRoomOption: Int {
         }
 
         // List open rooms
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityListableRooms, forAccountId: self.account.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms, forAccountId: self.account.accountId) {
             options.append(.joinOpenRoom)
         }
 

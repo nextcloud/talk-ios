@@ -247,7 +247,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.titleLabel.attributedText = titleLabel
 
-        let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(kCapabilityChatReadStatus, for: room)
+        let shouldShowDeliveryStatus = NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReadStatus, for: room)
         var shouldShowReadStatus = false
 
         if let roomCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room) {

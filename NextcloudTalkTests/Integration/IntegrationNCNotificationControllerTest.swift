@@ -12,7 +12,7 @@ final class IntegrationNCNotificationControllerTest: TestBase {
     func testNotificationsSelfTest() async throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        if !NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(kNotificationsCapabilityTestPush, forAccountId: activeAccount.accountId) {
+        if !NCDatabaseManager.sharedInstance().serverHasNotificationsCapability(.testPush, forAccountId: activeAccount.accountId) {
             throw XCTSkip("Missing 'test-push' capability of notifications app")
         }
 

@@ -281,7 +281,7 @@ final class IntegrationRoomTest: TestBase {
     }
 
     func testRoomImportantConversation() async throws {
-        try skipWithoutCapability(capability: kCapabilityImportantConversations)
+        try skipWithoutCapability(capability: TalkCapability.importantConversations)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "ImportantConversation", withAccount: activeAccount)
@@ -296,7 +296,7 @@ final class IntegrationRoomTest: TestBase {
     }
 
     func testRoomSensitiveConversation() async throws {
-        try skipWithoutCapability(capability: kCapabilitySensitiveConversations)
+        try skipWithoutCapability(capability: TalkCapability.sensitiveConversations)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "SensitiveConversation", withAccount: activeAccount)
@@ -387,7 +387,7 @@ final class IntegrationRoomTest: TestBase {
     }
 
     func testRoomListable() async throws {
-        try skipWithoutCapability(capability: kCapabilityListableRooms)
+        try skipWithoutCapability(capability: TalkCapability.listableRooms)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "ListableConversation", withAccount: activeAccount)
@@ -402,7 +402,7 @@ final class IntegrationRoomTest: TestBase {
     }
 
     func testRoomMessageExpiration() async throws {
-        try skipWithoutCapability(capability: kCapabilityMessageExpiration)
+        try skipWithoutCapability(capability: TalkCapability.messageExpiration)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "ExpirationConversation", withAccount: activeAccount)
@@ -457,7 +457,7 @@ final class IntegrationRoomTest: TestBase {
     }
 
     func testBotManagement() async throws {
-        try skipWithoutCapability(capability: kCapabilityBotV1)
+        try skipWithoutCapability(capability: TalkCapability.botV1)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = try await createUniqueRoom(prefix: "BotConversation", withAccount: activeAccount)

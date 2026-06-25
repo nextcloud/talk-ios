@@ -41,7 +41,7 @@ import UIKit
 
     init(room: NCRoom) {
         self.room = room
-        self.draftsAvailable = room.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityTalkPollsDrafts, forAccountId: room.accountId)
+        self.draftsAvailable = room.canModerate && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.talkPollsDrafts, forAccountId: room.accountId)
 
         super.init(style: .insetGrouped)
         self.initPollCreationView()

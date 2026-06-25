@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString *lastMessageId;
 @property (nonatomic, assign) NSInteger updatedWithMessageId;
 
-+ (instancetype)threadWithDictionary:(NSDictionary *)threadInfoDict andAccountId:(NSString *)accountId;
-+ (instancetype)createThreadFromMessage:(NCChatMessage *)message andAccountId:(NSString *)accountId;
++ (nullable instancetype)threadWithDictionary:(NSDictionary *)threadInfoDict andAccountId:(NSString *)accountId;
++ (nullable instancetype)createThreadFromMessage:(NCChatMessage *)message andAccountId:(NSString *)accountId;
 + (nullable instancetype)threadWithThreadId:(NSInteger)threadId inRoom:(NSString *)roomToken forAccountId:(NSString *)accountId;
 + (void)storeOrUpdateThreads:(NSArray *)threads;
 + (void)updateThreadWithThreadMessage:(NCChatMessage *)message;

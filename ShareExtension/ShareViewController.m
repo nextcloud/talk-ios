@@ -9,7 +9,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "NCAppBranding.h"
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 #import "NCIntentController.h"
 #import "NCRoom.h"
 #import "PlaceholderView.h"
@@ -66,8 +66,8 @@
     _filteredRooms = [[NSMutableArray alloc] init];
     
     // Configure database
-    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:kTalkDatabaseFolder] path];
-    NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:kTalkDatabaseFileName];
+    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:TalkDatabaseObjC.folder] path];
+    NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:TalkDatabaseObjC.fileName];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
         @try {
@@ -76,15 +76,15 @@
             // schemaVersionAtURL throws an exception when file is not readable
             uint64_t currentSchemaVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
             
-            if (error || currentSchemaVersion != kTalkDatabaseSchemaVersion) {
-                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
+            if (error || currentSchemaVersion != TalkDatabaseObjC.schemaVersion) {
+                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, TalkDatabaseObjC.schemaVersion);
                 NSLog(@"Database needs migration -> don't open database from extension");
                 
                 NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
                 [self.extensionContext cancelRequestWithError:error];
                 return;
             } else {
-                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, kTalkDatabaseSchemaVersion);
+                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, TalkDatabaseObjC.schemaVersion);
             }
         }
         @catch (NSException *exception) {
@@ -102,7 +102,7 @@
     
     RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
     configuration.fileURL = databaseURL;
-    configuration.schemaVersion= kTalkDatabaseSchemaVersion;
+    configuration.schemaVersion= TalkDatabaseObjC.schemaVersion;
     configuration.objectClasses = @[TalkAccount.class, NCRoom.class, ServerCapabilities.class, FederatedCapabilities.class];
     configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
         // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm

@@ -7,7 +7,7 @@
 
 #import "NCAppBranding.h"
 #import "NCUser.h"
-#import "NCDatabaseManager.h"
+#import "TalkAccount.h"
 #import "PlaceholderView.h"
 
 #import "NextcloudTalk-Swift.h"

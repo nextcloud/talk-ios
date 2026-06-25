@@ -280,7 +280,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             var room: NCRoom?
 
             // Room object is returned only since Talk 11
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityListableRooms) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
                 room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
 
                 // In case there's no token, or a non-matching token, don't return
@@ -1380,7 +1380,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityCirclesSupport, forAccountId: account.accountId)
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.circlesSupport, forAccountId: account.accountId)
         else {
             completionBlock([], nil)
             return
@@ -1495,7 +1495,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocs, _ in
-            if let threads = ocs?.dataArrayDict?.map({ NCThread(dictionary: $0, andAccountId: accountId) }), !threads.isEmpty {
+            if let threads = ocs?.dataArrayDict?.compactMap({ NCThread(dictionary: $0, andAccountId: accountId) }), !threads.isEmpty {
                 NCThread.storeOrUpdateThreads(threads)
                 completionBlock(threads)
             } else {
@@ -1522,7 +1522,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             if let error = ocsError?.underlyingError {
                 completionBlock(nil, error)
-            } else if let threads = ocsResponse?.dataArrayDict?.map({ NCThread(dictionary: $0, andAccountId: accountId) }) {
+            } else if let threads = ocsResponse?.dataArrayDict?.compactMap({ NCThread(dictionary: $0, andAccountId: accountId) }) {
                 NCThread.storeOrUpdateThreads(threads)
 
                 NCDatabaseManager.sharedInstance().updateHasThreads(forAccountId: accountId, with: !threads.isEmpty)
@@ -2090,11 +2090,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let urlString = "\(account.server)/ocs/v2.php/core/autocomplete/get"
 
         var shareTypes = [NCShareType.user.rawValue]
-        if groupRoom, NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityInviteGroupsAndMails, forAccountId: account.accountId) {
+        if groupRoom, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.inviteGroupsAndMails, forAccountId: account.accountId) {
             shareTypes.append(NCShareType.group.rawValue)
             shareTypes.append(NCShareType.email.rawValue)
 
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(kCapabilityCirclesSupport, forAccountId: account.accountId) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.circlesSupport, forAccountId: account.accountId) {
                 shareTypes.append(NCShareType.circle.rawValue)
             }
 

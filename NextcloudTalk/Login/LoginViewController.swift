@@ -206,7 +206,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
                     if let capabilities = serverCapabilities["capabilities"] as? [String: Any],
                        let talk = capabilities["spreed"] as? [String: Any],
                        let features = talk["features"] as? [String] {
-                        if features.contains(kMinimumRequiredTalkCapability) {
+                        if features.contains(TalkCapability.minimumRequired.rawValue) {
                             self.presentAuthenticationViewController(serverURL: normalizedServerURL, user: nil)
                         } else if features.isEmpty {
                             self.showAlert(
