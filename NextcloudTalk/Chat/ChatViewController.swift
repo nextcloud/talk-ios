@@ -1450,6 +1450,8 @@ import SwiftUI
 
                 if let lastMessage, lastMessage.messageId > self.lastReadMessage {
                     // Iterate backwards to find the correct location for the unread message separator
+                    var foundOneMessage = false
+
                     for sectionIndex in self.dateSections.indices.reversed() {
                         let dateSection: Date = self.dateSections[sectionIndex]
 
@@ -1457,6 +1459,14 @@ import SwiftUI
 
                         for messageIndex in messages.indices.reversed() {
                             let message = messages[messageIndex]
+
+                            // The unread marker should never be inserted after the first message, as that would
+                            // show it without any message afterwards. Therefore we check if we found at least one
+                            // message, before adding the marker
+                            if !foundOneMessage {
+                                foundOneMessage = true
+                                continue
+                            }
 
                             if message.messageId > self.lastReadMessage {
                                 continue
