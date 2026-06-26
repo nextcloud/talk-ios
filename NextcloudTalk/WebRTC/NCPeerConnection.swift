@@ -105,7 +105,11 @@ public class NCPeerConnection: NSObject {
             return false
         }
 
-        return otherConnection.peerConnection === self.peerConnection
+        // Identify a peer by its peerIdentifier ("peerId-sid"), consistent with `hash` and with the
+        // collection view / renderer bookkeeping. Comparing the underlying peerConnection reference
+        // instead would treat a recreated wrapper for the same participant as a different peer, which
+        // breaks the diffable data source's identity and the contains/firstIndex guards built on it.
+        return otherConnection.peerIdentifier == self.peerIdentifier
     }
 
     // MARK: - Public
