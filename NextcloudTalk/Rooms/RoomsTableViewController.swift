@@ -1318,7 +1318,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     }
 
     private func leaveRoom(_ room: NCRoom) {
-        let confirmDialog = UIAlertController(title: NSLocalizedString("Leave conversation", comment: ""),
+        let title = String(format: NSLocalizedString("Leave conversation \"%@\"", comment: "Where \"%@\" is the name of the conversation"), room.displayName)
+        let confirmDialog = UIAlertController(title: title,
                                               message: NSLocalizedString("Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.", comment: ""),
                                               preferredStyle: .alert)
         let confirmAction = UIAlertAction(title: NSLocalizedString("Leave", comment: ""), style: .destructive) { _ in
