@@ -74,6 +74,8 @@ struct RoomInfoDestructiveSection: View {
 
     func leaveRoom() async {
         do {
+            NCLog.log("About to leave room with token \(room.token ?? "Unknown") and name '\(room.displayName ?? "Unknown")'")
+
             try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: room.account!)
 
             NCRoomsManager.shared.chatViewController?.leaveChat()

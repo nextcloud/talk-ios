@@ -1322,6 +1322,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
                                               message: NSLocalizedString("Once a conversation is left, to rejoin a closed conversation, an invite is needed. An open conversation can be rejoined at any time.", comment: ""),
                                               preferredStyle: .alert)
         let confirmAction = UIAlertAction(title: NSLocalizedString("Leave", comment: ""), style: .destructive) { _ in
+            NCLog.log("About to leave room with token \(room.token ?? "Unknown") and name '\(room.displayName ?? "Unknown")'")
             NCUserInterfaceController.sharedInstance().presentConversationsList()
 
             if let indexPath = self.indexPath(for: room) {
