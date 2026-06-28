@@ -13,6 +13,7 @@ import UICKeyChainStore
 
 @objc(AppDelegate)
 @objcMembers
+@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
     public var window: UIWindow?
