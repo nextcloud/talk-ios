@@ -1679,8 +1679,8 @@ import SwiftUI
                     // Otherwise we would scroll whenever a unread message separator is available
                     if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
                         tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
-                    } else if (shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId)), let lastIndexPath = self.getLastRealMessage()?.indexPath {
-                        tableView.scrollToRow(at: lastIndexPath, at: .none, animated: true)
+                    } else if shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId), let lastIndexPath = self.getLastNonUpdateMessage()?.indexPath {
+                        tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
                     } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
                         // This check is needed since several calls to receiveMessages API might be needed
                         // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
