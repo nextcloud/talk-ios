@@ -422,7 +422,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
     // MARK: - BackgroundFetch / AppRefresh
 
     private func registerBackgroundFetchTask() {
-        let refreshTaskIdentifier = "\(Bundle.main.bundleIdentifier ?? "").refresh"
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
+
+        let refreshTaskIdentifier = "\(bundleIdentifier).refresh"
 
         // see: https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler?language=objc
         BGTaskScheduler.shared.register(forTaskWithIdentifier: refreshTaskIdentifier, using: nil) { task in
@@ -431,7 +433,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
     }
 
     private func scheduleAppRefresh() {
-        let refreshTaskIdentifier = "\(Bundle.main.bundleIdentifier ?? "").refresh"
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
+
+        let refreshTaskIdentifier = "\(bundleIdentifier).refresh"
 
         let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
         request.earliestBeginDate = Date(timeIntervalSinceNow: UIApplication.backgroundFetchIntervalMinimum)
