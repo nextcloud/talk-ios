@@ -45,11 +45,6 @@
 		1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C192B63B9D9000534AB /* CDMarkdownKit */; };
 		1F759C1C2B63B9D9000534AB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C1B2B63B9D9000534AB /* TOCropViewController */; };
 		1F759C1E2B63B9D9000534AB /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C1D2B63B9D9000534AB /* SwiftUIIntrospect */; };
-		1F759C2C2B63CB93000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C2B2B63CB93000534AB /* Realm */; };
-		1F759C2E2B63CB9A000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C2D2B63CB9A000534AB /* Realm */; };
-		1F759C302B63CBA0000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C2F2B63CBA0000534AB /* Realm */; };
-		1F759C322B63CBA5000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C312B63CBA5000534AB /* Realm */; };
-		1F759C342B63CBAA000534AB /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F759C332B63CBAA000534AB /* Realm */; };
 		1F77A5EF2AB9A41E007B6037 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F77A5EE2AB9A41E007B6037 /* SDWebImage */; };
 		1F77A5F12AB9A423007B6037 /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1F77A5F02AB9A423007B6037 /* SDWebImageSVGKitPlugin */; };
 		1F77A6002AB9A50D007B6037 /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F77A5FF2AB9A50D007B6037 /* NextcloudKit */; };
@@ -67,13 +62,24 @@
 		1F899F292EF9E61300890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F899F282EF9E61300890727 /* SwiftyRSA */; };
 		1F89A8442EFAC35D00890727 /* SwiftyRSA in Frameworks */ = {isa = PBXBuildFile; productRef = 1F89A8432EFAC35D00890727 /* SwiftyRSA */; };
 		1F90EFC725FE4BE700F3FA55 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F90EFC225FE489B00F3FA55 /* IntentsUI.framework */; };
+		1F95EEC42FF1674200F1B775 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EEC32FF1674200F1B775 /* Realm */; };
+		1F95EEC62FF1674200F1B775 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EEC52FF1674200F1B775 /* RealmSwift */; };
+		1F95EEC82FF1675500F1B775 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EEC72FF1675500F1B775 /* RealmSwift */; };
+		1F95EECA2FF1675A00F1B775 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EEC92FF1675A00F1B775 /* Realm */; };
+		1F95EECC2FF1675F00F1B775 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EECB2FF1675F00F1B775 /* Realm */; };
+		1F95EECE2FF1675F00F1B775 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EECD2FF1675F00F1B775 /* RealmSwift */; };
+		1F95EED02FF1677900F1B775 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EECF2FF1677900F1B775 /* Realm */; };
+		1F95EED22FF1677900F1B775 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EED12FF1677900F1B775 /* RealmSwift */; };
+		1F95EED42FF1678000F1B775 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EED32FF1678000F1B775 /* Realm */; };
+		1F95EED62FF1678000F1B775 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EED52FF1678000F1B775 /* RealmSwift */; };
+		1F95EED82FF1678600F1B775 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EED72FF1678600F1B775 /* Realm */; };
+		1F95EEDA2FF1678600F1B775 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EED92FF1678600F1B775 /* RealmSwift */; };
 		1F96D76E2D93013C0088331F /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 1F96D76D2D93013C0088331F /* SwiftyXMLParser */; };
 		1FA93DA52D70FCC200DF6CDF /* TalkIntents.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1FA93DCD2D71004500DF6CDF /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FA93DE32D7100DC00DF6CDF /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
 		1FA93DE52D71010F00DF6CDF /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DE42D71010F00DF6CDF /* CDMarkdownKit */; };
 		1FA93DE72D71011400DF6CDF /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DE62D71011400DF6CDF /* NextcloudKit */; };
-		1FA93DE92D71011800DF6CDF /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DE82D71011800DF6CDF /* Realm */; };
 		1FA93DEB2D71011C00DF6CDF /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DEA2D71011C00DF6CDF /* SDWebImage */; };
 		1FA93DED2D71012000DF6CDF /* SDWebImageSVGKitPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DEC2D71012000DF6CDF /* SDWebImageSVGKitPlugin */; };
 		1FA93DEF2D71012500DF6CDF /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DEE2D71012500DF6CDF /* SwiftyAttributes */; };
@@ -1192,10 +1198,11 @@
 				1F759C092B63B9A7000534AB /* SDWebImage in Frameworks */,
 				1F759C1A2B63B9D9000534AB /* CDMarkdownKit in Frameworks */,
 				1F759C0B2B63B9A7000534AB /* SDWebImageSVGKitPlugin in Frameworks */,
-				1F759C342B63CBAA000534AB /* Realm in Frameworks */,
+				1F95EED82FF1678600F1B775 /* Realm in Frameworks */,
 				1F759C162B63B9D9000534AB /* NextcloudKit in Frameworks */,
 				1F759C182B63B9D9000534AB /* SwiftyAttributes in Frameworks */,
 				1F759C1C2B63B9D9000534AB /* TOCropViewController in Frameworks */,
+				1F95EEDA2FF1678600F1B775 /* RealmSwift in Frameworks */,
 				1F759C1E2B63B9D9000534AB /* SwiftUIIntrospect in Frameworks */,
 				4890175925A0D7FC2EC76CC0 /* libPods-NextcloudTalkTests.a in Frameworks */,
 			);
@@ -1205,14 +1212,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FA93DE92D71011800DF6CDF /* Realm in Frameworks */,
 				1FA93DE72D71011400DF6CDF /* NextcloudKit in Frameworks */,
 				1FA93DF12D71012900DF6CDF /* UICKeyChainStore in Frameworks */,
 				1F899F292EF9E61300890727 /* SwiftyRSA in Frameworks */,
 				1FA93DEB2D71011C00DF6CDF /* SDWebImage in Frameworks */,
+				1F95EED42FF1678000F1B775 /* Realm in Frameworks */,
 				1FA93DE52D71010F00DF6CDF /* CDMarkdownKit in Frameworks */,
 				1FA93DED2D71012000DF6CDF /* SDWebImageSVGKitPlugin in Frameworks */,
 				1FA93DEF2D71012500DF6CDF /* SwiftyAttributes in Frameworks */,
+				1F95EED62FF1678000F1B775 /* RealmSwift in Frameworks */,
 				1F96D76E2D93013C0088331F /* SwiftyXMLParser in Frameworks */,
 				2B4BED05DC4A4EB4761A6C87 /* libPods-TalkIntents.a in Frameworks */,
 			);
@@ -1229,7 +1237,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F759C322B63CBA5000534AB /* Realm in Frameworks */,
+				1F95EED22FF1677900F1B775 /* RealmSwift in Frameworks */,
+				1F95EED02FF1677900F1B775 /* Realm in Frameworks */,
 				1F77A6002AB9A50D007B6037 /* NextcloudKit in Frameworks */,
 				1F77A60C2AB9A5BE007B6037 /* CDMarkdownKit in Frameworks */,
 				1FC4B32B2CC0564100D28138 /* UICKeyChainStore in Frameworks */,
@@ -1254,6 +1263,7 @@
 				2CA1CC971F016117002FE6A2 /* Security.framework in Frameworks */,
 				1F45A1212A01D8BA005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */,
+				1F95EEC62FF1674200F1B775 /* RealmSwift in Frameworks */,
 				1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */,
 				1F89A8442EFAC35D00890727 /* SwiftyRSA in Frameworks */,
 				2C90E5CF1EDF23A00093D85A /* WebKit.framework in Frameworks */,
@@ -1261,11 +1271,11 @@
 				80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */,
 				1FBB6EE32F8ECE5B003CBA30 /* Toast in Frameworks */,
 				2C90E5671EDDE1340093D85A /* CoreGraphics.framework in Frameworks */,
+				1F95EEC42FF1674200F1B775 /* Realm in Frameworks */,
 				1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */,
 				1FC4B3362CC0586A00D28138 /* libPhoneNumber in Frameworks */,
 				2C90E5641EDDE0FB0093D85A /* Foundation.framework in Frameworks */,
 				1F468E7628DCC6C60099597B /* Dynamic in Frameworks */,
-				1F759C2C2B63CB93000534AB /* Realm in Frameworks */,
 				1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */,
 				1F549B692D3A9AA500E9AA9E /* DebouncedOnChange in Frameworks */,
 				1FC4B3332CC057DD00D28138 /* MBProgressHUD in Frameworks */,
@@ -1282,12 +1292,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F95EECC2FF1675F00F1B775 /* Realm in Frameworks */,
 				1F7AE07C29142E6A009F72AD /* NextcloudKit in Frameworks */,
 				2C349B822D71A03B004EC882 /* SwiftyXMLParser in Frameworks */,
+				1F95EECE2FF1675F00F1B775 /* RealmSwift in Frameworks */,
 				1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */,
 				1F0ECBF92A68277C00921E90 /* CDMarkdownKit in Frameworks */,
 				8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */,
-				1F759C302B63CBA0000534AB /* Realm in Frameworks */,
 				1FC4B3292CC0562E00D28138 /* UICKeyChainStore in Frameworks */,
 				1FC4B3312CC057B700D28138 /* MBProgressHUD in Frameworks */,
 				1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */,
@@ -1303,15 +1314,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F759C2E2B63CB9A000534AB /* Realm in Frameworks */,
 				1F45A1232A01D8F1005FE87D /* SDWebImageSVGKitPlugin in Frameworks */,
 				1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */,
 				1FC4B3272CC0562600D28138 /* UICKeyChainStore in Frameworks */,
 				1F7AE07A29142E62009F72AD /* NextcloudKit in Frameworks */,
 				1F7AE07D29158878009F72AD /* IntentsUI.framework in Frameworks */,
 				1F899F232EF9E60500890727 /* SwiftyRSA in Frameworks */,
+				1F95EECA2FF1675A00F1B775 /* Realm in Frameworks */,
 				1FF1361C2BFBC86A006A6101 /* SwiftyAttributes in Frameworks */,
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
+				1F95EEC82FF1675500F1B775 /* RealmSwift in Frameworks */,
 				1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */,
 				2C349B802D71A030004EC882 /* SwiftyXMLParser in Frameworks */,
 			);
@@ -1554,7 +1566,8 @@
 				1F759C192B63B9D9000534AB /* CDMarkdownKit */,
 				1F759C1B2B63B9D9000534AB /* TOCropViewController */,
 				1F759C1D2B63B9D9000534AB /* SwiftUIIntrospect */,
-				1F759C332B63CBAA000534AB /* Realm */,
+				1F95EED72FF1678600F1B775 /* Realm */,
+				1F95EED92FF1678600F1B775 /* RealmSwift */,
 			);
 			productName = NextcloudTalkTests;
 			productReference = 1F6D8C302B2E3756004376B8 /* NextcloudTalkTests.xctest */;
@@ -1585,13 +1598,14 @@
 			packageProductDependencies = (
 				1FA93DE42D71010F00DF6CDF /* CDMarkdownKit */,
 				1FA93DE62D71011400DF6CDF /* NextcloudKit */,
-				1FA93DE82D71011800DF6CDF /* Realm */,
 				1FA93DEA2D71011C00DF6CDF /* SDWebImage */,
 				1FA93DEC2D71012000DF6CDF /* SDWebImageSVGKitPlugin */,
 				1FA93DEE2D71012500DF6CDF /* SwiftyAttributes */,
 				1FA93DF02D71012900DF6CDF /* UICKeyChainStore */,
 				1F96D76D2D93013C0088331F /* SwiftyXMLParser */,
 				1F899F282EF9E61300890727 /* SwiftyRSA */,
+				1F95EED32FF1678000F1B775 /* Realm */,
+				1F95EED52FF1678000F1B775 /* RealmSwift */,
 			);
 			productName = TalkIntents;
 			productReference = 1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */;
@@ -1642,11 +1656,12 @@
 				1F77A5F02AB9A423007B6037 /* SDWebImageSVGKitPlugin */,
 				1F77A5FF2AB9A50D007B6037 /* NextcloudKit */,
 				1F77A60B2AB9A5BE007B6037 /* CDMarkdownKit */,
-				1F759C312B63CBA5000534AB /* Realm */,
 				1FF136192BFBC841006A6101 /* SwiftyAttributes */,
 				1FC4B32A2CC0564100D28138 /* UICKeyChainStore */,
 				2C349B852D71A15F004EC882 /* SwiftyXMLParser */,
 				1F899F262EF9E60F00890727 /* SwiftyRSA */,
+				1F95EECF2FF1677900F1B775 /* Realm */,
+				1F95EED12FF1677900F1B775 /* RealmSwift */,
 			);
 			productName = BroadcastUploadExtension;
 			productReference = 1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */;
@@ -1709,7 +1724,6 @@
 				1FAB2E7C2AC99326001214EB /* TOCropViewController */,
 				1FAB2E872ACD44D0001214EB /* WebRTC */,
 				80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */,
-				1F759C2B2B63CB93000534AB /* Realm */,
 				1FCE3D522C9B5918009C68A9 /* SwiftyGif */,
 				1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */,
 				1FC4B3242CC054BC00D28138 /* UICKeyChainStore */,
@@ -1720,6 +1734,8 @@
 				1F899F202EF9E5FF00890727 /* SwiftyRSA */,
 				1F89A8432EFAC35D00890727 /* SwiftyRSA */,
 				1FBB6EE22F8ECE5B003CBA30 /* Toast */,
+				1F95EEC32FF1674200F1B775 /* Realm */,
+				1F95EEC52FF1674200F1B775 /* RealmSwift */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1756,11 +1772,12 @@
 				1F0ECBF82A68277C00921E90 /* CDMarkdownKit */,
 				1FAB2E7E2AC99367001214EB /* TOCropViewController */,
 				1F35F8F42AEEDA9800044BDA /* SwiftyAttributes */,
-				1F759C2F2B63CBA0000534AB /* Realm */,
 				1FC4B3282CC0562E00D28138 /* UICKeyChainStore */,
 				1FC4B3302CC057B700D28138 /* MBProgressHUD */,
 				2C349B812D71A03B004EC882 /* SwiftyXMLParser */,
 				1F899F242EF9E60900890727 /* SwiftyRSA */,
+				1F95EECB2FF1675F00F1B775 /* Realm */,
+				1F95EECD2FF1675F00F1B775 /* RealmSwift */,
 			);
 			productName = ShareExtension;
 			productReference = 2C62AFA324C08845007E460A /* ShareExtension.appex */;
@@ -1793,11 +1810,12 @@
 				1F45A11D2A01D719005FE87D /* SDWebImage */,
 				1F45A1222A01D8F1005FE87D /* SDWebImageSVGKitPlugin */,
 				1F0ECBF62A68277000921E90 /* CDMarkdownKit */,
-				1F759C2D2B63CB9A000534AB /* Realm */,
 				1FF1361B2BFBC86A006A6101 /* SwiftyAttributes */,
 				1FC4B3262CC0562600D28138 /* UICKeyChainStore */,
 				2C349B7F2D71A030004EC882 /* SwiftyXMLParser */,
 				1F899F222EF9E60500890727 /* SwiftyRSA */,
+				1F95EEC72FF1675500F1B775 /* RealmSwift */,
+				1F95EEC92FF1675A00F1B775 /* Realm */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
@@ -1906,7 +1924,6 @@
 				1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */,
 				1FAB2E862ACD44CF001214EB /* XCRemoteSwiftPackageReference "talk-clients-webrtc" */,
 				80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
-				1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */,
 				1FCE3D512C9B5918009C68A9 /* XCRemoteSwiftPackageReference "SwiftyGif" */,
 				1FC4B3202CC0538B00D28138 /* XCRemoteSwiftPackageReference "JDStatusBarNotification" */,
 				1FC4B3232CC054BC00D28138 /* XCRemoteSwiftPackageReference "UICKeyChainStore" */,
@@ -1916,6 +1933,7 @@
 				2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */,
 				1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */,
 				1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
+				1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -3427,14 +3445,6 @@
 				revision = 1ae513a1617309455a115c3fc2d558f744b43788;
 			};
 		};
-		1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nextcloud-deps/realm-swift-binary";
-			requirement = {
-				kind = revision;
-				revision = eca2e73265b2abaee75b99bac31b6bd2f02dbdc1;
-			};
-		};
 		1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud/NextcloudKit";
@@ -3449,6 +3459,14 @@
 			requirement = {
 				kind = revision;
 				revision = 36f9963a83a602bd2ea57ff3ccf600d6284d91e4;
+			};
+		};
+		1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nextcloud-deps/realm-swift-binary/";
+			requirement = {
+				kind = revision;
+				revision = bafb3966333a4aea708838ccd2ee493fc5a1bc0f;
 			};
 		};
 		1FAB2E7B2AC99326001214EB /* XCRemoteSwiftPackageReference "TOCropViewController" */ = {
@@ -3639,31 +3657,6 @@
 			package = 80CDF8C22A8E098900CB57AE /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
 			productName = SwiftUIIntrospect;
 		};
-		1F759C2B2B63CB93000534AB /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
-			productName = Realm;
-		};
-		1F759C2D2B63CB9A000534AB /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
-			productName = Realm;
-		};
-		1F759C2F2B63CBA0000534AB /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
-			productName = Realm;
-		};
-		1F759C312B63CBA5000534AB /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
-			productName = Realm;
-		};
-		1F759C332B63CBAA000534AB /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
-			productName = Realm;
-		};
 		1F77A5EE2AB9A41E007B6037 /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */;
@@ -3724,6 +3717,66 @@
 			package = 1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */;
 			productName = SwiftyRSA;
 		};
+		1F95EEC32FF1674200F1B775 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F95EEC52FF1674200F1B775 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = RealmSwift;
+		};
+		1F95EEC72FF1675500F1B775 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = RealmSwift;
+		};
+		1F95EEC92FF1675A00F1B775 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F95EECB2FF1675F00F1B775 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F95EECD2FF1675F00F1B775 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = RealmSwift;
+		};
+		1F95EECF2FF1677900F1B775 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F95EED12FF1677900F1B775 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = RealmSwift;
+		};
+		1F95EED32FF1678000F1B775 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F95EED52FF1678000F1B775 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = RealmSwift;
+		};
+		1F95EED72FF1678600F1B775 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = Realm;
+		};
+		1F95EED92FF1678600F1B775 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F95EEC22FF1674200F1B775 /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
+			productName = RealmSwift;
+		};
 		1F96D76D2D93013C0088331F /* SwiftyXMLParser */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */;
@@ -3738,11 +3791,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F7AE07629142CA1009F72AD /* XCRemoteSwiftPackageReference "NextcloudKit" */;
 			productName = NextcloudKit;
-		};
-		1FA93DE82D71011800DF6CDF /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1F759C2A2B63CB93000534AB /* XCRemoteSwiftPackageReference "realm-swift-binary" */;
-			productName = Realm;
 		};
 		1FA93DEA2D71011C00DF6CDF /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
