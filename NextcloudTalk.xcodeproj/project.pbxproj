@@ -76,7 +76,6 @@
 		1F95EEDA2FF1678600F1B775 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1F95EED92FF1678600F1B775 /* RealmSwift */; };
 		1F96D76E2D93013C0088331F /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 1F96D76D2D93013C0088331F /* SwiftyXMLParser */; };
 		1FA93DA52D70FCC200DF6CDF /* TalkIntents.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		1FA93DCD2D71004500DF6CDF /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FA93DE32D7100DC00DF6CDF /* NotificationCenterNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */; };
 		1FA93DE52D71010F00DF6CDF /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DE42D71010F00DF6CDF /* CDMarkdownKit */; };
 		1FA93DE72D71011400DF6CDF /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1FA93DE62D71011400DF6CDF /* NextcloudKit */; };
@@ -90,9 +89,6 @@
 		1FAB2E7D2AC99326001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7C2AC99326001214EB /* TOCropViewController */; };
 		1FAB2E7F2AC99367001214EB /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E7E2AC99367001214EB /* TOCropViewController */; };
 		1FAB2E882ACD44D0001214EB /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 1FAB2E872ACD44D0001214EB /* WebRTC */; };
-		1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
-		1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
-		1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FBB6EE32F8ECE5B003CBA30 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 1FBB6EE22F8ECE5B003CBA30 /* Toast */; };
 		1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3212CC0538B00D28138 /* JDStatusBarNotification */; };
 		1FC4B3252CC054BC00D28138 /* UICKeyChainStore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FC4B3242CC054BC00D28138 /* UICKeyChainStore */; };
@@ -107,7 +103,6 @@
 		1FE7DE342BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
 		1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */; };
-		1FF136132BFB6FCD006A6101 /* RLMSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */; };
 		1FF1361A2BFBC841006A6101 /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1FF136192BFBC841006A6101 /* SwiftyAttributes */; };
 		1FF1361C2BFBC86A006A6101 /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1FF1361B2BFBC86A006A6101 /* SwiftyAttributes */; };
 		1FF2FD5D2AB99CCB000C9905 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF2FD5C2AB99CCB000C9905 /* ReplayKit.framework */; };
@@ -320,7 +315,6 @@
 		1F9632D52E97B37000EC9BEE /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		1FA93D8B2D70FB3400DF6CDF /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
 		1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = TalkIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLMSupport.swift; sourceTree = "<group>"; };
 		1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		1FD8AD8A2A3A162100787C16 /* NextcloudTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextcloudTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FDCC3EC29EC7DD400DEB39B /* NextcloudTalk-Bridging-Header-Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NextcloudTalk-Bridging-Header-Extensions.h"; sourceTree = "<group>"; };
@@ -1389,7 +1383,6 @@
 				2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */,
 				1FE052B82F1C463E00B975FD /* NCTypes.h */,
 				2C0574941EDD9E8E00D9E7F2 /* Info.plist */,
-				1FAB2EEF2AD1EAA3001214EB /* RLMSupport.swift */,
 				2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */,
 				2C8D3BAC2FA9DEF900F0A900 /* AppIcon.icon */,
 				1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */,
@@ -2235,7 +2228,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FA93DCD2D71004500DF6CDF /* RLMSupport.swift in Sources */,
 				1FA93DE32D7100DC00DF6CDF /* NotificationCenterNotifications.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2251,7 +2243,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FF136132BFB6FCD006A6101 /* RLMSupport.swift in Sources */,
 				1F77A6032AB9A56D007B6037 /* NotificationCenterNotifications.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2262,7 +2253,6 @@
 			files = (
 				2CC1C38729C0945700C8436B /* DRCellSlideAction.m in Sources */,
 				2C0574851EDD9E8E00D9E7F2 /* AppDelegate.swift in Sources */,
-				1FAB2EF02AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C4D7D761F30F7B600FF4A0D /* ARDUtilities.m in Sources */,
 				2C4D7D731F309DA500FF4A0D /* RTCSessionDescription+JSON.m in Sources */,
 				2CB3041C2264775E0053078A /* SLKTextView+SLKAdditions.m in Sources */,
@@ -2301,7 +2291,6 @@
 				2C4446F9265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 				1F35F8ED2AEEBC1600044BDA /* UIView+SLKAdditions.m in Sources */,
 				1F35F8EA2AEEBC0E00044BDA /* SLKTextViewController.m in Sources */,
-				1FAB2EF22AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				1F35F8EF2AEEBC1A00044BDA /* SLKDefaultReplyView.m in Sources */,
 				1F35F8F02AEEBC1D00044BDA /* SLKDefaultTypingIndicatorView.m in Sources */,
 			);
@@ -2311,7 +2300,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FAB2EF12AD1EAA3001214EB /* RLMSupport.swift in Sources */,
 				2C4446F8265D5A0700DF1DBC /* NotificationCenterNotifications.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
