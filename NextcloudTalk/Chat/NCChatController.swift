@@ -1040,7 +1040,7 @@ public class NCChatController: NSObject {
                 }
 
                 if statusCode == 404 {
-                    NSLog("Thread not found error: \(error.description)")
+                    NCLog.log("Thread not found error: \(error.description)")
                     NotificationCenter.default.post(name: .NCChatControllerDidReceiveThreadNotFound, object: self, userInfo: nil)
                     return
                 }
@@ -1051,7 +1051,7 @@ public class NCChatController: NSObject {
                 }
 
                 if statusCode != 304 {
-                    NSLog("Could not get new chat messages. Error: \(error.description)")
+                    NCLog.log("Could not get new chat messages. Error: \(error.description)")
                 }
             } else {
                 // Update last chat block
