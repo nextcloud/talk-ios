@@ -79,6 +79,5 @@ extern NSString * const NCRoomObjectTypeExtendedConversation;
 @property (nonatomic, assign) NCRoomAttribute attributes;
 
 + (instancetype _Nullable)roomWithDictionary:(NSDictionary * _Nullable)roomDict andAccountId:(NSString * _Nullable)accountId;
-+ (void)updateRoom:(NCRoom * _Nonnull)managedRoom withRoom:(NCRoom * _Nonnull)room;
 
 @end
