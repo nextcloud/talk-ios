@@ -42,6 +42,10 @@ public class NCChatController: NSObject {
     private var chatRelayMessagesQueue: DispatchQueue?
     private var externalSignalingController: NCExternalSignalingController?
 
+    // Set when the HPB asks us to refresh the chatwhile we are not yet processing relay messages.
+    // Triggers a catch-up once we become active. Only accessed on the relay queue.
+    private var pendingChatRelayRefresh = false
+
     // Debounces the read-marker requests we issue while receiving messages over the chat relay. Only accessed on the main queue.
     private var setReadMarkerWorkItem: DispatchWorkItem?
 
@@ -432,6 +436,7 @@ public class NCChatController: NSObject {
         externalSignalingController = signalingController
         chatRelayMessagesQueue = DispatchQueue(label: "chat.relay.message.queue")
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChatMessageFromExternalSignaling(_:)), name: .extSignalingDidReceiveChatMessage, object: signalingController)
+        NotificationCenter.default.addObserver(self, selector: #selector(didRequestChatRefreshFromExternalSignaling(_:)), name: .extSignalingDidRequestChatRefresh, object: signalingController)
         NotificationCenter.default.addObserver(self, selector: #selector(didReconnectExternalSignaling(_:)), name: .extSignalingDidReconnect, object: signalingController)
     }
 
@@ -448,10 +453,31 @@ public class NCChatController: NSObject {
         }
     }
 
+    @objc private func didRequestChatRefreshFromExternalSignaling(_ notification: Notification) {
+        guard let roomToken = notification.userInfo?["roomToken"] as? String, roomToken == room.token else { return }
+
+        chatRelayMessagesQueue?.async {
+            // The HPB didn't relay the full message, so we have to fetch the new messages over the chat API.
+            // If we are not actively processing relay messages yet, remember the request and run the catch-up
+            // once we become active, so we don't miss it during the initial catch-up.
+            guard self.chatRelayState == .active else {
+                self.pendingChatRelayRefresh = true
+                return
+            }
+            self.triggerChatRelayCatchUp()
+        }
+    }
+
     private func startProcessingChatRelayMessages() {
         chatRelayMessagesQueue?.async {
             self.chatRelayState = .active
             self.flushChatRelayMessagesBuffer()
+
+            // A refresh request arrived before we were active; catch up now that the buffer is drained.
+            if self.pendingChatRelayRefresh {
+                self.pendingChatRelayRefresh = false
+                self.triggerChatRelayCatchUp()
+            }
         }
     }
 

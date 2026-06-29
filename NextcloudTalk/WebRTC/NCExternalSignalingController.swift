@@ -25,6 +25,7 @@ extension Notification.Name {
     static let extSignalingDidReceiveStartedTyping = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveStartedTypingNotification")
     static let extSignalingDidReceiveStoppedTyping = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveStoppedTypingNotification")
     static let extSignalingDidReceiveChatMessage = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveChatMessageNotification")
+    static let extSignalingDidRequestChatRefresh = Notification.Name(rawValue: "NCExternalSignalingControllerDidRequestChatRefreshNotification")
     static let extSignalingDidReconnect = Notification.Name(rawValue: "NCExternalSignalingControllerDidReconnectNotification")
 }
 
@@ -639,9 +640,12 @@ public enum NCExternalSignalingSendMessageStatus {
         if messageType == "chat" {
             if hasChatRelay,
                let roomToken = messageDict["roomid"] as? String,
-               let chatDict = dataDict["chat"] as? [String: Any],
-               let message = chatDict["comment"] as? [String: Any] {
-                NotificationCenter.default.post(name: .extSignalingDidReceiveChatMessage, object: self, userInfo: ["roomToken": roomToken, "message": message])
+               let chatDict = dataDict["chat"] as? [String: Any] {
+                if let message = chatDict["comment"] as? [String: Any] {
+                    NotificationCenter.default.post(name: .extSignalingDidReceiveChatMessage, object: self, userInfo: ["roomToken": roomToken, "message": message])
+                } else if (chatDict["refresh"] as? Bool) == true {
+                    NotificationCenter.default.post(name: .extSignalingDidRequestChatRefresh, object: self, userInfo: ["roomToken": roomToken])
+                }
             }
         } else if messageType == "recording" {
             self.delegate?.externalSignalingController(self, didReceivedSignalingMessage: messageDict)
