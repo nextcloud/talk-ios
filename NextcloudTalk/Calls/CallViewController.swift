@@ -1876,7 +1876,7 @@ class CallViewController: UIViewController,
             }
 
             for peerConnection in self.screenPeersInCall {
-                let screenRenderer = self.screenRenderersDict[peerConnection.peerIdentifier]
+                let screenRenderer = self.screenRenderersDict[peerConnection.peerId]
                 self.screenRenderersDict.removeValue(forKey: peerConnection.peerId)
 
                 guard let screenRenderer else { continue }
