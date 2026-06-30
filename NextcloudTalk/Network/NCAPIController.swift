@@ -1936,20 +1936,14 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @nonobjc
     @discardableResult
-    public func sendCallNotification(toParticipant participant: String?, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
+    public func sendCallNotification(toAttendee attendeeId: String, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else { return nil }
 
-        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)/ring/\(attendeeId)", withAPIType: .call, forAccount: account)
 
-        var parameters: [String: Any] = [:]
-
-        if let participant {
-            parameters["attendeeId"] = participant
-        }
-
-        return apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+        return apiSessionManager.postOcs(urlString, account: account) { _, ocsError in
             completionBlock(ocsError)
         }
     }

@@ -161,7 +161,7 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func sendCallNotification(forParticipant participant: NCRoomParticipant) {
-        NCAPIController.sharedInstance().sendCallNotification(toParticipant: String(participant.attendeeId), inRoom: room.token, forAccount: room.account!) { error in
+        NCAPIController.sharedInstance().sendCallNotification(toAttendee: String(participant.attendeeId), inRoom: room.token, forAccount: room.account!) { error in
             if error != nil {
                 NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not send call notification", comment: ""), withMessage: nil)
             } else {
