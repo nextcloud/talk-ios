@@ -500,7 +500,9 @@ public class NCChatController: NSObject {
     // payload (file/object shares, call_ended, unknown system messages). Incoming chat relay messages
     // are buffered while the catch-up runs.
     private func triggerChatRelayCatchUp() {
-        guard chatRelayState != .catchingUp else { return }
+        dispatchPrecondition(condition: .onQueue(chatRelayMessagesQueue!))
+
+        guard chatRelayState == .active, !stopChatMessagesPoll else { return }
 
         chatRelayState = .catchingUp
 
