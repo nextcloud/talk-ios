@@ -19,6 +19,8 @@ struct RoomInfoDestructiveSection: View {
 
         return Section {
             if room.canLeaveConversation {
+                let leaveTitle = String(format: NSLocalizedString("Leave conversation \"%@\"", comment: "Where \"%@\" is the name of the conversation"), room.displayName)
+
                 Button(role: .destructive, action: {
                     self.showLeaveConfirmation = true
                 }, label: {
@@ -26,7 +28,7 @@ struct RoomInfoDestructiveSection: View {
                         Text("Leave conversation")
                     }
                 })
-                .alert(NSLocalizedString("Leave conversation", comment: ""), isPresented: $showLeaveConfirmation, actions: {
+                .alert(leaveTitle, isPresented: $showLeaveConfirmation, actions: {
                     Button(role: .destructive, action: {
                         Task {
                             await leaveRoom()
@@ -74,6 +76,8 @@ struct RoomInfoDestructiveSection: View {
 
     func leaveRoom() async {
         do {
+            NCLog.log("About to leave room with token \(room.token ?? "Unknown") and name '\(room.displayName ?? "Unknown")'")
+
             try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: room.account!)
 
             NCRoomsManager.shared.chatViewController?.leaveChat()

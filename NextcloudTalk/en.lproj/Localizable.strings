@@ -1369,6 +1369,9 @@
 /* No comment provided by engineer. */
 "Leave conversation" = "Leave conversation";
 
+/* Where \"%@\" is the name of the conversation */
+"Leave conversation \"%@\"" = "Leave conversation \"%@\"";
+
 /* No comment provided by engineer. */
 "less than a minute ago" = "less than a minute ago";
 
