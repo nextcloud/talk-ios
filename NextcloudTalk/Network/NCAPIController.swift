@@ -1542,12 +1542,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
-    public func getThread(for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: NCThread?) -> Void) {
+    public func getThread(for accountId: String, in roomToken: String, threadId: Int, completionBlock: @escaping (_ thread: NCThread?, _ firstMessageDict: [String: Any]?) -> Void) {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId),
               let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = roomToken.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
-            completionBlock(nil)
+            completionBlock(nil, nil)
             return
         }
 
@@ -1555,13 +1555,16 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         apiSessionManager.getOcs(urlString, account: account, parameters: nil) { ocs, _ in
             guard let threadDict = ocs?.dataDict as? [String: Any] else {
-                completionBlock(nil)
+                completionBlock(nil, nil)
                 return
             }
 
             let thread = NCThread(dictionary: threadDict, andAccountId: accountId)
             NCThread.storeOrUpdateThreads([thread])
-            completionBlock(thread)
+
+            // The thread's `first` field is the thread's original message with the thread fields set. The
+            // chat relay omits those fields on the original message, so callers use this to repair it.
+            completionBlock(thread, threadDict["first"] as? [String: Any])
         }
     }
 

@@ -1820,6 +1820,12 @@ import SwiftUI
 
         guard let message = notification.userInfo?["threadMessage"] as? NCChatMessage else { return }
 
+        if message.isThreadOriginalMessage() {
+            // A thread's original message received its thread data after being repaired over the chat API
+            // (the chat relay omits it), so refresh the displayed copy to render it as the thread starter.
+            self.updateMessage(withMessageId: message.messageId, updatedMessage: message)
+        }
+
         if message.isThreadMessage() {
             // Update thread original messages that are already loaded in the chat
             self.updateThreadOriginalMessage(withMessage: message)

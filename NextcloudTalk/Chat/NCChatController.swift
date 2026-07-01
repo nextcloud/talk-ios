@@ -550,7 +550,44 @@ public class NCChatController: NSObject {
 
         storeRelayMessage(message, storableDict: storableMessageDict, lastNewestMessageId: lastNewestMessageId)
 
+        repairThreadOriginalMessageIfNeeded(for: message)
+
         print("Stored a new message received over the chat relay")
+    }
+
+    // The chat relay omits thread data on a thread's original message, so it renders as a normal message.
+    // Mirror the web client: fetch the thread over the chat API and re-store its `first` message, which
+    // carries the thread fields. Can be removed once the relay includes them in the original message.
+    private func repairThreadOriginalMessageIfNeeded(for message: NCChatMessage) {
+        if message.isThreadCreatedMessage {
+            // A thread was just created; its original message was (or will be) stored without thread data.
+            updateThreadOriginalMessageOverChatAPI(forThreadId: message.threadId)
+        } else if message.isThreadMessage(), NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId) == nil {
+            // A reply for a thread we don't know yet; fetch it so the original message gets its thread data.
+            updateThreadOriginalMessageOverChatAPI(forThreadId: message.threadId)
+        }
+    }
+
+    // Fetches the thread over the chat API and re-stores its original message (`first`) so it carries the
+    // thread fields the chat relay omits, then notifies the UI to refresh the displayed copy.
+    private func updateThreadOriginalMessageOverChatAPI(forThreadId threadId: Int) {
+        guard threadId > 0 else { return }
+
+        NCAPIController.sharedInstance().getThread(for: account.accountId, in: room.token, threadId: threadId) { [weak self] _, firstMessageDict in
+            guard let self,
+                  let firstMessageDict,
+                  let firstMessage = NCChatMessage(dictionary: firstMessageDict, andAccountId: self.account.accountId)
+            else { return }
+
+            self.chatRelayMessagesQueue?.async {
+                self.storeMessages([firstMessageDict])
+
+                var userInfo: [AnyHashable: Any] = [:]
+                userInfo["room"] = self.room.token
+                userInfo["threadMessage"] = firstMessage
+                NotificationCenter.default.post(name: .NCChatControllerDidReceiveThreadMessage, object: self, userInfo: userInfo)
+            }
+        }
     }
 
     // Stores a message received over the chat relay and advances the read marker. Both the regular and
