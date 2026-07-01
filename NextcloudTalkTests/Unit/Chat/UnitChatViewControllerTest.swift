@@ -148,6 +148,30 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         XCTAssertEqual(activeAccount.frequentlyUsedEmojis, ["🇫🇮", "🙈", "😵‍💫", "🤷‍♂️"])
     }
 
+    func testStoppedControllerDoesNotResumePollingOnChatRelayCatchUp() throws {
+        let room = addRoom(withToken: "relayLeakRoom")
+        let chatController = NCChatController(for: room)!
+
+        // The user leaves the chat -> ChatViewController.leaveChat() -> stop()
+        chatController.stop()
+        XCTAssertTrue(chatController.isReceivingMessagesStoppedForTesting)
+
+        // A chat-relay catch-up arriving around the time the chat is left must NOT
+        // bring the stopped controller back to life and resume polling — otherwise
+        // the in-flight poll task retains the controller, deinit never runs, and it
+        // keeps pulling messages for a conversation the user already left.
+        chatController.triggerChatRelayCatchUpForTesting()
+
+        // triggerChatRelayCatchUp() schedules startReceivingChatMessages on the main
+        // queue; let that run before asserting.
+        let exp = expectation(description: "\(#function)\(#line)")
+        DispatchQueue.main.async { exp.fulfill() }
+        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+
+        XCTAssertTrue(chatController.isReceivingMessagesStoppedForTesting,
+                      "A stopped NCChatController must not resume message polling after a chat-relay catch-up")
+    }
+
     func testContentInsetAdjustsForOverlayViews() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = NCRoom()

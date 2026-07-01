@@ -1370,3 +1370,13 @@ public class NCChatController: NSObject {
         }
     }
 }
+
+// Test-only hooks (internal, so only reachable via `@testable import`; not part of the public API).
+extension NCChatController {
+    var isReceivingMessagesStoppedForTesting: Bool { stopChatMessagesPoll }
+
+    // Mirrors a chat-relay catch-up triggered by a relayed refresh/message or a
+    // signaling reconnect (see didRequestChatRefreshFromExternalSignaling /
+    // handleChatRelayMessage / didReconnectExternalSignaling).
+    func triggerChatRelayCatchUpForTesting() { triggerChatRelayCatchUp() }
+}
