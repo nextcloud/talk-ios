@@ -1050,7 +1050,7 @@ public class NCChatController: NSObject {
                     return
                 }
 
-                if statusCode != 304 {
+                if statusCode != 304, error.underlyingError.code != NSURLErrorCancelled  {
                     NCLog.log("Could not get new chat messages. Error: \(error.description)")
                 }
             } else {
