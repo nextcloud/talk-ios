@@ -136,65 +136,6 @@ NSString * const NCRoomObjectTypeExtendedConversation   = @"extended_conversatio
     return room;
 }
 
-+ (void)updateRoom:(NCRoom *)managedRoom withRoom:(NCRoom *)room
-{
-    managedRoom.name = room.name;
-    managedRoom.displayName = room.displayName;
-    managedRoom.type = room.type;
-    managedRoom.roomDescription = room.roomDescription;
-    managedRoom.hasPassword = room.hasPassword;
-    managedRoom.participantType = room.participantType;
-    managedRoom.attendeeId = room.attendeeId;
-    managedRoom.attendeePin = room.attendeePin;
-    managedRoom.unreadMessages = room.unreadMessages;
-    managedRoom.unreadMention = room.unreadMention;
-    managedRoom.unreadMentionDirect = room.unreadMentionDirect;
-    managedRoom.lastActivity = room.lastActivity;
-    managedRoom.lastMessageId = room.lastMessageId;
-    managedRoom.lastMessageProxiedJSONString = room.lastMessageProxiedJSONString;
-    managedRoom.isFavorite = room.isFavorite;
-    managedRoom.notificationLevel = room.notificationLevel;
-    managedRoom.notificationCalls = room.notificationCalls;
-    managedRoom.objectType = room.objectType;
-    managedRoom.objectId = room.objectId;
-    managedRoom.readOnlyState = room.readOnlyState;
-    managedRoom.listable = room.listable;
-    managedRoom.messageExpiration = room.messageExpiration;
-    managedRoom.lobbyState = room.lobbyState;
-    managedRoom.lobbyTimer = room.lobbyTimer;
-    managedRoom.sipState = room.sipState;
-    managedRoom.canEnableSIP = room.canEnableSIP;
-    managedRoom.lastReadMessage = room.lastReadMessage;
-    managedRoom.lastCommonReadMessage = room.lastCommonReadMessage;
-    managedRoom.canStartCall = room.canStartCall;
-    managedRoom.hasCall = room.hasCall;
-    managedRoom.lastUpdate = room.lastUpdate;
-    managedRoom.canLeaveConversation = room.canLeaveConversation;
-    managedRoom.canDeleteConversation = room.canDeleteConversation;
-    managedRoom.status = room.status;
-    managedRoom.statusIcon = room.statusIcon;
-    managedRoom.statusMessage = room.statusMessage;
-    managedRoom.participantFlags = room.participantFlags;
-    managedRoom.permissions = room.permissions;
-    managedRoom.attendeePermissions = room.attendeePermissions;
-    managedRoom.defaultPermissions = room.defaultPermissions;
-    managedRoom.callRecording = room.callRecording;
-    managedRoom.callStartTime = room.callStartTime;
-    managedRoom.avatarVersion = room.avatarVersion;
-    managedRoom.isCustomAvatar = room.isCustomAvatar;
-    managedRoom.recordingConsent = room.recordingConsent;
-    managedRoom.remoteToken = room.remoteToken;
-    managedRoom.remoteServer = room.remoteServer;
-    managedRoom.mentionPermissions = room.mentionPermissions;
-    managedRoom.isArchived = room.isArchived;
-    managedRoom.isImportant = room.isImportant;
-    managedRoom.isSensitive = room.isSensitive;
-    managedRoom.lastPinnedId = room.lastPinnedId;
-    managedRoom.hiddenPinnedId = room.hiddenPinnedId;
-    managedRoom.hasScheduledMessages = room.hasScheduledMessages;
-    managedRoom.attributes = room.attributes;
-}
-
 + (NSString *)primaryKey {
     return @"internalId";
 }

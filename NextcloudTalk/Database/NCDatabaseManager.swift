@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import RealmSwift
 
 public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"

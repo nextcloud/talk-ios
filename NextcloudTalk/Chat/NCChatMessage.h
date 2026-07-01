@@ -90,7 +90,6 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;
-+ (void)updateChatMessage:(NCChatMessage *)managedChatMessage withChatMessage:(NCChatMessage *)chatMessage isRoomLastMessage:(BOOL)isRoomLastMessage;
 
 - (NCMessageFileParameter *)file;
 - (NCMessageLocationParameter * _Nullable)geoLocation;
@@ -99,12 +98,9 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 - (NSMutableAttributedString *)parsedMessage;
 - (NSMutableAttributedString *)parsedMarkdown;
 - (NSMutableAttributedString *)parsedMarkdownForChat;
-- (NSArray<NCChatReaction *> * _Nonnull)reactionsArray;
 - (BOOL)containsURL;
 - (void)getReferenceDataWithCompletionBlock:(GetReferenceDataCompletionBlock _Nullable)block;
 - (void)setPreviewImageSize:(CGSize)size;
-- (BOOL)isThreadOriginalMessage;
-- (BOOL)isThreadMessage;
 - (NSString *)threadTitle;
 
 // Public for swift extension
