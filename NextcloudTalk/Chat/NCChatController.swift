@@ -197,7 +197,7 @@ public class NCChatController: NSObject {
         if isThreadController {
             query = NSPredicate(format: "accountId = %@ AND token = %@ AND threadId = %ld AND messageId > %ld AND messageId <= %ld", account.accountId, room.token, threadId, messageId, blockNewest)
         } else {
-            query = NSPredicate(format: "accountId = %@ AND token = %@ AND messageId > %ld AND messageId <= %ld AND (isThread == 0 OR threadId == 0 OR threadId == messageId)", account.accountId, room.token, messageId, blockNewest)
+            query = NSPredicate(format: "accountId = %@ AND token = %@ AND messageId > %ld AND messageId <= %ld", account.accountId, room.token, messageId, blockNewest)
         }
 
         let managedSortedMessages = NCChatMessage.objects(with: query).sortedResults(usingKeyPath: "messageId", ascending: true)
@@ -845,11 +845,16 @@ public class NCChatController: NSObject {
             }
         }
 
-        userInfo["messages"] = storedMessages
+        // When not in a thread controller, getNewStoredMessages returns both thread messages and normal
+        // chat messages, so we filter out thread messages here before notifying the chat view about new
+        // messages to display (they were already notified above to keep the thread reply count up to date).
+        let chatMessages = isThreadController ? storedMessages : storedMessages.filter { !$0.isThreadMessage() }
+
+        userInfo["messages"] = chatMessages
         userInfo["firstNewMessagesAfterHistory"] = !hasReceivedMessagesFromServer
         NotificationCenter.default.post(name: .NCChatControllerDidReceiveChatMessages, object: self, userInfo: userInfo)
 
-        updateLastMessageIfNeeded(fromMessages: storedMessages)
+        updateLastMessageIfNeeded(fromMessages: chatMessages)
     }
 
     private func updateLastMessageIfNeeded(fromMessages storedMessages: [NCChatMessage]) {
