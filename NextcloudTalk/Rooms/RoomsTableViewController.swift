@@ -51,7 +51,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     private var nextRoomWithMentionIndexPath: IndexPath?
     private var lastRoomWithMentionIndexPath: IndexPath?
     private var unreadMentionsBottomButton: UIButton!
-    private var contextChatNavigationController: NCNavigationController?
     private var activeFilter: RoomsFilter = .all
 
     private var contextMenuActionBlock: (() -> Void)?
@@ -1457,7 +1456,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         contextChatViewController.showContext(ofMessageId: messageId, withLimit: 50, withCloseButton: true)
 
         let contextChatNavigationController = NCNavigationController(rootViewController: contextChatViewController)
-        self.contextChatNavigationController = contextChatNavigationController
         self.present(contextChatNavigationController, animated: true)
     }
 
