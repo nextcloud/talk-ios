@@ -135,7 +135,7 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(debugLabel.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Send a test message
-        let testMessage = "TestMessage"
+        let testMessage = "TestMessage - DeAlloc"
         let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
@@ -188,6 +188,18 @@ final class UIRoomTest: XCTestCase {
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Conversations"].tap()
+
+        // Search for the message we just wrote and open ContextChatViewController
+        waitForReady(object: app.searchFields.firstMatch).tap()
+        app.typeText(testMessage)
+        waitForReady(object: app.staticTexts.labelContains(testMessage).firstMatch, timeout: TestConstants.timeoutLong).tap()
+
+        // Close the ContextChatViewController again
+        let contextNavBar = app.navigationBars["NextcloudTalk.ContextChatView"]
+        waitForReady(object: contextNavBar.buttons["Close"]).tap()
+
+        // Close the SearchController
+        app.buttons["close"].tap()
 
         // Check if all controllers are deallocated
         XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
