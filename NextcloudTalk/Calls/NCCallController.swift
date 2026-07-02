@@ -1131,6 +1131,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     private func startSendingCurrentState() {
         DispatchQueue.main.async {
+            guard !self.isLeavingCall else { return }
+
             self.sendCurrentStateTimer?.invalidate()
             self.sendCurrentStateTimer = nil
 
@@ -1139,8 +1141,10 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func stopSendingCurrentState() {
-        self.sendCurrentStateTimer?.invalidate()
-        self.sendCurrentStateTimer = nil
+        DispatchQueue.main.async {
+            self.sendCurrentStateTimer?.invalidate()
+            self.sendCurrentStateTimer = nil
+        }
     }
 
     @objc private func sendCurrentState(withTimer timer: Timer?) {
@@ -1151,6 +1155,10 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
 
         DispatchQueue.main.async {
+            // Don't send or re-arm the timer once we are leaving the call, otherwise an in-flight
+            // execution could keep broadcasting our state after the call ended.
+            guard !self.isLeavingCall else { return }
+
             self.sendNick()
             self.sendMediaState()
 

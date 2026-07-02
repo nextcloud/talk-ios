@@ -1876,7 +1876,7 @@ class CallViewController: UIViewController,
             }
 
             for peerConnection in self.screenPeersInCall {
-                let screenRenderer = self.screenRenderersDict[peerConnection.peerIdentifier]
+                let screenRenderer = self.screenRenderersDict[peerConnection.peerId]
                 self.screenRenderersDict.removeValue(forKey: peerConnection.peerId)
 
                 guard let screenRenderer else { continue }
@@ -2367,6 +2367,14 @@ class CallViewController: UIViewController,
 
     func addPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
+            // A peer can reach this method from both `peerJoined` and `didAddStream`. Deduplicate against
+            // the authoritative `peersInCall` as well as the pending inserts, by peerIdentifier, otherwise
+            // the same peer can be appended twice and crash the diffable data source on a duplicate item.
+            let alreadyAdded = self.peersInCall.contains { $0.peerIdentifier == peer.peerIdentifier }
+            let alreadyPending = self.pendingPeerInserts.contains { $0.peerIdentifier == peer.peerIdentifier }
+
+            guard !alreadyAdded, !alreadyPending else { return }
+
             // Store added time
             if peer.addedTime == 0 {
                 peer.addedTime = Int(Date().timeIntervalSince1970 * 1000)
@@ -2376,7 +2384,7 @@ class CallViewController: UIViewController,
                 // Don't delay adding the first peer
                 self.peersInCall.append(peer)
                 self.updateSnapshot()
-            } else if !self.pendingPeerInserts.contains(peer) {
+            } else {
                 // Delay updating the collection view a bit to allow batch updating
                 self.pendingPeerInserts.append(peer)
                 self.scheduleBatchCollectionViewUpdate()
