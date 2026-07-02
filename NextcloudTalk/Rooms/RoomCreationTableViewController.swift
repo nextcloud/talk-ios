@@ -351,10 +351,9 @@ enum RoomVisibilityOption: Int {
     // MARK: - Room participants
 
     func editParticipantsButtonPressed() {
-        if let editParticipantsVC = AddParticipantsTableViewController(participants: self.roomParticipants) {
-            editParticipantsVC.delegate = self
-            self.present(NCNavigationController(rootViewController: editParticipantsVC), animated: true)
-        }
+        let editParticipantsVC = AddParticipantsTableViewController(participants: self.roomParticipants)
+        editParticipantsVC.delegate = self
+        self.present(NCNavigationController(rootViewController: editParticipantsVC), animated: true)
     }
 
     // MARK: - Room password
@@ -562,7 +561,7 @@ enum RoomVisibilityOption: Int {
 
     // MARK: - AddParticipantsTableViewController Delegate
 
-    func addParticipantsTableViewController(_ viewController: AddParticipantsTableViewController!, wantsToAdd participants: [NCUser]!) {
+    func addParticipantsTableViewController(_ viewController: AddParticipantsTableViewController, wantsToAdd participants: [NCUser]) {
         self.roomParticipants = participants
         let sections = self.getRoomCreationSections()
         if let index = sections.firstIndex(of: RoomCreationSection.kRoomParticipantsSection.rawValue) {

@@ -14,7 +14,7 @@ struct RoomInfoParticipantsSection: View {
             self.parent = parent
         }
 
-        func addParticipantsTableViewControllerDidFinish(_ viewController: AddParticipantsTableViewController!) {
+        func addParticipantsTableViewControllerDidFinish(_ viewController: AddParticipantsTableViewController) {
             parent.getParticipants()
         }
     }
@@ -126,7 +126,7 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func addParticipants() {
-        guard let addParticipantsVC = AddParticipantsTableViewController(for: room) else { return }
+        let addParticipantsVC = AddParticipantsTableViewController(for: room)
 
         self.coordinator = AddParticipantCoordinator(parent: self)
         addParticipantsVC.delegate = self.coordinator

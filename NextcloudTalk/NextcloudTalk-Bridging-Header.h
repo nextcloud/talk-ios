@@ -7,7 +7,6 @@
 #define NextcloudTalk_Bridging_Header_h
 
 #import "ARDSettingsModel.h"
-#import "AddParticipantsTableViewController.h"
 #import "AuthenticationViewController.h"
 #import "CallParticipantViewCell.h"
 #import "ContactsTableViewCell.h"
@@ -28,6 +27,7 @@
 #import "NotificationCenterNotifications.h"
 #import "MapViewController.h"
 #import "PlaceholderView.h"
+#import "ResultMultiSelectionTableViewController.h"
 #import "UIBarButtonItem+LegacyBadge.h"
 #import "ShareTableViewCell.h"
 #import "TOCroppedImageAttributes.h"
@@ -61,7 +61,6 @@
 #import "ShareItemController.h"
 #import "ShareLocationViewController.h"
 #import "VoiceMessageTranscribeViewController.h"
-#import "AppDelegate.h"
 #import "NCKeyChainController.h"
 #import "NCIntentController.h"
 #import "CCCertificate.h"
