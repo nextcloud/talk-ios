@@ -95,9 +95,33 @@
         return;
     }
 
-    managedThread.title = message.threadTitle;
-    managedThread.numReplies = message.threadReplies;
+    // Only update the thread data if there is any data (e.g. omit chat relay messages without thread data)
+    BOOL hasTitle = message.threadTitle.length > 0;
+    BOOL hasReplies = message.threadReplies > 0;
+
+    if (!hasTitle && !hasReplies) {
+        return;
+    }
+
     managedThread.updatedWithMessageId = message.messageId;
+
+    if (hasTitle) {
+        managedThread.title = message.threadTitle;
+    }
+    if (hasReplies) {
+        managedThread.numReplies = message.threadReplies;
+    }
+
+    // Keep the thread's original message in sync with the same values
+    NCChatMessage *originalMessage = [NCChatMessage objectsWhere:@"accountId = %@ AND token = %@ AND messageId = %ld", message.accountId, message.token, (long)message.threadId].firstObject;
+    if (originalMessage) {
+        if (hasTitle) {
+            originalMessage.threadTitle = message.threadTitle;
+        }
+        if (hasReplies) {
+            originalMessage.threadReplies = message.threadReplies;
+        }
+    }
 }
 
 + (nullable instancetype)threadWithThreadId:(NSInteger)threadId inRoom:(NSString *)roomToken forAccountId:(NSString *)accountId
