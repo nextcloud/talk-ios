@@ -500,7 +500,11 @@ public class NCChatController: NSObject {
     // payload (file/object shares, call_ended, unknown system messages). Incoming chat relay messages
     // are buffered while the catch-up runs.
     private func triggerChatRelayCatchUp() {
-        guard chatRelayState != .catchingUp else { return }
+        if let chatRelayMessagesQueue {
+            dispatchPrecondition(condition: .onQueue(chatRelayMessagesQueue))
+        }
+
+        guard chatRelayState == .active, !stopChatMessagesPoll else { return }
 
         chatRelayState = .catchingUp
 
@@ -1367,4 +1371,14 @@ public class NCChatController: NSObject {
             }
         }
     }
+}
+
+// Test-only hooks (internal, so only reachable via `@testable import`; not part of the public API).
+extension NCChatController {
+    var isReceivingMessagesStoppedForTesting: Bool { stopChatMessagesPoll }
+
+    // Mirrors a chat-relay catch-up triggered by a relayed refresh/message or a
+    // signaling reconnect (see didRequestChatRefreshFromExternalSignaling /
+    // handleChatRelayMessage / didReconnectExternalSignaling).
+    func triggerChatRelayCatchUpForTesting() { triggerChatRelayCatchUp() }
 }
