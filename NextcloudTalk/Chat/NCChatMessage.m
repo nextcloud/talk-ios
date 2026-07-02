@@ -212,10 +212,20 @@ NSString * const kSharedItemTypePinned      = @"pinned";
 
     if (!isRoomLastMessage) {
         managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString;
-        managedChatMessage.threadId = chatMessage.threadId;
-        managedChatMessage.isThread = chatMessage.isThread;
-        managedChatMessage.threadTitle = chatMessage.threadTitle;
-        managedChatMessage.threadReplies = chatMessage.threadReplies;
+
+        // Only update the thread data if there is any data (e.g. omit chat relay messages without thread data)
+        if (chatMessage.isThread && chatMessage.threadId > 0) {
+            managedChatMessage.threadId = chatMessage.threadId;
+            managedChatMessage.isThread = chatMessage.isThread;
+
+            if (chatMessage.threadTitle.length > 0) {
+                managedChatMessage.threadTitle = chatMessage.threadTitle;
+            }
+
+            if (chatMessage.threadReplies > 0) {
+                managedChatMessage.threadReplies = chatMessage.threadReplies;
+            }
+        }
     }
 
     if (fileParameterDict) {
