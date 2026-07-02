@@ -192,7 +192,7 @@ final class UIRoomTest: XCTestCase {
         // Search for the message we just wrote and open ContextChatViewController
         waitForReady(object: app.searchFields.firstMatch).tap()
         app.typeText(testMessage)
-        waitForReady(object: app.staticTexts[testMessage]).tap()
+        waitForReady(object: app.staticTexts.labelContains(testMessage).firstMatch, timeout: TestConstants.timeoutLong).tap()
 
         // Close the ContextChatViewController again
         let contextNavBar = app.navigationBars["NextcloudTalk.ContextChatView"]
