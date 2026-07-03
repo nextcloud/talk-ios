@@ -1401,9 +1401,8 @@ class CallViewController: UIViewController,
         // Add participant to a one2one call
         if self.room.type == .oneToOne && self.room.canAddParticipants {
             moderatorItems.append(UIAction(title: NSLocalizedString("Add participants", comment: ""), subtitle: NSLocalizedString("Start a new group conversation", comment: ""), image: .init(systemName: "person.badge.plus"), handler: { [unowned self] _ in
-                if let addParticipantsVC = AddParticipantsTableViewController(for: self.room) {
-                    self.present(NCNavigationController(rootViewController: addParticipantsVC), animated: true)
-                }
+                let addParticipantsVC = AddParticipantsTableViewController(for: self.room)
+                self.present(NCNavigationController(rootViewController: addParticipantsVC), animated: true)
             }))
         }
 
