@@ -10,6 +10,7 @@ NSString * const kParticipantTypeGroup  = @"groups";
 NSString * const kParticipantTypeEmail  = @"emails";
 NSString * const kParticipantTypeCircle = @"circles";
 NSString * const kParticipantTypeFederated = @"federated_users";
+NSString * const kParticipantTypePhone = @"phones";
 
 @implementation NCUser
 

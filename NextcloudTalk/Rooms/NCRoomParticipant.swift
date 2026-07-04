@@ -16,6 +16,7 @@ enum AttendeeType: String {
     case email = "emails"
     case federated = "federated_users"
     case bots = "bots"
+    case phone = "phones"
 }
 
 @objcMembers
@@ -33,6 +34,7 @@ public class NCRoomParticipant: NSObject {
     var statusIcon: String?
     var statusMessage: String?
     var invitedActorId: String?
+    var phoneNumber: String?
 
     init(dictionary: [String: Any]) {
         self.attendeeId = dictionary["attendeeId"] as? Int ?? 0
@@ -62,6 +64,7 @@ public class NCRoomParticipant: NSObject {
         self.statusIcon = dictionary["statusIcon"] as? String
         self.statusMessage = dictionary["statusMessage"] as? String
         self.invitedActorId = dictionary["invitedActorId"] as? String
+        self.phoneNumber = dictionary["phoneNumber"] as? String
 
         super.init()
     }
@@ -114,6 +117,10 @@ public class NCRoomParticipant: NSObject {
 
     public var isFederated: Bool {
         return actorType == .federated
+    }
+
+    public var isPhone: Bool {
+        return actorType == .phone
     }
 
     public var isOffline: Bool {

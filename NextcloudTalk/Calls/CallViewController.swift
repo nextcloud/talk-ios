@@ -130,6 +130,7 @@ class CallViewController: UIViewController,
     private var soundsPlayer: AVAudioPlayer?
     private var currentCallState: CallState = .joining
     private var previousParticipants: [String] = []
+    private var phoneControlActionInProgress = false
 
     public init(for room: NCRoom, withAccount account: TalkAccount, audioOnly: Bool) {
         self.room = room
@@ -1406,6 +1407,12 @@ class CallViewController: UIViewController,
             }))
         }
 
+        if self.canUseSipDialOut {
+            moderatorItems.append(UIAction(title: NSLocalizedString("Call phone number", comment: ""), image: .init(systemName: "phone"), handler: { [unowned self] _ in
+                self.presentSipDialOutPrompt()
+            }))
+        }
+
         // Mute others
         if self.room.canModerate {
             moderatorItems.append(UIAction(title: NSLocalizedString("Mute others", comment: ""), image: .init(systemName: "mic.slash.fill"), handler: { [unowned self] _ in
@@ -1433,6 +1440,202 @@ class CallViewController: UIViewController,
         }
 
         return moderatorItems
+    }
+
+    private var canUseSipDialOut: Bool {
+        let supportedRoom = self.room.type == .group || self.room.type == .public
+
+        return supportedRoom
+            && self.room.canModerate
+            && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupportDialout, forAccountId: self.room.accountId)
+    }
+
+    private var canUseMovenaPhoneControls: Bool {
+        return self.room.canModerate
+            && NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupportDialout, forAccountId: self.room.accountId)
+    }
+
+    private func presentSipDialOutPrompt() {
+        presentPhoneTextInputAlert(
+            title: NSLocalizedString("Call phone number", comment: ""),
+            placeholder: NSLocalizedString("Phone number", comment: ""),
+            keyboardType: .phonePad,
+            buttonTitle: NSLocalizedString("Call", comment: "")
+        ) { [weak self] phoneNumber in
+            guard let self else { return }
+
+            let trimmedPhoneNumber = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedPhoneNumber.isEmpty else {
+                self.presentPhoneControlError(title: NSLocalizedString("Phone number is empty", comment: ""), message: nil)
+                return
+            }
+
+            self.runPhoneControlAction(
+                errorTitle: NSLocalizedString("Could not call phone number", comment: ""),
+                successTitle: NSLocalizedString("Phone call requested", comment: "")
+            ) {
+                try await self.addAndDialPhoneNumber(trimmedPhoneNumber)
+            }
+        }
+    }
+
+    private func addAndDialPhoneNumber(_ phoneNumber: String) async throws {
+        try await NCAPIController.sharedInstance().addPhoneParticipant(phoneNumber, toRoom: self.room.token, forAccount: self.account)
+
+        let participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: self.room.token, forAccount: self.account)
+        guard let phoneParticipant = participants.filter({ $0.isPhone }).max(by: { $0.attendeeId < $1.attendeeId }) else {
+            throw NCAPIController.ApiControllerError.unexpectedOcsResponse
+        }
+
+        try await NCAPIController.sharedInstance().dialOutToPhoneAttendee(phoneParticipant.attendeeId, inRoom: self.room.token, forAccount: self.account)
+        NCRoomsManager.shared.updateRoom(self.room.token, forAccount: self.account)
+    }
+
+    private func getMovenaPhoneControlsMenu() -> UIMenu {
+        let sendDtmfAction = UIAction(title: NSLocalizedString("Send DTMF", comment: ""), image: .init(systemName: "number")) { [unowned self] _ in
+            self.presentPhoneTextInputAlert(
+                title: NSLocalizedString("Send DTMF", comment: ""),
+                placeholder: NSLocalizedString("Digits", comment: ""),
+                keyboardType: .numbersAndPunctuation,
+                buttonTitle: NSLocalizedString("Send", comment: "")
+            ) { [weak self] digits in
+                self?.sendMovenaDTMF(digits)
+            }
+        }
+
+        let startTransferAction = UIAction(title: NSLocalizedString("Start transfer", comment: ""), image: .init(systemName: "arrow.right")) { [unowned self] _ in
+            self.presentPhoneTextInputAlert(
+                title: NSLocalizedString("Start transfer", comment: ""),
+                placeholder: NSLocalizedString("Target phone number", comment: ""),
+                keyboardType: .phonePad,
+                buttonTitle: NSLocalizedString("Start", comment: "")
+            ) { [weak self] target in
+                self?.sendMovenaTransferAction("start", target: target)
+            }
+        }
+
+        let holdTransferAction = UIAction(title: NSLocalizedString("Hold transfer", comment: ""), image: .init(systemName: "pause")) { [unowned self] _ in
+            self.sendMovenaTransferAction("hold", target: nil)
+        }
+
+        let completeTransferAction = UIAction(title: NSLocalizedString("Complete transfer", comment: ""), image: .init(systemName: "checkmark")) { [unowned self] _ in
+            self.sendMovenaTransferAction("complete", target: nil)
+        }
+
+        let cancelTransferAction = UIAction(title: NSLocalizedString("Cancel transfer", comment: ""), image: .init(systemName: "xmark")) { [unowned self] _ in
+            self.sendMovenaTransferAction("cancel", target: nil)
+        }
+
+        let hangupPhoneAction = UIAction(title: NSLocalizedString("Hang up phone participant", comment: ""), image: .init(systemName: "phone.down")) { [unowned self] _ in
+            self.sendMovenaHangup()
+        }
+
+        return UIMenu(
+            title: NSLocalizedString("Phone controls", comment: ""),
+            image: .init(systemName: "phone"),
+            children: [
+                sendDtmfAction,
+                startTransferAction,
+                holdTransferAction,
+                completeTransferAction,
+                cancelTransferAction,
+                hangupPhoneAction
+            ]
+        )
+    }
+
+    private func presentPhoneTextInputAlert(title: String, placeholder: String, keyboardType: UIKeyboardType, buttonTitle: String, completion: @escaping (String) -> Void) {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.placeholder = placeholder
+            textField.keyboardType = keyboardType
+            textField.autocorrectionType = .no
+            textField.autocapitalizationType = .none
+        }
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
+        alert.addAction(UIAlertAction(title: buttonTitle, style: .default) { [weak alert] _ in
+            completion(alert?.textFields?.first?.text ?? "")
+        })
+
+        self.present(alert, animated: true)
+    }
+
+    private func sendMovenaDTMF(_ rawDigits: String) {
+        let digits = rawDigits.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !digits.isEmpty else {
+            presentPhoneControlError(title: NSLocalizedString("DTMF digits are empty", comment: ""), message: nil)
+            return
+        }
+
+        runPhoneControlAction(errorTitle: NSLocalizedString("Could not send DTMF", comment: "")) {
+            try await NCAPIController.sharedInstance().sendMovenaDTMF(digits, forRoom: self.room.token, forAccount: self.account)
+        }
+    }
+
+    private func sendMovenaTransferAction(_ action: String, target rawTarget: String?) {
+        let target = rawTarget?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if action == "start", target?.isEmpty != false {
+            presentPhoneControlError(title: NSLocalizedString("Transfer target is empty", comment: ""), message: nil)
+            return
+        }
+
+        runPhoneControlAction(
+            errorTitle: NSLocalizedString("Could not update transfer", comment: ""),
+            successTitle: NSLocalizedString("Transfer updated", comment: "")
+        ) {
+            try await NCAPIController.sharedInstance().sendMovenaTransferAction(action, target: target, forRoom: self.room.token, forAccount: self.account)
+        }
+    }
+
+    private func sendMovenaHangup() {
+        runPhoneControlAction(
+            errorTitle: NSLocalizedString("Could not hang up phone participant", comment: ""),
+            successTitle: NSLocalizedString("Phone participant hangup requested", comment: "")
+        ) {
+            try await NCAPIController.sharedInstance().sendMovenaHangup(forRoom: self.room.token, forAccount: self.account)
+        }
+    }
+
+    private func runPhoneControlAction(errorTitle: String, successTitle: String? = nil, operation: @escaping () async throws -> Void) {
+        guard !phoneControlActionInProgress else {
+            presentPhoneControlError(title: NSLocalizedString("Phone action already running", comment: ""), message: nil)
+            return
+        }
+
+        phoneControlActionInProgress = true
+
+        Task { @MainActor in
+            defer {
+                self.phoneControlActionInProgress = false
+            }
+
+            do {
+                try await operation()
+
+                if let successTitle {
+                    self.presentPhoneControlConfirmation(successTitle)
+                }
+            } catch {
+                self.presentPhoneControlError(title: errorTitle, error: error)
+            }
+        }
+    }
+
+    private func presentPhoneControlConfirmation(_ title: String) {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+        self.present(alert, animated: true)
+    }
+
+    private func presentPhoneControlError(title: String, error: Error) {
+        presentPhoneControlError(title: title, message: (error as NSError).localizedDescription)
+    }
+
+    private func presentPhoneControlError(title: String, message: String?) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+        self.present(alert, animated: true)
     }
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -1518,6 +1721,10 @@ class CallViewController: UIViewController,
             items.append(UIAction(title: screensharingActionTitle, image: screensharingImage, handler: { [unowned self] _ in
                 self.showScreensharingPicker()
             }))
+        }
+
+        if self.canUseMovenaPhoneControls {
+            items.append(self.getMovenaPhoneControlsMenu())
         }
 
         return items

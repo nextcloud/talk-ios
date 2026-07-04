@@ -13,6 +13,7 @@ extern NSString * const kParticipantTypeGroup;
 extern NSString * const kParticipantTypeEmail;
 extern NSString * const kParticipantTypeCircle;
 extern NSString * const kParticipantTypeFederated;
+extern NSString * const kParticipantTypePhone;
 
 @interface NCUser : NSObject
 
