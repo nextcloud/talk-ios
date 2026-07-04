@@ -23,6 +23,12 @@ After cloning this repository, you can use `pod install` to install all dependen
 
 Pull Requests will be checked with [SwiftLint](https://github.com/realm/SwiftLint). We strongly encourage the installation of SwiftLint to detect issues as early as possible.
 
+## Movena adaptation
+
+This fork includes native iOS controls for the Movena SIP dialout bridge. See
+[Movena SIP dialout adaptation](docs/movena-sip-dialout.md) for architecture,
+runtime requirements, touched files, and validation notes.
+
 ## Run the project
 
 Depending on how you try to run the project, you'll notice that it's not running "as-is". There are a few steps to make it work with your developer account:
@@ -89,4 +95,3 @@ Do you want to try the latest version in development of Nextcloud Talk iOS? Simp
 We are also available on [our public Talk team conversation](https://cloud.nextcloud.com/call/c7fz9qpr), if you want to join the discussion.
 
 **License:** [GPLv3](https://github.com/nextcloud/talk-ios/blob/main/LICENSE) with [Apple app store exception](https://github.com/nextcloud/talk-ios/blob/main/COPYING.iOS).
-
