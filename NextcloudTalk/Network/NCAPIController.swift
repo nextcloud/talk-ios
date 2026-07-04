@@ -783,6 +783,25 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
     }
 
+    @MainActor
+    @discardableResult
+    public func addPhoneParticipant(_ phoneNumber: String, toRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        return try await addParticipant(phoneNumber, ofType: kParticipantTypePhone, toRoom: token, forAccount: account)
+    }
+
+    @nonobjc
+    @MainActor
+    @discardableResult
+    public func dialOutToPhoneAttendee(_ attendeeId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "call/\(encodedToken)/dialout/\(attendeeId)", forAccount: account)
+
+        return try await apiSessionManager.postOcs(urlString, account: account)
+    }
+
     @nonobjc
     @MainActor
     @discardableResult
@@ -795,6 +814,57 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let parameters: [String: Int] = ["attendeeId": attendeeId]
 
         return try await apiSessionManager.deleteOcs(urlString, account: account, parameters: parameters)
+    }
+
+    @nonobjc
+    @MainActor
+    @discardableResult
+    public func sendMovenaTransferAction(_ action: String, target: String? = nil, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/movena_call/api/v1/overlay/transfer"
+        var parameters: [String: String] = [
+            "roomid": token,
+            "action": action
+        ]
+
+        if let target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            parameters["target"] = target
+        }
+
+        return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+    }
+
+    @nonobjc
+    @MainActor
+    @discardableResult
+    public func sendMovenaDTMF(_ digits: String, forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/movena_call/api/v1/overlay/dtmf"
+        let parameters: [String: String] = [
+            "roomid": token,
+            "digits": digits
+        ]
+
+        return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+    }
+
+    @nonobjc
+    @MainActor
+    @discardableResult
+    public func sendMovenaHangup(forRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = "\(account.server)/ocs/v2.php/apps/movena_call/api/v1/overlay/hangup"
+        let parameters: [String: String] = [
+            "roomid": token
+        ]
+
+        return try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
     }
 
     @MainActor

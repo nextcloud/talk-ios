@@ -40,6 +40,7 @@ public enum TalkCapability: String {
     case conversationV4 = "conversation-v4"
     case sipSupport = "sip-support"
     case sipSupportNoPIN = "sip-support-nopin"
+    case sipSupportDialout = "sip-support-dialout"
     case voiceMessage = "voice-message-sharing"
     case signalingV3 = "signaling-v3"
     case clearHistory = "clear-history"
