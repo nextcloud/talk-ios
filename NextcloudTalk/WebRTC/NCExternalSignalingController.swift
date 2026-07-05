@@ -46,6 +46,7 @@ public enum NCExternalSignalingSendMessageStatus {
     public private(set) var account: TalkAccount
     public private(set) var disconnected: Bool = true
     public private(set) var hasMCU: Bool = false
+    public private(set) var hasUpdateSdp: Bool = false
     public private(set) var hasChatRelay: Bool = false
     public private(set) var sessionId: String?
     public private(set) var participantsMap = [String: SignalingParticipant]()
@@ -348,6 +349,7 @@ public enum NCExternalSignalingSendMessageStatus {
         }
 
         self.hasMCU = serverFeatures.contains(where: { $0 == "mcu" })
+        self.hasUpdateSdp = serverFeatures.contains(where: { $0 == "update-sdp" })
         self.hasChatRelay = serverFeatures.contains(where: { $0 == "chat-relay" })
 
         DispatchQueue.main.async {
@@ -499,7 +501,18 @@ public enum NCExternalSignalingSendMessageStatus {
         self.send(message: messageDict, withCompletionBlock: nil)
     }
 
-    func requestOffer(forSessionId sessionId: String, andRoomType roomType: String) {
+    func requestOffer(forSessionId sessionId: String, andRoomType roomType: String, withSid sid: String? = nil) {
+        // When a "sid" of an existing connection is provided (and the server supports "update-sdp"),
+        // the MCU updates that connection with a renegotiation offer instead of creating a new one
+        var dataDict: [AnyHashable: Any] = [
+            "type": "requestoffer",
+            "roomType": roomType
+        ]
+
+        if let sid {
+            dataDict["sid"] = sid
+        }
+
         let messageDict: [AnyHashable: Any] = [
             "type": "message",
             "message": [
@@ -507,10 +520,7 @@ public enum NCExternalSignalingSendMessageStatus {
                     "type": "session",
                     "sessionid": sessionId
                 ],
-                "data": [
-                    "type": "requestoffer",
-                    "roomType": roomType
-                ]
+                "data": dataDict
             ]
         ]
 

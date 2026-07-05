@@ -2101,7 +2101,12 @@ class CallViewController: UIViewController,
 
     func showUpgradeToVideoCallDialog() {
         let confirmTitle = NSLocalizedString("Do you want to enable your camera?", comment: "")
-        let confirmMessage = NSLocalizedString("If you enable your camera, this call will be interrupted for a few seconds.", comment: "")
+        var confirmMessage: String?
+
+        // Without renegotiation support the call needs to be restarted to be upgraded to a video call
+        if callController?.supportsCallUpgradeUsingRenegotiation != true {
+            confirmMessage = NSLocalizedString("If you enable your camera, this call will be interrupted for a few seconds.", comment: "")
+        }
 
         let confirmDialog = UIAlertController(title: confirmTitle, message: confirmMessage, preferredStyle: .alert)
         confirmDialog.addAction(UIAlertAction(title: NSLocalizedString("Enable", comment: ""), style: .default) { _ in
@@ -2113,8 +2118,41 @@ class CallViewController: UIViewController,
     }
 
     func upgradeToVideoCall() {
-        self.videoCallUpgrade = true
-        self.hangup(forAll: false)
+        if callController?.supportsCallUpgradeUsingRenegotiation == true {
+            self.upgradeToVideoCallUsingRenegotiation()
+        } else {
+            // Without renegotiation support the call needs to be restarted with video enabled
+            self.videoCallUpgrade = true
+            self.hangup(forAll: false)
+        }
+    }
+
+    func upgradeToVideoCallUsingRenegotiation() {
+        guard let callController else { return }
+
+        let authStatus = AVCaptureDevice.authorizationStatus(for: .video)
+
+        if authStatus == .notDetermined {
+            AVCaptureDevice.requestAccess(for: .video) { _ in
+                DispatchQueue.main.async {
+                    self.upgradeToVideoCallUsingRenegotiation()
+                }
+            }
+
+            return
+        }
+
+        self.isAudioOnly = false
+
+        // In voice only calls the video disable button was disabled when no local video track was
+        // created (see didCreateLocalVideoTrack delegate), so it needs to be enabled again
+        if callController.isCameraAccessAvailable(), room.canPublishVideo {
+            self.userDisabledVideo = false
+            self.setVideoDisableButtonEnabled(true)
+        }
+
+        callController.upgradeToVideoCall()
+        self.adjustBars()
     }
 
     @IBAction func toggleChatButtonPressed(_ sender: Any) {

@@ -48,7 +48,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private let room: NCRoom
     private let account: TalkAccount
     private let userSessionId: String
-    private let isAudioOnly: Bool
+    public private(set) var isAudioOnly: Bool
 
     // TODO: Default true?
     public var disableAudioAtStart: Bool = false
@@ -452,6 +452,79 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     public func switchCamera() {
         self.cameraController?.switchCamera()
+    }
+
+    // Upgrading a voice only call using renegotiation is only supported when using a MCU
+    // and the signaling server supports updating existing connections ("update-sdp").
+    // Otherwise the call needs to be restarted to be upgraded to a video call.
+    public var supportsCallUpgradeUsingRenegotiation: Bool {
+        guard let externalSignalingController else { return false }
+
+        return externalSignalingController.hasMCU && externalSignalingController.hasUpdateSdp
+    }
+
+    public func upgradeToVideoCall() {
+        WebRTCCommon.shared.dispatch {
+            guard self.isAudioOnly, self.supportsCallUpgradeUsingRenegotiation else { return }
+
+            NCLog.log("Upgrading voice only call to video call using renegotiation")
+
+            self.isAudioOnly = false
+            self.disableVideoAtStart = false
+
+            NCAudioController.shared.setAudioSessionToVideoChatMode()
+
+            // Create the local video track, since it is not created in voice only calls
+            if self.localVideoTrack == nil, self.room.canPublishVideo, self.isCameraAccessAvailable() {
+                self.createLocalVideoTrack()
+            }
+
+            if let localVideoTrack = self.localVideoTrack {
+                if let peerConnection = self.publisherPeerConnection?.getPeerConnection() {
+                    if let videoTransceiver = peerConnection.transceivers.first(where: { $0.mediaType == .video }) {
+                        // The video m-line was already negotiated with a placeholder transceiver when
+                        // the publisher peer connection was created, so the video track can start to
+                        // be sent right away, without any renegotiation
+                        videoTransceiver.sender.track = localVideoTrack
+                    } else {
+                        // Fallback: adding the video track triggers a renegotiation of the publisher
+                        // peer connection ("negotiationneeded" -> updated offer with the same sid)
+                        peerConnection.add(localVideoTrack, streamIds: [NCCallController.kNCMediaStreamId])
+                    }
+                } else {
+                    // There was no publisher peer connection (e.g. no microphone access), create it now
+                    self.createPublisherPeerConnection()
+                }
+            }
+
+            // Update the existing receiver peer connections, so remote videos can be received.
+            // Requesting an offer with the "sid" of the existing connection makes the MCU update
+            // that connection with a renegotiation offer instead of creating a new one.
+            for (_, peerConnectionWrapper) in self.connectionsDict {
+                guard !peerConnectionWrapper.isMCUPublisherPeer, !peerConnectionWrapper.isDummyPeer,
+                      peerConnectionWrapper.roomType == kRoomTypeVideo
+                else { continue }
+
+                peerConnectionWrapper.isAudioOnly = false
+                self.requestOfferWithRepetition(forSessionId: peerConnectionWrapper.peerId, withRoomType: kRoomTypeVideo, withSid: peerConnectionWrapper.sid)
+            }
+
+            // Let the other participants know that we are now in the call with video
+            self.updateCallFlagsInServer()
+            self.startSendingCurrentState()
+
+            if CallKitManager.isCallKitAvailable() {
+                CallKitManager.sharedInstance().reportCallUpgradedToVideoCall(forCall: self.room.token)
+            }
+        }
+    }
+
+    private func updateCallFlagsInServer() {
+        NCAPIController.shared.updateCallFlags(inRoom: self.room.token, withCallFlags: self.joinCallFlags, forAccount: self.account) { error in
+            if let error {
+                NCLog.log("Could not update call flags. Error: \(error)")
+            }
+        }
     }
 
     public func enableVideo(_ enable: Bool) {
@@ -1025,6 +1098,15 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         if let localVideoTrack {
             peerConnection.add(localVideoTrack, streamIds: [NCCallController.kNCMediaStreamId])
+        } else if self.room.canPublishVideo {
+            // In voice only calls, already negotiate a placeholder video m-line (a transceiver
+            // without a track), so the call can later be upgraded to a video call by just replacing
+            // the sender track. A renegotiation that adds a new m-line to an existing publisher
+            // peer connection completes on the SDP level, but the MCU never relays its media.
+            let transceiverInit = RTCRtpTransceiverInit()
+            transceiverInit.direction = .sendOnly
+            transceiverInit.streamIds = [NCCallController.kNCMediaStreamId]
+            peerConnection.addTransceiver(of: .video, init: transceiverInit)
         }
 
         peerConnectionWrapper.sendPublisherOffer()
@@ -1060,24 +1142,42 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         peerConnectionWrapper.sendPublisherOffer()
     }
 
-    public func requestOfferWithRepetition(forSessionId sessionId: String, withRoomType roomType: String) {
+    public func requestOfferWithRepetition(forSessionId sessionId: String, withRoomType roomType: String, withSid sid: String? = nil) {
         WebRTCCommon.shared.assertQueue()
 
+        let peerKey = self.getPeerKey(withSessionId: sessionId, ofType: roomType, forOwnScreenshare: false)
+
+        if let previousOfferTimer = self.pendingOffersDict[peerKey], previousOfferTimer.isValid {
+            // If a connection needs to be updated ("sid" is set) but another offer request is already
+            // pending, ignore the new update. A new connection needs to be requested even if there
+            // is another one already pending.
+            if sid != nil {
+                return
+            }
+
+            DispatchQueue.main.async {
+                previousOfferTimer.invalidate()
+            }
+        }
+
         let timeout = Int(Date().timeIntervalSince1970 + 60)
-        let userInfo: [String: Any] = [
+        var userInfo: [String: Any] = [
             "sessionId": sessionId,
             "roomType": roomType,
             "timeout": timeout
         ]
 
+        if let sid {
+            userInfo["sid"] = sid
+        }
+
         let pendingOfferTimer = Timer(timeInterval: 8.0, target: self, selector: #selector(self.requestNewOffer), userInfo: userInfo, repeats: true)
-        let peerKey = self.getPeerKey(withSessionId: sessionId, ofType: roomType, forOwnScreenshare: false)
 
         self.pendingOffersDict[peerKey] = pendingOfferTimer
 
         // Request new offer
         if let externalSignalingController {
-            externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType)
+            externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType, withSid: sid)
         }
 
         DispatchQueue.main.async {
@@ -1093,10 +1193,12 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
               let externalSignalingController
         else { return }
 
+        let sid = userInfo["sid"] as? String
+
         WebRTCCommon.shared.dispatch {
             if Int(Date().timeIntervalSince1970) < timeout {
                 print("Re-requesting an offer to session \(sessionId)")
-                externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType)
+                externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType, withSid: sid)
             } else {
                 DispatchQueue.main.async {
                     timer.invalidate()
@@ -1323,6 +1425,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     func peerConnection(_ peerConnection: NCPeerConnection, didRemove stream: RTCMediaStream?) {
+        // The stream is nil when a receiver was removed (e.g. when a video transceiver
+        // was set to inactive in an audio only call)
         guard !peerConnection.isMCUPublisherPeer, let stream else { return }
 
         self.delegate?.callController(self, didRemoveStream: stream, ofPeer: peerConnection)
@@ -1423,6 +1527,21 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     func peerConnection(_ peerConnection: NCPeerConnection, didReceivePeerNick nick: String) {
         self.delegate?.callController(self, didReceiveNick: nick, fromPeer: peerConnection)
+    }
+
+    func peerConnectionNeedsRenegotiation(_ peerConnection: NCPeerConnection) {
+        WebRTCCommon.shared.assertQueue()
+
+        // Local tracks are only added to (or removed from) an established publisher peer connection,
+        // so this is the only renegotiation triggered from our side that needs to be handled.
+        // The MCU updates the existing connection when it receives an offer with the same "sid".
+        guard peerConnection.isMCUPublisherPeer, let externalSignalingController, externalSignalingController.hasMCU else {
+            NCLog.log("Renegotiation needed for peer \(peerConnection.peerIdentifier), but it is not supported -> ignoring")
+            return
+        }
+
+        NCLog.log("Renegotiating publisher peer connection")
+        peerConnection.sendPublisherOffer()
     }
 
     // MARK: - Signaling functions
