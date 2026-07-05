@@ -1,14 +1,63 @@
 <!--
   - SPDX-FileCopyrightText: 2017 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-FileCopyrightText: 2026 ironkingironking
   - SPDX-License-Identifier: GPL-3.0-or-later
 -->
-# Nextcloud Talk iOS app
+# Movena Talk iOS fork
 
-**Video & audio calls and chat through Nextcloud on iOS**
+**Native iPhone controls for the Movena SIP/PSTN dialout bridge, based on Nextcloud Talk for iOS**
 
-Nextcloud Talk is a fully on-premises audio/video and chat communication service. It features web and mobile apps and is designed to offer the highest degree of security while being easy to use.
+This repository is a Movena-focused fork of the upstream
+[Nextcloud Talk iOS app](https://github.com/nextcloud/talk-ios). The upstream
+app provides secure Nextcloud Talk chat and calls; this fork adds the iOS-side
+controls needed to invite and manage phone participants through Movena's
+SIP/PSTN bridge.
 
-Nextcloud Talk lowers the barrier for communication and lets your team connect any time, any where, on any device, with each other, customers or partners.
+The adaptation is deliberately server-driven: the iPhone app does not embed SIP
+credentials or run a local SIP stack. It calls the configured Nextcloud
+Talk/Movena OCS APIs, and the Movena HPB/PBX bridge handles the actual
+SIP/PSTN leg.
+
+## Movena contribution
+
+This fork makes the Movena work visible inside the native iOS call experience:
+
+- adds a **Call phone number** action for moderators inside a Talk call
+- adds **Phone controls** for DTMF, transfer start, transfer hold, transfer
+  complete, transfer cancel, and phone hangup
+- recognizes Talk's `sip-support-dialout` capability before showing phone
+  actions
+- supports phone participants with the `phones` actor type
+- sends the Movena bridge requests through native Swift API wrappers
+
+## Implementation map
+
+| Area | Files | Purpose |
+| --- | --- | --- |
+| Call UI | `NextcloudTalk/Calls/CallViewController.swift` | Adds the moderator dialout entry and in-call phone controls. |
+| Talk API client | `NextcloudTalk/Network/NCAPIController.swift` | Adds phone attendee, dialout, DTMF, transfer, and hangup OCS requests. |
+| Capability handling | `NextcloudTalk/Database/NCDatabaseManager.swift` | Adds `sip-support-dialout` capability detection. |
+| Participant model | `NextcloudTalk/Rooms/NCRoomParticipant.swift` | Adds phone participant helpers used by the call UI. |
+| User actor constants | `NextcloudTalk/Contacts/NCUser.h`, `NextcloudTalk/Contacts/NCUser.m` | Adds the `phones` participant actor type. |
+
+For deeper architecture notes, runtime requirements, endpoint details, and test
+notes, see [docs/movena-sip-dialout.md](docs/movena-sip-dialout.md).
+
+## Runtime requirements
+
+The Movena controls appear only when the signed-in account and room can support
+the bridge flow:
+
+- the user is in a call and has moderator permissions
+- the server advertises the `sip-support-dialout` Talk capability
+- the Movena HPB/PBX bridge endpoints are deployed server-side
+- the Nextcloud Talk backend accepts phone attendee and dialout requests
+
+## Upstream base
+
+This fork keeps the upstream Nextcloud Talk iOS foundation. The original app is
+a fully on-premises audio/video and chat communication service with web and
+mobile clients, designed for secure communication through Nextcloud.
 
 [![Available on the AppStore](https://github.com/nextcloud/talk-ios/blob/main/docs/App%20Store/Download_on_the_App_Store_Badge.svg)](https://itunes.apple.com/app/id1296825574)
 
@@ -22,12 +71,6 @@ Nextcloud Talk lowers the barrier for communication and lets your team connect a
 After cloning this repository, you can use `pod install` to install all dependencies. After that, open the project with `open NextcloudTalk.xcworkspace`.
 
 Pull Requests will be checked with [SwiftLint](https://github.com/realm/SwiftLint). We strongly encourage the installation of SwiftLint to detect issues as early as possible.
-
-## Movena adaptation
-
-This fork includes native iOS controls for the Movena SIP dialout bridge. See
-[Movena SIP dialout adaptation](docs/movena-sip-dialout.md) for architecture,
-runtime requirements, touched files, and validation notes.
 
 ## Run the project
 
