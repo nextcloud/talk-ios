@@ -1390,4 +1390,9 @@ extension NCChatController {
     // signaling reconnect (see didRequestChatRefreshFromExternalSignaling /
     // handleChatRelayMessage / didReconnectExternalSignaling).
     func triggerChatRelayCatchUpForTesting() { triggerChatRelayCatchUp() }
+
+    // Puts the relay state machine into .active — the state a real chat catch-up runs from — so
+    // triggerChatRelayCatchUpForTesting() actually schedules the restart on the main queue, mirroring
+    // a catch-up that fires while the user is still in the room (just before they leave).
+    func markChatRelayActiveForTesting() { chatRelayState = .active }
 }

@@ -172,6 +172,30 @@ final class UnitChatViewControllerTest: TestBaseRealm {
                       "A stopped NCChatController must not resume message polling after a chat-relay catch-up")
     }
 
+    func testChatRelayCatchUpScheduledBeforeStopDoesNotResumePolling() throws {
+        let room = addRoom(withToken: "relayLeakRoom2")
+        let chatController = NCChatController(for: room)!
+
+        // Reproduces the ordering the earlier fix missed: the catch-up is triggered while the user
+        // is still in the room (relay active, not stopped), so it passes its guard and schedules the
+        // restart on the main queue. Only *afterwards* does the user leave.
+        chatController.markChatRelayActiveForTesting()
+        chatController.triggerChatRelayCatchUpForTesting()
+
+        // The user leaves now, after the restart is already queued on the main queue but before it runs.
+        chatController.stop()
+        XCTAssertTrue(chatController.isReceivingMessagesStoppedForTesting)
+
+        // Drain the main queue so the queued startReceivingChatMessages runs. If it re-armed polling
+        // (the old behaviour), it would clear the stop flag here.
+        let exp = expectation(description: "\(#function)\(#line)")
+        DispatchQueue.main.async { exp.fulfill() }
+        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+
+        XCTAssertTrue(chatController.isReceivingMessagesStoppedForTesting,
+                      "A chat-relay catch-up scheduled before stop() must not resume polling once stop() has run")
+    }
+
     func testContentInsetAdjustsForOverlayViews() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = NCRoom()
