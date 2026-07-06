@@ -500,7 +500,11 @@ public class NCChatController: NSObject {
     // payload (file/object shares, call_ended, unknown system messages). Incoming chat relay messages
     // are buffered while the catch-up runs.
     private func triggerChatRelayCatchUp() {
-        guard chatRelayState != .catchingUp else { return }
+        if let chatRelayMessagesQueue {
+            dispatchPrecondition(condition: .onQueue(chatRelayMessagesQueue))
+        }
+
+        guard chatRelayState == .active, !stopChatMessagesPoll else { return }
 
         chatRelayState = .catchingUp
 
@@ -1059,7 +1063,12 @@ public class NCChatController: NSObject {
     }
 
     private func startReceivingChatMessages(fromMessagesId messageId: Int, withTimeout timeout: Bool) {
-        stopChatMessagesPoll = false
+        // Only an explicit start (startReceivingNewChatMessages) may re-arm polling. This method is also
+        // the continuation path for the repoll loop and for the chat-relay catch-up, and neither of those
+        // may resurrect a controller that has been stopped. Since stopReceivingNewChatMessages and the
+        // catch-up's restart both resolve on the main queue, bailing here guarantees a stop that ran first
+        // sticks, regardless of the queue interleaving.
+        guard !stopChatMessagesPoll else { return }
         pullMessagesTask?.cancel()
         pullMessagesTask = NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: messageId, inThread: threadId, history: false, includeLastMessage: false, timeout: timeout, limit: NCAPIController.shared.kReceivedChatMessagesLimit, lastCommonReadMessage: room.lastCommonReadMessage, setReadMarker: true, markNotificationsAsRead: true, forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, statusCode in
             if self.stopChatMessagesPoll {
@@ -1127,6 +1136,10 @@ public class NCChatController: NSObject {
     }
 
     public func startReceivingNewChatMessages() {
+        // The single authoritative point that (re)arms polling. Clearing the stop flag here rather than in
+        // startReceivingChatMessages is what prevents an in-flight catch-up from resurrecting a stopped
+        // controller (see the guard in startReceivingChatMessages).
+        stopChatMessagesPoll = false
         let lastChatBlock = chatBlocksForRoomOrThread().last
         startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: false)
     }
@@ -1367,4 +1380,19 @@ public class NCChatController: NSObject {
             }
         }
     }
+}
+
+// Test-only hooks (internal, so only reachable via `@testable import`; not part of the public API).
+extension NCChatController {
+    var isReceivingMessagesStoppedForTesting: Bool { stopChatMessagesPoll }
+
+    // Mirrors a chat-relay catch-up triggered by a relayed refresh/message or a
+    // signaling reconnect (see didRequestChatRefreshFromExternalSignaling /
+    // handleChatRelayMessage / didReconnectExternalSignaling).
+    func triggerChatRelayCatchUpForTesting() { triggerChatRelayCatchUp() }
+
+    // Puts the relay state machine into .active — the state a real chat catch-up runs from — so
+    // triggerChatRelayCatchUpForTesting() actually schedules the restart on the main queue, mirroring
+    // a catch-up that fires while the user is still in the room (just before they leave).
+    func markChatRelayActiveForTesting() { chatRelayState = .active }
 }
