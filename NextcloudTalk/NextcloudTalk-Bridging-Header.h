@@ -53,7 +53,6 @@
 
 #import "JDStatusBarNotificationPresenter.h"
 #import "UIResponder+SLKAdditions.h"
-#import "DirectoryTableViewController.h"
 
 #import "ShareViewController.h"
 #import "ShareConfirmationCollectionViewCell.h"
