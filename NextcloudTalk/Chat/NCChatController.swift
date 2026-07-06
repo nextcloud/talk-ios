@@ -522,6 +522,10 @@ public class NCChatController: NSObject {
             return
         }
 
+        if let lastCommonReadMessage = messageDict["lastCommonRead"] as? Int {
+            self.checkLastCommonReadMessage(lastCommonReadMessage)
+        }
+
         if isThreadController, message.threadId != threadId {
             return
         }
