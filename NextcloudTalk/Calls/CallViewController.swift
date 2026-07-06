@@ -1689,6 +1689,13 @@ class CallViewController: UIViewController,
             items.append(reactionMenu)
         }
 
+        // Switch back to a voice only call
+        if !self.isAudioOnly, callController.supportsCallUpgradeUsingRenegotiation {
+            items.append(UIAction(title: NSLocalizedString("Switch to voice-only call", comment: ""), image: .init(systemName: "video.slash"), handler: { [unowned self] _ in
+                self.switchToVoiceOnlyCall()
+            }))
+        }
+
         // Background blur
         if !self.isAudioOnly, self.room.canPublishVideo {
             var blurActionImage = UIImage(systemName: "person.and.background.dotted")
@@ -2152,6 +2159,28 @@ class CallViewController: UIViewController,
         }
 
         callController.upgradeToVideoCall()
+        self.adjustBars()
+    }
+
+    func switchToVoiceOnlyCall() {
+        guard let callController else { return }
+
+        self.isAudioOnly = true
+        self.userDisabledVideo = true
+
+        callController.downgradeToVoiceOnlyCall()
+
+        self.setLocalVideoViewWrapperHidden(true)
+
+        // Remote videos are no longer received, so show the avatars of all participants again
+        DispatchQueue.main.async {
+            for peer in self.peersInCall where peer.roomType == kRoomTypeVideo {
+                self.updatePeer(peer) { cell in
+                    cell.videoDisabled = true
+                }
+            }
+        }
+
         self.adjustBars()
     }
 

@@ -514,7 +514,52 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             self.startSendingCurrentState()
 
             if CallKitManager.isCallKitAvailable() {
-                CallKitManager.sharedInstance().reportCallUpgradedToVideoCall(forCall: self.room.token)
+                CallKitManager.sharedInstance().changeHasVideo(true, forCall: self.room.token)
+            }
+        }
+    }
+
+    public func downgradeToVoiceOnlyCall() {
+        WebRTCCommon.shared.dispatch {
+            guard !self.isAudioOnly, self.supportsCallUpgradeUsingRenegotiation else { return }
+
+            NCLog.log("Downgrading video call to voice only call using renegotiation")
+
+            self.isAudioOnly = true
+            self.disableVideoAtStart = true
+
+            NCAudioController.shared.setAudioSessionToVoiceChatMode()
+
+            // Stop sending the local video, but keep the negotiated m-line (a sender without
+            // a track), so the call can be upgraded to a video call again later
+            if let peerConnection = self.publisherPeerConnection?.getPeerConnection(),
+               let videoTransceiver = peerConnection.transceivers.first(where: { $0.mediaType == .video }) {
+                videoTransceiver.sender.track = nil
+            }
+
+            // Stop capturing and release the local video track and the camera
+            self.cameraController?.stopAVCaptureSession()
+            self.cameraController = nil
+            self.localVideoTrack = nil
+
+            // Stop receiving remote videos. Requesting an offer with the "sid" of the existing
+            // connection makes the MCU update that connection with a renegotiation offer, which
+            // is then answered with inactive video transceivers, since the call is audio only again.
+            for (_, peerConnectionWrapper) in self.connectionsDict {
+                guard !peerConnectionWrapper.isMCUPublisherPeer, !peerConnectionWrapper.isDummyPeer,
+                      peerConnectionWrapper.roomType == kRoomTypeVideo
+                else { continue }
+
+                peerConnectionWrapper.isAudioOnly = true
+                self.requestOfferWithRepetition(forSessionId: peerConnectionWrapper.peerId, withRoomType: kRoomTypeVideo, withSid: peerConnectionWrapper.sid)
+            }
+
+            // Let the other participants know that we are now in the call without video
+            self.updateCallFlagsInServer()
+            self.startSendingCurrentState()
+
+            if CallKitManager.isCallKitAvailable() {
+                CallKitManager.sharedInstance().changeHasVideo(false, forCall: self.room.token)
             }
         }
     }
