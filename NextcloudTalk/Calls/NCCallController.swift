@@ -487,9 +487,11 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
                         // be sent right away, without any renegotiation
                         videoTransceiver.sender.track = localVideoTrack
                     } else {
-                        // Fallback: adding the video track triggers a renegotiation of the publisher
-                        // peer connection ("negotiationneeded" -> updated offer with the same sid)
-                        peerConnection.add(localVideoTrack, streamIds: [NCCallController.kNCMediaStreamId])
+                        // The publisher peer connection was negotiated without a video m-line. Adding
+                        // one to an existing connection is not supported by the MCU (see comment in
+                        // createPublisherPeerConnection), so the call needs to be reconnected instead
+                        self.forceReconnect()
+                        return
                     }
                 } else {
                     // There was no publisher peer connection (e.g. no microphone access), create it now
@@ -1579,21 +1581,6 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     func peerConnection(_ peerConnection: NCPeerConnection, didReceivePeerNick nick: String) {
         self.delegate?.callController(self, didReceiveNick: nick, fromPeer: peerConnection)
-    }
-
-    func peerConnectionNeedsRenegotiation(_ peerConnection: NCPeerConnection) {
-        WebRTCCommon.shared.assertQueue()
-
-        // Local tracks are only added to (or removed from) an established publisher peer connection,
-        // so this is the only renegotiation triggered from our side that needs to be handled.
-        // The MCU updates the existing connection when it receives an offer with the same "sid".
-        guard peerConnection.isMCUPublisherPeer, let externalSignalingController, externalSignalingController.hasMCU else {
-            NCLog.log("Renegotiation needed for peer \(peerConnection.peerIdentifier), but it is not supported -> ignoring")
-            return
-        }
-
-        NCLog.log("Renegotiating publisher peer connection")
-        peerConnection.sendPublisherOffer()
     }
 
     // MARK: - Signaling functions

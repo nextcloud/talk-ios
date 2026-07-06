@@ -28,10 +28,6 @@ import WebRTC
 
     /// Called when a peer connection creates a session description.
     func peerConnection(_ peerConnection: NCPeerConnection, needsToSend sessionDescription: RTCSessionDescription)
-
-    /// Called when an already established peer connection needs to be renegotiated
-    /// (e.g. after a local track was added or removed).
-    func peerConnectionNeedsRenegotiation(_ peerConnection: NCPeerConnection)
 }
 
 public class NCPeerConnection: NSObject {
@@ -63,7 +59,6 @@ public class NCPeerConnection: NSObject {
     }
 
     private var queuedRemoteCandidates: [RTCIceCandidate]?
-    private var completedInitialNegotiation = false
     private var peerConnection: RTCPeerConnection?
     private var localDataChannel: RTCDataChannel?
     private var remoteDataChannel: RTCDataChannel?
@@ -497,12 +492,6 @@ extension NCPeerConnection: RTCPeerConnectionDelegate {
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
         NSLog("Signaling state with '%@' changed to: %@", peerId, stringForSignalingState(stateChanged))
-
-        if stateChanged == .stable {
-            WebRTCCommon.shared.dispatch {
-                self.completedInitialNegotiation = true
-            }
-        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
@@ -549,15 +538,10 @@ extension NCPeerConnection: RTCPeerConnectionDelegate {
     }
 
     public func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
-        WebRTCCommon.shared.dispatch {
-            // Before the initial negotiation this event is expected (e.g. when the local tracks are
-            // added on creation) and the offer is created explicitly, so it should be ignored here.
-            // After that the connection needs to be renegotiated (e.g. a track was added or removed).
-            guard self.completedInitialNegotiation else { return }
-
-            NSLog("Renegotiation needed for peer '%@'", self.peerId)
-            self.delegate?.peerConnectionNeedsRenegotiation(self)
-        }
+        // Client initiated renegotiation is not supported. Offers are created explicitly and
+        // tracks are only added to or removed from already negotiated m-lines (replaceTrack),
+        // which does not require a renegotiation.
+        NSLog("Negotiation needed for peer '%@' -> ignoring", peerId)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
