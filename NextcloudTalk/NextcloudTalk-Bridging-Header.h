@@ -20,7 +20,6 @@
 #import "TalkCapabilities.h"
 #import "ServerCapabilities.h"
 #import "FederatedCapabilities.h"
-#import "NCChatFileController.h"
 #import "NCSignalingController.h"
 #import "NCUserDefaults.h"
 #import "NCUserStatus.h"
