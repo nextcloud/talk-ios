@@ -48,7 +48,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private let room: NCRoom
     private let account: TalkAccount
     private let userSessionId: String
-    public private(set) var isAudioOnly: Bool
+    private var isAudioOnly: Bool
 
     // TODO: Default true?
     public var disableAudioAtStart: Bool = false
