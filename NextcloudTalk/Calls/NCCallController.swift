@@ -1190,13 +1190,20 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     public func requestOfferWithRepetition(forSessionId sessionId: String, withRoomType roomType: String, withSid sid: String? = nil) {
         WebRTCCommon.shared.assertQueue()
 
+        // Requesting an offer with a "sid" updates the existing connection. If that connection has
+        // failed it would require an ICE restart rather than an update to recover, so request a new
+        // connection instead (by omitting the "sid"). The offer will then arrive with a new "sid",
+        // which replaces the failed peer connection (see processOfferAnswer).
+        let isConnectionFailed = self.getPeerConnectionWrapper(forSessionId: sessionId, ofType: roomType)?.isConnectionFailed() ?? false
+        let updateSid = isConnectionFailed ? nil : sid
+
         let peerKey = self.getPeerKey(withSessionId: sessionId, ofType: roomType, forOwnScreenshare: false)
 
         if let previousOfferTimer = self.pendingOffersDict[peerKey], previousOfferTimer.isValid {
             // If a connection needs to be updated ("sid" is set) but another offer request is already
             // pending, ignore the new update. A new connection needs to be requested even if there
             // is another one already pending.
-            if sid != nil {
+            if updateSid != nil {
                 return
             }
 
@@ -1212,8 +1219,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             "timeout": timeout
         ]
 
-        if let sid {
-            userInfo["sid"] = sid
+        if let updateSid {
+            userInfo["sid"] = updateSid
         }
 
         let pendingOfferTimer = Timer(timeInterval: 8.0, target: self, selector: #selector(self.requestNewOffer), userInfo: userInfo, repeats: true)
@@ -1222,7 +1229,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         // Request new offer
         if let externalSignalingController {
-            externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType, withSid: sid)
+            externalSignalingController.requestOffer(forSessionId: sessionId, andRoomType: roomType, withSid: updateSid)
         }
 
         DispatchQueue.main.async {

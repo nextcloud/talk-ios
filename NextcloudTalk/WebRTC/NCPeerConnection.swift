@@ -255,6 +255,14 @@ public class NCPeerConnection: NSObject {
         return peerConnection
     }
 
+    func isConnectionFailed() -> Bool {
+        WebRTCCommon.shared.assertQueue()
+
+        guard let peerConnection else { return false }
+
+        return peerConnection.iceConnectionState == .failed || peerConnection.connectionState == .failed
+    }
+
     func getLocalDataChannel() -> RTCDataChannel? {
         WebRTCCommon.shared.assertQueue()
         return localDataChannel
