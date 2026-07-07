@@ -43,5 +43,9 @@ import Foundation
     public func update(withUpdateDictionary dict: [AnyHashable: Any]) {
         self.actorId = dict["actorId"] as? String
         self.actorType = dict["actorType"] as? String
+
+        if let displayName = dict["displayName"] as? String {
+            self.displayName = displayName
+        }
     }
 }
