@@ -87,8 +87,8 @@ public class NCChatTitleView: UIView {
         }
 
         // Show description in group conversations
-        if room.type != .oneToOne, !room.roomDescription.isEmpty {
-            subtitle = room.roomDescription
+        if room.type != .oneToOne, let roomDescription = room.roomDescription, !roomDescription.isEmpty {
+            subtitle = roomDescription
         }
 
         setTitle(room.displayName, withSubtitle: subtitle)
@@ -107,7 +107,9 @@ public class NCChatTitleView: UIView {
         setTitle(thread.title, withSubtitle: repliesString)
     }
 
-    private func setTitle(_ title: String, withSubtitle subtitle: String?) {
+    private func setTitle(_ title: String?, withSubtitle subtitle: String?) {
+        guard let title else { return }
+
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byTruncatingTail
 
