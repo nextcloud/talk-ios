@@ -423,4 +423,195 @@ import SwiftyAttributes
 
         return messageAttributedString
     }
+
+    // MARK: - Threads
+
+    public func isThreadOriginalMessage() -> Bool {
+        return self.threadId > 0 && self.isThread && self.threadId == self.messageId
+    }
+
+    public func isThreadMessage() -> Bool {
+        return self.threadId > 0 && self.isThread && self.threadId != self.messageId
+    }
+
+    // MARK: - Reactions
+
+    public func reactionsArray() -> [NCChatReaction] {
+        var reactionsArray: [NCChatReaction] = []
+
+        // Grab message reactions
+        let reactionsDict = self.reactionsDictionary()
+        for reactionKey in reactionsDict.keys {
+            // We need to keep this check for users who installed v14.0 (beta 1)
+            if reactionKey == "self" { continue }
+
+            let count = (reactionsDict[reactionKey] as? NSNumber)?.intValue ?? 0
+            let reaction = NCChatReaction(reaction: reactionKey, count: count, userReacted: false, state: .set)
+            reactionsArray.append(reaction)
+        }
+
+        // Set flag for own reactions
+        for ownReaction in self.reactionsSelfArray() {
+            for reaction in reactionsArray where reaction.reaction == ownReaction {
+                reaction.userReacted = true
+            }
+        }
+
+        // Merge with temporary reactions
+        self.mergeTemporaryReactions(into: &reactionsArray)
+
+        // Sort by reactions count
+        reactionsArray.sort { $0.count > $1.count }
+
+        return reactionsArray
+    }
+
+    // MARK: - Updating
+
+    @objc(updateChatMessage:withChatMessage:isRoomLastMessage:)
+    public static func update(_ managedChatMessage: NCChatMessage, with chatMessage: NCChatMessage, isRoomLastMessage: Bool) {
+        var previewImageHeight = 0
+        var previewImageWidth = 0
+
+        // Try to keep our locally saved previewImageHeight when updating this messages with the server message
+        // This happens when updating the last message of a room for example
+        if let managedFile = managedChatMessage.file(), let chatFile = chatMessage.file() {
+            // Only do this, if the new message does not include a height, to prevent an infinite recursion
+            if managedFile.previewImageHeight > 0 && chatFile.previewImageHeight == 0 {
+                previewImageHeight = managedFile.previewImageHeight
+            }
+
+            if managedFile.previewImageWidth > 0 && chatFile.previewImageWidth == 0 {
+                previewImageWidth = managedFile.previewImageWidth
+            }
+        }
+
+        var fileParameterDict: [AnyHashable: Any]?
+
+        if isRoomLastMessage, managedChatMessage.file() != nil, chatMessage.file() != nil {
+            // We need to keep the file information when updating from the last update message,
+            // because the file information might be inaccurate on the last message
+            fileParameterDict = managedChatMessage.messageParameters["file"] as? [AnyHashable: Any]
+        }
+
+        managedChatMessage.actorDisplayName = chatMessage.actorDisplayName
+        managedChatMessage.actorId = chatMessage.actorId
+        managedChatMessage.actorType = chatMessage.actorType
+        managedChatMessage.message = chatMessage.message
+        managedChatMessage.messageParametersJSONString = chatMessage.messageParametersJSONString
+        managedChatMessage.timestamp = chatMessage.timestamp
+        managedChatMessage.systemMessage = chatMessage.systemMessage
+        managedChatMessage.isReplyable = chatMessage.isReplyable
+        managedChatMessage.messageType = chatMessage.messageType
+        managedChatMessage.reactionsJSONString = chatMessage.reactionsJSONString
+        managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp
+        managedChatMessage.isMarkdownMessage = chatMessage.isMarkdownMessage
+        managedChatMessage.lastEditActorId = chatMessage.lastEditActorId
+        managedChatMessage.lastEditActorType = chatMessage.lastEditActorType
+        managedChatMessage.lastEditActorDisplayName = chatMessage.lastEditActorDisplayName
+        managedChatMessage.lastEditTimestamp = chatMessage.lastEditTimestamp
+        managedChatMessage.pinnedActorType = chatMessage.pinnedActorType
+        managedChatMessage.pinnedActorId = chatMessage.pinnedActorId
+        managedChatMessage.pinnedActorDisplayName = chatMessage.pinnedActorDisplayName
+        managedChatMessage.pinnedUntil = chatMessage.pinnedUntil
+        managedChatMessage.pinnedAt = chatMessage.pinnedAt
+
+        if !isRoomLastMessage {
+            managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString
+
+            // Only update the thread data if there is any data (e.g. omit chat relay messages without thread data)
+            if chatMessage.isThread, chatMessage.threadId > 0 {
+                managedChatMessage.threadId = chatMessage.threadId
+                managedChatMessage.isThread = chatMessage.isThread
+
+                if let threadTitle = chatMessage.threadTitle, !threadTitle.isEmpty {
+                    managedChatMessage.threadTitle = chatMessage.threadTitle
+                }
+
+                if chatMessage.threadReplies > 0 {
+                    managedChatMessage.threadReplies = chatMessage.threadReplies
+                }
+            }
+        }
+
+        if let fileParameterDict {
+            var messageParameterDict = managedChatMessage.messageParameters
+            messageParameterDict["file"] = fileParameterDict
+
+            if let jsonData = try? JSONSerialization.data(withJSONObject: messageParameterDict) {
+                // Only the JSON String is stored inside of the database
+                managedChatMessage.messageParametersJSONString = String(data: jsonData, encoding: .utf8)
+            }
+        }
+
+        if managedChatMessage.parentId == nil, chatMessage.parentId != nil {
+            managedChatMessage.parentId = chatMessage.parentId
+        }
+
+        if previewImageHeight > 0 && previewImageWidth > 0 {
+            managedChatMessage.setPreviewImageSize(CGSize(width: previewImageWidth, height: previewImageHeight))
+        }
+    }
+}
+
+extension NCChatMessage {
+
+    @nonobjc private func reactionsDictionary() -> [String: Any] {
+        guard let data = self.reactionsJSONString?.data(using: .utf8),
+              let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return [:] }
+
+        return dict
+    }
+
+    @nonobjc private func reactionsSelfArray() -> [String] {
+        guard let data = self.reactionsSelfJSONString?.data(using: .utf8),
+              let array = try? JSONSerialization.jsonObject(with: data) as? [String]
+        else { return [] }
+
+        return array
+    }
+
+    @nonobjc private func mergeTemporaryReactions(into reactions: inout [NCChatReaction]) {
+        for case let temporaryReaction as NCChatReaction in self.temporaryReactions() {
+            if temporaryReaction.state == .adding || temporaryReaction.state == .added {
+                self.addTemporaryReaction(temporaryReaction.reaction, into: &reactions)
+            } else if temporaryReaction.state == .removing || temporaryReaction.state == .removed {
+                self.removeReactionTemporarily(temporaryReaction.reaction, into: &reactions)
+            }
+        }
+    }
+
+    @nonobjc private func addTemporaryReaction(_ reaction: String, into reactions: inout [NCChatReaction]) {
+        var includedReaction = false
+        for currentReaction in reactions where currentReaction.reaction == reaction {
+            // Do not need to increase the count since it was already increased on "adding" state
+            if currentReaction.userReacted { return }
+
+            currentReaction.count += 1
+            currentReaction.userReacted = true
+            includedReaction = true
+        }
+
+        if !includedReaction {
+            let newReaction = NCChatReaction(reaction: reaction, count: 1, userReacted: true, state: .set)
+            reactions.append(newReaction)
+        }
+    }
+
+    @nonobjc private func removeReactionTemporarily(_ reaction: String, into reactions: inout [NCChatReaction]) {
+        var removeReaction: NCChatReaction?
+        for currentReaction in reactions where currentReaction.reaction == reaction && currentReaction.userReacted {
+            if currentReaction.count > 1 {
+                currentReaction.count -= 1
+                currentReaction.userReacted = false
+            } else {
+                removeReaction = currentReaction
+            }
+        }
+
+        if let removeReaction, let index = reactions.firstIndex(where: { $0 === removeReaction }) {
+            reactions.remove(at: index)
+        }
+    }
 }
