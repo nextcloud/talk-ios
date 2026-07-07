@@ -37,9 +37,6 @@
 #import "UIImage+CropRotate.h"
 #import "MaterialActivityIndicator.h"
 #import "SLKTextViewController.h"
-#import "NCMessageTextView.h"
-#import "ReplyMessageView.h"
-#import "VoiceMessageRecordingView.h"
 
 #import "GeoLocationRichObject.h"
 #import "NCChatMessage.h"
@@ -47,8 +44,6 @@
 #import "NCContact.h"
 #import "ABContact.h"
 #import "NCThread.h"
-#import "NCChatTitleView.h"
-#import "ReplyMessageView.h"
 
 #import "JDStatusBarNotificationPresenter.h"
 #import "UIResponder+SLKAdditions.h"
@@ -67,7 +62,6 @@
 
 #import "AFNetworking.h"
 
-#import "MessageBodyTextView.h"
 #import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
 #import "ContactsTableViewCell.h"

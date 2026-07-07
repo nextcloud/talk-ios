@@ -237,7 +237,7 @@ import UIKit
             titleView.showSubtitle = false
         }
 
-        if isThreadViewController {
+        if let thread {
             titleView.update(for: thread)
             titleView.longPressGestureRecognizer.isEnabled = false
         } else {
@@ -475,7 +475,7 @@ import UIKit
 
     // MARK: - TitleView delegate
 
-    public func chatTitleViewTapped(_ titleView: NCChatTitleView!) {
+    public func chatTitleViewTapped(_ titleView: NCChatTitleView) {
         // Doing nothing here -> override in subclass
     }
 
