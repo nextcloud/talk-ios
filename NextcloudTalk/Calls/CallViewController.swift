@@ -2496,7 +2496,7 @@ class CallViewController: UIViewController,
 
     // MARK: - NCChatTitleViewDelegate
 
-    func chatTitleViewTapped(_ chatTitleView: NCChatTitleView?) {
+    func chatTitleViewTapped(_ chatTitleView: NCChatTitleView) {
         showRoomInfo()
     }
 }

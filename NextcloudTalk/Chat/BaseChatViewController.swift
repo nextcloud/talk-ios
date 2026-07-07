@@ -1794,7 +1794,7 @@ import Toast
 
     // MARK: - ShareLocationViewController Delegate
 
-    public func shareLocationViewController(_ viewController: ShareLocationViewController, didSelectLocationWithLatitude latitude: Double, longitude: Double, andName name: String) {
+    func shareLocationViewController(_ viewController: ShareLocationViewController, didSelectLocationWithLatitude latitude: Double, longitude: Double, andName name: String) {
         let richObject = GeoLocationRichObject(latitude: latitude, longitude: longitude, name: name)
 
         NCAPIController.sharedInstance().shareRichObject(richObject.richObjectDictionary(), inRoom: self.room.token, forAccount: self.account) { error in

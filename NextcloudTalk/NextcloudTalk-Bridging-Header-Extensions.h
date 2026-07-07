@@ -20,10 +20,7 @@
 #import "TalkAccount.h"
 #import "NotificationCenterNotifications.h"
 
-#import "NCChatTitleView.h"
 #import "SLKTextViewController.h"
-#import "NCMessageTextView.h"
-#import "ReplyMessageView.h"
 #import "NCKeyChainController.h"
 #import "CCCertificate.h"
 

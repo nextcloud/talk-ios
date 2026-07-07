@@ -1832,7 +1832,10 @@ import SwiftUI
             // Update thread info in thread view controllers
             if isThreadViewController {
                 thread = NCThread(threadId: message.threadId, inRoom: room.token, forAccountId: account.accountId)
-                self.titleView?.update(for: thread)
+
+                if let thread {
+                    self.titleView?.update(for: thread)
+                }
             }
         }
     }
@@ -2648,7 +2651,7 @@ import SwiftUI
 
     // MARK: - NCChatTitleViewDelegate
 
-    public override func chatTitleViewTapped(_ titleView: NCChatTitleView!) {
+    public override func chatTitleViewTapped(_ titleView: NCChatTitleView) {
         let roomInfo = RoomInfoUIViewFactory.create(room: self.room, showDestructiveActions: !self.presentedInCall)
 
         if let splitViewController = NCUserInterfaceController.sharedInstance().mainViewController, !splitViewController.isCollapsed {

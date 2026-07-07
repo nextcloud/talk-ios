@@ -107,7 +107,7 @@
                                         </button>
                                     </subviews>
                                 </stackView>
-                                <view contentMode="left" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="NY0-IT-mMr" userLabel="TitleView" customClass="NCChatTitleView">
+                                <view contentMode="left" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="NY0-IT-mMr" userLabel="TitleView" customClass="NCChatTitleView" customModule="NextcloudTalk" customModuleProvider="target">
                                     <rect key="frame" x="8" y="8" width="773.5" height="48"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
