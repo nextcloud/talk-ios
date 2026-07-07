@@ -524,7 +524,7 @@ import SwiftyAttributes
                 managedChatMessage.threadId = chatMessage.threadId
                 managedChatMessage.isThread = chatMessage.isThread
 
-                if !chatMessage.threadTitle.isEmpty {
+                if let threadTitle = chatMessage.threadTitle, !threadTitle.isEmpty {
                     managedChatMessage.threadTitle = chatMessage.threadTitle
                 }
 
