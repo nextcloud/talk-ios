@@ -119,4 +119,22 @@ public class NCSystemMessageLocalizer: NSObject {
             return nil
         }
     }
+
+    // Returns the localized text for the deleted message (the parent) of a "message_deleted"
+    // system message.
+    //
+    // Port of `tryLocalizeDeletedMessage` from the web app (src/utils/message.ts). The system
+    // message's actorId/actorType is the one who deleted the message, while the parent's
+    // actorId/actorType is the original author of the deleted message.
+    public static func localizedDeletedMessage(for message: NCChatMessage, withParent parent: NCChatMessage, account: TalkAccount) -> String {
+        if message.isMessage(from: account.userId) {
+            return NSLocalizedString("Message deleted by you", comment: "")
+        }
+
+        if message.actorId == parent.actorId, message.actorType == parent.actorType {
+            return NSLocalizedString("Message deleted by author", comment: "")
+        }
+
+        return NSLocalizedString("Message deleted by {actor}", comment: "")
+    }
 }

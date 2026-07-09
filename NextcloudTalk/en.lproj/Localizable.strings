@@ -1479,6 +1479,15 @@
 "Message could not be deleted because it is too old" = "Message could not be deleted because it is too old";
 
 /* No comment provided by engineer. */
+"Message deleted by author" = "Message deleted by author";
+
+/* No comment provided by engineer. */
+"Message deleted by you" = "Message deleted by you";
+
+/* No comment provided by engineer. */
+"Message deleted by {actor}" = "Message deleted by {actor}";
+
+/* No comment provided by engineer. */
 "Message deleted successfully" = "Message deleted successfully";
 
 /* No comment provided by engineer. */
