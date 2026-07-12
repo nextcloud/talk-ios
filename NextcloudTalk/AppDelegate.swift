@@ -65,6 +65,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
                 NCLog.removeOldLogfiles()
                 SDImageCache.shared.diskCache.removeExpiredData()
                 NCSettingsController.sharedInstance().createAccountsFile()
+
+                for account in NCDatabaseManager.sharedInstance().allAccounts() {
+                    NCChatFileController(account: account).removeOldFilesFromCache()
+                }
             }
         }
 

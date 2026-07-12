@@ -18,14 +18,14 @@ public protocol NCChatFileControllerDelegate: AnyObject {
 
 public class NCChatFileController: NSObject {
 
-    private static let deleteFilesOlderThanDays = 7
-
     public weak var delegate: NCChatFileControllerDelegate?
+
     public var messageType: String?
     public var actionType: String?
     public private(set) var tempDirectoryPath = ""
 
     private let account: TalkAccount
+    private let deleteFilesOlderThanDays = 7
     private var fileStatus: NCChatFileStatus?
 
     init(account: TalkAccount) {
@@ -49,15 +49,13 @@ public class NCChatFileController: NSObject {
             // Make sure our download directory exists
             try? fileManager.createDirectory(atPath: tempDirectoryPath, withIntermediateDirectories: true)
         }
-
-        removeOldFilesFromCache(thresholdDays: NCChatFileController.deleteFilesOlderThanDays)
     }
 
-    private func removeOldFilesFromCache(thresholdDays: Int) {
+    public func removeOldFilesFromCache() {
         let fileManager = FileManager.default
 
         guard let enumerator = fileManager.enumerator(atPath: tempDirectoryPath),
-              let thresholdDate = Calendar.current.date(byAdding: .day, value: -thresholdDays, to: Date())
+              let thresholdDate = Calendar.current.date(byAdding: .day, value: -deleteFilesOlderThanDays, to: Date())
         else { return }
 
         for case let file as String in enumerator {
