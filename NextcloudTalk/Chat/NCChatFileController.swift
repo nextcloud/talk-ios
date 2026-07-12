@@ -25,10 +25,19 @@ public class NCChatFileController: NSObject {
     public var actionType: String?
     public private(set) var tempDirectoryPath = ""
 
+    private let account: TalkAccount
     private var fileStatus: NCChatFileStatus?
 
-    public func initDownloadDirectory(for account: TalkAccount) {
-        let encodedAccountId = account.accountId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+    init(account: TalkAccount) {
+        self.account = account
+
+        super.init()
+
+        self.initDownloadDirectory()
+    }
+
+    private func initDownloadDirectory() {
+        let encodedAccountId = self.account.accountId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
         let fileManager = FileManager.default
 
         tempDirectoryPath = (NSTemporaryDirectory() as NSString).appendingPathComponent("download")
@@ -63,21 +72,18 @@ public class NCChatFileController: NSObject {
         }
     }
 
-    public func deleteDownloadDirectory(for account: TalkAccount) {
-        initDownloadDirectory(for: account)
+    public func deleteDownloadDirectory() {
         try? FileManager.default.removeItem(atPath: tempDirectoryPath)
 
         print("Deleted download directory: \(tempDirectoryPath)")
     }
 
-    public func clearDownloadDirectory(for account: TalkAccount) {
-        deleteDownloadDirectory(for: account)
-        initDownloadDirectory(for: account)
+    public func clearDownloadDirectory() {
+        deleteDownloadDirectory()
+        initDownloadDirectory()
     }
 
-    public func getDiskUsage(for account: TalkAccount) -> Int {
-        initDownloadDirectory(for: account)
-
+    public func getDiskUsage() -> Int {
         let fileManager = FileManager.default
 
         guard let enumerator = fileManager.enumerator(atPath: tempDirectoryPath) else { return 0 }
@@ -114,7 +120,7 @@ public class NCChatFileController: NSObject {
     }
 
     private func setDate(onFile filePath: String, withCreationDate creationDate: Date?, withModificationDate modificationDate: Date?) {
-        var attributes = [FileAttributeKey : Any]()
+        var attributes = [FileAttributeKey: Any]()
 
         if let creationDate {
             attributes[.creationDate] = creationDate
@@ -138,16 +144,14 @@ public class NCChatFileController: NSObject {
     }
 
     public func downloadFile(withFileId fileId: String) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().getFileById(forAccount: activeAccount, withFileId: fileId) { file, error in
+        NCAPIController.sharedInstance().getFileById(forAccount: self.account, withFileId: fileId) { file, error in
             guard let file else {
                 print("An error occurred while getting file with fileId \(fileId): \(error?.errorDescription ?? "")")
                 self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileId, withErrorDescription: error?.errorDescription ?? "")
                 return
             }
 
-            let remoteDavPrefix = "/remote.php/dav/files/\(activeAccount.userId)/"
+            let remoteDavPrefix = "/remote.php/dav/files/\(self.account.userId)/"
             let directoryPath = file.path.components(separatedBy: remoteDavPrefix).last ?? ""
 
             let filePath = "\(directoryPath)\(file.fileName)"
@@ -158,9 +162,6 @@ public class NCChatFileController: NSObject {
     }
 
     public func moveFileToTemporaryDirectory(fromSourcePath sourcePath: String, destinationPath: String) -> Bool {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        initDownloadDirectory(for: activeAccount)
-
         let fileManager = FileManager.default
 
         if fileManager.fileExists(atPath: destinationPath) {
@@ -181,12 +182,9 @@ public class NCChatFileController: NSObject {
     private func startDownload() {
         guard let fileStatus else { return }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        NCAPIController.sharedInstance().setupNCCommunication(forAccount: self.account)
 
-        NCAPIController.sharedInstance().setupNCCommunication(forAccount: activeAccount)
-        initDownloadDirectory(for: activeAccount)
-
-        let serverUrlFileName = "\(activeAccount.server)\(NCAPIController.sharedInstance().filesPath(forAccount: activeAccount))/\(fileStatus.filePath)"
+        let serverUrlFileName = "\(self.account.server)\(NCAPIController.sharedInstance().filesPath(forAccount: self.account))/\(fileStatus.filePath)"
         let fileLocalPath = (tempDirectoryPath as NSString).appendingPathComponent(fileStatus.fileName)
         fileStatus.fileLocalPath = fileLocalPath
 

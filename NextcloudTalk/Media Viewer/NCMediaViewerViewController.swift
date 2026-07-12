@@ -12,6 +12,7 @@ import UIKit
                                                 NCMediaViewerPageViewControllerDelegate {
 
     private let room: NCRoom
+    private let account: TalkAccount
     private let pageController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var initialMessage: NCChatMessage
 
@@ -59,9 +60,10 @@ import UIKit
         return showMessageButton
     }()
 
-    init(initialMessage: NCChatMessage, room: NCRoom) {
+    init(initialMessage: NCChatMessage, room: NCRoom, account: TalkAccount) {
         self.room = room
         self.initialMessage = initialMessage
+        self.account = account
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -91,7 +93,7 @@ import UIKit
 
         self.pageController.didMove(toParent: self)
 
-        let initialViewController = NCMediaViewerPageViewController(message: self.initialMessage)
+        let initialViewController = NCMediaViewerPageViewController(message: self.initialMessage, account: self.account)
         initialViewController.delegate = self
         self.pageController.setViewControllers([initialViewController], direction: .forward, animated: false)
 
@@ -194,7 +196,7 @@ import UIKit
               let prevMessage = self.getPreviousFileMessage(from: prevMediaPageVC.message)
         else { return nil }
 
-        let mediaPageViewController = NCMediaViewerPageViewController(message: prevMessage)
+        let mediaPageViewController = NCMediaViewerPageViewController(message: prevMessage, account: self.account)
         mediaPageViewController.delegate = self
         return mediaPageViewController
     }
@@ -204,7 +206,7 @@ import UIKit
               let nextMessage = self.getNextFileMessage(from: prevMediaPageVC.message)
         else { return nil }
 
-        let mediaPageViewController = NCMediaViewerPageViewController(message: nextMessage)
+        let mediaPageViewController = NCMediaViewerPageViewController(message: nextMessage, account: self.account)
         mediaPageViewController.delegate = self
         return mediaPageViewController
     }

@@ -551,13 +551,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             preferredStyle: .alert)
 
         let clearAction = UIAlertAction(title: NSLocalizedString("Clear cache", comment: ""), style: .destructive) { _ in
-            let fileController = NCChatFileController()
             let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
 
-            if let talkAccounts = talkAccounts as? [TalkAccount] {
-                for account in talkAccounts {
-                    fileController.clearDownloadDirectory(for: account)
-                }
+            for account in talkAccounts {
+                NCChatFileController(account: account).clearDownloadDirectory()
             }
 
             self.updateTotalFileCacheSize()
@@ -1020,11 +1017,10 @@ extension SettingsTableViewController {
     func updateTotalFileCacheSize() {
         self.totalFileCacheSize = 0
 
-        let fileController = NCChatFileController()
         let talkAccounts = NCDatabaseManager.sharedInstance().allAccounts()
 
         for account in talkAccounts {
-            self.totalFileCacheSize += Int(fileController.getDiskUsage(for: account))
+            self.totalFileCacheSize += Int(NCChatFileController(account: account).getDiskUsage())
         }
     }
 }

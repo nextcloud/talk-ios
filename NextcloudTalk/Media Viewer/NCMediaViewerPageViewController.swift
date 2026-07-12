@@ -19,7 +19,8 @@ import SwiftyGif
     public weak var delegate: NCMediaViewerPageViewControllerDelegate?
 
     public let message: NCChatMessage
-    private let fileDownloader = NCChatFileController()
+    private let account: TalkAccount
+    private let fileDownloader: NCChatFileController
 
     private lazy var zoomableView = {
         let zoomableView = NCZoomableView()
@@ -87,8 +88,11 @@ import SwiftyGif
         return indicator
     }()
 
-    init(message: NCChatMessage) {
+    init(message: NCChatMessage, account: TalkAccount) {
         self.message = message
+        self.account = account
+
+        self.fileDownloader = NCChatFileController(account: account)
 
         super.init(nibName: nil, bundle: nil)
     }

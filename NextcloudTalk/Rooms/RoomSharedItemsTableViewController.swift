@@ -258,8 +258,11 @@ import PassKit
     // MARK: - File downloader
 
     func downloadFileForCell(cell: DirectoryTableViewCell, file: NCMessageFileParameter) {
+        guard let account = self.room.account else { return }
+
         cell.fileParameter = file
-        let downloader = NCChatFileController()
+
+        let downloader = NCChatFileController(account: account)
         downloader.delegate = self
         downloader.downloadFile(fromMessage: file)
     }
