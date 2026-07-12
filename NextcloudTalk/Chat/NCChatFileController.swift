@@ -34,6 +34,11 @@ public class NCChatFileController: NSObject {
         super.init()
 
         self.initDownloadDirectory()
+        AllocationTracker.shared.addAllocation()
+    }
+
+    deinit {
+        AllocationTracker.shared.removeAllocation()
     }
 
     private func initDownloadDirectory() {
