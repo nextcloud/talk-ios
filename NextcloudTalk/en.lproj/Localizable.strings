@@ -1219,6 +1219,9 @@
 /* No comment provided by engineer. */
 "Go to message" = "Go to message";
 
+/* Call view mode which shows all participants in a grid */
+"Grid view" = "Grid view";
+
 /* Show group conversations before private ones */
 "Group first" = "Group first";
 
@@ -1242,6 +1245,9 @@
 
 /* No comment provided by engineer. */
 "Hide" = "Hide";
+
+/* Hide the list of participants shown at the bottom of the call view */
+"Hide participant stripe" = "Hide participant stripe";
 
 /* TRANSLATORS this is a video quality option (Video quality : High) */
 "High" = "High";
@@ -2171,6 +2177,9 @@
 /* No comment provided by engineer. */
 "Show more…" = "Show more…";
 
+/* Show the list of participants at the bottom of the call view */
+"Show participant stripe" = "Show participant stripe";
+
 /* No comment provided by engineer. */
 "Signaling" = "Signaling";
 
@@ -2203,6 +2212,9 @@
 
 /* speaker = Loudspeaker, device */
 "Speaker enabled" = "Speaker enabled";
+
+/* Call view mode which shows the current speaker in fullscreen */
+"Speaker view" = "Speaker view";
 
 /* No comment provided by engineer. */
 "Speech recognition access is not allowed. Check your settings." = "Speech recognition access is not allowed. Check your settings.";

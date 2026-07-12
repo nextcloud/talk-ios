@@ -20,6 +20,11 @@ enum CallViewSection {
     case main
 }
 
+enum CallViewMode {
+    case grid
+    case speaker
+}
+
 @objcMembers
 class CallViewController: UIViewController,
                             NCCallControllerDelegate,
@@ -52,6 +57,11 @@ class CallViewController: UIViewController,
     public var recordingConsent = false
 
     private var speakers: [NCPeerConnection] = []
+    private var callViewMode: CallViewMode = .grid
+    private var promotedPeerIdentifier: String?
+    private var isStripeHiddenInSpeakerView = false
+    private let speakerLayout = CallSpeakerLayout()
+    private var gridLayout: UICollectionViewLayout?
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -270,6 +280,7 @@ class CallViewController: UIViewController,
 
         self.titleView.delegate = self
         self.collectionView.delegate = self
+        self.gridLayout = self.collectionView.collectionViewLayout
         self.applyInitialSnapshot()
 
         self.createWaitingScreen()
@@ -577,9 +588,92 @@ class CallViewController: UIViewController,
     }
 
     func sortPeersInCall() {
+        // In speaker view the promoted participant is always the first item, the order
+        // of the other participants in the stripe is kept stable
+        if callViewMode == .speaker {
+            if let index = peersInCall.firstIndex(where: { $0.peerIdentifier == promotedPeerIdentifier }), index != 0 {
+                peersInCall.insert(peersInCall.remove(at: index), at: 0)
+            }
+
+            return
+        }
+
         // Only sort participants if the collection view is scrollable (not all participants fit in the screen)
         if collectionView.contentSize.height > collectionView.bounds.height {
             peersInCall.sort { priority(for: $0) < priority(for: $1) }
+        }
+    }
+
+    // MARK: - Call view mode
+
+    func toggleCallViewMode() {
+        self.setCallViewMode(callViewMode == .grid ? .speaker : .grid)
+    }
+
+    func setCallViewMode(_ mode: CallViewMode) {
+        DispatchQueue.main.async {
+            guard self.callViewMode != mode, let gridLayout = self.gridLayout else { return }
+
+            self.callViewMode = mode
+
+            if mode == .speaker {
+                // Promote the current or last known speaker, otherwise the first participant
+                if !self.peersInCall.contains(where: { $0.peerIdentifier == self.promotedPeerIdentifier }) {
+                    self.promotedPeerIdentifier = self.initialPromotedPeer()?.peerIdentifier
+                }
+
+                self.speakerLayout.isStripeHidden = self.isStripeHiddenInSpeakerView
+                self.sortPeersInCall()
+                self.updateSnapshot()
+                self.collectionView.setCollectionViewLayout(self.speakerLayout, animated: true)
+            } else {
+                self.collectionView.setCollectionViewLayout(gridLayout, animated: true)
+            }
+        }
+    }
+
+    func setStripeVisibleInSpeakerView(_ visible: Bool) {
+        DispatchQueue.main.async {
+            self.isStripeHiddenInSpeakerView = !visible
+
+            guard self.callViewMode == .speaker else { return }
+
+            self.collectionView.performBatchUpdates {
+                self.speakerLayout.isStripeHidden = !visible
+            }
+        }
+    }
+
+    private func initialPromotedPeer() -> NCPeerConnection? {
+        return peersInCall.first(where: { $0.isPeerSpeaking })
+            ?? speakers.first(where: { peersInCall.contains($0) })
+            ?? peersInCall.first
+    }
+
+    func promotePeerInSpeakerView(_ peer: NCPeerConnection) {
+        DispatchQueue.main.async {
+            guard self.callViewMode == .speaker, self.promotedPeerIdentifier != peer.peerIdentifier else { return }
+
+            self.promotedPeerIdentifier = peer.peerIdentifier
+
+            // The peer might not be added to the collection view yet,
+            // in that case it is pinned when the pending insert is processed
+            if self.peersInCall.contains(peer) {
+                self.sortPeersInCall()
+                self.updateSnapshot()
+            }
+        }
+    }
+
+    func promoteNextSpeakerInSpeakerViewIfNeeded(_ peer: NCPeerConnection) {
+        DispatchQueue.main.async {
+            // When the promoted participant stops speaking, hand the promotion over to a
+            // participant that is still speaking (see _setSpeaking in CallView.vue of the web client)
+            guard self.callViewMode == .speaker, self.promotedPeerIdentifier == peer.peerIdentifier,
+                  let nextSpeaker = self.peersInCall.first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
+            else { return }
+
+            self.promotePeerInSpeakerView(nextSpeaker)
         }
     }
 
@@ -832,7 +926,10 @@ class CallViewController: UIViewController,
                 }
                 // Add to speakers and sort participants if needed
                 if message == "speaking" {
+                    self.promotePeerInSpeakerView(peer)
                     self.addSpeakerAndPromoteIfNeeded(peer)
+                } else {
+                    self.promoteNextSpeakerInSpeakerViewIfNeeded(peer)
                 }
             }
         case "raiseHand":
@@ -888,6 +985,7 @@ class CallViewController: UIViewController,
             self.pendingPeerDeletions = []
             self.pendingPeerUpdates = []
             self.peersInCall = []
+            self.promotedPeerIdentifier = nil
 
             // Reset a potential queued batch update
             self.batchUpdateTimer?.invalidate()
@@ -1440,6 +1538,34 @@ class CallViewController: UIViewController,
         guard let callController else { return [] }
 
         var items: [UIMenuElement] = []
+
+        // Call view mode (grid / speaker view)
+        var viewModeTitle = NSLocalizedString("Speaker view", comment: "Call view mode which shows the current speaker in fullscreen")
+        var viewModeImage = UIImage(systemName: "person.crop.rectangle")
+
+        if self.callViewMode == .speaker {
+            viewModeTitle = NSLocalizedString("Grid view", comment: "Call view mode which shows all participants in a grid")
+            viewModeImage = UIImage(systemName: "square.grid.2x2")
+        }
+
+        items.append(UIAction(title: viewModeTitle, image: viewModeImage, handler: { [unowned self] _ in
+            self.toggleCallViewMode()
+        }))
+
+        // Show/hide the participant stripe in speaker view
+        if self.callViewMode == .speaker {
+            var stripeActionTitle = NSLocalizedString("Hide participant stripe", comment: "Hide the list of participants shown at the bottom of the call view")
+            var stripeActionImage = UIImage(systemName: "rectangle")
+
+            if self.isStripeHiddenInSpeakerView {
+                stripeActionTitle = NSLocalizedString("Show participant stripe", comment: "Show the list of participants at the bottom of the call view")
+                stripeActionImage = UIImage(systemName: "rectangle.bottomthird.inset.filled")
+            }
+
+            items.append(UIAction(title: stripeActionTitle, image: stripeActionImage, handler: { [unowned self] _ in
+                self.setStripeVisibleInSpeakerView(self.isStripeHiddenInSpeakerView)
+            }))
+        }
 
         // Add speaker button to menu if it was hidden from topbar
         let audioController = NCAudioController.shared
@@ -2452,6 +2578,11 @@ class CallViewController: UIViewController,
 
         // Add all new peers
         self.peersInCall.append(contentsOf: pendingPeerInserts)
+
+        // Make sure the promoted participant in speaker view is still in the call
+        if callViewMode == .speaker, !peersInCall.contains(where: { $0.peerIdentifier == promotedPeerIdentifier }) {
+            promotedPeerIdentifier = initialPromotedPeer()?.peerIdentifier
+        }
 
         // Sort peers in call
         self.sortPeersInCall()
