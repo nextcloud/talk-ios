@@ -264,7 +264,7 @@ import PassKit
 
         let downloader = NCChatFileController(account: account)
         downloader.delegate = self
-        downloader.downloadFile(fromMessage: file)
+        downloader.downloadFile(withFileId: file.parameterId)
     }
 
     func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {

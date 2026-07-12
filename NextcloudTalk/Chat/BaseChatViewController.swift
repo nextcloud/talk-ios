@@ -1346,7 +1346,7 @@ import Toast
         downloader.delegate = self
         downloader.messageType = kMessageTypeVoiceMessage
         downloader.actionType = actionTypeTranscribeVoiceMessage
-        downloader.downloadFile(fromMessage: message.file())
+        downloader.downloadFile(withFileId: message.file().parameterId)
     }
 
     func didPressEdit(for message: NCChatMessage) {
@@ -3902,7 +3902,7 @@ import Toast
 
         let downloader = NCChatFileController(account: self.account)
         downloader.delegate = self
-        downloader.downloadFile(fromMessage: fileParameter)
+        downloader.downloadFile(withFileId: fileParameter.parameterId)
     }
 
     public func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage) {
@@ -3963,7 +3963,7 @@ import Toast
         let downloader = NCChatFileController(account: self.account)
         downloader.delegate = self
         downloader.messageType = kMessageTypeVoiceMessage
-        downloader.downloadFile(fromMessage: fileParameter)
+        downloader.downloadFile(withFileId: fileParameter.parameterId)
     }
 
     public func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter) {

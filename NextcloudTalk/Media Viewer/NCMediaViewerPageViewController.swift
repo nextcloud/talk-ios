@@ -118,7 +118,7 @@ import SwiftyGif
         self.activityIndicator.startAnimating()
 
         fileDownloader.delegate = self
-        fileDownloader.downloadFile(fromMessage: self.message.file())
+        fileDownloader.downloadFile(withFileId: self.message.file().parameterId)
 
         self.navigationItem.title = self.message.file().name
 

@@ -133,32 +133,6 @@ public class NCChatFileController: NSObject {
         try? FileManager.default.setAttributes(attributes, ofItemAtPath: filePath)
     }
 
-    public func downloadFile(fromMessage fileParameter: NCMessageFileParameter) {
-        let fileStatus = NCChatFileStatus(fileId: fileParameter.parameterId, fileName: fileParameter.name, filePath: fileParameter.path ?? "")
-        self.fileStatus = fileStatus
-        fileParameter.fileStatus = fileStatus
-
-        startDownload()
-    }
-
-    public func downloadFile(withFileId fileId: String) {
-        NCAPIController.sharedInstance().getFileById(forAccount: self.account, withFileId: fileId) { file, error in
-            guard let file else {
-                print("An error occurred while getting file with fileId \(fileId): \(error?.errorDescription ?? "")")
-                self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileId, withErrorDescription: error?.errorDescription ?? "")
-                return
-            }
-
-            let remoteDavPrefix = "/remote.php/dav/files/\(self.account.userId)/"
-            let directoryPath = file.path.components(separatedBy: remoteDavPrefix).last ?? ""
-
-            let filePath = "\(directoryPath)\(file.fileName)"
-
-            self.fileStatus = NCChatFileStatus(fileId: file.fileId, fileName: file.fileName, filePath: filePath)
-            self.startDownload()
-        }
-    }
-
     public func moveFileToTemporaryDirectory(fromSourcePath sourcePath: String, destinationPath: String) -> Bool {
         let fileManager = FileManager.default
 
@@ -177,28 +151,29 @@ public class NCChatFileController: NSObject {
         }
     }
 
-    private func startDownload() {
-        guard let fileStatus else { return }
-
-        NCAPIController.sharedInstance().setupNCCommunication(forAccount: self.account)
-
-        let serverUrlFileName = "\(self.account.server)\(NCAPIController.sharedInstance().filesPath(forAccount: self.account))/\(fileStatus.filePath)"
-        let fileLocalPath = (tempDirectoryPath as NSString).appendingPathComponent(fileStatus.fileName)
-        fileStatus.fileLocalPath = fileLocalPath
-
-        // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator
-        didChangeIsDownloadingNotification(isDownloading: true)
-
-        // First read metadata from the file and check if we already downloaded it
-        let options = NKRequestOptions(timeout: 60, queue: .main)
-        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: serverUrlFileName, depth: "0", showHiddenFiles: true, options: options) { _, files, _, error in
-            guard error.errorCode == 0, files.count == 1, let file = files.first else {
-                self.didChangeIsDownloadingNotification(isDownloading: false)
-
-                print("Error downloading file: \(error.errorCode) - \(error.errorDescription)")
-                self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileStatus.fileId, withErrorDescription: error.errorDescription)
+    public func downloadFile(withFileId fileId: String) {
+        // getFileById already sets up NextcloudKit
+        NCAPIController.sharedInstance().getFileById(forAccount: self.account, withFileId: fileId) { file, error in
+            guard let file else {
+                print("An error occurred while getting file with fileId \(fileId): \(error?.errorDescription ?? "")")
+                self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileId, withErrorDescription: error?.errorDescription ?? "")
                 return
             }
+
+            let remoteDavPrefix = "/remote.php/dav/files/\(self.account.userId)/"
+            let directoryPath = file.path.components(separatedBy: remoteDavPrefix).last ?? ""
+
+            let filePath = "\(directoryPath)\(file.fileName)"
+
+            let fileStatus = NCChatFileStatus(fileId: file.fileId, fileName: file.fileName, filePath: filePath)
+            self.fileStatus = fileStatus
+
+            let serverUrlFileName = "\(self.account.server)\(NCAPIController.sharedInstance().filesPath(forAccount: self.account))/\(fileStatus.filePath)"
+            let fileLocalPath = (self.tempDirectoryPath as NSString).appendingPathComponent(fileStatus.fileName)
+            fileStatus.fileLocalPath = fileLocalPath
+
+            // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator
+            self.didChangeIsDownloadingNotification(isDownloading: true)
 
             // File exists on server -> check our cache
             if self.isFileInCache(fileLocalPath, withModificationDate: file.date as Date, withSize: file.size) {
