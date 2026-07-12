@@ -113,12 +113,20 @@ public class NCChatFileController: NSObject {
         return false
     }
 
-    private func setCreationDate(onFile filePath: String, withCreationDate date: Date) {
-        try? FileManager.default.setAttributes([.creationDate: date], ofItemAtPath: filePath)
-    }
+    private func setDate(onFile filePath: String, withCreationDate creationDate: Date?, withModificationDate modificationDate: Date?) {
+        var attributes = [FileAttributeKey : Any]()
 
-    private func setModificationDate(onFile filePath: String, withModificationDate date: Date) {
-        try? FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: filePath)
+        if let creationDate {
+            attributes[.creationDate] = creationDate
+        }
+
+        if let modificationDate {
+            attributes[.modificationDate] = modificationDate
+        }
+
+        guard !attributes.isEmpty else { return }
+
+        try? FileManager.default.setAttributes(attributes, ofItemAtPath: filePath)
     }
 
     public func downloadFile(fromMessage fileParameter: NCMessageFileParameter) {
@@ -213,10 +221,8 @@ public class NCChatFileController: NSObject {
             } completionHandler: { _, _, _, _, _, error in
                 if error.errorCode == 0 {
                     // Set modification date to invalidate our cache
-                    self.setModificationDate(onFile: fileLocalPath, withModificationDate: file.date as Date)
-
                     // Set creation date to delete older files from cache
-                    self.setCreationDate(onFile: fileLocalPath, withCreationDate: Date())
+                    self.setDate(onFile: fileLocalPath, withCreationDate: Date(), withModificationDate: file.date as Date)
 
                     self.delegate?.fileControllerDidLoadFile(self, with: fileStatus)
                 } else {
