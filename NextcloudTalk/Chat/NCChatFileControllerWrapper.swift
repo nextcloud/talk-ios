@@ -15,7 +15,7 @@ public class NCChatFileControllerWrapper: NSObject, NCChatFileControllerDelegate
     static let shared = NCChatFileControllerWrapper()
 
     @MainActor
-    public func downloadFile(withFileId fileId: String, completionBlock: @escaping (_ fileLocalPath: String?) -> Void) {
+    public func downloadFile(withFileId fileId: String, fromAccount account: TalkAccount, completionBlock: @escaping (_ fileLocalPath: String?) -> Void) {
         if var existingBlocks = completionBlocks[fileId] {
             // We are already downloading this file, don't do it again, just ensure we call the completion block later on
             existingBlocks.append(completionBlock)
@@ -26,7 +26,7 @@ public class NCChatFileControllerWrapper: NSObject, NCChatFileControllerDelegate
 
         completionBlocks[fileId, default: []].append(completionBlock)
 
-        let fileController = NCChatFileController()
+        let fileController = NCChatFileController(account: account)
         fileController.delegate = self
 
         fileControllers[fileId] = fileController

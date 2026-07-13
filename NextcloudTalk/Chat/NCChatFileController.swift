@@ -18,17 +18,31 @@ public protocol NCChatFileControllerDelegate: AnyObject {
 
 public class NCChatFileController: NSObject {
 
-    private static let deleteFilesOlderThanDays = 7
-
     public weak var delegate: NCChatFileControllerDelegate?
+
     public var messageType: String?
     public var actionType: String?
     public private(set) var tempDirectoryPath = ""
 
+    private let account: TalkAccount
+    private let deleteFilesOlderThanDays = 7
     private var fileStatus: NCChatFileStatus?
 
-    public func initDownloadDirectory(for account: TalkAccount) {
-        let encodedAccountId = account.accountId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+    init(account: TalkAccount) {
+        self.account = account
+
+        super.init()
+
+        self.initDownloadDirectory()
+        AllocationTracker.shared.addAllocation()
+    }
+
+    deinit {
+        AllocationTracker.shared.removeAllocation()
+    }
+
+    private func initDownloadDirectory() {
+        let encodedAccountId = self.account.accountId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
         let fileManager = FileManager.default
 
         tempDirectoryPath = (NSTemporaryDirectory() as NSString).appendingPathComponent("download")
@@ -40,15 +54,13 @@ public class NCChatFileController: NSObject {
             // Make sure our download directory exists
             try? fileManager.createDirectory(atPath: tempDirectoryPath, withIntermediateDirectories: true)
         }
-
-        removeOldFilesFromCache(thresholdDays: NCChatFileController.deleteFilesOlderThanDays)
     }
 
-    private func removeOldFilesFromCache(thresholdDays: Int) {
+    public func removeOldFilesFromCache() {
         let fileManager = FileManager.default
 
         guard let enumerator = fileManager.enumerator(atPath: tempDirectoryPath),
-              let thresholdDate = Calendar.current.date(byAdding: .day, value: -thresholdDays, to: Date())
+              let thresholdDate = Calendar.current.date(byAdding: .day, value: -deleteFilesOlderThanDays, to: Date())
         else { return }
 
         for case let file as String in enumerator {
@@ -63,21 +75,18 @@ public class NCChatFileController: NSObject {
         }
     }
 
-    public func deleteDownloadDirectory(for account: TalkAccount) {
-        initDownloadDirectory(for: account)
+    public func deleteDownloadDirectory() {
         try? FileManager.default.removeItem(atPath: tempDirectoryPath)
 
         print("Deleted download directory: \(tempDirectoryPath)")
     }
 
-    public func clearDownloadDirectory(for account: TalkAccount) {
-        deleteDownloadDirectory(for: account)
-        initDownloadDirectory(for: account)
+    public func clearDownloadDirectory() {
+        deleteDownloadDirectory()
+        initDownloadDirectory()
     }
 
-    public func getDiskUsage(for account: TalkAccount) -> Int {
-        initDownloadDirectory(for: account)
-
+    public func getDiskUsage() -> Int {
         let fileManager = FileManager.default
 
         guard let enumerator = fileManager.enumerator(atPath: tempDirectoryPath) else { return 0 }
@@ -113,46 +122,23 @@ public class NCChatFileController: NSObject {
         return false
     }
 
-    private func setCreationDate(onFile filePath: String, withCreationDate date: Date) {
-        try? FileManager.default.setAttributes([.creationDate: date], ofItemAtPath: filePath)
-    }
+    private func setDate(onFile filePath: String, withCreationDate creationDate: Date?, withModificationDate modificationDate: Date?) {
+        var attributes = [FileAttributeKey: Any]()
 
-    private func setModificationDate(onFile filePath: String, withModificationDate date: Date) {
-        try? FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: filePath)
-    }
-
-    public func downloadFile(fromMessage fileParameter: NCMessageFileParameter) {
-        let fileStatus = NCChatFileStatus(fileId: fileParameter.parameterId, fileName: fileParameter.name, filePath: fileParameter.path ?? "")
-        self.fileStatus = fileStatus
-        fileParameter.fileStatus = fileStatus
-
-        startDownload()
-    }
-
-    public func downloadFile(withFileId fileId: String) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().getFileById(forAccount: activeAccount, withFileId: fileId) { file, error in
-            guard let file else {
-                print("An error occurred while getting file with fileId \(fileId): \(error?.errorDescription ?? "")")
-                self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileId, withErrorDescription: error?.errorDescription ?? "")
-                return
-            }
-
-            let remoteDavPrefix = "/remote.php/dav/files/\(activeAccount.userId)/"
-            let directoryPath = file.path.components(separatedBy: remoteDavPrefix).last ?? ""
-
-            let filePath = "\(directoryPath)\(file.fileName)"
-
-            self.fileStatus = NCChatFileStatus(fileId: file.fileId, fileName: file.fileName, filePath: filePath)
-            self.startDownload()
+        if let creationDate {
+            attributes[.creationDate] = creationDate
         }
+
+        if let modificationDate {
+            attributes[.modificationDate] = modificationDate
+        }
+
+        guard !attributes.isEmpty else { return }
+
+        try? FileManager.default.setAttributes(attributes, ofItemAtPath: filePath)
     }
 
     public func moveFileToTemporaryDirectory(fromSourcePath sourcePath: String, destinationPath: String) -> Bool {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        initDownloadDirectory(for: activeAccount)
-
         let fileManager = FileManager.default
 
         if fileManager.fileExists(atPath: destinationPath) {
@@ -170,31 +156,29 @@ public class NCChatFileController: NSObject {
         }
     }
 
-    private func startDownload() {
-        guard let fileStatus else { return }
-
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
-        NCAPIController.sharedInstance().setupNCCommunication(forAccount: activeAccount)
-        initDownloadDirectory(for: activeAccount)
-
-        let serverUrlFileName = "\(activeAccount.server)\(NCAPIController.sharedInstance().filesPath(forAccount: activeAccount))/\(fileStatus.filePath)"
-        let fileLocalPath = (tempDirectoryPath as NSString).appendingPathComponent(fileStatus.fileName)
-        fileStatus.fileLocalPath = fileLocalPath
-
-        // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator
-        didChangeIsDownloadingNotification(isDownloading: true)
-
-        // First read metadata from the file and check if we already downloaded it
-        let options = NKRequestOptions(timeout: 60, queue: .main)
-        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: serverUrlFileName, depth: "0", showHiddenFiles: true, options: options) { _, files, _, error in
-            guard error.errorCode == 0, files.count == 1, let file = files.first else {
-                self.didChangeIsDownloadingNotification(isDownloading: false)
-
-                print("Error downloading file: \(error.errorCode) - \(error.errorDescription)")
-                self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileStatus.fileId, withErrorDescription: error.errorDescription)
+    public func downloadFile(withFileId fileId: String) {
+        // getFileById already sets up NextcloudKit
+        NCAPIController.sharedInstance().getFileById(forAccount: self.account, withFileId: fileId) { file, error in
+            guard let file else {
+                print("An error occurred while getting file with fileId \(fileId): \(error?.errorDescription ?? "")")
+                self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileId, withErrorDescription: error?.errorDescription ?? "")
                 return
             }
+
+            let remoteDavPrefix = "/remote.php/dav/files/\(self.account.userId)/"
+            let directoryPath = file.path.components(separatedBy: remoteDavPrefix).last ?? ""
+
+            let filePath = "\(directoryPath)\(file.fileName)"
+
+            let fileStatus = NCChatFileStatus(fileId: file.fileId, fileName: file.fileName, filePath: filePath)
+            self.fileStatus = fileStatus
+
+            let serverUrlFileName = "\(self.account.server)\(NCAPIController.sharedInstance().filesPath(forAccount: self.account))/\(fileStatus.filePath)"
+            let fileLocalPath = (self.tempDirectoryPath as NSString).appendingPathComponent(fileStatus.fileName)
+            fileStatus.fileLocalPath = fileLocalPath
+
+            // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator
+            self.didChangeIsDownloadingNotification(isDownloading: true)
 
             // File exists on server -> check our cache
             if self.isFileInCache(fileLocalPath, withModificationDate: file.date as Date, withSize: file.size) {
@@ -213,10 +197,8 @@ public class NCChatFileController: NSObject {
             } completionHandler: { _, _, _, _, _, error in
                 if error.errorCode == 0 {
                     // Set modification date to invalidate our cache
-                    self.setModificationDate(onFile: fileLocalPath, withModificationDate: file.date as Date)
-
                     // Set creation date to delete older files from cache
-                    self.setCreationDate(onFile: fileLocalPath, withCreationDate: Date())
+                    self.setDate(onFile: fileLocalPath, withCreationDate: Date(), withModificationDate: file.date as Date)
 
                     self.delegate?.fileControllerDidLoadFile(self, with: fileStatus)
                 } else {

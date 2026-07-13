@@ -439,7 +439,7 @@ public class NCSettingsController: NSObject {
         NCAPIController.sharedInstance().removeProfileImage(forAccount: removingAccount)
         NCAPIController.sharedInstance().removeAPISessionManager(forAccount: removingAccount)
         NCDatabaseManager.sharedInstance().removeAccount(withAccountId: removingAccount.accountId)
-        NCChatFileController().deleteDownloadDirectory(for: removingAccount)
+        NCChatFileController(account: removingAccount).deleteDownloadDirectory()
         NCRoomsManager.shared.chatViewController?.leaveChat()
         self.createAccountsFile()
 

@@ -1342,11 +1342,11 @@ import Toast
     }
 
     func didPressTranscribeVoiceMessage(for message: NCChatMessage) {
-        let downloader = NCChatFileController()
+        let downloader = NCChatFileController(account: self.account)
         downloader.delegate = self
         downloader.messageType = kMessageTypeVoiceMessage
         downloader.actionType = actionTypeTranscribeVoiceMessage
-        downloader.downloadFile(fromMessage: message.file())
+        downloader.downloadFile(withFileId: message.file().parameterId)
     }
 
     func didPressEdit(for message: NCChatMessage) {
@@ -2039,10 +2039,7 @@ import Toast
 
         audioFileName += ".mp3"
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let chatFileController = NCChatFileController()
-        chatFileController.initDownloadDirectory(for: activeAccount)
-
+        let chatFileController = NCChatFileController(account: self.account)
         let tempDirectoryURL = URL(fileURLWithPath: chatFileController.tempDirectoryPath)
         let destinationFilePath = tempDirectoryURL.appendingPathComponent(audioFileName).path
 
@@ -3866,7 +3863,7 @@ import Toast
 
     public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter, for message: NCChatMessage) {
         if NCUtils.isImage(fileType: fileParameter.mimetype ?? "") {
-            let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)
+            let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: self.account)
             let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
             // Hiding the keyboard due to a UIKit issue where the reported keyboard height
@@ -3885,7 +3882,7 @@ import Toast
         if NCUtils.isVideo(fileType: fileParameter.mimetype ?? "") {
             // Skip unsupported formats here ("webm" and "mkv") and use VLC later
             if !fileExtension.isEmpty, !VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
-                let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room)
+                let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: self.account)
                 let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
                 // Hiding the keyboard due to a UIKit issue where the reported keyboard height
@@ -3903,9 +3900,9 @@ import Toast
             return
         }
 
-        let downloader = NCChatFileController()
+        let downloader = NCChatFileController(account: self.account)
         downloader.delegate = self
-        downloader.downloadFile(fromMessage: fileParameter)
+        downloader.downloadFile(withFileId: fileParameter.parameterId)
     }
 
     public func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage) {
@@ -3963,10 +3960,10 @@ import Toast
             return
         }
 
-        let downloader = NCChatFileController()
+        let downloader = NCChatFileController(account: self.account)
         downloader.delegate = self
         downloader.messageType = kMessageTypeVoiceMessage
-        downloader.downloadFile(fromMessage: fileParameter)
+        downloader.downloadFile(withFileId: fileParameter.parameterId)
     }
 
     public func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter) {

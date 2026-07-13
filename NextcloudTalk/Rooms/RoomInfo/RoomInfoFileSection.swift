@@ -60,9 +60,11 @@ struct RoomInfoFileSection: View {
     }
 
     func previewFile() {
+        guard let account = room.account else { return }
+
         self.isDownloadingPreview = true
 
-        NCChatFileControllerWrapper.shared.downloadFile(withFileId: room.objectId) { @MainActor fileLocalPath in
+        NCChatFileControllerWrapper.shared.downloadFile(withFileId: room.objectId, fromAccount: account) { @MainActor fileLocalPath in
             self.isDownloadingPreview = false
 
             guard let fileLocalPath else { return }
