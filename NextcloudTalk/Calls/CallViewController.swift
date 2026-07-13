@@ -62,6 +62,7 @@ class CallViewController: UIViewController,
     private var isStripeHiddenInSpeakerView = false
     private let speakerLayout = CallSpeakerLayout()
     private var gridLayout: UICollectionViewLayout?
+    private let viewModeButton = UIButton(type: .system)
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -274,6 +275,30 @@ class CallViewController: UIViewController,
             self.reactionButton.isHidden = true
         }
 
+        // View mode button (grid / speaker view)
+        let deferredViewModeMenu = UIDeferredMenuElement.uncached { [unowned self] completion in
+            completion(self.getViewModeMenuItems())
+        }
+
+        self.viewModeButton.translatesAutoresizingMaskIntoConstraints = false
+        self.viewModeButton.backgroundColor = self.participantsLabelContainer.backgroundColor
+        self.viewModeButton.tintColor = .white
+        self.viewModeButton.clipsToBounds = true
+        self.viewModeButton.contentEdgeInsets = .init(top: 8, left: 12, bottom: 8, right: 12)
+        self.viewModeButton.showsMenuAsPrimaryAction = true
+        self.viewModeButton.menu = UIMenu(children: [deferredViewModeMenu])
+        self.viewModeButton.accessibilityLabel = NSLocalizedString("Call view mode", comment: "")
+        self.viewModeButton.accessibilityHint = NSLocalizedString("Double tap to change between grid and speaker view", comment: "")
+        self.viewModeButton.isHidden = true
+        self.updateViewModeButton()
+
+        self.view.addSubview(self.viewModeButton)
+        NSLayoutConstraint.activate([
+            self.viewModeButton.leadingAnchor.constraint(equalTo: self.participantsLabelContainer.trailingAnchor, constant: 8),
+            self.viewModeButton.topAnchor.constraint(equalTo: self.participantsLabelContainer.topAnchor),
+            self.viewModeButton.heightAnchor.constraint(equalTo: self.participantsLabelContainer.heightAnchor)
+        ])
+
         // Text color should be always white in the call view
         self.titleView.titleTextColor = .white
         self.titleView.update(for: room)
@@ -332,6 +357,7 @@ class CallViewController: UIViewController,
 
         self.screenshareLabelContainer.layer.cornerRadius = self.screenshareLabelContainer.frame.height / 2
         self.participantsLabelContainer.layer.cornerRadius = self.participantsLabelContainer.frame.height / 2
+        self.viewModeButton.layer.cornerRadius = self.viewModeButton.frame.height / 2
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -606,8 +632,43 @@ class CallViewController: UIViewController,
 
     // MARK: - Call view mode
 
-    func toggleCallViewMode() {
-        self.setCallViewMode(callViewMode == .grid ? .speaker : .grid)
+    private func viewModeImageName(mode: CallViewMode, stripeHidden: Bool) -> String {
+        if mode == .grid {
+            return "square.grid.2x2"
+        }
+
+        return stripeHidden ? "person.crop.rectangle" : "rectangle.bottomthird.inset.filled"
+    }
+
+    func getViewModeMenuItems() -> [UIMenuElement] {
+        let gridAction = UIAction(title: NSLocalizedString("Grid view", comment: "Call view mode which shows all participants in a grid"),
+                                  image: UIImage(systemName: viewModeImageName(mode: .grid, stripeHidden: false))) { [unowned self] _ in
+            self.setCallViewMode(.grid)
+        }
+        gridAction.state = callViewMode == .grid ? .on : .off
+
+        let speakerAction = UIAction(title: NSLocalizedString("Speaker view", comment: "Call view mode which shows the current speaker in fullscreen"),
+                                     image: UIImage(systemName: viewModeImageName(mode: .speaker, stripeHidden: true))) { [unowned self] _ in
+            self.setStripeVisibleInSpeakerView(false)
+            self.setCallViewMode(.speaker)
+        }
+        speakerAction.state = (callViewMode == .speaker && isStripeHiddenInSpeakerView) ? .on : .off
+
+        let speakerWithStripeAction = UIAction(title: NSLocalizedString("Speaker view with stripe", comment: "Call view mode which shows the current speaker in fullscreen and the other participants in a stripe at the bottom"),
+                                               image: UIImage(systemName: viewModeImageName(mode: .speaker, stripeHidden: false))) { [unowned self] _ in
+            self.setStripeVisibleInSpeakerView(true)
+            self.setCallViewMode(.speaker)
+        }
+        speakerWithStripeAction.state = (callViewMode == .speaker && !isStripeHiddenInSpeakerView) ? .on : .off
+
+        return [gridAction, speakerAction, speakerWithStripeAction]
+    }
+
+    func updateViewModeButton() {
+        DispatchQueue.main.async {
+            let imageName = self.viewModeImageName(mode: self.callViewMode, stripeHidden: self.isStripeHiddenInSpeakerView)
+            self.viewModeButton.setImage(.init(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)), for: .normal)
+        }
     }
 
     func setCallViewMode(_ mode: CallViewMode) {
@@ -629,12 +690,15 @@ class CallViewController: UIViewController,
             } else {
                 self.collectionView.setCollectionViewLayout(gridLayout, animated: true)
             }
+
+            self.updateViewModeButton()
         }
     }
 
     func setStripeVisibleInSpeakerView(_ visible: Bool) {
         DispatchQueue.main.async {
             self.isStripeHiddenInSpeakerView = !visible
+            self.updateViewModeButton()
 
             guard self.callViewMode == .speaker else { return }
 
@@ -1223,6 +1287,7 @@ class CallViewController: UIViewController,
 
                 self.participantsLabel.attributedText = participantText
                 self.participantsLabelContainer.isHidden = false
+                self.viewModeButton.isHidden = false
             }
         }
     }
@@ -1538,34 +1603,6 @@ class CallViewController: UIViewController,
         guard let callController else { return [] }
 
         var items: [UIMenuElement] = []
-
-        // Call view mode (grid / speaker view)
-        var viewModeTitle = NSLocalizedString("Speaker view", comment: "Call view mode which shows the current speaker in fullscreen")
-        var viewModeImage = UIImage(systemName: "person.crop.rectangle")
-
-        if self.callViewMode == .speaker {
-            viewModeTitle = NSLocalizedString("Grid view", comment: "Call view mode which shows all participants in a grid")
-            viewModeImage = UIImage(systemName: "square.grid.2x2")
-        }
-
-        items.append(UIAction(title: viewModeTitle, image: viewModeImage, handler: { [unowned self] _ in
-            self.toggleCallViewMode()
-        }))
-
-        // Show/hide the participant stripe in speaker view
-        if self.callViewMode == .speaker {
-            var stripeActionTitle = NSLocalizedString("Hide participant stripe", comment: "Hide the list of participants shown at the bottom of the call view")
-            var stripeActionImage = UIImage(systemName: "rectangle")
-
-            if self.isStripeHiddenInSpeakerView {
-                stripeActionTitle = NSLocalizedString("Show participant stripe", comment: "Show the list of participants at the bottom of the call view")
-                stripeActionImage = UIImage(systemName: "rectangle.bottomthird.inset.filled")
-            }
-
-            items.append(UIAction(title: stripeActionTitle, image: stripeActionImage, handler: { [unowned self] _ in
-                self.setStripeVisibleInSpeakerView(self.isStripeHiddenInSpeakerView)
-            }))
-        }
 
         // Add speaker button to menu if it was hidden from topbar
         let audioController = NCAudioController.shared
