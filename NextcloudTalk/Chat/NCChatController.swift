@@ -546,6 +546,18 @@ public class NCChatController: NSObject {
             return
         }
 
+        // A file share parent in the relay payload carries the sender's file path and link. Storing it
+        // would overwrite the correct per-user values in the database (see nextcloud/spreed#18572), so
+        // replies and reactions to file shares need to be fetched over the chat API. Checked before the
+        // reaction handling, since that path stores the parent from the payload as well.
+        if let parentDict = messageDict["parent"] as? [AnyHashable: Any],
+           let parent = NCChatMessage(dictionary: parentDict, andAccountId: account.accountId),
+           parent.file() != nil {
+            print("A message received over the chat relay has a file share as parent, fetching it from the chat API instead")
+            triggerChatRelayCatchUp()
+            return
+        }
+
         if message.systemMessage == "reaction" || message.systemMessage == "reaction_revoked" || message.systemMessage == "reaction_deleted" {
             handleReactionRelayMessage(message, withDict: messageDict, lastNewestMessageId: lastNewestMessageId)
             return
