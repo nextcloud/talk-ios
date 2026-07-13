@@ -574,11 +574,21 @@ class CallViewController: UIViewController,
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-    func updateSnapshot() {
+    func updateSnapshot(crossfade: Bool = false) {
         var snapshot = NSDiffableDataSourceSnapshot<CallViewSection, NCPeerConnection>()
         snapshot.appendSections([.main])
         snapshot.appendItems(peersInCall)
-        dataSource.apply(snapshot, animatingDifferences: true)
+
+        if crossfade {
+            // Fade to the new arrangement instead of animating tiles between the
+            // fullscreen slot and the stripe, which is too much movement when the
+            // speaking participant changes frequently
+            UIView.transition(with: collectionView, duration: 0.25, options: [.transitionCrossDissolve, .allowUserInteraction]) {
+                self.dataSource.apply(snapshot, animatingDifferences: false)
+            }
+        } else {
+            dataSource.apply(snapshot, animatingDifferences: true)
+        }
 
         // Switching the view mode is only useful when not all participants can be promoted anyway
         self.viewModeButton.isHidden = peersInCall.count <= 1
@@ -614,8 +624,11 @@ class CallViewController: UIViewController,
         // In speaker view the promoted participant is always the first item, the order
         // of the other participants in the stripe is kept stable
         if callViewMode == .speaker {
+            // Swap instead of moving to the front, so the demoted participant takes
+            // the stripe slot the promoted one vacated and all other stripe tiles keep
+            // their position
             if let index = peersInCall.firstIndex(where: { $0.peerIdentifier == promotedPeerIdentifier }), index != 0 {
-                peersInCall.insert(peersInCall.remove(at: index), at: 0)
+                peersInCall.swapAt(0, index)
             }
 
             return
@@ -723,7 +736,7 @@ class CallViewController: UIViewController,
             // in that case it is pinned when the pending insert is processed
             if self.peersInCall.contains(peer) {
                 self.sortPeersInCall()
-                self.updateSnapshot()
+                self.updateSnapshot(crossfade: true)
             }
         }
     }
