@@ -62,7 +62,6 @@ class CallViewController: UIViewController,
     private var isStripeHiddenInSpeakerView = false
     private let speakerLayout = CallSpeakerLayout()
     private var gridLayout: UICollectionViewLayout?
-    private let viewModeButton = UIButton(type: .system)
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -76,7 +75,6 @@ class CallViewController: UIViewController,
     @IBOutlet public var callTimeLabel: UILabel!
     @IBOutlet public var screenshareLabelContainer: UIView!
     @IBOutlet public var screenshareLabel: UILabel!
-    @IBOutlet public var participantsLabelContainer: UIView!
     @IBOutlet public var participantsLabel: UILabel!
 
     @IBOutlet private var sideBarWidthConstraint: NSLayoutConstraint!
@@ -95,6 +93,7 @@ class CallViewController: UIViewController,
     @IBOutlet private var collectionView: UICollectionView!
     @IBOutlet private var topBarView: UIView!
     @IBOutlet private var topBarMoreButton: UIButton!
+    @IBOutlet private var viewModeButton: UIButton!
     @IBOutlet private var bottomBarView: UIView!
     @IBOutlet private var bottomBarButtonStackView: UIStackView!
     @IBOutlet private var sideBarView: UIView!
@@ -204,9 +203,10 @@ class CallViewController: UIViewController,
         let pushToTalkRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handlePushToTalk))
         self.audioMuteButton.addGestureRecognizer(pushToTalkRecognizer)
 
-        self.participantsLabelContainer.isHidden = true
+        self.participantsLabel.isHidden = true
+        self.participantsLabel.isUserInteractionEnabled = true
         let participantsLabelTapGesture = UITapGestureRecognizer(target: self, action: #selector(showParticipantsInRoomInfo))
-        self.participantsLabelContainer.addGestureRecognizer(participantsLabelTapGesture)
+        self.participantsLabel.addGestureRecognizer(participantsLabelTapGesture)
 
         self.screensharingView.isHidden = true
         self.screensharingView.clipsToBounds = true
@@ -280,24 +280,12 @@ class CallViewController: UIViewController,
             completion(self.getViewModeMenuItems())
         }
 
-        self.viewModeButton.translatesAutoresizingMaskIntoConstraints = false
-        self.viewModeButton.backgroundColor = self.participantsLabelContainer.backgroundColor
-        self.viewModeButton.tintColor = .white
-        self.viewModeButton.clipsToBounds = true
-        self.viewModeButton.contentEdgeInsets = .init(top: 8, left: 12, bottom: 8, right: 12)
         self.viewModeButton.showsMenuAsPrimaryAction = true
         self.viewModeButton.menu = UIMenu(children: [deferredViewModeMenu])
         self.viewModeButton.accessibilityLabel = NSLocalizedString("Call view mode", comment: "")
         self.viewModeButton.accessibilityHint = NSLocalizedString("Double tap to change between grid and speaker view", comment: "")
         self.viewModeButton.isHidden = true
         self.updateViewModeButton()
-
-        self.view.addSubview(self.viewModeButton)
-        NSLayoutConstraint.activate([
-            self.viewModeButton.leadingAnchor.constraint(equalTo: self.participantsLabelContainer.trailingAnchor, constant: 8),
-            self.viewModeButton.topAnchor.constraint(equalTo: self.participantsLabelContainer.topAnchor),
-            self.viewModeButton.heightAnchor.constraint(equalTo: self.participantsLabelContainer.heightAnchor)
-        ])
 
         // Text color should be always white in the call view
         self.titleView.titleTextColor = .white
@@ -356,7 +344,6 @@ class CallViewController: UIViewController,
         super.viewDidLayoutSubviews()
 
         self.screenshareLabelContainer.layer.cornerRadius = self.screenshareLabelContainer.frame.height / 2
-        self.participantsLabelContainer.layer.cornerRadius = self.participantsLabelContainer.frame.height / 2
         self.viewModeButton.layer.cornerRadius = self.viewModeButton.frame.height / 2
     }
 
@@ -667,7 +654,7 @@ class CallViewController: UIViewController,
     func updateViewModeButton() {
         DispatchQueue.main.async {
             let imageName = self.viewModeImageName(mode: self.callViewMode, stripeHidden: self.isStripeHiddenInSpeakerView)
-            self.viewModeButton.setImage(.init(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)), for: .normal)
+            self.viewModeButton.setImage(.init(systemName: imageName, withConfiguration: self.barButtonsConfiguration), for: .normal)
         }
     }
 
@@ -1286,7 +1273,7 @@ class CallViewController: UIViewController,
                 participantText.append("  \(uniqueParticipantsCount)".withFont(self.participantsLabel.font))
 
                 self.participantsLabel.attributedText = participantText
-                self.participantsLabelContainer.isHidden = false
+                self.participantsLabel.isHidden = false
                 self.viewModeButton.isHidden = false
             }
         }
