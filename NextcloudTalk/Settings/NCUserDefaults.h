@@ -16,6 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)backgroundBlurEnabled;
 + (void)setIncludeCallsInRecentsEnabled:(BOOL)enabled;
 + (BOOL)includeCallsInRecents;
++ (void)setPreferredCallViewMode:(NSString *)mode;
++ (NSString * _Nullable)preferredCallViewMode;
++ (void)setSpeakerViewStripeHidden:(BOOL)hidden;
++ (BOOL)speakerViewStripeHidden;
 
 @end
 

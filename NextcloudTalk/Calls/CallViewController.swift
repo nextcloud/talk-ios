@@ -20,7 +20,7 @@ enum CallViewSection {
     case main
 }
 
-enum CallViewMode {
+enum CallViewMode: String {
     case grid
     case speaker
 }
@@ -57,9 +57,9 @@ class CallViewController: UIViewController,
     public var recordingConsent = false
 
     private var speakers: [NCPeerConnection] = []
-    private var callViewMode: CallViewMode = .grid
+    private var callViewMode = CallViewMode(rawValue: NCUserDefaults.preferredCallViewMode() ?? "") ?? .grid
     private var promotedPeerIdentifier: String?
-    private var isStripeHiddenInSpeakerView = false
+    private var isStripeHiddenInSpeakerView = NCUserDefaults.speakerViewStripeHidden()
     private let speakerLayout = CallSpeakerLayout()
     private var gridLayout: UICollectionViewLayout?
 
@@ -294,6 +294,13 @@ class CallViewController: UIViewController,
         self.titleView.delegate = self
         self.collectionView.delegate = self
         self.gridLayout = self.collectionView.collectionViewLayout
+
+        // Restore the last used view mode
+        if self.callViewMode == .speaker {
+            self.speakerLayout.isStripeHidden = self.isStripeHiddenInSpeakerView
+            self.collectionView.setCollectionViewLayout(self.speakerLayout, animated: false)
+        }
+
         self.applyInitialSnapshot()
 
         self.createWaitingScreen()
@@ -573,6 +580,9 @@ class CallViewController: UIViewController,
         snapshot.appendItems(peersInCall)
         dataSource.apply(snapshot, animatingDifferences: true)
 
+        // Switching the view mode is only useful when not all participants can be promoted anyway
+        self.viewModeButton.isHidden = peersInCall.count <= 1
+
         self.setCallStateForPeersInCall()
     }
 
@@ -663,6 +673,7 @@ class CallViewController: UIViewController,
             guard self.callViewMode != mode, let gridLayout = self.gridLayout else { return }
 
             self.callViewMode = mode
+            NCUserDefaults.setPreferredCallViewMode(mode.rawValue)
 
             if mode == .speaker {
                 // Promote the current or last known speaker, otherwise the first participant
@@ -685,6 +696,7 @@ class CallViewController: UIViewController,
     func setStripeVisibleInSpeakerView(_ visible: Bool) {
         DispatchQueue.main.async {
             self.isStripeHiddenInSpeakerView = !visible
+            NCUserDefaults.setSpeakerViewStripeHidden(!visible)
             self.updateViewModeButton()
 
             guard self.callViewMode == .speaker else { return }
@@ -1274,7 +1286,6 @@ class CallViewController: UIViewController,
 
                 self.participantsLabel.attributedText = participantText
                 self.participantsLabel.isHidden = false
-                self.viewModeButton.isHidden = false
             }
         }
     }
