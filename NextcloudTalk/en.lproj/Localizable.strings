@@ -533,6 +533,9 @@
 "Call recording stopped" = "Call recording stopped";
 
 /* No comment provided by engineer. */
+"Call view mode" = "Call view mode";
+
+/* No comment provided by engineer. */
 "Call without notification" = "Call without notification";
 
 /* No comment provided by engineer. */
@@ -968,6 +971,9 @@
 "Don't clear" = "Don't clear";
 
 /* No comment provided by engineer. */
+"Double tap to change between grid and speaker view" = "Double tap to change between grid and speaker view";
+
+/* No comment provided by engineer. */
 "Double tap to dismiss authentication dialog" = "Double tap to dismiss authentication dialog";
 
 /* No comment provided by engineer. */
@@ -1245,9 +1251,6 @@
 
 /* No comment provided by engineer. */
 "Hide" = "Hide";
-
-/* Hide the list of participants shown at the bottom of the call view */
-"Hide participant stripe" = "Hide participant stripe";
 
 /* TRANSLATORS this is a video quality option (Video quality : High) */
 "High" = "High";
@@ -2177,9 +2180,6 @@
 /* No comment provided by engineer. */
 "Show more…" = "Show more…";
 
-/* Show the list of participants at the bottom of the call view */
-"Show participant stripe" = "Show participant stripe";
-
 /* No comment provided by engineer. */
 "Signaling" = "Signaling";
 
@@ -2215,6 +2215,9 @@
 
 /* Call view mode which shows the current speaker in fullscreen */
 "Speaker view" = "Speaker view";
+
+/* Call view mode which shows the current speaker in fullscreen and the other participants in a stripe at the bottom */
+"Speaker view with stripe" = "Speaker view with stripe";
 
 /* No comment provided by engineer. */
 "Speech recognition access is not allowed. Check your settings." = "Speech recognition access is not allowed. Check your settings.";
