@@ -1291,19 +1291,19 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     // MARK: - NCPeerConnection delegate
     // Delegates from NCPeerConnection are already dispatched to the webrtc worker queue
 
-    func peerConnection(_ peerConnection: NCPeerConnection!, didAdd stream: RTCMediaStream!) {
+    func peerConnection(_ peerConnection: NCPeerConnection, didAdd stream: RTCMediaStream) {
         guard !peerConnection.isMCUPublisherPeer else { return }
 
         self.delegate?.callController(self, didAddStream: stream, ofPeer: peerConnection)
     }
 
-    func peerConnection(_ peerConnection: NCPeerConnection!, didRemove stream: RTCMediaStream!) {
-        guard !peerConnection.isMCUPublisherPeer else { return }
+    func peerConnection(_ peerConnection: NCPeerConnection, didRemove stream: RTCMediaStream?) {
+        guard !peerConnection.isMCUPublisherPeer, let stream else { return }
 
         self.delegate?.callController(self, didRemoveStream: stream, ofPeer: peerConnection)
     }
 
-    func peerConnection(_ peerConnection: NCPeerConnection!, didChange newState: RTCIceConnectionState) {
+    func peerConnection(_ peerConnection: NCPeerConnection, didChange newState: RTCIceConnectionState) {
         if newState == .failed {
             if peerConnection.roomType == kRoomTypeScreen {
                 self.stopScreenshare()
@@ -1357,7 +1357,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
-    func peerConnection(_ peerConnection: NCPeerConnection!, didGenerate candidate: RTCIceCandidate!) {
+    func peerConnection(_ peerConnection: NCPeerConnection, didGenerate candidate: RTCIceCandidate) {
         let message = NCICECandidateMessage(candidate: candidate,
                                             from: self.signalingSessionId,
                                             to: peerConnection.peerId,
@@ -1374,7 +1374,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
-    func peerConnection(_ peerConnection: NCPeerConnection!, needsToSend sessionDescription: RTCSessionDescription!) {
+    func peerConnection(_ peerConnection: NCPeerConnection, needsToSend sessionDescription: RTCSessionDescription) {
         let message = NCSessionDescriptionMessage(sessionDescription: sessionDescription,
                                                   from: self.signalingSessionId,
                                                   to: peerConnection.peerId,
@@ -1392,11 +1392,11 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
-    func peerConnection(_ peerConnection: NCPeerConnection!, didReceiveStatusDataChannelMessage type: String!) {
+    func peerConnection(_ peerConnection: NCPeerConnection, didReceiveStatusDataChannelMessage type: String) {
         self.delegate?.callController(self, didReceiveDataChannelMessage: type, fromPeer: peerConnection)
     }
 
-    func peerConnection(_ peerConnection: NCPeerConnection!, didReceivePeerNick nick: String!) {
+    func peerConnection(_ peerConnection: NCPeerConnection, didReceivePeerNick nick: String) {
         self.delegate?.callController(self, didReceiveNick: nick, fromPeer: peerConnection)
     }
 
