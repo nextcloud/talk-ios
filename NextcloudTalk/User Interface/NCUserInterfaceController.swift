@@ -425,12 +425,27 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
         if appState == .ready, waitingForServerCapabilities {
             waitingForServerCapabilities = false
 
+            // Take and clear all pending intents before replaying one of them. Otherwise a
+            // handled intent stays pending and shadows a newer one on the next
+            // not-ready -> ready cycle (e.g. after an account switch)
+            let pendingPushNotification = self.pendingPushNotification
+            let pendingLocalNotification = self.pendingLocalNotification
+            let pendingCallKitCall = self.pendingCallKitCall
+            let pendingURL = self.pendingURL
+
+            self.pendingPushNotification = nil
+            self.pendingLocalNotification = nil
+            self.pendingCallKitCall = nil
+            self.pendingURL = nil
+
             if let pendingPushNotification {
                 if pendingPushNotification.type == .call {
                     presentAlert(for: pendingPushNotification)
                 } else {
                     presentChat(for: pendingPushNotification)
                 }
+            } else if let pendingLocalNotification {
+                presentChat(forLocalNotification: pendingLocalNotification)
             } else if let pendingCallKitCall {
                 startCallKitCall(pendingCallKitCall)
             } else if let pendingURL {
