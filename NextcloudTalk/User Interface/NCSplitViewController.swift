@@ -122,20 +122,49 @@
         }
     }
 
+    // Actions that must wait for ongoing transitions, executed strictly in FIFO order.
+    // Executing directly when no transition is ongoing (like we did before) can reorder
+    // actions: an action deferred behind a transition must not be overtaken by an action
+    // that arrives right after that transition finished.
+    private var pendingTransitionActions: [() -> Void] = []
+    private var isWaitingForTransitionToFinish = false
+    private var isDrainingPendingTransitionActions = false
+
     func internalExecuteAfterTransition(action: @escaping () -> Void) {
-        if self.transitionCoordinator == nil {
-            // No ongoing animations -> execute action directly
-            action()
-        } else {
-            // Wait until the splitViewController finished all it's animations.
-            // Otherwise this can lead to different UI glitches, for example a chatViewController might
-            // end up in the wrong column. This mainly happens when being in a
-            // conversation and tapping a push notification of another conversation.
-            self.transitionCoordinator?.animate(alongsideTransition: nil, completion: { _ in
-                DispatchQueue.main.async {
-                    action()
-                }
-            })
+        pendingTransitionActions.append(action)
+        executePendingTransitionActions()
+    }
+
+    private func executePendingTransitionActions() {
+        // A transition completion is already registered and will drain the queue afterwards.
+        // Also don't re-enter when an executing action queues another action — the running
+        // drain loop will pick it up in order.
+        guard !isWaitingForTransitionToFinish, !isDrainingPendingTransitionActions else { return }
+
+        isDrainingPendingTransitionActions = true
+        defer { isDrainingPendingTransitionActions = false }
+
+        while !pendingTransitionActions.isEmpty {
+            // Re-check before every action: an executed action might have started
+            // a new transition that the remaining actions need to wait for
+            if let transitionCoordinator {
+                // Wait until the splitViewController finished all it's animations.
+                // Otherwise this can lead to different UI glitches, for example a chatViewController might
+                // end up in the wrong column. This mainly happens when being in a
+                // conversation and tapping a push notification of another conversation.
+                isWaitingForTransitionToFinish = true
+
+                transitionCoordinator.animate(alongsideTransition: nil, completion: { [weak self] _ in
+                    DispatchQueue.main.async {
+                        self?.isWaitingForTransitionToFinish = false
+                        self?.executePendingTransitionActions()
+                    }
+                })
+
+                return
+            }
+
+            pendingTransitionActions.removeFirst()()
         }
     }
 
