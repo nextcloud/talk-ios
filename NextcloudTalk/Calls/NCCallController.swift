@@ -614,6 +614,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     public func stopScreenshare() {
         WebRTCCommon.shared.assertQueue()
 
+        guard self.screensharingActive else { return }
+
         self.screensharingController.stopCapture()
 
         if let externalSignalingController {
@@ -1330,7 +1332,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     func peerConnection(_ peerConnection: NCPeerConnection, didChange newState: RTCIceConnectionState) {
         if newState == .failed {
-            if peerConnection.roomType == kRoomTypeScreen {
+            if peerConnection.isOwnScreensharePeer {
                 self.stopScreenshare()
                 return
             }
