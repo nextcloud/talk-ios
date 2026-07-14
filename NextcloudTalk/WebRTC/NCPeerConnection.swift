@@ -271,6 +271,8 @@ public class NCPeerConnection: NSObject {
     func sendDataChannelMessage(ofType type: String, withPayload payload: Any?) {
         WebRTCCommon.shared.assertQueue()
 
+        guard localDataChannel != nil || remoteDataChannel != nil else { return }
+
         var message: [String: Any] = ["type": type]
         if let payload {
             message["payload"] = payload
@@ -286,8 +288,6 @@ public class NCPeerConnection: NSObject {
             localDataChannel.sendData(dataBuffer)
         } else if let remoteDataChannel {
             remoteDataChannel.sendData(dataBuffer)
-        } else {
-            NSLog("No data channel opened")
         }
     }
 
