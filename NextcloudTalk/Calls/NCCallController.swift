@@ -104,6 +104,10 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private var sessionsInCall = [String]()
     private var cameraController: NCCameraController?
 
+    #if targetEnvironment(simulator)
+    private var simulatorVideoCapturer: SimulatorVideoCapturer?
+    #endif
+
     private var recorder: AVAudioRecorder?
     private var micAudioLevelTimer: Timer?
     private var publisherPeerConnection: NCPeerConnection?
@@ -380,6 +384,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         self.externalSignalingController?.delegate = nil
 
         self.cameraController?.stopAVCaptureSession()
+        self.stopSimulatorVideoCapturer()
 
         WebRTCCommon.shared.dispatch {
             self.stopScreenshare()
@@ -494,6 +499,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     public func stopCapturing() {
         self.cameraController?.stopAVCaptureSession()
+        self.stopSimulatorVideoCapturer()
     }
 
     public func raiseHand(_ raised: Bool) {
@@ -802,9 +808,20 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private func createLocalVideoTrack() {
         WebRTCCommon.shared.assertQueue()
 
-        #if !targetEnvironment(simulator)
         let peerConnectionFactory = WebRTCCommon.shared.peerConnectionFactory
         let videoSource = peerConnectionFactory.videoSource()
+
+        #if targetEnvironment(simulator)
+        // There's no camera on the simulator, so publish a generated test pattern instead
+        let videoCapturer = SimulatorVideoCapturer(delegate: videoSource)
+        videoCapturer.startCapture()
+        self.simulatorVideoCapturer = videoCapturer
+
+        self.localVideoTrack = peerConnectionFactory.videoTrack(with: videoSource, trackId: NCCallController.kNCVideoTrackId)
+        self.localVideoTrack?.isEnabled = !self.disableVideoAtStart
+
+        self.delegate?.callController(self, didCreateLocalVideoTrack: self.localVideoTrack)
+        #else
         let videoCapturer = RTCVideoCapturer(delegate: videoSource)
 
         self.localVideoTrack = peerConnectionFactory.videoTrack(with: videoSource, trackId: NCCallController.kNCVideoTrackId)
@@ -820,8 +837,16 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         #endif
     }
 
+    private func stopSimulatorVideoCapturer() {
+        #if targetEnvironment(simulator)
+        self.simulatorVideoCapturer?.stopCapture()
+        self.simulatorVideoCapturer = nil
+        #endif
+    }
+
     private func createLocalMedia() {
         self.cameraController?.stopAVCaptureSession()
+        self.stopSimulatorVideoCapturer()
 
         WebRTCCommon.shared.dispatch {
             self.localAudioTrack = nil

@@ -108,6 +108,10 @@ class CallViewController: UIViewController,
     private var screenPeersInCall: [NCPeerConnection] = []
     private var videoRenderersDict: [String: RTCMTLVideoView] = [:] // peerIdentifier -> renderer
     private var screenRenderersDict: [String: RTCMTLVideoView] = [:] // peerId -> renderer
+
+    #if targetEnvironment(simulator)
+    private var localSimulatorRenderView: RTCMTLVideoView?
+    #endif
     private var presentedScreenPeerId: String?
     private var callController: NCCallController?
     private var chatViewController: ChatViewController?
@@ -914,6 +918,28 @@ class CallViewController: UIViewController,
         if !videoTrack.isEnabled {
             self.userDisabledVideo = true
         }
+
+        #if targetEnvironment(simulator)
+        // On the simulator there's no camera controller drawing on localVideoView,
+        // so we render the generated local track with an RTCMTLVideoView instead
+        DispatchQueue.main.async {
+            self.localSimulatorRenderView?.removeFromSuperview()
+
+            let renderView = RTCMTLVideoView(frame: self.localVideoViewWrapper.bounds)
+            renderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            renderView.videoContentMode = .scaleAspectFill
+            self.localVideoViewWrapper.addSubview(renderView)
+            self.localSimulatorRenderView = renderView
+
+            WebRTCCommon.shared.dispatch {
+                videoTrack.add(renderView)
+            }
+
+            // Without a camera controller there's also no didDrawFirstFrameOnLocalView
+            // callback, so we unhide the local video view wrapper right away
+            self.callControllerDidDrawFirstLocalFrame(callController)
+        }
+        #endif
     }
 
     func callController(_ callController: NCCallController, didAddStream remoteStream: RTCMediaStream, ofPeer remotePeer: NCPeerConnection) {
