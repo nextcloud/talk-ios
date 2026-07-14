@@ -533,6 +533,9 @@
 "Call recording stopped" = "Call recording stopped";
 
 /* No comment provided by engineer. */
+"Call view mode" = "Call view mode";
+
+/* No comment provided by engineer. */
 "Call without notification" = "Call without notification";
 
 /* No comment provided by engineer. */
@@ -968,6 +971,9 @@
 "Don't clear" = "Don't clear";
 
 /* No comment provided by engineer. */
+"Double tap to change between grid and speaker view" = "Double tap to change between grid and speaker view";
+
+/* No comment provided by engineer. */
 "Double tap to dismiss authentication dialog" = "Double tap to dismiss authentication dialog";
 
 /* No comment provided by engineer. */
@@ -1218,6 +1224,9 @@
 
 /* No comment provided by engineer. */
 "Go to message" = "Go to message";
+
+/* Call view mode which shows all participants in a grid */
+"Grid view" = "Grid view";
 
 /* Show group conversations before private ones */
 "Group first" = "Group first";
@@ -2212,6 +2221,12 @@
 
 /* speaker = Loudspeaker, device */
 "Speaker enabled" = "Speaker enabled";
+
+/* Call view mode which shows the current speaker in fullscreen */
+"Speaker view" = "Speaker view";
+
+/* Call view mode which shows the current speaker in fullscreen and the other participants in a stripe at the bottom */
+"Speaker view with stripe" = "Speaker view with stripe";
 
 /* No comment provided by engineer. */
 "Speech recognition access is not allowed. Check your settings." = "Speech recognition access is not allowed. Check your settings.";

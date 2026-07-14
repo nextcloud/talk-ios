@@ -20,6 +20,11 @@ enum CallViewSection {
     case main
 }
 
+enum CallViewMode: String {
+    case grid
+    case speaker
+}
+
 @objcMembers
 class CallViewController: UIViewController,
                             NCCallControllerDelegate,
@@ -52,6 +57,11 @@ class CallViewController: UIViewController,
     public var recordingConsent = false
 
     private var speakers: [NCPeerConnection] = []
+    private var callViewMode = CallViewMode(rawValue: NCUserDefaults.preferredCallViewMode() ?? "") ?? .grid
+    private var promotedPeerIdentifier: String?
+    private var isStripeHiddenInSpeakerView = NCUserDefaults.speakerViewStripeHidden()
+    private let speakerLayout = CallSpeakerLayout()
+    private var gridLayout: UICollectionViewLayout?
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -65,7 +75,6 @@ class CallViewController: UIViewController,
     @IBOutlet public var callTimeLabel: UILabel!
     @IBOutlet public var screenshareLabelContainer: UIView!
     @IBOutlet public var screenshareLabel: UILabel!
-    @IBOutlet public var participantsLabelContainer: UIView!
     @IBOutlet public var participantsLabel: UILabel!
 
     @IBOutlet private var sideBarWidthConstraint: NSLayoutConstraint!
@@ -84,6 +93,7 @@ class CallViewController: UIViewController,
     @IBOutlet private var collectionView: UICollectionView!
     @IBOutlet private var topBarView: UIView!
     @IBOutlet private var topBarMoreButton: UIButton!
+    @IBOutlet private var viewModeButton: UIButton!
     @IBOutlet private var bottomBarView: UIView!
     @IBOutlet private var bottomBarButtonStackView: UIStackView!
     @IBOutlet private var sideBarView: UIView!
@@ -193,9 +203,10 @@ class CallViewController: UIViewController,
         let pushToTalkRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handlePushToTalk))
         self.audioMuteButton.addGestureRecognizer(pushToTalkRecognizer)
 
-        self.participantsLabelContainer.isHidden = true
+        self.participantsLabel.isHidden = true
+        self.participantsLabel.isUserInteractionEnabled = true
         let participantsLabelTapGesture = UITapGestureRecognizer(target: self, action: #selector(showParticipantsInRoomInfo))
-        self.participantsLabelContainer.addGestureRecognizer(participantsLabelTapGesture)
+        self.participantsLabel.addGestureRecognizer(participantsLabelTapGesture)
 
         self.screensharingView.isHidden = true
         self.screensharingView.clipsToBounds = true
@@ -264,12 +275,32 @@ class CallViewController: UIViewController,
             self.reactionButton.isHidden = true
         }
 
+        // View mode button (grid / speaker view)
+        let deferredViewModeMenu = UIDeferredMenuElement.uncached { [unowned self] completion in
+            completion(self.getViewModeMenuItems())
+        }
+
+        self.viewModeButton.showsMenuAsPrimaryAction = true
+        self.viewModeButton.menu = UIMenu(children: [deferredViewModeMenu])
+        self.viewModeButton.accessibilityLabel = NSLocalizedString("Call view mode", comment: "")
+        self.viewModeButton.accessibilityHint = NSLocalizedString("Double tap to change between grid and speaker view", comment: "")
+        self.viewModeButton.isHidden = true
+        self.updateViewModeButton()
+
         // Text color should be always white in the call view
         self.titleView.titleTextColor = .white
         self.titleView.update(for: room)
 
         self.titleView.delegate = self
         self.collectionView.delegate = self
+        self.gridLayout = self.collectionView.collectionViewLayout
+
+        // Restore the last used view mode
+        if self.callViewMode == .speaker {
+            self.speakerLayout.isStripeHidden = self.isStripeHiddenInSpeakerView
+            self.collectionView.setCollectionViewLayout(self.speakerLayout, animated: false)
+        }
+
         self.applyInitialSnapshot()
 
         self.createWaitingScreen()
@@ -320,7 +351,7 @@ class CallViewController: UIViewController,
         super.viewDidLayoutSubviews()
 
         self.screenshareLabelContainer.layer.cornerRadius = self.screenshareLabelContainer.frame.height / 2
-        self.participantsLabelContainer.layer.cornerRadius = self.participantsLabelContainer.frame.height / 2
+        self.viewModeButton.layer.cornerRadius = self.viewModeButton.frame.height / 2
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -543,11 +574,24 @@ class CallViewController: UIViewController,
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-    func updateSnapshot() {
+    func updateSnapshot(crossfade: Bool = false) {
         var snapshot = NSDiffableDataSourceSnapshot<CallViewSection, NCPeerConnection>()
         snapshot.appendSections([.main])
         snapshot.appendItems(peersInCall)
-        dataSource.apply(snapshot, animatingDifferences: true)
+
+        if crossfade {
+            // Fade to the new arrangement instead of animating tiles between the
+            // fullscreen slot and the stripe, which is too much movement when the
+            // speaking participant changes frequently
+            UIView.transition(with: collectionView, duration: 0.25, options: [.transitionCrossDissolve, .allowUserInteraction]) {
+                self.dataSource.apply(snapshot, animatingDifferences: false)
+            }
+        } else {
+            dataSource.apply(snapshot, animatingDifferences: true)
+        }
+
+        // Switching the view mode is only useful when not all participants can be promoted anyway
+        self.viewModeButton.isHidden = peersInCall.count <= 1
 
         self.setCallStateForPeersInCall()
     }
@@ -577,9 +621,135 @@ class CallViewController: UIViewController,
     }
 
     func sortPeersInCall() {
+        // In speaker view the promoted participant is always the first item, the order
+        // of the other participants in the stripe is kept stable
+        if callViewMode == .speaker {
+            // Swap instead of moving to the front, so the demoted participant takes
+            // the stripe slot the promoted one vacated and all other stripe tiles keep
+            // their position
+            if let index = peersInCall.firstIndex(where: { $0.peerIdentifier == promotedPeerIdentifier }), index != 0 {
+                peersInCall.swapAt(0, index)
+            }
+
+            return
+        }
+
         // Only sort participants if the collection view is scrollable (not all participants fit in the screen)
         if collectionView.contentSize.height > collectionView.bounds.height {
             peersInCall.sort { priority(for: $0) < priority(for: $1) }
+        }
+    }
+
+    // MARK: - Call view mode
+
+    private func viewModeImageName(mode: CallViewMode, stripeHidden: Bool) -> String {
+        if mode == .grid {
+            return "square.grid.2x2"
+        }
+
+        return stripeHidden ? "person.crop.rectangle" : "rectangle.bottomthird.inset.filled"
+    }
+
+    func getViewModeMenuItems() -> [UIMenuElement] {
+        let gridAction = UIAction(title: NSLocalizedString("Grid view", comment: "Call view mode which shows all participants in a grid"),
+                                  image: UIImage(systemName: viewModeImageName(mode: .grid, stripeHidden: false))) { [unowned self] _ in
+            self.setCallViewMode(.grid)
+        }
+        gridAction.state = callViewMode == .grid ? .on : .off
+
+        let speakerAction = UIAction(title: NSLocalizedString("Speaker view", comment: "Call view mode which shows the current speaker in fullscreen"),
+                                     image: UIImage(systemName: viewModeImageName(mode: .speaker, stripeHidden: true))) { [unowned self] _ in
+            self.setStripeVisibleInSpeakerView(false)
+            self.setCallViewMode(.speaker)
+        }
+        speakerAction.state = (callViewMode == .speaker && isStripeHiddenInSpeakerView) ? .on : .off
+
+        let speakerWithStripeAction = UIAction(title: NSLocalizedString("Speaker view with stripe", comment: "Call view mode which shows the current speaker in fullscreen and the other participants in a stripe at the bottom"),
+                                               image: UIImage(systemName: viewModeImageName(mode: .speaker, stripeHidden: false))) { [unowned self] _ in
+            self.setStripeVisibleInSpeakerView(true)
+            self.setCallViewMode(.speaker)
+        }
+        speakerWithStripeAction.state = (callViewMode == .speaker && !isStripeHiddenInSpeakerView) ? .on : .off
+
+        return [gridAction, speakerAction, speakerWithStripeAction]
+    }
+
+    func updateViewModeButton() {
+        DispatchQueue.main.async {
+            let imageName = self.viewModeImageName(mode: self.callViewMode, stripeHidden: self.isStripeHiddenInSpeakerView)
+            self.viewModeButton.setImage(.init(systemName: imageName, withConfiguration: self.barButtonsConfiguration), for: .normal)
+        }
+    }
+
+    func setCallViewMode(_ mode: CallViewMode) {
+        DispatchQueue.main.async {
+            guard self.callViewMode != mode, let gridLayout = self.gridLayout else { return }
+
+            self.callViewMode = mode
+            NCUserDefaults.setPreferredCallViewMode(mode.rawValue)
+
+            if mode == .speaker {
+                // Promote the current or last known speaker, otherwise the first participant
+                if !self.peersInCall.contains(where: { $0.peerIdentifier == self.promotedPeerIdentifier }) {
+                    self.promotedPeerIdentifier = self.initialPromotedPeer()?.peerIdentifier
+                }
+
+                self.speakerLayout.isStripeHidden = self.isStripeHiddenInSpeakerView
+                self.sortPeersInCall()
+                self.updateSnapshot()
+                self.collectionView.setCollectionViewLayout(self.speakerLayout, animated: true)
+            } else {
+                self.collectionView.setCollectionViewLayout(gridLayout, animated: true)
+            }
+
+            self.updateViewModeButton()
+        }
+    }
+
+    func setStripeVisibleInSpeakerView(_ visible: Bool) {
+        DispatchQueue.main.async {
+            self.isStripeHiddenInSpeakerView = !visible
+            NCUserDefaults.setSpeakerViewStripeHidden(!visible)
+            self.updateViewModeButton()
+
+            guard self.callViewMode == .speaker else { return }
+
+            self.collectionView.performBatchUpdates {
+                self.speakerLayout.isStripeHidden = !visible
+            }
+        }
+    }
+
+    private func initialPromotedPeer() -> NCPeerConnection? {
+        return peersInCall.first(where: { $0.isPeerSpeaking })
+            ?? speakers.first(where: { peersInCall.contains($0) })
+            ?? peersInCall.first
+    }
+
+    func promotePeerInSpeakerView(_ peer: NCPeerConnection) {
+        DispatchQueue.main.async {
+            guard self.callViewMode == .speaker, self.promotedPeerIdentifier != peer.peerIdentifier else { return }
+
+            self.promotedPeerIdentifier = peer.peerIdentifier
+
+            // The peer might not be added to the collection view yet,
+            // in that case it is pinned when the pending insert is processed
+            if self.peersInCall.contains(peer) {
+                self.sortPeersInCall()
+                self.updateSnapshot(crossfade: true)
+            }
+        }
+    }
+
+    func promoteNextSpeakerInSpeakerViewIfNeeded(_ peer: NCPeerConnection) {
+        DispatchQueue.main.async {
+            // When the promoted participant stops speaking, hand the promotion over to a
+            // participant that is still speaking (see _setSpeaking in CallView.vue of the web client)
+            guard self.callViewMode == .speaker, self.promotedPeerIdentifier == peer.peerIdentifier,
+                  let nextSpeaker = self.peersInCall.first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
+            else { return }
+
+            self.promotePeerInSpeakerView(nextSpeaker)
         }
     }
 
@@ -832,7 +1002,10 @@ class CallViewController: UIViewController,
                 }
                 // Add to speakers and sort participants if needed
                 if message == "speaking" {
+                    self.promotePeerInSpeakerView(peer)
                     self.addSpeakerAndPromoteIfNeeded(peer)
+                } else {
+                    self.promoteNextSpeakerInSpeakerViewIfNeeded(peer)
                 }
             }
         case "raiseHand":
@@ -888,6 +1061,7 @@ class CallViewController: UIViewController,
             self.pendingPeerDeletions = []
             self.pendingPeerUpdates = []
             self.peersInCall = []
+            self.promotedPeerIdentifier = nil
 
             // Reset a potential queued batch update
             self.batchUpdateTimer?.invalidate()
@@ -1124,7 +1298,7 @@ class CallViewController: UIViewController,
                 participantText.append("  \(uniqueParticipantsCount)".withFont(self.participantsLabel.font))
 
                 self.participantsLabel.attributedText = participantText
-                self.participantsLabelContainer.isHidden = false
+                self.participantsLabel.isHidden = false
             }
         }
     }
@@ -2452,6 +2626,11 @@ class CallViewController: UIViewController,
 
         // Add all new peers
         self.peersInCall.append(contentsOf: pendingPeerInserts)
+
+        // Make sure the promoted participant in speaker view is still in the call
+        if callViewMode == .speaker, !peersInCall.contains(where: { $0.peerIdentifier == promotedPeerIdentifier }) {
+            promotedPeerIdentifier = initialPromotedPeer()?.peerIdentifier
+        }
 
         // Sort peers in call
         self.sortPeersInCall()

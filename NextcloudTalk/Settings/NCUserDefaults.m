@@ -13,6 +13,8 @@
 NSString * const kNCPreferredCameraFlashMode    = @"ncPreferredCameraFlashMode";
 NSString * const kNCBackgroundBlurEnabled       = @"ncBackgroundBlurEnabled";
 NSString * const kNCIncludeCallsInRecents       = @"ncIncludeCallsInRecents";
+NSString * const kNCPreferredCallViewMode       = @"ncPreferredCallViewMode";
+NSString * const kNCSpeakerViewStripeHidden     = @"ncSpeakerViewStripeHidden";
 
 + (void)setPreferredCameraFlashMode:(NSInteger)flashMode
 {
@@ -48,6 +50,26 @@ NSString * const kNCIncludeCallsInRecents       = @"ncIncludeCallsInRecents";
     }
 
     return [includeCallsInRecentsObject boolValue];
+}
+
++ (void)setPreferredCallViewMode:(NSString *)mode
+{
+    [[NSUserDefaults standardUserDefaults] setObject:mode forKey:kNCPreferredCallViewMode];
+}
+
++ (NSString * _Nullable)preferredCallViewMode
+{
+    return [[NSUserDefaults standardUserDefaults] stringForKey:kNCPreferredCallViewMode];
+}
+
++ (void)setSpeakerViewStripeHidden:(BOOL)hidden
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(hidden) forKey:kNCSpeakerViewStripeHidden];
+}
+
++ (BOOL)speakerViewStripeHidden
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:kNCSpeakerViewStripeHidden] boolValue];
 }
 
 @end
