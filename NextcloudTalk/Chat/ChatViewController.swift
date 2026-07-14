@@ -1613,6 +1613,23 @@ import SwiftUI
                     addedUnreadMessageSeparator = true
                 }
 
+                // With the chat relay, the echo of an own message can arrive while the temporary
+                // message is still animating in. Replacing an equally sized temporary message does
+                // not change the layout of the tableView, so those cells are updated in place
+                // instead of reloaded, which would interrupt a running insert/scroll animation.
+                var temporaryReplacementHeights: [String: CGFloat] = [:]
+
+                for message in messages {
+                    if let referenceId = message.referenceId, !referenceId.isEmpty,
+                       let existingMessage = self.indexPathAndMessage(forReferenceId: referenceId)?.message,
+                       existingMessage.isTemporary {
+
+                        temporaryReplacementHeights[referenceId] = self.getCellHeight(for: existingMessage)
+                    }
+                }
+
+                var inPlaceUpdates: [(indexPath: IndexPath, message: NCChatMessage)] = []
+
                 self.appendMessages(messages: messages)
 
                 for newMessage in messages {
@@ -1642,8 +1659,15 @@ import SwiftUI
                     }
 
                     if indexPath.section < tableView.numberOfSections, indexPath.row < tableView.numberOfRows(inSection: indexPath.section) {
-                        // This is a already known indexPath, so we want to reload the cell
-                        reloadIndexPaths.insert(indexPath)
+                        if let referenceId = newMessage.referenceId, let previousHeight = temporaryReplacementHeights[referenceId],
+                           self.getCellHeight(for: newMessage) == previousHeight {
+                            // The message replaced its temporary counterpart without a height change,
+                            // so a visible cell can be updated in place
+                            inPlaceUpdates.append((indexPath, newMessage))
+                        } else {
+                            // This is a already known indexPath, so we want to reload the cell
+                            reloadIndexPaths.insert(indexPath)
+                        }
                     } else {
                         // New indexPath -> insert it
                         insertIndexPaths.insert(indexPath)
@@ -1657,43 +1681,61 @@ import SwiftUI
                     }
                 }
 
-                tableView.performBatchUpdates {
-                    if !insertSections.isEmpty {
-                        tableView.insertSections(insertSections, with: .automatic)
+                for update in inPlaceUpdates {
+                    if let cell = tableView.cellForRow(at: update.indexPath) as? BaseChatTableViewCell {
+                        cell.setup(for: update.message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
                     }
+                }
 
-                    if !insertIndexPaths.isEmpty {
-                        tableView.insertRows(at: Array(insertIndexPaths), with: .automatic)
-                    }
-
-                    if !reloadIndexPaths.isEmpty {
-                        tableView.reloadRows(at: Array(reloadIndexPaths), with: .none)
-                    }
-
-                } completion: { _ in
-                    // Remove unread messages separator when user writes a message
+                if insertSections.isEmpty, insertIndexPaths.isEmpty, reloadIndexPaths.isEmpty {
+                    // All received messages were updated in place, so the temporary messages are
+                    // already visible and scrolled to -> only the bookkeeping of the batch update is left
                     if messages.containsMessage(forUserId: self.account.userId) {
                         self.removeUnreadMessagesSeparator()
                     }
 
-                    // Only scroll to unread message separator if we added it while processing the received messages
-                    // Otherwise we would scroll whenever a unread message separator is available
-                    if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
-                        tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
-                    } else if shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId), let lastIndexPath = self.getLastNonUpdateMessage()?.indexPath {
-                        tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
-                    } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
-                        // This check is needed since several calls to receiveMessages API might be needed
-                        // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
-                        // to receive all the unread messages.
-                        if firstNewMessage.timestamp >= Int(self.chatViewPresentedTimestamp) {
-                            self.showNewMessagesView(until: firstNewMessage)
-                        }
-                    }
-
-                    // Set last received message as last read message
                     if let lastReceivedMessage = messages.last {
                         self.lastReadMessage = lastReceivedMessage.messageId
+                    }
+                } else {
+                    tableView.performBatchUpdates {
+                        if !insertSections.isEmpty {
+                            tableView.insertSections(insertSections, with: .automatic)
+                        }
+
+                        if !insertIndexPaths.isEmpty {
+                            tableView.insertRows(at: Array(insertIndexPaths), with: .automatic)
+                        }
+
+                        if !reloadIndexPaths.isEmpty {
+                            tableView.reloadRows(at: Array(reloadIndexPaths), with: .none)
+                        }
+
+                    } completion: { _ in
+                        // Remove unread messages separator when user writes a message
+                        if messages.containsMessage(forUserId: self.account.userId) {
+                            self.removeUnreadMessagesSeparator()
+                        }
+
+                        // Only scroll to unread message separator if we added it while processing the received messages
+                        // Otherwise we would scroll whenever a unread message separator is available
+                        if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
+                            tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
+                        } else if shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId), let lastIndexPath = self.getLastNonUpdateMessage()?.indexPath {
+                            tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
+                        } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
+                            // This check is needed since several calls to receiveMessages API might be needed
+                            // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
+                            // to receive all the unread messages.
+                            if firstNewMessage.timestamp >= Int(self.chatViewPresentedTimestamp) {
+                                self.showNewMessagesView(until: firstNewMessage)
+                            }
+                        }
+
+                        // Set last received message as last read message
+                        if let lastReceivedMessage = messages.last {
+                            self.lastReadMessage = lastReceivedMessage.messageId
+                        }
                     }
                 }
 
