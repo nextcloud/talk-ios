@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -23,8 +23,8 @@
                         <rect key="frame" x="97.5" y="66" width="100" height="100"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="zYx-Of-3tH" secondAttribute="height" multiplier="1:1" id="8TD-LX-PDg"/>
-                            <constraint firstAttribute="width" priority="750" constant="100" id="E1w-Vk-9vO"/>
-                            <constraint firstAttribute="height" priority="750" constant="100" id="hFb-Kv-gry"/>
+                            <constraint firstAttribute="width" priority="999" constant="100" id="E1w-Vk-9vO"/>
+                            <constraint firstAttribute="height" priority="999" constant="100" id="hFb-Kv-gry"/>
                         </constraints>
                     </imageView>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eHf-UZ-Ya0" customClass="MDCActivityIndicator">
