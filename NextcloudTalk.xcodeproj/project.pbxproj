@@ -3458,7 +3458,7 @@
 			repositoryURL = "https://github.com/nextcloud-releases/talk-clients-webrtc";
 			requirement = {
 				kind = revision;
-				revision = 01a2cc9c4c2afcb266bc56c7f6228b737d8b4cdd;
+				revision = 904c6624658e65786ac098597e05ef77072cc0d9;
 			};
 		};
 		1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {

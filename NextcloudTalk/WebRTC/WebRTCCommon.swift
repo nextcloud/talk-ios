@@ -10,6 +10,10 @@ import Foundation
     public static let shared = WebRTCCommon()
 
     public lazy var peerConnectionFactory: RTCPeerConnectionFactory = {
+        // Ref https://github.com/nextcloud/talk-ios/issues/1912
+        // Ref https://issues.webrtc.org/issues/502461765
+        RTCInitFieldTrialDictionary([kRTCFieldTrialUseNWPathMonitor: kRTCFieldTrialEnabledValue])
+
         return RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory)
     }()
 
