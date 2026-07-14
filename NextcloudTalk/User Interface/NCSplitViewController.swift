@@ -5,6 +5,12 @@
 
 @objcMembers class NCSplitViewController: UISplitViewController, UISplitViewControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
+    // Tracks a chat that was requested via showDetailViewController but not yet confirmed
+    // on screen. A pop to the rooms list can race a pending presentation (e.g. tapping a
+    // push notification while a menu is open, see #2328) — in that case the didShow of
+    // RoomsTableViewController must not tear the pending chat down.
+    private weak var pendingChatViewController: ChatViewController?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
@@ -27,12 +33,25 @@
             navigationController.additionalSafeAreaInsets.top = -navigationController.navigationBar.frame.maxY
         }
 
+        // The pending chat presentation reached the screen -> nothing to protect anymore
+        if viewController === pendingChatViewController {
+            self.pendingChatViewController = nil
+        }
+
         if !isCollapsed {
             return
         }
 
         if let navController = self.viewController(for: .secondary) as? UINavigationController,
            viewController is RoomsTableViewController {
+
+            // A pop to the rooms list raced a pending chat presentation. Don't tear the
+            // chat down — the collapse reconciliation will nest the secondary nav onto
+            // the primary column and display it (see #2328)
+            if let pendingChatViewController,
+               navController.viewControllers.contains(pendingChatViewController) {
+                return
+            }
 
             // MovingFromParentViewController is always false in case of a rootViewController,
             // because of this, the chat will never be left in NCChatViewController
@@ -43,7 +62,13 @@
             let placeholderViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "placeholderChatViewController")
             navController.setViewControllers([placeholderViewController], animated: false)
 
-            let navController = UINavigationController(rootViewController: placeholderViewController)
+            // Don't reuse the placeholder from above: moving it into the new navigation controller
+            // would leave the old one with zero viewControllers. While collapsed, UIKit can still
+            // reference the old navigation controller as secondary column content and crashes with
+            // "Cannot display a nested UINavigationController with zero viewControllers"
+            // when collapsing again (see #2328)
+            let newPlaceholderViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "placeholderChatViewController")
+            let navController = UINavigationController(rootViewController: newPlaceholderViewController)
             setViewController(navController, for: .secondary)
 
             // Instead of always allowing a gesture to be recognized, we need more control here.
@@ -71,12 +96,20 @@
     }
 
     override func showDetailViewController(_ vc: UIViewController, sender: Any?) {
+        // Showing a non-chat detail (e.g. the placeholder) resolves any pending chat
+        self.pendingChatViewController = vc as? ChatViewController
+
         self.internalExecuteAfterTransition {
             if let vc = vc as? UINavigationController {
                 super.showDetailViewController(vc, sender: sender)
             } else {
                 // Create a new UINavigationController, to not stack up multiple view controllers
                 let navController = UINavigationController(rootViewController: vc)
+
+                // Get notified (didShow) when the chat actually appears on screen,
+                // to resolve a pending chat presentation
+                navController.delegate = self
+
                 super.showDetailViewController(navController, sender: sender)
 
                 if #available(iOS 26.0, *) {
@@ -146,6 +179,16 @@
     }
 
     func splitViewController(_ svc: UISplitViewController, topColumnForCollapsingToProposedTopColumn proposedTopColumn: UISplitViewController.Column) -> UISplitViewController.Column {
+        // UIKit throws "Cannot display a nested UINavigationController with zero viewControllers"
+        // when collapsing while the secondary column contains an empty navigation controller,
+        // so restore a placeholder in that case (see #2328)
+        if let navController = self.viewController(for: .secondary) as? UINavigationController,
+           navController.viewControllers.isEmpty {
+
+            let placeholderViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "placeholderChatViewController")
+            navController.setViewControllers([placeholderViewController], animated: false)
+        }
+
         // When we rotate the device and the splitViewController gets collapsed
         // we need to determine if we're still in a chat or not.
         // In case we are, we want to stay in the chat view, else we want to show the roomList
