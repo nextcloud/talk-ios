@@ -666,6 +666,19 @@ public class NCChatController: NSObject {
             }
             var localizedMessageDict = messageDict
             localizedMessageDict["message"] = localizedMessage
+
+            // The parent of a "message_deleted" system message (the deleted message itself) is not
+            // localized in the chat relay payload either, so we localize it on the client too.
+            if message.systemMessage == "message_deleted", var parentDict = messageDict["parent"] as? [String: Any], parentDict["message"] != nil {
+                guard let parent = NCChatMessage(dictionary: parentDict as [AnyHashable: Any], andAccountId: account.accountId) else {
+                    print("Could not parse the deleted message of a 'message_deleted' system message received over the chat relay, fetching it from the chat API instead")
+                    return nil
+                }
+
+                parentDict["message"] = NCSystemMessageLocalizer.localizedDeletedMessage(for: message, withParent: parent, account: account)
+                localizedMessageDict["parent"] = parentDict
+            }
+
             return localizedMessageDict
         }
 
@@ -820,6 +833,10 @@ public class NCChatController: NSObject {
             notify(forNewMessages: storedMessages)
         } else {
             DispatchQueue.main.async {
+                // Since we end up here from a different thread, the cached information might be outdated,
+                // e.g. when deleting a message, the original message might still be cached in realm.
+                // Therefore we need to ensure to refresh Realm here
+                RLMRealm.default().refresh()
                 self.notify(forNewMessages: storedMessages)
             }
         }
