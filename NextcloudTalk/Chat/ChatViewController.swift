@@ -1594,12 +1594,8 @@ import SwiftUI
                 let shouldScrollOnNewMessages = self.shouldScrollOnNewMessages()
                 let newMessagesContainVisibleMessages = messages.containsVisibleMessages()
 
-                // Use a Set here so we don't have to deal with duplicates
-                var insertIndexPaths: Set<IndexPath> = []
-                var insertSections: IndexSet = []
-                var reloadIndexPaths: Set<IndexPath> = []
-
                 var addedUnreadMessageSeparator = false
+                var unreadMessageSeparatorIndexPath: IndexPath?
 
                 // Check if unread messages separator should be added (only if it's not already shown)
                 if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
@@ -1609,85 +1605,23 @@ import SwiftUI
                     self.generateSummaryFromMessageId = lastRealMessage.message.messageId
                     messagesBeforeUpdate.append(self.unreadMessagesSeparator)
                     self.messages[lastDateSection] = messagesBeforeUpdate
-                    insertIndexPaths.insert(IndexPath(row: messagesBeforeUpdate.count - 1, section: self.dateSections.count - 1))
+                    unreadMessageSeparatorIndexPath = IndexPath(row: messagesBeforeUpdate.count - 1, section: self.dateSections.count - 1)
                     addedUnreadMessageSeparator = true
                 }
 
-                // With the chat relay, the echo of an own message can arrive while the temporary
-                // message is still animating in. Replacing an equally sized temporary message does
-                // not change the layout of the tableView, so those cells are updated in place
-                // instead of reloaded, which would interrupt a running insert/scroll animation.
-                var temporaryReplacementHeights: [String: CGFloat] = [:]
+                var update = self.appendReceivedMessagesAndComputeTableViewUpdate(for: messages, in: tableView)
 
-                for message in messages {
-                    if let referenceId = message.referenceId, !referenceId.isEmpty,
-                       let existingMessage = self.indexPathAndMessage(forReferenceId: referenceId)?.message,
-                       existingMessage.isTemporary {
+                if let unreadMessageSeparatorIndexPath {
+                    update.insertIndexPaths.insert(unreadMessageSeparatorIndexPath)
+                }
 
-                        temporaryReplacementHeights[referenceId] = self.getCellHeight(for: existingMessage)
+                for inPlaceUpdate in update.inPlaceUpdates {
+                    if let cell = tableView.cellForRow(at: inPlaceUpdate.indexPath) as? BaseChatTableViewCell {
+                        cell.setup(for: inPlaceUpdate.message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
                     }
                 }
 
-                var inPlaceUpdates: [(indexPath: IndexPath, message: NCChatMessage)] = []
-
-                self.appendMessages(messages: messages)
-
-                for newMessage in messages {
-                    // Update messages might trigger an reload of another cell, but are not part of the tableView itself
-                    if newMessage.isUpdateMessage {
-                        if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
-                            if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
-                                // We received an update message to a message which is already part of our current data, therefore we need to reload it
-                                reloadIndexPaths.insert(parentPath)
-                            }
-                        }
-
-                        continue
-                    }
-
-                    // Thread messages should not be displayed outside of threads or vise-versa
-                    guard (!self.isThreadViewController && !newMessage.isThreadMessage())
-                            || (self.isThreadViewController && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
-                    else { continue }
-
-                    // If we don't get an indexPath here, something is wrong with our appendMessages function
-                    let indexPath = self.indexPath(for: newMessage)!
-
-                    if indexPath.section >= tableView.numberOfSections {
-                        // New section -> insert the section
-                        insertSections.insert(indexPath.section)
-                    }
-
-                    if indexPath.section < tableView.numberOfSections, indexPath.row < tableView.numberOfRows(inSection: indexPath.section) {
-                        if let referenceId = newMessage.referenceId, let previousHeight = temporaryReplacementHeights[referenceId],
-                           self.getCellHeight(for: newMessage) == previousHeight {
-                            // The message replaced its temporary counterpart without a height change,
-                            // so a visible cell can be updated in place
-                            inPlaceUpdates.append((indexPath, newMessage))
-                        } else {
-                            // This is a already known indexPath, so we want to reload the cell
-                            reloadIndexPaths.insert(indexPath)
-                        }
-                    } else {
-                        // New indexPath -> insert it
-                        insertIndexPaths.insert(indexPath)
-                    }
-
-                    if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage) {
-                        if collapsedPath.section < tableView.numberOfSections, collapsedPath.row < tableView.numberOfRows(inSection: collapsedPath.section) {
-                            // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
-                            reloadIndexPaths.insert(collapsedPath)
-                        }
-                    }
-                }
-
-                for update in inPlaceUpdates {
-                    if let cell = tableView.cellForRow(at: update.indexPath) as? BaseChatTableViewCell {
-                        cell.setup(for: update.message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
-                    }
-                }
-
-                if insertSections.isEmpty, insertIndexPaths.isEmpty, reloadIndexPaths.isEmpty {
+                if update.isEmpty {
                     // All received messages were updated in place, so the temporary messages are
                     // already visible and scrolled to -> only the bookkeeping of the batch update is left
                     if messages.containsMessage(forUserId: self.account.userId) {
@@ -1699,16 +1633,16 @@ import SwiftUI
                     }
                 } else {
                     tableView.performBatchUpdates {
-                        if !insertSections.isEmpty {
-                            tableView.insertSections(insertSections, with: .automatic)
+                        if !update.insertSections.isEmpty {
+                            tableView.insertSections(update.insertSections, with: .automatic)
                         }
 
-                        if !insertIndexPaths.isEmpty {
-                            tableView.insertRows(at: Array(insertIndexPaths), with: .automatic)
+                        if !update.insertIndexPaths.isEmpty {
+                            tableView.insertRows(at: Array(update.insertIndexPaths), with: .automatic)
                         }
 
-                        if !reloadIndexPaths.isEmpty {
-                            tableView.reloadRows(at: Array(reloadIndexPaths), with: .none)
+                        if !update.reloadIndexPaths.isEmpty {
+                            tableView.reloadRows(at: Array(update.reloadIndexPaths), with: .none)
                         }
 
                     } completion: { _ in
@@ -1752,6 +1686,94 @@ import SwiftUI
 
             bgTask.stopBackgroundTask()
         }
+    }
+
+    struct ReceivedMessagesTableViewUpdate {
+        var insertSections: IndexSet = []
+        var insertIndexPaths: Set<IndexPath> = []
+        var reloadIndexPaths: Set<IndexPath> = []
+        var inPlaceUpdates: [(indexPath: IndexPath, message: NCChatMessage)] = []
+
+        var isEmpty: Bool {
+            insertSections.isEmpty && insertIndexPaths.isEmpty && reloadIndexPaths.isEmpty
+        }
+    }
+
+    // Appends the received messages to the data source and computes the operations a
+    // subsequent performBatchUpdates needs to bring the tableView from its current
+    // state to the new data source state. Expects tableView to be in sync with the
+    // data source when called.
+    // swiftlint:disable:next cyclomatic_complexity
+    func appendReceivedMessagesAndComputeTableViewUpdate(for messages: [NCChatMessage], in tableView: UITableView) -> ReceivedMessagesTableViewUpdate {
+        var update = ReceivedMessagesTableViewUpdate()
+
+        // With the chat relay, the echo of an own message can arrive while the temporary
+        // message is still animating in. Replacing an equally sized temporary message does
+        // not change the layout of the tableView, so those cells are updated in place
+        // instead of reloaded, which would interrupt a running insert/scroll animation.
+        var temporaryReplacementHeights: [String: CGFloat] = [:]
+
+        for message in messages {
+            if let referenceId = message.referenceId, !referenceId.isEmpty,
+               let existingMessage = self.indexPathAndMessage(forReferenceId: referenceId)?.message,
+               existingMessage.isTemporary {
+
+                temporaryReplacementHeights[referenceId] = self.getCellHeight(for: existingMessage)
+            }
+        }
+
+        self.appendMessages(messages: messages)
+
+        for newMessage in messages {
+            // Update messages might trigger an reload of another cell, but are not part of the tableView itself
+            if newMessage.isUpdateMessage {
+                if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
+                    if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
+                        // We received an update message to a message which is already part of our current data, therefore we need to reload it
+                        update.reloadIndexPaths.insert(parentPath)
+                    }
+                }
+
+                continue
+            }
+
+            // Thread messages should not be displayed outside of threads or vise-versa
+            guard (!self.isThreadViewController && !newMessage.isThreadMessage())
+                    || (self.isThreadViewController && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
+            else { continue }
+
+            // If we don't get an indexPath here, something is wrong with our appendMessages function
+            let indexPath = self.indexPath(for: newMessage)!
+
+            if indexPath.section >= tableView.numberOfSections {
+                // New section -> insert the section
+                update.insertSections.insert(indexPath.section)
+            }
+
+            if indexPath.section < tableView.numberOfSections, indexPath.row < tableView.numberOfRows(inSection: indexPath.section) {
+                if let referenceId = newMessage.referenceId, let previousHeight = temporaryReplacementHeights[referenceId],
+                   self.getCellHeight(for: newMessage) == previousHeight {
+                    // The message replaced its temporary counterpart without a height change,
+                    // so a visible cell can be updated in place
+                    update.inPlaceUpdates.append((indexPath, newMessage))
+                } else {
+                    // This is a already known indexPath, so we want to reload the cell
+                    update.reloadIndexPaths.insert(indexPath)
+                }
+            } else {
+                // New indexPath -> insert it
+                update.insertIndexPaths.insert(indexPath)
+            }
+
+            if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage) {
+                if collapsedPath.section < tableView.numberOfSections, collapsedPath.row < tableView.numberOfRows(inSection: collapsedPath.section) {
+                    // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
+                    update.reloadIndexPaths.insert(collapsedPath)
+                }
+            }
+        }
+
+        return update
     }
 
     func didSendChatMessage(notification: Notification) {
