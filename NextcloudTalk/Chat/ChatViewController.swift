@@ -1595,7 +1595,7 @@ import SwiftUI
                 let newMessagesContainVisibleMessages = messages.containsVisibleMessages()
 
                 var addedUnreadMessageSeparator = false
-                var unreadMessageSeparatorIndexPath: IndexPath?
+                var unreadMessageSeparatorPosition: (sectionKey: Date, row: Int)?
 
                 // Check if unread messages separator should be added (only if it's not already shown)
                 if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
@@ -1605,14 +1605,16 @@ import SwiftUI
                     self.generateSummaryFromMessageId = lastRealMessage.message.messageId
                     messagesBeforeUpdate.append(self.unreadMessagesSeparator)
                     self.messages[lastDateSection] = messagesBeforeUpdate
-                    unreadMessageSeparatorIndexPath = IndexPath(row: messagesBeforeUpdate.count - 1, section: self.dateSections.count - 1)
+                    unreadMessageSeparatorPosition = (lastDateSection, messagesBeforeUpdate.count - 1)
                     addedUnreadMessageSeparator = true
                 }
 
                 var update = self.appendReceivedMessagesAndComputeTableViewUpdate(for: messages, in: tableView)
 
-                if let unreadMessageSeparatorIndexPath {
-                    update.insertIndexPaths.insert(unreadMessageSeparatorIndexPath)
+                // Resolve the separator's section index against the updated data source, as it
+                // can shift when the received messages created a section for an older day
+                if let unreadMessageSeparatorPosition, let sectionIndex = self.dateSections.firstIndex(of: unreadMessageSeparatorPosition.sectionKey) {
+                    update.insertIndexPaths.insert(IndexPath(row: unreadMessageSeparatorPosition.row, section: sectionIndex))
                 }
 
                 for inPlaceUpdate in update.inPlaceUpdates {
@@ -1702,7 +1704,8 @@ import SwiftUI
     // Appends the received messages to the data source and computes the operations a
     // subsequent performBatchUpdates needs to bring the tableView from its current
     // state to the new data source state. Expects tableView to be in sync with the
-    // data source when called.
+    // data source when called. Inserts are returned in post-update coordinates,
+    // reloads and in-place updates in pre-update coordinates, as UIKit expects.
     // swiftlint:disable:next cyclomatic_complexity
     func appendReceivedMessagesAndComputeTableViewUpdate(for messages: [NCChatMessage], in tableView: UITableView) -> ReceivedMessagesTableViewUpdate {
         var update = ReceivedMessagesTableViewUpdate()
@@ -1722,16 +1725,34 @@ import SwiftUI
             }
         }
 
+        // A new date section does not necessarily sort to the end: a backlog message from
+        // an older day can arrive after a newer section was already created (e.g. by sending
+        // a message right after opening the chat). Comparing against the tableView's section
+        // count would miss those sections, so new sections are detected against a snapshot
+        // of the data source instead.
+        let sectionsBeforeUpdate = self.dateSections
+
         self.appendMessages(messages: messages)
+
+        // Reloads and in-place updates address rows the tableView already knows, so their
+        // index paths need to be in pre-update coordinates. Returns nil for rows that were
+        // not part of the tableView before the update.
+        func preUpdateIndexPath(for indexPath: IndexPath) -> IndexPath? {
+            guard let oldSection = sectionsBeforeUpdate.firstIndex(of: self.dateSections[indexPath.section]),
+                  oldSection < tableView.numberOfSections,
+                  indexPath.row < tableView.numberOfRows(inSection: oldSection)
+            else { return nil }
+
+            return IndexPath(row: indexPath.row, section: oldSection)
+        }
 
         for newMessage in messages {
             // Update messages might trigger an reload of another cell, but are not part of the tableView itself
             if newMessage.isUpdateMessage {
-                if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
-                    if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
-                        // We received an update message to a message which is already part of our current data, therefore we need to reload it
-                        update.reloadIndexPaths.insert(parentPath)
-                    }
+                if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage),
+                   let reloadPath = preUpdateIndexPath(for: parentPath) {
+                    // We received an update message to a message which is already part of our current data, therefore we need to reload it
+                    update.reloadIndexPaths.insert(reloadPath)
                 }
 
                 continue
@@ -1745,31 +1766,29 @@ import SwiftUI
             // If we don't get an indexPath here, something is wrong with our appendMessages function
             let indexPath = self.indexPath(for: newMessage)!
 
-            if indexPath.section >= tableView.numberOfSections {
-                // New section -> insert the section
+            if !sectionsBeforeUpdate.contains(self.dateSections[indexPath.section]) {
+                // The message created a new date section -> insert it at its sorted position
                 update.insertSections.insert(indexPath.section)
-            }
-
-            if indexPath.section < tableView.numberOfSections, indexPath.row < tableView.numberOfRows(inSection: indexPath.section) {
+                update.insertIndexPaths.insert(indexPath)
+            } else if let reloadPath = preUpdateIndexPath(for: indexPath) {
                 if let referenceId = newMessage.referenceId, let previousHeight = temporaryReplacementHeights[referenceId],
                    self.getCellHeight(for: newMessage) == previousHeight {
                     // The message replaced its temporary counterpart without a height change,
                     // so a visible cell can be updated in place
-                    update.inPlaceUpdates.append((indexPath, newMessage))
+                    update.inPlaceUpdates.append((reloadPath, newMessage))
                 } else {
                     // This is a already known indexPath, so we want to reload the cell
-                    update.reloadIndexPaths.insert(indexPath)
+                    update.reloadIndexPaths.insert(reloadPath)
                 }
             } else {
                 // New indexPath -> insert it
                 update.insertIndexPaths.insert(indexPath)
             }
 
-            if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage) {
-                if collapsedPath.section < tableView.numberOfSections, collapsedPath.row < tableView.numberOfRows(inSection: collapsedPath.section) {
-                    // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
-                    update.reloadIndexPaths.insert(collapsedPath)
-                }
+            if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage),
+               let reloadPath = preUpdateIndexPath(for: collapsedPath) {
+                // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
+                update.reloadIndexPaths.insert(reloadPath)
             }
         }
 

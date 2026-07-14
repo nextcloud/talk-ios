@@ -348,4 +348,34 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         XCTAssertTrue(update.reloadIndexPaths.isEmpty,
                       "Nothing changed in the pre-existing section, so nothing may be reloaded")
     }
+
+    // When an older-day section is inserted, existing sections shift. Inserts must use
+    // post-update indices, while reloads of already known rows must keep pre-update indices.
+    func testReloadUsesPreUpdateCoordinatesWhenOlderDaySectionIsInserted() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchShiftedReload")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        // Existing state: one message in today's section, table view in sync
+        chatViewController.appendMessages(messages: [makeMessage(id: 100, timestamp: now, inRoom: room, withAccount: activeAccount)])
+        tableView.reloadData()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        // One backlog message from yesterday plus an echo of the already known message
+        let update = chatViewController.appendReceivedMessagesAndComputeTableViewUpdate(
+            for: [makeMessage(id: 99, timestamp: now - 86400, actorId: "bob", inRoom: room, withAccount: activeAccount),
+                  makeMessage(id: 100, timestamp: now, inRoom: room, withAccount: activeAccount)], in: tableView)
+
+        // Yesterday's section is inserted at its sorted position (post-update coordinates)
+        XCTAssertEqual(update.insertSections, IndexSet(integer: 0))
+        XCTAssertEqual(update.insertIndexPaths, [IndexPath(row: 0, section: 0)])
+
+        // The echo reloads the known message in the section the tableView still knows as 0,
+        // even though it is section 1 in the updated data source
+        XCTAssertEqual(update.reloadIndexPaths, [IndexPath(row: 0, section: 0)])
+    }
 }
