@@ -23,6 +23,7 @@ class CallSpeakerLayout: UICollectionViewLayout {
 
     private var itemAttributes: [UICollectionViewLayoutAttributes] = []
     private var contentSize: CGSize = .zero
+    private var isTransitioningFromOtherLayout = false
 
     private var stripeItemMinSize: CGSize {
         return CGSize(width: (kCallParticipantCellMinHeight * stripeItemAspectRatio).rounded(.down), height: kCallParticipantCellMinHeight)
@@ -126,9 +127,25 @@ class CallSpeakerLayout: UICollectionViewLayout {
         return true
     }
 
+    override func prepareForTransition(from oldLayout: UICollectionViewLayout) {
+        super.prepareForTransition(from: oldLayout)
+
+        isTransitioningFromOtherLayout = true
+    }
+
+    override func finalizeLayoutTransition() {
+        super.finalizeLayoutTransition()
+
+        isTransitioningFromOtherLayout = false
+    }
+
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+        // When switching from the grid layout, the proposed offset tries to keep the previously
+        // visible cells in view, but the stripe should always start left aligned
+        let offsetX = isTransitioningFromOtherLayout ? 0 : proposedContentOffset.x
+
         // The content is never scrollable vertically, make sure we don't keep
         // a vertical offset when switching from the grid layout
-        return CGPoint(x: proposedContentOffset.x, y: 0)
+        return CGPoint(x: offsetX, y: 0)
     }
 }
