@@ -282,12 +282,13 @@ public class NCChatController: NSObject {
     }
 
     private func updateLastChatBlock(withNewestKnown newestKnown: Int) {
+        guard newestKnown > 0 else { return }
+
         let realm = RLMRealm.default()
         try? realm.transaction {
             let managedSortedBlocks = self.managedSortedBlocksForRoomOrThread()
-            let lastBlock = managedSortedBlocks.lastObject() as? NCChatBlock
-            if newestKnown > 0 {
-                lastBlock?.newestMessageId = newestKnown
+            if let lastBlock = managedSortedBlocks.lastObject() as? NCChatBlock, newestKnown > lastBlock.newestMessageId {
+                lastBlock.newestMessageId = newestKnown
             }
         }
     }
@@ -542,9 +543,11 @@ public class NCChatController: NSObject {
         let lastChatBlock = chatBlocksForRoomOrThread().last
         let lastNewestMessageId = lastChatBlock?.newestMessageId ?? 0
 
-        if message.messageId <= lastNewestMessageId {
-            return
-        }
+        // We allow older messages here, since chat relay might be received out of order (e.g. with call summary bot)
+        // Ref: https://github.com/nextcloud/talk-ios/issues/2580
+        // if message.messageId <= lastNewestMessageId {
+        //     return
+        // }
 
         // A file share parent in the relay payload carries the sender's file path and link. Storing it
         // would overwrite the correct per-user values in the database (see nextcloud/spreed#18572), so
