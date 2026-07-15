@@ -1594,12 +1594,8 @@ import SwiftUI
                 let shouldScrollOnNewMessages = self.shouldScrollOnNewMessages()
                 let newMessagesContainVisibleMessages = messages.containsVisibleMessages()
 
-                // Use a Set here so we don't have to deal with duplicates
-                var insertIndexPaths: Set<IndexPath> = []
-                var insertSections: IndexSet = []
-                var reloadIndexPaths: Set<IndexPath> = []
-
                 var addedUnreadMessageSeparator = false
+                var unreadMessageSeparatorPosition: (sectionKey: Date, row: Int)?
 
                 // Check if unread messages separator should be added (only if it's not already shown)
                 if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
@@ -1609,91 +1605,73 @@ import SwiftUI
                     self.generateSummaryFromMessageId = lastRealMessage.message.messageId
                     messagesBeforeUpdate.append(self.unreadMessagesSeparator)
                     self.messages[lastDateSection] = messagesBeforeUpdate
-                    insertIndexPaths.insert(IndexPath(row: messagesBeforeUpdate.count - 1, section: self.dateSections.count - 1))
+                    unreadMessageSeparatorPosition = (lastDateSection, messagesBeforeUpdate.count - 1)
                     addedUnreadMessageSeparator = true
                 }
 
-                self.appendMessages(messages: messages)
+                var update = self.appendReceivedMessagesAndComputeTableViewUpdate(for: messages, in: tableView)
 
-                for newMessage in messages {
-                    // Update messages might trigger an reload of another cell, but are not part of the tableView itself
-                    if newMessage.isUpdateMessage {
-                        if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage) {
-                            if parentPath.section < tableView.numberOfSections, parentPath.row < tableView.numberOfRows(inSection: parentPath.section) {
-                                // We received an update message to a message which is already part of our current data, therefore we need to reload it
-                                reloadIndexPaths.insert(parentPath)
-                            }
-                        }
+                // Resolve the separator's section index against the updated data source, as it
+                // can shift when the received messages created a section for an older day
+                if let unreadMessageSeparatorPosition, let sectionIndex = self.dateSections.firstIndex(of: unreadMessageSeparatorPosition.sectionKey) {
+                    update.insertIndexPaths.insert(IndexPath(row: unreadMessageSeparatorPosition.row, section: sectionIndex))
+                }
 
-                        continue
-                    }
-
-                    // Thread messages should not be displayed outside of threads or vise-versa
-                    guard (!self.isThreadViewController && !newMessage.isThreadMessage())
-                            || (self.isThreadViewController && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
-                    else { continue }
-
-                    // If we don't get an indexPath here, something is wrong with our appendMessages function
-                    let indexPath = self.indexPath(for: newMessage)!
-
-                    if indexPath.section >= tableView.numberOfSections {
-                        // New section -> insert the section
-                        insertSections.insert(indexPath.section)
-                    }
-
-                    if indexPath.section < tableView.numberOfSections, indexPath.row < tableView.numberOfRows(inSection: indexPath.section) {
-                        // This is a already known indexPath, so we want to reload the cell
-                        reloadIndexPaths.insert(indexPath)
-                    } else {
-                        // New indexPath -> insert it
-                        insertIndexPaths.insert(indexPath)
-                    }
-
-                    if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage) {
-                        if collapsedPath.section < tableView.numberOfSections, collapsedPath.row < tableView.numberOfRows(inSection: collapsedPath.section) {
-                            // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
-                            reloadIndexPaths.insert(collapsedPath)
-                        }
+                for inPlaceUpdate in update.inPlaceUpdates {
+                    if let cell = tableView.cellForRow(at: inPlaceUpdate.indexPath) as? BaseChatTableViewCell {
+                        cell.setup(for: inPlaceUpdate.message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
                     }
                 }
 
-                tableView.performBatchUpdates {
-                    if !insertSections.isEmpty {
-                        tableView.insertSections(insertSections, with: .automatic)
-                    }
-
-                    if !insertIndexPaths.isEmpty {
-                        tableView.insertRows(at: Array(insertIndexPaths), with: .automatic)
-                    }
-
-                    if !reloadIndexPaths.isEmpty {
-                        tableView.reloadRows(at: Array(reloadIndexPaths), with: .none)
-                    }
-
-                } completion: { _ in
-                    // Remove unread messages separator when user writes a message
+                if update.isEmpty {
+                    // All received messages were updated in place, so the temporary messages are
+                    // already visible and scrolled to -> only the bookkeeping of the batch update is left
                     if messages.containsMessage(forUserId: self.account.userId) {
                         self.removeUnreadMessagesSeparator()
                     }
 
-                    // Only scroll to unread message separator if we added it while processing the received messages
-                    // Otherwise we would scroll whenever a unread message separator is available
-                    if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
-                        tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
-                    } else if shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId), let lastIndexPath = self.getLastNonUpdateMessage()?.indexPath {
-                        tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
-                    } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
-                        // This check is needed since several calls to receiveMessages API might be needed
-                        // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
-                        // to receive all the unread messages.
-                        if firstNewMessage.timestamp >= Int(self.chatViewPresentedTimestamp) {
-                            self.showNewMessagesView(until: firstNewMessage)
-                        }
-                    }
-
-                    // Set last received message as last read message
                     if let lastReceivedMessage = messages.last {
                         self.lastReadMessage = lastReceivedMessage.messageId
+                    }
+                } else {
+                    tableView.performBatchUpdates {
+                        if !update.insertSections.isEmpty {
+                            tableView.insertSections(update.insertSections, with: .automatic)
+                        }
+
+                        if !update.insertIndexPaths.isEmpty {
+                            tableView.insertRows(at: Array(update.insertIndexPaths), with: .automatic)
+                        }
+
+                        if !update.reloadIndexPaths.isEmpty {
+                            tableView.reloadRows(at: Array(update.reloadIndexPaths), with: .none)
+                        }
+
+                    } completion: { _ in
+                        // Remove unread messages separator when user writes a message
+                        if messages.containsMessage(forUserId: self.account.userId) {
+                            self.removeUnreadMessagesSeparator()
+                        }
+
+                        // Only scroll to unread message separator if we added it while processing the received messages
+                        // Otherwise we would scroll whenever a unread message separator is available
+                        if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
+                            tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
+                        } else if shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId), let lastIndexPath = self.getLastNonUpdateMessage()?.indexPath {
+                            tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
+                        } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
+                            // This check is needed since several calls to receiveMessages API might be needed
+                            // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
+                            // to receive all the unread messages.
+                            if firstNewMessage.timestamp >= Int(self.chatViewPresentedTimestamp) {
+                                self.showNewMessagesView(until: firstNewMessage)
+                            }
+                        }
+
+                        // Set last received message as last read message
+                        if let lastReceivedMessage = messages.last {
+                            self.lastReadMessage = lastReceivedMessage.messageId
+                        }
                     }
                 }
 
@@ -1710,6 +1688,111 @@ import SwiftUI
 
             bgTask.stopBackgroundTask()
         }
+    }
+
+    struct ReceivedMessagesTableViewUpdate {
+        var insertSections: IndexSet = []
+        var insertIndexPaths: Set<IndexPath> = []
+        var reloadIndexPaths: Set<IndexPath> = []
+        var inPlaceUpdates: [(indexPath: IndexPath, message: NCChatMessage)] = []
+
+        var isEmpty: Bool {
+            insertSections.isEmpty && insertIndexPaths.isEmpty && reloadIndexPaths.isEmpty
+        }
+    }
+
+    // Appends the received messages to the data source and computes the operations a
+    // subsequent performBatchUpdates needs to bring the tableView from its current
+    // state to the new data source state. Expects tableView to be in sync with the
+    // data source when called. Inserts are returned in post-update coordinates,
+    // reloads and in-place updates in pre-update coordinates, as UIKit expects.
+    // swiftlint:disable:next cyclomatic_complexity
+    func appendReceivedMessagesAndComputeTableViewUpdate(for messages: [NCChatMessage], in tableView: UITableView) -> ReceivedMessagesTableViewUpdate {
+        var update = ReceivedMessagesTableViewUpdate()
+
+        // With the chat relay, the echo of an own message can arrive while the temporary
+        // message is still animating in. Replacing an equally sized temporary message does
+        // not change the layout of the tableView, so those cells are updated in place
+        // instead of reloaded, which would interrupt a running insert/scroll animation.
+        var temporaryReplacementHeights: [String: CGFloat] = [:]
+
+        for message in messages {
+            if let referenceId = message.referenceId, !referenceId.isEmpty,
+               let existingMessage = self.indexPathAndMessage(forReferenceId: referenceId)?.message,
+               existingMessage.isTemporary {
+
+                temporaryReplacementHeights[referenceId] = self.getCellHeight(for: existingMessage)
+            }
+        }
+
+        // A new date section does not necessarily sort to the end: a backlog message from
+        // an older day can arrive after a newer section was already created (e.g. by sending
+        // a message right after opening the chat). Comparing against the tableView's section
+        // count would miss those sections, so new sections are detected against a snapshot
+        // of the data source instead.
+        let sectionsBeforeUpdate = self.dateSections
+
+        self.appendMessages(messages: messages)
+
+        // Reloads and in-place updates address rows the tableView already knows, so their
+        // index paths need to be in pre-update coordinates. Returns nil for rows that were
+        // not part of the tableView before the update.
+        func preUpdateIndexPath(for indexPath: IndexPath) -> IndexPath? {
+            guard let oldSection = sectionsBeforeUpdate.firstIndex(of: self.dateSections[indexPath.section]),
+                  oldSection < tableView.numberOfSections,
+                  indexPath.row < tableView.numberOfRows(inSection: oldSection)
+            else { return nil }
+
+            return IndexPath(row: indexPath.row, section: oldSection)
+        }
+
+        for newMessage in messages {
+            // Update messages might trigger an reload of another cell, but are not part of the tableView itself
+            if newMessage.isUpdateMessage {
+                if let parentMessage = newMessage.parent, let parentPath = self.indexPath(for: parentMessage),
+                   let reloadPath = preUpdateIndexPath(for: parentPath) {
+                    // We received an update message to a message which is already part of our current data, therefore we need to reload it
+                    update.reloadIndexPaths.insert(reloadPath)
+                }
+
+                continue
+            }
+
+            // Thread messages should not be displayed outside of threads or vise-versa
+            guard (!self.isThreadViewController && !newMessage.isThreadMessage())
+                    || (self.isThreadViewController && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
+            else { continue }
+
+            // If we don't get an indexPath here, something is wrong with our appendMessages function
+            let indexPath = self.indexPath(for: newMessage)!
+
+            if !sectionsBeforeUpdate.contains(self.dateSections[indexPath.section]) {
+                // The message created a new date section -> insert it at its sorted position
+                update.insertSections.insert(indexPath.section)
+                update.insertIndexPaths.insert(indexPath)
+            } else if let reloadPath = preUpdateIndexPath(for: indexPath) {
+                if let referenceId = newMessage.referenceId, let previousHeight = temporaryReplacementHeights[referenceId],
+                   self.getCellHeight(for: newMessage) == previousHeight {
+                    // The message replaced its temporary counterpart without a height change,
+                    // so a visible cell can be updated in place
+                    update.inPlaceUpdates.append((reloadPath, newMessage))
+                } else {
+                    // This is a already known indexPath, so we want to reload the cell
+                    update.reloadIndexPaths.insert(reloadPath)
+                }
+            } else {
+                // New indexPath -> insert it
+                update.insertIndexPaths.insert(indexPath)
+            }
+
+            if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage),
+               let reloadPath = preUpdateIndexPath(for: collapsedPath) {
+                // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
+                update.reloadIndexPaths.insert(reloadPath)
+            }
+        }
+
+        return update
     }
 
     func didSendChatMessage(notification: Notification) {
@@ -2048,21 +2131,20 @@ import SwiftUI
                   let indexPathsForVisibleRows = tableView.indexPathsForVisibleRows
             else { return }
 
-            var reloadCells: [IndexPath] = []
-
+            // A newer common read message only flips the checkmark of own messages from sent
+            // to read, which never affects the cell height. Set up the visible cells in place
+            // instead of reloading them, as a reload would interrupt a running insert/scroll
+            // animation (e.g. when the common read marker advances right after sending an own
+            // message over the chat relay).
             for visibleIndexPath in indexPathsForVisibleRows {
                 if let message = self.message(for: visibleIndexPath),
                    message.messageId > 0,
-                   message.messageId <= self.room.lastCommonReadMessage {
+                   message.isMessage(from: self.account.userId),
+                   message.messageId <= self.room.lastCommonReadMessage,
+                   let cell = tableView.cellForRow(at: visibleIndexPath) as? BaseChatTableViewCell {
 
-                    reloadCells.append(visibleIndexPath)
+                    cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
                 }
-            }
-
-            if !reloadCells.isEmpty {
-                self.tableView?.beginUpdates()
-                self.tableView?.reloadRows(at: reloadCells, with: .none)
-                self.tableView?.endUpdates()
             }
         }
     }

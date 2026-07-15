@@ -145,11 +145,11 @@ final class UIRoomTest: XCTestCase {
         sendMessageButton.tap()
 
         // Wait for temporary message to be replaced
-        let messageSentImage = app.images["MessageSent"]
-        XCTAssert(messageSentImage.waitForExistence(timeout: TestConstants.timeoutShort))
+        let messageSentCell = app.cells["CellMessageSent"]
+        XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Open context menu
-        messageSentImage.press(forDuration: 2.0)
+        messageSentCell.press(forDuration: 2.0)
 
         // Add a reaction to close the context menu
         // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
@@ -225,14 +225,14 @@ final class UIRoomTest: XCTestCase {
         sendMessageButton.tap()
 
         // Wait for temporary message to be replaced
-        let messageSentImage = app.images["MessageSent"]
-        XCTAssert(messageSentImage.waitForExistence(timeout: TestConstants.timeoutShort))
+        let messageSentCell = app.cells["CellMessageSent"]
+        XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Open context menu
-        messageSentImage.press(forDuration: 2.0)
+        messageSentCell.press(forDuration: 2.0)
 
         // Start a reply
-        XCTAssert(messageSentImage.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
         waitForReady(object: app.buttons["Reply"]).tap()
 
         // Send message and check if temporary message is replaced
@@ -241,7 +241,7 @@ final class UIRoomTest: XCTestCase {
         sendMessageButton.tap()
 
         // Two messages should now be in the sent state
-        waitForCount(query: app.images.matching(identifier: "MessageSent"), count: 2, timeout: TestConstants.timeoutShort)
+        waitForCount(query: app.cells.matching(identifier: "CellMessageSent"), count: 2, timeout: TestConstants.timeoutShort)
     }
 
     func testChatViewControllerMentions() {
@@ -291,7 +291,7 @@ final class UIRoomTest: XCTestCase {
         sendMessageButton.tap()
 
         // Wait for temporary message to be replaced
-        XCTAssert(app.images["MessageSent"].waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.cells["CellMessageSent"].waitForExistence(timeout: TestConstants.timeoutShort))
 
         let tables = app.tables
         var messageTextView = tables.textViews["@\(newConversationName)"]

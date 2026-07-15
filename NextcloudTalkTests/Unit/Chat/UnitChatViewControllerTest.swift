@@ -250,4 +250,132 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         chatViewController.viewDidLayoutSubviews()
         XCTAssertEqual(chatViewController.tableView?.contentInset.top, 0)
     }
+
+    // MARK: - Batch update computation when receiving messages
+
+    private func makeMessage(id: Int, timestamp: Int, actorId: String = "alice",
+                             inRoom room: NCRoom, withAccount account: TalkAccount) -> NCChatMessage {
+        let message = NCChatMessage()
+        message.internalId = "internal-\(id)"
+        message.messageId = id
+        message.accountId = account.accountId
+        message.actorId = actorId
+        message.actorType = "users"
+        message.timestamp = timestamp
+        message.token = room.token
+        message.message = "Message \(id)"
+        return message
+    }
+
+    // Pins the working behavior: a message for a not-yet-known, newer day
+    // creates a section that sorts to the end and is registered as an insert.
+    func testReceivedMessageForNewerDayInsertsSectionAtTheEnd() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchNewDay")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        // Existing state: one section from yesterday, table view in sync
+        chatViewController.appendMessages(messages: [makeMessage(id: 1, timestamp: now - 86400, inRoom: room, withAccount: activeAccount)])
+        tableView.reloadData()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        let update = chatViewController.appendReceivedMessagesAndComputeTableViewUpdate(
+            for: [makeMessage(id: 2, timestamp: now, inRoom: room, withAccount: activeAccount)], in: tableView)
+
+        XCTAssertEqual(chatViewController.dateSections.count, 2)
+        XCTAssertEqual(update.insertSections, IndexSet(integer: 1))
+        XCTAssertEqual(update.insertIndexPaths, [IndexPath(row: 0, section: 1)])
+        XCTAssertTrue(update.reloadIndexPaths.isEmpty)
+    }
+
+    // Pins the working behavior: a message for an already existing day is a plain row insert.
+    func testReceivedMessageForExistingDayInsertsRow() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchSameDay")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        chatViewController.appendMessages(messages: [makeMessage(id: 1, timestamp: now - 60, inRoom: room, withAccount: activeAccount)])
+        tableView.reloadData()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        let update = chatViewController.appendReceivedMessagesAndComputeTableViewUpdate(
+            for: [makeMessage(id: 2, timestamp: now, actorId: "bob", inRoom: room, withAccount: activeAccount)], in: tableView)
+
+        XCTAssertTrue(update.insertSections.isEmpty)
+        XCTAssertEqual(update.insertIndexPaths, [IndexPath(row: 1, section: 0)])
+        XCTAssertTrue(update.reloadIndexPaths.isEmpty)
+    }
+
+    // Reproduces the crash condition behind
+    // _Bug_Detected_In_Client_Of_UITableView_Invalid_Batch_Updates:
+    // a backlog message from an older day (no section yet) creates a section that
+    // sorts *before* the existing one. It must be part of insertSections, otherwise
+    // the data source reports one section more than "before + inserted" and the
+    // batch update raises NSInternalInconsistencyException.
+    func testReceivedMessageForOlderDayMustInsertTheNewSection() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchOlderDay")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        // Existing state: the user just sent a message, so only *today's* section exists
+        chatViewController.appendMessages(messages: [makeMessage(id: 100, timestamp: now, inRoom: room, withAccount: activeAccount)])
+        tableView.reloadData()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        // A message from yesterday arrives (e.g. missed messages fetched after reconnecting)
+        let update = chatViewController.appendReceivedMessagesAndComputeTableViewUpdate(
+            for: [makeMessage(id: 99, timestamp: now - 86400, actorId: "bob", inRoom: room, withAccount: activeAccount)], in: tableView)
+
+        XCTAssertEqual(chatViewController.dateSections.count, 2)
+
+        // UIKit validates: sections after (2) == sections before (1) + inserted - deleted
+        XCTAssertEqual(update.insertSections, IndexSet(integer: 0),
+                       "The section for the older day must be inserted even though it does not sort to the end")
+
+        // The bug classifies the message as a reload of (0, 0) - the wrong section
+        XCTAssertTrue(update.reloadIndexPaths.isEmpty,
+                      "Nothing changed in the pre-existing section, so nothing may be reloaded")
+    }
+
+    // When an older-day section is inserted, existing sections shift. Inserts must use
+    // post-update indices, while reloads of already known rows must keep pre-update indices.
+    func testReloadUsesPreUpdateCoordinatesWhenOlderDaySectionIsInserted() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchShiftedReload")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        // Existing state: one message in today's section, table view in sync
+        chatViewController.appendMessages(messages: [makeMessage(id: 100, timestamp: now, inRoom: room, withAccount: activeAccount)])
+        tableView.reloadData()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        // One backlog message from yesterday plus an echo of the already known message
+        let update = chatViewController.appendReceivedMessagesAndComputeTableViewUpdate(
+            for: [makeMessage(id: 99, timestamp: now - 86400, actorId: "bob", inRoom: room, withAccount: activeAccount),
+                  makeMessage(id: 100, timestamp: now, inRoom: room, withAccount: activeAccount)], in: tableView)
+
+        // Yesterday's section is inserted at its sorted position (post-update coordinates)
+        XCTAssertEqual(update.insertSections, IndexSet(integer: 0))
+        XCTAssertEqual(update.insertIndexPaths, [IndexPath(row: 0, section: 0)])
+
+        // The echo reloads the known message in the section the tableView still knows as 0,
+        // even though it is section 1 in the updated data source
+        XCTAssertEqual(update.reloadIndexPaths, [IndexPath(row: 0, section: 0)])
+    }
 }
