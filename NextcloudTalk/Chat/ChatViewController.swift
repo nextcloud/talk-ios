@@ -411,7 +411,7 @@ import SwiftUI
 
                     let message = thread.lastMessage() ?? thread.firstMessage()
 
-                    let action = UIAction(title: thread.title, handler: { _ in
+                    let action = UIAction(title: thread.title, handler: { [unowned self] _ in
                         guard let message else { return }
                         self.didPressShowThread(for: message)
                     })
