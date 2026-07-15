@@ -282,12 +282,13 @@ public class NCChatController: NSObject {
     }
 
     private func updateLastChatBlock(withNewestKnown newestKnown: Int) {
+        guard newestKnown > 0 else { return }
+
         let realm = RLMRealm.default()
         try? realm.transaction {
             let managedSortedBlocks = self.managedSortedBlocksForRoomOrThread()
-            let lastBlock = managedSortedBlocks.lastObject() as? NCChatBlock
-            if newestKnown > 0 {
-                lastBlock?.newestMessageId = newestKnown
+            if let lastBlock = managedSortedBlocks.lastObject() as? NCChatBlock, newestKnown > lastBlock.newestMessageId {
+                lastBlock.newestMessageId = newestKnown
             }
         }
     }
