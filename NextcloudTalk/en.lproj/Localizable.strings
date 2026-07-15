@@ -2225,8 +2225,8 @@
 /* Call view mode which shows the current speaker in fullscreen */
 "Speaker view" = "Speaker view";
 
-/* Call view mode which shows the current speaker in fullscreen and the other participants in a stripe at the bottom */
-"Speaker view with stripe" = "Speaker view with stripe";
+/* Call view mode which shows the current speaker in fullscreen and the other participants in a bar at the bottom */
+"Speaker view with participant bar" = "Speaker view with participant bar";
 
 /* No comment provided by engineer. */
 "Speech recognition access is not allowed. Check your settings." = "Speech recognition access is not allowed. Check your settings.";

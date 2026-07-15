@@ -668,7 +668,7 @@ class CallViewController: UIViewController,
         }
         speakerAction.state = (callViewMode == .speaker && isStripeHiddenInSpeakerView) ? .on : .off
 
-        let speakerWithStripeAction = UIAction(title: NSLocalizedString("Speaker view with stripe", comment: "Call view mode which shows the current speaker in fullscreen and the other participants in a stripe at the bottom"),
+        let speakerWithStripeAction = UIAction(title: NSLocalizedString("Speaker view with participant bar", comment: "Call view mode which shows the current speaker in fullscreen and the other participants in a bar at the bottom"),
                                                image: UIImage(systemName: viewModeImageName(mode: .speaker, stripeHidden: false))) { [unowned self] _ in
             self.setStripeVisibleInSpeakerView(true)
             self.setCallViewMode(.speaker)
