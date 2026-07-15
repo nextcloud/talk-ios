@@ -122,6 +122,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         if NCSettingsController.sharedInstance().isEndToEndEncryptedCallingEnabled(forAccount: activeAccount.accountId) {
+            NCLog.log("End-to-end encryption for calling enabled -> cancelling call")
             self.reportAndCancelIncomingCall(token, forAccountId: accountId, withLocalNotificationType: .endToEndEncryptionUnsupported)
             return
         }
@@ -163,8 +164,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
             guard let self else { return }
 
-            guard error == nil else {
-                print("Provider could not present incoming call view.")
+            if let error {
+                NCLog.log("Report incoming call for token \(token) for account \(accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
                 return
             }
 
@@ -189,6 +190,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     }
 
     private func reportAndCancelIncomingCall(_ token: String, forAccountId accountId: String, withLocalNotificationType notificationType: NCLocalNotificationType) {
+        NCLog.log("Report and cancel incoming call for token \(token) for account \(accountId).")
+
         let update = self.defaultCallUpdate()
         let callUUID = UUID()
         let call = CallKitCall()
@@ -200,8 +203,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
             guard let self else { return }
 
-            guard error == nil else {
-                print("Provider could not present incoming call view.")
+            if let error {
+                NCLog.log("Report incoming call for token \(token) for account \(accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
                 return
             }
 
@@ -219,6 +222,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     }
 
     public func reportIncomingCallForNonCallKitDevices(withPushNotification pushNotification: NCPushNotification) {
+        NCLog.log("Report incoming call for non callkit device for token \(pushNotification.roomToken ?? "Unknown") for account \(pushNotification.accountId).")
+
         let update = self.defaultCallUpdate()
         let callUUID = UUID()
         let call = CallKitCall()
@@ -230,8 +235,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
             guard let self else { return }
 
-            guard error == nil else {
-                print("Provider could not present incoming call view.")
+            if let error {
+                NCLog.log("Report incoming call for non-callkit devices for token \(pushNotification.roomToken ?? "Unknown") for account \(pushNotification.accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
                 return
             }
 
@@ -242,6 +247,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     }
 
     public func reportIncomingCallForOldAccount() {
+        NCLog.log("Report incoming call for old account.")
+
         let update = self.defaultCallUpdate()
         update.localizedCallerName = NSLocalizedString("Old account", comment: "Will be used as the caller name when a VoIP notification can't be decrypted")
 
@@ -253,8 +260,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
             guard let self else { return }
 
-            guard error == nil else {
-                print("Provider could not present incoming call view.")
+            if let error {
+                NCLog.log("Report incoming call for old account with UUID \(callUUID) failed with \(error.localizedDescription)")
                 return
             }
 
@@ -509,7 +516,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
                         self.calls[callUUID] = call
                     } else {
                         if self.startCallRetried {
-                            NSLog("%@", error?.localizedDescription ?? "")
+                            NCLog.log("CallKit start call retried failed with: \(error?.localizedDescription ?? "")")
                             self.startCallRetried = false
                             let userInfo: [String: Any] = ["roomToken": token]
                             NotificationCenter.default.post(name: .CallKitManagerDidFailRequestingCallTransaction, object: self, userInfo: userInfo)
