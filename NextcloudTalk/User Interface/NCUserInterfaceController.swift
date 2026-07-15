@@ -59,23 +59,32 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
                 return
             }
 
-            // Leave chat if we're currently in one
+            // Leave chat if we're currently in one. Wait for the dismissal to finish before
+            // presenting the login, otherwise UIKit refuses the presentation while the
+            // dismiss animation is still in progress
             if NCRoomsManager.shared.chatViewController != nil {
-                presentConversationsList()
+                mainViewController.dismiss(animated: true) { [weak self] in
+                    self?.popToConversationsList()
+                    self?.presentLoginModally(forServerURL: serverURL, withUser: user)
+                }
+            } else {
+                presentLoginModally(forServerURL: serverURL, withUser: user)
             }
+        }
+    }
 
-            if loginViewController == nil || mainViewController.presentedViewController != loginViewController {
-                let loginViewController = LoginViewController()
-                loginViewController.delegate = self
-                loginViewController.modalPresentationStyle = NCDatabaseManager.sharedInstance().numberOfAccounts() == 0 ? .fullScreen : .automatic
-                self.loginViewController = loginViewController
+    private func presentLoginModally(forServerURL serverURL: String?, withUser user: String?) {
+        if loginViewController == nil || mainViewController.presentedViewController != loginViewController {
+            let loginViewController = LoginViewController()
+            loginViewController.delegate = self
+            loginViewController.modalPresentationStyle = NCDatabaseManager.sharedInstance().numberOfAccounts() == 0 ? .fullScreen : .automatic
+            self.loginViewController = loginViewController
 
-                mainViewController.present(loginViewController, animated: true)
-            }
+            mainViewController.present(loginViewController, animated: true)
+        }
 
-            if let serverURL {
-                loginViewController?.startLoginProcess(serverURL: serverURL, user: user)
-            }
+        if let serverURL {
+            loginViewController?.startLoginProcess(serverURL: serverURL, user: user)
         }
     }
 
@@ -148,8 +157,13 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
 
     func logOutAccount(withAccountId accountId: String) {
         NCSettingsController.sharedInstance().logoutAccount(withAccountId: accountId) { _ in
-            NCUserInterfaceController.sharedInstance().presentConversationsList()
-            NCConnectionController.shared.checkAppState()
+            // Dismiss any presented view controller (e.g. settings) before checking the app state.
+            // Otherwise a login presentation triggered by checkAppState races the dismissal
+            // and is refused by UIKit
+            NCUserInterfaceController.sharedInstance().mainViewController.dismiss(animated: true) {
+                NCUserInterfaceController.sharedInstance().popToConversationsList()
+                NCConnectionController.shared.checkAppState()
+            }
         }
     }
 
@@ -318,10 +332,17 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
     }
 
     func presentSettingsViewController() {
-        presentConversationsList()
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let settingsNC = storyboard.instantiateViewController(withIdentifier: "settingsNC")
-        mainViewController.present(settingsNC, animated: true)
+        // Present settings only after a possible previous modal finished dismissing,
+        // otherwise UIKit refuses the presentation (see presentConversationsList)
+        mainViewController.dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+
+            self.popToConversationsList()
+
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let settingsNC = storyboard.instantiateViewController(withIdentifier: "settingsNC")
+            self.mainViewController.present(settingsNC, animated: true)
+        }
     }
 
     func presentShareLinkDialog(for room: NCRoom, inViewContoller viewController: UITableViewController?, for indexPath: IndexPath?) {
@@ -425,12 +446,27 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
         if appState == .ready, waitingForServerCapabilities {
             waitingForServerCapabilities = false
 
+            // Take and clear all pending intents before replaying one of them. Otherwise a
+            // handled intent stays pending and shadows a newer one on the next
+            // not-ready -> ready cycle (e.g. after an account switch)
+            let pendingPushNotification = self.pendingPushNotification
+            let pendingLocalNotification = self.pendingLocalNotification
+            let pendingCallKitCall = self.pendingCallKitCall
+            let pendingURL = self.pendingURL
+
+            self.pendingPushNotification = nil
+            self.pendingLocalNotification = nil
+            self.pendingCallKitCall = nil
+            self.pendingURL = nil
+
             if let pendingPushNotification {
                 if pendingPushNotification.type == .call {
                     presentAlert(for: pendingPushNotification)
                 } else {
                     presentChat(for: pendingPushNotification)
                 }
+            } else if let pendingLocalNotification {
+                presentChat(forLocalNotification: pendingLocalNotification)
             } else if let pendingCallKitCall {
                 startCallKitCall(pendingCallKitCall)
             } else if let pendingURL {
