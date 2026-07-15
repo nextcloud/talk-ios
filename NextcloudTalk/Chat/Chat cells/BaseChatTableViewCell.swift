@@ -303,6 +303,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             }
         }
 
+        // Reset the delivery state exposed to accessibility, when no delivery state should be set
+        self.accessibilityIdentifier = nil
+
         if message.isDeleting {
             self.setDeliveryState(to: .deleting)
         } else if message.sendingFailed {
@@ -435,15 +438,21 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
     }
 
+    // The delivery state is additionally exposed on the cell itself: the accessibility tree
+    // enumerates a visible cell's child elements only once, so the recreated status subviews
+    // are not reliably picked up (e.g. when the temporary message is replaced in place after
+    // the sent message was received back). The cell is always part of the tree and its
+    // identifier stays current, so UI tests can query the delivery state through it.
     func setDeliveryState(to deliveryState: ChatMessageDeliveryState) {
         if deliveryState == .sending || deliveryState == .deleting {
+            self.accessibilityIdentifier = "CellMessageSending"
+
             let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
             activityIndicator.radius = 6.0
             activityIndicator.strokeWidth = 1.5
             activityIndicator.cycleColors = [.secondaryLabel]
             activityIndicator.startAnimating()
-            activityIndicator.accessibilityIdentifier = "MessageSending"
             activityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(activityIndicator)
@@ -459,6 +468,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.statusView.addArrangedSubview(errorView)
 
         } else if deliveryState == .sent || deliveryState == .read {
+            self.accessibilityIdentifier = "CellMessageSent"
+
             var checkImageName = "check"
 
             if deliveryState == .read {
@@ -471,7 +482,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             checkView.image = checkImage
             checkView.contentMode = .scaleAspectFit
             checkView.tintColor = .secondaryLabel
-            checkView.accessibilityIdentifier = "MessageSent"
             checkView.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(checkView)

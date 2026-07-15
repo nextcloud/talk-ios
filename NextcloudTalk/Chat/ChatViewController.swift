@@ -2131,21 +2131,20 @@ import SwiftUI
                   let indexPathsForVisibleRows = tableView.indexPathsForVisibleRows
             else { return }
 
-            var reloadCells: [IndexPath] = []
-
+            // A newer common read message only flips the checkmark of own messages from sent
+            // to read, which never affects the cell height. Set up the visible cells in place
+            // instead of reloading them, as a reload would interrupt a running insert/scroll
+            // animation (e.g. when the common read marker advances right after sending an own
+            // message over the chat relay).
             for visibleIndexPath in indexPathsForVisibleRows {
                 if let message = self.message(for: visibleIndexPath),
                    message.messageId > 0,
-                   message.messageId <= self.room.lastCommonReadMessage {
+                   message.isMessage(from: self.account.userId),
+                   message.messageId <= self.room.lastCommonReadMessage,
+                   let cell = tableView.cellForRow(at: visibleIndexPath) as? BaseChatTableViewCell {
 
-                    reloadCells.append(visibleIndexPath)
+                    cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
                 }
-            }
-
-            if !reloadCells.isEmpty {
-                self.tableView?.beginUpdates()
-                self.tableView?.reloadRows(at: reloadCells, with: .none)
-                self.tableView?.endUpdates()
             }
         }
     }
