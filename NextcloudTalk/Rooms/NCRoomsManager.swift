@@ -296,7 +296,8 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             if let managedLastMessage = NCChatMessage.objects(where: "internalId = %@", internalId).firstObject() as? NCChatMessage {
                 NCChatMessage.update(managedLastMessage, with: lastMessage, isRoomLastMessage: true)
             } else {
-                let chatController = NCChatController(for: room)
+                // Pass an unmanaged copy, since "room" might have been added to realm (and became managed) at this point
+                let chatController = NCChatController(for: NCRoom(value: room))
                 chatController?.storeMessages([lastMessageDict], with: realm)
             }
         }

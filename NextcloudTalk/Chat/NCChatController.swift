@@ -1436,7 +1436,8 @@ public class NCChatController: NSObject {
     public func getSingleMessage(withMessageId messageId: Int, completionBlock block: ((_ message: NCChatMessage?) -> Void)?) {
         let query = NSPredicate(format: "accountId = %@ AND token = %@ AND messageId == %ld", account.accountId, room.token, messageId)
         if let message = NCChatMessage.objects(with: query).firstObject() as? NCChatMessage {
-            block?(message)
+            // Return an unmanaged copy, since callers might retain it beyond the lifetime of the stored message
+            block?(NCChatMessage(value: message))
             return
         }
 
