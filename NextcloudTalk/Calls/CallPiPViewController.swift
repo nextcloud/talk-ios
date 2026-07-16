@@ -278,6 +278,12 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
         localVideoRenderView.layer.cornerRadius = 8
         localVideoRenderView.layer.masksToBounds = true
 
+        // Match the waiting screen of the call view, where the theme color is darkened
+        // by a black overlay with 0.6 alpha (see AvatarBackgroundImageView)
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0
+        NCAppBranding.themeColor().getRed(&red, green: &green, blue: &blue, alpha: nil)
+        placeholderView.backgroundColor = UIColor(red: red * 0.4, green: green * 0.4, blue: blue * 0.4, alpha: 1)
+
         avatarImageView.layer.cornerRadius = avatarSize / 2
         avatarImageView.layer.masksToBounds = true
 
@@ -323,7 +329,7 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
             placeholderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             avatarImageView.centerXAnchor.constraint(equalTo: placeholderView.centerXAnchor),
-            avatarImageView.centerYAnchor.constraint(equalTo: placeholderView.centerYAnchor, constant: -12),
+            avatarImageView.centerYAnchor.constraint(equalTo: placeholderView.centerYAnchor, constant: -24),
             avatarImageView.widthAnchor.constraint(equalToConstant: avatarSize),
             avatarImageView.heightAnchor.constraint(equalToConstant: avatarSize),
 
