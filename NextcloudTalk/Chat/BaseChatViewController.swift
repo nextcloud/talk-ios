@@ -593,12 +593,22 @@ import Toast
         DispatchQueue.main.async {
             let lastSectionBeforeUpdate = self.dateSections.count - 1
 
+            // The user just wrote a message, so the unread messages separator is obsolete.
+            // Remove it in the same batch update that inserts the temporary message: a
+            // standalone deletion later (when the own message is received back) would
+            // interrupt the insert/scroll animation that is started here.
+            let separatorIndexPath = self.removeUnreadMessagesSeparatorFromDataSource()
+
             self.appendMessages(messages: [temporaryMessage])
 
             if let lastDateSection = self.dateSections.last, let messagesForLastDate = self.messages[lastDateSection] {
                 let lastMessageIndexPath = IndexPath(row: messagesForLastDate.count - 1, section: self.dateSections.count - 1)
 
                 self.tableView?.beginUpdates()
+
+                if let separatorIndexPath {
+                    self.tableView?.deleteRows(at: [separatorIndexPath], with: .fade)
+                }
 
                 let newLastSection = self.dateSections.count - 1
                 if lastSectionBeforeUpdate != newLastSection {
@@ -3792,10 +3802,19 @@ import Toast
         return self.indexPathAndMessageFromEnd(with: { _ in return true })?.indexPath
     }
 
+    // Removes the unread messages separator from the data source and returns the index path
+    // it occupied, so callers can bundle the tableView deletion into their own batch update
+    internal func removeUnreadMessagesSeparatorFromDataSource() -> IndexPath? {
+        guard let indexPath = self.indexPathForUnreadMessageSeparator() else { return nil }
+
+        let separatorDate = self.dateSections[indexPath.section]
+        self.messages[separatorDate]?.remove(at: indexPath.row)
+
+        return indexPath
+    }
+
     internal func removeUnreadMessagesSeparator() {
-        if let indexPath = self.indexPathForUnreadMessageSeparator() {
-            let separatorDate = self.dateSections[indexPath.section]
-            self.messages[separatorDate]?.remove(at: indexPath.row)
+        if let indexPath = self.removeUnreadMessagesSeparatorFromDataSource() {
             self.tableView?.deleteRows(at: [indexPath], with: .fade)
         }
     }

@@ -261,6 +261,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         message.accountId = account.accountId
         message.actorId = actorId
         message.actorType = "users"
+        message.actorDisplayName = "DisplayName \(actorId)"
         message.timestamp = timestamp
         message.token = room.token
         message.message = "Message \(id)"
@@ -377,5 +378,99 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         // The echo reloads the known message in the section the tableView still knows as 0,
         // even though it is section 1 in the updated data source
         XCTAssertEqual(update.reloadIndexPaths, [IndexPath(row: 0, section: 0)])
+    }
+
+    // A received message written by the user (e.g. sent from another device) removes the
+    // unread messages separator. The removal runs right before the batch update that inserts
+    // the received messages, so the insert coordinates must account for the deleted row.
+    func testReceivedOwnMessageRemovesUnreadSeparator() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchSeparatorRemoval")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        // Existing state: a message from another user with the unread messages separator below it
+        chatViewController.appendMessages(messages: [makeMessage(id: 1, timestamp: now - 60, actorId: "bob", inRoom: room, withAccount: activeAccount)])
+
+        let separator = NCChatMessage()
+        separator.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
+        let lastDateSection = try XCTUnwrap(chatViewController.dateSections.last)
+        chatViewController.messages[lastDateSection]?.append(separator)
+
+        // Force a layout pass so the reload is actually performed: the view is not part of a
+        // window here, so the table would otherwise lazily reload against the data source only
+        // when the batch update runs - at that point it was already mutated, so the update's
+        // pre-update coordinates would not match and performBatchUpdates would raise
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+        XCTAssertEqual(tableView.numberOfRows(inSection: 0), 2)
+        XCTAssertNotNil(chatViewController.indexPathForUnreadMessageSeparator())
+
+        // Receive an own message, e.g. sent from another device
+        let ownMessage = makeMessage(id: 2, timestamp: now, actorId: activeAccount.userId, inRoom: room, withAccount: activeAccount)
+        let notification = Notification(name: .NCChatControllerDidReceiveChatMessages,
+                                        object: chatViewController.chatController,
+                                        userInfo: ["messages": [ownMessage]])
+        chatViewController.didReceiveChatMessages(notification: notification)
+
+        // didReceiveChatMessages processes the received messages asynchronously on the main queue
+        let processed = expectation(description: "Processed received messages")
+        DispatchQueue.main.async { processed.fulfill() }
+        wait(for: [processed], timeout: TestConstants.timeoutShort)
+
+        // Separator removed and own message inserted in the same runloop tick. Wrong
+        // coordinates would raise NSInternalInconsistencyException inside performBatchUpdates.
+        XCTAssertNil(chatViewController.indexPathForUnreadMessageSeparator())
+        XCTAssertEqual(tableView.numberOfSections, 1)
+        XCTAssertEqual(tableView.numberOfRows(inSection: 0), 2)
+        XCTAssertEqual(chatViewController.message(for: IndexPath(row: 1, section: 0))?.messageId, 2)
+    }
+
+    // Same as above, but the received messages also create a section for an older day, so the
+    // batch update combines the separator removal with a section insert that shifts the
+    // separator's section index.
+    func testReceivedOwnMessageRemovesUnreadSeparatorWhenOlderDaySectionIsInserted() throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchSeparatorShifted")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        // Existing state: only today's section, with the separator below the last message
+        chatViewController.appendMessages(messages: [makeMessage(id: 100, timestamp: now - 60, actorId: "bob", inRoom: room, withAccount: activeAccount)])
+
+        let separator = NCChatMessage()
+        separator.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
+        let lastDateSection = try XCTUnwrap(chatViewController.dateSections.last)
+        chatViewController.messages[lastDateSection]?.append(separator)
+
+        // Force a layout pass so the reload is actually performed (see test above)
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        // A backlog message from yesterday arrives together with an own message for today,
+        // so yesterday's section shifts today's section (and the separator) by one
+        let backlogMessage = makeMessage(id: 99, timestamp: now - 86400, actorId: "bob", inRoom: room, withAccount: activeAccount)
+        let ownMessage = makeMessage(id: 101, timestamp: now, actorId: activeAccount.userId, inRoom: room, withAccount: activeAccount)
+        let notification = Notification(name: .NCChatControllerDidReceiveChatMessages,
+                                        object: chatViewController.chatController,
+                                        userInfo: ["messages": [backlogMessage, ownMessage]])
+        chatViewController.didReceiveChatMessages(notification: notification)
+
+        let processed = expectation(description: "Processed received messages")
+        DispatchQueue.main.async { processed.fulfill() }
+        wait(for: [processed], timeout: TestConstants.timeoutShort)
+
+        XCTAssertNil(chatViewController.indexPathForUnreadMessageSeparator())
+        XCTAssertEqual(tableView.numberOfSections, 2)
+        XCTAssertEqual(tableView.numberOfRows(inSection: 0), 1)
+        XCTAssertEqual(tableView.numberOfRows(inSection: 1), 2)
+        XCTAssertEqual(chatViewController.message(for: IndexPath(row: 1, section: 1))?.messageId, 101)
     }
 }
