@@ -3030,6 +3030,14 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
     }
 
     func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        // When quickly switching back to the app while Picture in Picture is still
+        // animating in, the stop in appDidBecomeActive is missed, because the
+        // controller was not marked as active there yet. Stop it here instead
+        if UIApplication.shared.applicationState == .active {
+            pictureInPictureController.stopPictureInPicture()
+            return
+        }
+
         guard let pipViewController else { return }
 
         // A video size that was reported while the window was still animating in is
