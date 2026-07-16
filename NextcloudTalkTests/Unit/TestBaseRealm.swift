@@ -34,6 +34,7 @@ class TestBaseRealm: XCTestCase {
         account.accountId = TestBaseRealm.fakeAccountId
         account.active = true
         account.user = TestConstants.username
+        account.userId = TestConstants.username
         account.server = TestConstants.server
 
         try? realm.transaction {
