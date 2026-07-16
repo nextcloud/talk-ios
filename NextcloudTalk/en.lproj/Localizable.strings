@@ -64,6 +64,9 @@
 /* '5 active bots' in this conversation */
 "%ld active bots" = "%ld active bots";
 
+/* Accessibility label for unread counter on a tag filter */
+"%ld conversations with unread messages" = "%ld conversations with unread messages";
+
 /* No comment provided by engineer. */
 "%ld notifications" = "%ld notifications";
 
@@ -192,6 +195,9 @@
 
 /* No comment provided by engineer. */
 "AirPlay button" = "AirPlay button";
+
+/* 'All' meaning 'All conversations', shown when no tag filter is applied in conversations list */
+"All" = "All";
 
 /* No comment provided by engineer. */
 "All messages" = "All messages";
@@ -1158,6 +1164,9 @@
 
 /* No comment provided by engineer. */
 "Failed to unban selected entry" = "Failed to unban selected entry";
+
+/* 'Favorites' meaning 'Favorite conversations' */
+"Favorites" = "Favorites";
 
 /* No comment provided by engineer. */
 "Federated" = "Federated";
@@ -2617,6 +2626,9 @@
 
 /* No comment provided by engineer. */
 "You have been muted by a moderator" = "You have been muted by a moderator";
+
+/* No comment provided by engineer. */
+"You have no conversations with this tag." = "You have no conversations with this tag.";
 
 /* No comment provided by engineer. */
 "You have no meetings scheduled." = "You have no meetings scheduled.";

@@ -21,6 +21,7 @@ extern NSString * const NCRoomCreatedNotification;
 extern NSString * const NCSelectedUserForChatNotification;
 extern NSString * const NCUserThreadsUpdatedNotification;
 extern NSString * const NCUserHasThreadsFlagUpdatedNotification;
+extern NSString * const NCConversationTagsUpdatedNotification;
 
 extern NSString * const AudioSessionDidChangeRouteNotification;
 extern NSString * const AudioSessionWasActivatedByProviderNotification;

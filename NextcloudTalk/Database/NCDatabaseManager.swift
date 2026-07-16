@@ -863,7 +863,8 @@ public extension Notification.Name {
             realm.deleteObjects(NCConversationTag.objects(with: query))
 
             for tag in tags {
-                realm.add(tag)
+                // Add a copy, so the passed objects stay unmanaged for the caller
+                realm.add(NCConversationTag(value: tag))
             }
         }
     }

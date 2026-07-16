@@ -19,6 +19,7 @@ NSString * const NCRoomCreatedNotification  = @"NCRoomCreatedNotification";
 NSString * const NCSelectedUserForChatNotification = @"NCSelectedUserForChatNotification";
 NSString * const NCUserThreadsUpdatedNotification = @"NCUserThreadsUpdatedNotification";
 NSString * const NCUserHasThreadsFlagUpdatedNotification = @"NCUserHasThreadsFlagUpdatedNotification";
+NSString * const NCConversationTagsUpdatedNotification = @"NCConversationTagsUpdatedNotification";
 
 NSString * const AudioSessionDidChangeRouteNotification = @"AudioSessionDidChangeRouteNotification";
 NSString * const AudioSessionWasActivatedByProviderNotification = @"AudioSessionWasActivatedByProviderNotification";

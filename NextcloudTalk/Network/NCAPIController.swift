@@ -1335,15 +1335,33 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return ocsError
     }
 
-    @MainActor
-    public func getConversationTags(forAccount account: TalkAccount) async throws -> [NCConversationTag] {
-        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
-        else { throw ApiControllerError.preconditionError }
+    public func getConversationTags(forAccount account: TalkAccount, completionBlock: ((_ tags: [NCConversationTag]?, _ error: Error?) -> Void)? = nil) {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId) else {
+            completionBlock?(nil, ApiControllerError.preconditionError)
+            return
+        }
 
         let urlString = self.getRequestURL(forConversationEndpoint: "tags", forAccount: account)
-        let ocsResponse = try await apiSessionManager.getOcs(urlString, account: account)
+        let accountId = account.accountId
 
-        return ocsResponse.dataArrayDict?.compactMap { NCConversationTag(dictionary: $0, andAccountId: account.accountId) } ?? []
+        apiSessionManager.getOcs(urlString, account: account) { ocsResponse, ocsError in
+            if let ocsError {
+                completionBlock?(nil, ocsError)
+                return
+            }
+
+            let tags = ocsResponse?.dataArrayDict?.compactMap { NCConversationTag(dictionary: $0, andAccountId: accountId) } ?? []
+
+            NCDatabaseManager.sharedInstance().updateConversationTags(tags, forAccountId: accountId)
+
+            let userInfo: [AnyHashable: Any] = [
+                "tags": tags,
+                "accountId": accountId
+            ]
+            NotificationCenter.default.post(name: .NCConversationTagsUpdated, object: self, userInfo: userInfo)
+
+            completionBlock?(tags, nil)
+        }
     }
 
     @MainActor
