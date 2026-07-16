@@ -1597,8 +1597,11 @@ import SwiftUI
                 var addedUnreadMessageSeparator = false
                 var unreadMessageSeparatorPosition: (sectionKey: Date, row: Int)?
 
-                // Check if unread messages separator should be added (only if it's not already shown)
+                // Check if unread messages separator should be added (only if it's not already shown).
+                // A message written by the user (e.g. sent from another device) removes the separator,
+                // so don't add it in the first place when the received messages contain one.
                 if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
+                   !messages.containsMessage(forUserId: self.account.userId),
                    let lastDateSection = self.dateSections.last, var messagesBeforeUpdate = self.messages[lastDateSection] {
 
                     // Store the messageId separately from self.lastReadMessage as that might change during a room update
@@ -1607,6 +1610,19 @@ import SwiftUI
                     self.messages[lastDateSection] = messagesBeforeUpdate
                     unreadMessageSeparatorPosition = (lastDateSection, messagesBeforeUpdate.count - 1)
                     addedUnreadMessageSeparator = true
+                }
+
+                // Receiving a message written by the user (e.g. sent from another device) removes
+                // the unread messages separator. Remove it right before the batch update that
+                // inserts the received messages: both run in the same runloop tick, so their
+                // animations still play together, while a removal in the batch update's completion
+                // would run as a second, visibly separate animation. Keeping the removal out of
+                // the batch update itself also keeps the update free of deletions, whose pre-update
+                // coordinates would need to be compensated against the inserted sections and rows.
+                // For messages sent from this device the separator was already removed together
+                // with the insertion of the temporary message.
+                if messages.containsMessage(forUserId: self.account.userId) {
+                    self.removeUnreadMessagesSeparator()
                 }
 
                 var update = self.appendReceivedMessagesAndComputeTableViewUpdate(for: messages, in: tableView)
@@ -1626,10 +1642,6 @@ import SwiftUI
                 if update.isEmpty {
                     // All received messages were updated in place, so the temporary messages are
                     // already visible and scrolled to -> only the bookkeeping of the batch update is left
-                    if messages.containsMessage(forUserId: self.account.userId) {
-                        self.removeUnreadMessagesSeparator()
-                    }
-
                     if let lastReceivedMessage = messages.last {
                         self.lastReadMessage = lastReceivedMessage.messageId
                     }
@@ -1648,11 +1660,6 @@ import SwiftUI
                         }
 
                     } completion: { _ in
-                        // Remove unread messages separator when user writes a message
-                        if messages.containsMessage(forUserId: self.account.userId) {
-                            self.removeUnreadMessagesSeparator()
-                        }
-
                         // Only scroll to unread message separator if we added it while processing the received messages
                         // Otherwise we would scroll whenever a unread message separator is available
                         if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
