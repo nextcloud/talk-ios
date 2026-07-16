@@ -12,6 +12,7 @@
 #import "FederatedCapabilities.h"
 #import "NCRoom.h"
 #import "NCThread.h"
+#import "NCConversationTag.h"
 #import "NCChatMessage.h"
 #import "NCChatBlock.h"
 #import "NCContact.h"

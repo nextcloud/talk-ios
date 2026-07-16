@@ -1310,6 +1310,119 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
+    // MARK: - Conversation tags
+
+    public enum ConversationTagError: Error {
+        case invalidName
+        case tagLimitReached
+        case immutableTag
+
+        init?(ocsError: OcsError) {
+            switch ocsError.errorKey {
+            case "name": self = .invalidName
+            case "limit": self = .tagLimitReached
+            case "type": self = .immutableTag
+            default: return nil
+            }
+        }
+    }
+
+    private func conversationTagError(from ocsError: OcsError) -> Error {
+        if let tagError = ConversationTagError(ocsError: ocsError) {
+            return tagError
+        }
+
+        return ocsError
+    }
+
+    @MainActor
+    public func getConversationTags(forAccount account: TalkAccount) async throws -> [NCConversationTag] {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "tags", forAccount: account)
+        let ocsResponse = try await apiSessionManager.getOcs(urlString, account: account)
+
+        return ocsResponse.dataArrayDict?.compactMap { NCConversationTag(dictionary: $0, andAccountId: account.accountId) } ?? []
+    }
+
+    @MainActor
+    public func createConversationTag(_ name: String, forAccount account: TalkAccount) async throws -> NCConversationTag {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "tags", forAccount: account)
+
+        do {
+            let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: ["name": name])
+
+            guard let tag = NCConversationTag(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+            else { throw ApiControllerError.unexpectedOcsResponse }
+
+            return tag
+        } catch let error as OcsError {
+            throw self.conversationTagError(from: error)
+        }
+    }
+
+    @MainActor
+    public func renameConversationTag(withId tagId: String, to name: String, forAccount account: TalkAccount) async throws -> NCConversationTag {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedTagId = tagId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "tags/\(encodedTagId)", forAccount: account)
+
+        do {
+            let ocsResponse = try await apiSessionManager.putOcs(urlString, account: account, parameters: ["name": name])
+
+            guard let tag = NCConversationTag(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+            else { throw ApiControllerError.unexpectedOcsResponse }
+
+            return tag
+        } catch let error as OcsError {
+            throw self.conversationTagError(from: error)
+        }
+    }
+
+    @MainActor
+    public func deleteConversationTag(withId tagId: String, forAccount account: TalkAccount) async throws {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedTagId = tagId.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "tags/\(encodedTagId)", forAccount: account)
+
+        do {
+            try await apiSessionManager.deleteOcs(urlString, account: account)
+        } catch let error as OcsError {
+            throw self.conversationTagError(from: error)
+        }
+    }
+
+    @MainActor
+    public func reorderConversationTags(withOrderedIds orderedIds: [String], forAccount account: TalkAccount) async throws -> [NCConversationTag] {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "tags/reorder", forAccount: account)
+        let ocsResponse = try await apiSessionManager.putOcs(urlString, account: account, parameters: ["orderedIds": orderedIds])
+
+        return ocsResponse.dataArrayDict?.compactMap { NCConversationTag(dictionary: $0, andAccountId: account.accountId) } ?? []
+    }
+
+    @MainActor
+    public func setConversationTags(_ tagIds: [String], forRoom token: String, forAccount account: TalkAccount) async throws -> NCRoom? {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forConversationEndpoint: "room/\(encodedToken)/tags", forAccount: account)
+        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: ["tagIds": tagIds])
+
+        return NCRoom(dictionary: ocsResponse.dataDict, andAccountId: account.accountId)
+    }
+
     // MARK: - Push notification test
 
     @nonobjc

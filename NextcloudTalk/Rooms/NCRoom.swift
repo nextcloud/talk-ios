@@ -424,6 +424,12 @@ extension Array where Element == NCRoom {
         return self.attributes.contains(.voiceRoom)
     }
 
+    // MARK: - Conversation tags
+
+    public var tagIdList: [String] {
+        return self.tagIds.value(forKey: "self") as? [String] ?? []
+    }
+
     // MARK: - Updating
 
     public static func update(_ managedRoom: NCRoom, with room: NCRoom) {
@@ -482,6 +488,9 @@ extension Array where Element == NCRoom {
         managedRoom.hiddenPinnedId = room.hiddenPinnedId
         managedRoom.hasScheduledMessages = room.hasScheduledMessages
         managedRoom.attributes = room.attributes
+
+        managedRoom.tagIds.removeAllObjects()
+        managedRoom.tagIds.addObjects(room.tagIds)
     }
 
 }

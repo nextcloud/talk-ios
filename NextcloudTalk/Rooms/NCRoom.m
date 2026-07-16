@@ -74,6 +74,16 @@ NSString * const NCRoomObjectTypeExtendedConversation   = @"extended_conversatio
     room.hasScheduledMessages = [[roomDict objectForKey:@"hasScheduledMessages"] boolValue];
     room.attributes = [[roomDict objectForKey:@"attributes"] integerValue];
 
+    // Only sent by servers with conversation-tags capability
+    id tagIds = [roomDict objectForKey:@"tagIds"];
+    if ([tagIds isKindOfClass:[NSArray class]]) {
+        for (id tagId in tagIds) {
+            if ([tagId isKindOfClass:[NSString class]]) {
+                [room.tagIds addObject:tagId];
+            }
+        }
+    }
+
     // Local-only field -> update only if there's actually a value
     if ([roomDict objectForKey:@"pendingMessage"] != nil) {
         room.pendingMessage = [roomDict objectForKey:@"pendingMessage"];

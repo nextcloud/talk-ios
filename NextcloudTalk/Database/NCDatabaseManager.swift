@@ -7,7 +7,7 @@ import Foundation
 
 public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
-public let kTalkDatabaseSchemaVersion: UInt64 = 90
+public let kTalkDatabaseSchemaVersion: UInt64 = 91
 
 // Objective-C bridge for the Talk database constants that are still referenced from Objective-C code.
 // These reference the Swift values and can be removed once those call sites are migrated to Swift.
@@ -91,6 +91,7 @@ public enum TalkCapability: String {
     case scheduleMessages = "scheduled-messages"
     case reactPermission = "react-permission"
     case botV1 = "bots-v1"
+    case conversationTags = "conversation-tags"
 
     // Talk 12.0 is the minimum required version
     public static let minimumRequired = TalkCapability.conversationV4
@@ -151,7 +152,8 @@ public extension Notification.Name {
         configuration.schemaVersion = kTalkDatabaseSchemaVersion
         configuration.objectClasses = [
             TalkAccount.self, NCRoom.self, ServerCapabilities.self, FederatedCapabilities.self,
-            NCChatMessage.self, NCChatBlock.self, NCContact.self, ABContact.self, NCThread.self
+            NCChatMessage.self, NCChatBlock.self, NCContact.self, ABContact.self, NCThread.self,
+            NCConversationTag.self
         ]
         configuration.migrationBlock = { _, _ in
             // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
@@ -266,6 +268,7 @@ public extension Notification.Name {
         realm.deleteObjects(NCThread.objects(with: query))
         realm.deleteObjects(NCContact.objects(with: query))
         realm.deleteObjects(FederatedCapabilities.objects(with: query))
+        realm.deleteObjects(NCConversationTag.objects(with: query))
         if isLastAccount {
             realm.deleteObjects(ABContact.allObjects())
         }
@@ -834,6 +837,35 @@ public extension Notification.Name {
         unmanagedRooms.sortRooms(withGroupMode: groupMode, withSortOrder: sortOrder)
 
         return unmanagedRooms
+    }
+
+    // MARK: - Conversation tags
+
+    func conversationTags(forAccountId accountId: String) -> [NCConversationTag] {
+        let query = NSPredicate(format: "accountId = %@", accountId)
+        let managedTags = NCConversationTag.objects(with: query).sortedResults(usingKeyPath: "sortOrder", ascending: true)
+
+        // Create an unmanaged copy of the tags
+        var unmanagedTags: [NCConversationTag] = []
+
+        for case let managedTag as NCConversationTag in managedTags {
+            unmanagedTags.append(NCConversationTag(value: managedTag))
+        }
+
+        return unmanagedTags
+    }
+
+    func updateConversationTags(_ tags: [NCConversationTag], forAccountId accountId: String) {
+        let realm = RLMRealm.default()
+
+        try? realm.transaction {
+            let query = NSPredicate(format: "accountId = %@", accountId)
+            realm.deleteObjects(NCConversationTag.objects(with: query))
+
+            for tag in tags {
+                realm.add(tag)
+            }
+        }
     }
 }
 

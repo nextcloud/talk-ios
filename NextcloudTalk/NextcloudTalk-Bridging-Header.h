@@ -44,6 +44,7 @@
 #import "NCContact.h"
 #import "ABContact.h"
 #import "NCThread.h"
+#import "NCConversationTag.h"
 
 #import "JDStatusBarNotificationPresenter.h"
 #import "UIResponder+SLKAdditions.h"
