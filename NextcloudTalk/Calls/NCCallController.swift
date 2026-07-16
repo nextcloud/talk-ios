@@ -573,6 +573,31 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             }
         }
     }
+    
+    public func isUsingFrontCamera() -> Bool {
+        return self.cameraController?.isUsingFrontCamera() ?? false
+    }
+
+    public func isCameraUsableWhileInBackground() -> Bool {
+        #if targetEnvironment(simulator)
+        // The generated test pattern keeps running while the app is in the background
+        return self.simulatorVideoCapturer != nil
+        #else
+        return self.cameraController?.isMultitaskingCameraAccessEnabled() ?? false
+        #endif
+    }
+
+    public func attachRenderer(toLocalVideoTrack renderer: RTCVideoRenderer) {
+        WebRTCCommon.shared.dispatch {
+            self.localVideoTrack?.add(renderer)
+        }
+    }
+
+    public func detachRenderer(fromLocalVideoTrack renderer: RTCVideoRenderer) {
+        WebRTCCommon.shared.dispatch {
+            self.localVideoTrack?.remove(renderer)
+        }
+    }
 
     public func enableVideo(_ enable: Bool) {
         WebRTCCommon.shared.dispatch {

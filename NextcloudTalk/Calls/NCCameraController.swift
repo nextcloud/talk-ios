@@ -206,6 +206,12 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
             self.session?.sessionPreset = .inputPriority
 
+            // Keep the camera running while the app is in the background during
+            // Picture in Picture on devices that support multitasking camera access
+            if self.session?.isMultitaskingCameraAccessSupported ?? false {
+                self.session?.isMultitaskingCameraAccessEnabled = true
+            }
+
             if let input = self.usingFrontCamera ? self.getFrontCameraInput() : self.getBackCameraInput() {
                 self.session?.addInput(input)
             }
@@ -222,6 +228,14 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     public func stopAVCaptureSession() {
         self.session?.stopRunning()
+    }
+
+    public func isMultitaskingCameraAccessEnabled() -> Bool {
+        return session?.isMultitaskingCameraAccessEnabled ?? false
+    }
+
+    public func isUsingFrontCamera() -> Bool {
+        return usingFrontCamera
     }
 
     // MARK: - Public switches
