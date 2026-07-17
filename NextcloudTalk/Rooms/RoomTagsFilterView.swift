@@ -7,23 +7,37 @@ import UIKit
 
 struct TagFilterChip {
     static let allChipId = "all"
+    static let threadsChipId = "threads"
+    static let archivedChipId = "archived"
 
     let id: String
     let title: String
     let unreadCount: Int
     let hasUnreadMention: Bool
+    let showsUnreadDot: Bool
+    let icon: UIImage?
+
+    init(id: String, title: String, unreadCount: Int = 0, hasUnreadMention: Bool = false, showsUnreadDot: Bool = false, icon: UIImage? = nil) {
+        self.id = id
+        self.title = title
+        self.unreadCount = unreadCount
+        self.hasUnreadMention = hasUnreadMention
+        self.showsUnreadDot = showsUnreadDot
+        self.icon = icon
+    }
 }
 
 class RoomTagsFilterView: UIView {
 
     static let viewHeight: CGFloat = 48
 
-    public var onTagSelected: ((String?) -> Void)?
+    public var onChipSelected: ((String) -> Void)?
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
+    private let feedbackGenerator = UISelectionFeedbackGenerator()
     private var chips: [TagFilterChip] = []
-    private var selectedTagId: String?
+    private var selectedChipId: String = TagFilterChip.allChipId
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -59,34 +73,30 @@ class RoomTagsFilterView: UIView {
         ])
     }
 
-    public func update(chips: [TagFilterChip], selectedTagId: String?) {
+    public func update(chips: [TagFilterChip], selectedChipId: String) {
         self.chips = chips
-        self.selectedTagId = selectedTagId
+        self.selectedChipId = selectedChipId
 
         stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         for chip in chips {
-            let chipControl = RoomTagChipControl(chip: chip, selected: isSelected(chip))
+            let chipControl = RoomTagChipControl(chip: chip, selected: chip.id == selectedChipId)
+            chipControl.addTarget(self, action: #selector(chipTouchedDown(_:)), for: .touchDown)
             chipControl.addTarget(self, action: #selector(chipTapped(_:)), for: .touchUpInside)
             stackView.addArrangedSubview(chipControl)
         }
     }
 
-    private func isSelected(_ chip: TagFilterChip) -> Bool {
-        guard let selectedTagId else { return chip.id == TagFilterChip.allChipId }
-
-        return chip.id == selectedTagId
+    @objc private func chipTouchedDown(_ sender: RoomTagChipControl) {
+        // Wake up the Taptic Engine, so the feedback on touch up plays without delay
+        feedbackGenerator.prepare()
     }
 
     @objc private func chipTapped(_ sender: RoomTagChipControl) {
         guard let chip = sender.chip else { return }
 
-        // Tapping "All" or the already selected chip clears the tag filter
-        if chip.id == TagFilterChip.allChipId || isSelected(chip) {
-            onTagSelected?(nil)
-        } else {
-            onTagSelected?(chip.id)
-        }
+        feedbackGenerator.selectionChanged()
+        onChipSelected?(chip.id)
     }
 }
 
@@ -113,6 +123,15 @@ private class RoomTagChipControl: UIControl {
         contentStackView.alignment = .center
         contentStackView.isUserInteractionEnabled = false
         contentStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        if let icon = chip.icon {
+            let iconView = UIImageView(image: icon)
+            iconView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .subheadline, scale: .small)
+            iconView.tintColor = selected ? NCAppBranding.themeTextColor() : .label
+            contentStackView.addArrangedSubview(iconView)
+            contentStackView.setCustomSpacing(6, after: iconView)
+        }
+
         contentStackView.addArrangedSubview(titleLabel)
 
         if chip.unreadCount > 0 {
@@ -132,6 +151,18 @@ private class RoomTagChipControl: UIControl {
 
             badgeView.setBadgeNumber(chip.unreadCount)
             contentStackView.addArrangedSubview(badgeView)
+        } else if chip.showsUnreadDot {
+            // Unread mention indicator without a number, to not grab too much attention
+            let dotView = UIView()
+            dotView.backgroundColor = selected ? NCAppBranding.themeTextColor() : NCAppBranding.elementColor()
+            dotView.layer.cornerRadius = 4
+
+            NSLayoutConstraint.activate([
+                dotView.widthAnchor.constraint(equalToConstant: 8),
+                dotView.heightAnchor.constraint(equalToConstant: 8)
+            ])
+
+            contentStackView.addArrangedSubview(dotView)
         }
 
         self.addSubview(contentStackView)
@@ -154,6 +185,8 @@ private class RoomTagChipControl: UIControl {
         if chip.unreadCount > 0 {
             let format = NSLocalizedString("%ld conversations with unread messages", comment: "Accessibility label for unread counter on a tag filter")
             self.accessibilityValue = String(format: format, chip.unreadCount)
+        } else if chip.showsUnreadDot {
+            self.accessibilityValue = NSLocalizedString("Unread mentions", comment: "")
         }
     }
 

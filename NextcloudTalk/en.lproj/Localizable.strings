@@ -439,6 +439,9 @@
 /* No comment provided by engineer. */
 "Archive conversation" = "Archive conversation";
 
+/* 'Archived' meaning 'Archived conversations' */
+"Archived" = "Archived";
+
 /* No comment provided by engineer. */
 "Archived conversations" = "Archived conversations";
 
