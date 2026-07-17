@@ -909,7 +909,11 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             let unreadRooms = taggedRooms.filter { $0.unreadMessages > 0 }
             let title = isFavoritesTag ? NSLocalizedString("Favorites", comment: "'Favorites' meaning 'Favorite conversations'") : tag.name
 
-            chips.append(TagFilterChip(id: tag.tagId, title: title, unreadCount: unreadRooms.count, hasUnreadMention: unreadRooms.contains { $0.hasUnreadMention }))
+            chips.append(TagFilterChip(id: tag.tagId,
+                                       title: title,
+                                       unreadCount: unreadRooms.count,
+                                       mentioned: unreadRooms.contains { self.isRoomMentioned($0) },
+                                       groupMentioned: unreadRooms.contains { self.isRoomGroupMentioned($0) }))
         }
 
         let account = NCDatabaseManager.sharedInstance().activeAccount()
@@ -1573,6 +1577,22 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         return (allRooms as NSArray).filtered(using: NSPredicate(format: "isArchived == YES")) as? [NCRoom] ?? []
     }
 
+    private func isRoomMentioned(_ room: NCRoom) -> Bool {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
+            return room.unreadMentionDirect || room.type == .oneToOne || room.type == .formerOneToOne
+        }
+
+        return room.unreadMention || room.type == .oneToOne || room.type == .formerOneToOne
+    }
+
+    private func isRoomGroupMentioned(_ room: NCRoom) -> Bool {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
+            return room.unreadMention && !room.unreadMentionDirect
+        }
+
+        return false
+    }
+
     private func areArchivedRoomsWithUnreadMentions() -> Bool {
         return !(allRooms as NSArray).filtered(using: NSPredicate(format: "hasUnreadMention == YES AND isArchived == YES")).isEmpty
     }
@@ -1795,14 +1815,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         // Set unread messages
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
-            let mentioned = room.unreadMentionDirect || room.type == .oneToOne || room.type == .formerOneToOne
-            let groupMentioned = room.unreadMention && !room.unreadMentionDirect
-            cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: groupMentioned)
-        } else {
-            let mentioned = room.unreadMention || room.type == .oneToOne || room.type == .formerOneToOne
-            cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: false)
-        }
+        cell.setUnread(messages: room.unreadMessages, mentioned: isRoomMentioned(room), groupMentioned: isRoomGroupMentioned(room))
 
         if room.unreadMessages > 0 {
             // When there are unread messages, we need to show the subtitle at the moment

@@ -13,15 +13,17 @@ struct TagFilterChip {
     let id: String
     let title: String
     let unreadCount: Int
-    let hasUnreadMention: Bool
+    let mentioned: Bool
+    let groupMentioned: Bool
     let showsUnreadDot: Bool
     let icon: UIImage?
 
-    init(id: String, title: String, unreadCount: Int = 0, hasUnreadMention: Bool = false, showsUnreadDot: Bool = false, icon: UIImage? = nil) {
+    init(id: String, title: String, unreadCount: Int = 0, mentioned: Bool = false, groupMentioned: Bool = false, showsUnreadDot: Bool = false, icon: UIImage? = nil) {
         self.id = id
         self.title = title
         self.unreadCount = unreadCount
-        self.hasUnreadMention = hasUnreadMention
+        self.mentioned = mentioned
+        self.groupMentioned = groupMentioned
         self.showsUnreadDot = showsUnreadDot
         self.icon = icon
     }
@@ -142,11 +144,17 @@ private class RoomTagChipControl: UIControl {
                 // Invert the badge colors on the theme-colored background
                 badgeView.badgeColor = NCAppBranding.themeTextColor()
                 badgeView.badgeTextColor = NCAppBranding.themeColor()
-                badgeView.badgeHighlightStyle = .important
             } else {
                 badgeView.badgeColor = NCAppBranding.themeColor()
                 badgeView.badgeTextColor = NCAppBranding.themeTextColor()
-                badgeView.badgeHighlightStyle = chip.hasUnreadMention ? .important : .none
+            }
+
+            if chip.mentioned {
+                badgeView.badgeHighlightStyle = .important
+            } else if chip.groupMentioned {
+                badgeView.badgeHighlightStyle = .border
+            } else {
+                badgeView.badgeHighlightStyle = selected ? .important : .none
             }
 
             badgeView.setBadgeNumber(chip.unreadCount)
