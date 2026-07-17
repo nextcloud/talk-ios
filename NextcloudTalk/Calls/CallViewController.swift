@@ -828,6 +828,23 @@ class CallViewController: UIViewController,
         self.pipController = pipController
     }
 
+    // Recreate Picture in Picture when the video size of the expected initial participant
+    // does not match the current content size, so the window has the correct scale and
+    // aspect on the very first start (see createPictureInPicture). Called when a video
+    // size changes, but also when peers are added: a size reported while its peer was
+    // still a pending insert is skipped here, because initialPiPPeer can't return it yet
+    private func recreatePictureInPictureIfNeeded() {
+        guard !isPiPActive, UIApplication.shared.applicationState == .active,
+              let pipViewController,
+              let initialPeerIdentifier = initialPiPPeer()?.peerIdentifier,
+              let rendererView = videoRenderersDict[initialPeerIdentifier],
+              let expectedContentSize = CallPiPViewController.normalizedContentSize(for: rendererView.frame.size),
+              expectedContentSize != pipViewController.preferredContentSize
+        else { return }
+
+        self.createPictureInPicture(withInitialContentSize: expectedContentSize)
+    }
+
     private func stopPictureInPicture() {
         guard let pipController else { return }
 
@@ -2811,17 +2828,7 @@ class CallViewController: UIViewController,
                     participantCell.setRemoteVideoSize(size)
                 }
 
-                // Recreate Picture in Picture when the video size of the expected initial
-                // participant changes while it is not active, so the window has the correct
-                // scale and aspect on the very first start (see createPictureInPicture)
-                if !self.isPiPActive, UIApplication.shared.applicationState == .active,
-                   let pipViewController = self.pipViewController,
-                   self.initialPiPPeer()?.peerIdentifier == peerIdentifier,
-                   let expectedContentSize = CallPiPViewController.normalizedContentSize(for: size),
-                   expectedContentSize != pipViewController.preferredContentSize {
-
-                    self.createPictureInPicture(withInitialContentSize: expectedContentSize)
-                }
+                self.recreatePictureInPictureIfNeeded()
             }
 
             for (_, rendererView) in self.screenRenderersDict.filter({ $0.value == mtlVideoView }) {
@@ -2903,6 +2910,7 @@ class CallViewController: UIViewController,
                 self.peersInCall.append(peer)
                 self.updateSnapshot()
                 self.updatePiPPeerIfNeeded()
+                self.recreatePictureInPictureIfNeeded()
             } else {
                 // Delay updating the collection view a bit to allow batch updating
                 self.pendingPeerInserts.append(peer)
@@ -2979,6 +2987,7 @@ class CallViewController: UIViewController,
         }
 
         self.updatePiPPeerIfNeeded()
+        self.recreatePictureInPictureIfNeeded()
 
         // Sort peers in call
         self.sortPeersInCall()
