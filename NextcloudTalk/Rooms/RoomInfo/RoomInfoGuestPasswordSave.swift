@@ -130,8 +130,8 @@ struct RoomInfoGuestPasswordSave: View {
                             resetValues()
                         }
                         .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, PillShapeMetrics.horizontalPadding)
+                        .padding(.vertical, PillShapeMetrics.verticalPadding)
                         .background(isSaveEnabled ? Color.green : Color.gray.opacity(0.3))
                         .clipShape(Capsule())
                         .buttonStyle(.plain)
@@ -144,8 +144,8 @@ struct RoomInfoGuestPasswordSave: View {
                                 resetValues()
                             }
                             .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, PillShapeMetrics.horizontalPadding)
+                            .padding(.vertical, PillShapeMetrics.verticalPadding)
                             .background(Color.blue)
                             .clipShape(Capsule())
                             .buttonStyle(.plain)

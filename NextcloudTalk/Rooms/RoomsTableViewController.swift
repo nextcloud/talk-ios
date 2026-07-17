@@ -320,6 +320,10 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             setProfileButton()
             setupNavigationBar()
         }
+
+        if self.traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
+            updateTagsFilterHeader()
+        }
     }
 
     // MARK: - Notifications
@@ -854,9 +858,11 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         tagsFilterView.update(chips: chips, selectedChipId: selectedChipId())
 
-        if self.tableView.tableHeaderView != tagsFilterView {
+        if self.tableView.tableHeaderView != tagsFilterView || tagsFilterView.frame.height != RoomTagsFilterView.viewHeight {
             tagsFilterView.frame = CGRect(x: 0, y: 0, width: self.tableView.bounds.width, height: RoomTagsFilterView.viewHeight)
             tagsFilterView.autoresizingMask = [.flexibleWidth]
+
+            // Reassign the header view, so the table view picks up the new height (e.g. after dynamic type changes)
             self.tableView.tableHeaderView = tagsFilterView
         }
     }

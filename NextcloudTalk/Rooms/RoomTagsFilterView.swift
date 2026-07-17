@@ -31,7 +31,14 @@ struct TagFilterChip {
 
 class RoomTagsFilterView: UIView {
 
-    static let viewHeight: CGFloat = 48
+    static let chipVerticalPadding: CGFloat = PillShapeMetrics.verticalPadding
+    static let rowVerticalPadding: CGFloat = 8
+
+    // Adapts to the current dynamic type size of the chip title font
+    static var viewHeight: CGFloat {
+        let titleHeight = ceil(UIFont.preferredFont(forTextStyle: .headline).lineHeight)
+        return titleHeight + chipVerticalPadding * 2 + rowVerticalPadding * 2
+    }
 
     public var onChipSelected: ((String) -> Void)?
 
@@ -69,9 +76,9 @@ class RoomTagsFilterView: UIView {
 
             stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -16),
-            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 8),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -8),
-            stackView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor, constant: -16)
+            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: Self.rowVerticalPadding),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -Self.rowVerticalPadding),
+            stackView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor, constant: -(Self.rowVerticalPadding * 2))
         ])
     }
 
@@ -114,9 +121,12 @@ private class RoomTagChipControl: UIControl {
 
         self.chip = chip
         self.layer.masksToBounds = true
-        self.backgroundColor = selected ? NCAppBranding.themeColor() : .secondarySystemFill
+        // Same background as InfoLabelTableViewCell (e.g. pending invitations row)
+        self.backgroundColor = selected ? NCAppBranding.themeColor() : .secondarySystemBackground
 
-        titleLabel.font = .preferredFont(for: .subheadline, weight: .medium)
+        // Same font as the title in the conversation cells
+        titleLabel.font = .preferredFont(forTextStyle: .headline)
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.text = chip.title
         titleLabel.textColor = selected ? NCAppBranding.themeTextColor() : .label
 
@@ -128,7 +138,7 @@ private class RoomTagChipControl: UIControl {
 
         if let icon = chip.icon {
             let iconView = UIImageView(image: icon)
-            iconView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .subheadline, scale: .small)
+            iconView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .headline, scale: .small)
             iconView.tintColor = selected ? NCAppBranding.themeTextColor() : .label
             contentStackView.addArrangedSubview(iconView)
             contentStackView.setCustomSpacing(6, after: iconView)
@@ -177,10 +187,10 @@ private class RoomTagChipControl: UIControl {
 
         // With a badge, use a smaller trailing padding to compensate for
         // the badge's internal padding and its rounded shape
-        let trailingPadding: CGFloat = chip.unreadCount > 0 ? 6 : 12
+        let trailingPadding: CGFloat = chip.unreadCount > 0 ? PillShapeMetrics.horizontalPadding - 6 : PillShapeMetrics.horizontalPadding
 
         NSLayoutConstraint.activate([
-            contentStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
+            contentStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: PillShapeMetrics.horizontalPadding),
             contentStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -trailingPadding),
             contentStackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 2),
             contentStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2)
