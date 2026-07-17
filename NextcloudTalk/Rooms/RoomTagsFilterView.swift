@@ -41,6 +41,7 @@ class RoomTagsFilterView: UIView {
     }
 
     public var onChipSelected: ((String) -> Void)?
+    public var onChipLongPressed: (() -> Void)?
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
@@ -92,8 +93,16 @@ class RoomTagsFilterView: UIView {
             let chipControl = RoomTagChipControl(chip: chip, selected: chip.id == selectedChipId)
             chipControl.addTarget(self, action: #selector(chipTouchedDown(_:)), for: .touchDown)
             chipControl.addTarget(self, action: #selector(chipTapped(_:)), for: .touchUpInside)
+            chipControl.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(chipLongPressed(_:))))
             stackView.addArrangedSubview(chipControl)
         }
+    }
+
+    @objc private func chipLongPressed(_ recognizer: UILongPressGestureRecognizer) {
+        guard recognizer.state == .began else { return }
+
+        feedbackGenerator.selectionChanged()
+        onChipLongPressed?()
     }
 
     @objc private func chipTouchedDown(_ sender: RoomTagChipControl) {

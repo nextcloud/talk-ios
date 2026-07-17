@@ -7,6 +7,7 @@ import UIKit
 import AudioToolbox
 import Realm
 import NextcloudKit
+import SwiftUI
 
 @objc(RoomsTableViewController)
 class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UserStatusViewDelegate {
@@ -851,6 +852,11 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             filterView.onChipSelected = { [weak self] chipId in
                 self?.handleChipSelection(chipId)
             }
+            filterView.onChipLongPressed = { [weak self] in
+                guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags) else { return }
+
+                self?.presentTagsManagement()
+            }
             tagsFilterView = filterView
         }
 
@@ -935,6 +941,16 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         return chips
+    }
+
+    private func presentTagsAssignment(for room: NCRoom) {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        self.present(RoomTagsAssignmentView.viewController(for: room, withAccount: account), animated: true)
+    }
+
+    private func presentTagsManagement() {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        self.present(RoomTagsManagementView.viewController(forAccount: account), animated: true)
     }
 
     private func archivedChip() -> TagFilterChip {
@@ -1933,6 +1949,17 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         actions.append(favAction)
+
+        // Assign tags
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags) {
+            let tagsAction = UIAction(title: NSLocalizedString("Tags", comment: "'Tags' meaning 'Conversation tags'"), image: UIImage(systemName: "tag")) { [weak self] _ in
+                self?.contextMenuActionBlock = {
+                    self?.presentTagsAssignment(for: room)
+                }
+            }
+
+            actions.append(tagsAction)
+        }
 
         // Mark room as read/unread
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker) &&

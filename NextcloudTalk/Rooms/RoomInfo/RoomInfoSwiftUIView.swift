@@ -17,6 +17,10 @@ class HostingControllerWrapper {
     func presentViewController(_ vc: UIViewController, animated: Bool) {
         controller?.present(vc, animated: animated)
     }
+
+    func dismissViewController(animated: Bool) {
+        controller?.dismiss(animated: animated)
+    }
 }
 
 struct RoomInfoSwiftUIView: View {
@@ -32,6 +36,7 @@ struct RoomInfoSwiftUIView: View {
         ScrollViewReader { proxy in
             List {
                 RoomInfoHeaderSection(hostingWrapper: hostingWrapper, room: $room, profileInfo: $profileInfo)
+                RoomInfoTagsSection(hostingWrapper: hostingWrapper, room: $room)
 
                 RoomInfoFileSection(hostingWrapper: hostingWrapper, room: $room, quickLookUrl: $quickLookUrl)
                 RoomInfoSharedItemsSection(hostingWrapper: hostingWrapper, room: $room)

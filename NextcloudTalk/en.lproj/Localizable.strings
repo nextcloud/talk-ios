@@ -416,6 +416,9 @@
 "An error occurred while unpinning the message" = "An error occurred while unpinning the message";
 
 /* No comment provided by engineer. */
+"An error occurred, please try again" = "An error occurred, please try again";
+
+/* No comment provided by engineer. */
 "an hour" = "an hour";
 
 /* No comment provided by engineer. */
@@ -827,6 +830,9 @@
 "Could not start group conversation" = "Could not start group conversation";
 
 /* No comment provided by engineer. */
+"Could not update tags" = "Could not update tags";
+
+/* Create a new tag */
 "Create" = "Create";
 
 /* No comment provided by engineer. */
@@ -879,6 +885,9 @@
 
 /* Delete a conversation right now without waiting for auto-deletion */
 "Delete now" = "Delete now";
+
+/* No comment provided by engineer. */
+"Delete tag?" = "Delete tag?";
 
 /* No comment provided by engineer. */
 "Deleted user" = "Deleted user";
@@ -1456,6 +1465,9 @@
 /* No comment provided by engineer. */
 "Lower hand" = "Lower hand";
 
+/* No comment provided by engineer. */
+"Manage tags" = "Manage tags";
+
 /* TRANSLATORS this is used when no meeting start time is set and the meeting will be started manually */
 "Manual" = "Manual";
 
@@ -1624,6 +1636,9 @@
 
 /* No comment provided by engineer. */
 "New poll" = "New poll";
+
+/* Placeholder for the name of a new tag */
+"New tag" = "New tag";
 
 /* Remind me next week about that message */
 "Next week" = "Next week";
@@ -2003,6 +2018,9 @@
 /* No comment provided by engineer. */
 "Remove team and members" = "Remove team and members";
 
+/* No comment provided by engineer. */
+"Rename tag" = "Rename tag";
+
 /* Replacement in case of out of office */
 "Replacement" = "Replacement";
 
@@ -2292,6 +2310,9 @@
 "Submit vote" = "Submit vote";
 
 /* No comment provided by engineer. */
+"Swipe a tag to rename or delete it. Use edit to reorder the tags." = "Swipe a tag to rename or delete it. Use edit to reorder the tags.";
+
+/* No comment provided by engineer. */
 "Switch account" = "Switch account";
 
 /* No comment provided by engineer. */
@@ -2299,6 +2320,12 @@
 
 /* No comment provided by engineer. */
 "Synchronize to trusted servers and the global and public address book" = "Synchronize to trusted servers and the global and public address book";
+
+/* No comment provided by engineer. */
+"Tag name" = "Tag name";
+
+/* 'Tags' meaning 'Conversation tags' */
+"Tags" = "Tags";
 
 /* Talk to a user */
 "Talk to" = "Talk to";
@@ -2368,6 +2395,15 @@
 
 /* No comment provided by engineer. */
 "This summary is AI generated and may contain mistakes." = "This summary is AI generated and may contain mistakes.";
+
+/* No comment provided by engineer. */
+"This tag cannot be changed" = "This tag cannot be changed";
+
+/* No comment provided by engineer. */
+"This tag name is invalid or already in use" = "This tag name is invalid or already in use";
+
+/* No comment provided by engineer. */
+"This tag will be removed from all conversations it is assigned to." = "This tag will be removed from all conversations it is assigned to.";
 
 /* No comment provided by engineer. */
 "This usually indicates that this device was previously used for an account, which was not properly removed from the server." = "This usually indicates that this device was previously used for an account, which was not properly removed from the server.";
@@ -2641,6 +2677,9 @@
 
 /* No comment provided by engineer. */
 "You have no unread messages." = "You have no unread messages.";
+
+/* No comment provided by engineer. */
+"You have reached the maximum number of tags" = "You have reached the maximum number of tags";
 
 /* No comment provided by engineer. */
 "You joined the call" = "You joined the call";
