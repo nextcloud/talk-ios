@@ -41,9 +41,7 @@ class SampleBufferVideoRenderView: UIView, RTCVideoRenderer {
 
     private let displayView = DisplayLayerView()
     private var videoRotation = RTCVideoRotation._0
-
-    // The (rotated) size of the currently rendered video
-    public private(set) var videoSize: CGSize = .zero
+    private var videoSize: CGSize = .zero
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -232,10 +230,17 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
 
     private let avatarSize = 80.0
 
-    init() {
+    public static let defaultContentSize = CGSize(width: 1280, height: 720)
+
+    // The preferred content size must have its final value when the
+    // AVPictureInPictureController is created: AVKit determines the scale of the window
+    // from it well before the window is shown and ignores changes until Picture in
+    // Picture finished starting, so a change in between results in a wrongly scaled
+    // window on the very first start. Once started, size changes are applied fine
+    init(initialContentSize: CGSize = CallPiPViewController.defaultContentSize) {
         super.init(nibName: nil, bundle: nil)
 
-        self.preferredContentSize = CGSize(width: 1280, height: 720)
+        self.preferredContentSize = initialContentSize
 
         // Hide here instead of in viewDidLoad: when Picture in Picture starts for the first
         // time, the own video might be unhidden by the delegate before the view is loaded,
@@ -396,7 +401,7 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
     // The size is normalized to a fixed dimension, so the window size only depends on the
     // aspect ratio of the video and not on the resolution of the stream, which usually
     // starts low and adapts shortly after the stream was established
-    private static func normalizedContentSize(for videoSize: CGSize) -> CGSize? {
+    public static func normalizedContentSize(for videoSize: CGSize) -> CGSize? {
         guard videoSize.width > 0, videoSize.height > 0 else { return nil }
 
         let scale = 1280 / max(videoSize.width, videoSize.height)
@@ -407,7 +412,7 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
     // Sets the preferred content size of the Picture in Picture window from a video size.
     // Note that the window resize is performed by AVKit without an animation, there is
     // no API to influence that
-    public func setVideoContentSize(_ size: CGSize) {
+    private func setVideoContentSize(_ size: CGSize) {
         guard let normalizedSize = Self.normalizedContentSize(for: size),
               normalizedSize != self.preferredContentSize
         else { return }
@@ -415,13 +420,11 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
         self.preferredContentSize = normalizedSize
     }
 
-    // Re-assert the size of the currently rendered video: AVKit ignores changes to
-    // preferredContentSize while the Picture in Picture window is still animating in,
-    // so the setter needs to be called again even though the value did not change
-    public func reassertVideoContentSize() {
-        guard let normalizedSize = Self.normalizedContentSize(for: videoRenderView.videoSize) else { return }
-
-        self.preferredContentSize = normalizedSize
+    // Assigning an unchanged value on purpose: AVKit ignores size changes while the
+    // window is animating in, but reacts to the setter call once it is shown
+    public func reassertContentSize() {
+        let contentSize = self.preferredContentSize
+        self.preferredContentSize = contentSize
     }
 
     public func setVideoDisabled(_ disabled: Bool) {
@@ -443,6 +446,11 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
         avatarImageView.isHidden = false
         avatarImageView.setAvatar(for: room)
         displayNameLabel.text = room.displayName
+
+        // Without a video there's no size to follow, use the default window size
+        if self.preferredContentSize != Self.defaultContentSize {
+            self.preferredContentSize = Self.defaultContentSize
+        }
 
         self.setVideoDisabled(true)
     }

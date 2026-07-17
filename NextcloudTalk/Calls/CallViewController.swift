@@ -806,7 +806,17 @@ class CallViewController: UIViewController,
     func setupPictureInPicture() {
         guard !isAudioOnly, AVPictureInPictureController.isPictureInPictureSupported() else { return }
 
-        let pipViewController = CallPiPViewController()
+        self.createPictureInPicture(withInitialContentSize: CallPiPViewController.defaultContentSize)
+    }
+
+    private func createPictureInPicture(withInitialContentSize contentSize: CGSize) {
+        // The initial window scale is determined from the preferred content size the
+        // content view controller was created with (see CallPiPViewController.init),
+        // so both the view controller and the controller need to be recreated when the
+        // expected video size changes before Picture in Picture is started
+        self.pipController?.contentSource = nil
+
+        let pipViewController = CallPiPViewController(initialContentSize: contentSize)
         let contentSource = AVPictureInPictureController.ContentSource(activeVideoCallSourceView: self.collectionView, contentViewController: pipViewController)
         let pipController = AVPictureInPictureController(contentSource: contentSource)
 
@@ -843,17 +853,6 @@ class CallViewController: UIViewController,
         }
 
         return initialPromotedPeer()
-    }
-
-    private func seedPiPContentSize() {
-        guard let pipViewController, let pipPeerIdentifier,
-              let rendererView = videoRenderersDict[pipPeerIdentifier]
-        else { return }
-
-        // Size the Picture in Picture window based on the last known video size of the
-        // shown participant before the window is created. A size that is only reported
-        // while the window is animating in is not applied by AVKit
-        pipViewController.setVideoContentSize(rendererView.frame.size)
     }
 
     func promotePeerInPiP(_ peer: NCPeerConnection) {
@@ -2811,6 +2810,18 @@ class CallViewController: UIViewController,
 
                     participantCell.setRemoteVideoSize(size)
                 }
+
+                // Recreate Picture in Picture when the video size of the expected initial
+                // participant changes while it is not active, so the window has the correct
+                // scale and aspect on the very first start (see createPictureInPicture)
+                if !self.isPiPActive, UIApplication.shared.applicationState == .active,
+                   let pipViewController = self.pipViewController,
+                   self.initialPiPPeer()?.peerIdentifier == peerIdentifier,
+                   let expectedContentSize = CallPiPViewController.normalizedContentSize(for: size),
+                   expectedContentSize != pipViewController.preferredContentSize {
+
+                    self.createPictureInPicture(withInitialContentSize: expectedContentSize)
+                }
             }
 
             for (_, rendererView) in self.screenRenderersDict.filter({ $0.value == mtlVideoView }) {
@@ -3024,7 +3035,6 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
     func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         self.isPiPActive = true
         self.pipPeerIdentifier = self.initialPiPPeer()?.peerIdentifier
-        self.seedPiPContentSize()
         self.updatePiPContent()
         self.attachPiPLocalRendererIfNeeded()
     }
@@ -3038,11 +3048,9 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
             return
         }
 
-        guard let pipViewController else { return }
-
-        // A video size that was reported while the window was still animating in is
-        // ignored by AVKit, so apply the current size again now that the window is shown
-        pipViewController.reassertVideoContentSize()
+        // A size change that happened while the window was animating in was ignored
+        // by AVKit, so assert the current size again now that the window is shown
+        self.pipViewController?.reassertContentSize()
     }
 
     func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
