@@ -912,9 +912,9 @@ class CallViewController: UIViewController,
 
         guard let peer = peersInCall.first(where: { $0.peerIdentifier == pipPeerIdentifier }) else {
             if peersInCall.isEmpty {
-                // No other participant in the call, show the conversation name
+                // No other participant in the call, show the conversation avatar and name
                 self.detachPiPRenderer()
-                pipViewController.showPlaceholder(withDisplayName: self.room.displayName)
+                pipViewController.showPlaceholder(for: self.room)
             }
 
             // Otherwise the participant was not added to the collection view yet,

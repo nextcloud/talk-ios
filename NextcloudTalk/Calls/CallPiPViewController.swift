@@ -284,7 +284,6 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
         NCAppBranding.themeColor().getRed(&red, green: &green, blue: &blue, alpha: nil)
         placeholderView.backgroundColor = UIColor(red: red * 0.4, green: green * 0.4, blue: blue * 0.4, alpha: 1)
 
-        avatarImageView.layer.cornerRadius = avatarSize / 2
         avatarImageView.layer.masksToBounds = true
 
         displayNameLabel.textColor = .white
@@ -312,6 +311,11 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
         self.localVideoLandscapeSizeConstraint = localVideoLandscapeSizeConstraint
         self.localVideoPortraitSizeConstraint = localVideoPortraitSizeConstraint
 
+        // The avatar has a preferred fixed size, but shrinks when the window
+        // is too small to fit it (e.g. when it was resized by the user)
+        let avatarPreferredSizeConstraint = avatarImageView.heightAnchor.constraint(equalToConstant: avatarSize)
+        avatarPreferredSizeConstraint.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
             localVideoAspectConstraint,
             localVideoLandscapeSizeConstraint,
@@ -330,8 +334,10 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
 
             avatarImageView.centerXAnchor.constraint(equalTo: placeholderView.centerXAnchor),
             avatarImageView.centerYAnchor.constraint(equalTo: placeholderView.centerYAnchor, constant: -24),
-            avatarImageView.widthAnchor.constraint(equalToConstant: avatarSize),
-            avatarImageView.heightAnchor.constraint(equalToConstant: avatarSize),
+            avatarPreferredSizeConstraint,
+            avatarImageView.widthAnchor.constraint(equalTo: avatarImageView.heightAnchor),
+            avatarImageView.heightAnchor.constraint(lessThanOrEqualTo: placeholderView.heightAnchor, multiplier: 0.4),
+            avatarImageView.widthAnchor.constraint(lessThanOrEqualTo: placeholderView.widthAnchor, multiplier: 0.4),
 
             displayNameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 8),
             displayNameLabel.leadingAnchor.constraint(greaterThanOrEqualTo: placeholderView.leadingAnchor, constant: 8),
@@ -342,7 +348,14 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
         self.updateLocalVideoSizeConstraint()
+
+        // Keep the avatar round, also when it is scaled down in a small window.
+        // At this point the nested views did not adopt their new size yet,
+        // so force a layout of the placeholder before reading the avatar bounds
+        placeholderView.layoutIfNeeded()
+        avatarImageView.layer.cornerRadius = avatarImageView.bounds.height / 2
     }
 
     private func updateLocalVideoSizeConstraint() {
@@ -426,9 +439,10 @@ class CallPiPViewController: AVPictureInPictureVideoCallViewController {
         displayNameLabel.text = actor.displayName
     }
 
-    public func showPlaceholder(withDisplayName displayName: String?) {
-        avatarImageView.isHidden = true
-        displayNameLabel.text = displayName
+    public func showPlaceholder(for room: NCRoom) {
+        avatarImageView.isHidden = false
+        avatarImageView.setAvatar(for: room)
+        displayNameLabel.text = room.displayName
 
         self.setVideoDisabled(true)
     }
