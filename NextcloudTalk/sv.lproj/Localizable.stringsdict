@@ -13,9 +13,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld aktiv bott</string>
+			<string>%ld aktiv bot</string>
 			<key>other</key>
-			<string>%ld aktiva bottar</string>
+			<string>%ld aktiva botar</string>
 		</dict>
 	</dict>
 	<key>%d votes</key>
@@ -61,9 +61,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld deltagare i detta samtal</string>
+			<string>%ld deltagare i det här samtalet</string>
 			<key>other</key>
-			<string>%ld deltagare i detta samtal</string>
+			<string>%ld deltagare i det här samtalet</string>
 		</dict>
 	</dict>
 	<key>%d minutes ago</key>
@@ -141,7 +141,7 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>Du har %ld väntande inbjudning</string>
+			<string>Du har %ld väntande inbjudan</string>
 			<key>other</key>
 			<string>Du har %ld väntande inbjudningar</string>
 		</dict>
