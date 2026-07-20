@@ -389,13 +389,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         guard activeAccount.accountId == accountId else { return }
 
-        conversationTags = notification.userInfo?["tags"] as? [NCConversationTag] ?? []
-
-        // Clear the tag filter in case the filtered tag was deleted
-        if let activeTagFilterId, !conversationTags.contains(where: { $0.tagId == activeTagFilterId }) {
-            self.activeTagFilterId = nil
-        }
-
+        // The updated tags are already stored in the database, so refreshing the list picks them up
         refreshRoomList()
     }
 
@@ -443,7 +437,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         DispatchQueue.main.async {
             self.activeFilter = .all
             self.activeTagFilterId = nil
-            self.conversationTags = []
             self.refreshRoomList()
 
             // Setup the navigation bar here, otherwise it would only be updated
@@ -825,14 +818,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         let account = NCDatabaseManager.sharedInstance().activeAccount()
 
         guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags, forAccountId: account.accountId) else {
-            conversationTags = []
-            updateTagsFilterHeader()
             return
         }
-
-        // Show cached tags immediately, then revalidate from the server
-        conversationTags = NCDatabaseManager.sharedInstance().conversationTags(forAccountId: account.accountId)
-        updateTagsFilterHeader()
 
         // Revalidate from the server. The result is delivered through the NCConversationTagsUpdated notification
         NCAPIController.sharedInstance().getConversationTags(forAccount: account)
@@ -1153,7 +1140,14 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         allRooms = accountRooms
         rooms = accountRooms
 
-        // Update tags filter header (chips + unread counters)
+        // Conversation tags
+        conversationTags = NCDatabaseManager.sharedInstance().conversationTags(forAccountId: account.accountId)
+
+        // Clear the tag filter in case the filtered tag no longer exists
+        if let activeTagFilterId, !conversationTags.contains(where: { $0.tagId == activeTagFilterId }) {
+            self.activeTagFilterId = nil
+        }
+
         updateTagsFilterHeader()
 
         // Filter rooms
