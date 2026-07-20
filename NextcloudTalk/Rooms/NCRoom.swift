@@ -269,6 +269,22 @@ extension Array where Element == NCRoom {
         return self.unreadMention || self.unreadMentionDirect
     }
 
+    public var shouldBeHighlightedAsDirectMention: Bool {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag, forAccountId: self.accountId) {
+            return self.unreadMentionDirect || self.type == .oneToOne || self.type == .formerOneToOne
+        }
+
+        return self.unreadMention || self.type == .oneToOne || self.type == .formerOneToOne
+    }
+
+    public var shouldBeHighlightedAsGroupMention: Bool {
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag, forAccountId: self.accountId) else {
+            return false
+        }
+
+        return self.unreadMention && !self.unreadMentionDirect
+    }
+
     public var callRecordingIsInActiveState: Bool {
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.recordingV1) {
             // Starting states and running states are considered active

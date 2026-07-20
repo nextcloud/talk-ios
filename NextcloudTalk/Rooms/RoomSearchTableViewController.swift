@@ -265,14 +265,7 @@ class RoomSearchTableViewController: UITableViewController {
         }
 
         // Set unread messages
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
-            let mentioned = room.unreadMentionDirect || room.type == .oneToOne || room.type == .formerOneToOne
-            let groupMentioned = room.unreadMention && !room.unreadMentionDirect
-            cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: groupMentioned)
-        } else {
-            let mentioned = room.unreadMention || room.type == .oneToOne || room.type == .formerOneToOne
-            cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: false)
-        }
+        cell.setUnread(messages: room.unreadMessages, mentioned: room.shouldBeHighlightedAsDirectMention, groupMentioned: room.shouldBeHighlightedAsGroupMention)
 
         if room.unreadMessages > 0 {
             // When there are unread messages, we need to show the subtitle at the moment

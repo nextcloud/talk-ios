@@ -911,8 +911,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             chips.append(TagFilterChip(id: tag.tagId,
                                        title: title,
                                        unreadCount: unreadRooms.count,
-                                       mentioned: unreadRooms.contains { self.isRoomMentioned($0) },
-                                       groupMentioned: unreadRooms.contains { self.isRoomGroupMentioned($0) }))
+                                       mentioned: unreadRooms.contains { $0.shouldBeHighlightedAsDirectMention },
+                                       groupMentioned: unreadRooms.contains { $0.shouldBeHighlightedAsGroupMention }))
         }
 
         let account = NCDatabaseManager.sharedInstance().activeAccount()
@@ -1593,22 +1593,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         return (allRooms as NSArray).filtered(using: NSPredicate(format: "isArchived == YES")) as? [NCRoom] ?? []
     }
 
-    private func isRoomMentioned(_ room: NCRoom) -> Bool {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
-            return room.unreadMentionDirect || room.type == .oneToOne || room.type == .formerOneToOne
-        }
-
-        return room.unreadMention || room.type == .oneToOne || room.type == .formerOneToOne
-    }
-
-    private func isRoomGroupMentioned(_ room: NCRoom) -> Bool {
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
-            return room.unreadMention && !room.unreadMentionDirect
-        }
-
-        return false
-    }
-
     private func areArchivedRoomsWithUnreadMentions() -> Bool {
         return !(allRooms as NSArray).filtered(using: NSPredicate(format: "hasUnreadMention == YES AND isArchived == YES")).isEmpty
     }
@@ -1831,7 +1815,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         // Set unread messages
-        cell.setUnread(messages: room.unreadMessages, mentioned: isRoomMentioned(room), groupMentioned: isRoomGroupMentioned(room))
+        cell.setUnread(messages: room.unreadMessages, mentioned: room.shouldBeHighlightedAsDirectMention, groupMentioned: room.shouldBeHighlightedAsGroupMention)
 
         if room.unreadMessages > 0 {
             // When there are unread messages, we need to show the subtitle at the moment
