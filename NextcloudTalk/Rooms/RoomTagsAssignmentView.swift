@@ -21,6 +21,8 @@ struct RoomTagsAssignmentView: View {
         List {
             Section {
                 ForEach(customTags, id: \.tagId) { tag in
+                    let isAssigned = assignedTagIds.contains(tag.tagId)
+
                     Button(action: {
                         toggle(tag)
                     }, label: {
@@ -28,10 +30,8 @@ struct RoomTagsAssignmentView: View {
                             Text(tag.name)
                                 .foregroundColor(.primary)
                             Spacer()
-                            if assignedTagIds.contains(tag.tagId) {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(Color(NCAppBranding.elementColor()))
-                            }
+                            Image(systemName: isAssigned ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(isAssigned ? Color(NCAppBranding.elementColor()) : Color(.tertiaryLabel))
                         }
                     })
                 }
