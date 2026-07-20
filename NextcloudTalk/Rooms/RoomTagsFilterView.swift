@@ -32,7 +32,7 @@ struct TagFilterChip {
 class RoomTagsFilterView: UIView {
 
     static let chipVerticalPadding: CGFloat = PillShapeMetrics.verticalPadding
-    static let rowVerticalPadding: CGFloat = 8
+    static let rowVerticalPadding: CGFloat = 16
 
     // Adapts to the current dynamic type size of the chip title font
     static var viewHeight: CGFloat {
