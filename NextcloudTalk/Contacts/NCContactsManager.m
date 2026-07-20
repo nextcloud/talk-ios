@@ -121,7 +121,8 @@ NSString * const NCContactsManagerContactsAccessUpdatedNotification = @"NCContac
             if (managedABContact) {
                 [ABContact updateContact:managedABContact withContact:contact];
             } else {
-                [realm addObject:contact];
+                // Add a copy, so the passed objects stay unmanaged for the caller
+                [realm addObject:[[ABContact alloc] initWithValue:contact]];
             }
         }
         // Delete old contacts

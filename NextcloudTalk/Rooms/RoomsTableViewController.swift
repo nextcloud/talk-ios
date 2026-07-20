@@ -7,6 +7,7 @@ import UIKit
 import AudioToolbox
 import Realm
 import NextcloudKit
+import SwiftUI
 
 @objc(RoomsTableViewController)
 class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UserStatusViewDelegate {
@@ -20,8 +21,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
     private enum RoomsSection: Int, CaseIterable {
         case pendingFederationInvitation = 0
-        case threads
-        case archivedConversations
         case roomList
     }
 
@@ -52,6 +51,9 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     private var lastRoomWithMentionIndexPath: IndexPath?
     private var unreadMentionsBottomButton: UIButton!
     private var activeFilter: RoomsFilter = .all
+    private var conversationTags: [NCConversationTag] = []
+    private var activeTagFilterId: String?
+    private var tagsFilterView: RoomTagsFilterView?
 
     private var contextMenuActionBlock: (() -> Void)?
 
@@ -152,6 +154,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         notificationCenter.addObserver(self, selector: #selector(inviationDidAccept(_:)), name: .FederationInvitationDidAcceptNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(userThreadsUpdated(_:)), name: .NCUserThreadsUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(userHasThreadsUpdated(_:)), name: .NCUserHasThreadsFlagUpdated, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(conversationTagsUpdated(_:)), name: .NCConversationTagsUpdated, object: nil)
     }
 
     private func configureFilterButtonInToolbar() {
@@ -318,6 +321,10 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             setProfileButton()
             setupNavigationBar()
         }
+
+        if self.traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
+            updateTagsFilterHeader()
+        }
     }
 
     // MARK: - Notifications
@@ -376,6 +383,16 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
     }
 
+    @objc private func conversationTagsUpdated(_ notification: Notification) {
+        let accountId = notification.userInfo?["accountId"] as? String
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        guard activeAccount.accountId == accountId else { return }
+
+        // The updated tags are already stored in the database, so refreshing the list picks them up
+        refreshRoomList()
+    }
+
     @objc private func notificationWillBePresented(_ notification: Notification) {
         NCRoomsManager.shared.updateRoomsAndChats(updatingUserStatus: false, onlyLastModified: false, withCompletionBlock: nil)
         setUnreadMessageForInactiveAccountsIndicator()
@@ -392,6 +409,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     @objc private func appWillEnterForeground(_ notification: Notification) {
         if NCConnectionController.shared.appState == .ready {
             NCRoomsManager.shared.updateRoomsAndChats(updatingUserStatus: true, onlyLastModified: false, withCompletionBlock: nil)
+            refreshConversationTags()
             startRefreshRoomsTimer()
 
             DispatchQueue.main.async {
@@ -418,6 +436,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     @objc private func activeAccountDidChange(_ notification: Notification) {
         DispatchQueue.main.async {
             self.activeFilter = .all
+            self.activeTagFilterId = nil
             self.refreshRoomList()
 
             // Setup the navigation bar here, otherwise it would only be updated
@@ -476,6 +495,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     @objc private func refreshControlTarget() {
         NCRoomsManager.shared.updateRoomsAndChats(updatingUserStatus: true, onlyLastModified: false, withCompletionBlock: nil)
 
+        refreshConversationTags()
         updateUserStatus()
 
         // Actuate `Peek` feedback (weak boom)
@@ -755,7 +775,17 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             predicate = NSPredicate(format: "isVisible == YES AND isArchived == %@", NSNumber(value: showingArchivedRooms))
         }
 
-        return (allRooms as NSArray).filtered(using: predicate) as? [NCRoom] ?? []
+        var filteredRooms = (allRooms as NSArray).filtered(using: predicate) as? [NCRoom] ?? []
+
+        if !showingArchivedRooms, let activeTag = activeConversationTagFilter() {
+            if activeTag.type == NCConversationTagTypeFavorites {
+                filteredRooms = filteredRooms.filter(\.isFavorite)
+            } else {
+                filteredRooms = filteredRooms.filter { $0.tagIdList.contains(activeTag.tagId) }
+            }
+        }
+
+        return filteredRooms
     }
 
     private func filterRooms(_ rooms: [NCRoom], with searchString: String) -> [NCRoom] {
@@ -780,6 +810,151 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             resultTableViewController.showSearchingFooterView()
             searchForMessagesWithCurrentSearchTerm()
         }
+    }
+
+    // MARK: - Conversation tags filter
+
+    private func refreshConversationTags() {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags, forAccountId: account.accountId) else {
+            return
+        }
+
+        // Revalidate from the server. The result is delivered through the NCConversationTagsUpdated notification
+        NCAPIController.sharedInstance().getConversationTags(forAccount: account)
+    }
+
+    private func updateTagsFilterHeader() {
+        let chips = buildTagFilterChips()
+
+        // Only show the filter view when there is anything beyond the "All" chip
+        guard chips.count > 1 else {
+            self.tableView.tableHeaderView = nil
+            return
+        }
+
+        if tagsFilterView == nil {
+            let filterView = RoomTagsFilterView(frame: .zero)
+            filterView.onChipSelected = { [weak self] chipId in
+                self?.handleChipSelection(chipId)
+            }
+            filterView.onChipLongPressed = { [weak self] in
+                guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags) else { return }
+
+                self?.presentTagsManagement()
+            }
+            tagsFilterView = filterView
+        }
+
+        guard let tagsFilterView else { return }
+
+        tagsFilterView.update(chips: chips, selectedChipId: selectedChipId())
+
+        if self.tableView.tableHeaderView != tagsFilterView || tagsFilterView.frame.height != RoomTagsFilterView.viewHeight {
+            tagsFilterView.frame = CGRect(x: 0, y: 0, width: self.tableView.bounds.width, height: RoomTagsFilterView.viewHeight)
+            tagsFilterView.autoresizingMask = [.flexibleWidth]
+
+            // Reassign the header view, so the table view picks up the new height (e.g. after dynamic type changes)
+            self.tableView.tableHeaderView = tagsFilterView
+        }
+    }
+
+    private func selectedChipId() -> String {
+        if showingArchivedRooms {
+            return TagFilterChip.archivedChipId
+        }
+
+        return activeTagFilterId ?? TagFilterChip.allChipId
+    }
+
+    private func handleChipSelection(_ chipId: String) {
+        switch chipId {
+        case TagFilterChip.threadsChipId:
+            let threadsVC = ThreadsTableViewController(threads: self.threads)
+            let navigationController = NCNavigationController(rootViewController: threadsVC)
+            self.present(navigationController, animated: true)
+            return
+        case TagFilterChip.archivedChipId:
+            // Tapping the already selected archived chip returns to the conversation list
+            showingArchivedRooms = !showingArchivedRooms
+            activeTagFilterId = nil
+        case TagFilterChip.allChipId:
+            showingArchivedRooms = false
+            activeTagFilterId = nil
+        default:
+            // Tapping the already selected tag chip clears the tag filter
+            activeTagFilterId = (activeTagFilterId == chipId) ? nil : chipId
+            showingArchivedRooms = false
+        }
+
+        UIView.transition(with: self.tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
+            self.filterRooms()
+            self.updateMentionsIndicator()
+        }, completion: nil)
+
+        updateTagsFilterHeader()
+    }
+
+    private func buildTagFilterChips() -> [TagFilterChip] {
+        let allChipTitle = NSLocalizedString("All", comment: "'All' meaning 'All conversations', shown when no tag filter is applied in conversations list")
+        var chips = [TagFilterChip(id: TagFilterChip.allChipId, title: allChipTitle)]
+
+        let visibleRooms = allRooms.filter { $0.isVisible && !$0.isArchived }
+
+        for tag in conversationTags where tag.type != NCConversationTagTypeOther {
+            let isFavoritesTag = tag.type == NCConversationTagTypeFavorites
+            let taggedRooms = visibleRooms.filter { isFavoritesTag ? $0.isFavorite : $0.tagIdList.contains(tag.tagId) }
+            let unreadRooms = taggedRooms.filter { $0.unreadMessages > 0 }
+            let title = isFavoritesTag ? NSLocalizedString("Favorites", comment: "'Favorites' meaning 'Favorite conversations'") : tag.name
+
+            chips.append(TagFilterChip(id: tag.tagId,
+                                       title: title,
+                                       unreadCount: unreadRooms.count,
+                                       mentioned: unreadRooms.contains { $0.shouldBeHighlightedAsDirectMention },
+                                       groupMentioned: unreadRooms.contains { $0.shouldBeHighlightedAsGroupMention }))
+        }
+
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        if account.hasThreads || (threads?.count ?? 0) > 0 {
+            let threadsTitle = NSLocalizedString("Threads", comment: "")
+            chips.append(TagFilterChip(id: TagFilterChip.threadsChipId, title: threadsTitle, icon: UIImage(systemName: "bubble.left.and.bubble.right")))
+        }
+
+        // Keep the archived chip visible while showing archived conversations,
+        // even when the last conversation was unarchived
+        if !archivedRooms().isEmpty || showingArchivedRooms {
+            chips.append(archivedChip())
+        }
+
+        return chips
+    }
+
+    private func presentTagsAssignment(for room: NCRoom) {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        self.present(RoomTagsAssignmentView.viewController(for: room, withAccount: account), animated: true)
+    }
+
+    private func presentTagsManagement() {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        self.present(RoomTagsManagementView.viewController(forAccount: account), animated: true)
+    }
+
+    private func archivedChip() -> TagFilterChip {
+        let title = NSLocalizedString("Archived", comment: "'Archived' meaning 'Archived conversations'")
+
+        // No unread numbers for archived conversations, so they don't grab too much attention.
+        // Just show an indicator when there is an unread mention.
+        return TagFilterChip(id: TagFilterChip.archivedChipId,
+                             title: title,
+                             showsUnreadDot: areArchivedRoomsWithUnreadMentions(),
+                             icon: UIImage(systemName: "archivebox"))
+    }
+
+    private func activeConversationTagFilter() -> NCConversationTag? {
+        guard let activeTagFilterId else { return nil }
+
+        return conversationTags.first { $0.tagId == activeTagFilterId }
     }
 
     // MARK: - Rooms filter
@@ -965,6 +1140,16 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         allRooms = accountRooms
         rooms = accountRooms
 
+        // Conversation tags
+        conversationTags = NCDatabaseManager.sharedInstance().conversationTags(forAccountId: account.accountId)
+
+        // Clear the tag filter in case the filtered tag no longer exists
+        if let activeTagFilterId, !conversationTags.contains(where: { $0.tagId == activeTagFilterId }) {
+            self.activeTagFilterId = nil
+        }
+
+        updateTagsFilterHeader()
+
         // Filter rooms
         filterRooms()
 
@@ -985,7 +1170,14 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         roomsBackgroundView.loadingView.isHidden = true
 
         roomsBackgroundView.setImage(filterPlaceholderImage(activeFilter))
-        roomsBackgroundView.placeholderTextView.text = filterPlaceholderText(activeFilter)
+
+        // The attribute filter takes precedence, since removing it can be enough to get a non-empty list
+        if activeFilter == .all, activeConversationTagFilter() != nil {
+            roomsBackgroundView.placeholderTextView.text = NSLocalizedString("You have no conversations with this tag.", comment: "")
+        } else {
+            roomsBackgroundView.placeholderTextView.text = filterPlaceholderText(activeFilter)
+        }
+
         roomsBackgroundView.placeholderView.isHidden = !rooms.isEmpty
     }
 
@@ -1002,6 +1194,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             NCRoomsManager.shared.updateRooms(updatingUserStatus: isAppActive, onlyLastModified: false)
             updateUserStatus()
             getUserThreads()
+            refreshConversationTags()
             startRefreshRoomsTimer()
             setupNavigationBar()
         default:
@@ -1483,24 +1676,12 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             return account.pendingFederationInvitations > 0 ? 1 : 0
         }
 
-        if section == RoomsSection.archivedConversations.rawValue {
-            return (!archivedRooms().isEmpty || showingArchivedRooms) ? 1 : 0
-        }
-
-        if section == RoomsSection.threads.rawValue {
-            let account = NCDatabaseManager.sharedInstance().activeAccount()
-            return (account.hasThreads || (threads?.count ?? 0) > 0) ? 1 : 0
-        }
-
         return rooms.count
     }
 
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        if tableView == self.tableView &&
-            (indexPath.section == RoomsSection.pendingFederationInvitation.rawValue ||
-             indexPath.section == RoomsSection.archivedConversations.rawValue ||
-             indexPath.section == RoomsSection.threads.rawValue) {
-            // No swipe action for pending invitations or archived conversations
+        if tableView == self.tableView && indexPath.section == RoomsSection.pendingFederationInvitation.rawValue {
+            // No swipe action for pending invitations
             return nil
         }
 
@@ -1531,11 +1712,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     }
 
     override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        if tableView == self.tableView &&
-            (indexPath.section == RoomsSection.pendingFederationInvitation.rawValue ||
-             indexPath.section == RoomsSection.archivedConversations.rawValue ||
-             indexPath.section == RoomsSection.threads.rawValue) {
-            // No swipe action for pending invitations or archived conversations
+        if tableView == self.tableView && indexPath.section == RoomsSection.pendingFederationInvitation.rawValue {
+            // No swipe action for pending invitations
             return nil
         }
 
@@ -1609,59 +1787,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             return cell
         }
 
-        if indexPath.section == RoomsSection.archivedConversations.rawValue {
-            let cell = tableView.dequeueReusableCell(withIdentifier: InfoLabelTableViewCell.identifier) as? InfoLabelTableViewCell ?? InfoLabelTableViewCell(style: .default, reuseIdentifier: InfoLabelTableViewCell.identifier)
-
-            let actionString = showingArchivedRooms ? NSLocalizedString("Back to conversations", comment: "") : NSLocalizedString("Archived conversations", comment: "")
-            let iconName = showingArchivedRooms ? "arrow.left" : "archivebox"
-            let resultFont = UIFont.preferredFont(forTextStyle: .headline)
-
-            let attachment = NSTextAttachment()
-            attachment.image = UIImage(systemName: iconName)?.withRenderingMode(.alwaysTemplate)
-            attachment.bounds = CGRect(x: 0, y: CGFloat(roundf(Float(resultFont.capHeight) - 20)) / 2, width: 24, height: 20)
-
-            let resultString = NSMutableAttributedString(attributedString: NSAttributedString(attachment: attachment))
-            resultString.append(NSAttributedString(string: "  "))
-            resultString.append(NSAttributedString(string: actionString))
-
-            let range = NSRange(location: 0, length: resultString.length)
-            resultString.addAttribute(.font, value: UIFont.preferredFont(forTextStyle: .headline), range: range)
-
-            if !showingArchivedRooms && areArchivedRoomsWithUnreadMentions() {
-                let mentionAttachment = NSTextAttachment()
-                mentionAttachment.image = UIImage(systemName: "circle.fill")?.withTintColor(NCAppBranding.elementColor(), renderingMode: .alwaysTemplate)
-                mentionAttachment.bounds = CGRect(x: 0, y: CGFloat(roundf(Float(resultFont.capHeight) - 20)) / 2, width: 20, height: 20)
-
-                resultString.append(NSAttributedString(string: "  "))
-                resultString.append(NSAttributedString(attachment: mentionAttachment))
-            }
-
-            cell.label.attributedText = resultString
-
-            return cell
-        }
-
-        if indexPath.section == RoomsSection.threads.rawValue {
-            let cell = tableView.dequeueReusableCell(withIdentifier: InfoLabelTableViewCell.identifier) as? InfoLabelTableViewCell ?? InfoLabelTableViewCell(style: .default, reuseIdentifier: InfoLabelTableViewCell.identifier)
-
-            let resultFont = UIFont.preferredFont(forTextStyle: .headline)
-            let attachment = NSTextAttachment()
-            attachment.image = UIImage(systemName: "bubble.left.and.bubble.right")?.withRenderingMode(.alwaysTemplate)
-            attachment.bounds = CGRect(x: 0, y: CGFloat(roundf(Float(resultFont.capHeight) - 20)) / 2, width: 24, height: 20)
-
-            let resultString = NSMutableAttributedString(attributedString: NSAttributedString(attachment: attachment))
-            resultString.append(NSAttributedString(string: "  "))
-            resultString.append(NSAttributedString(string: NSLocalizedString("Threads", comment: "")))
-
-            let range = NSRange(location: 0, length: resultString.length)
-            resultString.addAttribute(.font, value: UIFont.preferredFont(forTextStyle: .headline), range: range)
-
-            cell.label.attributedText = resultString
-            cell.separatorInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: .greatestFiniteMagnitude)
-
-            return cell
-        }
-
         let cell = tableView.dequeueReusableCell(withIdentifier: RoomTableViewCell.identifier) as? RoomTableViewCell ?? RoomTableViewCell(style: .default, reuseIdentifier: RoomTableViewCell.identifier)
 
         cell.backgroundColor = .clear
@@ -1690,14 +1815,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         // Set unread messages
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.directMentionFlag) {
-            let mentioned = room.unreadMentionDirect || room.type == .oneToOne || room.type == .formerOneToOne
-            let groupMentioned = room.unreadMention && !room.unreadMentionDirect
-            cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: groupMentioned)
-        } else {
-            let mentioned = room.unreadMention || room.type == .oneToOne || room.type == .formerOneToOne
-            cell.setUnread(messages: room.unreadMessages, mentioned: mentioned, groupMentioned: false)
-        }
+        cell.setUnread(messages: room.unreadMessages, mentioned: room.shouldBeHighlightedAsDirectMention, groupMentioned: room.shouldBeHighlightedAsGroupMention)
 
         if room.unreadMessages > 0 {
             // When there are unread messages, we need to show the subtitle at the moment
@@ -1732,9 +1850,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
     override func tableView(_ tableView: UITableView, willDisplay rcell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if tableView != self.tableView ||
-            indexPath.section == RoomsSection.pendingFederationInvitation.rawValue ||
-            indexPath.section == RoomsSection.archivedConversations.rawValue ||
-            indexPath.section == RoomsSection.threads.rawValue {
+            indexPath.section == RoomsSection.pendingFederationInvitation.rawValue {
             return
         }
 
@@ -1768,24 +1884,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             return
         }
 
-        if tableView == self.tableView && indexPath.section == RoomsSection.archivedConversations.rawValue {
-            showingArchivedRooms = !showingArchivedRooms
-            UIView.transition(with: self.tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
-                self.filterRooms()
-                self.updateMentionsIndicator()
-            }, completion: nil)
-            return
-        }
-
-        if tableView == self.tableView && indexPath.section == RoomsSection.threads.rawValue {
-            UIView.transition(with: self.tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
-                let threadsVC = ThreadsTableViewController(threads: self.threads)
-                let navigationController = NCNavigationController(rootViewController: threadsVC)
-                self.present(navigationController, animated: true)
-            }, completion: nil)
-            return
-        }
-
         if tableView == resultTableViewController.tableView {
             // Messages
             if let message = resultTableViewController.message(for: indexPath) {
@@ -1808,9 +1906,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     // swiftlint:disable:next cyclomatic_complexity
     override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         if tableView != self.tableView ||
-            indexPath.section == RoomsSection.pendingFederationInvitation.rawValue ||
-            indexPath.section == RoomsSection.archivedConversations.rawValue ||
-            indexPath.section == RoomsSection.threads.rawValue {
+            indexPath.section == RoomsSection.pendingFederationInvitation.rawValue {
             return nil
         }
 
@@ -1831,6 +1927,17 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         actions.append(favAction)
+
+        // Assign tags
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags) {
+            let tagsAction = UIAction(title: NSLocalizedString("Tags", comment: "'Tags' meaning 'Conversation tags'"), image: UIImage(systemName: "tag")) { [weak self] _ in
+                self?.contextMenuActionBlock = {
+                    self?.presentTagsAssignment(for: room)
+                }
+            }
+
+            actions.append(tagsAction)
+        }
 
         // Mark room as read/unread
         if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker) &&

@@ -143,7 +143,8 @@
             if (managedThread) {
                 [self updateThread:managedThread withThread:thread];
             } else {
-                [realm addObject:thread];
+                // Add a copy, so the passed objects stay unmanaged for the caller
+                [realm addObject:[[NCThread alloc] initWithValue:thread]];
             }
         }
     }];

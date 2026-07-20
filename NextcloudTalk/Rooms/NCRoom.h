@@ -77,6 +77,7 @@ extern NSString * const NCRoomObjectTypeExtendedConversation;
 @property (nonatomic, assign) NSInteger hiddenPinnedId;
 @property (nonatomic, assign) BOOL hasScheduledMessages;
 @property (nonatomic, assign) NCRoomAttribute attributes;
+@property RLMArray<RLMString> *tagIds;
 
 + (instancetype _Nullable)roomWithDictionary:(NSDictionary * _Nullable)roomDict andAccountId:(NSString * _Nullable)accountId;
 
