@@ -12,6 +12,8 @@ import MetalKit
 
 @objc protocol NCCameraControllerDelegate {
     @objc func didDrawFirstFrameOnLocalView()
+    @objc func cameraSessionWasInterrupted()
+    @objc func cameraSessionInterruptionEnded()
 }
 
 @objcMembers
@@ -71,6 +73,9 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         initAVCaptureSession()
 
         NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChangeNotification), name: UIDevice.orientationDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(sessionWasInterrupted(notification:)), name: AVCaptureSession.wasInterruptedNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(sessionInterruptionEnded(notification:)), name: AVCaptureSession.interruptionEndedNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(sessionRuntimeError(notification:)), name: AVCaptureSession.runtimeErrorNotification, object: nil)
         self.updateVideoRotationBasedOnDeviceOrientation()
     }
 
@@ -206,6 +211,12 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
             self.session?.sessionPreset = .inputPriority
 
+            // Keep the camera running while the app is in the background during
+            // Picture in Picture on devices that support multitasking camera access
+            if self.session?.isMultitaskingCameraAccessSupported ?? false {
+                self.session?.isMultitaskingCameraAccessEnabled = true
+            }
+
             if let input = self.usingFrontCamera ? self.getFrontCameraInput() : self.getBackCameraInput() {
                 self.session?.addInput(input)
             }
@@ -222,6 +233,14 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     public func stopAVCaptureSession() {
         self.session?.stopRunning()
+    }
+
+    public func isMultitaskingCameraAccessEnabled() -> Bool {
+        return session?.isMultitaskingCameraAccessEnabled ?? false
+    }
+
+    public func isUsingFrontCamera() -> Bool {
+        return usingFrontCamera
     }
 
     // MARK: - Public switches
@@ -388,6 +407,47 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     }
 
     // MARK: - Notifications
+
+    func sessionWasInterrupted(notification: Notification) {
+        guard let session = notification.object as? AVCaptureSession, session === self.session else { return }
+
+        // The system interrupts the capture session when the camera is not available
+        // anymore, e.g. when the Picture in Picture window is stashed to the side of
+        // the screen while using the camera in the background
+        if let reason = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? Int {
+            print("Capture session was interrupted, reason \(reason)")
+        }
+
+        delegate?.cameraSessionWasInterrupted()
+    }
+
+    func sessionInterruptionEnded(notification: Notification) {
+        guard let session = notification.object as? AVCaptureSession, session === self.session else { return }
+
+        print("Capture session interruption ended")
+
+        // The session should resume on its own when the interruption ended,
+        // but make sure it is really running again
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let session = self?.session, !session.isRunning else { return }
+
+            session.startRunning()
+        }
+
+        delegate?.cameraSessionInterruptionEnded()
+    }
+
+    func sessionRuntimeError(notification: Notification) {
+        guard let session = notification.object as? AVCaptureSession, session === self.session else { return }
+
+        let error = notification.userInfo?[AVCaptureSessionErrorKey] as? NSError
+        print("Capture session runtime error: \(String(describing: error))")
+
+        // Try to restart the session after a runtime error
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            self?.session?.startRunning()
+        }
+    }
 
     func deviceOrientationDidChangeNotification() {
         let currentOrientation = UIDevice.current.orientation

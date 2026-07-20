@@ -11,7 +11,8 @@ import WebRTC
 
 /// Video capturer for the simulator, where no camera is available.
 /// Generates a test pattern (color slowly cycling through the hue spectrum),
-/// so video can still be debugged on the simulator.
+/// so video can still be debugged on the simulator. The frames are rotated
+/// based on the simulated device orientation, like a real camera would do.
 class SimulatorVideoCapturer: RTCVideoCapturer {
 
     private static let frameWidth = 640
@@ -24,12 +25,20 @@ class SimulatorVideoCapturer: RTCVideoCapturer {
     private let captureQueue = DispatchQueue(label: "simulatorvideocapturer")
     private var timer: DispatchSourceTimer?
     private var frameNumber = 0
+    private var videoRotation = RTCVideoRotation._90
 
     deinit {
         timer?.cancel()
+        NotificationCenter.default.removeObserver(self)
     }
 
     public func startCapture() {
+        DispatchQueue.main.async {
+            // Orientation notifications are already generated app-wide, see AppDelegate
+            NotificationCenter.default.addObserver(self, selector: #selector(self.deviceOrientationDidChangeNotification), name: UIDevice.orientationDidChangeNotification, object: nil)
+            self.updateVideoRotation()
+        }
+
         captureQueue.async {
             guard self.timer == nil else { return }
 
@@ -41,6 +50,32 @@ class SimulatorVideoCapturer: RTCVideoCapturer {
             timer.activate()
 
             self.timer = timer
+        }
+    }
+
+    @objc private func deviceOrientationDidChangeNotification() {
+        self.updateVideoRotation()
+    }
+
+    private func updateVideoRotation() {
+        let rotation: RTCVideoRotation
+
+        switch UIDevice.current.orientation {
+        case .portrait:
+            rotation = ._90
+        case .portraitUpsideDown:
+            rotation = ._270
+        case .landscapeLeft:
+            rotation = ._0
+        case .landscapeRight:
+            rotation = ._180
+        default:
+            // Keep the current rotation for face up/down and unknown orientations
+            return
+        }
+
+        captureQueue.async {
+            self.videoRotation = rotation
         }
     }
 
@@ -63,7 +98,7 @@ class SimulatorVideoCapturer: RTCVideoCapturer {
 
         let timeStampNs = CACurrentMediaTime() * Float64(NSEC_PER_SEC)
         let rtcPixelBuffer = RTCCVPixelBuffer(pixelBuffer: pixelBuffer)
-        let videoFrame = RTCVideoFrame(buffer: rtcPixelBuffer, rotation: ._0, timeStampNs: Int64(timeStampNs))
+        let videoFrame = RTCVideoFrame(buffer: rtcPixelBuffer, rotation: videoRotation, timeStampNs: Int64(timeStampNs))
 
         self.delegate?.capturer(self, didCapture: videoFrame)
     }

@@ -116,6 +116,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private var localVideoTrack: RTCVideoTrack?
     private var localScreenTrack: RTCVideoTrack?
     private var localVideoCaptureController: ARDCaptureController?
+    private var videoDisabledDueToInterruption = false
 
     private let screensharingController = NCScreensharingController()
 
@@ -571,6 +572,31 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             if let error {
                 NCLog.log("Could not update call flags. Error: \(error)")
             }
+        }
+    }
+    
+    public func isUsingFrontCamera() -> Bool {
+        return self.cameraController?.isUsingFrontCamera() ?? false
+    }
+
+    public func isCameraUsableWhileInBackground() -> Bool {
+        #if targetEnvironment(simulator)
+        // The generated test pattern keeps running while the app is in the background
+        return self.simulatorVideoCapturer != nil
+        #else
+        return self.cameraController?.isMultitaskingCameraAccessEnabled() ?? false
+        #endif
+    }
+
+    public func attachRenderer(toLocalVideoTrack renderer: RTCVideoRenderer) {
+        WebRTCCommon.shared.dispatch {
+            self.localVideoTrack?.add(renderer)
+        }
+    }
+
+    public func detachRenderer(fromLocalVideoTrack renderer: RTCVideoRenderer) {
+        WebRTCCommon.shared.dispatch {
+            self.localVideoTrack?.remove(renderer)
         }
     }
 
@@ -1469,6 +1495,30 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     func didDrawFirstFrameOnLocalView() {
         self.delegate?.callControllerDidDrawFirstLocalFrame(self)
+    }
+
+    func cameraSessionWasInterrupted() {
+        WebRTCCommon.shared.dispatch {
+            // When the capture session gets interrupted (e.g. while the Picture in Picture
+            // window is stashed to the side of the screen), let the other participants
+            // know that there's no video, so they show the avatar instead of a frozen frame
+            guard self.isVideoEnabled() else { return }
+
+            self.videoDisabledDueToInterruption = true
+            self.localVideoTrack?.isEnabled = false
+            self.sendMessageToAll(ofType: "videoOff", withPayload: nil)
+        }
+    }
+
+    func cameraSessionInterruptionEnded() {
+        WebRTCCommon.shared.dispatch {
+            // Only enable the video again if it was disabled because of the interruption
+            guard self.videoDisabledDueToInterruption else { return }
+
+            self.videoDisabledDueToInterruption = false
+            self.localVideoTrack?.isEnabled = true
+            self.sendMessageToAll(ofType: "videoOn", withPayload: nil)
+        }
     }
 
     // MARK: - NCPeerConnection delegate
