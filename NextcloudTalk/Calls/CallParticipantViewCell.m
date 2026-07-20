@@ -5,6 +5,7 @@
 
 #import "CallParticipantViewCell.h"
 
+#import "NCAppBranding.h"
 #import "TalkAccount.h"
 
 #import "NextcloudTalk-Swift.h"
@@ -46,7 +47,10 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 
     self.layer.cornerRadius = 22.0f;
     [self.layer setMasksToBounds:YES];
-    
+
+    // Fixed gray background instead of a username based color (see nextcloud/spreed#17047)
+    [self setBackgroundColor:[NCAppBranding getDynamicColor:UIColor.systemGrayColor withDarkMode:UIColor.systemGray3Color]];
+
     _showOriginalSize = NO;
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleZoom)];
     [tapGestureRecognizer setNumberOfTapsRequired:2];
@@ -114,14 +118,6 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 
 - (void)setAvatarForActor:(TalkActor * _Nullable)actor
 {
-    if (actor.id == nil || actor.id.length == 0) {
-        [self setBackgroundColor:[UIColor colorWithWhite:0.5 alpha:1]];
-    } else if (actor.displayName && actor.displayName.length > 0) {
-        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:actor.displayName]];
-    } else {
-        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:actor.id]];
-    }
-
     TalkAccount *activeAccount = [[NCDatabaseManager sharedInstance] activeAccount];
     [self.peerAvatarImageView setActorAvatarForId:actor.id withType:actor.type withDisplayName:actor.displayName withRoomToken:nil using:activeAccount];
 }
@@ -139,7 +135,6 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = self->_displayName;
-        [self setBackgroundColor:[[ColorGenerator shared] usernameToColor:self->_displayName]];
     });
 }
 
