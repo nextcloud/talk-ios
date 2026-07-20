@@ -39,7 +39,7 @@ struct RoomTagsAssignmentView: View {
                 // Create a new tag and directly assign it to this conversation
                 HStack {
                     TextField(NSLocalizedString("New tag", comment: "Placeholder for the name of a new tag"), text: $newTagName)
-                    Button(NSLocalizedString("Create", comment: "Create a new tag")) {
+                    Button(NSLocalizedString("Create", comment: "Generic 'Create' button label (e.g. new conversation, new tag)")) {
                         createAndAssignTag()
                     }
                     .disabled(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

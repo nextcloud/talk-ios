@@ -832,7 +832,7 @@
 /* No comment provided by engineer. */
 "Could not update tags" = "Could not update tags";
 
-/* Create a new tag */
+/* Generic 'Create' button label (e.g. new conversation, new tag) */
 "Create" = "Create";
 
 /* No comment provided by engineer. */
