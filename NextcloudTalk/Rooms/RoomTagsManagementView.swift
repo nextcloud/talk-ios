@@ -24,6 +24,8 @@ struct RoomTagsManagementView: View {
     let account: TalkAccount
     let hostingWrapper: HostingControllerWrapper
 
+    @Environment(\.editMode) private var editMode
+
     @State private var tags: [NCConversationTag] = []
     @State private var newTagName = ""
     @State private var errorMessage: String?
@@ -69,19 +71,20 @@ struct RoomTagsManagementView: View {
                     }
                 }
                 .onMove(perform: move)
+
+                // Shown as the last row of the tags section while editing
+                if editMode?.wrappedValue.isEditing == true {
+                    HStack {
+                        TextField(NSLocalizedString("New tag", comment: "Placeholder for the name of a new tag"), text: $newTagName)
+                        Button(NSLocalizedString("Create", comment: "Generic 'Create' button label (e.g. new conversation, new tag)")) {
+                            createTag()
+                        }
+                        .disabled(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
             } footer: {
                 if !tags.isEmpty {
                     Text("Swipe a tag to rename or delete it. Use edit to reorder the tags.")
-                }
-            }
-
-            Section {
-                HStack {
-                    TextField(NSLocalizedString("New tag", comment: "Placeholder for the name of a new tag"), text: $newTagName)
-                    Button(NSLocalizedString("Create", comment: "Generic 'Create' button label (e.g. new conversation, new tag)")) {
-                        createTag()
-                    }
-                    .disabled(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
         }
