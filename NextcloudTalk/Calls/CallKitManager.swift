@@ -319,6 +319,12 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         self.provider.reportCall(with: uuid, updated: update)
     }
 
+    public func changeHasVideo(_ hasVideo: Bool, forCall token: String) {
+        guard let call = self.call(forToken: token) else { return }
+
+        self.updateCall(call, hasVideo: hasVideo)
+    }
+
     private func stopHangUpTimer(forCallUUID uuid: UUID) {
         if let hangUpTimer = self.hangUpTimers[uuid] {
             hangUpTimer.invalidate()

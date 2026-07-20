@@ -176,10 +176,13 @@ public class NCPeerConnection: NSObject {
         WebRTCCommon.shared.assertQueue()
 
         // Create data channel before creating the offer to enable data channels
-        let config = RTCDataChannelConfiguration()
-        config.isNegotiated = false
-        localDataChannel = peerConnection?.dataChannel(forLabel: "status", configuration: config)
-        localDataChannel?.delegate = self
+        // Skip if it already exists, when sending a renegotiation offer on an established connection
+        if localDataChannel == nil {
+            let config = RTCDataChannelConfiguration()
+            config.isNegotiated = false
+            localDataChannel = peerConnection?.dataChannel(forLabel: "status", configuration: config)
+            localDataChannel?.delegate = self
+        }
 
         // Create offer
         peerConnection?.offer(for: constraints) { [weak self] sdp, error in
@@ -245,6 +248,14 @@ public class NCPeerConnection: NSObject {
     func getPeerConnection() -> RTCPeerConnection? {
         WebRTCCommon.shared.assertQueue()
         return peerConnection
+    }
+
+    func isConnectionFailed() -> Bool {
+        WebRTCCommon.shared.assertQueue()
+
+        guard let peerConnection else { return false }
+
+        return peerConnection.iceConnectionState == .failed || peerConnection.connectionState == .failed
     }
 
     func getLocalDataChannel() -> RTCDataChannel? {
@@ -353,17 +364,27 @@ public class NCPeerConnection: NSObject {
         // If we just set a remote offer we need to create an answer and set it as local description.
         if peerConnection?.signalingState == .haveRemoteOffer {
             // Create data channel before sending answer
-            let config = RTCDataChannelConfiguration()
-            config.isNegotiated = false
-            localDataChannel = peerConnection?.dataChannel(forLabel: "status", configuration: config)
-            localDataChannel?.delegate = self
+            // Skip if it already exists, when answering a renegotiation offer on an established connection
+            if localDataChannel == nil {
+                let config = RTCDataChannelConfiguration()
+                config.isNegotiated = false
+                localDataChannel = peerConnection?.dataChannel(forLabel: "status", configuration: config)
+                localDataChannel?.delegate = self
+            }
 
-            // Stop video transceiver in audio only peer connections
+            // Decline to receive video in audio only peer connections by setting the video transceivers
+            // to "inactive". The m-line needs to stay negotiated (so it must not be rejected by stopping
+            // the transceiver), otherwise it can not be activated again when the call is upgraded to a
+            // video call later. Reactivating an "inactive" transceiver is the only kind of renegotiation
+            // that is known to work with the MCU (it is what the web client does to block remote videos).
             // Constraints are no longer supported when creating answers (with Unified Plan semantics)
-            if isAudioOnly {
-                for transceiver in peerConnection?.transceivers ?? [] where transceiver.mediaType == .video {
-                    transceiver.stopInternal()
-                    NSLog("Stop video transceiver in audio only peer connections.")
+            for transceiver in peerConnection?.transceivers ?? [] where transceiver.mediaType == .video {
+                if isAudioOnly, transceiver.direction != .inactive {
+                    NSLog("Set video transceiver to inactive in audio only peer connection.")
+                    transceiver.setDirection(.inactive, error: nil)
+                } else if !isAudioOnly, transceiver.direction == .inactive {
+                    NSLog("Reactivate inactive video transceiver to receive video again.")
+                    transceiver.setDirection(.recvOnly, error: nil)
                 }
             }
 
@@ -517,7 +538,10 @@ extension NCPeerConnection: RTCPeerConnectionDelegate {
     }
 
     public func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
-        NSLog("WARNING: Renegotiation needed but unimplemented.")
+        // Client initiated renegotiation is not supported. Offers are created explicitly and
+        // tracks are only added to or removed from already negotiated m-lines (replaceTrack),
+        // which does not require a renegotiation.
+        NSLog("Negotiation needed for peer '%@' -> ignoring", peerId)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {

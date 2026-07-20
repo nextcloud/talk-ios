@@ -1925,6 +1925,19 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @discardableResult
+    public func updateCallFlags(inRoom token: String, withCallFlags flags: CallFlag, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { return nil }
+
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)", withAPIType: .call, forAccount: account)
+
+        return apiSessionManager.putOcs(urlString, account: account, parameters: ["flags": flags.rawValue]) { _, ocsError in
+            completionBlock(ocsError)
+        }
+    }
+
+    @discardableResult
     public func leaveCall(inRoom token: String, forAllParticipants allParticipants: Bool, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
