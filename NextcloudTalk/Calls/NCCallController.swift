@@ -407,10 +407,20 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     public func leaveCallInServer(forAll allParticipants: Bool, withCompletionBlock completionBlock: @escaping (_ error: OcsError?) -> Void) {
         if self.userInCall > 0 {
+            NCLog.log("Leave call in server for token \(self.room.token) (userInCall \(self.userInCall), forAll \(allParticipants), sessionId \(self.signalingSessionId))")
+
             NCAPIController.shared.leaveCall(inRoom: self.room.token, forAllParticipants: allParticipants, forAccount: self.account) { error in
+                if let error {
+                    NCLog.log("Leave call in server failed for token \(self.room.token). StatusCode \(error.responseStatusCode), errorKey \(error.errorKey ?? "(nil)")")
+                } else {
+                    NCLog.log("Leave call in server succeeded for token \(self.room.token)")
+                }
+
                 completionBlock(error)
             }
         } else {
+            NCLog.log("Skipping leave call in server for token \(self.room.token) because userInCall is \(self.userInCall) (sessionId \(self.signalingSessionId))")
+
             completionBlock(nil)
         }
     }
@@ -808,6 +818,11 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
                 } else if peerConnectionWrapper.roomType == kRoomTypeScreen {
                     self.delegate?.callController(self, didReceiveUnshareScreenFromPeer: peerConnectionWrapper)
                 }
+            } else {
+                // Log the teardown of our own publisher(s) so we can tell whether the MCU feed was
+                // closed cleanly on hangup (a lingering feed makes other participants keep trying to connect).
+                let connectionState = peerConnectionWrapper.getPeerConnection()?.connectionState.rawValue ?? -1
+                NCLog.log("Closing MCU publisher peer connection (roomType \(peerConnectionWrapper.roomType ?? "(nil)"), connectionState \(connectionState)) for token \(self.room.token)")
             }
 
             peerConnectionWrapper.delegate = nil
