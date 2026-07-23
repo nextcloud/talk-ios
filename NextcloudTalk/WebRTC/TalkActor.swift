@@ -80,42 +80,28 @@ import SwiftyAttributes
     // MARK: - First name parsing
 
     /// Suffixes and post-nominal credentials that may follow a comma in a display name
-    /// (e.g. "Martin Luther King, Jr." or "Mary Williams, BSN").
-    /// Based on https://github.com/joshfraser/JavaScript-Name-Parser
-    private static let suffixPattern = try! NSRegularExpression(
-        pattern: "^(?:"
-               + "i{1,3}|iv|v|senior|junior|jr|sr" // generational
-               + "|phd|apr|rph|pe|md|ma|msc|bsc|ba|bs|dmd|cme|bsn|mba" // academic / professional
-               + "|ceo|cto|cfo|coo" // job titles
-               + ")$",
-        options: [.caseInsensitive])
+    /// (e.g. "Martin Luther King, Jr." or "Mary Williams, BSN"): generational, academic /
+    /// professional and job titles. Based on https://github.com/joshfraser/JavaScript-Name-Parser
+    private static let suffixPattern = /(?:i{1,3}|iv|v|senior|junior|jr|sr|phd|apr|rph|pe|md|ma|msc|bsc|ba|bs|dmd|cme|bsn|mba|ceo|cto|cfo|coo)/.ignoresCase()
 
     /// Salutations / honorific prefixes that may precede a given name (e.g. "Dr. Jane Smith").
-    private static let salutationPattern = try! NSRegularExpression(
-        pattern: "^(?:mr|mrs|ms|miss|master|mister|dr|rev|fr|prof|herr|frau|mme|mlle|me|pr)$",
-        options: [.caseInsensitive])
+    private static let salutationPattern = /(?:mr|mrs|ms|miss|master|mister|dr|rev|fr|prof|herr|frau|mme|mlle|me|pr)/.ignoresCase()
 
     /// Single-letter initial restricted to alphabetic scripts ("R.", "J", "А.").
     /// A single CJK character is a complete name component, not an initial.
-    private static let initialPattern = try! NSRegularExpression(
-        pattern: "^[\\p{script=Latin}\\p{script=Cyrillic}\\p{script=Greek}]$",
-        options: [])
+    private static let initialPattern = /[\p{Script=Latin}\p{Script=Cyrillic}\p{Script=Greek}]/
 
     /// Bracketed annotations: "Doe, John (Contracting)", "[Bot] Weather", "{tag}".
-    private static let bracketPattern = try! NSRegularExpression(
-        pattern: "\\([^()]*\\)|\\[[^\\[\\]]*\\]|\\{[^{}]*\\}",
-        options: [])
+    private static let bracketPattern = /\([^()]*\)|\[[^\[\]]*\]|\{[^{}]*\}/
 
     /// Normalizes a word for pattern matching (strips periods and commas, e.g. "Ph.D." => "PhD").
     private static func normalize(_ word: String) -> String {
         return word.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: ",", with: "")
     }
 
-    private static func matches(_ word: String, _ pattern: NSRegularExpression) -> Bool {
-        let normalized = normalize(word)
-        let range = NSRange(normalized.startIndex..<normalized.endIndex, in: normalized)
-
-        return pattern.firstMatch(in: normalized, range: range) != nil
+    /// Whether the normalized word matches `pattern` in its entirety.
+    private static func matches(_ word: String, _ pattern: Regex<Substring>) -> Bool {
+        return normalize(word).wholeMatch(of: pattern) != nil
     }
 
     /// Returns the first (given) name of a display name.
@@ -130,9 +116,8 @@ import SwiftyAttributes
         }
 
         // Drop bracketed annotations: "Doe, John (Contracting)" => "Doe, John"
-        let bracketRange = NSRange(fullName.startIndex..<fullName.endIndex, in: fullName)
-        let cleanedName = bracketPattern
-            .stringByReplacingMatches(in: fullName, range: bracketRange, withTemplate: " ")
+        let cleanedName = fullName
+            .replacing(bracketPattern, with: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Word lists of comma-separated segments: "King, Martin Luther, Jr." => [["King"], ["Martin", "Luther"], ["Jr."]]
