@@ -80,4 +80,51 @@ final class UnitNCRooms: TestBaseRealm {
         XCTAssertFalse(eventRoom.isVisible)
         XCTAssertTrue(eventRoom.calendarEvent?.isFutureEvent ?? false)
     }
+
+    private func createRoom(withAttributes attributes: NCRoomAttribute) -> NCRoom {
+        let room = NCRoom()
+        room.accountId = TestBaseRealm.fakeAccountId
+        room.type = .group
+        room.attributes = attributes
+        return room
+    }
+
+    func testChannelAndAnnouncementDetection() throws {
+        updateCapabilities { cap in
+            cap.setValue([TalkCapability.announcementPreset.rawValue], forKey: "talkCapabilities")
+            cap.callEnabled = true
+        }
+
+        // A regular group is neither a channel nor an announcement and supports calling
+        let normalRoom = self.createRoom(withAttributes: [])
+        XCTAssertFalse(normalRoom.isChannel)
+        XCTAssertFalse(normalRoom.isAnnouncement)
+        XCTAssertTrue(normalRoom.supportsCalling)
+
+        // Channel: attributes & 8
+        let channelRoom = self.createRoom(withAttributes: .channel)
+        XCTAssertTrue(channelRoom.isChannel)
+        XCTAssertFalse(channelRoom.isAnnouncement)
+        XCTAssertFalse(channelRoom.supportsCalling)
+
+        // Announcement: attributes set both the channel and announcement bits (8|16 = 24)
+        let announcementRoom = self.createRoom(withAttributes: [.channel, .announcement])
+        XCTAssertTrue(announcementRoom.isChannel)
+        XCTAssertTrue(announcementRoom.isAnnouncement)
+        XCTAssertFalse(announcementRoom.supportsCalling)
+    }
+
+    func testChannelDetectionRequiresCapability() throws {
+        // Without the announcement-preset capability the attribute bits are ignored
+        updateCapabilities { cap in
+            cap.callEnabled = true
+        }
+
+        let channelRoom = self.createRoom(withAttributes: [.channel, .announcement])
+        XCTAssertFalse(channelRoom.isChannel)
+        XCTAssertFalse(channelRoom.isAnnouncement)
+
+        // ...so the room behaves like a normal group and calling stays available
+        XCTAssertTrue(channelRoom.supportsCalling)
+    }
 }

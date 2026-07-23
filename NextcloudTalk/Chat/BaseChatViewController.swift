@@ -2565,6 +2565,11 @@ import Toast
             // Processing of update messages still happens when receiving new messages, so safe to skip here
             guard !newMessage.isUpdateMessage else { continue }
 
+            // System messages are hidden client-side in channels and announcements.
+            // Update messages (reactions, edits, deletes) are already skipped above and keep being
+            // processed, so reactions and edits on the moderators' posts continue to work.
+            guard !(self.room.isChannel && newMessage.isSystemMessage) else { continue }
+
             // Skip thread messages when not in a thread view controller
             // Skip non thread messages when in a normal chat view controller
             guard (self.thread == nil && !newMessage.isThreadMessage())
