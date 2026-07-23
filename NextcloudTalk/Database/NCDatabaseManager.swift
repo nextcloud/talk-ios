@@ -17,7 +17,6 @@ public let kTalkDatabaseSchemaVersion: UInt64 = 91
     public static let schemaVersion = kTalkDatabaseSchemaVersion
 }
 
-
 public enum TalkCapability: String {
     case systemMessages = "system-messages"
     case notificationLevels = "notification-levels"
@@ -92,6 +91,7 @@ public enum TalkCapability: String {
     case reactPermission = "react-permission"
     case botV1 = "bots-v1"
     case conversationTags = "conversation-tags"
+    case announcementPreset = "announcement-preset"
 
     // Talk 12.0 is the minimum required version
     public static let minimumRequired = TalkCapability.conversationV4

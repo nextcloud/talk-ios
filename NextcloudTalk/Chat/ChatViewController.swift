@@ -1770,6 +1770,11 @@ import SwiftUI
                     || (self.isThreadViewController && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
             else { continue }
 
+            // System messages are hidden client-side in channels and announcements, so they are
+            // not added to the data source by appendMessages. Skip them here as well to stay in
+            // sync (update messages are already handled above, so reactions/edits still work).
+            guard !(self.room.isChannel && newMessage.isSystemMessage) else { continue }
+
             // If we don't get an indexPath here, something is wrong with our appendMessages function
             let indexPath = self.indexPath(for: newMessage)!
 
