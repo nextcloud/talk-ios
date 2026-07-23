@@ -2411,6 +2411,8 @@ class CallViewController: UIViewController,
             self.setVideoDisableButtonEnabled(true)
         }
 
+        self.setupPictureInPicture()
+
         callController.upgradeToVideoCall()
         self.adjustBars()
     }
@@ -2422,6 +2424,8 @@ class CallViewController: UIViewController,
         self.userDisabledVideo = true
 
         callController.downgradeToVoiceOnlyCall()
+
+        self.stopPictureInPicture()
 
         self.setLocalVideoViewWrapperHidden(true)
 
