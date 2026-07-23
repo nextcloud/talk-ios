@@ -686,8 +686,6 @@ public enum NCExternalSignalingSendMessageStatus {
             guard let updateDict = eventDict["update"] as? [AnyHashable: Any]
             else { return }
 
-            self.delegate?.externalSignalingController(self, didReceivedParticipantListMessage: updateDict)
-
             var userInfo = [String: Any]()
 
             if let roomToken = updateDict["roomid"] as? String {
@@ -703,6 +701,11 @@ public enum NCExternalSignalingSendMessageStatus {
 
                 userInfo["users"] = users
             }
+
+            // Update the participants map before notifying the delegate, so actor information
+            // is already available when the participant list is processed (e.g. when peer
+            // connections are created and their actors are resolved)
+            self.delegate?.externalSignalingController(self, didReceivedParticipantListMessage: updateDict)
 
             NotificationCenter.default.post(name: .extSignalingDidUpdateParticipants, object: self, userInfo: userInfo)
         } else {
