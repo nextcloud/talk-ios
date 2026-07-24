@@ -382,7 +382,7 @@ import SwiftyAttributes
         else { return nil }
 
         let ownMessage = self.actorId == account.userId
-        var actorName = self.actorDisplayName.components(separatedBy: " ").first ?? ""
+        var actorName = self.actor.firstName
 
         // For own messages
         if ownMessage {
