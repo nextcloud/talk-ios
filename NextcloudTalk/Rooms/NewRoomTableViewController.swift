@@ -25,6 +25,9 @@ enum NewRoomOption: Int {
     var searchTimer: Timer?
     var searchRequest: URLSessionTask?
 
+    private var contactsBackgroundView: PlaceholderView!
+    private static let contactsCache = NSCache<NSString, NSArray>()
+
     init(account: TalkAccount) {
         self.account = account
         self.searchController = UISearchController(searchResultsController: resultTableViewController)
@@ -43,6 +46,11 @@ enum NewRoomOption: Int {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        contactsBackgroundView = PlaceholderView()
+        contactsBackgroundView.placeholderView.isHidden = true
+        contactsBackgroundView.loadingView.startAnimating()
+        self.tableView.backgroundView = contactsBackgroundView
 
         self.getPossibleContacts()
 
@@ -89,17 +97,33 @@ enum NewRoomOption: Int {
     // MARK: - Contacts
 
     func getPossibleContacts() {
+        // Show already stored address book contacts and the last successfully fetched server contacts
+        // immediately, before waiting for a new server response
+        let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: nil) ?? []
+        let cachedContacts = Self.contactsCache.object(forKey: account.accountId as NSString) as? [NCUser] ?? []
+        if let initialContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: cachedContacts), !initialContactList.isEmpty {
+            self.showContacts(initialContactList)
+            self.contactsBackgroundView.loadingView.stopAnimating()
+            self.contactsBackgroundView.loadingView.isHidden = true
+        }
+
         NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: "new", forGroupRoom: false, withSearchParam: "") { contactList, error in
-            if error == nil, let contactList = contactList as? [NCUser] {
-                let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: nil)
-                let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
-                if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
-                    let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.indexes = [""] + combinedIndexes
-                    self.contacts = combinedContacts
-                    self.tableView.reloadData()
-                }
+            self.contactsBackgroundView.loadingView.stopAnimating()
+            self.contactsBackgroundView.loadingView.isHidden = true
+
+            if error == nil, let contactList, let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList) {
+                Self.contactsCache.setObject(contactList as NSArray, forKey: self.account.accountId as NSString)
+                self.showContacts(combinedContactList)
             }
+        }
+    }
+
+    func showContacts(_ contactList: [NCUser]) {
+        if let indexedContacts = NCUser.indexedUsers(fromUsersArray: contactList) {
+            let sortedIndexes = Array(indexedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+            self.indexes = [""] + sortedIndexes
+            self.contacts = indexedContacts
+            self.tableView.reloadData()
         }
     }
 
@@ -122,7 +146,7 @@ enum NewRoomOption: Int {
     func searchForContactsWithSearchParameter(_ searchParameter: String) {
         searchRequest?.cancel()
         searchRequest = NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: "new", forGroupRoom: false, withSearchParam: searchParameter) { contactList, error in
-            if error == nil, let contactList = contactList as? [NCUser] {
+            if error == nil {
                 let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: searchParameter)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
                 if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
