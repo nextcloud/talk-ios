@@ -173,7 +173,7 @@ enum NewRoomOption: Int {
                 newRoomOptionCell.imageView?.image = UIImage(systemName: "list.bullet")
             }
 
-            newRoomOptionCell.imageView?.tintColor = .secondaryLabel
+            newRoomOptionCell.imageView?.tintColor = .systemBlue
             newRoomOptionCell.imageView?.contentMode = .scaleAspectFit
             newRoomOptionCell.textLabel?.numberOfLines = 0
 
