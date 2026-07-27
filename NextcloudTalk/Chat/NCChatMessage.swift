@@ -243,6 +243,10 @@ import SwiftyAttributes
         return self.parent?.messageId ?? -1
     }
 
+    public var isPrivateReply: Bool {
+        return !(self.replyToConversationToken ?? "").isEmpty
+    }
+
     public func willShowParentMessageInThread(_ thread: NCThread?) -> Bool {
         if parent == nil {
             return false

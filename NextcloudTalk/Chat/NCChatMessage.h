@@ -87,6 +87,10 @@ typedef void (^GetReferenceDataCompletionBlock)(NCChatMessage *message, NSDictio
 @property (nonatomic, strong, nullable) NSString *pinnedActorDisplayName;
 @property (nonatomic, assign) NSInteger pinnedUntil;
 @property (nonatomic, assign) NSInteger pinnedAt;
+@property (nonatomic, assign) NSInteger replyToMessageId;
+@property (nonatomic, strong, nullable) NSString *replyToConversationToken;
+@property (nonatomic, strong, nullable) NSString *replyToConversationName;
+@property (nonatomic, strong, nullable) NSString *replyToActorDisplayName;
 
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict;
 + (instancetype)messageWithDictionary:(NSDictionary *)messageDict andAccountId:(NSString *)accountId;

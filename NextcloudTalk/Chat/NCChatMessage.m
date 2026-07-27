@@ -93,6 +93,10 @@ NSString * const kSharedItemTypePinned      = @"pinned";
         message.pinnedActorDisplayName = [metaData objectForKey:@"pinnedActorDisplayName"];
         message.pinnedUntil = [[metaData objectForKey:@"pinnedUntil"] integerValue];
         message.pinnedAt = [[metaData objectForKey:@"pinnedAt"] integerValue];
+        message.replyToMessageId = [[metaData objectForKey:@"replyToMessageId"] integerValue];
+        message.replyToConversationToken = [metaData objectForKey:@"replyToConversationToken"];
+        message.replyToConversationName = [metaData objectForKey:@"replyToConversationName"];
+        message.replyToActorDisplayName = [metaData objectForKey:@"replyToActorDisplayName"];
     }
 
     id actorDisplayName = [messageDict objectForKey:@"actorDisplayName"];
@@ -208,6 +212,10 @@ NSString * const kSharedItemTypePinned      = @"pinned";
     messageCopy.pinnedActorDisplayName = _pinnedActorDisplayName;
     messageCopy.pinnedUntil = _pinnedUntil;
     messageCopy.pinnedAt = _pinnedAt;
+    messageCopy.replyToMessageId = _replyToMessageId;
+    messageCopy.replyToConversationToken = [_replyToConversationToken copyWithZone:zone];
+    messageCopy.replyToConversationName = [_replyToConversationName copyWithZone:zone];
+    messageCopy.replyToActorDisplayName = [_replyToActorDisplayName copyWithZone:zone];
 
     return messageCopy;
 }
