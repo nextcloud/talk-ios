@@ -675,6 +675,15 @@ import SwiftUI
         guard let managedParentMessage = NCChatMessage.objects(where: "internalId = %@", internalId).firstObject() as? NCChatMessage else { return }
 
         let parentMessage = NCChatMessage(value: managedParentMessage)
+
+        // The parent lives in another conversation, so mark it as a private reply and attach the source
+        // conversation name, so the reply view quotes it the same way a received private reply is shown.
+        if parentMessage.token != self.room.token, let account = self.room.account,
+           let sourceRoom = NCDatabaseManager.sharedInstance().room(withToken: parentMessage.token, forAccountId: account.accountId) {
+            parentMessage.replyToConversationToken = parentMessage.token
+            parentMessage.replyToConversationName = sourceRoom.displayName
+        }
+
         self.showReplyView(for: parentMessage)
 
         // Rebuild the send-button menu so the (unsupported) "Send later" options are hidden for this private reply

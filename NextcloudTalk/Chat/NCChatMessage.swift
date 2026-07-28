@@ -247,6 +247,18 @@ import SwiftyAttributes
         return !(self.replyToConversationToken ?? "").isEmpty
     }
 
+    /// The actor label shown when this message is quoted. For a private reply it also appends the source
+    /// conversation name (in tertiary color), so the reply view and the message bubble render it the same way.
+    public var quotedActorLabel: NSMutableAttributedString {
+        let label = self.actor.attributedDisplayName
+
+        if self.isPrivateReply, let conversationName = self.replyToConversationName, !conversationName.isEmpty {
+            label.append(" • \(conversationName)".withTextColor(.tertiaryLabel))
+        }
+
+        return label
+    }
+
     public func willShowParentMessageInThread(_ thread: NCThread?) -> Bool {
         if parent == nil {
             return false
