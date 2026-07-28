@@ -259,7 +259,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.showQuotePart()
 
             self.quotedMessageView?.messageLabel.attributedText = parent.messageForLastMessagePreview()?.prefix(characters: 80).withFont(self.quotedMessageView?.messageLabel.font ?? .preferredFont(forTextStyle: .body))
-            self.quotedMessageView?.actorLabel.attributedText = parent.actor.attributedDisplayName
+
+            let actorLabel = parent.actor.attributedDisplayName
+            // For a private reply, indicate the conversation the quoted message originally came from
+            if parent.isPrivateReply, let conversationName = parent.replyToConversationName, !conversationName.isEmpty {
+                actorLabel.append(" • \(conversationName)".withTextColor(.tertiaryLabel))
+            }
+            self.quotedMessageView?.actorLabel.attributedText = actorLabel
+
             self.quotedMessageView?.highlighted = parent.isMessage(from: account.userId)
             self.quotedMessageView?.avatarImageView.setActorAvatar(forMessage: parent, withAccount: account)
         }
