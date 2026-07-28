@@ -4115,21 +4115,38 @@ import Toast
     // MARK: - ChatMessageTableViewCellDelegate
 
     public func cellWantsToScroll(to message: NCChatMessage) {
+        // A private reply quote references a message in another (group) conversation. Open that
+        // conversation's context around the original message instead of scrolling within this one.
+        if message.isPrivateReply, let replyToConversationToken = message.replyToConversationToken, !replyToConversationToken.isEmpty {
+            DispatchQueue.main.async {
+                guard let account = self.room.account,
+                      let room = NCDatabaseManager.sharedInstance().room(withToken: replyToConversationToken, forAccountId: account.accountId)
+                else { return }
+
+                self.presentContextView(ofMessageId: message.replyToMessageId, in: room, withAccount: account)
+            }
+            return
+        }
+
         DispatchQueue.main.async {
             if let indexPath = self.indexPath(for: message) {
                 self.highlightMessage(at: indexPath, with: .top)
             } else {
                 // Show context of messages that are currently not loaded
-                guard let account = self.room.account,
-                      let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0)
-                else { return }
+                guard let account = self.room.account else { return }
 
-                chatViewController.showContext(ofMessageId: message.messageId, withLimit: 50, withCloseButton: true)
-
-                let navController = NCNavigationController(rootViewController: chatViewController)
-                self.present(navController, animated: true)
+                self.presentContextView(ofMessageId: message.messageId, in: self.room, withAccount: account)
             }
         }
+    }
+
+    private func presentContextView(ofMessageId messageId: Int, in room: NCRoom, withAccount account: TalkAccount) {
+        guard let chatViewController = ContextChatViewController(forRoom: room, withAccount: account, withMessage: [], withHighlightId: 0) else { return }
+
+        chatViewController.showContext(ofMessageId: messageId, withLimit: 50, withCloseButton: true)
+
+        let navController = NCNavigationController(rootViewController: chatViewController)
+        self.present(navController, animated: true)
     }
 
     public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage) {
