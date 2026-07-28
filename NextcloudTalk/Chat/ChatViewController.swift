@@ -1066,13 +1066,10 @@ import SwiftUI
         // - classified conversations pending deletion (deleted after the call ends)
         // In both cases "Keep" unbinds the room from its object to stop the auto-deletion.
         // TODO: check if there are end_call messages
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId)
         var retentionTitle: String?
 
-        if self.room.isEvent, self.room.isPastEvent, let retentionEvent = serverCapabilities?.retentionEvent, retentionEvent > 0 {
-            retentionTitle = String.localizedStringWithFormat(
-                NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
-                retentionEvent)
+        if self.room.isEvent, self.room.isPastEvent, let eventMessage = self.room.eventRetentionMessage {
+            retentionTitle = eventMessage
         } else if self.room.isPendingClassifiedDeletion, let classifiedMessage = self.room.classifiedRetentionMessage {
             retentionTitle = classifiedMessage
         }

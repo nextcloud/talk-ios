@@ -479,6 +479,21 @@ extension Array where Element == NCRoom {
         return self.objectType == NCRoomObjectTypeClassified
     }
 
+    // The user-facing retention message for an event conversation, or nil when auto-deletion
+    // is disabled on the server ("retention-event" == 0). The server exposes the retention
+    // period in days.
+    public var eventRetentionMessage: String? {
+        guard let retentionEvent = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId)?.retentionEvent,
+              retentionEvent > 0
+        else {
+            return nil
+        }
+
+        return String.localizedStringWithFormat(
+            NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
+            retentionEvent)
+    }
+
     // The user-facing retention message for a classified conversation, or nil when auto-deletion
     // is disabled on the server ("retention-classified" == 0). The server exposes the retention
     // period in seconds (e.g. 3600 = 1 hour).
