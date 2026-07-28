@@ -52,7 +52,7 @@ struct RoomInfoWebinarSection: View {
                 }
             }
 
-            if room.canEnableSIP {
+            if room.canEnableSIP, !room.isClassified {
                 let isSipEnabled = Binding<Bool>(get: {
                     self.room.sipState != .disabled
                 }, set: {

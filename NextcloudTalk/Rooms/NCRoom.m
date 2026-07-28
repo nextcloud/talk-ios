@@ -13,6 +13,8 @@ NSString * const NCRoomObjectTypeSharePassword          = @"share:password";
 NSString * const NCRoomObjectTypeRoom                   = @"room";
 NSString * const NCRoomObjectTypeEvent                  = @"event";
 NSString * const NCRoomObjectTypeExtendedConversation   = @"extended_conversation";
+NSString * const NCRoomObjectTypeClassified             = @"classified";
+NSString * const NCRoomObjectTypeClassifiedPersist      = @"classified_persist";
 
 @implementation NCRoom
 

@@ -10,7 +10,7 @@ struct RoomInfoSIPInfoSection: View {
     @Binding var room: NCRoom
 
     var body: (some View)? {
-        guard room.sipState != .disabled else {
+        guard room.sipState != .disabled, !room.isClassified else {
             return Body.none
         }
 

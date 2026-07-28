@@ -464,6 +464,21 @@ extension Array where Element == NCRoom {
         return self.supportsAnnouncementPreset && self.attributes.contains(.announcement)
     }
 
+    // A classified conversation locks down anything that could leak sensitive content
+    // (forwarding, previews, server-side AI, SIP/guest exposure, ...). The backend enforces
+    // the restrictions; the client only reacts by hiding the corresponding UI.
+    public var isClassified: Bool {
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.classifiedConversations, forAccountId: self.accountId)
+            && self.attributes.contains(.classified)
+    }
+
+    // A classified conversation is bound to a "classified" object while it is pending
+    // auto-deletion after a call. Keeping it unbinds the object, flipping it to
+    // "classified_persist", which stops the auto-deletion.
+    public var isPendingClassifiedDeletion: Bool {
+        return self.objectType == NCRoomObjectTypeClassified
+    }
+
     // MARK: - Conversation tags
 
     public var tagIdList: [String] {

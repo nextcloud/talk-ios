@@ -156,6 +156,22 @@ extension BaseChatTableViewCell {
             }
         }
 
+        // In classified conversations we never fetch the server-side preview. We only show the
+        // blurhash placeholder (or a generic file icon when no blurhash is available). Tapping the
+        // message still opens the full preview viewer, which is a separate gesture.
+        if self.room?.isClassified == true {
+            if let placeholderImage {
+                self.filePreviewImageView?.setImage(placeholderImage)
+            } else {
+                self.showFallbackIcon(for: message)
+            }
+
+            self.filePreviewActivityIndicator?.isHidden = true
+            self.filePreviewActivityIndicator?.stopAnimating()
+
+            return
+        }
+
         self.filePreviewActivityIndicator?.isHidden = false
         self.filePreviewActivityIndicator?.startAnimating()
 

@@ -14,6 +14,8 @@ extern NSString * const NCRoomObjectTypeSharePassword;
 extern NSString * const NCRoomObjectTypeRoom;
 extern NSString * const NCRoomObjectTypeEvent;
 extern NSString * const NCRoomObjectTypeExtendedConversation;
+extern NSString * const NCRoomObjectTypeClassified;
+extern NSString * const NCRoomObjectTypeClassifiedPersist;
 
 @interface NCRoom : RLMObject
 

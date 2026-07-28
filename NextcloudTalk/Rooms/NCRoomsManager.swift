@@ -370,6 +370,31 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         self.deleteRoom(withConfirmation: room, withTitle: title, withMessage: message, withKeepOption: isRetentionEnabled, withStartedBlock: nil, withFinishedBlock: nil)
     }
 
+    public func deleteClassifiedRoomWithConfirmationAfterCall(_ room: NCRoom) {
+        var title = NSLocalizedString("Delete conversation", comment: "")
+        var message = NSLocalizedString("The call in this classified conversation ended. Do you want to delete this conversation for everyone?", comment: "")
+
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: room.accountId)
+        let retentionClassified = serverCapabilities?.retentionClassified ?? 0
+        let isRetentionEnabled = retentionClassified > 0
+
+        if isRetentionEnabled {
+            // retention-classified is exposed by the server in seconds (e.g. 3600 = 1 hour)
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = [.day, .hour, .minute]
+            formatter.unitsStyle = .full
+            formatter.maximumUnitCount = 1
+            let duration = formatter.string(from: TimeInterval(retentionClassified)) ?? ""
+
+            title = NSLocalizedString("Do you want to delete this conversation?", comment: "")
+            message = String.localizedStringWithFormat(
+                NSLocalizedString("This classified conversation will be automatically deleted for everyone %@ after a call.", comment: "e.g. '... deleted for everyone 1 hour after a call.'"),
+                duration)
+        }
+
+        self.deleteRoom(withConfirmation: room, withTitle: title, withMessage: message, withKeepOption: isRetentionEnabled, withStartedBlock: nil, withFinishedBlock: nil)
+    }
+
     // swiftlint:disable:next function_parameter_count
     private func deleteRoom(withConfirmation room: NCRoom, withTitle title: String, withMessage message: String, withKeepOption keepOption: Bool, withStartedBlock startedBlock: (() -> Void)?, withFinishedBlock finishedBlock: ((_ success: Bool) -> Void)?) {
         guard let account = room.account else { return }
@@ -723,6 +748,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         // If this is an event room and we are a moderator, we allow direct deletion
         if room.canModerate, room.isEvent {
             self.deleteEventRoomWithConfirmationAfterCall(room)
+        } else if room.canModerate, room.isPendingClassifiedDeletion {
+            // Classified conversations are auto-deleted after a call unless kept, so offer the choice right away
+            self.deleteClassifiedRoomWithConfirmationAfterCall(room)
         }
     }
 

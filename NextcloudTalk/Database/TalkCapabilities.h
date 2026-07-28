@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSInteger retentionEvent;
 @property NSInteger retentionPhone;
 @property NSInteger retentionInstantMeetings;
+@property NSInteger retentionClassified;
 @property BOOL e2eeCallsEnabled;
 @property NSInteger roomsSortOrder;
 @property NSInteger roomsGroupMode;

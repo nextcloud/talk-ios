@@ -127,4 +127,35 @@ final class UnitNCRooms: TestBaseRealm {
         // ...so the room behaves like a normal group and calling stays available
         XCTAssertTrue(channelRoom.supportsCalling)
     }
+
+    func testClassifiedDetection() throws {
+        updateCapabilities { cap in
+            cap.setValue([TalkCapability.classifiedConversations.rawValue], forKey: "talkCapabilities")
+        }
+
+        // A regular group is not classified
+        let normalRoom = self.createRoom(withAttributes: [])
+        XCTAssertFalse(normalRoom.isClassified)
+
+        // Classified: attributes & 4
+        let classifiedRoom = self.createRoom(withAttributes: .classified)
+        XCTAssertTrue(classifiedRoom.isClassified)
+    }
+
+    func testClassifiedDetectionRequiresCapability() throws {
+        // Without the classified-conversations capability the attribute bit is ignored
+        let classifiedRoom = self.createRoom(withAttributes: .classified)
+        XCTAssertFalse(classifiedRoom.isClassified)
+    }
+
+    func testPendingClassifiedDeletion() throws {
+        let pendingRoom = self.createRoom(withAttributes: .classified)
+        pendingRoom.objectType = NCRoomObjectTypeClassified
+        XCTAssertTrue(pendingRoom.isPendingClassifiedDeletion)
+
+        // Once kept, the room is bound to the "classified_persist" object and no longer pending
+        let keptRoom = self.createRoom(withAttributes: .classified)
+        keptRoom.objectType = NCRoomObjectTypeClassifiedPersist
+        XCTAssertFalse(keptRoom.isPendingClassifiedDeletion)
+    }
 }

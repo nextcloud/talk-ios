@@ -13,7 +13,8 @@ struct RoomInfoGuestSection: View {
     @State var password: String = ""
 
     var body: (some View)? {
-        guard room.canModerate else { return Body.none }
+        // Guests / public access are not available in classified conversations.
+        guard room.canModerate, !room.isClassified else { return Body.none }
 
         return Section(header: Text("Guests access")) {
             let isPublic = Binding<Bool>(get: {

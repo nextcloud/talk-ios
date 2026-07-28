@@ -94,6 +94,7 @@ public enum TalkCapability: String {
     case conversationTags = "conversation-tags"
     case announcementPreset = "announcement-preset"
     case privateReply = "private-reply"
+    case classifiedConversations = "classified-conversations"
 
     // Talk 12.0 is the minimum required version
     public static let minimumRequired = TalkCapability.conversationV4
@@ -450,6 +451,9 @@ public extension Notification.Name {
         }
         if let retentionInstantMeetings = (conversationsConfig?["retention-instant-meetings"] as? NSNumber)?.intValue {
             capabilities.retentionInstantMeetings = retentionInstantMeetings
+        }
+        if let retentionClassified = (conversationsConfig?["retention-classified"] as? NSNumber)?.intValue {
+            capabilities.retentionClassified = retentionClassified
         }
 
         if let sortOrder = conversationsConfig?["sort-order"] as? String {
