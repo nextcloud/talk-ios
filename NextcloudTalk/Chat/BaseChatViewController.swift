@@ -2086,6 +2086,11 @@ import Toast
                 talkMetaData["replyTo"] = replyToMessageId
             }
 
+            // A parent living in another conversation means this is a private reply
+            if let replyToToken = replyToMessage?.token, replyToToken != self.room.token {
+                talkMetaData["replyToToken"] = replyToToken
+            }
+
             if let thread = self.thread {
                 talkMetaData["threadId"] = thread.threadId
             }

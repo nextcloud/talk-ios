@@ -1231,7 +1231,7 @@ public class NCChatController: NSObject {
         pullMessagesTask?.cancel()
     }
 
-    public func sendChatMessage(_ message: String, replyTo: Int, referenceId: String?, silently: Bool) {
+    public func sendChatMessage(_ message: String, replyTo: Int, replyToToken: String? = nil, referenceId: String?, silently: Bool) {
         let bgTask = BGTaskHelper.startBackgroundTask(withName: "NCChatControllerSendMessage") { _ in
             NCLog.log("ExpirationHandler called - sendChatMessage")
         }
@@ -1250,7 +1250,7 @@ public class NCChatController: NSObject {
             }
         }
 
-        NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, threadTitle: nil, replyTo: replyTo, referenceId: referenceId, silently: silently, forAccount: account) { error in
+        NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, threadTitle: nil, replyTo: replyTo, replyToToken: replyToToken, referenceId: referenceId, silently: silently, forAccount: account) { error in
             if let referenceId {
                 userInfo["referenceId"] = referenceId
             }
@@ -1289,15 +1289,28 @@ public class NCChatController: NSObject {
     }
 
     public func send(_ message: NCChatMessage) {
+        // If the parent message lives in another conversation, this is a private reply and we need to
+        // send the parent's token so the server can cross-reference it into this one-to-one conversation.
+        let parent = message.parent
+        let parentMessageId = parent?.messageId ?? -1
+        var replyToToken: String?
+        if let parentToken = parent?.token, parentToken != room.token {
+            replyToToken = parentToken
+        }
+
         guard message.messageType == kMessageTypeVoiceMessage else {
-            sendChatMessage(message.sendingMessage, replyTo: message.parentMessageId, referenceId: message.referenceId, silently: message.isSilent)
+            sendChatMessage(message.sendingMessage, replyTo: parentMessageId, replyToToken: replyToToken, referenceId: message.referenceId, silently: message.isSilent)
             return
         }
 
         var talkMetaData: [String: Any] = ["messageType": "voice-message"]
 
-        if message.parentMessageId > 0 {
-            talkMetaData["replyTo"] = message.parentMessageId
+        if parentMessageId > 0 {
+            talkMetaData["replyTo"] = parentMessageId
+        }
+
+        if let replyToToken {
+            talkMetaData["replyToToken"] = replyToToken
         }
 
         if isThreadController {
