@@ -374,22 +374,13 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         var title = NSLocalizedString("Delete conversation", comment: "")
         var message = NSLocalizedString("The call in this classified conversation ended. Do you want to delete this conversation for everyone?", comment: "")
 
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: room.accountId)
-        let retentionClassified = serverCapabilities?.retentionClassified ?? 0
-        let isRetentionEnabled = retentionClassified > 0
+        // A retention message is only returned when auto-deletion is enabled on the server
+        let classifiedRetentionMessage = room.classifiedRetentionMessage
+        let isRetentionEnabled = classifiedRetentionMessage != nil
 
-        if isRetentionEnabled {
-            // retention-classified is exposed by the server in seconds (e.g. 3600 = 1 hour)
-            let formatter = DateComponentsFormatter()
-            formatter.allowedUnits = [.day, .hour, .minute]
-            formatter.unitsStyle = .full
-            formatter.maximumUnitCount = 1
-            let duration = formatter.string(from: TimeInterval(retentionClassified)) ?? ""
-
+        if let classifiedRetentionMessage {
             title = NSLocalizedString("Do you want to delete this conversation?", comment: "")
-            message = String.localizedStringWithFormat(
-                NSLocalizedString("This classified conversation will be automatically deleted for everyone %@ after a call.", comment: "e.g. '... deleted for everyone 1 hour after a call.'"),
-                duration)
+            message = classifiedRetentionMessage
         }
 
         self.deleteRoom(withConfirmation: room, withTitle: title, withMessage: message, withKeepOption: isRetentionEnabled, withStartedBlock: nil, withFinishedBlock: nil)

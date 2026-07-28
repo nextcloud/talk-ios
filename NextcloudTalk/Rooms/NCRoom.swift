@@ -479,6 +479,27 @@ extension Array where Element == NCRoom {
         return self.objectType == NCRoomObjectTypeClassified
     }
 
+    // The user-facing retention message for a classified conversation, or nil when auto-deletion
+    // is disabled on the server ("retention-classified" == 0). The server exposes the retention
+    // period in seconds (e.g. 3600 = 1 hour).
+    public var classifiedRetentionMessage: String? {
+        guard let retentionClassified = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId)?.retentionClassified,
+              retentionClassified > 0
+        else {
+            return nil
+        }
+
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day, .hour, .minute]
+        formatter.unitsStyle = .full
+        formatter.maximumUnitCount = 1
+        let duration = formatter.string(from: TimeInterval(retentionClassified)) ?? ""
+
+        return String.localizedStringWithFormat(
+            NSLocalizedString("This classified conversation will be automatically deleted for everyone %@ after a call.", comment: "e.g. '... deleted for everyone 1 hour after a call.'"),
+            duration)
+    }
+
     // MARK: - Conversation tags
 
     public var tagIdList: [String] {

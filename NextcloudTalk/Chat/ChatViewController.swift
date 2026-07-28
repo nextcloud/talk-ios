@@ -1073,17 +1073,8 @@ import SwiftUI
             retentionTitle = String.localizedStringWithFormat(
                 NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
                 retentionEvent)
-        } else if self.room.isPendingClassifiedDeletion, let retentionClassified = serverCapabilities?.retentionClassified, retentionClassified > 0 {
-            // retention-classified is exposed by the server in seconds (e.g. 3600 = 1 hour)
-            let formatter = DateComponentsFormatter()
-            formatter.allowedUnits = [.day, .hour, .minute]
-            formatter.unitsStyle = .full
-            formatter.maximumUnitCount = 1
-            let duration = formatter.string(from: TimeInterval(retentionClassified)) ?? ""
-
-            retentionTitle = String.localizedStringWithFormat(
-                NSLocalizedString("This classified conversation will be automatically deleted for everyone %@ after a call.", comment: "e.g. '... deleted for everyone 1 hour after a call.'"),
-                duration)
+        } else if self.room.isPendingClassifiedDeletion, let classifiedMessage = self.room.classifiedRetentionMessage {
+            retentionTitle = classifiedMessage
         }
 
         guard let retentionTitle else {
