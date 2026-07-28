@@ -54,6 +54,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     private var pendingToStartCallHasVideo: Bool = false
     private var highlightMessageDict: [AnyHashable: Any]?
     private var showThreadPushNotification: NCPushNotification?
+    private var pendingPrivateReplyInternalId: String?
 
     override init() {
         super.init()
@@ -478,6 +479,12 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 self.showThreadPushNotification = nil
             }
 
+            // Quote the original message when the chat was opened via "Reply privately"
+            if let pendingPrivateReplyInternalId, room.type == .oneToOne {
+                self.chatViewController?.presentPrivateReplyOnAppear = pendingPrivateReplyInternalId
+            }
+            self.pendingPrivateReplyInternalId = nil
+
             if let chatViewController = self.chatViewController {
                 NCUserInterfaceController.sharedInstance().present(chatViewController)
             }
@@ -492,6 +499,12 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 // Still make sure the current room is highlighted
                 NCUserInterfaceController.sharedInstance().roomsTableViewController.selectedRoomToken = roomToken
             }
+
+            // Quote the original message when the chat was opened via "Reply privately"
+            if let pendingPrivateReplyInternalId, room.type == .oneToOne {
+                self.chatViewController?.presentPrivateReply(withInternalId: pendingPrivateReplyInternalId)
+            }
+            self.pendingPrivateReplyInternalId = nil
         }
     }
 
@@ -827,6 +840,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         guard let actorId = notification.userInfo?[stringForKey: "actorId"],
               let accountId = notification.userInfo?[stringForKey: "accountId"]
         else { return }
+
+        // Set for a "Reply privately" action, so the opened one-to-one chat quotes the original message
+        self.pendingPrivateReplyInternalId = notification.userInfo?[stringForKey: "parentInternalId"]
 
         self.joinOrCreateChat(withUser: actorId, usingAccountId: accountId)
     }

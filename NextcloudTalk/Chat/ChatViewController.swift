@@ -18,6 +18,7 @@ import SwiftUI
     public var chatController: NCChatController
     public var highlightMessageId = 0
     public var presentThreadOnAppear = 0
+    public var presentPrivateReplyOnAppear: String?
 
     // MARK: - Private var
     private var hasPresentedLobby = false
@@ -662,6 +663,22 @@ import SwiftUI
             self.presentThreadView(for: presentThreadOnAppear)
             self.presentThreadOnAppear = 0
         }
+
+        if let presentPrivateReplyOnAppear {
+            self.presentPrivateReply(withInternalId: presentPrivateReplyOnAppear)
+            self.presentPrivateReplyOnAppear = nil
+        }
+    }
+
+    // Quote the message with the given internalId (which may live in another conversation) as a private reply
+    public func presentPrivateReply(withInternalId internalId: String) {
+        guard let managedParentMessage = NCChatMessage.objects(where: "internalId = %@", internalId).firstObject() as? NCChatMessage else { return }
+
+        let parentMessage = NCChatMessage(value: managedParentMessage)
+        self.showReplyView(for: parentMessage)
+
+        // Rebuild the send-button menu so the (unsupported) "Send later" options are hidden for this private reply
+        self.addMenuToRightButton()
     }
 
     public override func viewWillDisappear(_ animated: Bool) {

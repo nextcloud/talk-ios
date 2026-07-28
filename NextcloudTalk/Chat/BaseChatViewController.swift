@@ -746,6 +746,16 @@ import Toast
         // Overridden in sub class
     }
 
+    // A private reply quotes a message that lives in another (group) conversation. Scheduling such a reply
+    // is not supported by the server, so the "Send later" options are hidden while one is being composed.
+    internal var isPrivateReplyActive: Bool {
+        guard let replyMessageView, replyMessageView.isVisible,
+              let parentToken = replyMessageView.message?.token
+        else { return false }
+
+        return parentToken != self.room.token
+    }
+
     func sendCurrentMessage(silently: Bool) {
         var replyToMessage: NCChatMessage?
 
@@ -927,7 +937,7 @@ import Toast
             self.sendCurrentMessage(silently: true)
         })
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.scheduleMessages, forAccountId: self.account.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.scheduleMessages, forAccountId: self.account.accountId), !self.isPrivateReplyActive {
             let sendLaterAction = UIMenu(title: NSLocalizedString("Send later", comment: ""),
                                          image: .init(named: "custom.paperplane.badge.clock"),
                                          children: self.getSendLaterMenu(forSilent: false).reversed())
@@ -1178,6 +1188,16 @@ import Toast
         var userInfo: [String: String] = [:]
         userInfo["actorId"] = message.actorId
         userInfo["accountId"] = self.account.accountId
+
+        // When the server supports it, carry the original message so the one-to-one conversation
+        // quotes it as a private reply instead of just opening an empty chat. Federated source rooms
+        // are excluded, as the local server can't cross-reference a remote conversation token.
+        if !self.room.isFederated,
+           NCDatabaseManager.sharedInstance().serverHasTalkCapability(.privateReply, forAccountId: self.account.accountId),
+           let parentInternalId = message.internalId {
+            userInfo["parentInternalId"] = parentInternalId
+        }
+
         NotificationCenter.default.post(name: .NCChatViewControllerReplyPrivatelyNotification, object: self, userInfo: userInfo)
     }
 
