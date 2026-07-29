@@ -134,8 +134,9 @@ final class UIRoomTest: XCTestCase {
         let debugLabel = app.staticTexts.labelContains("ChatViewController\":1").firstMatch
         XCTAssert(debugLabel.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Send a test message
-        let testMessage = "TestMessage - DeAlloc"
+        // Send a test message. The message needs to be unique, because conversations of previous
+        // test runs are still on the server and would also be found when searching for it later.
+        let testMessage = "TestMessage - DeAlloc \(UUID().uuidString.prefix(8))"
         let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
@@ -192,10 +193,19 @@ final class UIRoomTest: XCTestCase {
         // Search for the message we just wrote and open ContextChatViewController
         waitForReady(object: app.searchFields.firstMatch).tap()
         app.typeText(testMessage)
-        waitForReady(object: app.staticTexts.labelContains(testMessage).firstMatch, timeout: TestConstants.timeoutLong).tap()
+
+        // Only tap on a result from the "Messages" section that really shows our message. The
+        // conversation list stays in the hierarchy while searching, so matching by label alone can
+        // resolve to a conversation cell behind the search results, which never becomes hittable.
+        let messageResultCell = app.cells.matching(identifier: "MessageSearchResultCell").containingLabel(testMessage).firstMatch
+        waitForReady(object: messageResultCell, timeout: TestConstants.timeoutLong).tap()
+
+        // Check that the context of our message is shown
+        let contextNavBar = app.navigationBars["NextcloudTalk.ContextChatView"]
+        XCTAssert(contextNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(app.tables.textViews.labelContains(testMessage).firstMatch.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Close the ContextChatViewController again
-        let contextNavBar = app.navigationBars["NextcloudTalk.ContextChatView"]
         waitForReady(object: contextNavBar.buttons["Close"]).tap()
 
         // Close the SearchController

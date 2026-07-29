@@ -18,4 +18,10 @@ extension XCUIElementQuery {
         return self.element(matching: predicateLabel)
     }
 
+    // Matches all elements that have a descendant whose label contains the given string
+    func containingLabel(_ searchString: String) -> XCUIElementQuery {
+        let predicateLabel = NSPredicate(format: "label CONTAINS[c] %@", searchString)
+        return self.containing(predicateLabel)
+    }
+
 }
