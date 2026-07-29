@@ -2733,6 +2733,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                                 toRoom token: String,
                                 threadTitle: String?,
                                 replyTo: Int,
+                                replyToToken: String? = nil,
                                 referenceId: String?,
                                 silently: Bool,
                                 forAccount account: TalkAccount,
@@ -2750,6 +2751,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         if replyTo > -1 {
             parameters["replyTo"] = replyTo
+        }
+
+        // When set, the parent message lives in another (group) conversation, i.e. this is a private reply
+        if let replyToToken, !replyToToken.isEmpty {
+            parameters["replyToToken"] = replyToToken
         }
 
         if let referenceId {

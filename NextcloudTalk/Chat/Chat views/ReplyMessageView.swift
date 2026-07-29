@@ -120,8 +120,7 @@ import UIKit
     func presentReply(with message: NCChatMessage, withUserId userId: String) {
         self.message = message
 
-        let actorDisplayName = message.actorDisplayName ?? ""
-        quotedMessageView.actorLabel.text = actorDisplayName.isEmpty ? NSLocalizedString("Guest", comment: "") : actorDisplayName
+        quotedMessageView.actorLabel.attributedText = message.quotedActorLabel
 
         let attributedMessage = NSMutableAttributedString(attributedString: message.messageForLastMessagePreview() ?? NSAttributedString())
         attributedMessage.addAttribute(.font, value: quotedMessageView.messageLabel.font!, range: NSRange(location: 0, length: attributedMessage.length))

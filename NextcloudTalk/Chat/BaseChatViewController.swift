@@ -746,6 +746,16 @@ import Toast
         // Overridden in sub class
     }
 
+    // A private reply quotes a message that lives in another (group) conversation. Scheduling such a reply
+    // is not supported by the server, so the "Send later" options are hidden while one is being composed.
+    internal var isPrivateReplyActive: Bool {
+        guard let replyMessageView, replyMessageView.isVisible,
+              let parentToken = replyMessageView.message?.token
+        else { return false }
+
+        return parentToken != self.room.token
+    }
+
     func sendCurrentMessage(silently: Bool) {
         var replyToMessage: NCChatMessage?
 
@@ -927,7 +937,7 @@ import Toast
             self.sendCurrentMessage(silently: true)
         })
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.scheduleMessages, forAccountId: self.account.accountId) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.scheduleMessages, forAccountId: self.account.accountId), !self.isPrivateReplyActive {
             let sendLaterAction = UIMenu(title: NSLocalizedString("Send later", comment: ""),
                                          image: .init(named: "custom.paperplane.badge.clock"),
                                          children: self.getSendLaterMenu(forSilent: false).reversed())
@@ -1178,6 +1188,16 @@ import Toast
         var userInfo: [String: String] = [:]
         userInfo["actorId"] = message.actorId
         userInfo["accountId"] = self.account.accountId
+
+        // When the server supports it, carry the original message so the one-to-one conversation
+        // quotes it as a private reply instead of just opening an empty chat. Federated source rooms
+        // are excluded, as the local server can't cross-reference a remote conversation token.
+        if !self.room.isFederated,
+           NCDatabaseManager.sharedInstance().serverHasTalkCapability(.privateReply, forAccountId: self.account.accountId),
+           let parentInternalId = message.internalId {
+            userInfo["parentInternalId"] = parentInternalId
+        }
+
         NotificationCenter.default.post(name: .NCChatViewControllerReplyPrivatelyNotification, object: self, userInfo: userInfo)
     }
 
@@ -2084,6 +2104,11 @@ import Toast
 
             if let replyToMessageId = replyToMessage?.messageId {
                 talkMetaData["replyTo"] = replyToMessageId
+            }
+
+            // A parent living in another conversation means this is a private reply
+            if let replyToToken = replyToMessage?.token, replyToToken != self.room.token {
+                talkMetaData["replyToToken"] = replyToToken
             }
 
             if let thread = self.thread {
@@ -4090,21 +4115,38 @@ import Toast
     // MARK: - ChatMessageTableViewCellDelegate
 
     public func cellWantsToScroll(to message: NCChatMessage) {
+        // A private reply quote references a message in another (group) conversation. Open that
+        // conversation's context around the original message instead of scrolling within this one.
+        if message.isPrivateReply, let replyToConversationToken = message.replyToConversationToken, !replyToConversationToken.isEmpty {
+            DispatchQueue.main.async {
+                guard let account = self.room.account,
+                      let room = NCDatabaseManager.sharedInstance().room(withToken: replyToConversationToken, forAccountId: account.accountId)
+                else { return }
+
+                self.presentContextView(ofMessageId: message.replyToMessageId, in: room, withAccount: account)
+            }
+            return
+        }
+
         DispatchQueue.main.async {
             if let indexPath = self.indexPath(for: message) {
                 self.highlightMessage(at: indexPath, with: .top)
             } else {
                 // Show context of messages that are currently not loaded
-                guard let account = self.room.account,
-                      let chatViewController = ContextChatViewController(forRoom: self.room, withAccount: account, withMessage: [], withHighlightId: 0)
-                else { return }
+                guard let account = self.room.account else { return }
 
-                chatViewController.showContext(ofMessageId: message.messageId, withLimit: 50, withCloseButton: true)
-
-                let navController = NCNavigationController(rootViewController: chatViewController)
-                self.present(navController, animated: true)
+                self.presentContextView(ofMessageId: message.messageId, in: self.room, withAccount: account)
             }
         }
+    }
+
+    private func presentContextView(ofMessageId messageId: Int, in room: NCRoom, withAccount account: TalkAccount) {
+        guard let chatViewController = ContextChatViewController(forRoom: room, withAccount: account, withMessage: [], withHighlightId: 0) else { return }
+
+        chatViewController.showContext(ofMessageId: messageId, withLimit: 50, withCloseButton: true)
+
+        let navController = NCNavigationController(rootViewController: chatViewController)
+        self.present(navController, animated: true)
     }
 
     public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage) {
