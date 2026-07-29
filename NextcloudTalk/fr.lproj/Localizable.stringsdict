@@ -6,6 +6,19 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld bot actif</string>
+			<key>many</key>
+			<string>%ld bots actifs</string>
+			<key>other</key>
+			<string>%ld bots actifs</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
@@ -227,6 +240,19 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Envoi d'%ld élément</string>
+			<key>many</key>
+			<string>Envoi de %ld éléments</string>
+			<key>other</key>
+			<string>Envoi de %ld éléments</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
