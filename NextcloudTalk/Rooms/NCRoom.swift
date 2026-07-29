@@ -171,6 +171,11 @@ extension Array where Element == NCRoom {
             return false
         }
 
+        // Calls are disabled for everyone in channels and announcements.
+        if self.isChannel {
+            return false
+        }
+
         return NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: self)?.callEnabled ?? false &&
             self.type != .changelog && self.type != .noteToSelf
     }
@@ -438,6 +443,21 @@ extension Array where Element == NCRoom {
 
     public var isVoiceRoom: Bool {
         return self.attributes.contains(.voiceRoom)
+    }
+
+    private var supportsAnnouncementPreset: Bool {
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.announcementPreset, forAccountId: self.accountId)
+    }
+
+    // A channel is a broadcast conversation where only moderators can post.
+    // Announcements set both the channel and announcement bits, so this is true for them too.
+    public var isChannel: Bool {
+        return self.supportsAnnouncementPreset && self.attributes.contains(.channel)
+    }
+
+    // An announcement is a channel with additional restrictions (not listable, non-moderators cannot leave).
+    public var isAnnouncement: Bool {
+        return self.supportsAnnouncementPreset && self.attributes.contains(.announcement)
     }
 
     // MARK: - Conversation tags

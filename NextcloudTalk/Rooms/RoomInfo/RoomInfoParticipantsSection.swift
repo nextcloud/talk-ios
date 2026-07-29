@@ -57,6 +57,17 @@ struct RoomInfoParticipantsSection: View {
     }
 
     var body: (some View)? {
+        // In channels and announcements the participant list is restricted to moderators.
+        // The backend returns 403 for everyone else, so we neither show the list nor fetch it.
+        if room.isChannel, !room.canModerate {
+            EmptyView()
+        } else {
+            participantSections
+        }
+    }
+
+    @ViewBuilder
+    private var participantSections: some View {
         if room.canAddParticipants {
             Section(NSLocalizedString("Conversation participants", comment: "")) {
                 Button(action: addParticipants) {

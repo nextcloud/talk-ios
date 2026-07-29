@@ -86,7 +86,9 @@ typedef NS_ENUM(NSInteger, NCRoomSIPState) {
 
 typedef NS_OPTIONS(NSInteger, NCRoomAttribute) {
     NCRoomAttributeNone = 0,
-    NCRoomAttributeVoiceRoom = 1
+    NCRoomAttributeVoiceRoom = 1,
+    NCRoomAttributeChannel = 8,
+    NCRoomAttributeAnnouncement = 16
 };
 
 typedef NS_OPTIONS(NSInteger, NCPermission) {
