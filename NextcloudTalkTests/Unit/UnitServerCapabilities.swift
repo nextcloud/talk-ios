@@ -70,8 +70,6 @@ final class UnitServerCapabilities: TestBaseRealm {
         XCTAssertTrue(capabilities.accountPropertyScopesVersion2)
         XCTAssertTrue(capabilities.accountPropertyScopesFederatedEnabled)
         XCTAssertFalse(capabilities.accountPropertyScopesPublishedEnabled)
-        // The server does not report "AccountPropertyScopesFederationEnabled" at all
-        XCTAssertFalse(capabilities.accountPropertyScopesFederationEnabled)
 
         // guests, core, dav
         XCTAssertTrue(capabilities.guestsAppEnabled)

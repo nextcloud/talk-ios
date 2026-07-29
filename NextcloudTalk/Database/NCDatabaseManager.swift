@@ -7,7 +7,7 @@ import Foundation
 
 public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
-public let kTalkDatabaseSchemaVersion: UInt64 = 91
+public let kTalkDatabaseSchemaVersion: UInt64 = 92
 
 // Objective-C bridge for the Talk database constants that are still referenced from Objective-C code.
 // These reference the Swift values and can be removed once those call sites are migrated to Swift.
@@ -617,7 +617,6 @@ public extension Notification.Name {
         capabilities.userStatusSupportsBusy = (userStatusCaps?["supports_busy"] as? NSNumber)?.boolValue ?? false
         capabilities.extendedSupport = (version?["extendedSupport"] as? NSNumber)?.boolValue ?? false
         capabilities.accountPropertyScopesVersion2 = (provisioningAPICaps?["AccountPropertyScopesVersion"] as? NSNumber)?.intValue == 2
-        capabilities.accountPropertyScopesFederationEnabled = (provisioningAPICaps?["AccountPropertyScopesFederationEnabled"] as? NSNumber)?.boolValue ?? false
         capabilities.accountPropertyScopesFederatedEnabled = (provisioningAPICaps?["AccountPropertyScopesFederatedEnabled"] as? NSNumber)?.boolValue ?? false
         capabilities.accountPropertyScopesPublishedEnabled = (provisioningAPICaps?["AccountPropertyScopesPublishedEnabled"] as? NSNumber)?.boolValue ?? false
         capabilities.guestsAppEnabled = (guestsCaps?["enabled"] as? NSNumber)?.boolValue ?? false
