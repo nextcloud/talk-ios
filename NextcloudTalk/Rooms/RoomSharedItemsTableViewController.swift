@@ -415,6 +415,9 @@ import PassKit
     }
 
     override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        // The preview shows the context of the message, which is not available without the context endpoint
+        guard self.room.supportsMessageContext else { return nil }
+
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: {
 
             // Init the BaseChatViewController without message to directly show a preview

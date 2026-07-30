@@ -147,6 +147,9 @@ class RoomSearchTableViewController: UITableViewController {
         cell.titleLabel.text = messageEntry.title
         cell.subtitleLabel.text = messageEntry.subline
 
+        // Allows UI tests to distinguish a message result from a conversation result
+        cell.accessibilityIdentifier = "MessageSearchResultCell"
+
         // Thumbnail image
         let thumbnailURL = URL(string: messageEntry.thumbnailURL)
         let actorId = messageEntry.attributes?["actorId"] as? String

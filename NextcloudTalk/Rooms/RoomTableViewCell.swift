@@ -49,6 +49,7 @@ import Foundation
         self.subtitleLabel.text = nil
         self.dateLabel.text = nil
         self.titleOnly = false
+        self.accessibilityIdentifier = nil
 
         self.unreadMessagesView.setBadgeNumber(0)
     }

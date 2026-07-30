@@ -61,6 +61,7 @@ public enum TalkCapability: String {
     case singleConvStatus = "single-conversation-status"
     case chatKeepNotifications = "chat-keep-notifications"
     case conversationAvatars = "avatar"
+    case chatGetContext = "chat-get-context"
     case typingIndicators = "typing-privacy"
     case publishingPermissions = "publishing-permissions"
     case remindMeLater = "remind-me-later"
