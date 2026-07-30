@@ -244,8 +244,8 @@ extension UserProfileTableViewController {
         var shouldEnableNameAndEmailScopeButton = false
 
         if let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId) {
-            shouldEnableNameAndEmailScopeButton = serverCapabilities.accountPropertyScopesFederationEnabled ||
-            serverCapabilities.accountPropertyScopesFederatedEnabled || serverCapabilities.accountPropertyScopesPublishedEnabled
+            shouldEnableNameAndEmailScopeButton = serverCapabilities.accountPropertyScopesFederatedEnabled ||
+            serverCapabilities.accountPropertyScopesPublishedEnabled
         }
 
         switch profileSection {

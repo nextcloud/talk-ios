@@ -420,7 +420,9 @@ public extension Notification.Name {
     private func setTalkCapabilities(_ capabilitiesDict: [AnyHashable: Any], onTalkCapabilitiesObject capabilities: TalkCapabilities) {
         let config = capabilitiesDict["config"] as? [String: Any]
 
-        capabilities.setValue(capabilitiesDict["features"], forKey: "talkCapabilities")
+        // RLMArray properties can only be assigned by KVC from Swift. Cast to [String] first, so a
+        // missing value or an unexpected type results in an empty list instead of being handed to Realm.
+        capabilities.setValue(capabilitiesDict["features"] as? [String] ?? [], forKey: "talkCapabilities")
         capabilities.hasTranslationProviders = ((config?["chat"] as? [String: Any])?["has-translation-providers"] as? NSNumber)?.boolValue ?? false
         capabilities.attachmentsAllowed = ((config?["attachments"] as? [String: Any])?["allowed"] as? NSNumber)?.boolValue ?? false
         capabilities.attachmentsFolder = (config?["attachments"] as? [String: Any])?["folder"] as? String ?? ""
@@ -431,7 +433,7 @@ public extension Notification.Name {
         let callConfig = config?["call"] as? [String: Any]
         capabilities.callEnabled = (callConfig?["enabled"] as? NSNumber)?.boolValue ?? true
         capabilities.recordingEnabled = (callConfig?["recording"] as? NSNumber)?.boolValue ?? false
-        capabilities.setValue(callConfig?["supported-reactions"] ?? [], forKey: "callReactions")
+        capabilities.setValue(callConfig?["supported-reactions"] as? [String] ?? [], forKey: "callReactions")
         capabilities.e2eeCallsEnabled = (callConfig?["end-to-end-encryption"] as? NSNumber)?.boolValue ?? false
 
         // Conversations capabilities
@@ -616,7 +618,6 @@ public extension Notification.Name {
         capabilities.userStatusSupportsBusy = (userStatusCaps?["supports_busy"] as? NSNumber)?.boolValue ?? false
         capabilities.extendedSupport = (version?["extendedSupport"] as? NSNumber)?.boolValue ?? false
         capabilities.accountPropertyScopesVersion2 = (provisioningAPICaps?["AccountPropertyScopesVersion"] as? NSNumber)?.intValue == 2
-        capabilities.accountPropertyScopesFederationEnabled = (provisioningAPICaps?["AccountPropertyScopesFederationEnabled"] as? NSNumber)?.boolValue ?? false
         capabilities.accountPropertyScopesFederatedEnabled = (provisioningAPICaps?["AccountPropertyScopesFederatedEnabled"] as? NSNumber)?.boolValue ?? false
         capabilities.accountPropertyScopesPublishedEnabled = (provisioningAPICaps?["AccountPropertyScopesPublishedEnabled"] as? NSNumber)?.boolValue ?? false
         capabilities.guestsAppEnabled = (guestsCaps?["enabled"] as? NSNumber)?.boolValue ?? false
@@ -624,7 +625,7 @@ public extension Notification.Name {
         capabilities.modRewriteWorking = (coreCaps?["mod-rewrite-working"] as? NSNumber)?.boolValue ?? false
         capabilities.absenceSupported = (davCaps?["absence-supported"] as? NSNumber)?.boolValue ?? false
         capabilities.absenceReplacementSupported = (davCaps?["absence-replacement"] as? NSNumber)?.boolValue ?? false
-        capabilities.setValue(notificationsCaps?["ocs-endpoints"], forKey: "notificationsCapabilities")
+        capabilities.setValue(notificationsCaps?["ocs-endpoints"] as? [String] ?? [], forKey: "notificationsCapabilities")
         capabilities.passwordPolicyGenerateAPIEndpoint = (passwordPolicyCaps?["api"] as? [String: Any])?["generate"] as? String ?? ""
         capabilities.passwordPolicyValidateAPIEndpoint = (passwordPolicyCaps?["api"] as? [String: Any])?["validate"] as? String ?? ""
 

@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL userStatusSupportsBusy;
 @property BOOL extendedSupport;
 @property BOOL accountPropertyScopesVersion2;
-@property BOOL accountPropertyScopesFederationEnabled;
 @property BOOL accountPropertyScopesFederatedEnabled;
 @property BOOL accountPropertyScopesPublishedEnabled;
 @property NSString *externalSignalingServerVersion;
