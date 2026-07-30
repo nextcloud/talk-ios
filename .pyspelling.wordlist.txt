@@ -23,3 +23,5 @@ unarchive
 unarchived
 HD
 fullscreen
+GIFs
+Giphy
