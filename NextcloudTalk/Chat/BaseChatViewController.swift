@@ -999,7 +999,8 @@ import Toast
             self.presentThreadCreation()
         }
 
-        let giphyAction = UIAction(title: NSLocalizedString("Giphy", comment: ""), image: UIImage(systemName: "play.square.stack")) { [unowned self] _ in
+        // Not localized: "GIF" is a file format and "Giphy" a company name
+        let giphyAction = UIAction(title: "GIF (Giphy)", image: UIImage(systemName: "play.square.stack")) { [unowned self] _ in
             self.textView.resignFirstResponder()
             self.presentGiphyPicker()
         }

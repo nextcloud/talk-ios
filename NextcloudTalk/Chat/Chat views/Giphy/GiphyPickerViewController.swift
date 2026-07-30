@@ -115,6 +115,8 @@ class GiphyPickerViewController: UIViewController {
         super.viewDidLoad()
 
         self.view.backgroundColor = .systemBackground
+        // Not localized: "GIF" is a file format and "Giphy" a company name
+        self.navigationItem.title = "GIF (Giphy)"
         self.navigationItem.searchController = self.searchController
         // Keep the search bar reachable at all times, instead of having to scroll the grid
         // back to the top to refine the search term.
