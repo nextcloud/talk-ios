@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *passwordPolicyGenerateAPIEndpoint;
 @property NSString *passwordPolicyValidateAPIEndpoint;
 @property NSInteger passwordPolicyMinLength;
+@property BOOL giphyEnabled;
+@property BOOL giphyConfigured;
 
 @end
 

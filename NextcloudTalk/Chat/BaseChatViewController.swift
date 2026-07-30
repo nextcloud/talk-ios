@@ -21,6 +21,7 @@ import Toast
                                                   PHPickerViewControllerDelegate,
                                                   UINavigationControllerDelegate,
                                                   ShareLocationViewControllerDelegate,
+                                                  GiphyPickerViewControllerDelegate,
                                                   CNContactPickerDelegate,
                                                   UIDocumentPickerDelegate,
                                                   VLCKitVideoViewControllerDelegate,
@@ -998,6 +999,12 @@ import Toast
             self.presentThreadCreation()
         }
 
+        // Not localized: "GIF" is a file format and "Giphy" a company name
+        let giphyAction = UIAction(title: "GIF (Giphy)", image: UIImage(systemName: "play.square.stack")) { [unowned self] _ in
+            self.textView.resignFirstResponder()
+            self.presentGiphyPicker()
+        }
+
         // Add actions (inverted)
         var objectItems = [UIMenuElement]()
         objectItems.append(contactShareAction)
@@ -1025,6 +1032,11 @@ import Toast
 
         items.append(ncFilesAction)
         items.append(filesAction)
+
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.account.accountId)
+        if serverCapabilities?.giphyEnabled == true, serverCapabilities?.giphyConfigured == true {
+            items.append(giphyAction)
+        }
 
         items.append(photoLibraryAction)
 
@@ -1128,6 +1140,12 @@ import Toast
     func presentPollCreation() {
         let pollCreationVC = PollCreationViewController(room: room)
         self.presentWithNavigation(pollCreationVC, animated: true)
+    }
+
+    func presentGiphyPicker() {
+        let giphyPickerVC = GiphyPickerViewController(account: account)
+        giphyPickerVC.delegate = self
+        self.presentWithNavigation(giphyPickerVC, animated: true)
     }
 
     func presentShareLocation() {
@@ -1834,6 +1852,16 @@ import Toast
         }
 
         viewController.dismiss(animated: true)
+    }
+
+    // MARK: - GiphyPickerViewController Delegate
+
+    func giphyPickerViewController(_ controller: GiphyPickerViewController, didSelectGifWithUrl url: String) {
+        // Append the GIF link to the current input, so it is rendered as a Giphy reference.
+        let currentText = self.textView.text ?? ""
+        let needsSeparator = !currentText.isEmpty && !currentText.hasSuffix(" ") && !currentText.hasSuffix("\n")
+        self.textView.text = currentText + (needsSeparator ? " " : "") + url + " "
+        self.textView.becomeFirstResponder()
     }
 
     // MARK: - CNContactPickerViewController Delegate

@@ -193,7 +193,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         SDWebImageDownloader.shared.setValue(NCAppBranding.userAgent(), forHTTPHeaderField: "User-Agent")
     }
 
-    private func getRequestModifier(forAccount account: TalkAccount) -> SDWebImageDownloaderRequestModifier? {
+    internal func getRequestModifier(forAccount account: TalkAccount) -> SDWebImageDownloaderRequestModifier? {
         if let cachedModifier = self.requestModifierCache.object(forKey: account.accountId as NSString) {
             return cachedModifier
         }

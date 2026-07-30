@@ -1725,6 +1725,9 @@
 "No response from server" = "No response from server";
 
 /* No comment provided by engineer. */
+"No results" = "No results";
+
+/* No comment provided by engineer. */
 "No results found" = "No results found";
 
 /* No comment provided by engineer. */
@@ -2122,6 +2125,9 @@
 
 /* No comment provided by engineer. */
 "Search for places" = "Search for places";
+
+/* No comment provided by engineer. */
+"Search GIFs" = "Search GIFs";
 
 /* No comment provided by engineer. */
 "Select" = "Select";
