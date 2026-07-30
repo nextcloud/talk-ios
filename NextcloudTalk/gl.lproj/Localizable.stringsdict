@@ -6,6 +6,17 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@bots@</string>
+		<key>bots</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld active bot</string>
+			<key>other</key>
+			<string>%ld active bots</string>
+		</dict>
 	</dict>
 	<key>%d votes</key>
 	<dict>
@@ -112,7 +123,7 @@
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
-			<string>d</string>
+			<string>ld</string>
 			<key>one</key>
 			<string>%ld notificación</string>
 			<key>other</key>
@@ -128,7 +139,7 @@
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
-			<string>d</string>
+			<string>ld</string>
 			<key>one</key>
 			<string>Vde. ten %ld convite pendente</string>
 			<key>other</key>
@@ -160,7 +171,7 @@
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
-			<string>d</string>
+			<string>ld</string>
 			<key>one</key>
 			<string>Esta conversa eliminarase automaticamente para todos con %ld día sen actividade.</string>
 			<key>other</key>
@@ -176,7 +187,7 @@
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
-			<string>d</string>
+			<string>ld</string>
 			<key>one</key>
 			<string>%ld resposta</string>
 			<key>other</key>
@@ -203,6 +214,497 @@
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@uploadingelements@</string>
+		<key>uploadingelements</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Uploading %ld element</string>
+			<key>other</key>
+			<string>Uploading %ld elements</string>
+		</dict>
+	</dict>
+	<key>%ld conversations with unread messages</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@conversations@</string>
+		<key>conversations</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld conversation with unread messages</string>
+			<key>other</key>
+			<string>%ld conversations with unread messages</string>
+		</dict>
+	</dict>
+	<key>%ld days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@days@</string>
+		<key>days</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld day</string>
+			<key>other</key>
+			<string>%ld days</string>
+		</dict>
+	</dict>
+	<key>%ld hours</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@hours@</string>
+		<key>hours</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld hour</string>
+			<key>other</key>
+			<string>%ld hours</string>
+		</dict>
+	</dict>
+	<key>%ld minutes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld minute</string>
+			<key>other</key>
+			<string>%ld minutes</string>
+		</dict>
+	</dict>
+	<key>%1$@, %2$@, %3$@ and %4$ld others will receive invitations</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$@, %2$@, %3$@ and %4$#@others@</string>
+		<key>others</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%4$ld other will receive invitations</string>
+			<key>other</key>
+			<string>%4$ld others will receive invitations</string>
+		</dict>
+	</dict>
+	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$@, %2$@, %3$@ and %4$#@others@</string>
+		<key>others</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%4$ld other is typing…</string>
+			<key>other</key>
+			<string>%4$ld others are typing…</string>
+		</dict>
+	</dict>
+	<key>You added {user0} and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>You added {user0} and %ld more participant</string>
+			<key>other</key>
+			<string>You added {user0} and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>An administrator added you and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator added you and %ld more participant</string>
+			<key>other</key>
+			<string>An administrator added you and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>An administrator added {user0} and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator added {user0} and %ld more participant</string>
+			<key>other</key>
+			<string>An administrator added {user0} and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>{actor0} added you and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} added you and %ld more participant</string>
+			<key>other</key>
+			<string>{actor0} added you and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>{actor0} added {user0} and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} added {user0} and %ld more participant</string>
+			<key>other</key>
+			<string>{actor0} added {user0} and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>You removed {user0} and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>You removed {user0} and %ld more participant</string>
+			<key>other</key>
+			<string>You removed {user0} and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>An administrator removed you and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator removed you and %ld more participant</string>
+			<key>other</key>
+			<string>An administrator removed you and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>An administrator removed {user0} and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator removed {user0} and %ld more participant</string>
+			<key>other</key>
+			<string>An administrator removed {user0} and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>{actor0} removed you and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} removed you and %ld more participant</string>
+			<key>other</key>
+			<string>{actor0} removed you and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>{actor0} removed {user0} and %ld more participants</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} removed {user0} and %ld more participant</string>
+			<key>other</key>
+			<string>{actor0} removed {user0} and %ld more participants</string>
+		</dict>
+	</dict>
+	<key>You promoted {user0} and %ld more participants to moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>You promoted {user0} and %ld more participant to moderators</string>
+			<key>other</key>
+			<string>You promoted {user0} and %ld more participants to moderators</string>
+		</dict>
+	</dict>
+	<key>An administrator promoted you and %ld more participants to moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator promoted you and %ld more participant to moderators</string>
+			<key>other</key>
+			<string>An administrator promoted you and %ld more participants to moderators</string>
+		</dict>
+	</dict>
+	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator promoted {user0} and %ld more participant to moderators</string>
+			<key>other</key>
+			<string>An administrator promoted {user0} and %ld more participants to moderators</string>
+		</dict>
+	</dict>
+	<key>{actor0} promoted you and %ld more participants to moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} promoted you and %ld more participant to moderators</string>
+			<key>other</key>
+			<string>{actor0} promoted you and %ld more participants to moderators</string>
+		</dict>
+	</dict>
+	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} promoted {user0} and %ld more participant to moderators</string>
+			<key>other</key>
+			<string>{actor0} promoted {user0} and %ld more participants to moderators</string>
+		</dict>
+	</dict>
+	<key>You demoted {user0} and %ld more participants from moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>You demoted {user0} and %ld more participant from moderators</string>
+			<key>other</key>
+			<string>You demoted {user0} and %ld more participants from moderators</string>
+		</dict>
+	</dict>
+	<key>An administrator demoted you and %ld more participants from moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator demoted you and %ld more participant from moderators</string>
+			<key>other</key>
+			<string>An administrator demoted you and %ld more participants from moderators</string>
+		</dict>
+	</dict>
+	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>An administrator demoted {user0} and %ld more participant from moderators</string>
+			<key>other</key>
+			<string>An administrator demoted {user0} and %ld more participants from moderators</string>
+		</dict>
+	</dict>
+	<key>{actor0} demoted you and %ld more participants from moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} demoted you and %ld more participant from moderators</string>
+			<key>other</key>
+			<string>{actor0} demoted you and %ld more participants from moderators</string>
+		</dict>
+	</dict>
+	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} demoted {user0} and %ld more participant from moderators</string>
+			<key>other</key>
+			<string>{actor0} demoted {user0} and %ld more participants from moderators</string>
+		</dict>
+	</dict>
+	<key>You and %ld more participants joined the call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>You and %ld more participant joined the call</string>
+			<key>other</key>
+			<string>You and %ld more participants joined the call</string>
+		</dict>
+	</dict>
+	<key>{actor0} and %ld more participants joined the call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} and %ld more participant joined the call</string>
+			<key>other</key>
+			<string>{actor0} and %ld more participants joined the call</string>
+		</dict>
+	</dict>
+	<key>You and %ld more participants left the call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>You and %ld more participant left the call</string>
+			<key>other</key>
+			<string>You and %ld more participants left the call</string>
+		</dict>
+	</dict>
+	<key>{actor0} and %ld more participants left the call</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@participants@</string>
+		<key>participants</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>{actor0} and %ld more participant left the call</string>
+			<key>other</key>
+			<string>{actor0} and %ld more participants left the call</string>
+		</dict>
 	</dict>
 </dict>
 </plist>
