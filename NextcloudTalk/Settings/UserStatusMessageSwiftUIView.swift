@@ -268,19 +268,19 @@ struct UserStatusMessageSwiftUIView: View {
 
             if day > 0 {
                 if day == 1 { return NSLocalizedString("Today", comment: "") }
-                return "\(day) " + NSLocalizedString("days", comment: "")
+                return String.localizedStringWithFormat(NSLocalizedString("%ld days", comment: "Time until the user status is cleared"), day)
             }
 
             if hour > 0 {
                 if hour == 1 { return NSLocalizedString("an hour", comment: "") }
                 if hour == 4 { return NSLocalizedString("4 hours", comment: "") }
-                return "\(hour) " + NSLocalizedString("hours", comment: "")
+                return String.localizedStringWithFormat(NSLocalizedString("%ld hours", comment: "Time until the user status is cleared"), hour)
             }
 
             if minute > 0 {
                 if minute >= 25 && minute <= 30 { return NSLocalizedString("30 minutes", comment: "") }
                 if minute > 30 { return NSLocalizedString("an hour", comment: "") }
-                return "\(minute) " + NSLocalizedString("minutes", comment: "")
+                return String.localizedStringWithFormat(NSLocalizedString("%ld minutes", comment: "Time until the user status is cleared"), minute)
             }
         }
 

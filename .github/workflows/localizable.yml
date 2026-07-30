@@ -40,6 +40,10 @@ jobs:
       run: |
         git diff
 
+    - name: Check plurals
+      run: |
+        ./check-localizable-plurals.sh
+
     - name: Install dependencies
       run: |
         brew install aspell pyspelling

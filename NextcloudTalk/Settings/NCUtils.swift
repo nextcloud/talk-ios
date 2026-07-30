@@ -233,15 +233,15 @@ import AVFoundation
         } else if ti < 3600 {
             // This hour
             let diff = Int(round(ti / 60))
-            return String(format: NSLocalizedString("%d minutes ago", comment: ""), diff)
+            return String.localizedStringWithFormat(NSLocalizedString("%d minutes ago", comment: ""), diff)
         } else if ti < 86400 {
             // This day
             let diff = Int(round(ti / 60 / 60))
-            return String(format: NSLocalizedString("%d hours ago", comment: ""), diff)
+            return String.localizedStringWithFormat(NSLocalizedString("%d hours ago", comment: ""), diff)
         } else if ti < 86400 * 30 {
             // This month
             let diff = Int(round(ti / 60 / 60 / 24))
-            return String(format: NSLocalizedString("%d days ago", comment: ""), diff)
+            return String.localizedStringWithFormat(NSLocalizedString("%d days ago", comment: ""), diff)
         }
 
         let dateFormatter = DateFormatter()

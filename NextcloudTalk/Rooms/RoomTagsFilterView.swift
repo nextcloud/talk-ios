@@ -211,7 +211,7 @@ private class RoomTagChipControl: UIControl {
 
         if chip.unreadCount > 0 {
             let format = NSLocalizedString("%ld conversations with unread messages", comment: "Accessibility label for unread counter on a tag filter")
-            self.accessibilityValue = String(format: format, chip.unreadCount)
+            self.accessibilityValue = String.localizedStringWithFormat(format, chip.unreadCount)
         } else if chip.showsUnreadDot {
             self.accessibilityValue = NSLocalizedString("Unread mentions", comment: "")
         }

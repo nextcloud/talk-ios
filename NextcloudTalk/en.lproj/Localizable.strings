@@ -1,11 +1,23 @@
 /* Alice and Bob are typing… */
 "%1$@ and %2$@ are typing…" = "%1$@ and %2$@ are typing…";
 
+/* Alice and Bob will receive invitations */
+"%1$@ and %2$@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
+
 /* Alice, Bob and Charlie are typing… */
 "%1$@, %2$@ and %3$@ are typing…" = "%1$@, %2$@ and %3$@ are typing…";
 
+/* Alice, Bob and Charlie will receive invitations */
+"%1$@, %2$@ and %3$@ will receive invitations" = "%1$@, %2$@ and %3$@ will receive invitations";
+
 /* Alice, Bob, Charlie and 3 others are typing… */
 "%1$@, %2$@, %3$@ and %4$@ others are typing…" = "%1$@, %2$@, %3$@ and %4$@ others are typing…";
+
+/* Alice, Bob, Charlie and 3 others are typing… */
+"%1$@, %2$@, %3$@ and %4$ld others are typing…" = "%1$@, %2$@, %3$@ and %4$ld others are typing…";
+
+/* Alice, Bob, Charlie and 3 others will receive invitations */
+"%1$@, %2$@, %3$@ and %4$ld others will receive invitations" = "%1$@, %2$@, %3$@ and %4$ld others will receive invitations";
 
 /* Alice, Bob, Charlie and 1 other is typing… */
 "%1$@, %2$@, %3$@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
@@ -66,6 +78,15 @@
 
 /* Accessibility label for unread counter on a tag filter */
 "%ld conversations with unread messages" = "%ld conversations with unread messages";
+
+/* Time until the user status is cleared */
+"%ld days" = "%ld days";
+
+/* Time until the user status is cleared */
+"%ld hours" = "%ld hours";
+
+/* Time until the user status is cleared */
+"%ld minutes" = "%ld minutes";
 
 /* No comment provided by engineer. */
 "%ld notifications" = "%ld notifications";

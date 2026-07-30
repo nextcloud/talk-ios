@@ -165,26 +165,20 @@ struct ScheduleMeetingSwiftUIView: View {
 
         } else if self.selectedParticipants.count == 2 {
             localizedText = String(
-                format: NSLocalizedString("%@ and %@ will receive invitations", comment: "Alice and Bob will receive invitations"),
+                format: NSLocalizedString("%1$@ and %2$@ will receive invitations", comment: "Alice and Bob will receive invitations"),
                 self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName
             )
 
         } else if self.selectedParticipants.count == 3 {
             localizedText = String(
-                format: NSLocalizedString("%@, %@ and %@ will receive invitations", comment: "Alice, Bob and Charlie will receive invitations"),
-                self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName, self.selectedParticipants[2].displayName
-            )
-
-        } else if self.selectedParticipants.count == 4 {
-            localizedText = String(
-                format: NSLocalizedString("%@, %@, %@ and 1 other will receive invitations", comment: "Alice, Bob, Charlie and 1 other will receive invitations"),
+                format: NSLocalizedString("%1$@, %2$@ and %3$@ will receive invitations", comment: "Alice, Bob and Charlie will receive invitations"),
                 self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName, self.selectedParticipants[2].displayName
             )
 
         } else {
             let othersCount = self.selectedParticipants.count - 3
-            localizedText = String(
-                format: NSLocalizedString("%@, %@, %@ and %ld others will receive invitations", comment: "Alice, Bob, Charlie and 3 others will receive invitations"),
+            localizedText = String.localizedStringWithFormat(
+                NSLocalizedString("%1$@, %2$@, %3$@ and %4$ld others will receive invitations", comment: "Alice, Bob, Charlie and 3 others will receive invitations"),
                 self.selectedParticipants[0].displayName, self.selectedParticipants[1].displayName, self.selectedParticipants[2].displayName, othersCount
             )
         }

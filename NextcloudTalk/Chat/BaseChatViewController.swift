@@ -2775,7 +2775,7 @@ import Toast
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("You added {user0} and {user1}", comment: "Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("You added {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("You added {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                 }
             } else if isActor0Admin {
                 if collapseByMessage.collapsedMessages.count == 1 {
@@ -2786,9 +2786,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator added you and %ld more participants", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator added you and %ld more participants", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator added {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator added {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             } else {
@@ -2800,9 +2800,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} added you and %ld more participants", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} added you and %ld more participants", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} added {user0} and %ld more participants", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} added {user0} and %ld more participants", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             }
@@ -2811,7 +2811,7 @@ import Toast
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("You removed {user0} and {user1}", comment: "Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("You removed {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("You removed {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                 }
             } else if isActor0Admin {
                 if collapseByMessage.collapsedMessages.count == 1 {
@@ -2822,9 +2822,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator removed you and %ld more participants", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator removed you and %ld more participants", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator removed {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator removed {user0} and %ld more participants", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             } else {
@@ -2836,9 +2836,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} removed you and %ld more participants", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} removed you and %ld more participants", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} removed {user0} and %ld more participants", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} removed {user0} and %ld more participants", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             }
@@ -2847,7 +2847,7 @@ import Toast
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("You promoted {user0} and {user1} to moderators", comment: "Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("You promoted {user0} and %ld more participants to moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("You promoted {user0} and %ld more participants to moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                 }
             } else if isActor0Admin {
                 if collapseByMessage.collapsedMessages.count == 1 {
@@ -2858,9 +2858,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator promoted you and %ld more participants to moderators", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator promoted you and %ld more participants to moderators", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator promoted {user0} and %ld more participants to moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator promoted {user0} and %ld more participants to moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             } else {
@@ -2872,9 +2872,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} promoted you and %ld more participants to moderators", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} promoted you and %ld more participants to moderators", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} promoted {user0} and %ld more participants to moderators", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} promoted {user0} and %ld more participants to moderators", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             }
@@ -2884,7 +2884,7 @@ import Toast
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("You demoted {user0} and {user1} from moderators", comment: "Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("You demoted {user0} and %ld more participants from moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("You demoted {user0} and %ld more participants from moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                 }
             } else if isActor0Admin {
                 if collapseByMessage.collapsedMessages.count == 1 {
@@ -2895,9 +2895,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator demoted you and %ld more participants from moderators", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator demoted you and %ld more participants from moderators", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("An administrator demoted {user0} and %ld more participants from moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("An administrator demoted {user0} and %ld more participants from moderators", comment: "Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             } else {
@@ -2909,9 +2909,9 @@ import Toast
                     }
                 } else {
                     if collapseByMessage.collapsedIncludesUserSelf {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} demoted you and %ld more participants from moderators", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} demoted you and %ld more participants from moderators", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     } else {
-                        collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} demoted {user0} and %ld more participants from moderators", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                        collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} demoted {user0} and %ld more participants from moderators", comment: "Please put {actor0}, {user0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                     }
                 }
             }
@@ -2920,13 +2920,13 @@ import Toast
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("You and {actor0} joined the call", comment: "Please put {actor0} placeholder in the correct position on the translated text but do not translate it")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("You and %ld more participants joined the call", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("You and %ld more participants joined the call", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                 }
             } else {
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("{actor0} and {actor1} joined the call", comment: "Please put {actor0} and {actor1} placeholders in the correct position on the translated text but do not translate them")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} and %ld more participants joined the call", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} and %ld more participants joined the call", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                 }
             }
         } else if action == "call_left" {
@@ -2934,13 +2934,13 @@ import Toast
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("You and {actor0} left the call", comment: "Please put {actor0} placeholder in the correct position on the translated text but do not translate it")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("You and %ld more participants left the call", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("You and %ld more participants left the call", comment: "Please put %ld placeholder in the correct position on the translated text but do not translate it"), collapseByMessage.collapsedMessages.count)
                 }
             } else {
                 if collapseByMessage.collapsedMessages.count == 1 {
                     collapseByMessage.collapsedMessage = NSLocalizedString("{actor0} and {actor1} left the call", comment: "Please put {actor0} and {actor1} placeholders in the correct position on the translated text but do not translate them")
                 } else {
-                    collapseByMessage.collapsedMessage = String(format: NSLocalizedString("{actor0} and %ld more participants left the call", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
+                    collapseByMessage.collapsedMessage = String.localizedStringWithFormat(NSLocalizedString("{actor0} and %ld more participants left the call", comment: "Please put {actor0} and %ld placeholders in the correct position on the translated text but do not translate them"), collapseByMessage.collapsedMessages.count)
                 }
             }
         } else if action == "call_reconnected" {

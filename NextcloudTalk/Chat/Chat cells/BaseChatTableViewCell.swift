@@ -586,7 +586,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         let replies = message?.threadReplies ?? 0
         if replies > 0 {
-            let repliesString = String.localizedStringWithFormat(NSLocalizedString("%d replies", comment: "Replies in a thread"), replies)
+            let repliesString = String.localizedStringWithFormat(NSLocalizedString("%ld replies", comment: "Replies in a thread"), replies)
             self.threadRepliesButton.setTitle(repliesString, for: .normal)
         } else {
             self.threadRepliesButton.setTitle("Reply", for: .normal)
