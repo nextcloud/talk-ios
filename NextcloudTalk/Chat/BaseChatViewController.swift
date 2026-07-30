@@ -4141,7 +4141,10 @@ import Toast
     }
 
     private func presentContextView(ofMessageId messageId: Int, in room: NCRoom, withAccount account: TalkAccount) {
-        guard let chatViewController = ContextChatViewController(forRoom: room, withAccount: account, withMessage: [], withHighlightId: 0) else { return }
+        // Without the context endpoint we are not able to show the context of the message, so we don't do anything here
+        guard room.supportsMessageContext,
+              let chatViewController = ContextChatViewController(forRoom: room, withAccount: account, withMessage: [], withHighlightId: 0)
+        else { return }
 
         chatViewController.showContext(ofMessageId: messageId, withLimit: 50, withCloseButton: true)
 

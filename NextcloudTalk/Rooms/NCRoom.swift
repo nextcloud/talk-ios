@@ -189,6 +189,10 @@ extension Array where Element == NCRoom {
         self.type != .changelog && self.type != .noteToSelf
     }
 
+    public var supportsMessageContext: Bool {
+        return NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatGetContext, for: self)
+    }
+
     public var supportsConversationSubfolders: Bool {
         if self.isFederated {
             return false

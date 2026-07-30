@@ -124,7 +124,12 @@ import UIKit
 
         let fixedSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         fixedSpace.width = 20
-        self.toolbarItems = [shareButton, fixedSpace, showMessageButton]
+        // The message can only be shown when the server supports the context endpoint
+        if self.room.supportsMessageContext {
+            self.toolbarItems = [shareButton, fixedSpace, showMessageButton]
+        } else {
+            self.toolbarItems = [shareButton]
+        }
     }
 
     func getCurrentPageViewController() -> NCMediaViewerPageViewController? {

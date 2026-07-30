@@ -1621,12 +1621,12 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             let threadId = (threadIdString as NSString?)?.integerValue ?? 0
             let thread = NCThread(threadId: threadId, inRoom: roomToken, forAccountId: activeAccount.accountId)
             if let room {
-                presentContextChat(inRoom: room, inThread: thread, forMessageId: messageId)
+                presentChat(inRoom: room, inThread: thread, forMessageId: messageId)
             } else {
                 NCAPIController.sharedInstance().getRoom(forAccount: activeAccount, withToken: roomToken) { [weak self] roomDict, error in
                     if error == nil {
                         if let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
-                            self?.presentContextChat(inRoom: room, inThread: thread, forMessageId: messageId)
+                            self?.presentChat(inRoom: room, inThread: thread, forMessageId: messageId)
                         }
                     } else {
                         let errorMessage = NSLocalizedString("Unable to get conversation of the message", comment: "")
@@ -1637,8 +1637,15 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
     }
 
-    private func presentContextChat(inRoom room: NCRoom, inThread thread: NCThread?, forMessageId messageId: Int) {
+    private func presentChat(inRoom room: NCRoom, inThread thread: NCThread?, forMessageId messageId: Int) {
         guard let account = room.account else {
+            return
+        }
+
+        // Without the context endpoint we are not able to show the surrounding messages,
+        // so we simply open the conversation the message belongs to
+        guard room.supportsMessageContext else {
+            NCRoomsManager.shared.startChat(inRoom: room)
             return
         }
 

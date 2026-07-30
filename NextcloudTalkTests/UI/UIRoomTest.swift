@@ -190,7 +190,7 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Conversations"].tap()
 
-        // Search for the message we just wrote and open ContextChatViewController
+        // Search for the message we just wrote and open its context
         waitForReady(object: app.searchFields.firstMatch).tap()
         app.typeText(testMessage)
 
@@ -200,13 +200,21 @@ final class UIRoomTest: XCTestCase {
         let messageResultCell = app.cells.matching(identifier: "MessageSearchResultCell").containingLabel(testMessage).firstMatch
         waitForReady(object: messageResultCell, timeout: TestConstants.timeoutLong).tap()
 
-        // Check that the context of our message is shown
+        // On servers without the "chat-get-context" capability (< Talk 17) we are not able to show the
+        // context of the message and open the conversation of the message instead
         let contextNavBar = app.navigationBars["NextcloudTalk.ContextChatView"]
-        XCTAssert(contextNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
-        XCTAssert(app.tables.textViews.labelContains(testMessage).firstMatch.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Close the ContextChatViewController again
-        waitForReady(object: contextNavBar.buttons["Close"]).tap()
+        if contextNavBar.waitForExistence(timeout: TestConstants.timeoutShort) {
+            // Check that the context of our message is shown
+            XCTAssert(app.tables.textViews.labelContains(testMessage).firstMatch.waitForExistence(timeout: TestConstants.timeoutShort))
+
+            // Close the ContextChatViewController again
+            waitForReady(object: contextNavBar.buttons["Close"]).tap()
+        } else {
+            // Go back to the conversation list again
+            XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
+            waitForReady(object: chatNavBar.buttons["Conversations"]).tap()
+        }
 
         // Close the SearchController
         app.buttons["close"].tap()
