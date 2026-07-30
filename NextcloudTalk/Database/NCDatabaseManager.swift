@@ -7,7 +7,7 @@ import Foundation
 
 public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
-public let kTalkDatabaseSchemaVersion: UInt64 = 92
+public let kTalkDatabaseSchemaVersion: UInt64 = 93
 
 // Objective-C bridge for the Talk database constants that are still referenced from Objective-C code.
 // These reference the Swift values and can be removed once those call sites are migrated to Swift.
