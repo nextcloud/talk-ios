@@ -1336,15 +1336,15 @@ import Toast
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
 
-            var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+            var metaData = ChatFileUploadMetadata()
+            metaData.isVoiceMessage = true
+            metaData.threadId = self.thread?.threadId
 
             if message.parentMessageId > 0 {
-                talkMetaData["replyTo"] = message.parentMessageId
+                metaData.replyTo = message.parentMessageId
             }
 
-            if let thread = self.thread {
-                talkMetaData["threadId"] = thread.threadId
-            }
+            let talkMetaData = metaData.asDictionary()
 
             self.resolveUploadDestination(for: originalMessage) { fileServerURL, fileServerPath, draftPath in
                 self.uploadFileAtPath(
@@ -2128,20 +2128,17 @@ import Toast
                 self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
             }
 
-            var talkMetaData: [String: Any] = ["messageType": "voice-message"]
-
-            if let replyToMessageId = replyToMessage?.messageId {
-                talkMetaData["replyTo"] = replyToMessageId
-            }
+            var metaData = ChatFileUploadMetadata()
+            metaData.isVoiceMessage = true
+            metaData.replyTo = replyToMessage?.messageId
+            metaData.threadId = self.thread?.threadId
 
             // A parent living in another conversation means this is a private reply
             if let replyToToken = replyToMessage?.token, replyToToken != self.room.token {
-                talkMetaData["replyToToken"] = replyToToken
+                metaData.replyToToken = replyToToken
             }
 
-            if let thread = self.thread {
-                talkMetaData["threadId"] = thread.threadId
-            }
+            let talkMetaData = metaData.asDictionary()
 
             self.resolveUploadDestination(for: audioFileName) { fileServerURL, fileServerPath, draftPath in
                 self.uploadFileAtPath(

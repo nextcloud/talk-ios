@@ -715,20 +715,12 @@ import MBProgressHUD
             self.updateHudProgress()
         } completionHandler: { _, _, _, _, _, _, nkError in
             if nkError.errorCode == 0 {
-                var talkMetaData: [String: Any] = [:]
+                var metaData = ChatFileUploadMetadata()
+                metaData.caption = item.caption
+                metaData.silent = self.shareSilently
+                metaData.threadId = self.thread?.threadId
 
-                let itemCaption = item.caption.trimmingCharacters(in: .whitespaces)
-                if !itemCaption.isEmpty {
-                    talkMetaData["caption"] = itemCaption
-                }
-
-                if self.shareSilently {
-                    talkMetaData["silent"] = self.shareSilently
-                }
-
-                if let thread = self.thread {
-                    talkMetaData["threadId"] = thread.threadId
-                }
+                let talkMetaData = metaData.asDictionary()
 
                 if let draftFolderPath {
                     NCAPIController.sharedInstance().postConversationAttachment(inRoom: self.room.token,

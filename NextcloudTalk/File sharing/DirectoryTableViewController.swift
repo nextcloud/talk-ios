@@ -141,10 +141,12 @@ class DirectoryTableViewController: UITableViewController {
     private func shareFile(withPath path: String) {
         setSharingFileUI()
 
-        var talkMetaData: [String: Any] = [:]
+        var metaData = ChatFileUploadMetadata()
         if threadId > 0 {
-            talkMetaData["threadId"] = threadId
+            metaData.threadId = threadId
         }
+
+        let talkMetaData = metaData.asDictionary()
 
         NCAPIController.sharedInstance().shareFileOrFolder(forAccount: NCDatabaseManager.sharedInstance().activeAccount(), atPath: path, toRoom: token, withTalkMetaData: talkMetaData, withReferenceId: nil) { [weak self] error in
             guard let self else { return }
