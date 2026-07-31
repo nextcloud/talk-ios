@@ -11,6 +11,33 @@ class ReferenceView: UIView {
 
     var activityIndicator: MDCActivityIndicator = MDCActivityIndicator(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 
+    /// A filled card instead of a hairline border, which used the very same translucent colour and so
+    /// would have doubled up. White in both appearances, so the card reads as a panel *lighter* than the
+    /// bubble – the semantic fills darken instead. Light mode needs the higher alpha, starting lighter.
+    private static let backgroundFill = UIColor { traitCollection in
+        let alpha = traitCollection.userInterfaceStyle == .dark ? 0.10 : 0.65
+
+        return UIColor.white.withAlphaComponent(alpha)
+    }
+
+    private var aspectRatioConstraint: NSLayoutConstraint?
+
+    /// Sizes the card to an aspect ratio rather than letting it stretch across the message, or restores
+    /// the full width when passed nil. Only the GIF uses this – card beside a GIF is just empty fill.
+    func setAspectRatio(_ aspectRatio: CGFloat?) {
+        self.aspectRatioConstraint?.isActive = false
+        self.aspectRatioConstraint = nil
+
+        guard let aspectRatio, aspectRatio > 0 else { return }
+
+        // Outranks the low priority stretch in BaseChatTableViewCell, gives way to the width available
+        let constraint = self.widthAnchor.constraint(equalTo: self.heightAnchor, multiplier: aspectRatio)
+        constraint.priority = .defaultHigh
+        constraint.isActive = true
+
+        self.aspectRatioConstraint = constraint
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         commonInit()
@@ -35,14 +62,15 @@ class ReferenceView: UIView {
 
         layer.cornerRadius = 8.0
         layer.masksToBounds = true
-        layer.borderWidth = 1.0
-        layer.borderColor = UIColor.secondarySystemFill.cgColor
+
+        backgroundColor = ReferenceView.backgroundFill
 
         self.addSubview(contentView)
     }
 
     func prepareForReuse() {
         referenceView.subviews.forEach({ $0.removeFromSuperview() })
+        setAspectRatio(nil)
         showIndicatorView()
     }
 
@@ -66,6 +94,8 @@ class ReferenceView: UIView {
     }
 
     func update(for sharedDeckCard: NCDeckCardParameter) {
+        setAspectRatio(nil)
+
         let deckView = ReferenceDeckView(frame: self.frame)
         deckView.update(for: sharedDeckCard)
         deckView.frame = self.bounds
@@ -77,6 +107,9 @@ class ReferenceView: UIView {
 
     func update(for references: [String: [String: AnyObject]]?, and url: String) {
         referenceView.subviews.forEach({ $0.removeFromSuperview() })
+
+        // Every kind but the GIF fills the width; that branch asks for its own shape again below
+        setAspectRatio(nil)
 
         guard let references = references,
               !references.isEmpty else {
@@ -148,6 +181,12 @@ class ReferenceView: UIView {
                   let reference = firstReference["richObject"] as? [String: AnyObject] {
 
             let giphyView = ReferenceGiphyView(frame: self.frame)
+
+            // Set before updating, as that already reports the aspect ratio the reference claims
+            giphyView.aspectRatioHandler = { [weak self] aspectRatio in
+                self?.setAspectRatio(aspectRatio)
+            }
+
             giphyView.update(for: reference, and: url)
             giphyView.frame = self.bounds
             giphyView.autoresizingMask = [.flexibleWidth, .flexibleHeight]

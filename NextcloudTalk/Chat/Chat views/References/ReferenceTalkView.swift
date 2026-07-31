@@ -39,7 +39,7 @@ import SwiftyAttributes
         referenceBody.textContainerInset = .zero
         referenceBody.textContainer.lineFragmentPadding = .zero
         referenceBody.textContainer.lineBreakMode = .byTruncatingTail
-        referenceBody.textContainer.maximumNumberOfLines = 3
+        referenceBody.textContainer.maximumNumberOfLines = 4
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap))
         contentView.addGestureRecognizer(tap)
