@@ -1303,19 +1303,19 @@ public class NCChatController: NSObject {
             return
         }
 
-        var talkMetaData: [String: Any] = ["messageType": "voice-message"]
+        var metaData = ChatFileUploadMetadata()
+        metaData.isVoiceMessage = true
+        metaData.replyToToken = replyToToken
 
         if parentMessageId > 0 {
-            talkMetaData["replyTo"] = parentMessageId
-        }
-
-        if let replyToToken {
-            talkMetaData["replyToToken"] = replyToToken
+            metaData.replyTo = parentMessageId
         }
 
         if isThreadController {
-            talkMetaData["threadId"] = threadId
+            metaData.threadId = threadId
         }
+
+        let talkMetaData = metaData.asDictionary()
 
         let uploadCompletion: (Int, NSString?) -> Void = { statusCode, _ in
             switch statusCode {
