@@ -20,16 +20,69 @@ enum ChatFileUploader {
         try await self.announce(upload, at: destination)
     }
 
+    /// Uploads several files to the server and posts them into the conversation they belong to.
+    ///
+    /// All uploads need to be for the same conversation and account: with conversation subfolders
+    /// enabled, the draft folder is requested once for all of them.
+    ///
+    /// - Parameter progress: Called with the index of an upload and the fraction of it that has been
+    ///                       uploaded so far.
+    /// - Throws: When the draft folder could not be prepared, in which case nothing was uploaded.
+    /// - Returns: One result per upload, in the order the uploads were given in.
+    static func upload(_ uploads: [ChatFileUpload],
+                       progress: ((_ index: Int, _ fractionCompleted: Double) -> Void)? = nil) async throws -> [Result<Void, Error>] {
+        guard let firstUpload = uploads.first else { return [] }
+
+        // One draft folder is enough for the whole batch, so it is requested before uploading
+        // anything: without it there is nowhere to upload to at all.
+        var draftFolder: String?
+
+        if firstUpload.room.supportsConversationSubfolders {
+            draftFolder = try await self.probeDraftFolder(for: firstUpload.room,
+                                                          account: firstUpload.account,
+                                                          fileNames: uploads.map { $0.fileName })
+        }
+
+        return await withTaskGroup(of: (index: Int, result: Result<Void, Error>).self) { group in
+            for (index, upload) in uploads.enumerated() {
+                group.addTask {
+                    do {
+                        let destination: ChatFileUploadDestination
+
+                        if let draftFolder {
+                            destination = try await self.draftFolderDestination(in: draftFolder, for: upload)
+                        } else {
+                            destination = try await self.resolveDestination(for: upload)
+                        }
+
+                        try await self.put(upload, to: destination, progress: { progress?(index, $0) }, mayCreateAttachmentFolder: true)
+                        try await self.announce(upload, at: destination)
+
+                        return (index, .success(()))
+                    } catch {
+                        return (index, .failure(error))
+                    }
+                }
+            }
+
+            var results = [Result<Void, Error>](repeating: .success(()), count: uploads.count)
+
+            for await taskResult in group {
+                results[taskResult.index] = taskResult.result
+            }
+
+            return results
+        }
+    }
+
     // MARK: - Destination
 
     /// Determines where to upload the file to, which is the only place that knows about the two
     /// different ways of getting a file into a conversation.
     private static func resolveDestination(for upload: ChatFileUpload) async throws -> ChatFileUploadDestination {
-        let apiController = NCAPIController.sharedInstance()
-
         guard upload.room.supportsConversationSubfolders else {
             do {
-                let uniqueName = try await apiController.uniqueNameForFileUpload(withName: upload.fileName, isOriginalName: true, forAccount: upload.account)
+                let uniqueName = try await NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: upload.fileName, isOriginalName: true, forAccount: upload.account)
 
                 return .attachmentFolder(serverPath: uniqueName.fileServerPath, serverURL: uniqueName.fileServerURL)
             } catch {
@@ -37,14 +90,21 @@ enum ChatFileUploader {
             }
         }
 
-        let draftFolder: String
+        let draftFolder = try await self.probeDraftFolder(for: upload.room, account: upload.account, fileNames: [upload.fileName])
 
+        return try await self.draftFolderDestination(in: draftFolder, for: upload)
+    }
+
+    /// Makes sure the conversation subfolder exists and returns the draft folder to upload into.
+    private static func probeDraftFolder(for room: NCRoom, account: TalkAccount, fileNames: [String]) async throws -> String {
         do {
-            draftFolder = try await apiController.probeConversationAttachmentFolder(inRoom: upload.room.token, withFileNames: [upload.fileName], forAccount: upload.account).folder
+            return try await NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: room.token, withFileNames: fileNames, forAccount: account).folder
         } catch {
             throw ChatFileUploadError.destinationUnavailable(underlyingError: error)
         }
+    }
 
+    private static func draftFolderDestination(in draftFolder: String, for upload: ChatFileUpload) async throws -> ChatFileUploadDestination {
         // The file is uploaded under a temporary name, it only gets its final name when the
         // attachment endpoint moves it out of the draft folder.
         let fileExtension = URL(fileURLWithPath: upload.fileName).pathExtension
@@ -52,7 +112,7 @@ enum ChatFileUploader {
         let draftPath = "\(draftFolder)/\(temporaryName)"
         let serverPath = "/\(draftPath)"
 
-        guard let serverURL = apiController.serverFileURL(forfilePath: serverPath, forAccount: upload.account)
+        guard let serverURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: serverPath, forAccount: upload.account)
         else { throw ChatFileUploadError.destinationUnavailable(underlyingError: nil) }
 
         return .draftFolder(draftPath: draftPath, serverPath: serverPath, serverURL: serverURL)
