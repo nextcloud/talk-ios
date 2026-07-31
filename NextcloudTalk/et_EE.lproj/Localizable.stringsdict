@@ -237,9 +237,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld conversation with unread messages</string>
+			<string>%ld vestlus lugemata sõnumitega</string>
 			<key>other</key>
-			<string>%ld conversations with unread messages</string>
+			<string>%ld vestlust lugemata sõnumitega</string>
 		</dict>
 	</dict>
 	<key>%ld days</key>
@@ -253,9 +253,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld day</string>
+			<string>%ld päev</string>
 			<key>other</key>
-			<string>%ld days</string>
+			<string>%ld päeva</string>
 		</dict>
 	</dict>
 	<key>%ld hours</key>
@@ -269,9 +269,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld hour</string>
+			<string>%ld tund</string>
 			<key>other</key>
-			<string>%ld hours</string>
+			<string>%ld tundi</string>
 		</dict>
 	</dict>
 	<key>%ld minutes</key>
@@ -285,9 +285,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld minute</string>
+			<string>%ld minut</string>
 			<key>other</key>
-			<string>%ld minutes</string>
+			<string>%ld minutit</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others will receive invitations</key>
@@ -301,9 +301,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other will receive invitations</string>
+			<string>%4$ld muu osaleja saab kutse</string>
 			<key>other</key>
-			<string>%4$ld others will receive invitations</string>
+			<string>%4$ld muud osalejat saavad kutsed</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
@@ -317,9 +317,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other is typing…</string>
+			<string>%4$ld muu osaleja kirjutab…</string>
 			<key>other</key>
-			<string>%4$ld others are typing…</string>
+			<string>%4$ld muud osalejat kirjutavad…</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
