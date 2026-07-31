@@ -3140,7 +3140,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // swiftlint:disable:next function_parameter_count
     public func shareFileOrFolder(forAccount account: TalkAccount, atPath path: String, toRoom token: String, withTalkMetaData talkMetaData: [String: Any]?, withReferenceId referenceId: String?, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
-        else { return }
+        else {
+            completionBlock(ApiControllerError.preconditionError)
+            return
+        }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/files_sharing/api/v1/shares"
 
@@ -3176,7 +3179,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         guard let fileServerPath = self.serverFilePath(forFileName: fileName, forAccount: account),
               let fileServerURL = self.serverFileURL(forfilePath: fileServerPath, forAccount: account)
-        else { return }
+        else {
+            completionBlock(nil, nil, 0, nil)
+            return
+        }
 
         let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
         NextcloudKit.shared.readFileOrFolder(serverUrlFileName: fileServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, options: options) { _, files, _, error in
@@ -3198,7 +3204,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
         self.setupNCCommunication(forAccount: account)
 
         guard let attachmentFolderServerURL = self.attachmentFolderServerURL(forAccount: account)
-        else { return }
+        else {
+            completionBlock(false, 0)
+            return
+        }
 
         let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
         NextcloudKit.shared.readFileOrFolder(serverUrlFileName: attachmentFolderServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, options: options) { _, _, _, error in
@@ -3224,7 +3233,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
-            completionBlock(nil, nil, nil)
+            completionBlock(nil, nil, ApiControllerError.preconditionError)
             return
         }
 
@@ -3256,7 +3265,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         else {
-            completionBlock(nil)
+            completionBlock(ApiControllerError.preconditionError)
             return
         }
 
