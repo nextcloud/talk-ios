@@ -353,6 +353,14 @@ import MBProgressHUD
         self.shareCollectionView.delegate = self
     }
 
+    /// Whether a caption can be added to what is being shared. When it can, the send button is part
+    /// of the input bar, otherwise it sits in the navigation bar.
+    private var captionAllowed: Bool {
+        guard self.shareType == .item else { return false }
+
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: self.account.accountId)
+    }
+
     public override func viewWillAppear(_ animated: Bool) {
         // Add the cancel button in viewWillAppear, so that the caller can change the isModal property after initialization
         if self.isModal {
@@ -366,10 +374,7 @@ import MBProgressHUD
             }
         }
 
-        var captionAllowed = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: account.accountId)
-        captionAllowed = captionAllowed && self.shareType == .item
-
-        if !captionAllowed {
+        if !self.captionAllowed {
             self.navigationItem.rightBarButtonItem = self.sendButton
             if #unavailable(iOS 26) {
                 self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
@@ -716,7 +721,8 @@ import MBProgressHUD
     func stopAnimatingSharingIndicator() {
         DispatchQueue.main.async {
             self.sharingIndicatorView.stopAnimating()
-            self.navigationItem.rightBarButtonItem = self.sendButton
+            // With a caption there is no send button in the navigation bar, it lives in the input bar
+            self.navigationItem.rightBarButtonItem = self.captionAllowed ? nil : self.sendButton
         }
     }
 
