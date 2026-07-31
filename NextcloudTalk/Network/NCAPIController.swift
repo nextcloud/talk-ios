@@ -3290,6 +3290,75 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
+    // MARK: - Async/Await wrapper for file uploads
+
+    @MainActor
+    public func shareFileOrFolder(forAccount account: TalkAccount, atPath path: String, toRoom token: String, withTalkMetaData talkMetaData: [String: Any]?, withReferenceId referenceId: String?) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            shareFileOrFolder(forAccount: account, atPath: path, toRoom: token, withTalkMetaData: talkMetaData, withReferenceId: referenceId) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func uniqueNameForFileUpload(withName fileName: String, isOriginalName: Bool, forAccount account: TalkAccount) async throws -> (fileServerURL: String, fileServerPath: String) {
+        return try await withCheckedThrowingContinuation { continuation in
+            uniqueNameForFileUpload(withName: fileName, isOriginalName: isOriginalName, forAccount: account) { fileServerURL, fileServerPath, errorCode, errorDescription in
+                guard let fileServerURL, let fileServerPath else {
+                    let userInfo = [NSLocalizedDescriptionKey: errorDescription ?? "Could not find a unique name for the file to upload"]
+                    continuation.resume(throwing: NSError(domain: NSURLErrorDomain, code: errorCode, userInfo: userInfo))
+                    return
+                }
+
+                continuation.resume(returning: (fileServerURL, fileServerPath))
+            }
+        }
+    }
+
+    /// Creates the attachment folder when it is missing. Returns whether it had to be created.
+    @MainActor
+    func checkOrCreateAttachmentFolder(forAccount account: TalkAccount) async -> Bool {
+        return await withCheckedContinuation { continuation in
+            checkOrCreateAttachmentFolder(forAccount: account) { created, _ in
+                continuation.resume(returning: created)
+            }
+        }
+    }
+
+    @MainActor
+    public func probeConversationAttachmentFolder(inRoom token: String, withFileNames fileNames: [String], forAccount account: TalkAccount) async throws -> (folder: String, renames: [[String: String]]) {
+        return try await withCheckedThrowingContinuation { continuation in
+            probeConversationAttachmentFolder(inRoom: token, withFileNames: fileNames, forAccount: account) { folder, renames, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let folder {
+                    continuation.resume(returning: (folder, renames ?? []))
+                } else {
+                    continuation.resume(throwing: ApiControllerError.unexpectedOcsResponse)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    // swiftlint:disable:next function_parameter_count
+    public func postConversationAttachment(inRoom token: String, filePath: String, fileName: String, referenceId: String?, talkMetaData: [String: Any]?, forAccount account: TalkAccount) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            postConversationAttachment(inRoom: token, filePath: filePath, fileName: fileName, referenceId: referenceId, talkMetaData: talkMetaData, forAccount: account) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
     // MARK: - User actions
 
     @nonobjc
