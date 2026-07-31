@@ -1858,8 +1858,8 @@ class CallViewController: UIViewController,
             }))
         }
 
-        // Start/Stop recording
-        if self.room.isUserOwnerOrModerator, NCSettingsController.sharedInstance().isRecordingEnabled() {
+        // Start/Stop recording. Recording is disabled in classified conversations.
+        if self.room.isUserOwnerOrModerator, !self.room.isClassified, NCSettingsController.sharedInstance().isRecordingEnabled() {
             var recordingImage = UIImage(systemName: "record.circle.fill")
             var recordingActionTitle = NSLocalizedString("Start recording", comment: "")
 

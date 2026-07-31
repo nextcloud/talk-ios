@@ -64,6 +64,8 @@ struct RoomInfoNotificationSection: View {
                         Text("Message preview will be disabled in conversation list and notifications")
                     }
                 })
+                // Classified conversations are always sensitive; the backend enforces this, so the toggle is locked on.
+                .disabled(room.isClassified)
             }
         }
     }

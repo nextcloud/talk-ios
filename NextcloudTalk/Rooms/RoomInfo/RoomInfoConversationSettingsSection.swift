@@ -53,7 +53,7 @@ struct RoomInfoConversationSettingsSection: View {
                 }).foregroundStyle(.primary)
             }
 
-            if room.supportsBotsModeration {
+            if room.supportsBotsModeration, !room.isClassified {
                 Button(action: {
                     hostingWrapper.pushViewController(BotsTableViewController(room: room, bots: bots ?? []), animated: true)
                 }, label: {
@@ -92,7 +92,8 @@ struct RoomInfoConversationSettingsSection: View {
             }
 
             if room.canModerate {
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
+                // Classified conversations cannot be opened up to other users.
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms), !room.isClassified {
                     let listable = Binding<Bool>(get: {
                         self.room.listable != .participantsOnly
                     }, set: {

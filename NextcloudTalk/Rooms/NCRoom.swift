@@ -464,6 +464,57 @@ extension Array where Element == NCRoom {
         return self.supportsAnnouncementPreset && self.attributes.contains(.announcement)
     }
 
+    // A classified conversation locks down anything that could leak sensitive content
+    // (forwarding, previews, server-side AI, SIP/guest exposure, ...). The backend enforces
+    // the restrictions; the client only reacts by hiding the corresponding UI.
+    public var isClassified: Bool {
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.classifiedConversations, forAccountId: self.accountId)
+            && self.attributes.contains(.classified)
+    }
+
+    // A classified conversation is bound to a "classified" object while it is pending
+    // auto-deletion after a call. Keeping it unbinds the object, flipping it to
+    // "classified_persist", which stops the auto-deletion.
+    public var isPendingClassifiedDeletion: Bool {
+        return self.objectType == NCRoomObjectTypeClassified
+    }
+
+    // The user-facing retention message for an event conversation, or nil when auto-deletion
+    // is disabled on the server ("retention-event" == 0). The server exposes the retention
+    // period in days.
+    public var eventRetentionMessage: String? {
+        guard let retentionEvent = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId)?.retentionEvent,
+              retentionEvent > 0
+        else {
+            return nil
+        }
+
+        return String.localizedStringWithFormat(
+            NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
+            retentionEvent)
+    }
+
+    // The user-facing retention message for a classified conversation, or nil when auto-deletion
+    // is disabled on the server ("retention-classified" == 0). The server exposes the retention
+    // period in seconds (e.g. 3600 = 1 hour).
+    public var classifiedRetentionMessage: String? {
+        guard let retentionClassified = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.accountId)?.retentionClassified,
+              retentionClassified > 0
+        else {
+            return nil
+        }
+
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day, .hour, .minute]
+        formatter.unitsStyle = .full
+        formatter.maximumUnitCount = 1
+        let duration = formatter.string(from: TimeInterval(retentionClassified)) ?? ""
+
+        return String.localizedStringWithFormat(
+            NSLocalizedString("This classified conversation will be automatically deleted for everyone %@ after a call.", comment: "e.g. '... deleted for everyone 1 hour after a call.'"),
+            duration)
+    }
+
     // MARK: - Conversation tags
 
     public var tagIdList: [String] {

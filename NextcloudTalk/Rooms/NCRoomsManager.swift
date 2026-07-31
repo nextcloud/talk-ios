@@ -357,14 +357,29 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         var title = NSLocalizedString("Delete conversation", comment: "")
         var message = NSLocalizedString("The call for this event ended. Do you want to delete this conversation for everyone?", comment: "")
 
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: room.accountId)
-        let retentionEvent = serverCapabilities?.retentionEvent ?? 0
-        let isRetentionEnabled = retentionEvent > 0
+        // A retention message is only returned when auto-deletion is enabled on the server
+        let eventRetentionMessage = room.eventRetentionMessage
+        let isRetentionEnabled = eventRetentionMessage != nil
 
-        if isRetentionEnabled {
+        if let eventRetentionMessage {
             title = NSLocalizedString("Do you want to delete this conversation?", comment: "")
-            message = String.localizedStringWithFormat("This conversation will be automatically deleted for everyone in %ld days of no activity.", retentionEvent)
+            message = eventRetentionMessage
+        }
 
+        self.deleteRoom(withConfirmation: room, withTitle: title, withMessage: message, withKeepOption: isRetentionEnabled, withStartedBlock: nil, withFinishedBlock: nil)
+    }
+
+    public func deleteClassifiedRoomWithConfirmationAfterCall(_ room: NCRoom) {
+        var title = NSLocalizedString("Delete conversation", comment: "")
+        var message = NSLocalizedString("The call in this classified conversation ended. Do you want to delete this conversation for everyone?", comment: "")
+
+        // A retention message is only returned when auto-deletion is enabled on the server
+        let classifiedRetentionMessage = room.classifiedRetentionMessage
+        let isRetentionEnabled = classifiedRetentionMessage != nil
+
+        if let classifiedRetentionMessage {
+            title = NSLocalizedString("Do you want to delete this conversation?", comment: "")
+            message = classifiedRetentionMessage
         }
 
         self.deleteRoom(withConfirmation: room, withTitle: title, withMessage: message, withKeepOption: isRetentionEnabled, withStartedBlock: nil, withFinishedBlock: nil)
@@ -723,6 +738,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         // If this is an event room and we are a moderator, we allow direct deletion
         if room.canModerate, room.isEvent {
             self.deleteEventRoomWithConfirmationAfterCall(room)
+        } else if room.canModerate, room.isPendingClassifiedDeletion {
+            // Classified conversations are auto-deleted after a call unless kept, so offer the choice right away
+            self.deleteClassifiedRoomWithConfirmationAfterCall(room)
         }
     }
 

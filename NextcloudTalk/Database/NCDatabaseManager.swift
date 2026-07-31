@@ -7,7 +7,7 @@ import Foundation
 
 public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
-public let kTalkDatabaseSchemaVersion: UInt64 = 93
+public let kTalkDatabaseSchemaVersion: UInt64 = 94
 
 // Objective-C bridge for the Talk database constants that are still referenced from Objective-C code.
 // These reference the Swift values and can be removed once those call sites are migrated to Swift.
@@ -94,6 +94,7 @@ public enum TalkCapability: String {
     case conversationTags = "conversation-tags"
     case announcementPreset = "announcement-preset"
     case privateReply = "private-reply"
+    case classifiedConversations = "classified-conversations"
 
     // Talk 12.0 is the minimum required version
     public static let minimumRequired = TalkCapability.conversationV4
@@ -450,6 +451,9 @@ public extension Notification.Name {
         }
         if let retentionInstantMeetings = (conversationsConfig?["retention-instant-meetings"] as? NSNumber)?.intValue {
             capabilities.retentionInstantMeetings = retentionInstantMeetings
+        }
+        if let retentionClassified = (conversationsConfig?["retention-classified"] as? NSNumber)?.intValue {
+            capabilities.retentionClassified = retentionClassified
         }
 
         if let sortOrder = conversationsConfig?["sort-order"] as? String {

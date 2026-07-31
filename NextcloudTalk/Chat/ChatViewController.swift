@@ -48,7 +48,8 @@ import SwiftUI
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
 
         // We decide at this point if the unread marker should be with/without summary button, so it doesn't get changed when the room is updated
-        if !self.room.isFederated, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatSummary, forAccountId: self.room.accountId),
+        // Chat summaries are generated server-side, so they are disabled in classified conversations.
+        if !self.room.isFederated, !self.room.isClassified, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatSummary, forAccountId: self.room.accountId),
            let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
            serverCapabilities.summaryThreshold <= self.room.unreadMessages {
 
@@ -380,6 +381,33 @@ import SwiftUI
         return button
     }()
 
+    private lazy var classifiedIndicatorButton: BarButtonItemWithActivity = {
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
+        let buttonImage = UIImage(systemName: "lock.shield", withConfiguration: symbolConfiguration) ?? UIImage()
+        let button = BarButtonItemWithActivity(image: buttonImage)
+
+        button.innerButton.tintColor = .systemRed
+        button.innerButton.addAction(UIAction { [weak self] _ in
+            self?.presentClassifiedConversationInfo()
+        }, for: .touchUpInside)
+
+        button.accessibilityLabel = NSLocalizedString("Classified conversation", comment: "")
+        button.accessibilityHint = NSLocalizedString("Double tap to learn more about classified conversations", comment: "")
+
+        return button
+    }()
+
+    func presentClassifiedConversationInfo() {
+        let alert = UIAlertController(
+            title: NSLocalizedString("Classified conversation", comment: ""),
+            message: NSLocalizedString("This is a classified conversation. To protect sensitive content, message forwarding, previews, translation, chat summaries, calls recording and some sharing options are disabled.", comment: ""),
+            preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+
+        self.present(alert, animated: true)
+    }
+
     private func createOptionsRoomMenu() -> UIMenu {
         var menuElements: [UIMenuElement] = []
 
@@ -603,6 +631,10 @@ import SwiftUI
             // Call options
             if room.supportsCalling {
                 barButtonsItems.append(callOptionsButton)
+            }
+            // Classified conversation indicator
+            if room.isClassified {
+                barButtonsItems.append(classifiedIndicatorButton)
             }
         }
 
@@ -1029,13 +1061,20 @@ import SwiftUI
     var retentionView: ChatInfoView? = nil
 
     func checkRetention() {
-        // Only check for event conversations that have ended
+        // Show a retention banner for conversations that will be automatically deleted:
+        // - past event conversations (deleted after N days of inactivity)
+        // - classified conversations pending deletion (deleted after the call ends)
+        // In both cases "Keep" unbinds the room from its object to stop the auto-deletion.
         // TODO: check if there are end_call messages
-        guard self.room.isEvent,
-              self.room.isPastEvent,
-              let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.room.accountId),
-              serverCapabilities.retentionEvent > 0
-        else {
+        var retentionTitle: String?
+
+        if self.room.isEvent, self.room.isPastEvent, let eventMessage = self.room.eventRetentionMessage {
+            retentionTitle = eventMessage
+        } else if self.room.isPendingClassifiedDeletion, let classifiedMessage = self.room.classifiedRetentionMessage {
+            retentionTitle = classifiedMessage
+        }
+
+        guard let retentionTitle else {
             self.retentionView?.removeFromSuperview()
             return
         }
@@ -1045,9 +1084,7 @@ import SwiftUI
         let retentionView = ChatInfoView()
         self.retentionView = retentionView
 
-        retentionView.titleLabel.text = String.localizedStringWithFormat(
-            NSLocalizedString("This conversation will be automatically deleted for everyone in %ld days of no activity.", comment: ""),
-            serverCapabilities.retentionEvent)
+        retentionView.titleLabel.text = retentionTitle
         retentionView.leftButton.setTitle(NSLocalizedString("Delete now", comment: ""), for: .normal)
         retentionView.leftButton.setButtonStyle(style: .destructive)
         retentionView.leftButton.setButtonAction(target: self, selector: #selector(deleteNowButtonPressed))
@@ -2602,8 +2639,8 @@ import SwiftUI
             })
         }
 
-        // Forward option (only normal messages for now)
-        if message.file() == nil, message.poll == nil, !message.isDeletedMessage {
+        // Forward option (only normal messages for now). Forwarding is disabled in classified conversations.
+        if message.file() == nil, message.poll == nil, !message.isDeletedMessage, !self.room.isClassified {
             actions.append(UIAction(title: NSLocalizedString("Forward", comment: ""), image: .init(systemName: "arrowshape.turn.up.right")) { _ in
                 self.didPressForward(for: message)
             })
@@ -2694,15 +2731,15 @@ import SwiftUI
 
         var moreMenuActions: [UIMenuElement] = []
 
-        // Reply-privately option (only to other users and not in one-to-one)
-        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != self.account.userId {
+        // Reply-privately option (only to other users and not in one-to-one). Disabled in classified conversations.
+        if self.isMessageReplyable(message: message), self.room.type != .oneToOne, message.actorType == "users", message.actorId != self.account.userId, !self.room.isClassified {
             moreMenuActions.append(UIAction(title: NSLocalizedString("Reply privately", comment: ""), image: .init(systemName: "person")) { _ in
                 self.didPressReplyPrivately(for: message)
             })
         }
 
-        // Translate
-        if !self.offlineMode, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: self.account.accountId) {
+        // Translate. Server-side translation is disabled in classified conversations to avoid data egress.
+        if !self.offlineMode, !self.room.isClassified, NCDatabaseManager.sharedInstance().hasAvailableTranslations(forAccountId: self.account.accountId) {
             moreMenuActions.append(UIAction(title: NSLocalizedString("Translate", comment: ""), image: .init(systemName: "character.book.closed")) { _ in
                 self.didPressTranslate(for: message)
             })
