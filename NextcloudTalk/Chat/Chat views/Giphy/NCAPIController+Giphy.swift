@@ -42,6 +42,15 @@ extension NCAPIController {
         ]
     }
 
+    /// Same as `giphyImageContext(forAccount:)`, but for the reference views in chat, which have no
+    /// account at hand. The proxied URLs load without authentication, as they always have.
+    var giphyReferenceImageContext: [SDWebImageContextOption: Any] {
+        return [
+            .imageCache: Self.giphyImageCache,
+            .animatedImageClass: SDAnimatedImage.self
+        ]
+    }
+
     /// Loads a GIF that is proxied by the Nextcloud server, as returned in `thumbnailUrl`. The result
     /// is cached, so the cell displaying it afterwards gets it from the cache. User agent, certificate
     /// handling and a limit of 6 parallel downloads come from the shared `SDWebImageDownloader`.

@@ -11,8 +11,6 @@ import Foundation
     @IBOutlet weak var referenceTypeIcon: UIImageView!
     @IBOutlet weak var referenceTitle: UILabel!
     @IBOutlet weak var referenceBody: UITextView!
-    @IBOutlet weak var referenceCommentCount: UILabel!
-    @IBOutlet weak var referenceCommentIcon: UIImageView!
 
     var url: String?
 
@@ -38,7 +36,7 @@ import Foundation
         referenceBody.textContainerInset = .zero
         referenceBody.textContainer.lineFragmentPadding = .zero
         referenceBody.textContainer.lineBreakMode = .byTruncatingTail
-        referenceBody.textContainer.maximumNumberOfLines = 3
+        referenceBody.textContainer.maximumNumberOfLines = 4
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap))
         contentView.addGestureRecognizer(tap)
@@ -64,19 +62,7 @@ import Foundation
                 referenceBody.text = NSLocalizedString("Unknown error", comment: "")
             }
 
-            referenceCommentCount.isHidden = true
-            referenceCommentIcon.isHidden = true
-
             return
-        }
-
-        referenceCommentCount.isHidden = false
-        referenceCommentIcon.isHidden = false
-
-        if let comments = reference["article_count"] as? Int {
-            referenceCommentCount.text = String(comments)
-        } else {
-            referenceCommentCount.text = "0"
         }
 
         if let title = reference["title"] as? String {
@@ -90,14 +76,17 @@ import Foundation
             let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.lineBreakMode = .byTruncatingTail
 
-            var bodyText = "#\(ticketNumber) [\(severity)]: \(authorName)".withParagraphStyle(paragraphStyle)
+            var ticketLine = "#\(ticketNumber) [\(severity)]"
 
-            // When we are able to determine the ticket state -> add that to the body
+            // When we are able to determine the ticket state -> add it to the ticket line
             if let zammadStates = reference["zammad_ticket_states"] as? [[AnyHashable: Any]], let ticketState = reference["state_id"] as? Int,
                let zammadState = zammadStates.first(where: { $0["id"] as? Int == ticketState }), let stateName = zammadState["name"] as? String {
 
-                bodyText.append("\n\(stateName)".withParagraphStyle(paragraphStyle))
+                ticketLine += " · \(stateName)"
             }
+
+            // The author on the first line, the ticket itself and how it is doing on the second
+            var bodyText = "\(authorName)\n\(ticketLine)".withParagraphStyle(paragraphStyle)
 
             bodyText = bodyText.withFont(referenceBody.font ?? .preferredFont(forTextStyle: .callout)).withTextColor(referenceBody.textColor ?? .secondaryLabel)
 

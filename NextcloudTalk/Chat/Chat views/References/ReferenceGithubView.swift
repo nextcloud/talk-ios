@@ -11,8 +11,6 @@ import Foundation
     @IBOutlet weak var referenceTypeIcon: UIImageView!
     @IBOutlet weak var referenceTitle: UILabel!
     @IBOutlet weak var referenceBody: UITextView!
-    @IBOutlet weak var referenceCommentCount: UILabel!
-    @IBOutlet weak var referenceCommentIcon: UIImageView!
 
     var url: String?
 
@@ -39,7 +37,7 @@ import Foundation
         referenceBody.textContainerInset = .zero
         referenceBody.textContainer.lineFragmentPadding = .zero
         referenceBody.textContainer.lineBreakMode = .byTruncatingTail
-        referenceBody.textContainer.maximumNumberOfLines = 3
+        referenceBody.textContainer.maximumNumberOfLines = 4
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap))
         contentView.addGestureRecognizer(tap)
@@ -105,9 +103,6 @@ import Foundation
                     referenceBody.text = NSLocalizedString("Unknown error", comment: "")
                 }
 
-                referenceCommentCount.isHidden = true
-                referenceCommentIcon.isHidden = true
-
                 referenceTypeIcon.image = UIImage(named: "github")?.withTintColor(UIColor.systemGray)
 
                 return
@@ -115,15 +110,6 @@ import Foundation
         }
 
         setIcon(for: reference)
-
-        referenceCommentCount.isHidden = false
-        referenceCommentIcon.isHidden = false
-
-        if let comments = reference["comments"] as? Int {
-            referenceCommentCount.text = String(comments)
-        } else {
-            referenceCommentCount.text = "0"
-        }
 
         if let title = reference["title"] as? String {
             referenceTitle.text = title

@@ -26,7 +26,7 @@
                 </imageView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Iby-r5-06p">
                     <rect key="frame" x="40" y="10" width="565" height="18"/>
-                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
@@ -51,8 +51,8 @@
                 <constraint firstAttribute="trailing" secondItem="Iby-r5-06p" secondAttribute="trailing" constant="10" id="8M9-gP-HSJ"/>
                 <constraint firstItem="Iby-r5-06p" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="BrA-8P-nYn"/>
                 <constraint firstItem="PAt-pa-feD" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="40" id="TWM-qw-eBP"/>
-                <constraint firstItem="PAt-pa-feD" firstAttribute="top" secondItem="Iby-r5-06p" secondAttribute="bottom" constant="5" id="fRW-Ys-k9q"/>
-                <constraint firstAttribute="bottom" secondItem="PAt-pa-feD" secondAttribute="bottom" constant="5" id="spr-yT-BX0"/>
+                <constraint firstItem="PAt-pa-feD" firstAttribute="top" secondItem="Iby-r5-06p" secondAttribute="bottom" constant="3" id="fRW-Ys-k9q"/>
+                <constraint firstAttribute="bottom" secondItem="PAt-pa-feD" secondAttribute="bottom" constant="3" id="spr-yT-BX0"/>
                 <constraint firstItem="Iby-r5-06p" firstAttribute="leading" secondItem="2GP-6u-K9h" secondAttribute="trailing" constant="10" id="w74-ha-ONw"/>
                 <constraint firstAttribute="trailing" secondItem="PAt-pa-feD" secondAttribute="trailing" constant="10" id="zSQ-v8-aFT"/>
             </constraints>
