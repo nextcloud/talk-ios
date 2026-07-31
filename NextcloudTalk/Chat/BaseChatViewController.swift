@@ -1331,7 +1331,6 @@ import Toast
         if message.messageType != kMessageTypeVoiceMessage {
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
@@ -1344,20 +1343,19 @@ import Toast
                 metaData.replyTo = message.parentMessageId
             }
 
-            let talkMetaData = metaData.asDictionary()
-
-            self.resolveUploadDestination(for: originalMessage) { fileServerURL, fileServerPath, draftPath in
-                self.uploadFileAtPath(
-                    localPath: message.file().fileStatus!.fileLocalPath!,
-                    withFileServerURL: fileServerURL,
-                    andFileServerPath: fileServerPath,
-                    draftPath: draftPath,
-                    withMetaData: talkMetaData,
-                    temporaryMessage: message
-                )
-            } failure: { reason in
-                NCLog.log(reason)
+            // A parent living in another conversation means this is a private reply
+            if let replyToToken = message.parent?.token, replyToToken != self.room.token {
+                metaData.replyToToken = replyToToken
             }
+
+            var upload = ChatFileUpload(localPath: message.file().fileStatus!.fileLocalPath!,
+                                        fileName: originalMessage,
+                                        room: self.room,
+                                        account: self.account)
+            upload.metadata = metaData
+            upload.referenceId = message.referenceId
+
+            self.upload(upload)
         }
     }
 
@@ -1887,18 +1885,10 @@ import Toast
             let url = URL(fileURLWithPath: filePath)
             let contactFileName = "\(contact.identifier).vcf"
 
-            self.resolveUploadDestination(for: contactFileName) { fileServerURL, fileServerPath, draftPath in
-                self.uploadFileAtPath(
-                    localPath: url.path(),
-                    withFileServerURL: fileServerURL,
-                    andFileServerPath: fileServerPath,
-                    draftPath: draftPath,
-                    withMetaData: nil,
-                    temporaryMessage: nil
-                )
-            } failure: { reason in
-                NCLog.log(reason)
-            }
+            self.upload(ChatFileUpload(localPath: url.path(),
+                                       fileName: contactFileName,
+                                       room: self.room,
+                                       account: self.account))
         } catch {
             print("Could not write contact file")
         }
@@ -2138,61 +2128,56 @@ import Toast
                 metaData.replyToToken = replyToToken
             }
 
-            let talkMetaData = metaData.asDictionary()
+            var upload = ChatFileUpload(localPath: destinationFilePath,
+                                        fileName: audioFileName,
+                                        room: self.room,
+                                        account: self.account)
+            upload.metadata = metaData
+            upload.referenceId = temporaryMessage.referenceId
 
-            self.resolveUploadDestination(for: audioFileName) { fileServerURL, fileServerPath, draftPath in
-                self.uploadFileAtPath(
-                    localPath: destinationFilePath,
-                    withFileServerURL: fileServerURL,
-                    andFileServerPath: fileServerPath,
-                    draftPath: draftPath,
-                    withMetaData: talkMetaData,
-                    temporaryMessage: temporaryMessage
-                )
-            } failure: { reason in
-                NCLog.log(reason)
-            }
+            self.upload(upload)
         } else {
             print("Temporary message could not be created")
         }
     }
 
-    func uploadFileAtPath(localPath: String, withFileServerURL fileServerURL: String, andFileServerPath fileServerPath: String, draftPath: String?, withMetaData talkMetaData: [String: Any]?, temporaryMessage: NCChatMessage?) {
-
-        ChatFileUploader.uploadFile(localPath: localPath,
-                                    fileServerURL: fileServerURL,
-                                    fileServerPath: fileServerPath,
-                                    draftPath: draftPath,
-                                    talkMetaData: talkMetaData,
-                                    temporaryMessage: temporaryMessage,
-                                    room: self.room) { statusCode, errorMessage in
-            DispatchQueue.main.async {
-                switch statusCode {
-                case 200:
-                    NSLog("Successfully uploaded and shared voice message")
-                case 401:
-                    NSLog("No active account found")
-                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("No active account found", comment: ""))
-                case 403:
-                    NSLog("Failed to share voice message")
-                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("Failed to share recording", comment: ""))
-                case 404, 409:
-                    NSLog("Failed to check or create attachment folder")
-                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("Failed to check or create attachment folder", comment: ""))
-                case 507:
-                    NSLog("User storage quota exceeded")
-                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""),
-                                                  withMessage: NSLocalizedString("User storage quota exceeded", comment: ""))
-                case 429:
-                    NSLog("Too many requests while uploading")
-                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""),
-                                                  withMessage: NSLocalizedString("Too many requests, please try again later", comment: ""))
-                default:
-                    NSLog("Failed upload voice message with error code \(statusCode)")
-                    NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: NSLocalizedString("Unknown error occurred", comment: ""))
-                }
+    func upload(_ upload: ChatFileUpload) {
+        Task {
+            do {
+                try await ChatFileUploader.upload(upload)
+                NCLog.log("Successfully uploaded and shared \(upload.fileName)")
+            } catch {
+                self.presentUploadError(error, for: upload)
             }
         }
+    }
+
+    private func presentUploadError(_ error: Error, for upload: ChatFileUpload) {
+        let message: String
+
+        switch error {
+        case ChatFileUploadError.destinationUnavailable(let underlyingError):
+            // Nothing has been uploaded yet, so keep this silent as before
+            NCLog.log("Could not determine where to upload \(upload.fileName) to. Error: \(underlyingError?.localizedDescription ?? "unknown")")
+            return
+        case ChatFileUploadError.attachmentFolderUnavailable:
+            NCLog.log("Failed to check or create attachment folder")
+            message = NSLocalizedString("Failed to check or create attachment folder", comment: "")
+        case ChatFileUploadError.shareFailed:
+            NCLog.log("Failed to share \(upload.fileName)")
+            message = NSLocalizedString("Failed to share recording", comment: "")
+        case ChatFileUploadError.quotaExceeded:
+            NCLog.log("User storage quota exceeded")
+            message = NSLocalizedString("User storage quota exceeded", comment: "")
+        case ChatFileUploadError.tooManyRequests:
+            NCLog.log("Too many requests while uploading")
+            message = NSLocalizedString("Too many requests, please try again later", comment: "")
+        default:
+            NCLog.log("Failed to upload \(upload.fileName). Error: \(error.localizedDescription)")
+            message = NSLocalizedString("Unknown error occurred", comment: "")
+        }
+
+        NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Upload failed", comment: ""), withMessage: message)
     }
 
     // MARK: - AVAudioRecorder Delegate
@@ -4193,55 +4178,6 @@ import Toast
 
     func generateSummaryButtonPressed() {
         // Do nothing -> override in subclass
-    }
-
-    // MARK: - Upload destination resolution
-
-    private func resolveUploadDestination(
-        for fileName: String,
-        completion: @escaping (_ fileServerURL: String, _ fileServerPath: String, _ draftPath: String?) -> Void,
-        failure: @escaping (_ reason: String) -> Void
-    ) {
-        if room.supportsConversationSubfolders {
-            NCAPIController.sharedInstance().probeConversationAttachmentFolder(
-                inRoom: room.token,
-                withFileNames: [fileName],
-                forAccount: account
-            ) { draftFolder, _, error in
-                if let error {
-                    failure("Probe conversation attachment folder failed: \(error.localizedDescription)")
-                    return
-                }
-                guard let draftFolder else {
-                    failure("Probe conversation attachment folder returned no folder")
-                    return
-                }
-                let fileExtension = URL(string: fileName)?.pathExtension ?? ""
-                let extensionSuffix = fileExtension.isEmpty ? "" : ".\(fileExtension)"
-                let tempName = UUID().uuidString + extensionSuffix
-                let draftPath = "\(draftFolder)/\(tempName)"
-                let fileServerPath = "/\(draftPath)"
-
-                guard let fileServerURL = NCAPIController.sharedInstance()
-                        .serverFileURL(forfilePath: fileServerPath, forAccount: self.account) else {
-                    failure("Error creating server path for upload")
-                    return
-                }
-                completion(fileServerURL, fileServerPath, draftPath)
-            }
-        } else {
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(
-                withName: fileName,
-                isOriginalName: true,
-                forAccount: account
-            ) { fileServerURL, fileServerPath, _, _ in
-                guard let fileServerURL, let fileServerPath else {
-                    failure("Could not find unique name for file: \(fileName)")
-                    return
-                }
-                completion(fileServerURL, fileServerPath, nil)
-            }
-        }
     }
 
     // MARK: - NCChatFileControllerDelegate
