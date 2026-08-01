@@ -131,6 +131,9 @@ public extension Notification.Name {
 
     private let capabilitiesCache = NSCache<NSString, ServerCapabilities>()
 
+    /// Derived from the server and federated capabilities, so dropped whenever either is written
+    private let talkCapabilitiesCache = NSCache<NSString, TalkCapabilities>()
+
     public class func sharedInstance() -> NCDatabaseManager {
         return shared
     }
@@ -264,6 +267,7 @@ public extension Notification.Name {
         if let serverCapabilities = ServerCapabilities.objects(with: query).firstObject() as? ServerCapabilities {
             realm.delete(serverCapabilities)
             capabilitiesCache.removeObject(forKey: accountId as NSString)
+            talkCapabilitiesCache.removeAllObjects()
         }
         realm.deleteObjects(NCRoom.objects(with: query))
         realm.deleteObjects(NCChatMessage.objects(with: query))
@@ -522,6 +526,8 @@ public extension Notification.Name {
 
         setTalkCapabilities(federatedCapabilitiesDict, onTalkCapabilitiesObject: federatedCapabilities)
 
+        talkCapabilitiesCache.removeAllObjects()
+
         let realm = RLMRealm.default()
         try? realm.transaction {
             realm.addOrUpdate(federatedCapabilities)
@@ -553,18 +559,29 @@ public extension Notification.Name {
     }
 
     public func roomTalkCapabilities(for room: NCRoom) -> TalkCapabilities? {
+        // Converting to TalkCapabilities copies every property, and this is reached once per chat cell
+        // while scrolling
+        let cacheKey = (room.isFederated ? "\(room.accountId)@\(room.remoteServer ?? "")@\(room.token ?? "")" : room.accountId) as NSString
+
+        if let cachedTalkCapabilities = talkCapabilitiesCache.object(forKey: cacheKey) {
+            return cachedTalkCapabilities
+        }
+
+        var talkCapabilities: TalkCapabilities?
+
         if room.isFederated {
             if let federatedCapabilities = federatedCapabilities(forAccountId: room.accountId, remoteServer: room.remoteServer, roomToken: room.token) {
-                return TalkCapabilities(value: federatedCapabilities)
+                talkCapabilities = TalkCapabilities(value: federatedCapabilities)
             }
-            return nil
+        } else if let serverCapabilities = serverCapabilities(forAccountId: room.accountId) {
+            talkCapabilities = TalkCapabilities(value: serverCapabilities)
         }
 
-        if let serverCapabilities = serverCapabilities(forAccountId: room.accountId) {
-            return TalkCapabilities(value: serverCapabilities)
+        if let talkCapabilities {
+            talkCapabilitiesCache.setObject(talkCapabilities, forKey: cacheKey)
         }
 
-        return nil
+        return talkCapabilities
     }
 
     // MARK: - Server capabilities
@@ -582,6 +599,7 @@ public extension Notification.Name {
         if let managedServerCapabilities = ServerCapabilities.objects(with: query).firstObject() as? ServerCapabilities {
             let unmanagedServerCapabilities = ServerCapabilities(value: managedServerCapabilities)
             capabilitiesCache.setObject(unmanagedServerCapabilities, forKey: accountId as NSString)
+            talkCapabilitiesCache.removeAllObjects()
             return unmanagedServerCapabilities
         }
         return nil
@@ -654,6 +672,7 @@ public extension Notification.Name {
 
         let unmanagedServerCapabilities = ServerCapabilities(value: capabilities)
         capabilitiesCache.setObject(unmanagedServerCapabilities, forKey: accountId as NSString)
+        talkCapabilitiesCache.removeAllObjects()
     }
 
     public func serverHasTalkCapability(_ capability: String) -> Bool {
@@ -693,6 +712,7 @@ public extension Notification.Name {
 
                 let unmanagedServerCapabilities = ServerCapabilities(value: managedServerCapabilities)
                 capabilitiesCache.setObject(unmanagedServerCapabilities, forKey: accountId as NSString)
+                talkCapabilitiesCache.removeAllObjects()
             }
         }
     }
