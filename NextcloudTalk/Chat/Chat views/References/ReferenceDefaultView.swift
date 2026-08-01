@@ -13,7 +13,7 @@ import Foundation
     @IBOutlet weak var referenceDescription: UITextView!
     @IBOutlet weak var referenceLink: UILabel!
 
-    /// Used until the thumbnail has loaded, and for the placeholder
+    /// Used until the thumbnail has loaded
     private static let defaultAspectRatio: CGFloat = 1.0
 
     /// Keeps room for the text, in place of the nib's minimum width on the text stack – that reserved it
@@ -22,7 +22,7 @@ import Foundation
 
     var url: String?
 
-    private var thumbnailAspectRatioConstraint: NSLayoutConstraint?
+    private var thumbnailWidthConstraint: NSLayoutConstraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -80,7 +80,7 @@ import Foundation
             referenceDescription.isHidden = true
             referenceLink.text = url
 
-            setPlaceholderThumbnail()
+            hideThumbnail()
             return
         }
 
@@ -97,7 +97,7 @@ import Foundation
                 guard let self else { return }
 
                 guard error == nil, let image, image.size.width > 0, image.size.height > 0 else {
-                    self.setPlaceholderThumbnail()
+                    self.hideThumbnail()
                     return
                 }
 
@@ -107,28 +107,30 @@ import Foundation
                 self.setThumbnailAspectRatio(image.size.width / image.size.height)
             }
         } else {
-            setPlaceholderThumbnail()
+            hideThumbnail()
         }
     }
 
-    func setPlaceholderThumbnail() {
-        // Tinted against the card fill, not with it: the fills are translucent, so the same colour
-        // would leave the placeholder all but invisible
-        referenceThumbnailView.image = UIImage(systemName: "safari")?.withTintColor(UIColor.secondaryLabel, renderingMode: .alwaysOriginal)
-
-        // A symbol shouldn't be blown up to fill the thumbnail box like a photo would be
-        referenceThumbnailView.contentMode = .scaleAspectFit
-        setThumbnailAspectRatio(Self.defaultAspectRatio)
+    /// Collapses the thumbnail rather than standing a glyph in for it, leaving the reference as text. The
+    /// view stays in place, at no width: the nib pins the text to *its* trailing edge, so removing it
+    /// would leave the text with nothing to hang from. The 10pt gap becomes the text's leading inset,
+    /// matching the trailing side.
+    func hideThumbnail() {
+        referenceThumbnailView.image = nil
+        setThumbnailWidth(referenceThumbnailView.widthAnchor.constraint(equalToConstant: 0))
     }
 
     private func setThumbnailAspectRatio(_ aspectRatio: CGFloat) {
-        thumbnailAspectRatioConstraint?.isActive = false
+        setThumbnailWidth(referenceThumbnailView.widthAnchor.constraint(equalTo: referenceThumbnailView.heightAnchor, multiplier: aspectRatio))
+    }
 
-        // Below the maximum width, so that a panorama-like thumbnail is cropped instead of taking over
-        let constraint = referenceThumbnailView.widthAnchor.constraint(equalTo: referenceThumbnailView.heightAnchor, multiplier: aspectRatio)
+    private func setThumbnailWidth(_ constraint: NSLayoutConstraint) {
+        thumbnailWidthConstraint?.isActive = false
+
+        // Below the required maximum, so a panorama-like thumbnail is cropped instead of taking over
         constraint.priority = .defaultHigh
         constraint.isActive = true
 
-        thumbnailAspectRatioConstraint = constraint
+        thumbnailWidthConstraint = constraint
     }
 }
