@@ -210,16 +210,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.reactionPart.isHidden = true
         self.threadRepliesButton.isHidden = true
 
-        // There might be a better way to do this, but for now we remove the elements so they don't mess
-        // with autolayout even when they are hidden
-        self.reactionView?.removeFromSuperview()
-        self.reactionView = nil
+        // Kept for the life of the cell (building them was the largest single cost here) but detached,
+        // not hidden: isHidden only drops a view from the layout when it's a stack view's arranged
+        // subview, so hiding these would leave the previous message's geometry in place.
+        // reactionView is the exception — it *is* arranged, in reactionStackView.
+        self.reactionView?.isHidden = true
 
         self.quotedMessageView?.removeFromSuperview()
-        self.quotedMessageView = nil
-
         self.threadTitleLabel?.removeFromSuperview()
-        self.threadTitleLabel = nil
 
         self.referenceView?.prepareForReuse()
 
@@ -320,7 +318,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         // Make sure the status view is empty, when no delivery state should be set
         self.statusView.subviews.forEach {
-            if $0 != dateLabel {
+            if $0 != self.dateLabel {
                 $0.removeFromSuperview()
             }
         }
@@ -343,15 +341,15 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
 
         if message.isSilent {
-            addSystemImageToStatus("bell.slash")
+            self.addSystemImageToStatus("bell.slash")
         }
 
         if isOwnMessage, message.lastEditTimestamp > 0 {
-            addSystemImageToStatus("pencil")
+            self.addSystemImageToStatus("pencil")
         }
 
         if message.isPinned {
-            addSystemImageToStatus("pin")
+            self.addSystemImageToStatus("pin")
         }
 
         let reactionsArray = message.reactionsArray()
@@ -516,11 +514,30 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     func showThreadTitle() {
         self.subheaderPart.isHidden = false
 
-        if self.threadTitleLabel == nil, let threadTitle = message?.threadTitle {
-            let threadTitleLabel = UILabel()
-            threadTitleLabel.font = .preferredFont(for: .body, weight: .semibold)
-            self.threadTitleLabel = threadTitleLabel
+        // Cached instance, attached and detached rather than shown and hidden — see prepareForReuse
+        let threadTitleLabel = self.threadTitleLabel ?? {
+            let created = UILabel()
+            created.font = .preferredFont(for: .body, weight: .semibold)
+            created.translatesAutoresizingMaskIntoConstraints = false
 
+            self.threadTitleLabel = created
+
+            return created
+        }()
+
+        if threadTitleLabel.superview == nil {
+            self.subheaderPart.addSubview(threadTitleLabel)
+
+            NSLayoutConstraint.activate([
+                threadTitleLabel.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
+                threadTitleLabel.rightAnchor.constraint(equalTo: self.subheaderPart.rightAnchor, constant: -10),
+                threadTitleLabel.topAnchor.constraint(equalTo: self.subheaderPart.topAnchor, constant: 10),
+                threadTitleLabel.bottomAnchor.constraint(equalTo: self.subheaderPart.bottomAnchor)
+            ])
+        }
+
+        // Set on every setup: the label is reused, so a leftover title would stick
+        if let threadTitle = message?.threadTitle {
             let config = UIImage.SymbolConfiguration(font: threadTitleLabel.font, scale: .small)
             let attachment = NSTextAttachment()
             attachment.image = UIImage(systemName: "bubble.left.and.bubble.right", withConfiguration: config)?
@@ -531,17 +548,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             text.addAttribute(.foregroundColor, value: UIColor.label,
                               range: NSRange(location: 0, length: text.length))
             threadTitleLabel.attributedText = text
-
-            threadTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-            self.subheaderPart.addSubview(threadTitleLabel)
-
-            NSLayoutConstraint.activate([
-                threadTitleLabel.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
-                threadTitleLabel.rightAnchor.constraint(equalTo: self.subheaderPart.rightAnchor, constant: -10),
-                threadTitleLabel.topAnchor.constraint(equalTo: self.subheaderPart.topAnchor, constant: 10),
-                threadTitleLabel.bottomAnchor.constraint(equalTo: self.subheaderPart.bottomAnchor)
-            ])
+        } else {
+            threadTitleLabel.attributedText = nil
         }
     }
 
@@ -550,24 +558,29 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     func showQuotePart() {
         self.quotePart.isHidden = false
 
-        if self.quotedMessageView == nil {
-            let quotedMessageView = QuotedMessageView()
-            self.quotedMessageView = quotedMessageView
+        // Cached instance, attached and detached rather than shown and hidden — see prepareForReuse.
+        // Recreating the four constraints per attach costs ~0.01ms, far less than QuotedMessageView,
+        // whose commonInit loads a nib.
+        let quotedMessageView = self.quotedMessageView ?? {
+            let created = QuotedMessageView()
+            created.translatesAutoresizingMaskIntoConstraints = false
+            created.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(quoteTapped(_:))))
 
-            quotedMessageView.translatesAutoresizingMaskIntoConstraints = false
+            self.quotedMessageView = created
 
-            self.quotePart.addSubview(quotedMessageView)
+            return created
+        }()
 
-            NSLayoutConstraint.activate([
-                quotedMessageView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
-                quotedMessageView.rightAnchor.constraint(equalTo: self.quotePart.rightAnchor, constant: -10),
-                quotedMessageView.topAnchor.constraint(equalTo: self.quotePart.topAnchor, constant: 10),
-                quotedMessageView.bottomAnchor.constraint(equalTo: self.quotePart.bottomAnchor)
-            ])
+        guard quotedMessageView.superview == nil else { return }
 
-            let quoteTap = UITapGestureRecognizer(target: self, action: #selector(quoteTapped(_:)))
-            quotedMessageView.addGestureRecognizer(quoteTap)
-        }
+        self.quotePart.addSubview(quotedMessageView)
+
+        NSLayoutConstraint.activate([
+            quotedMessageView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
+            quotedMessageView.rightAnchor.constraint(equalTo: self.quotePart.rightAnchor, constant: -10),
+            quotedMessageView.topAnchor.constraint(equalTo: self.quotePart.topAnchor, constant: 10),
+            quotedMessageView.bottomAnchor.constraint(equalTo: self.quotePart.bottomAnchor)
+        ])
     }
 
     @objc func quoteTapped(_ sender: UITapGestureRecognizer?) {
@@ -633,6 +646,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             self.reactionStackView.addArrangedSubview(reactionView)
         }
+
+        self.reactionView?.isHidden = false
     }
 
     // MARK: - ReactionsView Delegate
