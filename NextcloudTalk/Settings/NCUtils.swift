@@ -214,12 +214,18 @@ import AVFoundation
         return dateFormatter.string(from: date)
     }
 
-    public static func getTime(fromDate date: Date) -> String {
+    /// Building a DateFormatter costs far more than formatting with it, and this is reached once per chat
+    /// cell. Keeps the locale and time zone it was built with.
+    private static let timeFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .none
         dateFormatter.timeStyle = .short
 
-        return dateFormatter.string(from: date)
+        return dateFormatter
+    }()
+
+    public static func getTime(fromDate date: Date) -> String {
+        return NCUtils.timeFormatter.string(from: date)
     }
 
     public static func relativeTimeFromDate(date: Date) -> String {
