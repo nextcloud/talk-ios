@@ -33,6 +33,11 @@ NSString * const kSharedItemTypePinned      = @"pinned";
     NCMessageFileParameter *_fileParameter;
     NCMessageLocationParameter *_locationParameter;
     NCDeckCardParameter *_deckCardParameter;
+    // So that *not* finding a parameter is remembered too: testing the parameter alone caches only a
+    // hit, re-parsing the JSON on every call for a message without one
+    BOOL _fileParameterLookedUp;
+    BOOL _locationParameterLookedUp;
+    BOOL _deckCardParameterLookedUp;
     NSString *_objectShareLink;
     NSString *_threadTitle;
     NSMutableArray *_temporaryReactions;
@@ -222,13 +227,15 @@ NSString * const kSharedItemTypePinned      = @"pinned";
 
 - (NCMessageParameter *)file
 {
-    if (!_fileParameter) {
+    if (!_fileParameterLookedUp) {
+        _fileParameterLookedUp = YES;
+
         for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
             NCMessageFileParameter *parameter = [[NCMessageFileParameter alloc] initWithDictionary:parameterDict];
             if (![parameter.type isEqualToString:@"file"]) {
                 continue;
             }
-            
+
             if (!_fileParameter) {
                 _fileParameter = parameter;
             } else {
@@ -245,7 +252,9 @@ NSString * const kSharedItemTypePinned      = @"pinned";
 
 - (NCMessageLocationParameter *)geoLocation
 {
-    if (!_locationParameter) {
+    if (!_locationParameterLookedUp) {
+        _locationParameterLookedUp = YES;
+
         for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
             NCMessageLocationParameter *parameter = [[NCMessageLocationParameter alloc] initWithDictionary:parameterDict] ;
             if ([parameter.type isEqualToString:@"geo-location"]) {
@@ -260,7 +269,9 @@ NSString * const kSharedItemTypePinned      = @"pinned";
 
 - (NCDeckCardParameter *)deckCard
 {
-    if (!_deckCardParameter) {
+    if (!_deckCardParameterLookedUp) {
+        _deckCardParameterLookedUp = YES;
+
         for (NSDictionary *parameterDict in [[self messageParameters] allValues]) {
             NCDeckCardParameter *parameter = [[NCDeckCardParameter alloc] initWithDictionary:parameterDict] ;
             if ([parameter.type isEqualToString:@"deck-card"]) {
