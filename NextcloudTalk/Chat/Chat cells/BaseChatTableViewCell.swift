@@ -567,9 +567,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             self.referencePart.addSubview(referenceView)
 
-            // Only a preference, so a self-sizing reference – a GIF in its own aspect ratio – may be narrower
+            // Only a preference, so a self-sizing reference – a GIF in its own aspect ratio – may be
+            // narrower. Above content hugging (250/251) so a card with little text still fills the
+            // message, and below the GIF's aspect ratio (.defaultHigh) so that one still wins.
             let fillsAvailableWidth = referenceView.rightAnchor.constraint(equalTo: self.referencePart.rightAnchor, constant: -10)
-            fillsAvailableWidth.priority = .defaultLow
+            fillsAvailableWidth.priority = UILayoutPriority(500)
 
             NSLayoutConstraint.activate([
                 referenceView.leftAnchor.constraint(equalTo: self.messageBodyView.leftAnchor),
