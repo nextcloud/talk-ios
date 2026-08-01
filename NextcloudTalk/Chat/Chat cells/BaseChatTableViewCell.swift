@@ -120,6 +120,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         button.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .small)
         button.configuration?.imagePadding = 4
 
+        // Registered once, reading the message at tap time. The button survives reuse, so registering
+        // per appearance stacked up an action each time and fired the delegate once per stacked action.
+        button.addAction { [weak self] in
+            guard let self, let message = self.message else { return }
+
+            self.delegate?.cellWants(toShowThread: message)
+        }
+
         self.reactionStackView.insertArrangedSubview(button, at: 0)
 
         return button
@@ -584,11 +592,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     // MARK: - ReactionsPart
 
     func showThreadRepliesButton() {
-        self.threadRepliesButton.addAction { [weak self] in
-            guard let self, let message else { return }
-            self.delegate?.cellWants(toShowThread: message)
-        }
-
         let replies = message?.threadReplies ?? 0
         if replies > 0 {
             let repliesString = String.localizedStringWithFormat(NSLocalizedString("%ld replies", comment: "Replies in a thread"), replies)
