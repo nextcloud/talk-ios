@@ -632,7 +632,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     // MARK: - Avatar User Menu
 
     func getDeferredUserMenu() -> UIMenu? {
-        guard let message = self.message, let account = message.account
+        guard let message = self.message, let account = self.account
         else { return nil }
 
         if message.actorType != "users" || message.actorId == account.userId {
