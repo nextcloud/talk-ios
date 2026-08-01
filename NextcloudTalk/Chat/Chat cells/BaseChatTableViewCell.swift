@@ -182,6 +182,19 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.reactionPart.isHidden = true
     }
 
+    private var hasFileStatusObservers = false
+
+    /// These are broadcast, and only a cell showing a file (voice messages included) can act on one. Left
+    /// in place once added: such a cell has its own reuse identifier, so it keeps showing files.
+    private func addFileStatusObserversIfNeeded() {
+        guard !self.hasFileStatusObservers else { return }
+
+        self.hasFileStatusObservers = true
+
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
 
@@ -401,8 +414,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.statusView.isHidden = false
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
+        if message.file() != nil {
+            self.addFileStatusObserversIfNeeded()
+        }
     }
 
     func addSystemImageToStatus(_ systemName: String) {
