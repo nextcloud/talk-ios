@@ -199,36 +199,77 @@ extension BaseChatTableViewCell {
 
         let cacheKey = "\(account.accountId)-\(message.messageId)-\(fileId)"
 
-        if let cachedData = SDImageCache.shared.diskImageData(forKey: cacheKey),
-            let gifImage = try? UIImage(gifData: cachedData),
-            let baseImage = UIImage(data: cachedData) {
+        // The disk read and frame-by-frame decode used to happen here, costing up to 16ms of main thread
+        // inside cellForRowAt. Neither touches UIKit view state, so both move off.
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            var decoded: (gif: UIImage, base: UIImage)?
 
-            self.filePreviewImageView?.setGifImage(gifImage)
-            self.adjustImageView(toImageSize: baseImage, ofMessage: message)
+            if let cachedData = SDImageCache.shared.diskImageData(forKey: cacheKey),
+               let gifImage = try? UIImage(gifData: cachedData),
+               let baseImage = UIImage(data: cachedData) {
 
-            return
-        }
-
-        NCChatFileControllerWrapper.shared.downloadFile(withFileId: fileId, fromAccount: account) { fileLocalPath in
-            // Check if we are still on the same cell
-            guard let cellMessage = self.message, let imageView = self.filePreviewImageView, cellMessage.file().parameterId == fileId
-            else {
-                // Different cell, don't do anything
-                return
+                decoded = (gifImage, baseImage)
             }
 
-            guard let fileLocalPath, let data = try? Data(contentsOf: URL(fileURLWithPath: fileLocalPath)),
-                  let gifImage = try? UIImage(gifData: data), let baseImage = UIImage(data: data) else {
+            DispatchQueue.main.async {
+                guard let self else { return }
 
-                // No gif, try to request a normal preview
+                guard let decoded else {
+                    self.downloadGifPreview(for: message, withFileId: fileId, cacheKey: cacheKey, with: account)
+                    return
+                }
+
+                // The cell may have been reused while we were decoding
+                guard let imageView = self.filePreviewImageView,
+                      self.message?.file()?.parameterId == fileId
+                else { return }
+
+                imageView.setGifImage(decoded.gif)
+                self.adjustImageView(toImageSize: decoded.base, ofMessage: message)
+            }
+        }
+    }
+
+    private func downloadGifPreview(for message: NCChatMessage, withFileId fileId: String, cacheKey: String, with account: TalkAccount) {
+        NCChatFileControllerWrapper.shared.downloadFile(withFileId: fileId, fromAccount: account) { [weak self] fileLocalPath in
+            // Delivered on the main thread, so check we are still the same cell before doing any work
+            guard let self, self.message?.file()?.parameterId == fileId else { return }
+
+            guard let fileLocalPath else {
+                // No file, try to request a normal preview
                 self.requestDefaultPreview(for: message, withPlaceholderImage: nil, with: account)
                 return
             }
 
-            imageView.setGifImage(gifImage)
-            self.adjustImageView(toImageSize: baseImage, ofMessage: message)
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                var decoded: (gif: UIImage, base: UIImage, data: Data)?
 
-            SDImageCache.shared.storeImageData(data, forKey: cacheKey)
+                if let data = try? Data(contentsOf: URL(fileURLWithPath: fileLocalPath)),
+                   let gifImage = try? UIImage(gifData: data),
+                   let baseImage = UIImage(data: data) {
+
+                    decoded = (gifImage, baseImage, data)
+                }
+
+                DispatchQueue.main.async {
+                    guard let self else { return }
+
+                    guard let decoded else {
+                        // Not a gif after all, try to request a normal preview
+                        self.requestDefaultPreview(for: message, withPlaceholderImage: nil, with: account)
+                        return
+                    }
+
+                    guard let imageView = self.filePreviewImageView,
+                          self.message?.file()?.parameterId == fileId
+                    else { return }
+
+                    imageView.setGifImage(decoded.gif)
+                    self.adjustImageView(toImageSize: decoded.base, ofMessage: message)
+
+                    SDImageCache.shared.storeImageData(decoded.data, forKey: cacheKey)
+                }
+            }
         }
     }
 
