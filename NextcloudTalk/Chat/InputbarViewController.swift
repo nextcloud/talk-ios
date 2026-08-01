@@ -22,6 +22,11 @@ import UIKit
     internal var contentView: UIView?
     internal var selectedAutocompletionRow: IndexPath?
 
+    /// Glass backgrounds of the textView and the inputbar buttons, only used on iOS 26 and above
+    internal var textViewBackgroundView: UIVisualEffectView?
+    internal var leftButtonBackgroundView: UIVisualEffectView?
+    internal var rightButtonBackgroundView: UIVisualEffectView?
+
     public var isThreadViewController: Bool {
         return thread != nil
     }
@@ -141,11 +146,16 @@ import UIKit
 
         self.view.backgroundColor = .systemBackground
         self.tableView?.backgroundColor = .systemBackground
-        self.textInputbar.backgroundColor = .systemBackground
 
         self.textInputbar.editorTitle.textColor = .label
-        self.textView.layer.borderWidth = 1.0
-        self.textView.layer.borderColor = UIColor.systemGray4.cgColor
+
+        if #available(iOS 26.0, *) {
+            self.setupGlassInputbar()
+        } else {
+            self.textInputbar.backgroundColor = .systemBackground
+            self.textView.layer.borderWidth = 1.0
+            self.textView.layer.borderColor = UIColor.systemGray4.cgColor
+        }
 
         self.textView.delegate = self
 
@@ -174,10 +184,21 @@ import UIKit
         self.restorePendingMessage()
     }
 
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        if #available(iOS 26.0, *) {
+            self.updateInputbarCornerRadius()
+        }
+    }
+
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
             // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
-            self.textView.layer.borderColor = UIColor.systemGray4.cgColor
+            if #unavailable(iOS 26.0) {
+                self.textView.layer.borderColor = UIColor.systemGray4.cgColor
+            }
+
             self.textView.tintColor = UIColor(cgColor: UIColor.systemBlue.cgColor)
 
             self.setTitleView()
@@ -185,6 +206,105 @@ import UIKit
             // When the size class changes, we want to update the title view (e.g. to show/hide subtitle)
             self.setTitleView()
         }
+    }
+
+    // MARK: - Inputbar appearance
+
+    /// Height of the textView with a single line of text, which is also the height of the inputbar buttons
+    @available(iOS 26.0, *)
+    private var singleLineInputHeight: CGFloat {
+        let lineHeight = (self.textView.font ?? .preferredFont(forTextStyle: .body)).lineHeight
+
+        // Keep an accessible touch target, even with a small preferred font size
+        return max(44, ceil(lineHeight) + 16)
+    }
+
+    @available(iOS 26.0, *)
+    private func setupInputbarMetrics() {
+        let lineHeight = (self.textView.font ?? .preferredFont(forTextStyle: .body)).lineHeight
+        let singleLineInputHeight = self.singleLineInputHeight
+
+        // Pad the text container so a single line of text is exactly as high as the buttons next to it.
+        // SLKTextInputbar derives the height of the inputbar from the intrinsicContentSize of the textView
+        // (lineHeight plus the vertical textContainerInset), so the inputbar itself follows automatically.
+        let verticalTextPadding = (singleLineInputHeight - lineHeight) / 2
+        self.textView.textContainerInset = .init(top: verticalTextPadding, left: 8, bottom: verticalTextPadding, right: 8)
+
+        // The buttons are positioned from the minimum (single line) height of the inputbar, so they keep this
+        // height and their bottom alignment when the textView grows to multiple lines
+        self.textInputbar.minimumButtonSize = .init(width: singleLineInputHeight, height: singleLineInputHeight)
+    }
+
+    @available(iOS 26.0, *)
+    private func setupGlassInputbar() {
+        // The textInputbar itself does not have any background, the glass elements below and the scroll edge
+        // effect of the tableView provide the separation from the content scrolling behind it
+        self.textInputbar.backgroundColor = .clear
+
+        self.setupInputbarMetrics()
+
+        // Only the chat itself scrolls behind the textInputbar, a custom contentView (see ThreadCreationViewController)
+        // is still placed on top of it
+        if self.contentView == nil, let tableView = self.tableView {
+            self.scrollViewExtendsBehindTextInputbar = true
+
+            // Ask the system for a scroll edge effect behind the textInputbar, so content scrolling
+            // behind it stays legible
+            let scrollEdgeInteraction = UIScrollEdgeElementContainerInteraction()
+            scrollEdgeInteraction.scrollView = tableView
+            scrollEdgeInteraction.edge = .bottom
+            self.textInputbar.addInteraction(scrollEdgeInteraction)
+        }
+
+        // Glass background for the textView
+        self.textViewBackgroundView = self.addGlassBackgroundView(behind: self.textView)
+
+        self.textView.backgroundColor = .clear
+        self.textView.layer.borderWidth = 0
+        self.textView.layer.cornerCurve = .continuous
+
+        // Glass background for the left and right button.
+        //
+        // Note: We deliberately don't use a glass UIButton.Configuration here. Assigning a configuration
+        // recreates the button's imageView, which SLKTextInputbar observes to size its buttons, so the
+        // buttons would end up without a size and unregistering that observer would crash on dealloc.
+        self.leftButtonBackgroundView = self.addGlassBackgroundView(behind: self.leftButton)
+        self.rightButtonBackgroundView = self.addGlassBackgroundView(behind: self.rightButton)
+    }
+
+    @available(iOS 26.0, *)
+    private func addGlassBackgroundView(behind view: UIView) -> UIVisualEffectView {
+        let backgroundView = UIVisualEffectView(effect: UIGlassEffect())
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundView.isUserInteractionEnabled = false
+        backgroundView.clipsToBounds = true
+        backgroundView.layer.cornerCurve = .continuous
+
+        self.textInputbar.insertSubview(backgroundView, belowSubview: view)
+
+        NSLayoutConstraint.activate([
+            backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        return backgroundView
+    }
+
+    @available(iOS 26.0, *)
+    private func updateInputbarCornerRadius() {
+        // A capsule while the textView is a single line high, keeping that radius when it grows. Since the
+        // buttons have the same height, all elements of the input area end up with the same radius.
+        let cornerRadius = self.singleLineInputHeight / 2
+
+        self.textView.layer.cornerRadius = cornerRadius
+        self.textViewBackgroundView?.layer.cornerRadius = cornerRadius
+
+        self.leftButtonBackgroundView?.layer.cornerRadius = self.leftButton.frame.size.height / 2
+        self.rightButtonBackgroundView?.layer.cornerRadius = self.rightButton.frame.size.height / 2
+
+        (self.replyProxyView as? ReplyMessageView)?.backgroundCornerRadius = cornerRadius
     }
 
     // MARK: - Configuration
