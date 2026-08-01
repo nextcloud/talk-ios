@@ -7,6 +7,10 @@ import SDWebImage
 
 extension BaseChatTableViewCell {
 
+    /// Decoding a blurhash generates a bitmap synchronously on the main thread, and both inputs are
+    /// fixed per message, so once is enough.
+    private static let blurhashPlaceholderCache = NSCache<NSString, UIImage>()
+
     func setupForFileCell(with message: NCChatMessage, with account: TalkAccount) {
         if self.filePreviewImageView == nil {
             // Preview image view
@@ -152,7 +156,15 @@ extension BaseChatTableViewCell {
 
             if !message.isAnimatableGif, let blurhash = message.file()?.blurhash {
                 let aspectRatio = previewImageHeight / previewImageWidth
-                placeholderImage = .init(blurHash: blurhash, size: .init(width: 20, height: 20 * aspectRatio))
+                let placeholderSize = CGSize(width: 20, height: 20 * aspectRatio)
+                let cacheKey = "\(blurhash)-\(Int(placeholderSize.height.rounded()))" as NSString
+
+                if let cached = BaseChatTableViewCell.blurhashPlaceholderCache.object(forKey: cacheKey) {
+                    placeholderImage = cached
+                } else if let decoded = UIImage(blurHash: blurhash, size: placeholderSize) {
+                    BaseChatTableViewCell.blurhashPlaceholderCache.setObject(decoded, forKey: cacheKey)
+                    placeholderImage = decoded
+                }
             }
         }
 
