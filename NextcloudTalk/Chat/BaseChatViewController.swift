@@ -358,11 +358,23 @@ import Toast
         self.updateToolbar(animated: true)
     }
 
+    /// The content offset at which the tableView is scrolled all the way down, taking the space reserved for the textInputbar into account
+    internal var tableViewBottomContentOffset: CGFloat {
+        guard let tableView else { return 0 }
+
+        return tableView.contentSize.height + tableView.adjustedContentInset.bottom - tableView.frame.size.height
+    }
+
     public func updateToolbar(animated: Bool) {
         guard let tableView else { return }
 
         let animations = {
-            let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 10
+            // Since iOS 26 the content scrolls behind the transparent textInputbar, so there's no border to show
+            if #available(iOS 26.0, *) {
+                return
+            }
+
+            let minimumOffset = self.tableViewBottomContentOffset - 10
 
             if tableView.contentOffset.y < minimumOffset {
                 // Scrolled -> show top border
@@ -385,7 +397,7 @@ import Toast
         }
 
         let animationsScrollButton = {
-            let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 10
+            let minimumOffset = self.tableViewBottomContentOffset - 10
 
             if tableView.contentOffset.y < minimumOffset {
                 // Scrolled -> show button
@@ -402,11 +414,16 @@ import Toast
                 self.animationDispatchGroup.enter()
 
                 DispatchQueue.main.async {
-                    UIView.transition(with: self.textInputbar,
-                                      duration: 0.3,
-                                      options: .transitionCrossDissolve,
-                                      animations: animations) { _ in
+                    if #available(iOS 26.0, *) {
+                        // Nothing to animate in the textInputbar, so don't cross-dissolve the glass elements
                         self.animationDispatchGroup.leave()
+                    } else {
+                        UIView.transition(with: self.textInputbar,
+                                          duration: 0.3,
+                                          options: .transitionCrossDissolve,
+                                          animations: animations) { _ in
+                            self.animationDispatchGroup.leave()
+                        }
                     }
                 }
 
@@ -3681,7 +3698,7 @@ import Toast
         guard self.isVisible, let tableView = self.tableView else { return false }
 
         // Scroll if table view is at the bottom (or 80px up)
-        let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 80
+        let minimumOffset = self.tableViewBottomContentOffset - 80
 
         if tableView.contentOffset.y >= minimumOffset {
             return true
@@ -3892,8 +3909,9 @@ import Toast
         // ContentOffset when the cell is at the top of the tableView
         let contentOffsetTop = rect.origin.y - tableView.safeAreaInsets.top
 
-        // ContentOffset when the cell is at the middle of the tableView
-        let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + rect.height / 2
+        // ContentOffset when the cell is at the middle of the visible part of the tableView
+        let visibleHeight = tableView.frame.height - tableView.adjustedContentInset.bottom
+        let contentOffsetMiddle = contentOffsetTop - visibleHeight / 2 + rect.height / 2
 
         // Fallback to the top offset in case the top of the cell would be scrolled outside of the view
         let newContentOffset = min(contentOffsetTop, contentOffsetMiddle)
