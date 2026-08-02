@@ -47,12 +47,12 @@ class BotCell: UITableViewCell {
 
         switch bot.state {
         case .disabled:
-            self.enableButton.setTitle(NSLocalizedString("Enable", comment: ""), for: .normal)
+            self.enableButton.setTitle(NSLocalizedString("Enable", comment: "Generic 'Enable' button label, e.g. for a bot"), for: .normal)
             self.enableButton.setButtonStyle(style: .secondary)
         case .enabled:
-            self.enableButton.setTitle(NSLocalizedString("Disable", comment: ""), for: .normal)
+            self.enableButton.setTitle(NSLocalizedString("Disable", comment: "Generic 'Disable' button label, e.g. for a bot"), for: .normal)
         case .noSetup:
-            self.enableButton.setTitle(NSLocalizedString("Enabled", comment: ""), for: .normal)
+            self.enableButton.setTitle(NSLocalizedString("Enabled", comment: "Label of a bot that is always enabled and cannot be turned off in the app"), for: .normal)
             self.enableButton.isEnabled = false
         default:
             self.enableButton.setTitle(NSLocalizedString("Unknown", comment: ""), for: .normal)

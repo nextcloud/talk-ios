@@ -19,16 +19,16 @@ struct UserStatusAbsenceSwiftUIView: View {
             List {
                 Section(header: Text("Details")) {
                     DatePicker(selection: $absenceStatus.firstDay, displayedComponents: .date) {
-                        Text("First day")
+                        Text("First day", comment: "First day of the absence")
                     }
 
                     DatePicker(selection: $absenceStatus.lastDay, in: absenceStatus.firstDay..., displayedComponents: .date) {
-                        Text("Last day (inclusive)")
+                        Text("Last day (inclusive)", comment: "Last day of the absence, the user is still absent on this day")
                     }
                 }
 
                 if replacementSupported {
-                    Section(header: Text("Replacement (optional)", comment: "Replacement in case of out of office")) {
+                    Section(header: Text("Replacement (optional)", comment: "Section header: the person who takes over while the user is out of office")) {
                         NavigationLink(destination: {
                             UserSelectionSwiftUIView(selectedUserId: $absenceStatus.replacementUserId, selectedUserDisplayName: $absenceStatus.replacementUserDisplayName)
                         }, label: {
@@ -40,7 +40,7 @@ struct UserStatusAbsenceSwiftUIView: View {
 
                                     Text(absenceStatus.replacementName)
                                 } else {
-                                    Text("Select a replacement", comment: "Replacement in case of out of office")
+                                    Text("Select a replacement", comment: "Opens a user picker to choose the person who takes over during the absence")
                                         .foregroundStyle(.primary)
                                 }
                             }
@@ -51,7 +51,7 @@ struct UserStatusAbsenceSwiftUIView: View {
                                 absenceStatus.replacementUserId = nil
                                 absenceStatus.replacementUserDisplayName = nil
                             } label: {
-                                Text("Reset replacement", comment: "Replacement in case of out of office")
+                                Text("Reset replacement", comment: "Button to clear the chosen replacement person again")
                             }
                             .foregroundStyle(.primary)
                         }

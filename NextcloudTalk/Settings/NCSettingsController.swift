@@ -210,7 +210,7 @@ public class NCSettingsController: NSObject {
         self.updateAlertControllerAccountId = accountId
 
         if canOpenAppStore {
-            let updateButton = UIAlertAction(title: NSLocalizedString("Update", comment: ""), style: .default) { _ in
+            let updateButton = UIAlertAction(title: NSLocalizedString("Update", comment: "Button to update the app"), style: .default) { _ in
                 NCAPIController.sharedInstance().getAppStoreAppId { appId, _ in
                     if let appId, !appId.isEmpty, let appStoreURL = URL(string: "\(appStoreUrlString)\(appId)") {
                         UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)

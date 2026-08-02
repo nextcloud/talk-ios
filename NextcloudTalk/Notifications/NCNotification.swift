@@ -62,7 +62,7 @@ public class NCNotification: NSObject {
         }
 
         if let guestDict = subjectRichParameters["guest"] as? [AnyHashable: Any], let guestName = guestDict["name"] as? String {
-            return "\(guestName) (\(NSLocalizedString("guest", comment: "")))"
+            return String(format: NSLocalizedString("%@ (guest)", comment: "'Alice (guest)' - a participant who is not logged in"), guestName)
         }
 
         return NSLocalizedString("Guest", comment: "")
@@ -83,8 +83,7 @@ public class NCNotification: NSObject {
                 let subjectDict = self.subjectRichParameters["call"] as? [AnyHashable: Any],
                 let callName = subjectDict["name"] as? String {
 
-                let inString = NSLocalizedString("in", comment: "")
-                title = "\(title) \(inString) \(callName)"
+                title = String(format: NSLocalizedString("%1$@ in %2$@", comment: "'Alice in Team meeting' - the author of a message and the conversation it was sent in"), title, callName)
             }
 
         }

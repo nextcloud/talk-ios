@@ -12,7 +12,7 @@ import SwiftyAttributes
     public func setupAbsence(withData absenceData: CurrentUserAbsence, inRoom room: NCRoom) {
         title.text = String.localizedStringWithFormat(NSLocalizedString("%@ is out of office", comment: "'%@' is the name of a user"), room.displayName)
 
-        let dismissAction = UIAction(title: NSLocalizedString("Hide", comment: ""), image: UIImage(systemName: "eye.slash")) { [unowned self] _ in
+        let dismissAction = UIAction(title: NSLocalizedString("Hide", comment: "Context menu action to hide a banner, e.g. the out of office or pinned message banner"), image: UIImage(systemName: "eye.slash")) { [unowned self] _ in
             self.removeFromSuperview()
         }
 
@@ -52,7 +52,7 @@ import SwiftyAttributes
 
             if let account = room.account, replacementUserId != account.userId, replacementUserId != absenceData.userId {
                 let talkIcon = UIImage(named: "talk-20")?.withRenderingMode(.alwaysTemplate)
-                menuActions.append(UIAction(title: NSLocalizedString("Talk to", comment: "Talk to a user") + " " + replacementUserDisplayname, image: talkIcon) { [unowned self] _ in
+                menuActions.append(UIAction(title: String(format: NSLocalizedString("Talk to %@", comment: "'Talk to Alice' - start a conversation with a user"), replacementUserDisplayname), image: talkIcon) { [unowned self] _ in
                     NotificationCenter.default.post(name: .NCChatViewControllerTalkToUserNotification, object: self, userInfo: ["actorId": replacementUserId])
                 })
             }

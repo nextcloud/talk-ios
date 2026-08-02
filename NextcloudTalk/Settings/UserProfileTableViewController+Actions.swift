@@ -35,7 +35,7 @@ extension UserProfileTableViewController {
         let alertMessageAccountRemove = NSLocalizedString("Do you really want to remove this account?", comment: "")
         let alertMessageAccountLogout = NSLocalizedString("Do you really want to log out from this account?", comment: "")
         let alertMessage = multiAccountEnabled.boolValue ? alertMessageAccountRemove : alertMessageAccountLogout
-        let actionTitle = multiAccountEnabled.boolValue ? NSLocalizedString("Remove", comment: "") : NSLocalizedString("Log out", comment: "")
+        let actionTitle = multiAccountEnabled.boolValue ? NSLocalizedString("Remove", comment: "Generic 'Remove' button label, e.g. an account or a date") : NSLocalizedString("Log out", comment: "")
         let confirmDialog = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
         let confirmAction = UIAlertAction(title: actionTitle, style: .destructive) { _ in
             self.logout()
@@ -74,7 +74,7 @@ extension UserProfileTableViewController {
                 textField.tag = self.kPhoneTextFieldTag
             }
         }
-        setPhoneAction = UIAlertAction(title: NSLocalizedString("Set", comment: ""), style: .default, handler: { _ in
+        setPhoneAction = UIAlertAction(title: NSLocalizedString("Set", comment: "Button to set a phone number"), style: .default, handler: { _ in
             let phoneNumber = setPhoneNumberDialog.textFields?[0].text
             if let phoneNumber = phoneNumber {
                 self.setPhoneNumber(phoneNumber)

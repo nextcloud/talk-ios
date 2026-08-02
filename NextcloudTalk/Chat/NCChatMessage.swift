@@ -402,7 +402,7 @@ import SwiftyAttributes
 
         // For own messages
         if ownMessage {
-            actorName = NSLocalizedString("You", comment: "")
+            actorName = NSLocalizedString("You", comment: "The user themselves as the author of a message")
         }
 
         // For guests

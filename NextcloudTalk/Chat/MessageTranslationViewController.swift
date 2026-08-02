@@ -213,8 +213,10 @@ import UIKit
                 if let translatedFrom = responseDict["from"] {
                     self.detectedFromLanguageCode = translatedFrom
                     self.selectedToLanguageCode = translatedFrom
-                    let detectedText = from.isEmpty ? " (" + NSLocalizedString("detected", comment: "") + ")" : ""
-                    let title = self.fromLanguageLabel(languageCode: translatedFrom) + detectedText
+                    let languageLabel = self.fromLanguageLabel(languageCode: translatedFrom)
+                    let title = from.isEmpty
+                        ? String(format: NSLocalizedString("%@ (detected)", comment: "'German (detected)' - the language of the original message was detected automatically"), languageLabel)
+                        : languageLabel
                     self.configureFromButton(title: title, enabled: !from.isEmpty)
                     self.configureToButton(title: self.toButton.titleLabel?.text, enabled: true, fromLanguageCode: translatedFrom)
                 }

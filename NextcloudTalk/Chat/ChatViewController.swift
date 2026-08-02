@@ -1088,7 +1088,7 @@ import SwiftUI
         retentionView.leftButton.setTitle(NSLocalizedString("Delete now", comment: ""), for: .normal)
         retentionView.leftButton.setButtonStyle(style: .destructive)
         retentionView.leftButton.setButtonAction(target: self, selector: #selector(deleteNowButtonPressed))
-        retentionView.rightButton.setTitle(NSLocalizedString("Keep", comment: ""), for: .normal)
+        retentionView.rightButton.setTitle(NSLocalizedString("Keep", comment: "Button to keep a conversation instead of deleting it"), for: .normal)
         retentionView.rightButton.setButtonStyle(style: .primary)
         retentionView.rightButton.setButtonAction(target: self, selector: #selector(keepButtonPressed))
         retentionView.alpha = 0
@@ -2607,7 +2607,7 @@ import SwiftUI
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
             let timestampDate = Date(timeIntervalSince1970: TimeInterval(message.lastEditTimestamp))
 
-            let editInfo = UIAction(title: NSLocalizedString("Edited by", comment: "A message was edited by ...") + " " + lastEditActorDisplayName, attributes: [.disabled], handler: {_ in })
+            let editInfo = UIAction(title: String(format: NSLocalizedString("Edited by %@", comment: "'Edited by Alice' - who last edited a message"), lastEditActorDisplayName), attributes: [.disabled], handler: {_ in })
             editInfo.subtitle = NCUtils.readableTimeAndDate(fromDate: timestampDate)
 
             informationalActions.append(editInfo)

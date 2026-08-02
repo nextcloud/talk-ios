@@ -340,9 +340,9 @@ import UIKit
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == PollCreationSection.kPollCreationSectionQuestion.rawValue {
-            return NSLocalizedString("Question", comment: "")
+            return NSLocalizedString("Question", comment: "Section header for the question of a poll")
         } else if section == PollCreationSection.kPollCreationSectionOptions.rawValue {
-            return NSLocalizedString("Answers", comment: "")
+            return NSLocalizedString("Answers", comment: "Section header for the answers of a poll")
         } else if section == PollCreationSection.kPollCreationSectionSettings.rawValue {
             return NSLocalizedString("Settings", comment: "")
         }
@@ -365,7 +365,7 @@ import UIKit
             } else if indexPath.row < options.count {
                 let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
                 textInputCell.textField.delegate = self
-                textInputCell.textField.placeholder = NSLocalizedString("Answer", comment: "") + " " + String(indexPath.row + 1)
+                textInputCell.textField.placeholder = String(format: NSLocalizedString("Answer %ld", comment: "'Answer 1', 'Answer 2', … - placeholder numbering the answers of a poll"), indexPath.row + 1)
                 textInputCell.textField.tag = indexPath.row
                 textInputCell.textField.text = options[indexPath.row]
                 return textInputCell
