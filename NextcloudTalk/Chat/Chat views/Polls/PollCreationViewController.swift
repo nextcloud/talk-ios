@@ -365,7 +365,7 @@ import UIKit
             } else if indexPath.row < options.count {
                 let textInputCell: TextFieldTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: TextFieldTableViewCell.identifier)
                 textInputCell.textField.delegate = self
-                textInputCell.textField.placeholder = NSLocalizedString("Answer", comment: "") + " " + String(indexPath.row + 1)
+                textInputCell.textField.placeholder = String(format: NSLocalizedString("Answer %ld", comment: "'Answer 1', 'Answer 2', … - placeholder numbering the answers of a poll"), indexPath.row + 1)
                 textInputCell.textField.tag = indexPath.row
                 textInputCell.textField.text = options[indexPath.row]
                 return textInputCell

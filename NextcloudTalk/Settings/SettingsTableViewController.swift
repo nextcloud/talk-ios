@@ -362,7 +362,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         var alertMessage = NSLocalizedString("An error occurred while setting phone number", comment: "")
         let failedPhoneNumber = try? NBPhoneNumberUtil.sharedInstance().parse(phoneNumber, defaultRegion: nil)
         if let formattedPhoneNumber = try? NBPhoneNumberUtil.sharedInstance().format(failedPhoneNumber, numberFormat: NBEPhoneNumberFormat.INTERNATIONAL) {
-            alertMessage = NSLocalizedString("An error occurred while setting \(formattedPhoneNumber) as phone number", comment: "")
+            alertMessage = String(format: NSLocalizedString("An error occurred while setting %@ as phone number", comment: "'%@' is a phone number"), formattedPhoneNumber)
         }
 
         let failedPhoneNumberDialog = UIAlertController(

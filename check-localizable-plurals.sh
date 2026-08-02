@@ -12,7 +12,9 @@
 #   2. Every string that has a plural rule is read with
 #      String.localizedStringWithFormat and not with String(format:), which
 #      passes no locale and therefore cannot pick the right plural category.
-#   3. Every plural rule still corresponds to a string that exists.
+#   3. No localized string builds its key with string interpolation, which
+#      makes the key vary at runtime so it never matches a translation.
+#   4. Every plural rule still corresponds to a string that exists.
 #
 # Run this after generate-localizable-strings-file.sh, so that
 # Localizable.strings is up to date.
@@ -37,7 +39,8 @@ done
 # Strings that take a number but intentionally have no plural rule, because no
 # word in them agrees with that number.
 ALLOWED_WITHOUT_PLURAL=(
-  'Add (%lu)' # Parenthesised selection count on a button
+  'Add (%lu)'  # Parenthesised selection count on a button
+  'Answer %ld' # Numbers an answer of a poll, it is not a count
 
   # Localizable.strings is generated from this branch and the stable branch
   # together, so it still contains strings that only the stable branch uses.
@@ -95,6 +98,7 @@ fi
 
 missing=0
 misread=0
+interpolations=0
 
 # 1. Strings taking a number that have no plural rule.
 numeric_keys=$(list "$all_keys" | grep -E "$INTEGER_SPECIFIER")
@@ -130,13 +134,27 @@ while IFS= read -r line; do
   fi
 done <<< "$format_calls"
 
-# 3. Plural rules for strings that no longer exist.
+# 3. Keys built with string interpolation. genstrings records the literal
+# "\(foo)", but at runtime the key contains the interpolated value, so the
+# lookup always misses and the string is never translated.
+interpolated=$(grep -rnoE 'NSLocalizedString\(@?"[^"]*\\\(' \
+  "${SOURCES[@]}" "${EXCLUDES[@]}" . 2>/dev/null | sed -E 's|^\./||')
+
+while IFS= read -r line; do
+  [[ -z "$line" ]] && continue
+  echo "error: ${line%%:NSLocalizedString*}"
+  echo "       the key is built with string interpolation, so it varies at runtime"
+  echo "       and never matches a translation - use a format specifier instead"
+  interpolations=$((interpolations + 1))
+done <<< "$interpolated"
+
+# 4. Plural rules for strings that no longer exist.
 while IFS= read -r key; do
   [[ -z "$key" ]] && continue
   echo "warning: \"$key\" has a plural rule but is not in $(basename "$STRINGS")"
 done <<< "$(comm -13 <(list "$all_keys") <(list "$plural_keys"))"
 
-problems=$((missing + misread))
+problems=$((missing + misread + interpolations))
 
 if [[ $problems -eq 0 ]]; then
   echo "Plural check passed: $(list "$plural_keys" | wc -l | tr -d ' ') plural rules," \

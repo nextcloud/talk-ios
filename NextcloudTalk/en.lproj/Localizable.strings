@@ -4,6 +4,9 @@
 /* Alice and Bob will receive invitations */
 "%1$@ and %2$@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
 
+/* 'Alice in Team meeting' - the author of a message and the conversation it was sent in */
+"%1$@ in %2$@" = "%1$@ in %2$@";
+
 /* Alice, Bob and Charlie are typing… */
 "%1$@, %2$@ and %3$@ are typing…" = "%1$@, %2$@ and %3$@ are typing…";
 
@@ -400,6 +403,9 @@
 /* No comment provided by engineer. */
 "An error occurred while sending the message" = "An error occurred while sending the message";
 
+/* '%@' is a phone number */
+"An error occurred while setting %@ as phone number" = "An error occurred while setting %@ as phone number";
+
 /* No comment provided by engineer. */
 "An error occurred while setting \(formattedPhoneNumber) as phone number" = "An error occurred while setting \(formattedPhoneNumber) as phone number";
 
@@ -447,6 +453,9 @@
 
 /* No comment provided by engineer. */
 "Answer" = "Answer";
+
+/* 'Answer 1', 'Answer 2', … - placeholder numbering the answers of a poll */
+"Answer %ld" = "Answer %ld";
 
 /* No comment provided by engineer. */
 "Answers" = "Answers";
