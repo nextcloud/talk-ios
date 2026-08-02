@@ -7,7 +7,16 @@ import UIKit
 
 @objcMembers class ReplyMessageView: UIView, SLKVisibleViewProtocol {
 
-    dynamic var isVisible: Bool = false
+    dynamic var isVisible: Bool = false {
+        didSet {
+            guard isVisible != oldValue else { return }
+
+            // Fade along with the height animation of the SLKTextViewController, our content does not shrink
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut, .beginFromCurrentState]) {
+                self.alpha = self.isVisible ? 1 : 0
+            }
+        }
+    }
 
     var message: NCChatMessage?
 
@@ -65,6 +74,9 @@ import UIKit
     }
 
     private func configureSubviews() {
+        // We start out hidden, so the first presentation fades in
+        alpha = 0
+
         addSubview(quoteContainerView)
         addSubview(cancelButton)
 
