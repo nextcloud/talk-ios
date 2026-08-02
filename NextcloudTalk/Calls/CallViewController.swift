@@ -250,7 +250,7 @@ class CallViewController: UIViewController,
         self.toggleChatButton.accessibilityLabel = NSLocalizedString("Chat", comment: "")
         self.toggleChatButton.accessibilityHint = NSLocalizedString("Double tap to show or hide chat view", comment: "")
         self.toggleChatButton.accessibilityIdentifier = "toggleChatButton"
-        self.recordingButton.accessibilityLabel = NSLocalizedString("Recording", comment: "")
+        self.recordingButton.accessibilityLabel = NSLocalizedString("Recording", comment: "Accessibility label of the button shown while the call is being recorded")
         self.recordingButton.accessibilityHint = NSLocalizedString("Double tap to stop recording", comment: "")
         self.lowerHandButton.accessibilityLabel = NSLocalizedString("Lower hand", comment: "")
         self.lowerHandButton.accessibilityHint = NSLocalizedString("Double tap to lower hand", comment: "")

@@ -212,7 +212,7 @@ class DirectoryTableViewController: UITableViewController {
         let confirmDialog = UIAlertController(title: name,
                                               message: String(format: NSLocalizedString("Do you want to share '%@' in the conversation?", comment: ""), name),
                                               preferredStyle: .alert)
-        confirmDialog.addAction(UIAlertAction(title: NSLocalizedString("Share", comment: ""), style: .default) { [weak self] _ in
+        confirmDialog.addAction(UIAlertAction(title: NSLocalizedString("Share", comment: "Button to share a file into the conversation"), style: .default) { [weak self] _ in
             self?.shareFile(withPath: path)
         })
         confirmDialog.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))

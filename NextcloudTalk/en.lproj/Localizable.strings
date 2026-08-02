@@ -25,6 +25,18 @@
 /* Alice, Bob, Charlie and 1 other is typing… */
 "%1$@, %2$@, %3$@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
 
+/* 'Alice (bot)' - a participant that is a bot, not a person */
+"%@ (bot)" = "%@ (bot)";
+
+/* 'German (detected)' - the language of the original message was detected automatically */
+"%@ (detected)" = "%@ (detected)";
+
+/* 'Alice (guest)' - a participant who is not logged in */
+"%@ (guest)" = "%@ (guest)";
+
+/* 'Alice (moderator)' - a participant who can moderate the conversation */
+"%@ (moderator)" = "%@ (moderator)";
+
 /* Alice and Bob will receive invitations */
 "%@ and %@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
 
@@ -457,7 +469,7 @@
 /* 'Answer 1', 'Answer 2', … - placeholder numbering the answers of a poll */
 "Answer %ld" = "Answer %ld";
 
-/* No comment provided by engineer. */
+/* Section header for the answers of a poll */
 "Answers" = "Answers";
 
 /* No comment provided by engineer. */
@@ -901,7 +913,7 @@
 /* No comment provided by engineer. */
 "Deck cards" = "Deck cards";
 
-/* No comment provided by engineer. */
+/* 'Default' as a notification level, following the conversation setting */
 "Default" = "Default";
 
 /* No comment provided by engineer. */
@@ -955,7 +967,7 @@
 /* No comment provided by engineer. */
 "Diagnostics" = "Diagnostics";
 
-/* No comment provided by engineer. */
+/* Generic 'Disable' button label, e.g. for a bot */
 "Disable" = "Disable";
 
 /* No comment provided by engineer. */
@@ -1123,6 +1135,9 @@
 /* A message was edited by ... */
 "Edited by" = "Edited by";
 
+/* 'Edited by Alice' - who last edited a message */
+"Edited by %@" = "Edited by %@";
+
 /* No comment provided by engineer. */
 "Editing Message" = "Editing Message";
 
@@ -1141,7 +1156,7 @@
 /* No comment provided by engineer. */
 "Empty summary response" = "Empty summary response";
 
-/* No comment provided by engineer. */
+/* Generic 'Enable' button label, e.g. for a bot */
 "Enable" = "Enable";
 
 /* No comment provided by engineer. */
@@ -1153,7 +1168,7 @@
 /* No comment provided by engineer. */
 "Enable speaker" = "Enable speaker";
 
-/* No comment provided by engineer. */
+/* Label of a bot that is always enabled and cannot be turned off in the app */
 "Enabled" = "Enabled";
 
 /* No comment provided by engineer. */
@@ -1216,7 +1231,7 @@
 /* 'Favorites' meaning 'Favorite conversations' */
 "Favorites" = "Favorites";
 
-/* No comment provided by engineer. */
+/* Visibility scope of a profile field: also synchronized to trusted servers */
 "Federated" = "Federated";
 
 /* No comment provided by engineer. */
@@ -1234,7 +1249,7 @@
 /* Title for available conversations filters */
 "Filters" = "Filters";
 
-/* No comment provided by engineer. */
+/* First day of the absence */
 "First day" = "First day";
 
 /* No comment provided by engineer. */
@@ -1291,7 +1306,7 @@
 /* No comment provided by engineer. */
 "guest" = "guest";
 
-/* No comment provided by engineer. */
+/* Display name used for an anonymous guest */
 "Guest" = "Guest";
 
 /* No comment provided by engineer. */
@@ -1306,7 +1321,7 @@
 /* TRANSLATORS this is a video quality option (Video quality : HD) */
 "HD" = "HD";
 
-/* No comment provided by engineer. */
+/* Context menu action to hide a banner, e.g. the out of office or pinned message banner */
 "Hide" = "Hide";
 
 /* TRANSLATORS this is a video quality option (Video quality : High) */
@@ -1411,10 +1426,10 @@
 /* No comment provided by engineer. */
 "Join video call" = "Join video call";
 
-/* No comment provided by engineer. */
+/* Button to keep a conversation instead of deleting it */
 "Keep" = "Keep";
 
-/* No comment provided by engineer. */
+/* Last day of the absence, the user is still absent on this day */
 "Last day (inclusive)" = "Last day (inclusive)";
 
 /* Last subscription to the push notification server */
@@ -1423,10 +1438,13 @@
 /* No comment provided by engineer. */
 "Last sync" = "Last sync";
 
+/* 'Last sync: 12 May 2026' - when the contacts were last updated */
+"Last sync: %@" = "Last sync: %@";
+
 /* Remind me later today about that message */
 "Later today" = "Later today";
 
-/* No comment provided by engineer. */
+/* Button to leave a conversation */
 "Leave" = "Leave";
 
 /* No comment provided by engineer. */
@@ -1456,7 +1474,7 @@
 /* No comment provided by engineer. */
 "Lobby is still active and you're not a moderator" = "Lobby is still active and you're not a moderator";
 
-/* No comment provided by engineer. */
+/* Visibility scope of a profile field: only people on this server and guests */
 "Local" = "Local";
 
 /* No comment provided by engineer. */
@@ -1516,7 +1534,7 @@
 /* No comment provided by engineer. */
 "Match system contacts" = "Match system contacts";
 
-/* No comment provided by engineer. */
+/* Category of shared items in a conversation: images and videos */
 "Media" = "Media";
 
 /* No comment provided by engineer. */
@@ -1778,7 +1796,7 @@
 /* Indicates an event happening right now */
 "Now" = "Now";
 
-/* No comment provided by engineer. */
+/* 'Off' as the value of a setting, e.g. the notification level or message expiration */
 "Off" = "Off";
 
 /* No comment provided by engineer. */
@@ -1820,7 +1838,7 @@
 /* No comment provided by engineer. */
 "Only visible to people on this instance and guests" = "Only visible to people on this instance and guests";
 
-/* No comment provided by engineer. */
+/* Context menu action to open a shared file */
 "Open" = "Open";
 
 /* No comment provided by engineer. */
@@ -1850,7 +1868,7 @@
 /* No comment provided by engineer. */
 "Other participants" = "Other participants";
 
-/* No comment provided by engineer. */
+/* Category of shared items in a conversation, for everything without its own category */
 "Others" = "Others";
 
 /* No comment provided by engineer. */
@@ -1958,7 +1976,7 @@
 /* No comment provided by engineer. */
 "Privacy" = "Privacy";
 
-/* No comment provided by engineer. */
+/* Visibility scope of a profile field: only people matched by phone number */
 "Private" = "Private";
 
 /* Show private conversations before group ones */
@@ -1973,19 +1991,19 @@
 /* No comment provided by engineer. */
 "Promote to moderator" = "Promote to moderator";
 
-/* No comment provided by engineer. */
+/* Visibility scope of a profile field: also synchronized to the public address book */
 "Published" = "Published";
 
 /* No comment provided by engineer. */
 "Push notifications" = "Push notifications";
 
-/* No comment provided by engineer. */
+/* Section header for the question of a poll */
 "Question" = "Question";
 
 /* No comment provided by engineer. */
 "Raise hand" = "Raise hand";
 
-/* No comment provided by engineer. */
+/* Diagnostics row asking whether the server can be reached */
 "Reachable?" = "Reachable?";
 
 /* No comment provided by engineer. */
@@ -2003,7 +2021,7 @@
 /* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
 
-/* No comment provided by engineer. */
+/* Accessibility label of the button shown while the call is being recorded */
 "Recording" = "Recording";
 
 /* No comment provided by engineer. */
@@ -2033,7 +2051,7 @@
 /* No comment provided by engineer. */
 "Remote server is unreachable" = "Remote server is unreachable";
 
-/* No comment provided by engineer. */
+/* Generic 'Remove' button label, e.g. an account or a date */
 "Remove" = "Remove";
 
 /* No comment provided by engineer. */
@@ -2063,10 +2081,14 @@
 /* Replacement in case of out of office */
 "Replacement" = "Replacement";
 
-/* Replacement in case of out of office */
+/* Replacement in case of out of office
+   Section header: the person who takes over while the user is out of office */
 "Replacement (optional)" = "Replacement (optional)";
 
-/* No comment provided by engineer. */
+/* 'Replacement: Alice' - who takes over while a user is out of office */
+"Replacement: %@" = "Replacement: %@";
+
+/* Action to reply to a message */
 "Reply" = "Reply";
 
 /* No comment provided by engineer. */
@@ -2096,13 +2118,14 @@
 /* Title for a section where different reset options are shown */
 "Reset" = "Reset";
 
-/* Replacement in case of out of office */
+/* Button to clear the chosen replacement person again
+   Replacement in case of out of office */
 "Reset replacement" = "Reset replacement";
 
 /* Results of a poll */
 "Results" = "Results";
 
-/* No comment provided by engineer. */
+/* Button to retry a failed operation */
 "Retry" = "Retry";
 
 /* Save conversation description */
@@ -2144,10 +2167,11 @@
 /* No comment provided by engineer. */
 "Search GIFs" = "Search GIFs";
 
-/* No comment provided by engineer. */
+/* Button to start selecting entries of a list */
 "Select" = "Select";
 
-/* Replacement in case of out of office */
+/* Opens a user picker to choose the person who takes over during the absence
+   Replacement in case of out of office */
 "Select a replacement" = "Select a replacement";
 
 /* No comment provided by engineer. */
@@ -2156,7 +2180,7 @@
 /* Copy a 'selection' of a message */
 "Selection" = "Selection";
 
-/* No comment provided by engineer. */
+/* Button to send the shared content to a conversation */
 "Send" = "Send";
 
 /* No comment provided by engineer. */
@@ -2204,7 +2228,7 @@
 /* No comment provided by engineer. */
 "Server not found" = "Server not found";
 
-/* No comment provided by engineer. */
+/* Button to set a phone number */
 "Set" = "Set";
 
 /* No comment provided by engineer. */
@@ -2219,7 +2243,7 @@
 /* No comment provided by engineer. */
 "Settings" = "Settings";
 
-/* No comment provided by engineer. */
+/* Button to share a file into the conversation */
 "Share" = "Share";
 
 /* No comment provided by engineer. */
@@ -2267,7 +2291,7 @@
 /* No comment provided by engineer. */
 "SIP dial-in" = "SIP dial-in";
 
-/* No comment provided by engineer. */
+/* Button to skip setting a phone number */
 "Skip" = "Skip";
 
 /* No comment provided by engineer. */
@@ -2375,6 +2399,9 @@
 /* Talk to a user */
 "Talk to" = "Talk to";
 
+/* 'Talk to Alice' - start a conversation with a user */
+"Talk to %@" = "Talk to %@";
+
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message" = "Tap and hold to record a voice message";
 
@@ -2471,7 +2498,7 @@
 /* No comment provided by engineer. */
 "This will impact the functionality of this app. Please review your settings." = "This will impact the functionality of this app. Please review your settings.";
 
-/* No comment provided by engineer. */
+/* Context menu action to reply to a message in a thread */
 "Thread" = "Thread";
 
 /* No comment provided by engineer. */
@@ -2597,7 +2624,7 @@
 /* Calling is not supported */
 "Unsupported" = "Unsupported";
 
-/* No comment provided by engineer. */
+/* Button to update the app */
 "Update" = "Update";
 
 /* No comment provided by engineer. */
@@ -2663,7 +2690,7 @@
 /* No comment provided by engineer. */
 "Yesterday" = "Yesterday";
 
-/* No comment provided by engineer. */
+/* The user themselves as the author of a message */
 "You" = "You";
 
 /* Please put {user0} and %ld placeholders in the correct position on the translated text but do not translate it */

@@ -340,9 +340,9 @@ import UIKit
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == PollCreationSection.kPollCreationSectionQuestion.rawValue {
-            return NSLocalizedString("Question", comment: "")
+            return NSLocalizedString("Question", comment: "Section header for the question of a poll")
         } else if section == PollCreationSection.kPollCreationSectionOptions.rawValue {
-            return NSLocalizedString("Answers", comment: "")
+            return NSLocalizedString("Answers", comment: "Section header for the answers of a poll")
         } else if section == PollCreationSection.kPollCreationSectionSettings.rawValue {
             return NSLocalizedString("Settings", comment: "")
         }

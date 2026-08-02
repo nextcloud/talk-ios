@@ -594,7 +594,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             let repliesString = String.localizedStringWithFormat(NSLocalizedString("%ld replies", comment: "Replies in a thread"), replies)
             self.threadRepliesButton.setTitle(repliesString, for: .normal)
         } else {
-            self.threadRepliesButton.setTitle(NSLocalizedString("Reply", comment: ""), for: .normal)
+            self.threadRepliesButton.setTitle(NSLocalizedString("Reply", comment: "Action to reply to a message"), for: .normal)
         }
 
         self.reactionPart.isHidden = false

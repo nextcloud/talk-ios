@@ -994,7 +994,7 @@ import Toast
             self.presentPollCreation()
         }
 
-        let threadAction = UIAction(title: NSLocalizedString("Thread", comment: ""), image: UIImage(systemName: "bubble.left.and.bubble.right")) { [unowned self] _ in
+        let threadAction = UIAction(title: NSLocalizedString("Thread", comment: "Context menu action to reply to a message in a thread"), image: UIImage(systemName: "bubble.left.and.bubble.right")) { [unowned self] _ in
             self.textView.resignFirstResponder()
             self.presentThreadCreation()
         }

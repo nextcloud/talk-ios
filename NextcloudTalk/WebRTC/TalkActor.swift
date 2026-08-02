@@ -21,7 +21,7 @@ import SwiftyAttributes
             if isDeleted {
                 return NSLocalizedString("Deleted user", comment: "")
             } else {
-                return NSLocalizedString("Guest", comment: "")
+                return NSLocalizedString("Guest", comment: "Display name used for an anonymous guest")
             }
         }
 
@@ -32,18 +32,29 @@ import SwiftyAttributes
     /// This also appends a potential `cloudId` as `tertiaryLabel` in parentheses
     public var attributedDisplayName: NSMutableAttributedString {
         let displayName = self.displayName
-        let titleLabel = displayName.withTextColor(.secondaryLabel)
 
         if let remoteServer = cloudId {
+            let titleLabel = displayName.withTextColor(.secondaryLabel)
             let remoteServerString = " (\(String(remoteServer)))"
             titleLabel.append(remoteServerString.withTextColor(.tertiaryLabel))
-        } else if isGuest, !rawDisplayName.isEmpty {
-            // Show guest indication only when we did not use the default "Guest" name
-            let guestString = " (\(NSLocalizedString("guest", comment: "")))"
-            titleLabel.append(guestString.withTextColor(.tertiaryLabel))
+
+            return titleLabel
         }
 
-        return titleLabel
+        if isGuest, !rawDisplayName.isEmpty {
+            // Show guest indication only when we did not use the default "Guest" name
+            // Highlight the name after formatting, a translation may put it anywhere
+            let guestName = String(format: NSLocalizedString("%@ (guest)", comment: "'Alice (guest)' - a participant who is not logged in"), displayName)
+            let titleLabel = guestName.withTextColor(.tertiaryLabel)
+
+            if let nameRange = guestName.range(of: displayName) {
+                titleLabel.addAttribute(.foregroundColor, value: UIColor.secondaryLabel, range: NSRange(nameRange, in: guestName))
+            }
+
+            return titleLabel
+        }
+
+        return displayName.withTextColor(.secondaryLabel)
     }
 
     init(actorId: String? = nil, actorType: String? = nil, actorDisplayName: String? = nil) {

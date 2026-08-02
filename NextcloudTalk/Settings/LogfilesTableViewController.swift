@@ -13,7 +13,7 @@ class LogfilesTableViewController: UITableViewController, QLPreviewControllerDat
 
     private let cellIdentifier = "LogfileCellIdentifier"
 
-    private lazy var selectBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Select", comment: ""), style: .plain, target: self, action: #selector(selectButtonPressed))
+    private lazy var selectBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Select", comment: "Button to start selecting entries of a list"), style: .plain, target: self, action: #selector(selectButtonPressed))
     private lazy var exportBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(exportButtonPressed))
 
     init() {

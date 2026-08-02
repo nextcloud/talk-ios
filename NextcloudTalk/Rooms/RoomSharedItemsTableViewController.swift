@@ -214,11 +214,11 @@ import PassKit
         case kSharedItemTypeFile:
             return NSLocalizedString("Files", comment: "")
         case kSharedItemTypeMedia:
-            return NSLocalizedString("Media", comment: "")
+            return NSLocalizedString("Media", comment: "Category of shared items in a conversation: images and videos")
         case kSharedItemTypeLocation:
             return NSLocalizedString("Locations", comment: "")
         case kSharedItemTypeOther:
-            return NSLocalizedString("Others", comment: "")
+            return NSLocalizedString("Others", comment: "Category of shared items in a conversation, for everything without its own category")
         case kSharedItemTypeVoice:
             return NSLocalizedString("Voice messages", comment: "")
         case kSharedItemTypePoll:
@@ -436,7 +436,7 @@ import PassKit
 
             return nil
         }, actionProvider: { _ in
-            UIMenu(children: [UIAction(title: NSLocalizedString("Open", comment: "")) { _ in
+            UIMenu(children: [UIAction(title: NSLocalizedString("Open", comment: "Context menu action to open a shared file")) { _ in
                 DispatchQueue.main.async {
                     self.presentPreviewChatViewController()
                 }

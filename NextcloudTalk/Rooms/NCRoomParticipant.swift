@@ -135,20 +135,17 @@ public class NCRoomParticipant: NSObject {
 
         // Moderator label
         if canModerate {
-            let moderatorString = NSLocalizedString("moderator", comment: "")
-            detailedNameString = String(format: "%@ (%@)", detailedNameString, moderatorString)
+            detailedNameString = String(format: NSLocalizedString("%@ (moderator)", comment: "'Alice (moderator)' - a participant who can moderate the conversation"), detailedNameString)
         }
 
         // Bridge bot label
         if isBridgeBotUser {
-            let botString = NSLocalizedString("bot", comment: "")
-            detailedNameString = String(format: "%@ (%@)", detailedNameString, botString)
+            detailedNameString = String(format: NSLocalizedString("%@ (bot)", comment: "'Alice (bot)' - a participant that is a bot, not a person"), detailedNameString)
         }
 
         // Guest label
         if isGuest, !defaultGuestNameUsed {
-            let guestString = NSLocalizedString("guest", comment: "")
-            detailedNameString = String(format: "%@ (%@)", detailedNameString, guestString)
+            detailedNameString = String(format: NSLocalizedString("%@ (guest)", comment: "'Alice (guest)' - a participant who is not logged in"), detailedNameString)
         }
 
         return detailedNameString

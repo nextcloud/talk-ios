@@ -563,7 +563,7 @@ class DiagnosticsTableViewController: UITableViewController {
             cell.detailTextLabel?.text = readableBool(for: serverCapabilities.guestsAppEnabled)
 
         case ServerSections.kServerSectionReachable.rawValue:
-            cell.textLabel?.text = NSLocalizedString("Reachable?", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Reachable?", comment: "Diagnostics row asking whether the server can be reached")
             cell.detailTextLabel?.text = "-"
 
             if serverReachableIndicator.isAnimating {

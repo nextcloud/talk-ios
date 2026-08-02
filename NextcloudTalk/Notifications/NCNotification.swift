@@ -62,7 +62,7 @@ public class NCNotification: NSObject {
         }
 
         if let guestDict = subjectRichParameters["guest"] as? [AnyHashable: Any], let guestName = guestDict["name"] as? String {
-            return "\(guestName) (\(NSLocalizedString("guest", comment: "")))"
+            return String(format: NSLocalizedString("%@ (guest)", comment: "'Alice (guest)' - a participant who is not logged in"), guestName)
         }
 
         return NSLocalizedString("Guest", comment: "")

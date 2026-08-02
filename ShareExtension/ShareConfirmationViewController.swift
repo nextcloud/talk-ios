@@ -65,7 +65,7 @@ import MBProgressHUD
     // MARK: - UI Controls
 
     private lazy var sendButton: UIBarButtonItem = {
-        let sendButton = UIBarButtonItem(title: NSLocalizedString("Send", comment: ""), style: .done, target: self, action: #selector(sendButtonPressed))
+        let sendButton = UIBarButtonItem(title: NSLocalizedString("Send", comment: "Button to send the shared content to a conversation"), style: .done, target: self, action: #selector(sendButtonPressed))
         sendButton.accessibilityHint = NSLocalizedString("Double tap to share with selected conversations", comment: "")
         return sendButton
     }()

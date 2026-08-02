@@ -202,22 +202,22 @@ extension UserProfileTableViewController {
 
         let privateOption = setupDetailedOption(identifier: UserProfileScope.private,
                                                 image: UIImage(systemName: "iphone")?.applyingSymbolConfiguration(iconConfiguration),
-                                                title: NSLocalizedString("Private", comment: ""),
+                                                title: NSLocalizedString("Private", comment: "Visibility scope of a profile field: only people matched by phone number"),
                                                 subtitle: NSLocalizedString("Only visible to people matched via phone number integration", comment: ""),
                                                 selected: currentValue == UserProfileScope.private)
         let localOption = setupDetailedOption(identifier: UserProfileScope.local,
                                               image: UIImage(systemName: "lock")?.applyingSymbolConfiguration(iconConfiguration),
-                                              title: NSLocalizedString("Local", comment: ""),
+                                              title: NSLocalizedString("Local", comment: "Visibility scope of a profile field: only people on this server and guests"),
                                               subtitle: NSLocalizedString("Only visible to people on this instance and guests", comment: ""),
                                               selected: currentValue == UserProfileScope.local)
         let federatedOption = setupDetailedOption(identifier: UserProfileScope.federated,
                                                   image: UIImage(systemName: "person.2")?.applyingSymbolConfiguration(iconConfiguration),
-                                                  title: NSLocalizedString("Federated", comment: ""),
+                                                  title: NSLocalizedString("Federated", comment: "Visibility scope of a profile field: also synchronized to trusted servers"),
                                                   subtitle: NSLocalizedString("Only synchronize to trusted servers", comment: ""),
                                                   selected: currentValue == UserProfileScope.federated)
         let publishedOption = setupDetailedOption(identifier: UserProfileScope.published,
                                                   image: UIImage(systemName: "network")?.applyingSymbolConfiguration(iconConfiguration),
-                                                  title: NSLocalizedString("Published", comment: ""),
+                                                  title: NSLocalizedString("Published", comment: "Visibility scope of a profile field: also synchronized to the public address book"),
                                                   subtitle: NSLocalizedString("Synchronize to trusted servers and the global and public address book", comment: ""),
                                                   selected: currentValue == UserProfileScope.published)
 

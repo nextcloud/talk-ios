@@ -5,19 +5,15 @@
 
 # check-localizable-plurals.sh
 #
-# Checks that localized strings taking a number are set up for plurals:
+# Checks that localized strings are set up so they can actually be translated:
 #
-#   1. Every string in en.lproj/Localizable.strings with an integer format
-#      specifier has a plural rule in en.lproj/Localizable.stringsdict.
-#   2. Every string that has a plural rule is read with
-#      String.localizedStringWithFormat and not with String(format:), which
-#      passes no locale and therefore cannot pick the right plural category.
-#   3. No localized string builds its key with string interpolation, which
-#      makes the key vary at runtime so it never matches a translation.
+#   1. Every string taking a number has a plural rule in Localizable.stringsdict.
+#   2. Plural strings are read with String.localizedStringWithFormat, not
+#      String(format:), which passes no locale and picks the wrong category.
+#   3. No key is built with string interpolation, which makes it vary at runtime.
 #   4. Every plural rule still corresponds to a string that exists.
 #
-# Run this after generate-localizable-strings-file.sh, so that
-# Localizable.strings is up to date.
+# Run this after generate-localizable-strings-file.sh.
 
 set -uo pipefail
 
@@ -36,35 +32,29 @@ for file in "$STRINGS" "$STRINGSDICT"; do
   fi
 done
 
-# Strings that take a number but intentionally have no plural rule, because no
-# word in them agrees with that number.
+# Strings that take a number but where no word agrees with it.
 ALLOWED_WITHOUT_PLURAL=(
   'Add (%lu)'  # Parenthesised selection count on a button
   'Answer %ld' # Numbers an answer of a poll, it is not a count
 
-  # Localizable.strings is generated from this branch and the stable branch
-  # together, so it still contains strings that only the stable branch uses.
-  # A plural rule added here would not reach that branch anyway.
+  # Only used by the stable branch, which the generated file also covers.
   '%d replies'
   '%@, %@, %@ and %ld others will receive invitations'
 )
 
-# An integer conversion, optionally positional ("%4$ld") and optionally with a
-# length modifier ("%ld", "%lld"). Deliberately does not match "%@".
+# An integer conversion like %d, %ld or %4$ld. Deliberately not %@.
 INTEGER_SPECIFIER='%([0-9]+\$)?l{0,2}[diu]([^a-zA-Z]|$)'
 
 SOURCES=(--include=*.swift --include=*.m --include=*.h)
 EXCLUDES=(--exclude-dir=ThirdParty --exclude-dir=Pods --exclude-dir=node_modules
           --exclude-dir=build --exclude-dir=DerivedData)
 
-# generate-localizable-strings-file.sh clones the stable branch into the
-# repository root and removes it again. Skip it if it is still lying around.
+# Skip the stable branch clone, in case a previous generation run left it behind.
 if [[ -r .tx/backport ]]; then
   EXCLUDES+=(--exclude-dir="$(<.tx/backport)")
 fi
 
-# Source literals and .strings keys escape quotes and backslashes; the keys in
-# the stringsdict are plain XML text. Compare them all in unescaped form.
+# .strings and source keys are escaped, stringsdict keys are not. Compare unescaped.
 unescape() {
   sed -e 's|\\"|"|g' -e 's|\\\\|\\|g'
 }
@@ -81,8 +71,7 @@ stringsdict_keys() {
     | sed -e 's|&lt;|<|g' -e 's|&gt;|>|g' -e 's|&amp;|\&|g'
 }
 
-# Writes a newline separated list, without the trailing empty line that
-# printf would produce for an empty list. comm reads these via <(...).
+# A list for comm via <(...), without the empty line printf gives for an empty one.
 list() {
   [[ -n "$1" ]] && printf '%s\n' "$1"
 }
@@ -134,9 +123,8 @@ while IFS= read -r line; do
   fi
 done <<< "$format_calls"
 
-# 3. Keys built with string interpolation. genstrings records the literal
-# "\(foo)", but at runtime the key contains the interpolated value, so the
-# lookup always misses and the string is never translated.
+# 3. Keys built with string interpolation: at runtime the key contains the
+# interpolated value, so the lookup always misses.
 interpolated=$(grep -rnoE 'NSLocalizedString\(@?"[^"]*\\\(' \
   "${SOURCES[@]}" "${EXCLUDES[@]}" . 2>/dev/null | sed -E 's|^\./||')
 

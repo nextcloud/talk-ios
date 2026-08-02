@@ -50,9 +50,9 @@ extension Array where Element == NCRoom {
         case .mention:
             levelString = NSLocalizedString("@-mentions only", comment: "")
         case .never:
-            levelString = NSLocalizedString("Off", comment: "")
+            levelString = NSLocalizedString("Off", comment: "'Off' as the value of a setting, e.g. the notification level or message expiration")
         default:
-            levelString = NSLocalizedString("Default", comment: "")
+            levelString = NSLocalizedString("Default", comment: "'Default' as a notification level, following the conversation setting")
         }
 
         return levelString

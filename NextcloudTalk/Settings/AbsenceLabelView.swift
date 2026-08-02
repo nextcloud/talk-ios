@@ -27,7 +27,7 @@ struct AbsenceLabelView: View {
 
                 if absenceStatus.hasReplacementSet {
                     // Make genstrings happy
-                    let displayedString = NSLocalizedString("Replacement", comment: "Replacement in case of out of office") + ": " + absenceStatus.replacementName
+                    let displayedString = String(format: NSLocalizedString("Replacement: %@", comment: "'Replacement: Alice' - who takes over while a user is out of office"), absenceStatus.replacementName)
                     Text(verbatim: displayedString)
                         .foregroundStyle(.primary)
                 }

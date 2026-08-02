@@ -350,7 +350,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             setPhoneAction.isEnabled = false
             setPhoneNumberDialog.addAction(setPhoneAction)
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Skip", comment: ""), style: .default) { _ in
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Skip", comment: "Button to skip setting a phone number"), style: .default) { _ in
             self.refreshUserProfile()
         }
         setPhoneNumberDialog.addAction(cancelAction)
@@ -370,7 +370,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             message: alertMessage,
             preferredStyle: .alert)
 
-        let retryAction = UIAlertAction(title: NSLocalizedString("Retry", comment: ""), style: .default) { _ in
+        let retryAction = UIAlertAction(title: NSLocalizedString("Retry", comment: "Button to retry a failed operation"), style: .default) { _ in
             self.presentSetPhoneNumberDialog()
         }
         failedPhoneNumberDialog.addAction(retryAction)
@@ -653,7 +653,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateStyle = .medium
                 dateFormatter.timeStyle = .short
-                return NSLocalizedString("Last sync", comment: "") + ": " + dateFormatter.string(from: lastUpdate)
+                return String(format: NSLocalizedString("Last sync: %@", comment: "'Last sync: 12 May 2026' - when the contacts were last updated"), dateFormatter.string(from: lastUpdate))
             }
         }
 
