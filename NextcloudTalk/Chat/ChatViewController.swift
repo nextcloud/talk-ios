@@ -644,7 +644,7 @@ import SwiftUI
         if room.isFederated {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
-            self.leftButton.setImage(nil, for: .normal)
+            self.setInputbarImage(nil, for: self.leftButton)
         }
 
         // Disable room info, input bar and call buttons until joining room

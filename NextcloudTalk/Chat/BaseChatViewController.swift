@@ -266,7 +266,7 @@ import Toast
         self.isInverted = false
 
         self.showSendMessageButton()
-        self.leftButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        self.setInputbarImage(UIImage(systemName: "plus"), for: self.leftButton)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
         self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
         self.leftButton.accessibilityIdentifier = "shareButton"
@@ -736,9 +736,9 @@ import Toast
         self.rightButton.setTitle("", for: .normal)
 
         if self.room.hasScheduledMessages {
-            self.rightButton.setImage(UIImage(systemName: "clock"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "clock"), for: self.rightButton)
         } else {
-            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         }
 
         self.rightButton.tag = sendButtonTagVoice
@@ -750,7 +750,7 @@ import Toast
 
     func showSendMessageButton() {
         self.rightButton.setTitle("", for: .normal)
-        self.rightButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
+        self.setInputbarImage(UIImage(systemName: "paperplane"), for: self.rightButton)
         self.rightButton.tag = sendButtonTagMessage
         self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
         self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
@@ -2374,7 +2374,7 @@ import Toast
             self.longPressStartingPoint = point
             self.cancelHintLabelInitialPositionX = voiceMessageRecordingView?.slideToCancelHintLabel?.frame.origin.x
             self.voiceRecordingLockButton.alpha = 1
-            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         } else if gestureRecognizer.state == .ended {
             self.shouldLockInterfaceOrientation(lock: false)
             self.resetVoiceRecordingLockButton()

@@ -22,10 +22,8 @@ import UIKit
     internal var contentView: UIView?
     internal var selectedAutocompletionRow: IndexPath?
 
-    /// Glass backgrounds of the textView and the inputbar buttons, only used on iOS 26 and above
+    /// Glass background of the textView, only used on iOS 26 and above
     internal var textViewBackgroundView: UIVisualEffectView?
-    internal var leftButtonBackgroundView: UIVisualEffectView?
-    internal var rightButtonBackgroundView: UIVisualEffectView?
 
     public var isThreadViewController: Bool {
         return thread != nil
@@ -91,7 +89,7 @@ import UIKit
 
         // Set the rightButton early, to allow sizing the textInputbar correctly
         self.rightButton.setTitle("", for: .normal)
-        self.rightButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
+        self.setInputbarImage(UIImage(systemName: "paperplane"), for: self.rightButton)
         self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
         self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
 
@@ -263,13 +261,34 @@ import UIKit
         self.textView.layer.borderWidth = 0
         self.textView.layer.cornerCurve = .continuous
 
-        // Glass background for the left and right button.
+        // Real glass buttons, so that pressing them and the menus they present morph out of the glass shape
+        // instead of out of their image.
         //
-        // Note: We deliberately don't use a glass UIButton.Configuration here. Assigning a configuration
-        // recreates the button's imageView, which SLKTextInputbar observes to size its buttons, so the
-        // buttons would end up without a size and unregistering that observer would crash on dealloc.
-        self.leftButtonBackgroundView = self.addGlassBackgroundView(behind: self.leftButton)
-        self.rightButtonBackgroundView = self.addGlassBackgroundView(behind: self.rightButton)
+        // Note: Assigning a configuration recreates the imageView of a button, which SLKTextInputbar observes to
+        // size its buttons. So changing an image has to go through setInputbarImage(_:for:) from now on.
+        var buttonConfiguration = UIButton.Configuration.glass()
+        buttonConfiguration.cornerStyle = .capsule
+
+        // Without this the configuration adds padding around the image, which would make the buttons wider
+        // than they are high
+        buttonConfiguration.contentInsets = .zero
+
+        for button in [self.leftButton, self.rightButton] {
+            buttonConfiguration.image = button.image(for: .normal)
+            button.configuration = buttonConfiguration
+        }
+    }
+
+    /// Sets the image of one of the inputbar buttons.
+    ///
+    /// SLKTextInputbar sizes its buttons based on the image set for the normal state, while the configuration
+    /// based buttons we use since iOS 26 render the image of their configuration. So keep both in sync and let
+    /// the inputbar know, since it can't observe the change itself anymore.
+    internal func setInputbarImage(_ image: UIImage?, for button: UIButton) {
+        button.setImage(image, for: .normal)
+        button.configuration?.image = image
+
+        self.textInputbar.invalidateButtonSizes()
     }
 
     @available(iOS 26.0, *)
@@ -280,7 +299,9 @@ import UIKit
         backgroundView.clipsToBounds = true
         backgroundView.layer.cornerCurve = .continuous
 
-        self.textInputbar.insertSubview(backgroundView, belowSubview: view)
+        // Behind all controls of the inputbar: SLKTextInputbar adds the buttons before the textView, so inserting
+        // this below the textView would still cover them
+        self.textInputbar.insertSubview(backgroundView, at: 0)
 
         NSLayoutConstraint.activate([
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -300,9 +321,6 @@ import UIKit
 
         self.textView.layer.cornerRadius = cornerRadius
         self.textViewBackgroundView?.layer.cornerRadius = cornerRadius
-
-        self.leftButtonBackgroundView?.layer.cornerRadius = self.leftButton.frame.size.height / 2
-        self.rightButtonBackgroundView?.layer.cornerRadius = self.rightButton.frame.size.height / 2
 
         (self.replyProxyView as? ReplyMessageView)?.backgroundCornerRadius = cornerRadius
     }
