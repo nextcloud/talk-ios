@@ -333,9 +333,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You added {user0} and %ld more participant</string>
+			<string>Sa lisasid kasutaja {user0} ja veel %ld osaleja</string>
 			<key>other</key>
-			<string>You added {user0} and %ld more participants</string>
+			<string>Sa lisasid kasutaja {user0} ja veel %ld osalejat</string>
 		</dict>
 	</dict>
 	<key>An administrator added you and %ld more participants</key>
@@ -349,9 +349,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added you and %ld more participant</string>
+			<string>Peakasutaja lisas sinu ja veel %ld osaleja</string>
 			<key>other</key>
-			<string>An administrator added you and %ld more participants</string>
+			<string>Peakasutaja lisas sinu ja veel %ld osalejat</string>
 		</dict>
 	</dict>
 	<key>An administrator added {user0} and %ld more participants</key>
@@ -365,9 +365,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added {user0} and %ld more participant</string>
+			<string>Peakasutaja lisas kasutaja „{user0}“ ja veel %ld osaleja</string>
 			<key>other</key>
-			<string>An administrator added {user0} and %ld more participants</string>
+			<string>Peakasutaja lisas kasutaja „{user0}“ ja veel %ld osalejat</string>
 		</dict>
 	</dict>
 	<key>{actor0} added you and %ld more participants</key>
@@ -381,9 +381,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added you and %ld more participant</string>
+			<string>{actor0} lisas sinu ja veel %ld osaleja</string>
 			<key>other</key>
-			<string>{actor0} added you and %ld more participants</string>
+			<string>{actor0} lisas sinu ja veel %ld osalejat</string>
 		</dict>
 	</dict>
 	<key>{actor0} added {user0} and %ld more participants</key>
@@ -397,9 +397,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added {user0} and %ld more participant</string>
+			<string>{actor0} lisas kasutaja „{user0}“ ja veel %ld osaleja</string>
 			<key>other</key>
-			<string>{actor0} added {user0} and %ld more participants</string>
+			<string>{actor0} lisas kasutaja „{user0}“ ja veel %ld osalejat</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -653,9 +653,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant joined the call</string>
+			<string>Sina ja veel %ld osaleja liitusid kõnega</string>
 			<key>other</key>
-			<string>You and %ld more participants joined the call</string>
+			<string>Sina ja veel %ld osalejat liitusid kõnega</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants joined the call</key>
@@ -669,9 +669,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant joined the call</string>
+			<string>{actor0} ja veel %ld osalejat liitusid kõnega</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants joined the call</string>
+			<string>{actor0} ja veel %ld osalejat liitusid kõnega</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants left the call</key>
@@ -685,9 +685,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant left the call</string>
+			<string>Sina ja veel %ld osalejat lahkusid kõnest</string>
 			<key>other</key>
-			<string>You and %ld more participants left the call</string>
+			<string>Sina ja veel %ld osalejat lahkusid kõnest</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants left the call</key>
@@ -701,9 +701,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant left the call</string>
+			<string>{actor0} ja veel %ld osaleja lahkusid kõnest</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants left the call</string>
+			<string>{actor0} ja veel %ld osalejat lahkusid kõnest</string>
 		</dict>
 	</dict>
 </dict>
