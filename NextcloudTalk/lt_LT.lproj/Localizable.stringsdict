@@ -293,9 +293,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld conversation with unread messages</string>
+			<string>%ld pokalbis su neperskaitytais pranešimais</string>
+			<key>few</key>
+			<string>%ld pokalbiai su neperskaitytais pranešimais</string>
+			<key>many</key>
+			<string>%ld pokalbių su neperskaitytais pranešimais</string>
 			<key>other</key>
-			<string>%ld conversations with unread messages</string>
+			<string>%ld pokalbiai su neperskaitytais pranešimais</string>
 		</dict>
 	</dict>
 	<key>%ld days</key>
@@ -309,9 +313,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld day</string>
+			<string>%ld diena</string>
+			<key>few</key>
+			<string>%ld dienos (-ų)</string>
+			<key>many</key>
+			<string>%ld dienos (-ų)</string>
 			<key>other</key>
-			<string>%ld days</string>
+			<string>%ld dienos (-ų)</string>
 		</dict>
 	</dict>
 	<key>%ld hours</key>
@@ -325,9 +333,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld hour</string>
+			<string>%ld valanda</string>
+			<key>few</key>
+			<string>%ld valandos (-ų)</string>
+			<key>many</key>
+			<string>%ld valandos (-ų)</string>
 			<key>other</key>
-			<string>%ld hours</string>
+			<string>%ld valandos (-ų)</string>
 		</dict>
 	</dict>
 	<key>%ld minutes</key>
@@ -341,9 +353,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld minute</string>
+			<string>%ld minutė</string>
+			<key>few</key>
+			<string>%ld minutės (-čių)</string>
+			<key>many</key>
+			<string>%ld minutės (-čių)</string>
 			<key>other</key>
-			<string>%ld minutes</string>
+			<string>%ld minutės (-čių)</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others will receive invitations</key>
@@ -357,9 +373,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other will receive invitations</string>
+			<string>%4$ld gaus kvietimus</string>
+			<key>few</key>
+			<string>%4$ld kiti gaus kvietimus</string>
+			<key>many</key>
+			<string>%4$ld kitų gaus kvietimus</string>
 			<key>other</key>
-			<string>%4$ld others will receive invitations</string>
+			<string>%4$ld kitų gaus kvietimus</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
@@ -373,9 +393,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other is typing…</string>
+			<string>%4$ld rašo...</string>
+			<key>few</key>
+			<string>%4$ld kiti rašo...</string>
+			<key>many</key>
+			<string>%4$ld kitų rašo...</string>
 			<key>other</key>
-			<string>%4$ld others are typing…</string>
+			<string>%4$ld kitų rašo...</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
@@ -389,9 +413,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You added {user0} and %ld more participant</string>
+			<string>Jūs pridėjote {user0} ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>Jūs pridėjote {user0} ir dar %ld dalyvių</string>
+			<key>many</key>
+			<string>Jūs pridėjote {user0} ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>You added {user0} and %ld more participants</string>
+			<string>Jūs pridėjote {user0} ir dar %ld dalyvių</string>
 		</dict>
 	</dict>
 	<key>An administrator added you and %ld more participants</key>
@@ -405,9 +433,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added you and %ld more participant</string>
+			<string>Administratorius pridėjo jus ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>Administratorius pridėjo jus ir dar  %ld dalyvius</string>
+			<key>many</key>
+			<string>Administratorius pridėjo jus ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>An administrator added you and %ld more participants</string>
+			<string>Administratorius pridėjo jus ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>An administrator added {user0} and %ld more participants</key>
@@ -421,9 +453,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added {user0} and %ld more participant</string>
+			<string>Administratorius pridėjo {user0} ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>Administratorius pridėjo {user0} ir dar  %ld dalyvius</string>
+			<key>many</key>
+			<string>Administratorius pridėjo {user0} ir ddar %ld dalyvių</string>
 			<key>other</key>
-			<string>An administrator added {user0} and %ld more participants</string>
+			<string>Administratorius pridėjo {user0} ir dar %ld dalyvių</string>
 		</dict>
 	</dict>
 	<key>{actor0} added you and %ld more participants</key>
@@ -437,9 +473,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added you and %ld more participant</string>
+			<string>{actor0} pridėjo jus ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>{actor0} pridėjo jus ir dar %ld dalyvius</string>
+			<key>many</key>
+			<string>{actor0} pridėjo jus ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>{actor0} added you and %ld more participants</string>
+			<string>{actor0} pridėjo jus ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>{actor0} added {user0} and %ld more participants</key>
@@ -453,9 +493,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added {user0} and %ld more participant</string>
+			<string>{actor0} pridėjo {user0} ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>{actor0} pridėjo {user0} ir dar %ld dalyvius</string>
+			<key>many</key>
+			<string>{actor0} pridėjo {user0} ir dar %ld kitų dalyvių</string>
 			<key>other</key>
-			<string>{actor0} added {user0} and %ld more participants</string>
+			<string>{actor0} pridėjo {user0} ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -469,9 +513,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You removed {user0} and %ld more participant</string>
+			<string>Jūs pašalinote {user0} ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>Jūs pašalinote {user0} ir dar %ld dalyvius</string>
+			<key>many</key>
+			<string>Jūs pašalinote {user0} ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>You removed {user0} and %ld more participants</string>
+			<string>Jūs pašalinote {user0} ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>An administrator removed you and %ld more participants</key>
@@ -485,9 +533,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed you and %ld more participant</string>
+			<string>Administratorius pašalino jus ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>Administratorius pašalino jus ir dar %ld dalyvius</string>
+			<key>many</key>
+			<string>Administratorius pašalino jus ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>An administrator removed you and %ld more participants</string>
+			<string>Administratorius pašalino jus ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>An administrator removed {user0} and %ld more participants</key>
@@ -501,9 +553,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed {user0} and %ld more participant</string>
+			<string>Administratorius pašalino {user0} ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>Administratorius pašalino {user0} ir dar %ld dalyvius</string>
+			<key>many</key>
+			<string>Administratorius pašalino {user0} ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>An administrator removed {user0} and %ld more participants</string>
+			<string>Administratorius pašalino {user0} ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed you and %ld more participants</key>
@@ -517,9 +573,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed you and %ld more participant</string>
+			<string>{actor0} pašalino jus ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>{actor0} pašalino jus ir %ld dalyvius</string>
+			<key>many</key>
+			<string>{actor0} pašalino jus ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>{actor0} removed you and %ld more participants</string>
+			<string>{actor0} pašalino jus ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed {user0} and %ld more participants</key>
@@ -533,9 +593,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed {user0} and %ld more participant</string>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvį</string>
+			<key>few</key>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvius</string>
+			<key>many</key>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvių</string>
 			<key>other</key>
-			<string>{actor0} removed {user0} and %ld more participants</string>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvius</string>
 		</dict>
 	</dict>
 	<key>You promoted {user0} and %ld more participants to moderators</key>
@@ -549,9 +613,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You promoted {user0} and %ld more participant to moderators</string>
+			<string>Jūs {user0} ir dar %ld dalyvį paskyrėte moderatoriais</string>
+			<key>few</key>
+			<string>Jūs {user0} ir dar %ld dalyvius paskyrėte moderatoriais</string>
+			<key>many</key>
+			<string>Jūs {user0} ir dar %ld dalyvių paskyrėte moderatoriais</string>
 			<key>other</key>
-			<string>You promoted {user0} and %ld more participants to moderators</string>
+			<string>Jūs {user0} ir dar %ld dalyvius paskyrėte moderatoriais</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted you and %ld more participants to moderators</key>
@@ -565,9 +633,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted you and %ld more participant to moderators</string>
+			<string>Administratorius jus ir dar %ld dalyvį paskyrė moderatoriais</string>
+			<key>few</key>
+			<string>Administratorius jus ir dar %ld dalyvius paskyrė moderatoriais</string>
+			<key>many</key>
+			<string>Administratorius jus ir dar %ld dalyvių paskyrė moderatoriais</string>
 			<key>other</key>
-			<string>An administrator promoted you and %ld more participants to moderators</string>
+			<string>Administratorius jus ir dar %ld dalyvius paskyrė moderatoriais</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
@@ -581,9 +653,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted {user0} and %ld more participant to moderators</string>
+			<string>Administratorius {user0} ir dar %ld dalyvį paskyrė moderatoriais</string>
+			<key>few</key>
+			<string>Administratorius {user0} ir dar %ld dalyvius paskyrė moderatoriais</string>
+			<key>many</key>
+			<string>Administratorius {user0} ir dar %ld dalyvių paskyrė moderatoriais</string>
 			<key>other</key>
-			<string>An administrator promoted {user0} and %ld more participants to moderators</string>
+			<string>Administratorius {user0} ir dar %ld dalyvius paskyrė moderatoriais</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted you and %ld more participants to moderators</key>
@@ -597,9 +673,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted you and %ld more participant to moderators</string>
+			<string>{actor0} paskyrė jus ir dar %ld dalyvį moderatoriais</string>
+			<key>few</key>
+			<string>{actor0} paskyrė jus ir dar %ld dalyvius moderatoriais</string>
+			<key>many</key>
+			<string>{actor0} paskyrė jus ir dar %ld dalyvių moderatoriais</string>
 			<key>other</key>
-			<string>{actor0} promoted you and %ld more participants to moderators</string>
+			<string>{actor0} paskyrė jus ir dar %ld dalyvius moderatoriais</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -613,9 +693,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted {user0} and %ld more participant to moderators</string>
+			<string>{actor0} paskyrė {user0} ir dar %ld dalyvį moderatoriais</string>
+			<key>few</key>
+			<string>{actor0} paskyrė {user0} ir dar %ld dalyvius moderatoriais</string>
+			<key>many</key>
+			<string>{actor0} paskyrė {user0} ir dar %ld dalyvių moderatoriais</string>
 			<key>other</key>
-			<string>{actor0} promoted {user0} and %ld more participants to moderators</string>
+			<string>{actor0} paskyrė {user0} ir dar %ld dalyvius moderatoriais</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
@@ -629,9 +713,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You demoted {user0} and %ld more participant from moderators</string>
+			<string>Jūs nušalinote {user0} ir dar %ld dalyvį iš moderatorių</string>
+			<key>few</key>
+			<string>Jūs nušalinote {user0} ir dar %ld dalyvius iš moderatorių</string>
+			<key>many</key>
+			<string>Jūs nušalinote {user0} ir dar %ld dalyvių iš moderatorių</string>
 			<key>other</key>
-			<string>You demoted {user0} and %ld more participants from moderators</string>
+			<string>Jūs nušalinote {user0} ir dar %ld dalyvius iš moderatorių</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted you and %ld more participants from moderators</key>
@@ -645,9 +733,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted you and %ld more participant from moderators</string>
+			<string>Administratorius nušalino jus ir dar %ld dalyvį iš moderatorių</string>
+			<key>few</key>
+			<string>Administratorius nušalino jus ir dar %ld dalyvius iš moderatorių</string>
+			<key>many</key>
+			<string>Administratorius nušalino jus ir dar %ld dalyvių iš moderatorių</string>
 			<key>other</key>
-			<string>An administrator demoted you and %ld more participants from moderators</string>
+			<string>Administratorius nušalino jus ir dar %ld dalyvius iš moderatorių</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
@@ -661,9 +753,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted {user0} and %ld more participant from moderators</string>
+			<string>Administratorius nušalino {user0} ir dar %ld dalyvį iš moderatorių</string>
+			<key>few</key>
+			<string>Administratorius nušalino {user0} ir dar %ld dalyvius iš moderatorių</string>
+			<key>many</key>
+			<string>Administratorius nušalino {user0} ir dar %ld dalyvių iš moderatorių</string>
 			<key>other</key>
-			<string>An administrator demoted {user0} and %ld more participants from moderators</string>
+			<string>Administratorius nušalino {user0} ir dar %ld dalyvius iš moderatorių</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted you and %ld more participants from moderators</key>
@@ -677,9 +773,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted you and %ld more participant from moderators</string>
+			<string>{actor0} nušalino jus ir dar %ld dalyvį iš moderatorių</string>
+			<key>few</key>
+			<string>{actor0} nušalino jus ir dar %ld dalyvius iš moderatorių</string>
+			<key>many</key>
+			<string>{actor0} nušalino jus ir dar %ld dalyvių iš moderatorių</string>
 			<key>other</key>
-			<string>{actor0} demoted you and %ld more participants from moderators</string>
+			<string>{actor0} nušalino jus ir dar %ld dalyvius iš moderatorių</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>
@@ -693,9 +793,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted {user0} and %ld more participant from moderators</string>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvį iš moderatorių</string>
+			<key>few</key>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvius iš moderatorių</string>
+			<key>many</key>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvių iš moderatorių</string>
 			<key>other</key>
-			<string>{actor0} demoted {user0} and %ld more participants from moderators</string>
+			<string>{actor0} pašalino {user0} ir dar %ld dalyvius iš moderatorių</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants joined the call</key>
@@ -709,9 +813,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant joined the call</string>
+			<string>Jūs ir dar %ld dalyvis prisijungėte prie pokalbio</string>
+			<key>few</key>
+			<string>Jūs ir dar %ld dalyviai prisijungėte prie pokalbio</string>
+			<key>many</key>
+			<string>Jūs ir dar %ld dalyvių prisijungėte prie pokalbio</string>
 			<key>other</key>
-			<string>You and %ld more participants joined the call</string>
+			<string>Jūs ir dar %ld dalyviai prisijungėte prie pokalbio</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants joined the call</key>
@@ -725,9 +833,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant joined the call</string>
+			<string>{actor0} ir dar %ld dalyvis prisijungė prie skambučio</string>
+			<key>few</key>
+			<string>{actor0} ir dar %ld dalyviai prisijungė prie skambučio</string>
+			<key>many</key>
+			<string>{actor0} ir dar %ld dalyvių prisijungė prie skambučio</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants joined the call</string>
+			<string>{actor0} ir dar %ld dalyviai prisijungė prie skambučio</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants left the call</key>
@@ -741,9 +853,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant left the call</string>
+			<string>Jūs ir dar %ld dalyvis išėjote iš pokalbio</string>
+			<key>few</key>
+			<string>Jūs ir dar %ld dalyviai išėjote iš pokalbio</string>
+			<key>many</key>
+			<string>Jūs ir dar %ld dalyvių išėjote iš pokalbio</string>
 			<key>other</key>
-			<string>You and %ld more participants left the call</string>
+			<string>Jūs ir dar %ld dalyviai išėjote iš pokalbio</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants left the call</key>
@@ -757,9 +873,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant left the call</string>
+			<string>{actor0} ir dar %ld dalyvis išėjo iš pokalbio</string>
+			<key>few</key>
+			<string>{actor0} ir dar %ld dalyviai išėjo iš pokalbio</string>
+			<key>many</key>
+			<string>{actor0} ir dar %ld dalyvių išėjo iš pokalbio</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants left the call</string>
+			<string>{actor0} ir dar %ld dalyviai išėjo iš pokalbio</string>
 		</dict>
 	</dict>
 </dict>
