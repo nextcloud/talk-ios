@@ -266,7 +266,7 @@ import Toast
         self.isInverted = false
 
         self.showSendMessageButton()
-        self.leftButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        self.setInputbarImage(UIImage(systemName: "plus"), for: self.leftButton)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
         self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
         self.leftButton.accessibilityIdentifier = "shareButton"
@@ -358,11 +358,29 @@ import Toast
         self.updateToolbar(animated: true)
     }
 
+    /// The content offset at which the tableView is scrolled all the way down, taking the space reserved for the textInputbar into account
+    internal var tableViewBottomContentOffset: CGFloat {
+        guard let tableView else { return 0 }
+
+        return tableView.contentSize.height + tableView.adjustedContentInset.bottom - tableView.frame.size.height
+    }
+
+    /// The animation to use when inserting new messages at the bottom of the chat. When the chat extends behind the
+    /// textInputbar, the insert animation is no longer clipped at the bar and competes with the scroll to the bottom.
+    internal var newMessageRowAnimation: UITableView.RowAnimation {
+        return self.scrollViewExtendsBehindTextInputbar ? .none : .automatic
+    }
+
     public func updateToolbar(animated: Bool) {
         guard let tableView else { return }
 
         let animations = {
-            let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 10
+            // Since iOS 26 the content scrolls behind the transparent textInputbar, so there's no border to show
+            if #available(iOS 26.0, *) {
+                return
+            }
+
+            let minimumOffset = self.tableViewBottomContentOffset - 10
 
             if tableView.contentOffset.y < minimumOffset {
                 // Scrolled -> show top border
@@ -385,7 +403,7 @@ import Toast
         }
 
         let animationsScrollButton = {
-            let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 10
+            let minimumOffset = self.tableViewBottomContentOffset - 10
 
             if tableView.contentOffset.y < minimumOffset {
                 // Scrolled -> show button
@@ -402,11 +420,16 @@ import Toast
                 self.animationDispatchGroup.enter()
 
                 DispatchQueue.main.async {
-                    UIView.transition(with: self.textInputbar,
-                                      duration: 0.3,
-                                      options: .transitionCrossDissolve,
-                                      animations: animations) { _ in
+                    if #available(iOS 26.0, *) {
+                        // Nothing to animate in the textInputbar, so don't cross-dissolve the glass elements
                         self.animationDispatchGroup.leave()
+                    } else {
+                        UIView.transition(with: self.textInputbar,
+                                          duration: 0.3,
+                                          options: .transitionCrossDissolve,
+                                          animations: animations) { _ in
+                            self.animationDispatchGroup.leave()
+                        }
                     }
                 }
 
@@ -719,9 +742,9 @@ import Toast
         self.rightButton.setTitle("", for: .normal)
 
         if self.room.hasScheduledMessages {
-            self.rightButton.setImage(UIImage(systemName: "clock"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "clock"), for: self.rightButton)
         } else {
-            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         }
 
         self.rightButton.tag = sendButtonTagVoice
@@ -733,7 +756,7 @@ import Toast
 
     func showSendMessageButton() {
         self.rightButton.setTitle("", for: .normal)
-        self.rightButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
+        self.setInputbarImage(UIImage(systemName: "paperplane"), for: self.rightButton)
         self.rightButton.tag = sendButtonTagMessage
         self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
         self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
@@ -2372,7 +2395,7 @@ import Toast
             self.longPressStartingPoint = point
             self.cancelHintLabelInitialPositionX = voiceMessageRecordingView?.slideToCancelHintLabel?.frame.origin.x
             self.voiceRecordingLockButton.alpha = 1
-            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         } else if gestureRecognizer.state == .ended {
             self.shouldLockInterfaceOrientation(lock: false)
             self.resetVoiceRecordingLockButton()
@@ -3696,7 +3719,7 @@ import Toast
         guard self.isVisible, let tableView = self.tableView else { return false }
 
         // Scroll if table view is at the bottom (or 80px up)
-        let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 80
+        let minimumOffset = self.tableViewBottomContentOffset - 80
 
         if tableView.contentOffset.y >= minimumOffset {
             return true
@@ -3907,8 +3930,9 @@ import Toast
         // ContentOffset when the cell is at the top of the tableView
         let contentOffsetTop = rect.origin.y - tableView.safeAreaInsets.top
 
-        // ContentOffset when the cell is at the middle of the tableView
-        let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + rect.height / 2
+        // ContentOffset when the cell is at the middle of the visible part of the tableView
+        let visibleHeight = tableView.frame.height - tableView.adjustedContentInset.bottom
+        let contentOffsetMiddle = contentOffsetTop - visibleHeight / 2 + rect.height / 2
 
         // Fallback to the top offset in case the top of the cell would be scrolled outside of the view
         let newContentOffset = min(contentOffsetTop, contentOffsetMiddle)

@@ -644,7 +644,7 @@ import SwiftUI
         if room.isFederated {
             // When hiding the button it is still respected in the layout constraints
             // So we need to remove the image to remove the button for now
-            self.leftButton.setImage(nil, for: .normal)
+            self.setInputbarImage(nil, for: self.leftButton)
         }
 
         // Disable room info, input bar and call buttons until joining room
@@ -1711,11 +1711,11 @@ import SwiftUI
                 } else {
                     tableView.performBatchUpdates {
                         if !update.insertSections.isEmpty {
-                            tableView.insertSections(update.insertSections, with: .automatic)
+                            tableView.insertSections(update.insertSections, with: self.newMessageRowAnimation)
                         }
 
                         if !update.insertIndexPaths.isEmpty {
-                            tableView.insertRows(at: Array(update.insertIndexPaths), with: .automatic)
+                            tableView.insertRows(at: Array(update.insertIndexPaths), with: self.newMessageRowAnimation)
                         }
 
                         if !update.reloadIndexPaths.isEmpty {
