@@ -1711,11 +1711,11 @@ import SwiftUI
                 } else {
                     tableView.performBatchUpdates {
                         if !update.insertSections.isEmpty {
-                            tableView.insertSections(update.insertSections, with: .automatic)
+                            tableView.insertSections(update.insertSections, with: self.newMessageRowAnimation)
                         }
 
                         if !update.insertIndexPaths.isEmpty {
-                            tableView.insertRows(at: Array(update.insertIndexPaths), with: .automatic)
+                            tableView.insertRows(at: Array(update.insertIndexPaths), with: self.newMessageRowAnimation)
                         }
 
                         if !update.reloadIndexPaths.isEmpty {
