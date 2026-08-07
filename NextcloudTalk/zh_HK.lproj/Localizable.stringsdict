@@ -208,10 +208,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>%ld conversation with unread messages</string>
 			<key>other</key>
-			<string>%ld conversations with unread messages</string>
+			<string>%ld 個對話有未讀訊息</string>
 		</dict>
 	</dict>
 	<key>%ld days</key>
@@ -224,10 +222,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>%ld day</string>
 			<key>other</key>
-			<string>%ld days</string>
+			<string>%ld 天</string>
 		</dict>
 	</dict>
 	<key>%ld hours</key>
@@ -240,10 +236,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>%ld hour</string>
 			<key>other</key>
-			<string>%ld hours</string>
+			<string>%ld 小時</string>
 		</dict>
 	</dict>
 	<key>%ld minutes</key>
@@ -256,10 +250,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>%ld minute</string>
 			<key>other</key>
-			<string>%ld minutes</string>
+			<string>%ld 分鐘</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others will receive invitations</key>
@@ -272,10 +264,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>%4$ld other will receive invitations</string>
 			<key>other</key>
-			<string>%4$ld others will receive invitations</string>
+			<string>%4$ld 個其他人將會收到邀請</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
@@ -288,10 +278,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>%4$ld other is typing…</string>
 			<key>other</key>
-			<string>%4$ld others are typing…</string>
+			<string>還有 %4$ld 個人正在打字 …</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
@@ -304,10 +292,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>You added {user0} and %ld more participant</string>
 			<key>other</key>
-			<string>You added {user0} and %ld more participants</string>
+			<string>您添加了 {user0} 與 %ld 個參與者</string>
 		</dict>
 	</dict>
 	<key>An administrator added you and %ld more participants</key>
@@ -320,10 +306,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator added you and %ld more participant</string>
 			<key>other</key>
-			<string>An administrator added you and %ld more participants</string>
+			<string>管理員添加了您與 %ld 個其他參與者</string>
 		</dict>
 	</dict>
 	<key>An administrator added {user0} and %ld more participants</key>
@@ -336,10 +320,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator added {user0} and %ld more participant</string>
 			<key>other</key>
-			<string>An administrator added {user0} and %ld more participants</string>
+			<string>管理員添加了 {user0} 與 %ld 個其他參與者</string>
 		</dict>
 	</dict>
 	<key>{actor0} added you and %ld more participants</key>
@@ -352,10 +334,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} added you and %ld more participant</string>
 			<key>other</key>
-			<string>{actor0} added you and %ld more participants</string>
+			<string>{actor0} 添加了您與 %ld 個參與者</string>
 		</dict>
 	</dict>
 	<key>{actor0} added {user0} and %ld more participants</key>
@@ -368,10 +348,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} added {user0} and %ld more participant</string>
 			<key>other</key>
-			<string>{actor0} added {user0} and %ld more participants</string>
+			<string>{actor0} 添加了 {user0} 與 %ld 個參與者</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -384,10 +362,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>You removed {user0} and %ld more participant</string>
 			<key>other</key>
-			<string>You removed {user0} and %ld more participants</string>
+			<string>您移除了 {user0} 與 %ld 個參與者</string>
 		</dict>
 	</dict>
 	<key>An administrator removed you and %ld more participants</key>
@@ -400,10 +376,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator removed you and %ld more participant</string>
 			<key>other</key>
-			<string>An administrator removed you and %ld more participants</string>
+			<string>管理員移除了您與 %ld 個其他參與者</string>
 		</dict>
 	</dict>
 	<key>An administrator removed {user0} and %ld more participants</key>
@@ -416,10 +390,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator removed {user0} and %ld more participant</string>
 			<key>other</key>
-			<string>An administrator removed {user0} and %ld more participants</string>
+			<string>管理員移除了 {user0} 與 %ld 個其他參與者</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed you and %ld more participants</key>
@@ -432,10 +404,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} removed you and %ld more participant</string>
 			<key>other</key>
-			<string>{actor0} removed you and %ld more participants</string>
+			<string>{actor0} 移除了您與 %ld 個參與者</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed {user0} and %ld more participants</key>
@@ -448,10 +418,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} removed {user0} and %ld more participant</string>
 			<key>other</key>
-			<string>{actor0} removed {user0} and %ld more participants</string>
+			<string>{actor0} 移除了 {user0} 與 %ld 個參與者</string>
 		</dict>
 	</dict>
 	<key>You promoted {user0} and %ld more participants to moderators</key>
@@ -464,10 +432,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>You promoted {user0} and %ld more participant to moderators</string>
 			<key>other</key>
-			<string>You promoted {user0} and %ld more participants to moderators</string>
+			<string>您已將 {user0} 與 %ld 個參與者晉升為主持人</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted you and %ld more participants to moderators</key>
@@ -480,10 +446,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator promoted you and %ld more participant to moderators</string>
 			<key>other</key>
-			<string>An administrator promoted you and %ld more participants to moderators</string>
+			<string>管理員已將您與 %ld 個其他參與者晉升為主持人</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
@@ -496,10 +460,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator promoted {user0} and %ld more participant to moderators</string>
 			<key>other</key>
-			<string>An administrator promoted {user0} and %ld more participants to moderators</string>
+			<string>管理員已將 {user0} 與 %ld 個其他參與者晉升為主持人</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted you and %ld more participants to moderators</key>
@@ -512,10 +474,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} promoted you and %ld more participant to moderators</string>
 			<key>other</key>
-			<string>{actor0} promoted you and %ld more participants to moderators</string>
+			<string>{actor0} 已將您與 %ld 個參與者晉升為主持人</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -528,10 +488,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} promoted {user0} and %ld more participant to moderators</string>
 			<key>other</key>
-			<string>{actor0} promoted {user0} and %ld more participants to moderators</string>
+			<string>{actor0} 已將 {user0} 與 %ld 個參與者晉升為主持人</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
@@ -544,10 +502,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>You demoted {user0} and %ld more participant from moderators</string>
 			<key>other</key>
-			<string>You demoted {user0} and %ld more participants from moderators</string>
+			<string>您已將 {user0} 與 %ld 個參與者由主持人降級</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted you and %ld more participants from moderators</key>
@@ -560,10 +516,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator demoted you and %ld more participant from moderators</string>
 			<key>other</key>
-			<string>An administrator demoted you and %ld more participants from moderators</string>
+			<string>管理員已將您與 %ld 個其他參與者由主持人降級</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
@@ -576,10 +530,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>An administrator demoted {user0} and %ld more participant from moderators</string>
 			<key>other</key>
-			<string>An administrator demoted {user0} and %ld more participants from moderators</string>
+			<string>管理員已將 {user0} 與 %ld 個其他參與者由主持人降級</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted you and %ld more participants from moderators</key>
@@ -592,10 +544,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} demoted you and %ld more participant from moderators</string>
 			<key>other</key>
-			<string>{actor0} demoted you and %ld more participants from moderators</string>
+			<string>{actor0} 已將您與 %ld 個參與者由主持人降級</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>
@@ -608,10 +558,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} demoted {user0} and %ld more participant from moderators</string>
 			<key>other</key>
-			<string>{actor0} demoted {user0} and %ld more participants from moderators</string>
+			<string>{actor0} 已將 {user0} 與 %ld 個參與者由主持人降級</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants joined the call</key>
@@ -624,10 +572,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>You and %ld more participant joined the call</string>
 			<key>other</key>
-			<string>You and %ld more participants joined the call</string>
+			<string>您及 %ld 個其他參與者加入了通話</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants joined the call</key>
@@ -640,10 +586,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} and %ld more participant joined the call</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants joined the call</string>
+			<string>{actor0} 及 %ld 個參與者加入了通話</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants left the call</key>
@@ -656,10 +600,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>You and %ld more participant left the call</string>
 			<key>other</key>
-			<string>You and %ld more participants left the call</string>
+			<string>您及 %ld 個參與者已退出通話</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants left the call</key>
@@ -672,10 +614,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>{actor0} and %ld more participant left the call</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants left the call</string>
+			<string>{actor0} 及 %ld 個參與者已退出通話</string>
 		</dict>
 	</dict>
 </dict>
