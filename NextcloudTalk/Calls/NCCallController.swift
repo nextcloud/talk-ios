@@ -51,8 +51,10 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private var isAudioOnly: Bool
 
     // TODO: Default true?
-    // Kept in sync by enableAudio(), so the local audio state is restored whenever the
-    // local media is recreated, e.g. when reconnecting to a call
+    // The state the local media is (re)created in, so audio and video are restored whenever the
+    // local tracks are recreated, e.g. when reconnecting to a call. The audio state is kept in
+    // sync by enableAudio(), the video state is owned by the delegate, because disabling the
+    // video temporarily (proximity sensor, app in the background) must not be remembered here.
     public var disableAudioAtStart: Bool = false
     public var disableVideoAtStart: Bool = false
     public var silentCall: Bool = false
@@ -354,10 +356,6 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             self.userInCall = 0
             self.cleanCurrentPeerConnections()
             self.delegate?.callControllerIsReconnectingCall(self)
-
-            // Remember current video status before rejoin the call.
-            // The audio status is already kept up to date by enableAudio().
-            self.disableVideoAtStart = !self.isVideoEnabled()
 
             if self.externalSignalingController == nil {
                 self.rejoinCallUsingInternalSignaling()

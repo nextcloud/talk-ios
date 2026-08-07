@@ -130,7 +130,11 @@ class CallViewController: UIViewController,
     private var proximityTimer: Timer?
     private var isAudioOnly = false
     private var isDetailedViewVisible = false
-    private var userDisabledVideo = false
+    private var userDisabledVideo = false {
+        // The call controller recreates the local video track in this state, so the video stays
+        // disabled when the local media is recreated, e.g. when reconnecting to the call
+        didSet { self.callController?.disableVideoAtStart = self.userDisabledVideo }
+    }
     private var userDisabledSpeaker = false
     private var videoCallUpgrade = false
     private var hangingUp = false
@@ -528,6 +532,19 @@ class CallViewController: UIViewController,
     }
 
     // MARK: - Proximity sensor
+
+    // The local video is temporarily disabled while the device is held to the ear and, on devices
+    // without multitasking camera access, while the app is in the background. In contrast to
+    // userDisabledVideo this is not a user decision, so it must not be remembered for a reconnect.
+    private var isLocalVideoSuspended: Bool {
+        guard let callController else { return false }
+
+        if self.proximityState {
+            return true
+        }
+
+        return UIApplication.shared.applicationState != .active && !callController.isCameraUsableWhileInBackground()
+    }
 
     func sensorStateChange(notification: NSNotification) {
         DispatchQueue.main.async {
@@ -1142,14 +1159,16 @@ class CallViewController: UIViewController,
             return
         }
 
-        self.setVideoDisableButtonActive(videoTrack.isEnabled)
-
-        // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
-        if !videoTrack.isEnabled {
-            self.userDisabledVideo = true
-        }
+        let isVideoEnabled = videoTrack.isEnabled
+        self.setVideoDisableButtonActive(isVideoEnabled)
 
         DispatchQueue.main.async {
+            // The track is created in the state the user selected, so a suspension that is still
+            // active (proximity sensor or app in the background) needs to be applied to it again
+            if isVideoEnabled, self.isLocalVideoSuspended {
+                self.disableLocalVideo()
+            }
+
             // The local video track might have been recreated while in Picture in Picture
             // (e.g. when reconnecting a call), so the renderer needs to be attached to the new track
             if self.pipLocalRendererAttached {
