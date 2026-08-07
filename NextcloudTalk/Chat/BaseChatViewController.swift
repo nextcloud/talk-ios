@@ -365,6 +365,12 @@ import Toast
         return tableView.contentSize.height + tableView.adjustedContentInset.bottom - tableView.frame.size.height
     }
 
+    /// The animation to use when inserting new messages at the bottom of the chat. When the chat extends behind the
+    /// textInputbar, the insert animation is no longer clipped at the bar and competes with the scroll to the bottom.
+    internal var newMessageRowAnimation: UITableView.RowAnimation {
+        return self.scrollViewExtendsBehindTextInputbar ? .none : .automatic
+    }
+
     public func updateToolbar(animated: Bool) {
         guard let tableView else { return }
 
