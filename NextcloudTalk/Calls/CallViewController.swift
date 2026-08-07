@@ -109,6 +109,7 @@ class CallViewController: UIViewController,
     private let reactionViewAnimationDuration = 2.0
     private let reactionViewHidingDuration = 1.0
     private let maxReactionsOnScreen = 5.0
+    private let forceMuteCooldown = 8.0
 
     private var localVideoOriginPosition: CGPoint = .zero
     private var peersInCall: [NCPeerConnection] = []
@@ -129,11 +130,16 @@ class CallViewController: UIViewController,
     private var proximityTimer: Timer?
     private var isAudioOnly = false
     private var isDetailedViewVisible = false
-    private var userDisabledVideo = false
+    private var userDisabledVideo = false {
+        // The call controller recreates the local video track in this state, so the video stays
+        // disabled when the local media is recreated, e.g. when reconnecting to the call
+        didSet { self.callController?.disableVideoAtStart = self.userDisabledVideo }
+    }
     private var userDisabledSpeaker = false
     private var videoCallUpgrade = false
     private var hangingUp = false
     private var pushToTalkActive = false
+    private var forceMutedUntil = Date.distantPast
     private var isHandRaised = false
     private var proximityState = false
     private var showChatAfterRoomSwitch = false
@@ -526,6 +532,19 @@ class CallViewController: UIViewController,
     }
 
     // MARK: - Proximity sensor
+
+    // The local video is temporarily disabled while the device is held to the ear and, on devices
+    // without multitasking camera access, while the app is in the background. In contrast to
+    // userDisabledVideo this is not a user decision, so it must not be remembered for a reconnect.
+    private var isLocalVideoSuspended: Bool {
+        guard let callController else { return false }
+
+        if self.proximityState {
+            return true
+        }
+
+        return UIApplication.shared.applicationState != .active && !callController.isCameraUsableWhileInBackground()
+    }
 
     func sensorStateChange(notification: NSNotification) {
         DispatchQueue.main.async {
@@ -1140,14 +1159,16 @@ class CallViewController: UIViewController,
             return
         }
 
-        self.setVideoDisableButtonActive(videoTrack.isEnabled)
-
-        // We set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
-        if !videoTrack.isEnabled {
-            self.userDisabledVideo = true
-        }
+        let isVideoEnabled = videoTrack.isEnabled
+        self.setVideoDisableButtonActive(isVideoEnabled)
 
         DispatchQueue.main.async {
+            // The track is created in the state the user selected, so a suspension that is still
+            // active (proximity sensor or app in the background) needs to be applied to it again
+            if isVideoEnabled, self.isLocalVideoSuspended {
+                self.disableLocalVideo()
+            }
+
             // The local video track might have been recreated while in Picture in Picture
             // (e.g. when reconnecting a call), so the renderer needs to be attached to the new track
             if self.pipLocalRendererAttached {
@@ -1406,6 +1427,9 @@ class CallViewController: UIViewController,
                 // Save current audio and video state
                 self.audioDisabledAtStart = !audioEnabled
                 self.videoDisabledAtStart = !videoEnabled
+
+                // A force mute only applies to the call we are leaving
+                self.forceMutedUntil = .distantPast
 
                 // Forget current call controller
                 self.callController = nil
@@ -2132,6 +2156,12 @@ class CallViewController: UIViewController,
     func pushToTalkStart() {
         guard let callController else { return }
 
+        // While being force muted, push to talk must not unmute us either
+        guard !self.isInForceMuteCooldown else {
+            self.presentUnmuteNotPossibleYetNotification()
+            return
+        }
+
         callController.getAudioEnabledState { isEnabled in
             guard !isEnabled else { return }
 
@@ -2165,8 +2195,38 @@ class CallViewController: UIViewController,
         }
     }
 
+    // While in the cooldown after being force muted by a moderator, we don't allow to unmute again
+    private var isInForceMuteCooldown: Bool {
+        return self.forceMutedUntil > Date()
+    }
+
+    private func presentForceMutedNotification() {
+        let micDisabledString = NSLocalizedString("Microphone disabled", comment: "")
+        let forceMutedString = NSLocalizedString("You have been muted by a moderator", comment: "")
+
+        DispatchQueue.main.async {
+            NotificationPresenter.shared().present(title: micDisabledString, subtitle: forceMutedString, includedStyle: .dark)
+            NotificationPresenter.shared().dismiss(afterDelay: self.forceMuteCooldown)
+        }
+    }
+
+    private func presentUnmuteNotPossibleYetNotification() {
+        let forceMutedString = NSLocalizedString("Muted by a moderator", comment: "")
+        let cooldownString = NSLocalizedString("You can unmute again in a few seconds", comment: "")
+
+        DispatchQueue.main.async {
+            NotificationPresenter.shared().present(title: forceMutedString, subtitle: cooldownString, includedStyle: .dark)
+            NotificationPresenter.shared().dismiss(afterDelay: self.forceMuteCooldown)
+        }
+    }
+
     func forceMuteAudio() {
         guard let callController else { return }
+
+        // Stay muted for a short time, so a force mute is not immediately undone again. This can happen
+        // when the participant mutes themselves at the same time, because toggling the mute button is
+        // based on the audio state at the time the button was pressed, which might be outdated by then.
+        self.forceMutedUntil = Date().addingTimeInterval(self.forceMuteCooldown)
 
         callController.getAudioEnabledState { isEnabled in
             // When we are already muted, no need to mute again
@@ -2174,18 +2234,35 @@ class CallViewController: UIViewController,
 
             self.setAudioMuted(true)
 
-            let micDisabledString = NSLocalizedString("Microphone disabled", comment: "")
-            let forceMutedString = NSLocalizedString("You have been muted by a moderator", comment: "")
-
-            DispatchQueue.main.async {
-                NotificationPresenter.shared().present(title: micDisabledString, subtitle: forceMutedString, includedStyle: .dark)
-                NotificationPresenter.shared().dismiss(afterDelay: 7.0)
+            if CallKitManager.isCallKitAvailable() {
+                // setAudioMuted() only reports back to CallKit when it refuses an unmute, so the
+                // CallKit UI needs to be muted here as well to stay in sync with the audio state
+                DispatchQueue.main.async {
+                    CallKitManager.sharedInstance().changeAudioMuted(true, forCall: self.room.token)
+                }
             }
+
+            self.presentForceMutedNotification()
         }
     }
 
     func setAudioMuted(_ muted: Bool) {
         guard let callController else { return }
+
+        // Ignore any attempt to unmute while being force muted by a moderator
+        if !muted, self.isInForceMuteCooldown {
+            self.presentUnmuteNotPossibleYetNotification()
+            self.setAudioMuteButtonActive(false)
+
+            if CallKitManager.isCallKitAvailable() {
+                // The unmute might have been triggered by CallKit itself, so make sure its UI is muted again
+                DispatchQueue.main.async {
+                    CallKitManager.sharedInstance().changeAudioMuted(true, forCall: self.room.token)
+                }
+            }
+
+            return
+        }
 
         callController.enableAudio(!muted)
         self.setAudioMuteButtonActive(!muted)
