@@ -260,11 +260,14 @@ import SwiftyAttributes
     }
 
     public func willShowParentMessageInThread(_ thread: NCThread?) -> Bool {
-        if parent == nil {
-            return false
-        }
+        // Called several times per cell, so it avoids `parent`, which copies the whole message out of Realm:
+        // only existence and internalId matter, and parentId *is* that internalId (set in messageWithDictionary:).
+        guard !self.isDeletedMessage, let parentId = self.parentId else { return false }
 
-        if let parent, let thread, parent.internalId == thread.firstMessageId {
+        // The API can return parents that are no longer there, hence the existence check
+        guard NCChatMessage.objects(where: "internalId = %@", parentId).firstObject() != nil else { return false }
+
+        if let thread, parentId == thread.firstMessageId {
             return false
         }
 

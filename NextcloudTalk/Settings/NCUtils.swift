@@ -17,10 +17,21 @@ import AVFoundation
         return previewImage(forFileType: UTType(filenameExtension: fileExtension))
     }
 
+    /// Resolving a mimetype means a UTType lookup plus a chain of conforms(to:) queries, and the answer
+    /// never changes for a given string. Reached per chat cell via isImage/isVideo/isGif.
+    private static let previewImageCache = NSCache<NSString, NSString>()
+
     public static func previewImage(forMimeType mimeType: String?) -> String {
         guard let mimeType else { return "file" }
 
-        return self.previewImage(forFileType: UTType(mimeType: mimeType))
+        if let cached = previewImageCache.object(forKey: mimeType as NSString) {
+            return cached as String
+        }
+
+        let previewImage = self.previewImage(forFileType: UTType(mimeType: mimeType))
+        previewImageCache.setObject(previewImage as NSString, forKey: mimeType as NSString)
+
+        return previewImage
     }
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -84,8 +95,17 @@ import AVFoundation
         return self.previewImage(forMimeType: fileType) == "file-vcard"
     }
 
+    private static let isGifCache = NSCache<NSString, NSNumber>()
+
     public static func isGif(fileType: String) -> Bool {
-        return UTType(mimeType: fileType)?.conforms(to: .gif) ?? false
+        if let cached = isGifCache.object(forKey: fileType as NSString) {
+            return cached.boolValue
+        }
+
+        let isGif = UTType(mimeType: fileType)?.conforms(to: .gif) ?? false
+        isGifCache.setObject(isGif as NSNumber, forKey: fileType as NSString)
+
+        return isGif
     }
 
     public static func isNextcloudAppInstalled() -> Bool {
@@ -214,12 +234,18 @@ import AVFoundation
         return dateFormatter.string(from: date)
     }
 
-    public static func getTime(fromDate date: Date) -> String {
+    /// Building a DateFormatter costs far more than formatting with it, and this is reached once per chat
+    /// cell. Keeps the locale and time zone it was built with.
+    private static let timeFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .none
         dateFormatter.timeStyle = .short
 
-        return dateFormatter.string(from: date)
+        return dateFormatter
+    }()
+
+    public static func getTime(fromDate date: Date) -> String {
+        return NCUtils.timeFormatter.string(from: date)
     }
 
     public static func relativeTimeFromDate(date: Date) -> String {
