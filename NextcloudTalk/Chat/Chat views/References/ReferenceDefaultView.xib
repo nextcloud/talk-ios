@@ -29,7 +29,7 @@
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="TwV-dN-hY4">
                     <rect key="frame" x="95" y="10" width="510" height="80"/>
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ReferenceName" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="200" translatesAutoresizingMaskIntoConstraints="NO" id="Iby-r5-06p">
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="250" verticalHuggingPriority="251" text="ReferenceName" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="200" translatesAutoresizingMaskIntoConstraints="NO" id="Iby-r5-06p">
                             <rect key="frame" x="0.0" y="0.0" width="510" height="20"/>
                             <constraints>
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" id="JQE-Y4-q6k"/>
@@ -50,12 +50,12 @@
                             <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                         </textView>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ReferenceLink" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3ya-yo-pxr">
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="250" verticalHuggingPriority="251" text="ReferenceLink" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3ya-yo-pxr">
                             <rect key="frame" x="0.0" y="60" width="510" height="20"/>
                             <constraints>
                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="20" id="QNn-28-pgu"/>
                             </constraints>
-                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                            <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                             <color key="textColor" systemColor="linkColor"/>
                             <nil key="highlightedColor"/>
                         </label>
