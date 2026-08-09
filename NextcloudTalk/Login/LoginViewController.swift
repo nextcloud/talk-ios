@@ -202,21 +202,19 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
                     self.showServerNotFoundAlert(withError: error.underlyingError.localizedDescription)
                 }
             } else {
-                if let serverCapabilities = serverCapabilities as? [String: Any] {
-                    if let capabilities = serverCapabilities["capabilities"] as? [String: Any],
-                       let talk = capabilities["spreed"] as? [String: Any],
-                       let features = talk["features"] as? [String] {
+                if let serverCapabilities = serverCapabilities as? [String: Any], let capabilities = serverCapabilities["capabilities"] as? [String: Any] {
+                    if let talk = capabilities["spreed"] as? [String: Any], let features = talk["features"] as? [String], !features.isEmpty {
                         if features.contains(TalkCapability.minimumRequired.rawValue) {
                             self.presentAuthenticationViewController(serverURL: normalizedServerURL, user: nil)
-                        } else if features.isEmpty {
-                            self.showAlert(
-                                title: String(format: NSLocalizedString("%@ not installed", comment: "{app name} is not installed"), talkAppName),
-                                message: String(format: NSLocalizedString("It seems that %@ is not installed in your server.", comment: "It seems that {app name} is not installed in your server."), talkAppName))
                         } else {
                             self.showAlert(
                                 title: String(format: NSLocalizedString("%@ version not supported", comment: "{app name} version not supported"), talkAppName),
                                 message: String(format: NSLocalizedString("Please update your server with the latest %@ version available.", comment: "Please update your server with the latest {app name} version available."), talkAppName))
                         }
+                    } else {
+                        self.showAlert(
+                            title: String(format: NSLocalizedString("%@ not installed", comment: "{app name} is not installed"), talkAppName),
+                            message: String(format: NSLocalizedString("It seems that %@ is not installed in your server.", comment: "It seems that {app name} is not installed in your server."), talkAppName))
                     }
                 } else {
                     self.showServerNotFoundAlert(withError: nil)
