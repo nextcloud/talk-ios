@@ -265,9 +265,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld conversation with unread messages</string>
+			<string>%ld conversation avec des messages non lus</string>
+			<key>many</key>
+			<string>%ld conversations avec des messages non lus</string>
 			<key>other</key>
-			<string>%ld conversations with unread messages</string>
+			<string>%ld conversations avec des messages non lus</string>
 		</dict>
 	</dict>
 	<key>%ld days</key>
@@ -281,9 +283,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld day</string>
+			<string>%ld jour</string>
+			<key>many</key>
+			<string>%ld jours</string>
 			<key>other</key>
-			<string>%ld days</string>
+			<string>%ld jours</string>
 		</dict>
 	</dict>
 	<key>%ld hours</key>
@@ -297,9 +301,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld hour</string>
+			<string>%ld heure</string>
+			<key>many</key>
+			<string>%ld heures</string>
 			<key>other</key>
-			<string>%ld hours</string>
+			<string>%ld heures</string>
 		</dict>
 	</dict>
 	<key>%ld minutes</key>
@@ -314,6 +320,8 @@
 			<string>ld</string>
 			<key>one</key>
 			<string>%ld minute</string>
+			<key>many</key>
+			<string>%ld minutes</string>
 			<key>other</key>
 			<string>%ld minutes</string>
 		</dict>
@@ -441,9 +449,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You removed {user0} and %ld more participant</string>
+			<string>Vous avez retiré {user0} et %ld autre participant</string>
+			<key>many</key>
+			<string>Vous avez retiré {user0} et %ld autres participants</string>
 			<key>other</key>
-			<string>You removed {user0} and %ld more participants</string>
+			<string>Vous avez retiré {user0} et %ld autres participants</string>
 		</dict>
 	</dict>
 	<key>An administrator removed you and %ld more participants</key>
@@ -473,9 +483,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed {user0} and %ld more participant</string>
+			<string>Un administrateur a retiré {user0} et %ld autre participant</string>
+			<key>many</key>
+			<string>Un administrateur a retiré {user0} et %ld autres participants</string>
 			<key>other</key>
-			<string>An administrator removed {user0} and %ld more participants</string>
+			<string>Un administrateur a retiré {user0} et %ld autres participants</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed you and %ld more participants</key>
@@ -521,9 +533,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You promoted {user0} and %ld more participant to moderators</string>
+			<string>Vous avez promu {user0} et %ld autre participant comme modérateurs</string>
+			<key>many</key>
+			<string>Vous avez promu {user0} et %ld autres participants comme modérateurs</string>
 			<key>other</key>
-			<string>You promoted {user0} and %ld more participants to moderators</string>
+			<string>Vous avez promu {user0} et %ld autres participants comme modérateurs</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted you and %ld more participants to moderators</key>
@@ -729,9 +743,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant left the call</string>
+			<string>{actor0} et %ld autre participant ont quitté l'appel</string>
+			<key>many</key>
+			<string>{actor0} et %ld autres participants ont quitté l'appel</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants left the call</string>
+			<string>{actor0} et %ld autres participants ont quitté l'appel</string>
 		</dict>
 	</dict>
 </dict>
