@@ -339,9 +339,8 @@ final class UIRoomTest: XCTestCase {
 
         textView.typeText(" Edited")
 
-        // TODO: Should change the lib to have a proper identifier here
         // Save the edit
-        toolbar.buttons["selected"].tap()
+        toolbar.buttons["Save changes"].tap()
 
         // Check if the edit is correct
         messageTextView = tables.textViews["@\(newConversationName) Edited"]
