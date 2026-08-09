@@ -22,6 +22,10 @@ class ReferenceView: UIView {
 
     private var aspectRatioConstraint: NSLayoutConstraint?
 
+    /// The GIF whose load the indicator is waiting on. A load can outlive the card that started it – by
+    /// then the cell may be showing another message – so its reports are matched against this first.
+    private weak var currentGiphyView: ReferenceGiphyView?
+
     /// Sizes the card to an aspect ratio rather than letting it stretch across the message, or restores
     /// the full width when passed nil. Only the GIF uses this – card beside a GIF is just empty fill.
     func setAspectRatio(_ aspectRatio: CGFloat?) {
@@ -60,6 +64,18 @@ class ReferenceView: UIView {
 
         activityIndicatorView.addSubview(activityIndicator)
 
+        // The nib holds this at a fixed inset from the leading edge, which only ever looked centred
+        // because the card was full width whenever it showed. A GIF keeps it up at its own aspect ratio,
+        // where that inset puts it off to one side and past the clipping bounds.
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            activityIndicatorView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            activityIndicatorView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            activityIndicatorView.widthAnchor.constraint(equalToConstant: activityIndicator.frame.width),
+            activityIndicatorView.heightAnchor.constraint(equalToConstant: activityIndicator.frame.height)
+        ])
+
         layer.cornerRadius = 8.0
         layer.masksToBounds = true
 
@@ -70,6 +86,7 @@ class ReferenceView: UIView {
 
     func prepareForReuse() {
         referenceView.subviews.forEach({ $0.removeFromSuperview() })
+        currentGiphyView = nil
         setAspectRatio(nil)
         showIndicatorView()
     }
@@ -94,6 +111,7 @@ class ReferenceView: UIView {
     }
 
     func update(for sharedDeckCard: NCDeckCardParameter) {
+        currentGiphyView = nil
         setAspectRatio(nil)
 
         let deckView = ReferenceDeckView(frame: self.frame)
@@ -107,6 +125,7 @@ class ReferenceView: UIView {
 
     func update(for references: [String: [String: AnyObject]]?, and url: String) {
         referenceView.subviews.forEach({ $0.removeFromSuperview() })
+        currentGiphyView = nil
 
         // Every kind but the GIF fills the width; that branch asks for its own shape again below
         setAspectRatio(nil)
@@ -125,6 +144,7 @@ class ReferenceView: UIView {
         let richObjectType = firstReference["richObjectType"] as? String
 
         var foundReferenceView = false
+        var deferredIndicator = false
 
         if richObjectType == "integration_github" || richObjectType == "integration_github_issue_pr",
            let reference = firstReference["richObject"] as? [String: AnyObject] {
@@ -181,10 +201,23 @@ class ReferenceView: UIView {
                   let reference = firstReference["richObject"] as? [String: AnyObject] {
 
             let giphyView = ReferenceGiphyView(frame: self.frame)
+            self.currentGiphyView = giphyView
 
-            // Set before updating, as that already reports the aspect ratio the reference claims
-            giphyView.aspectRatioHandler = { [weak self] aspectRatio in
-                self?.setAspectRatio(aspectRatio)
+            // The GIF still has to load, so this branch owns the indicator from here on
+            deferredIndicator = true
+
+            // Both are set before updating, as that already reports the aspect ratio the reference claims,
+            // and a cached GIF reports its load from inside that call too
+            giphyView.aspectRatioHandler = { [weak self, weak giphyView] aspectRatio in
+                guard let self, let giphyView, giphyView === self.currentGiphyView else { return }
+
+                self.setAspectRatio(aspectRatio)
+            }
+
+            giphyView.loadCompletionHandler = { [weak self, weak giphyView] in
+                guard let self, let giphyView, giphyView === self.currentGiphyView else { return }
+
+                self.hideIndicatorView()
             }
 
             giphyView.update(for: reference, and: url)
@@ -208,6 +241,8 @@ class ReferenceView: UIView {
             showErrorView(for: url)
         }
 
-        hideIndicatorView()
+        if !deferredIndicator {
+            hideIndicatorView()
+        }
     }
 }

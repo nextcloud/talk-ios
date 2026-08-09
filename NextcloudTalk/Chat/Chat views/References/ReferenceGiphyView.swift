@@ -16,6 +16,11 @@ import SDWebImage
     /// once loaded – the two don't always agree.
     var aspectRatioHandler: ((CGFloat) -> Void)?
 
+    /// Reports that the GIF itself has finished loading, successfully or not. Unlike every other kind of
+    /// reference, this one is not done when `update(for:and:)` returns – the card is already in the right
+    /// shape by then, but still empty – so the reference view keeps its indicator up until this fires.
+    var loadCompletionHandler: (() -> Void)?
+
     private var url: String?
     private var imageAspectRatioConstraint: NSLayoutConstraint?
 
@@ -79,6 +84,7 @@ import SDWebImage
               let proxiedUrl = URL(string: proxiedUrlString)
         else {
             self.imageView.image = nil
+            self.loadCompletionHandler?()
             return
         }
 
@@ -87,7 +93,12 @@ import SDWebImage
                                    options: [],
                                    context: NCAPIController.sharedInstance().giphyReferenceImageContext,
                                    progress: nil) { [weak self] image, _, _, _ in
-            guard let self, let image, image.size.width > 0, image.size.height > 0 else { return }
+            guard let self else { return }
+
+            // Reported before the size check, as a GIF that failed to load leaves nothing more to wait for
+            self.loadCompletionHandler?()
+
+            guard let image, image.size.width > 0, image.size.height > 0 else { return }
 
             // The loaded GIF is the authority – the renditions the reference lists don't always match
             // it, and any difference shows up as the GIF not filling the card
