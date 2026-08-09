@@ -51,10 +51,6 @@ import MBProgressHUD
     private var imagePicker: UIImagePickerController?
     private var hud: MBProgressHUD?
     private var objectShareMessage: NCChatMessage?
-    private var uploadGroup = DispatchGroup()
-    private var uploadFailed = false
-    private var uploadErrors: [String] = []
-    private var uploadSuccess: [ShareItem] = []
 
     private enum ShareConfirmationType {
         case text
@@ -357,6 +353,14 @@ import MBProgressHUD
         self.shareCollectionView.delegate = self
     }
 
+    /// Whether a caption can be added to what is being shared. When it can, the send button is part
+    /// of the input bar, otherwise it sits in the navigation bar.
+    private var captionAllowed: Bool {
+        guard self.shareType == .item else { return false }
+
+        return NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: self.account.accountId)
+    }
+
     public override func viewWillAppear(_ animated: Bool) {
         // Add the cancel button in viewWillAppear, so that the caller can change the isModal property after initialization
         if self.isModal {
@@ -370,10 +374,7 @@ import MBProgressHUD
             }
         }
 
-        var captionAllowed = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: account.accountId)
-        captionAllowed = captionAllowed && self.shareType == .item
-
-        if !captionAllowed {
+        if !self.captionAllowed {
             self.navigationItem.rightBarButtonItem = self.sendButton
             if #unavailable(iOS 26) {
                 self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
@@ -606,10 +607,6 @@ import MBProgressHUD
         self.hud?.mode = .annularDeterminate
         self.hud?.label.text = String.localizedStringWithFormat(NSLocalizedString("Uploading %ld elements", comment: ""), self.shareItemController.shareItems.count)
 
-        self.uploadGroup = DispatchGroup()
-        self.uploadErrors = []
-        self.uploadSuccess = []
-
         // Add caption to last shareItem
         if let shareItem = self.shareItemController.shareItems.last {
             if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: self.account.accountId) {
@@ -622,152 +619,93 @@ import MBProgressHUD
             }
         }
 
-        // Check if conversation subfolders feature is supported
-        if room.supportsConversationSubfolders {
-            let fileNames = self.shareItemController.shareItems.compactMap { $0.fileName }
-            NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: self.room.token, withFileNames: fileNames, forAccount: self.account) { draftFolder, _, error in
-                if let error {
-                    NCLog.log("Probe conversation attachment folder failed: \(error.localizedDescription)")
-                    DispatchQueue.main.async {
-                        self.stopAnimatingSharingIndicator()
-                        self.hud?.hide(animated: true)
-                        bgTask.stopBackgroundTask()
-                        let alert = UIAlertController(
-                            title: NSLocalizedString("Upload failed", comment: ""),
-                            message: NSLocalizedString("Could not prepare upload folder", comment: ""),
-                            preferredStyle: .alert
-                        )
-                        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-                        self.present(alert, animated: true)
-                    }
-                    return
+        let shareItems = self.shareItemController.shareItems
+
+        Task {
+            defer { bgTask.stopBackgroundTask() }
+
+            let results: [Result<Void, Error>]
+
+            do {
+                results = try await ChatFileUploader.upload(shareItems.map { self.upload(for: $0) }) { index, fractionCompleted in
+                    shareItems[index].uploadProgress = fractionCompleted
+                    self.updateHudProgress()
                 }
-                self.startUploads(draftFolderPath: draftFolder, bgTask: bgTask)
+            } catch {
+                // Without a draft folder nothing was uploaded at all
+                NCLog.log("Could not prepare the upload folder. Error: \(error.localizedDescription)")
+                self.finishUploads(withErrors: [NSLocalizedString("Could not prepare upload folder", comment: "")], succeededItems: [])
+                return
             }
-        } else {
-            self.startUploads(draftFolderPath: nil, bgTask: bgTask)
+
+            var errors: [String] = []
+            var succeededItems: [ShareItem] = []
+
+            for (shareItem, result) in zip(shareItems, results) {
+                switch result {
+                case .success:
+                    succeededItems.append(shareItem)
+                case .failure(let error):
+                    NCLog.log("Failed to upload \(shareItem.fileName ?? "file"). Error: \(error.localizedDescription)")
+                    errors.append(self.message(for: error))
+                }
+            }
+
+            self.finishUploads(withErrors: errors, succeededItems: succeededItems)
         }
     }
 
-    private func startUploads(draftFolderPath: String?, bgTask: BGTaskHelper) {
-        for shareItem in self.shareItemController.shareItems {
-            NSLog("Uploading \(shareItem.fileURL.absoluteString)")
+    private func upload(for shareItem: ShareItem) -> ChatFileUpload {
+        var metaData = ChatFileUploadMetadata()
+        metaData.caption = shareItem.caption
+        metaData.silent = self.shareSilently
+        metaData.threadId = self.thread?.threadId
 
-            self.uploadGroup.enter()
+        var upload = ChatFileUpload(localPath: shareItem.filePath,
+                                    fileName: shareItem.fileName,
+                                    room: self.room,
+                                    account: self.account)
+        upload.metadata = metaData
 
-            if let draftFolderPath {
-                let fileExtension = shareItem.fileURL.pathExtension
-                let extensionSuffix = fileExtension.isEmpty ? "" : ".\(fileExtension)"
-                let tempName = UUID().uuidString + extensionSuffix
-                let draftPath = "\(draftFolderPath)/\(tempName)"
-                let fileServerPath = "/\(draftPath)"
-
-                if let fileServerURL = NCAPIController.sharedInstance().serverFileURL(forfilePath: fileServerPath, forAccount: account) {
-                    self.uploadFile(to: fileServerURL, with: fileServerPath, draftFolderPath: draftPath, with: shareItem)
-                } else {
-                    NCLog.log("Error creating server path for upload")
-                    self.uploadErrors.append(NSLocalizedString("Error creating server path for upload", comment: ""))
-                    self.uploadGroup.leave()
-                }
-            } else {
-                NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: shareItem.fileName, isOriginalName: true, forAccount: self.account) { fileServerURL, fileServerPath, _, errorDescription in
-                    if let fileServerURL, let fileServerPath {
-                        self.uploadFile(to: fileServerURL, with: fileServerPath, draftFolderPath: nil, with: shareItem)
-                    } else {
-                        NCLog.log(String(format: "Error finding unique upload name. Error: %@", errorDescription ?? "Unknown error"))
-                        self.uploadErrors.append(errorDescription ?? "Unknown error")
-                        self.uploadGroup.leave()
-                    }
-                }
-            }
-        }
-
-        self.uploadGroup.notify(queue: .main) {
-            self.stopAnimatingSharingIndicator()
-            self.hud?.hide(animated: true)
-
-            // TODO: Do error reporting per item
-            if self.uploadErrors.isEmpty {
-                self.shareItemController.removeAllItems()
-                self.delegate?.shareConfirmationViewControllerDidFinish(self)
-            } else {
-                // We remove the successfully uploaded items, so only the failed ones are kept
-                self.shareItemController.remove(self.uploadSuccess)
-
-                let alert = UIAlertController(title: NSLocalizedString("Upload failed", comment: ""),
-                                              message: self.uploadErrors.joined(separator: "\n"),
-                                              preferredStyle: .alert)
-
-                alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-
-                self.present(alert, animated: true)
-            }
-
-            bgTask.stopBackgroundTask()
-        }
+        return upload
     }
 
-    func uploadFile(to fileServerURL: String, with filePath: String, draftFolderPath: String?, with item: ShareItem) {
-        NextcloudKit.shared.upload(serverUrlFileName: fileServerURL, fileNameLocalPath: item.filePath) { _ in
-            NSLog("Upload task")
-        } progressHandler: { progress in
-            item.uploadProgress = progress.fractionCompleted
-            self.updateHudProgress()
-        } completionHandler: { _, _, _, _, _, _, nkError in
-            if nkError.errorCode == 0 {
-                var metaData = ChatFileUploadMetadata()
-                metaData.caption = item.caption
-                metaData.silent = self.shareSilently
-                metaData.threadId = self.thread?.threadId
+    private func finishUploads(withErrors errors: [String], succeededItems: [ShareItem]) {
+        self.stopAnimatingSharingIndicator()
+        self.hud?.hide(animated: true)
 
-                let talkMetaData = metaData.asDictionary()
+        guard !errors.isEmpty else {
+            self.shareItemController.removeAllItems()
+            self.delegate?.shareConfirmationViewControllerDidFinish(self)
+            return
+        }
 
-                if let draftFolderPath {
-                    NCAPIController.sharedInstance().postConversationAttachment(inRoom: self.room.token,
-                                                                                filePath: draftFolderPath,
-                                                                                fileName: item.fileName,
-                                                                                referenceId: nil,
-                                                                                talkMetaData: talkMetaData,
-                                                                                forAccount: self.account) { error in
-                        if let error {
-                            NCLog.log("Failed to post attachment. Error: \(error.localizedDescription)")
-                            self.uploadErrors.append(error.localizedDescription)
-                        } else {
-                            self.uploadSuccess.append(item)
-                        }
+        // We remove the successfully uploaded items, so only the failed ones are kept
+        self.shareItemController.remove(succeededItems)
 
-                        self.uploadGroup.leave()
-                    }
-                } else {
-                    NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account,
-                                                                       atPath: filePath,
-                                                                       toRoom: self.room.token,
-                                                                       withTalkMetaData: talkMetaData,
-                                                                       withReferenceId: nil) { error in
-                        if let error {
-                            NCLog.log(String(format: "Failed to share file. Error: %@", error.localizedDescription))
-                            self.uploadErrors.append(error.localizedDescription)
-                        } else {
-                            self.uploadSuccess.append(item)
-                        }
+        let alert = UIAlertController(title: NSLocalizedString("Upload failed", comment: ""),
+                                      message: errors.joined(separator: "\n"),
+                                      preferredStyle: .alert)
 
-                        self.uploadGroup.leave()
-                    }
-                }
-            } else if nkError.errorCode == 404 || nkError.errorCode == 409 {
-                NCAPIController.sharedInstance().checkOrCreateAttachmentFolder(forAccount: self.account) { created, _ in
-                    if created {
-                        self.uploadFile(to: fileServerURL, with: filePath, draftFolderPath: nil, with: item)
-                    } else {
-                        self.uploadErrors.append(nkError.errorDescription)
-                        self.uploadGroup.leave()
-                    }
-                }
-            } else {
-                NCLog.log(String(format: "Failed to upload file. Error: %@", nkError.errorDescription))
-                self.uploadErrors.append(nkError.errorDescription)
-                self.uploadGroup.leave()
-            }
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+
+        self.present(alert, animated: true)
+    }
+
+    private func message(for error: Error) -> String {
+        switch error {
+        case ChatFileUploadError.destinationUnavailable:
+            return NSLocalizedString("Could not prepare upload folder", comment: "")
+        case ChatFileUploadError.attachmentFolderUnavailable:
+            return NSLocalizedString("Failed to check or create attachment folder", comment: "")
+        case ChatFileUploadError.quotaExceeded:
+            return NSLocalizedString("User storage quota exceeded", comment: "")
+        case ChatFileUploadError.tooManyRequests:
+            return NSLocalizedString("Too many requests, please try again later", comment: "")
+        case ChatFileUploadError.uploadFailed(_, let errorDescription):
+            return errorDescription
+        default:
+            return error.localizedDescription
         }
     }
 
@@ -783,7 +721,8 @@ import MBProgressHUD
     func stopAnimatingSharingIndicator() {
         DispatchQueue.main.async {
             self.sharingIndicatorView.stopAnimating()
-            self.navigationItem.rightBarButtonItem = self.sendButton
+            // With a caption there is no send button in the navigation bar, it lives in the input bar
+            self.navigationItem.rightBarButtonItem = self.captionAllowed ? nil : self.sendButton
         }
     }
 
