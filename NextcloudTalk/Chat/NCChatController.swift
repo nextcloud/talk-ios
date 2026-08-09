@@ -1315,62 +1315,19 @@ public class NCChatController: NSObject {
             metaData.threadId = threadId
         }
 
-        let talkMetaData = metaData.asDictionary()
+        var upload = ChatFileUpload(localPath: message.file()?.fileStatus?.fileLocalPath ?? "",
+                                    fileName: message.message ?? "",
+                                    room: room,
+                                    account: account)
+        upload.metadata = metaData
+        upload.referenceId = message.referenceId
 
-        let uploadCompletion: (Int, NSString?) -> Void = { statusCode, _ in
-            switch statusCode {
-            case 200:
-                NSLog("Successfully uploaded and shared voice message.")
-            case 403:
-                NSLog("Failed to share voice message.")
-            case 404, 409:
-                NSLog("Failed to check or create attachment folder.")
-            case 507:
-                NSLog("User storage quota exceeded.")
-            default:
-                NSLog("Failed to upload voice message with error code: %ld", statusCode)
-            }
-        }
-
-        if room.supportsConversationSubfolders {
-            let fileName = message.message ?? ""
-
-            NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: room.token, withFileNames: [fileName], forAccount: account) { draftFolder, _, error in
-                guard error == nil, let draftFolder else {
-                    NSLog("Could not probe conversation attachment folder for voice message.")
-                    return
-                }
-
-                let fileExtension = URL(string: fileName)?.pathExtension ?? ""
-                let extensionSuffix = !fileExtension.isEmpty ? ".\(fileExtension)" : ""
-                let tempName = UUID().uuidString + extensionSuffix
-                let draftPath = "\(draftFolder)/\(tempName)"
-                let serverPath = "/\(draftPath)"
-                let fileServerURL = "\(self.account.server)/remote.php/dav/files/\(self.account.userId)\(serverPath)"
-
-                ChatFileUploader.uploadFile(localPath: message.file()?.fileStatus?.fileLocalPath ?? "",
-                                            fileServerURL: fileServerURL,
-                                            fileServerPath: serverPath,
-                                            draftPath: draftPath,
-                                            talkMetaData: talkMetaData,
-                                            temporaryMessage: message,
-                                            room: self.room,
-                                            completion: uploadCompletion)
-            }
-        } else {
-            NCAPIController.sharedInstance().uniqueNameForFileUpload(withName: message.message ?? "", isOriginalName: true, forAccount: account) { fileServerURL, fileServerPath, _, _ in
-                if let fileServerURL, let fileServerPath {
-                    ChatFileUploader.uploadFile(localPath: message.file()?.fileStatus?.fileLocalPath ?? "",
-                                                fileServerURL: fileServerURL,
-                                                fileServerPath: fileServerPath,
-                                                draftPath: nil,
-                                                talkMetaData: talkMetaData,
-                                                temporaryMessage: message,
-                                                room: self.room,
-                                                completion: uploadCompletion)
-                } else {
-                    NSLog("Could not find unique name for voice message file.")
-                }
+        Task {
+            do {
+                try await ChatFileUploader.upload(upload)
+                NCLog.log("Successfully uploaded and shared voice message.")
+            } catch {
+                NCLog.log("Failed to upload voice message. Error: \(error.localizedDescription)")
             }
         }
     }
