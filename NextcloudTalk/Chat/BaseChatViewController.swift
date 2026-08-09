@@ -101,7 +101,6 @@ import Toast
     private var voiceMessageRecordingView: VoiceMessageRecordingView?
     private var expandedUIHostingController: UIHostingController<ExpandedVoiceMessageRecordingView>?
     private var longPressStartingPoint: CGPoint?
-    private var cancelHintLabelInitialPositionX: CGFloat?
     private var recordCancelled: Bool = false
 
     private var animationDispatchGroup = DispatchGroup()
@@ -1934,6 +1933,26 @@ import Toast
         self.textInputbar.addSubview(voiceMessageRecordingView)
         self.textInputbar.bringSubviewToFront(voiceMessageRecordingView)
 
+        if self.hasGlassInputbar, #available(iOS 26.0, *) {
+            // Recording gets a glass capsule of its own, taking the place of the attachment button and the
+            // input field. The field capsule alone is too narrow for the recording time and the hint.
+            voiceMessageRecordingView.useGlassBackground(cornerRadius: self.textViewBackgroundView?.layer.cornerRadius ?? 22)
+
+            // Only one glass shape at a time, and the placeholder of the textView would shine through
+            self.textViewBackgroundView?.alpha = 0
+            self.textView.isHidden = true
+            self.leftButton.alpha = 0
+
+            NSLayoutConstraint.activate([
+                voiceMessageRecordingView.leadingAnchor.constraint(equalTo: self.leftButton.leadingAnchor),
+                voiceMessageRecordingView.trailingAnchor.constraint(equalTo: self.textView.trailingAnchor),
+                voiceMessageRecordingView.topAnchor.constraint(equalTo: self.textView.topAnchor),
+                voiceMessageRecordingView.bottomAnchor.constraint(equalTo: self.textView.bottomAnchor)
+            ])
+
+            return
+        }
+
         let views = [
             "voiceMessageRecordingView": voiceMessageRecordingView
         ]
@@ -1947,6 +1966,10 @@ import Toast
     }
 
     func hideVoiceMessageRecordingView() {
+        self.textView.isHidden = false
+        self.textViewBackgroundView?.alpha = 1
+        self.leftButton.alpha = 1
+
         self.voiceMessageRecordingView?.isHidden = true
         self.voiceMessageRecordingView?.removeFromSuperview()
         self.voiceMessageRecordingView?.stopTimeLabelTimer()
@@ -2378,7 +2401,6 @@ import Toast
             self.shouldLockInterfaceOrientation(lock: true)
             self.recordCancelled = false
             self.longPressStartingPoint = point
-            self.cancelHintLabelInitialPositionX = voiceMessageRecordingView?.slideToCancelHintLabel?.frame.origin.x
             self.voiceRecordingLockButton.alpha = 1
             self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         } else if gestureRecognizer.state == .ended {
@@ -2395,7 +2417,6 @@ import Toast
             }
         } else if gestureRecognizer.state == .changed {
             guard let longPressStartingPoint,
-                  let cancelHintLabelInitialPositionX,
                   let voiceMessageRecordingView,
                   let slideToCancelHintLabel = voiceMessageRecordingView.slideToCancelHintLabel
             else { return }
@@ -2406,11 +2427,10 @@ import Toast
             // Only slide view to the left
             if slideX > 0 {
                 let maxSlideX = 100.0
-                var labelFrame = slideToCancelHintLabel.frame
-                labelFrame = .init(x: cancelHintLabelInitialPositionX - slideX, y: labelFrame.origin.y, width: labelFrame.size.width, height: labelFrame.size.height)
 
-                slideToCancelHintLabel.frame = labelFrame
-                slideToCancelHintLabel.alpha = (maxSlideX - slideX) / 100
+                // Moved with a transform, as the hint is laid out by auto layout now
+                slideToCancelHintLabel.transform = CGAffineTransform(translationX: -slideX, y: 0)
+                slideToCancelHintLabel.alpha = max(0, (maxSlideX - slideX) / maxSlideX)
 
                 // Cancel recording if slided more than maxSlideX
                 if slideX > maxSlideX, !self.recordCancelled, !isVoiceRecordingLocked {

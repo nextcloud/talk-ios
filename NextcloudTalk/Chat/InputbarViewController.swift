@@ -25,6 +25,11 @@ import UIKit
     /// Glass background of the textView, only used on iOS 26 and above
     internal var textViewBackgroundView: UIVisualEffectView?
 
+    /// Whether the inputbar uses the glass appearance (iOS 26 and above)
+    internal var hasGlassInputbar: Bool {
+        return self.textViewBackgroundView != nil
+    }
+
     public var isThreadViewController: Bool {
         return thread != nil
     }
