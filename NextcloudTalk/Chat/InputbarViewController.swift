@@ -259,6 +259,11 @@ import UIKit
             self.textInputbar.addInteraction(scrollEdgeInteraction)
         }
 
+        // Editing happens in the inputbar itself, a second row on top of the glass elements would look like an
+        // unrelated bar (see BaseChatViewController.updateInputbarButtonsForEditing)
+        self.textInputbar.keepsButtonsWhileEditing = true
+        self.textInputbar.editorContentViewHeight = 0
+
         // Glass background for the textView
         self.textViewBackgroundView = self.addGlassBackgroundView(behind: self.textView)
 

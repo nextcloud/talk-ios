@@ -265,10 +265,7 @@ import Toast
         self.isInverted = false
 
         self.showSendMessageButton()
-        self.setInputbarImage(UIImage(systemName: "plus"), for: self.leftButton)
-        self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
-        self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
-        self.leftButton.accessibilityIdentifier = "shareButton"
+        self.showAttachmentButton()
 
         // Add LongPressRecognizer to allow showing photo picker directly
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(gestureRecognizer:)))
@@ -753,6 +750,13 @@ import Toast
         self.addGestureRecognizerToRightButton()
     }
 
+    func showAttachmentButton() {
+        self.setInputbarImage(UIImage(systemName: "plus"), for: self.leftButton)
+        self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
+        self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
+        self.leftButton.accessibilityIdentifier = "shareButton"
+    }
+
     func showSendMessageButton() {
         self.rightButton.setTitle("", for: .normal)
         self.setInputbarImage(UIImage(systemName: "paperplane"), for: self.rightButton)
@@ -826,7 +830,21 @@ import Toast
         self.stopTyping(force: true)
     }
 
+    public override func didPressLeftButton(_ sender: Any?) {
+        if self.textInputbar.isEditing {
+            self.didCancelTextEditing(sender as Any)
+            return
+        }
+
+        super.didPressLeftButton(sender)
+    }
+
     public override func didPressRightButton(_ sender: Any?) {
+        if self.textInputbar.isEditing {
+            self.didCommitTextEditing(sender as Any)
+            return
+        }
+
         guard let button = sender as? UIButton else { return }
 
         switch button.tag {
@@ -1520,6 +1538,12 @@ import Toast
         self.editingMessage = nil
         self.restorePendingMessage()
         self.stopTyping(force: true)
+        self.updateInputbarButtonsForEditing()
+    }
+
+    public override func editAttributedText(_ attributedText: NSAttributedString) {
+        super.editAttributedText(attributedText)
+        self.updateInputbarButtonsForEditing()
     }
 
     public override func didCancelTextEditing(_ sender: Any) {
@@ -1530,6 +1554,36 @@ import Toast
     public override func didCommitTextEditing(_ sender: Any) {
         super.didCommitTextEditing(sender)
         self.didEndTextEditing()
+    }
+
+    /// Lets the buttons next to the input field cancel and save an edited message, since the glass inputbar
+    /// does not show the editor row of SLKTextInputbar anymore.
+    internal func updateInputbarButtonsForEditing() {
+        guard self.hasGlassInputbar else { return }
+
+        if self.textInputbar.isEditing {
+            // The attachment menu is the primary action of the left button, so no press is reported while it's set
+            self.leftButton.menu = nil
+            self.leftButton.showsMenuAsPrimaryAction = false
+            self.leftButtonLongPressGesture?.isEnabled = false
+
+            self.setInputbarImage(UIImage(systemName: "xmark"), for: self.leftButton)
+            self.leftButton.accessibilityLabel = NSLocalizedString("Cancel", comment: "")
+            self.leftButton.accessibilityHint = NSLocalizedString("Double tap to discard the changes", comment: "")
+
+            self.setInputbarImage(UIImage(systemName: "checkmark"), for: self.rightButton)
+            self.rightButton.accessibilityLabel = NSLocalizedString("Save changes", comment: "")
+            self.rightButton.accessibilityHint = NSLocalizedString("Double tap to save the edited message", comment: "")
+        } else {
+            self.leftButtonLongPressGesture?.isEnabled = true
+            self.showAttachmentButton()
+            self.addMenuToLeftButton()
+
+            // Both buttons are set up from scratch instead of being restored: showAttachmentButton() knows
+            // about federation, and canPressRightButton() about send or record for the text we have now
+            self.showSendMessageButton()
+            self.textDidUpdate(false)
+        }
     }
 
     // MARK: - UITextField delegate
@@ -2387,6 +2441,11 @@ import Toast
 
     func handleLongPressInVoiceMessageRecordButton(gestureRecognizer: UILongPressGestureRecognizer) {
         if self.rightButton.tag != sendButtonTagVoice {
+            return
+        }
+
+        // While editing, the button saves the message instead
+        if self.textInputbar.isEditing {
             return
         }
 
