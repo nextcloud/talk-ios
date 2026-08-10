@@ -353,9 +353,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other is typing…</string>
+			<string>%4$ld autre est en train d'écrire…</string>
+			<key>many</key>
+			<string>%4$ld autres sont en train d'écrire…</string>
 			<key>other</key>
-			<string>%4$ld others are typing…</string>
+			<string>%4$ld autres sont en train d'écrire…</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
