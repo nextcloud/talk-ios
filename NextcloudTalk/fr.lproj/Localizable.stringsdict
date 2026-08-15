@@ -337,9 +337,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other will receive invitations</string>
+			<string>%4$ld autre va recevoir les invitations</string>
+			<key>many</key>
+			<string>%4$ld autres vont recevoir les invitations</string>
 			<key>other</key>
-			<string>%4$ld others will receive invitations</string>
+			<string>%4$ld autres vont recevoir les invitations</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
@@ -371,9 +373,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You added {user0} and %ld more participant</string>
+			<string>Vous avez ajouté {user0} et %ld autre participant</string>
+			<key>many</key>
+			<string>Vous avez ajouté {user0} et %ld autres participants</string>
 			<key>other</key>
-			<string>You added {user0} and %ld more participants</string>
+			<string>Vous avez ajouté {user0} et %ld autres participants</string>
 		</dict>
 	</dict>
 	<key>An administrator added you and %ld more participants</key>
@@ -713,9 +717,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant joined the call</string>
+			<string>{actor0} et %ld autre participant ont rejoint l'appel</string>
+			<key>many</key>
+			<string>{actor0} et %ld autres participants ont rejoint l'appel</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants joined the call</string>
+			<string>{actor0} et %ld autres participants ont rejoint l'appel</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants left the call</key>
