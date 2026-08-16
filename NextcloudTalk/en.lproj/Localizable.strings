@@ -742,6 +742,9 @@
 /* No comment provided by engineer. */
 "Copy message selection" = "Copy message selection";
 
+/* Copy a 'selection' of the description text of a conversation */
+"Copy selection" = "Copy selection";
+
 /* No comment provided by engineer. */
 "Could not access camera" = "Could not access camera";
 
@@ -954,6 +957,9 @@
 
 /* No comment provided by engineer. */
 "Description cannot be longer than 500 characters" = "Description cannot be longer than 500 characters";
+
+/* The description text of a conversation was copied to the clipboard */
+"Description copied" = "Description copied";
 
 /* No comment provided by engineer. */
 "Details" = "Details";

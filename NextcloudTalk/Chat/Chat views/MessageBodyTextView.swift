@@ -4,7 +4,38 @@
 //
 
 import UIKit
+import SwiftUI
 import CDMarkdownKit
+
+struct MessageBodyTextViewWrapper: UIViewRepresentable {
+    let attributedText: NSAttributedString
+
+    func makeUIView(context: Context) -> MessageBodyTextView {
+        let textView = MessageBodyTextView()
+
+        // The intrinsic width of a non-scrolling text view is the whole text on a single line, don't let that drive the layout
+        textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        return textView
+    }
+
+    func updateUIView(_ textView: MessageBodyTextView, context: Context) {
+        textView.attributedText = attributedText
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView textView: MessageBodyTextView, context: Context) -> CGSize? {
+        // Without a concrete width there's nothing to wrap the text at, fall back to the intrinsic size
+        guard let width = proposal.width, width > 0, width < .greatestFiniteMagnitude else { return nil }
+
+        // Since textContainerInset and lineFragmentPadding are zero, the used rect is the full height we need
+        textView.textContainer.size = CGSize(width: width, height: .greatestFiniteMagnitude)
+        textView.layoutManager.ensureLayout(for: textView.textContainer)
+
+        let usedRect = textView.layoutManager.usedRect(for: textView.textContainer)
+
+        return CGSize(width: width, height: ceil(usedRect.height))
+    }
+}
 
 class MessageBodyTextView: UITextView, UITextViewDelegate {
 
