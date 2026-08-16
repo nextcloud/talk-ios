@@ -20,19 +20,31 @@ import UIKit
         let shareButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
         shareButton.isEnabled = false
         shareButton.primaryAction = UIAction(title: "", image: .init(systemName: "square.and.arrow.up"), handler: { [unowned self, unowned shareButton] _ in
-            guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
+            guard let mediaPageViewController = self.getCurrentPageViewController(),
+                  let placeholderURL = mediaPageViewController.expectedFileURL
+            else { return }
 
-            var itemsToShare: [Any] = []
+            // Only ever the original file, never a preview. The provider waits for the download if
+            // it is not finished yet, while the user picks a destination.
+            let itemProvider = MediaShareItemProvider(placeholderURL: placeholderURL,
+                                                      thumbnail: mediaPageViewController.displayedImage) { [weak mediaPageViewController] completion in
+                guard let mediaPageViewController else {
+                    completion(nil)
+                    return
+                }
 
-            if let image = mediaPageViewController.currentImage {
-                itemsToShare.append(image)
-            } else if let videoURL = mediaPageViewController.currentVideoURL {
-                itemsToShare.append(videoURL)
-            } else {
-                return
+                mediaPageViewController.requestSharableFile(completion: completion)
             }
-            let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
+
+            let activityViewController = UIActivityViewController(activityItems: [itemProvider], applicationActivities: nil)
             activityViewController.popoverPresentationController?.barButtonItem = shareButton
+            // didFail stays false when the user simply dismissed the sheet, so no need to look at
+            // whether an activity completed
+            activityViewController.completionWithItemsHandler = { [weak self] _, _, _, _ in
+                guard itemProvider.didFail else { return }
+
+                self?.showSharingFailedAlert()
+            }
 
             self.present(activityViewController, animated: true)
         })
@@ -97,7 +109,11 @@ import UIKit
         initialViewController.delegate = self
         self.pageController.setViewControllers([initialViewController], direction: .forward, animated: false)
 
+        // Not called by the page controller delegate for the initial view controller
+        initialViewController.didBecomeCurrentPage()
+
         self.navigationItem.title = initialViewController.navigationItem.title
+        self.updateToolbarButtons()
 
         AllocationTracker.shared.addAllocation("NCMediaViewerViewController")
     }
@@ -221,8 +237,33 @@ import UIKit
         guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
         self.navigationItem.title = mediaPageViewController.navigationItem.title
 
-        self.shareButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
-        self.showMessageButton.isEnabled = (mediaPageViewController.currentImage != nil) || (mediaPageViewController.currentVideoURL != nil)
+        // On a cancelled swipe the previous view controller is the current one again
+        for case let previousPageViewController as NCMediaViewerPageViewController in previousViewControllers
+        where previousPageViewController != mediaPageViewController {
+            previousPageViewController.didResignCurrentPage()
+        }
+
+        mediaPageViewController.didBecomeCurrentPage()
+
+        self.updateToolbarButtons()
+    }
+
+    private func updateToolbarButtons() {
+        let mediaPageViewController = self.getCurrentPageViewController()
+
+        // Enabled as soon as we know where the file will be, the share itself waits for the download
+        self.shareButton.isEnabled = mediaPageViewController?.expectedFileURL != nil
+        self.showMessageButton.isEnabled = mediaPageViewController != nil
+    }
+
+    private func showSharingFailedAlert() {
+        let alert = UIAlertController(title: NSLocalizedString("An error occurred downloading the picture", comment: ""),
+                                      message: nil,
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+
+        self.present(alert, animated: true)
     }
 
     // MARK: - NCMediaViewerPageViewController delegate
@@ -242,10 +283,9 @@ import UIKit
         }
     }
 
-    func mediaViewerPageMediaDidLoad(_ controller: NCMediaViewerPageViewController) {
-        if let mediaPageViewController = self.getCurrentPageViewController(), mediaPageViewController.isEqual(controller) {
-            self.shareButton.isEnabled = true
-            self.showMessageButton.isEnabled = true
-        }
+    func mediaViewerPageStateDidChange(_ controller: NCMediaViewerPageViewController) {
+        guard let mediaPageViewController = self.getCurrentPageViewController(), mediaPageViewController.isEqual(controller) else { return }
+
+        self.updateToolbarButtons()
     }
 }

@@ -27,6 +27,8 @@ public class NCChatFileController: NSObject {
     private let account: TalkAccount
     private let deleteFilesOlderThanDays = 7
     private var fileStatus: NCChatFileStatus?
+    private var cancelDownloadHandler: (() -> Void)?
+    private var isCancelled = false
 
     init(account: TalkAccount) {
         self.account = account
@@ -123,19 +125,15 @@ public class NCChatFileController: NSObject {
     }
 
     private func setDate(onFile filePath: String, withCreationDate creationDate: Date?, withModificationDate modificationDate: Date?) {
-        var attributes = [FileAttributeKey: Any]()
+        // Setting both, modification- and creationDate in one go does not work, we will end up with the modification date in both fields
+        // Also the creationDate needs to be set after modificationDate (most likely because creation cannot be later than modification in theory)
+        if let modificationDate {
+            try? FileManager.default.setAttributes([.modificationDate: modificationDate], ofItemAtPath: filePath)
+        }
 
         if let creationDate {
-            attributes[.creationDate] = creationDate
+            try? FileManager.default.setAttributes([.creationDate: creationDate], ofItemAtPath: filePath)
         }
-
-        if let modificationDate {
-            attributes[.modificationDate] = modificationDate
-        }
-
-        guard !attributes.isEmpty else { return }
-
-        try? FileManager.default.setAttributes(attributes, ofItemAtPath: filePath)
     }
 
     public func moveFileToTemporaryDirectory(fromSourcePath sourcePath: String, destinationPath: String) -> Bool {
@@ -156,9 +154,44 @@ public class NCChatFileController: NSObject {
         }
     }
 
+    ///
+    /// Locally cached file, without asking the server whether our copy is still current.
+    ///
+    /// Only matches when the size is the one announced in the chat message, so a file that was
+    /// replaced with a differently sized one on the server is not returned. A replacement with the
+    /// exact same size is only caught once `downloadFile(withFileId:)` has validated the file.
+    ///
+    public func cachedFileURL(forFileNamed fileName: String, expectedSize: Int) -> URL? {
+        guard expectedSize > 0 else { return nil }
+
+        let filePath = (self.tempDirectoryPath as NSString).appendingPathComponent(fileName)
+
+        guard FileManager.default.fileExists(atPath: filePath),
+              let attributes = try? FileManager.default.attributesOfItem(atPath: filePath),
+              let size = attributes[.size] as? Int, size == expectedSize
+        else { return nil }
+
+        return URL(fileURLWithPath: filePath)
+    }
+
+    // Stops an ongoing download. No delegate method is called afterwards.
+    public func cancelDownload() {
+        self.isCancelled = true
+        self.cancelDownloadHandler?()
+        self.cancelDownloadHandler = nil
+
+        if self.fileStatus?.isDownloading == true {
+            self.didChangeIsDownloadingNotification(isDownloading: false)
+        }
+    }
+
     public func downloadFile(withFileId fileId: String) {
+        self.isCancelled = false
+
         // getFileById already sets up NextcloudKit
         NCAPIController.sharedInstance().getFileById(forAccount: self.account, withFileId: fileId) { file, error in
+            guard !self.isCancelled else { return }
+
             guard let file else {
                 print("An error occurred while getting file with fileId \(fileId): \(error?.errorDescription ?? "")")
                 self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileId, withErrorDescription: error?.errorDescription ?? "")
@@ -190,11 +223,15 @@ public class NCChatFileController: NSObject {
                 return
             }
 
-            NextcloudKit.shared.download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileLocalPath, queue: .main) { _ in
-                print("Download task")
+            NextcloudKit.shared.download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileLocalPath, queue: .main) { request in
+                self.cancelDownloadHandler = { _ = request.cancel() }
             } progressHandler: { progress in
                 self.didChangeDownloadProgressNotification(progress: progress)
             } completionHandler: { _, _, _, _, _, error in
+                self.cancelDownloadHandler = nil
+
+                guard !self.isCancelled else { return }
+
                 if error.errorCode == 0 {
                     // Set modification date to invalidate our cache
                     // Set creation date to delete older files from cache

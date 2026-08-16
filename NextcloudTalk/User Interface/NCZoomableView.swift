@@ -27,6 +27,20 @@ import Foundation
         return scaleFactor != 1
     }
 
+    // The visible part of the content, in normalized content coordinates
+    public var normalizedVisibleRect: CGRect {
+        let contentBounds = self.contentView.bounds
+
+        guard contentBounds.width > 0, contentBounds.height > 0 else { return .init(x: 0, y: 0, width: 1, height: 1) }
+
+        let visibleRect = self.convert(self.bounds, to: self.contentView)
+
+        return CGRect(x: visibleRect.minX / contentBounds.width,
+                      y: visibleRect.minY / contentBounds.height,
+                      width: visibleRect.width / contentBounds.width,
+                      height: visibleRect.height / contentBounds.height)
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -156,6 +170,15 @@ import Foundation
     }
 
     func adjustViewPosition() {
+        let frame = self.adjustedContentViewFrame()
+
+        UIView.animate(withDuration: 0.3) {
+            self.contentView.frame = frame
+        }
+    }
+
+    // Keeps the content from being panned away from the viewport
+    private func adjustedContentViewFrame() -> CGRect {
         let parentSize = self.frame.size
         let size = self.contentView.frame.size
         var position = self.contentView.frame.origin
@@ -199,9 +222,7 @@ import Foundation
         frame.origin.x = position.x
         frame.origin.y = position.y
 
-        UIView.animate(withDuration: 0.3) {
-            self.contentView.frame = frame
-        }
+        return frame
     }
 
     public func resizeContentView() {
@@ -218,6 +239,42 @@ import Foundation
         } else {
             self.contentView.frame = bounds
         }
+    }
+
+    ///
+    /// Zooms and positions the content so that `normalizedRect` is visible again.
+    ///
+    /// Used when the content is replaced while the user is zoomed in. The region is fitted into the
+    /// viewport, so the user always sees at least what was visible before.
+    ///
+    public func restoreVisibleRect(_ normalizedRect: CGRect) {
+        self.resizeContentView()
+
+        let contentBounds = self.contentView.bounds
+
+        guard contentBounds.width > 0, contentBounds.height > 0,
+              normalizedRect.width > 0, normalizedRect.height > 0,
+              self.bounds.width > 0, self.bounds.height > 0
+        else { return }
+
+        let region = CGRect(x: normalizedRect.minX * contentBounds.width,
+                            y: normalizedRect.minY * contentBounds.height,
+                            width: normalizedRect.width * contentBounds.width,
+                            height: normalizedRect.height * contentBounds.height)
+
+        // Never below the fitted size, that is what resizeContentView() is for
+        let scale = max(min(self.bounds.width / region.width, self.bounds.height / region.height), 1)
+
+        self.contentView.transform = CGAffineTransform(scaleX: scale, y: scale)
+
+        // Move the region's center onto our center
+        let regionCenter = self.contentView.convert(CGPoint(x: region.midX, y: region.midY), to: self)
+        self.contentView.center = CGPoint(x: self.contentView.center.x + self.bounds.midX - regionCenter.x,
+                                          y: self.contentView.center.y + self.bounds.midY - regionCenter.y)
+
+        self.contentView.frame = self.adjustedContentViewFrame()
+
+        self.delegate?.contentViewZoomDidChange(self, scale)
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
