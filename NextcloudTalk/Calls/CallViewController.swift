@@ -2212,7 +2212,7 @@ class CallViewController: UIViewController,
 
     private func presentUnmuteNotPossibleYetNotification() {
         let forceMutedString = NSLocalizedString("Muted by a moderator", comment: "")
-        let cooldownString = NSLocalizedString("You can unmute again in a few seconds", comment: "")
+        let cooldownString = NSLocalizedString("You can enable your microphone again in a few seconds", comment: "")
 
         DispatchQueue.main.async {
             NotificationPresenter.shared().present(title: forceMutedString, subtitle: cooldownString, includedStyle: .dark)
