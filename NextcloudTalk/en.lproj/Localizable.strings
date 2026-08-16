@@ -1114,6 +1114,9 @@
 /* No comment provided by engineer. */
 "Double tap to upgrade this voice call to a video call" = "Double tap to upgrade this voice call to a video call";
 
+/* Accessibility label of the indicator shown while the original file is downloaded */
+"Downloading full quality media" = "Downloading full quality media";
+
 /* No comment provided by engineer. */
 "Duplicate session" = "Duplicate session";
 
@@ -1931,6 +1934,9 @@
 /* Message is pinned until … */
 "Pinned until %@" = "Pinned until %@";
 
+/* Start playing a video */
+"Play" = "Play";
+
 /* No comment provided by engineer. */
 "Please check that you entered a valid server address." = "Please check that you entered a valid server address.";
 
@@ -2122,7 +2128,8 @@
 /* Results of a poll */
 "Results" = "Results";
 
-/* Button to retry a failed operation */
+/* Button to retry a failed operation
+   Retry downloading the original file */
 "Retry" = "Retry";
 
 /* Save conversation description */
