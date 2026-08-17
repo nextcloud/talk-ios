@@ -2176,16 +2176,15 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         guard let indexPath = configuration.identifier as? IndexPath else { return nil }
 
         // A cell from the dataSource is detached and never rendered, it would still show the content and position of its previous row
-        guard let cell = self.tableView.cellForRow(at: indexPath) else { return nil }
+        guard let cell = self.tableView.cellForRow(at: indexPath) as? RoomTableViewCell else { return nil }
 
         // Keep the selection background of the long press out of the floating preview
-        let roomCell = cell as? RoomTableViewCell
-        let previousContainerBackground = roomCell?.containerView.backgroundColor
-        roomCell?.containerView.backgroundColor = .clear
+        let previousContainerBackground = cell.containerView.backgroundColor
+        cell.containerView.backgroundColor = .clear
 
-        let snapshot = cell.contentView.snapshotView(afterScreenUpdates: roomCell != nil)
+        let snapshot = cell.contentView.snapshotView(afterScreenUpdates: true)
 
-        roomCell?.containerView.backgroundColor = previousContainerBackground
+        cell.containerView.backgroundColor = previousContainerBackground
 
         guard let previewView = snapshot else { return nil }
         previewView.backgroundColor = .systemBackground
