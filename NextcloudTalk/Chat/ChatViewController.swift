@@ -640,13 +640,6 @@ import SwiftUI
 
         self.navigationItem.rightBarButtonItems = barButtonsItems
 
-        // No sharing options in federation v1 (or thread view until implemented)
-        if room.isFederated {
-            // When hiding the button it is still respected in the layout constraints
-            // So we need to remove the image to remove the button for now
-            self.leftButton.setImage(nil, for: .normal)
-        }
-
         // Disable room info, input bar and call buttons until joining room
         self.disableRoomControls()
     }
@@ -823,6 +816,23 @@ import SwiftUI
 
     // MARK: - User Interface
 
+    override func showAttachmentButton() {
+        super.showAttachmentButton()
+
+        // No sharing options in federation v1 (or thread view until implemented). When hiding the button it is
+        // still respected in the layout constraints, so we need to remove the image to remove the button for now
+        if room.isFederated {
+            self.setInputbarImage(nil, for: self.leftButton)
+        }
+    }
+
+    override func updateInputbarButtonsForEditing() {
+        super.updateInputbarButtonsForEditing()
+
+        // Whether the buttons can be used depends on the room and the connection, not on what they do
+        self.checkRoomControlsAvailability()
+    }
+
     func disableRoomControls() {
         self.titleView?.isUserInteractionEnabled = false
 
@@ -840,8 +850,9 @@ import SwiftUI
             self.callOptionsButton.isEnabled = true
         }
 
-        // Files/objects can only be send when we're not offline
-        self.leftButton.isEnabled = !offlineMode
+        // Files/objects can only be send when we're not offline. While editing the button cancels it instead,
+        // which has to stay possible.
+        self.leftButton.isEnabled = !offlineMode || self.textInputbar.isEditing
 
         // Always allow to start writing a message, even if we didn't join the room (yet)
         self.rightButton.isEnabled = self.canPressRightButton()
@@ -1711,11 +1722,11 @@ import SwiftUI
                 } else {
                     tableView.performBatchUpdates {
                         if !update.insertSections.isEmpty {
-                            tableView.insertSections(update.insertSections, with: .automatic)
+                            tableView.insertSections(update.insertSections, with: self.newMessageRowAnimation)
                         }
 
                         if !update.insertIndexPaths.isEmpty {
-                            tableView.insertRows(at: Array(update.insertIndexPaths), with: .automatic)
+                            tableView.insertRows(at: Array(update.insertIndexPaths), with: self.newMessageRowAnimation)
                         }
 
                         if !update.reloadIndexPaths.isEmpty {

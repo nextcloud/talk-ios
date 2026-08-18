@@ -1037,6 +1037,9 @@
 "Double tap to change between grid and speaker view" = "Double tap to change between grid and speaker view";
 
 /* No comment provided by engineer. */
+"Double tap to discard the changes" = "Double tap to discard the changes";
+
+/* No comment provided by engineer. */
 "Double tap to dismiss authentication dialog" = "Double tap to dismiss authentication dialog";
 
 /* No comment provided by engineer. */
@@ -1086,6 +1089,9 @@
 
 /* No comment provided by engineer. */
 "Double tap to open file browser" = "Double tap to open file browser";
+
+/* No comment provided by engineer. */
+"Double tap to save the edited message" = "Double tap to save the edited message";
 
 /* No comment provided by engineer. */
 "Double tap to select different audio routes" = "Double tap to select different audio routes";
@@ -2130,6 +2136,9 @@
 
 /* No comment provided by engineer. */
 "Save as draft" = "Save as draft";
+
+/* No comment provided by engineer. */
+"Save changes" = "Save changes";
 
 /* No comment provided by engineer. */
 "Save password" = "Save password";

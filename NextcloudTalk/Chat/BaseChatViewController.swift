@@ -101,7 +101,6 @@ import Toast
     private var voiceMessageRecordingView: VoiceMessageRecordingView?
     private var expandedUIHostingController: UIHostingController<ExpandedVoiceMessageRecordingView>?
     private var longPressStartingPoint: CGPoint?
-    private var cancelHintLabelInitialPositionX: CGFloat?
     private var recordCancelled: Bool = false
 
     private var animationDispatchGroup = DispatchGroup()
@@ -266,10 +265,7 @@ import Toast
         self.isInverted = false
 
         self.showSendMessageButton()
-        self.leftButton.setImage(UIImage(systemName: "plus"), for: .normal)
-        self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
-        self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
-        self.leftButton.accessibilityIdentifier = "shareButton"
+        self.showAttachmentButton()
 
         // Add LongPressRecognizer to allow showing photo picker directly
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(gestureRecognizer:)))
@@ -358,11 +354,29 @@ import Toast
         self.updateToolbar(animated: true)
     }
 
+    /// The content offset at which the tableView is scrolled all the way down, taking the space reserved for the textInputbar into account
+    internal var tableViewBottomContentOffset: CGFloat {
+        guard let tableView else { return 0 }
+
+        return tableView.contentSize.height + tableView.adjustedContentInset.bottom - tableView.frame.size.height
+    }
+
+    /// The animation to use when inserting new messages at the bottom of the chat. When the chat extends behind the
+    /// textInputbar, the insert animation is no longer clipped at the bar and competes with the scroll to the bottom.
+    internal var newMessageRowAnimation: UITableView.RowAnimation {
+        return self.scrollViewExtendsBehindTextInputbar ? .none : .automatic
+    }
+
     public func updateToolbar(animated: Bool) {
         guard let tableView else { return }
 
         let animations = {
-            let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 10
+            // Since iOS 26 the content scrolls behind the transparent textInputbar, so there's no border to show
+            if #available(iOS 26.0, *) {
+                return
+            }
+
+            let minimumOffset = self.tableViewBottomContentOffset - 10
 
             if tableView.contentOffset.y < minimumOffset {
                 // Scrolled -> show top border
@@ -385,7 +399,7 @@ import Toast
         }
 
         let animationsScrollButton = {
-            let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 10
+            let minimumOffset = self.tableViewBottomContentOffset - 10
 
             if tableView.contentOffset.y < minimumOffset {
                 // Scrolled -> show button
@@ -402,11 +416,16 @@ import Toast
                 self.animationDispatchGroup.enter()
 
                 DispatchQueue.main.async {
-                    UIView.transition(with: self.textInputbar,
-                                      duration: 0.3,
-                                      options: .transitionCrossDissolve,
-                                      animations: animations) { _ in
+                    if #available(iOS 26.0, *) {
+                        // Nothing to animate in the textInputbar, so don't cross-dissolve the glass elements
                         self.animationDispatchGroup.leave()
+                    } else {
+                        UIView.transition(with: self.textInputbar,
+                                          duration: 0.3,
+                                          options: .transitionCrossDissolve,
+                                          animations: animations) { _ in
+                            self.animationDispatchGroup.leave()
+                        }
                     }
                 }
 
@@ -719,9 +738,9 @@ import Toast
         self.rightButton.setTitle("", for: .normal)
 
         if self.room.hasScheduledMessages {
-            self.rightButton.setImage(UIImage(systemName: "clock"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "clock"), for: self.rightButton)
         } else {
-            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         }
 
         self.rightButton.tag = sendButtonTagVoice
@@ -731,9 +750,16 @@ import Toast
         self.addGestureRecognizerToRightButton()
     }
 
+    func showAttachmentButton() {
+        self.setInputbarImage(UIImage(systemName: "plus"), for: self.leftButton)
+        self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
+        self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
+        self.leftButton.accessibilityIdentifier = "shareButton"
+    }
+
     func showSendMessageButton() {
         self.rightButton.setTitle("", for: .normal)
-        self.rightButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
+        self.setInputbarImage(UIImage(systemName: "paperplane"), for: self.rightButton)
         self.rightButton.tag = sendButtonTagMessage
         self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
         self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
@@ -804,7 +830,21 @@ import Toast
         self.stopTyping(force: true)
     }
 
+    public override func didPressLeftButton(_ sender: Any?) {
+        if self.textInputbar.isEditing {
+            self.didCancelTextEditing(sender as Any)
+            return
+        }
+
+        super.didPressLeftButton(sender)
+    }
+
     public override func didPressRightButton(_ sender: Any?) {
+        if self.textInputbar.isEditing {
+            self.didCommitTextEditing(sender as Any)
+            return
+        }
+
         guard let button = sender as? UIButton else { return }
 
         switch button.tag {
@@ -1498,6 +1538,12 @@ import Toast
         self.editingMessage = nil
         self.restorePendingMessage()
         self.stopTyping(force: true)
+        self.updateInputbarButtonsForEditing()
+    }
+
+    public override func editAttributedText(_ attributedText: NSAttributedString) {
+        super.editAttributedText(attributedText)
+        self.updateInputbarButtonsForEditing()
     }
 
     public override func didCancelTextEditing(_ sender: Any) {
@@ -1508,6 +1554,36 @@ import Toast
     public override func didCommitTextEditing(_ sender: Any) {
         super.didCommitTextEditing(sender)
         self.didEndTextEditing()
+    }
+
+    /// Lets the buttons next to the input field cancel and save an edited message, since the glass inputbar
+    /// does not show the editor row of SLKTextInputbar anymore.
+    internal func updateInputbarButtonsForEditing() {
+        guard self.hasGlassInputbar else { return }
+
+        if self.textInputbar.isEditing {
+            // The attachment menu is the primary action of the left button, so no press is reported while it's set
+            self.leftButton.menu = nil
+            self.leftButton.showsMenuAsPrimaryAction = false
+            self.leftButtonLongPressGesture?.isEnabled = false
+
+            self.setInputbarImage(UIImage(systemName: "xmark"), for: self.leftButton)
+            self.leftButton.accessibilityLabel = NSLocalizedString("Cancel", comment: "")
+            self.leftButton.accessibilityHint = NSLocalizedString("Double tap to discard the changes", comment: "")
+
+            self.setInputbarImage(UIImage(systemName: "checkmark"), for: self.rightButton)
+            self.rightButton.accessibilityLabel = NSLocalizedString("Save changes", comment: "")
+            self.rightButton.accessibilityHint = NSLocalizedString("Double tap to save the edited message", comment: "")
+        } else {
+            self.leftButtonLongPressGesture?.isEnabled = true
+            self.showAttachmentButton()
+            self.addMenuToLeftButton()
+
+            // Both buttons are set up from scratch instead of being restored: showAttachmentButton() knows
+            // about federation, and canPressRightButton() about send or record for the text we have now
+            self.showSendMessageButton()
+            self.textDidUpdate(false)
+        }
     }
 
     // MARK: - UITextField delegate
@@ -1911,6 +1987,26 @@ import Toast
         self.textInputbar.addSubview(voiceMessageRecordingView)
         self.textInputbar.bringSubviewToFront(voiceMessageRecordingView)
 
+        if self.hasGlassInputbar, #available(iOS 26.0, *) {
+            // Recording gets a glass capsule of its own, taking the place of the attachment button and the
+            // input field. The field capsule alone is too narrow for the recording time and the hint.
+            voiceMessageRecordingView.useGlassBackground(cornerRadius: self.textViewBackgroundView?.layer.cornerRadius ?? 22)
+
+            // Only one glass shape at a time, and the placeholder of the textView would shine through
+            self.textViewBackgroundView?.alpha = 0
+            self.textView.isHidden = true
+            self.leftButton.alpha = 0
+
+            NSLayoutConstraint.activate([
+                voiceMessageRecordingView.leadingAnchor.constraint(equalTo: self.leftButton.leadingAnchor),
+                voiceMessageRecordingView.trailingAnchor.constraint(equalTo: self.textView.trailingAnchor),
+                voiceMessageRecordingView.topAnchor.constraint(equalTo: self.textView.topAnchor),
+                voiceMessageRecordingView.bottomAnchor.constraint(equalTo: self.textView.bottomAnchor)
+            ])
+
+            return
+        }
+
         let views = [
             "voiceMessageRecordingView": voiceMessageRecordingView
         ]
@@ -1924,6 +2020,10 @@ import Toast
     }
 
     func hideVoiceMessageRecordingView() {
+        self.textView.isHidden = false
+        self.textViewBackgroundView?.alpha = 1
+        self.leftButton.alpha = 1
+
         self.voiceMessageRecordingView?.isHidden = true
         self.voiceMessageRecordingView?.removeFromSuperview()
         self.voiceMessageRecordingView?.stopTimeLabelTimer()
@@ -2344,6 +2444,11 @@ import Toast
             return
         }
 
+        // While editing, the button saves the message instead
+        if self.textInputbar.isEditing {
+            return
+        }
+
         let point = gestureRecognizer.location(in: self.view)
 
         if gestureRecognizer.state == .began {
@@ -2355,9 +2460,8 @@ import Toast
             self.shouldLockInterfaceOrientation(lock: true)
             self.recordCancelled = false
             self.longPressStartingPoint = point
-            self.cancelHintLabelInitialPositionX = voiceMessageRecordingView?.slideToCancelHintLabel?.frame.origin.x
             self.voiceRecordingLockButton.alpha = 1
-            self.rightButton.setImage(UIImage(systemName: "mic"), for: .normal)
+            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         } else if gestureRecognizer.state == .ended {
             self.shouldLockInterfaceOrientation(lock: false)
             self.resetVoiceRecordingLockButton()
@@ -2372,7 +2476,6 @@ import Toast
             }
         } else if gestureRecognizer.state == .changed {
             guard let longPressStartingPoint,
-                  let cancelHintLabelInitialPositionX,
                   let voiceMessageRecordingView,
                   let slideToCancelHintLabel = voiceMessageRecordingView.slideToCancelHintLabel
             else { return }
@@ -2383,11 +2486,10 @@ import Toast
             // Only slide view to the left
             if slideX > 0 {
                 let maxSlideX = 100.0
-                var labelFrame = slideToCancelHintLabel.frame
-                labelFrame = .init(x: cancelHintLabelInitialPositionX - slideX, y: labelFrame.origin.y, width: labelFrame.size.width, height: labelFrame.size.height)
 
-                slideToCancelHintLabel.frame = labelFrame
-                slideToCancelHintLabel.alpha = (maxSlideX - slideX) / 100
+                // Moved with a transform, as the hint is laid out by auto layout now
+                slideToCancelHintLabel.transform = CGAffineTransform(translationX: -slideX, y: 0)
+                slideToCancelHintLabel.alpha = max(0, (maxSlideX - slideX) / maxSlideX)
 
                 // Cancel recording if slided more than maxSlideX
                 if slideX > maxSlideX, !self.recordCancelled, !isVoiceRecordingLocked {
@@ -3681,7 +3783,7 @@ import Toast
         guard self.isVisible, let tableView = self.tableView else { return false }
 
         // Scroll if table view is at the bottom (or 80px up)
-        let minimumOffset = (tableView.contentSize.height - tableView.frame.size.height) - 80
+        let minimumOffset = self.tableViewBottomContentOffset - 80
 
         if tableView.contentOffset.y >= minimumOffset {
             return true
@@ -3892,8 +3994,9 @@ import Toast
         // ContentOffset when the cell is at the top of the tableView
         let contentOffsetTop = rect.origin.y - tableView.safeAreaInsets.top
 
-        // ContentOffset when the cell is at the middle of the tableView
-        let contentOffsetMiddle = contentOffsetTop - tableView.frame.height / 2 + rect.height / 2
+        // ContentOffset when the cell is at the middle of the visible part of the tableView
+        let visibleHeight = tableView.frame.height - tableView.adjustedContentInset.bottom
+        let contentOffsetMiddle = contentOffsetTop - visibleHeight / 2 + rect.height / 2
 
         // Fallback to the top offset in case the top of the cell would be scrolled outside of the view
         let newContentOffset = min(contentOffsetTop, contentOffsetMiddle)

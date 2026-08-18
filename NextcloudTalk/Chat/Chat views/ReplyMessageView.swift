@@ -7,7 +7,16 @@ import UIKit
 
 @objcMembers class ReplyMessageView: UIView, SLKVisibleViewProtocol {
 
-    dynamic var isVisible: Bool = false
+    dynamic var isVisible: Bool = false {
+        didSet {
+            guard isVisible != oldValue else { return }
+
+            // Fade along with the height animation of the SLKTextViewController, our content does not shrink
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut, .beginFromCurrentState]) {
+                self.alpha = self.isVisible ? 1 : 0
+            }
+        }
+    }
 
     var message: NCChatMessage?
 
@@ -45,6 +54,16 @@ import UIKit
 
     private var cancelButtonWidthConstraint: NSLayoutConstraint!
 
+    /// Glass background, only used on iOS 26 and above
+    private var backgroundView: UIVisualEffectView?
+
+    /// Corner radius of the glass background, set by the InputbarViewController to match the textView below
+    internal var backgroundCornerRadius: CGFloat = 22 {
+        didSet {
+            backgroundView?.layer.cornerRadius = backgroundCornerRadius
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureSubviews()
@@ -55,13 +74,48 @@ import UIKit
     }
 
     private func configureSubviews() {
-        backgroundColor = .systemBackground
+        // We start out hidden, so the first presentation fades in
+        alpha = 0
 
         addSubview(quoteContainerView)
         addSubview(cancelButton)
-        layer.addSublayer(topBorder)
+
+        if #available(iOS 26.0, *) {
+            // The chat content scrolls behind the reply view, so it needs its own glass background
+            let backgroundView = UIVisualEffectView(effect: UIGlassEffect())
+            backgroundView.translatesAutoresizingMaskIntoConstraints = false
+            backgroundView.isUserInteractionEnabled = false
+            backgroundView.clipsToBounds = true
+            backgroundView.layer.cornerCurve = .continuous
+            backgroundView.layer.cornerRadius = backgroundCornerRadius
+
+            insertSubview(backgroundView, at: 0)
+            self.backgroundView = backgroundView
+
+            NSLayoutConstraint.activate([
+                backgroundView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 8),
+                backgroundView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -8),
+                backgroundView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+                backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4)
+            ])
+        } else {
+            backgroundColor = .systemBackground
+            layer.addSublayer(topBorder)
+        }
 
         quoteContainerView.addSubview(quotedMessageView)
+
+        // The glass background provides the frame, so the quoted message itself stays chrome-less. Only done for
+        // our own instance, the one inside a chat bubble keeps its border.
+        var cancelButtonRightInset: CGFloat = -4
+
+        if #available(iOS 26.0, *) {
+            quotedMessageView.layer.borderWidth = 0
+            quotedMessageView.layer.cornerRadius = 0
+
+            // Keep the cancel button inside the glass background
+            cancelButtonRightInset = -12
+        }
 
         cancelButtonWidthConstraint = cancelButton.widthAnchor.constraint(equalToConstant: 44)
 
@@ -70,7 +124,7 @@ import UIKit
 
             cancelButton.leftAnchor.constraint(equalTo: quoteContainerView.rightAnchor, constant: 4),
 
-            cancelButton.rightAnchor.constraint(equalTo: safeAreaLayoutGuide.rightAnchor, constant: -4),
+            cancelButton.rightAnchor.constraint(equalTo: safeAreaLayoutGuide.rightAnchor, constant: cancelButtonRightInset),
             cancelButtonWidthConstraint,
             quotedMessageView.widthAnchor.constraint(equalTo: quoteContainerView.widthAnchor),
 
