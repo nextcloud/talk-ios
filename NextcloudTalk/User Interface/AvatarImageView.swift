@@ -97,7 +97,7 @@ struct AvatarImageViewWrapper: UIViewRepresentable {
     public func setActorAvatar(forId actorId: String?, withType actorType: String?, withDisplayName actorDisplayName: String?, withRoomToken roomToken: String?, using account: TalkAccount) {
         self.currentRequest?.cancel()
 
-        self.currentRequest = AvatarManager.shared.getActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, withStyle: self.traitCollection.userInterfaceStyle, usingAccount: account) { image in
+        self.currentRequest = AvatarManager.shared.getActorAvatar(forId: actorId, withType: actorType, withDisplayName: actorDisplayName, withRoomToken: roomToken, usingAccount: account, traitCollection: self.traitCollection) { image in
             guard let image = image else {
                 return
             }

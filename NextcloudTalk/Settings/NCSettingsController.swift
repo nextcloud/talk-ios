@@ -146,6 +146,13 @@ public class NCSettingsController: NSObject {
         for account in NCDatabaseManager.sharedInstance().allAccounts() {
             var accountImage = NCAPIController.sharedInstance().userProfileImage(forAccount: account, withStyle: .light)
             if let image = accountImage {
+                // TODO: Modernization - This uses the deprecated NCUtils.roundedImage(fromImage:), which renders at
+                // UITraitCollection.current.displayScale. The correct call is roundedImage(fromImage:traitCollection:),
+                // but the trait collection cannot be threaded here: createAccountsFile() is invoked from a background
+                // queue in AppDelegate and from account add/remove flows, none of which have a view in scope, and the
+                // resulting image is written to the shared app group for *other* Nextcloud apps to read - so there is no
+                // single display it belongs to. Pick a fixed scale for the on-disk representation instead of a
+                // display-derived one, or pass the trait collection down from whichever UI triggers the write.
                 accountImage = NCUtils.roundedImage(fromImage: image)
             }
             let accountData = NKShareAccounts.DataAccounts(withUrl: account.server, user: account.user, name: account.userDisplayName, image: accountImage)

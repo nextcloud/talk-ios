@@ -454,7 +454,7 @@ import SwiftUI
 
                     action.subtitle = message.lastMessagePreview()?.string
                     if let image = AvatarManager.shared.getThreadAvatar(for: thread, with: self.traitCollection.userInterfaceStyle) {
-                        action.image = NCUtils.roundedImage(fromImage: image)
+                        action.image = NCUtils.roundedImage(fromImage: image, traitCollection: self.traitCollection)
                     }
 
                     menuCreationGroup.leave()

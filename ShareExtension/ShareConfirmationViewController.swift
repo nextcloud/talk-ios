@@ -326,6 +326,14 @@ import MBProgressHUD
     public override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Thumbnails are generated at the display scale, so they have to be regenerated when it changes.
+        // Registered before the token guard below, which can return early.
+        if #available(iOS 17.0, *) {
+            registerForTraitChanges([UITraitDisplayScale.self]) { (self: ShareConfirmationViewController, _) in
+                self.shareCollectionView.reloadData()
+            }
+        }
+
         // Configure communication lib
         guard let userToken = NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId) else { return }
         let userAgent = "Mozilla/5.0 (iOS) Nextcloud-Talk v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")"
@@ -813,7 +821,7 @@ import MBProgressHUD
 
     func generatePreview(for cell: ShareConfirmationCollectionViewCell, with collectionView: UICollectionView, with item: ShareItem) {
         let size = CGSize(width: collectionView.bounds.width, height: collectionView.bounds.height)
-        let scale = self.view.window?.screen.scale ?? UIScreen.main.scale
+        let scale = self.traitCollection.displayScale
 
         // updateHandler might be called multiple times, starting from low quality representation to high-quality
         let request = QLThumbnailGenerator.Request(fileAt: item.fileURL, size: size, scale: scale, representationTypes: [.lowQualityThumbnail, .thumbnail])
