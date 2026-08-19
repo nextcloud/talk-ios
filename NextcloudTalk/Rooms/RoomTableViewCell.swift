@@ -52,6 +52,7 @@ import Foundation
         self.accessibilityIdentifier = nil
 
         self.unreadMessagesView.setBadgeNumber(0)
+        self.containerView.backgroundColor = .clear
     }
 
     public override func setSelected(_ selected: Bool, animated: Bool) {
@@ -60,6 +61,9 @@ import Foundation
         if !selected, NCUserInterfaceController.sharedInstance().roomsTableViewController.selectedRoomToken == self.roomToken {
             return
         }
+
+        // Without this, isSelected always reports false: its setter calls into this method
+        super.setSelected(selected, animated: animated)
 
         if selected {
             self.containerView.backgroundColor = NCAppBranding.elementColorBackground()
