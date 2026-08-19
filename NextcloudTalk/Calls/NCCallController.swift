@@ -51,6 +51,10 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private var isAudioOnly: Bool
 
     // TODO: Default true?
+    // The state the local media is (re)created in, so audio and video are restored whenever the
+    // local tracks are recreated, e.g. when reconnecting to a call. The audio state is kept in
+    // sync by enableAudio(), the video state is owned by the delegate, because disabling the
+    // video temporarily (proximity sensor, app in the background) must not be remembered here.
     public var disableAudioAtStart: Bool = false
     public var disableVideoAtStart: Bool = false
     public var silentCall: Bool = false
@@ -353,10 +357,6 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             self.cleanCurrentPeerConnections()
             self.delegate?.callControllerIsReconnectingCall(self)
 
-            // Remember current audio and video status before rejoin the call
-            self.disableAudioAtStart = !self.isAudioEnabled()
-            self.disableVideoAtStart = !self.isVideoEnabled()
-
             if self.externalSignalingController == nil {
                 self.rejoinCallUsingInternalSignaling()
                 return
@@ -625,6 +625,10 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     public func enableAudio(_ enable: Bool) {
         WebRTCCommon.shared.dispatch {
+            // Remember the audio state, so it's restored when the local media is recreated.
+            // Otherwise a reconnect would unmute a muted (or force muted) participant again.
+            self.disableAudioAtStart = !enable
+
             self.localAudioTrack?.isEnabled = enable
             self.sendMessageToAll(ofType: enable ? "audioOn" : "audioOff", withPayload: nil)
 

@@ -1671,6 +1671,9 @@
 "Mute others" = "Mute others";
 
 /* No comment provided by engineer. */
+"Muted by a moderator" = "Muted by a moderator";
+
+/* No comment provided by engineer. */
 "My location" = "My location";
 
 /* No comment provided by engineer. */
@@ -2728,6 +2731,9 @@
 
 /* No comment provided by engineer. */
 "You are not part of any conversation. Press + to start a new one." = "You are not part of any conversation. Press + to start a new one.";
+
+/* No comment provided by engineer. */
+"You can enable your microphone again in a few seconds" = "You can enable your microphone again in a few seconds";
 
 /* No comment provided by engineer. */
 "You can set your phone number so other users will be able to find you" = "You can set your phone number so other users will be able to find you";
