@@ -1803,9 +1803,13 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         let cell = tableView.dequeueReusableCell(withIdentifier: RoomTableViewCell.identifier) as? RoomTableViewCell ?? RoomTableViewCell(style: .default, reuseIdentifier: RoomTableViewCell.identifier)
 
-        cell.backgroundColor = .clear
+        configure(cell, for: rooms[indexPath.row])
 
-        let room = rooms[indexPath.row]
+        return cell
+    }
+
+    private func configure(_ cell: RoomTableViewCell, for room: NCRoom) {
+        cell.backgroundColor = .clear
 
         // Set room name
         cell.titleLabel.text = room.displayName
@@ -1848,10 +1852,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         cell.roomToken = room.token
-
-        return cell
     }
-
     override func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as? RoomTableViewCell
         cell?.isSelected = true
@@ -2168,6 +2169,38 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         return configuration
     }
 
+    /// Uses a cell from the nib, not the reuse pool: a label that was displayed already does not render
+    /// into a bitmap on iPad in split view, and handing over the live cell means UIKit reparents it
+    private func contextMenuPreview(for indexPath: IndexPath, alpha: CGFloat) -> UITargetedPreview? {
+        guard let room = room(for: indexPath),
+              let previewCell = UINib(nibName: RoomTableViewCell.nibName, bundle: nil).instantiate(withOwner: nil).first as? RoomTableViewCell
+        else { return nil }
+
+        let rowRect = self.tableView.rectForRow(at: indexPath)
+
+        previewCell.frame = CGRect(origin: .zero, size: rowRect.size)
+        configure(previewCell, for: room)
+
+        // Only set for cells the table view displays, so the preview has to do it itself
+        previewCell.avatarView.setStatus(for: room, allowCustomStatusIcon: true)
+
+        // The row takes its background from the table view, the floating card needs its own
+        previewCell.containerView.backgroundColor = .systemBackground
+        previewCell.contentView.alpha = alpha
+        previewCell.layoutIfNeeded()
+
+        let parameters = UIPreviewParameters()
+
+        // The card brings its own background, UIKit filling one in would stay behind a transparent preview
+        parameters.backgroundColor = .clear
+        parameters.visiblePath = UIBezierPath(roundedRect: previewCell.containerView.frame, cornerRadius: previewCell.containerView.layer.cornerRadius)
+
+        // Our view is the table view, so the row rect is already in the coordinate space of the container
+        let target = UIPreviewTarget(container: self.view, center: CGPoint(x: rowRect.midX, y: rowRect.midY))
+
+        return UITargetedPreview(view: previewCell.contentView, parameters: parameters, target: target)
+    }
+
     override func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         if tableView != self.tableView {
             return nil
@@ -2175,35 +2208,18 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         guard let indexPath = configuration.identifier as? IndexPath else { return nil }
 
-        // A cell from the dataSource is detached and never rendered, it would still show the content and position of its previous row
-        guard let cell = self.tableView.cellForRow(at: indexPath) as? RoomTableViewCell else { return nil }
+        return contextMenuPreview(for: indexPath, alpha: 1)
+    }
 
-        // Keep the selection background of the long press out of the floating preview
-        let previousContainerBackground = cell.containerView.backgroundColor
-        cell.containerView.backgroundColor = .clear
+    override func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        if tableView != self.tableView {
+            return nil
+        }
 
-        let snapshot = cell.contentView.snapshotView(afterScreenUpdates: true)
+        guard let indexPath = configuration.identifier as? IndexPath else { return nil }
 
-        cell.containerView.backgroundColor = previousContainerBackground
-
-        guard let previewView = snapshot else { return nil }
-        previewView.backgroundColor = .systemBackground
-
-        let rowRect = self.tableView.rectForRow(at: indexPath)
-
-        // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
-        let cellCenterX = rowRect.midX + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2
-        let cellCenter = CGPoint(x: cellCenterX, y: rowRect.midY)
-
-        // Create a preview target which allows us to have a transparent background
-        let previewTarget = UIPreviewTarget(container: self.view, center: cellCenter)
-        let previewParameter = UIPreviewParameters()
-
-        // Remove the background and the drop shadow from our custom preview view
-        previewParameter.backgroundColor = .systemBackground
-        previewParameter.shadowPath = UIBezierPath()
-
-        return UITargetedPreview(view: previewView, parameters: previewParameter, target: previewTarget)
+        // Describes the state the menu animates back to, so a transparent card fades the whole preview out
+        return contextMenuPreview(for: indexPath, alpha: 0)
     }
 
     override func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
