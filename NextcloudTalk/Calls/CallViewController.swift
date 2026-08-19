@@ -94,6 +94,8 @@ class CallViewController: UIViewController,
     private let maxReactionsOnScreen = 5.0
 
     private var localVideoOriginPosition: CGPoint = .zero
+    private var lastLocalVideoContainerSize: CGSize = .zero
+    private var lastBarsContainerSize: CGSize = .zero
     private var peersInCall: [NCPeerConnection] = []
     private var screenPeersInCall: [NCPeerConnection] = []
     private var videoRenderersDict: [String: RTCMTLVideoView] = [:] // peerIdentifier -> renderer
@@ -279,6 +281,10 @@ class CallViewController: UIViewController,
         self.localVideoViewWrapper.layer.cornerRadius = 15
         self.localVideoViewWrapper.layer.masksToBounds = true
 
+        // Both are placed by frame and have no constraints, so Auto Layout would treat them as ambiguous
+        self.localVideoViewWrapper.translatesAutoresizingMaskIntoConstraints = true
+        self.localVideoView.translatesAutoresizingMaskIntoConstraints = true
+
         // We disableLocalVideo here even if the call controller has not been created just to show the video button as disabled
         // also we set _userDisabledVideo = YES so the proximity sensor doesn't enable it.
         if self.videoDisabledAtStart {
@@ -321,6 +327,18 @@ class CallViewController: UIViewController,
 
         self.screenshareLabelContainer.layer.cornerRadius = self.screenshareLabelContainer.frame.height / 2
         self.participantsLabelContainer.layer.cornerRadius = self.participantsLabelContainer.frame.height / 2
+
+        self.reconcileLocalVideoRectIfNeeded()
+        self.adjustBarsIfResized()
+    }
+
+    // adjustBars decides button overflow from the laid out bottom bar, so it has to run again when
+    // the width changes. Gated on that, because it is too heavy for every layout pass.
+    private func adjustBarsIfResized() {
+        guard view.window != nil, view.bounds.size != lastBarsContainerSize else { return }
+
+        self.lastBarsContainerSize = view.bounds.size
+        self.adjustBars()
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -329,7 +347,7 @@ class CallViewController: UIViewController,
         self.collectionView.collectionViewLayout.invalidateLayout()
 
         coordinator.animate { _ in
-            self.setLocalVideoRect()
+            // No setLocalVideoRect here: viewDidLayoutSubviews already ran inside this transition
             self.screensharingView.resizeContentView()
             self.adjustBars()
         }
@@ -338,7 +356,8 @@ class CallViewController: UIViewController,
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
 
-        self.setLocalVideoRect()
+        // No setLocalVideoRect here: this can fire before the view is sized to the window, and the
+        // resulting layout pass reaches viewDidLayoutSubviews anyway
         self.adjustBars()
     }
 
@@ -362,8 +381,6 @@ class CallViewController: UIViewController,
 
         UIDevice.current.isProximityMonitoringEnabled = true
         UIApplication.shared.isIdleTimerDisabled = true
-
-        self.setLocalVideoRect()
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -977,47 +994,74 @@ class CallViewController: UIViewController,
 
     // MARK: - Local video
 
-    private func getLocalVideoSize(forResolution localVideoRes: String) -> CGSize {
-        var localVideoSize: CGSize = .zero
+    private func getLocalVideoSize(forResolution localVideoRes: String, in containerSize: CGSize) -> CGSize {
         var aspectRatio: CGFloat = 9/16
 
         if localVideoRes == "Low" || localVideoRes == "Normal" {
             aspectRatio = 3/4
         }
 
-        let width = UIScreen.main.bounds.size.width / 6
-        let height = UIScreen.main.bounds.size.height / 6
+        let width = containerSize.width / 6
+        let height = containerSize.height / 6
 
         // When running on MacOS the camera will always be in portrait mode
         if width < height || NCUtils.isiOSAppOnMac() {
-            localVideoSize = CGSize(width: height * aspectRatio, height: height)
-        } else {
-            localVideoSize = CGSize(width: width, height: width * aspectRatio)
+            return CGSize(width: height * aspectRatio, height: height)
         }
 
-        return localVideoSize
+        return CGSize(width: width, height: width * aspectRatio)
     }
 
-    public func setLocalVideoRect() {
-        let safeAreaInsets = localVideoViewWrapper.superview?.safeAreaInsets ?? .zero
-        let viewSize = localVideoViewWrapper.superview?.bounds.size ?? .zero
+    // The wrapper is placed by frame, so a bad one survives until something re-places it
+    private func reconcileLocalVideoRectIfNeeded() {
+        // A drag is unbounded until it ends, so don't snap the view away from the finger
+        guard localVideoDragStartingPoint == nil else { return }
+
+        // Off-window the view still has its nib size, which would place the preview for an iPad
+        guard view.window != nil else { return }
+
+        guard let container = localVideoViewWrapper.superview,
+              container.bounds.width > 0, container.bounds.height > 0
+        else { return }
+
+        let containerSize = container.bounds.size
+        let wrapperFrame = localVideoViewWrapper.frame
+        let isCollapsed = wrapperFrame.isEmpty
+        let isOffscreen = !CGRect(origin: .zero, size: containerSize).intersects(wrapperFrame)
+
+        guard containerSize != lastLocalVideoContainerSize || isCollapsed || isOffscreen else { return }
+
+        self.setLocalVideoRect()
+    }
+
+    private func setLocalVideoRect() {
+        // A zero container would place the view off-screen and poison localVideoOriginPosition
+        guard let container = localVideoViewWrapper.superview,
+              container.bounds.width > 0, container.bounds.height > 0
+        else { return }
+
+        let safeAreaInsets = container.safeAreaInsets
+        let viewSize = container.bounds.size
 
         let defaultPadding: CGFloat = 16
         let extraPadding: CGFloat = 60 // Padding to not cover participant name or mute indicator when there is only one other participant in the call
 
         let videoResolution = NCSettingsController.sharedInstance().videoSettingsModel.currentVideoResolutionSettingFromStore()
         let localVideoResolution = NCSettingsController.sharedInstance().videoSettingsModel.readableResolution(videoResolution)
-        let localVideoSize = self.getLocalVideoSize(forResolution: localVideoResolution)
+        let localVideoSize = self.getLocalVideoSize(forResolution: localVideoResolution, in: viewSize)
 
-        let positionX = viewSize.width - localVideoSize.width - safeAreaInsets.right - defaultPadding
-        let positionY = viewSize.height - localVideoSize.height - safeAreaInsets.bottom - bottomBarView.bounds.height - extraPadding
+        let idealX = viewSize.width - localVideoSize.width - safeAreaInsets.right - defaultPadding
+        let idealY = viewSize.height - localVideoSize.height - safeAreaInsets.bottom - bottomBarView.bounds.height - extraPadding
+
+        // The bottom bar doesn't scale with the container, so a short one would push the preview out
+        let positionX = min(max(idealX, 0), max(viewSize.width - localVideoSize.width, 0))
+        let positionY = min(max(idealY, 0), max(viewSize.height - localVideoSize.height, 0))
         self.localVideoOriginPosition = CGPoint(x: positionX, y: positionY)
+        self.lastLocalVideoContainerSize = viewSize
 
-        let localVideoRect = CGRect(x: localVideoOriginPosition.x, y: localVideoOriginPosition.y, width: localVideoSize.width, height: localVideoSize.height)
+        let localVideoRect = CGRect(origin: localVideoOriginPosition, size: localVideoSize)
 
-        DispatchQueue.main.async {
-            self.localVideoViewWrapper.frame = localVideoRect
-        }
+        self.localVideoViewWrapper.frame = localVideoRect
     }
 
     func setLocalVideoViewWrapperHidden(_ isHidden: Bool) {
@@ -1574,7 +1618,11 @@ class CallViewController: UIViewController,
     }
 
     func adjustLocalVideoPositionFromOriginPosition(_ position: CGPoint) {
-        let safeAreaInsets = localVideoViewWrapper.superview?.safeAreaInsets ?? .zero
+        guard let container = localVideoViewWrapper.superview,
+              container.bounds.width > 0, container.bounds.height > 0
+        else { return }
+
+        let safeAreaInsets = container.safeAreaInsets
 
         let edgeInsetTop = 16 + topBarView.frame.origin.y + topBarView.frame.size.height
         let edgeInsetLeft = 16 + safeAreaInsets.left
@@ -1583,32 +1631,18 @@ class CallViewController: UIViewController,
 
         let edgeInsets = UIEdgeInsets(top: edgeInsetTop, left: edgeInsetLeft, bottom: edgeInsetBottom, right: edgeInsetRight)
 
-        let parentSize = localVideoViewWrapper.superview?.bounds.size ?? .zero
+        let parentSize = container.bounds.size
         let viewSize = localVideoViewWrapper.bounds.size
 
         var newPosition = position
 
-        // Adjust left
-        if newPosition.x < edgeInsets.left {
-            newPosition = CGPoint(x: edgeInsets.left, y: newPosition.y)
-        }
+        // Right and bottom first, so left and top win when the view doesn't fit
+        newPosition.x = min(newPosition.x, parentSize.width - viewSize.width - edgeInsets.right)
+        newPosition.y = min(newPosition.y, parentSize.height - viewSize.height - edgeInsets.bottom)
+        newPosition.x = max(newPosition.x, edgeInsets.left)
+        newPosition.y = max(newPosition.y, edgeInsets.top)
 
-        // Adjust top
-        if newPosition.y < edgeInsets.top {
-            newPosition = CGPoint(x: newPosition.x, y: edgeInsets.top)
-        }
-
-        // Adjust right
-        if newPosition.x > parentSize.width - viewSize.width - edgeInsets.right {
-            newPosition = CGPoint(x: parentSize.width - viewSize.width - edgeInsets.right, y: newPosition.y)
-        }
-
-        // Adjust bottom
-        if newPosition.y > parentSize.height - viewSize.height - edgeInsets.bottom {
-            newPosition = CGPoint(x: newPosition.x, y: parentSize.height - viewSize.height - edgeInsets.bottom)
-        }
-
-        let newFrame = CGRect(origin: .init(x: newPosition.x, y: newPosition.y), size: localVideoViewWrapper.frame.size)
+        let newFrame = CGRect(origin: newPosition, size: localVideoViewWrapper.frame.size)
 
         UIView.animate(withDuration: 0.3) {
             self.localVideoViewWrapper.frame = newFrame
@@ -1626,7 +1660,8 @@ class CallViewController: UIViewController,
 
             let translation = gesture.translation(in: view)
             self.localVideoViewWrapper.center = .init(x: localVideoDragStartingPoint.x + translation.x, y: localVideoDragStartingPoint.y + translation.y)
-        case .ended:
+        case .ended, .cancelled, .failed:
+            self.localVideoDragStartingPoint = nil
             self.localVideoOriginPosition = view.frame.origin
             self.adjustLocalVideoPositionFromOriginPosition(localVideoOriginPosition)
         default:
@@ -2108,7 +2143,7 @@ class CallViewController: UIViewController,
             self.showChat()
 
             if !isAudioOnly {
-                self.view.bringSubviewToFront(localVideoViewWrapper)
+                self.localVideoViewWrapper.superview?.bringSubviewToFront(localVideoViewWrapper)
             }
 
             self.removeTapGestureForDetailedView()
