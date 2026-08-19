@@ -886,17 +886,30 @@ public extension Notification.Name {
     }
 
     func updateConversationTags(_ tags: [NCConversationTag], forAccountId accountId: String) {
+        let bgTask = BGTaskHelper.startBackgroundTask(withName: "updateConversationTagsForAccountId", expirationHandler: nil)
         let realm = RLMRealm.default()
 
         try? realm.transaction {
+            if bgTask.isExpired {
+                realm.cancelWriteTransaction()
+                return
+            }
+
             let query = NSPredicate(format: "accountId = %@", accountId)
             realm.deleteObjects(NCConversationTag.objects(with: query))
 
             for tag in tags {
+                if bgTask.isExpired {
+                    realm.cancelWriteTransaction()
+                    return
+                }
+
                 // Add a copy, so the passed objects stay unmanaged for the caller
                 realm.add(NCConversationTag(value: tag))
             }
         }
+
+        bgTask.stopBackgroundTask()
     }
 }
 
