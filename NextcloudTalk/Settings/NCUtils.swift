@@ -342,11 +342,16 @@ import AVFoundation
         return nil
     }
 
+    @available(*, deprecated, message: "use roundedImage(fromImage:traitCollection:) instead")
     public static func roundedImage(fromImage image: UIImage) -> UIImage {
+        return roundedImage(fromImage: image, traitCollection: .current)
+    }
+
+    public static func roundedImage(fromImage image: UIImage, traitCollection: UITraitCollection) -> UIImage {
         let imageSize = image.size
         let rect = CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.width)
 
-        UIGraphicsBeginImageContextWithOptions(imageSize, false, UIScreen.main.scale)
+        UIGraphicsBeginImageContextWithOptions(imageSize, false, traitCollection.displayScale)
         UIBezierPath(roundedRect: rect, cornerRadius: imageSize.height).addClip()
         image.draw(in: rect)
 
@@ -383,7 +388,12 @@ import AVFoundation
         return newImage
     }
 
+    @available(*, deprecated, message: "use getImage(withString:withBackgroundColor:withBounds:isCircular:traitCollection:) instead")
     public static func getImage(withString string: String, withBackgroundColor color: UIColor, withBounds bounds: CGRect, isCircular circular: Bool) -> UIImage? {
+        return getImage(withString: string, withBackgroundColor: color, withBounds: bounds, isCircular: circular, traitCollection: .current)
+    }
+
+    public static func getImage(withString string: String, withBackgroundColor color: UIColor, withBounds bounds: CGRect, isCircular circular: Bool, traitCollection: UITraitCollection) -> UIImage? {
         // Based on the "UIImageView+Letters" library from Tom Bachant
 
         let fontSize = bounds.width * 0.5
@@ -396,7 +406,7 @@ import AVFoundation
             displayString.append(firstCharacter)
         }
 
-        let scale = Float(UIScreen.main.scale)
+        let scale = Float(traitCollection.displayScale)
         let width = floorf(Float(bounds.size.width) * scale) / scale
         let height = floorf(Float(bounds.size.height) * scale) / scale
         let size = CGSize(width: CGFloat(width), height: CGFloat(height))

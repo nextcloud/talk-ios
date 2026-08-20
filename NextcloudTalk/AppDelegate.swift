@@ -170,6 +170,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         return false
     }
 
+    // TODO: Modernization - Consider adopting `prefersInterfaceOrientationLocked` (iOS 26+) as the modern replacement
+    // for locking orientation through `supportedInterfaceOrientationsFor`. The view controller that wants the lock
+    // (BaseChatViewController, while recording a voice message) would override `prefersInterfaceOrientationLocked` and
+    // call `setNeedsUpdateOfPrefersInterfaceOrientationLocked()` when it flips, instead of reaching into AppDelegate to
+    // set `shouldLockInterfaceOrientation`. That also removes the `UIApplication.shared.statusBarOrientation` read in
+    // this file's `shouldLockInterfaceOrientation` observer, which is itself deprecated and app-wide rather than
+    // per-scene. Note the lock is orientation-specific (landscapeLeft vs landscapeRight are distinguished here), so it
+    // cannot be expressed as a size-class or bounds comparison.
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         if shouldLockInterfaceOrientation {
             if lockedInterfaceOrientation == .portrait {

@@ -47,6 +47,15 @@ extension BaseChatTableViewCell {
                 messageTextView.topAnchor.constraint(equalTo: locationPreviewImageView.bottomAnchor, constant: 10),
                 messageTextView.bottomAnchor.constraint(equalTo: self.messageBodyView.bottomAnchor)
             ])
+
+            // The map snapshot is rendered at the display scale, so it has to be retaken when that changes
+            if #available(iOS 17.0, *) {
+                registerForTraitChanges([UITraitDisplayScale.self]) { (self: BaseChatTableViewCell, _) in
+                    guard let message = self.message else { return }
+
+                    self.setupForLocationCell(with: message)
+                }
+            }
         }
 
         guard let locationPreviewImageView = self.locationPreviewImageView,
@@ -68,7 +77,7 @@ extension BaseChatTableViewCell {
         let options: MKMapSnapshotter.Options = .init()
         options.region = mapRegion
         options.size = mapView.frame.size
-        options.scale = UIScreen.main.scale
+        options.scale = self.traitCollection.displayScale
 
         let locationMapSnapshooter = MKMapSnapshotter(options: options)
         self.locationMapSnapshooter = locationMapSnapshooter

@@ -21,6 +21,12 @@ struct AccountEntity: AppEntity {
         server = account.server.replacingOccurrences(of: "https://", with: "")
 
         if let image = NCAPIController.sharedInstance().userProfileImage(forAccount: account, withStyle: .light) {
+            // TODO: Modernization - This uses the deprecated NCUtils.roundedImage(fromImage:), which renders at
+            // UITraitCollection.current.displayScale. The correct call is roundedImage(fromImage:traitCollection:),
+            // but there is nothing to pass: AccountEntity is built by AccountEntityQuery (an EntityQuery protocol
+            // requirement whose signature cannot take a trait collection) and is rendered out-of-process by Siri and
+            // Shortcuts, so no window or display context exists here. Render the entity image at a fixed scale
+            // appropriate for DisplayRepresentation instead of a display-derived one.
             let roundedImage = NCUtils.roundedImage(fromImage: image)
             imageData = roundedImage.pngData()
         }

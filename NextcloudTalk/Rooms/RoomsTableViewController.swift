@@ -570,7 +570,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
                 var accountImage = NCAPIController.sharedInstance().userProfileImage(forAccount: account, withStyle: self.traitCollection.userInterfaceStyle)
 
                 if var image = accountImage {
-                    image = NCUtils.roundedImage(fromImage: image)
+                    image = NCUtils.roundedImage(fromImage: image, traitCollection: self.traitCollection)
 
                     // Draw a red circle to the image in case we have unread notifications for that account
                     if account.unreadNotification {
@@ -607,7 +607,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
                 let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
                 var accountImage = NCAPIController.sharedInstance().userProfileImage(forAccount: activeAccount, withStyle: self.traitCollection.userInterfaceStyle)
                 if let image = accountImage {
-                    accountImage = NCUtils.roundedImage(fromImage: image)
+                    accountImage = NCUtils.roundedImage(fromImage: image, traitCollection: self.traitCollection)
                 }
                 let activeAccountAction = UIAction(title: activeAccount.userDisplayName, image: accountImage, identifier: nil) { _ in }
                 activeAccountAction.subtitle = activeAccount.server.replacingOccurrences(of: "https://", with: "")

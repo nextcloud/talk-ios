@@ -103,6 +103,13 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         typingIndicatorSwitch.frame = .zero
         typingIndicatorSwitch.addTarget(self, action: #selector(typingIndicatorValueChanged(_:)), for: .valueChanged)
 
+        // Account images are rendered at the display scale, so they have to be regenerated when it changes
+        if #available(iOS 17.0, *) {
+            registerForTraitChanges([UITraitDisplayScale.self]) { (self: SettingsTableViewController, _) in
+                self.tableView.reloadData()
+            }
+        }
+
         NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChangedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsHaveBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(contactsAccessHasBeenUpdated(notification:)), name: NSNotification.Name.NCContactsManagerContactsAccessUpdated, object: nil)
@@ -871,7 +878,7 @@ extension SettingsTableViewController {
         cell.detailTextLabel?.lineBreakMode = .byCharWrapping
 
         if let accountImage = self.getProfilePicture(for: account) {
-            cell.setSettingsImage(image: NCUtils.roundedImage(fromImage: accountImage), renderingMode: .alwaysOriginal)
+            cell.setSettingsImage(image: NCUtils.roundedImage(fromImage: accountImage, traitCollection: self.traitCollection), renderingMode: .alwaysOriginal)
         }
 
         if account.unreadBadgeNumber > 0 {
