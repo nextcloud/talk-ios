@@ -21,10 +21,8 @@
 #import "ServerCapabilities.h"
 #import "FederatedCapabilities.h"
 #import "NCSignalingController.h"
-#import "NCUserDefaults.h"
 #import "NCUserStatus.h"
 #import "NotificationCenterNotifications.h"
-#import "MapViewController.h"
 #import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "UIBarButtonItem+LegacyBadge.h"
@@ -38,7 +36,6 @@
 #import "MaterialActivityIndicator.h"
 #import "SLKTextViewController.h"
 
-#import "GeoLocationRichObject.h"
 #import "NCChatMessage.h"
 #import "NCChatBlock.h"
 #import "NCContact.h"
@@ -51,9 +48,7 @@
 
 #import "ShareViewController.h"
 #import "ShareConfirmationCollectionViewCell.h"
-#import "ShareItem.h"
 #import "ShareItemController.h"
-#import "VoiceMessageTranscribeViewController.h"
 #import "NCKeyChainController.h"
 #import "NCIntentController.h"
 #import "CCCertificate.h"
