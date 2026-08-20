@@ -27,9 +27,23 @@ struct RoomInfoHeaderSection: View {
 
         if let description = room.parsedRoomDescription {
             Section {
-                // TODO: Use UITextView wrapper to enable data detectors
-                Text(description)
-                    .textSelection(.enabled)
+                MessageBodyTextViewWrapper(attributedText: description)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contextMenu {
+                        Button {
+                            UIPasteboard.general.string = room.roomDescription
+                            NotificationPresenter.shared().present(text: NSLocalizedString("Description copied", comment: "The description text of a conversation was copied to the clipboard"), dismissAfterDelay: 5.0, includedStyle: .dark)
+                        } label: {
+                            Label(NSLocalizedString("Copy", comment: ""), systemImage: "doc.on.doc")
+                        }
+
+                        Button {
+                            let textViewController = MessageTextViewController(messageText: room.roomDescription ?? "")
+                            hostingWrapper.presentViewController(NCNavigationController(rootViewController: textViewController), animated: true)
+                        } label: {
+                            Label(NSLocalizedString("Copy selection", comment: "Copy a 'selection' of the description text of a conversation"), systemImage: "text.viewfinder")
+                        }
+                    }
             }
         }
 

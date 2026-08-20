@@ -379,7 +379,7 @@ extension Array where Element == NCRoom {
     }
 
     @nonobjc
-    public var parsedRoomDescription: AttributedString? {
+    public var parsedRoomDescription: NSAttributedString? {
         guard
             NCDatabaseManager.sharedInstance().serverHasTalkCapability(.roomDescription, forAccountId: accountId),
             let description = self.roomDescription,
@@ -388,7 +388,7 @@ extension Array where Element == NCRoom {
 
         let attributedDescription = description.withFont(.preferredFont(forTextStyle: .body)).withTextColor(.label)
 
-        return AttributedString(SwiftMarkdownObjCBridge.parseMarkdown(markdownString: attributedDescription))
+        return SwiftMarkdownObjCBridge.parseMarkdown(markdownString: attributedDescription)
     }
 
     // TODO: Move to lazy
