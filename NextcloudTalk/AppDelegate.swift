@@ -16,8 +16,6 @@ import UICKeyChainStore
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
-    public var window: UIWindow?
-
     public var shouldLockInterfaceOrientation: Bool = false {
         didSet {
             lockedInterfaceOrientation = UIApplication.shared.statusBarOrientation
@@ -32,8 +30,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
     private var keepAliveTimer: Timer?
     private var keepAliveBGTask: BGTaskHelper?
-    private var debugLabel: UILabel?
-    private var debugLabelTimer: Timer?
     private var fileDescriptorTimer: Timer?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -82,31 +78,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         self.registerBackgroundFetchTask()
         self.registerBackgroundProcessingTask()
 
-        NCUserInterfaceController.sharedInstance().mainViewController = self.window?.rootViewController as? NCSplitViewController
-        NCUserInterfaceController.sharedInstance().roomsTableViewController = NCUserInterfaceController.sharedInstance().mainViewController.viewControllers.first?.children.first as? RoomsTableViewController
-        NCUserInterfaceController.sharedInstance().mainViewController.displayModeButtonVisibility = .never
-
-        let arguments = ProcessInfo.processInfo.arguments
-
-        if arguments.contains("-TestEnvironment") {
-            let mainView: UIView = NCUserInterfaceController.sharedInstance().mainViewController.view
-
-            let debugLabel = UILabel(frame: CGRect(x: 20, y: 30, width: 200, height: 20))
-            debugLabel.font = .systemFont(ofSize: UIFont.smallSystemFontSize)
-            debugLabel.translatesAutoresizingMaskIntoConstraints = false
-            self.debugLabel = debugLabel
-
-            mainView.addSubview(debugLabel)
-            NSLayoutConstraint.activate([
-                debugLabel.topAnchor.constraint(equalTo: mainView.safeAreaLayoutGuide.topAnchor, constant: -15),
-                debugLabel.leadingAnchor.constraint(equalTo: mainView.safeAreaLayoutGuide.leadingAnchor, constant: 5),
-                debugLabel.trailingAnchor.constraint(equalTo: mainView.safeAreaLayoutGuide.trailingAnchor)
-            ])
-
-            self.debugLabelTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-                self?.debugLabel?.text = AllocationTracker.shared.description
-            }
-        }
+        // The root view controller wiring and the -TestEnvironment debug label live in
+        // SceneDelegate.scene(_:willConnectTo:options:) - they are per-scene UI setup
 
         // Comment out the following code to log the number of open socket file descriptors
         /*
@@ -148,31 +121,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         return true
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
-    }
-
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-
-        self.keepExternalSignalingConnectionAliveTemporarily()
-        self.scheduleAppRefresh()
-        self.scheduleBackgroundProcessing()
-    }
-
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-
-        self.checkForDisconnectedExternalSignalingConnection()
-
-        NCNotificationController.sharedInstance().removeAllNotifications(forAccountId: NCDatabaseManager.sharedInstance().activeAccount().accountId)
-    }
+    // The active/inactive/background/foreground transitions are dispatched per-scene, so they live on SceneDelegate as
+    // sceneWillResignActive/sceneDidEnterBackground/sceneWillEnterForeground/sceneDidBecomeActive
 
     func applicationProtectedDataDidBecomeAvailable(_ application: UIApplication) {
         if CallKitManager.sharedInstance().calls.count > 0 {
@@ -190,8 +140,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
 
-        // Invalidate a potentially existing label timer
-        self.debugLabelTimer?.invalidate()
+        // The debug label timer moved to SceneDelegate and is invalidated in sceneDidDisconnect(_:)
 
         self.fileDescriptorTimer?.invalidate()
     }
@@ -391,7 +340,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         }
     }
 
-    private func scheduleBackgroundProcessing() {
+    // Stays on AppDelegate: BGTaskScheduler is process-wide, and handleBackgroundProcessing() reschedules through it
+    func scheduleBackgroundProcessing() {
         let processingTaskIdentifier = "\(Bundle.main.bundleIdentifier ?? "").processing"
 
         let request = BGProcessingTaskRequest(identifier: processingTaskIdentifier)
@@ -438,7 +388,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         }
     }
 
-    private func scheduleAppRefresh() {
+    // Stays on AppDelegate: BGTaskScheduler is process-wide, and handleAppRefresh() reschedules through it
+    func scheduleAppRefresh() {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
 
         let refreshTaskIdentifier = "\(bundleIdentifier).refresh"
@@ -582,7 +533,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         RunLoop.main.add(keepAliveTimer, forMode: .common)
     }
 
-    private func checkForDisconnectedExternalSignalingConnection() {
+    // Stays on AppDelegate: it pairs with keepExternalSignalingConnectionAliveTemporarily() over the shared keepAlive
+    // timer and background task, and the signaling connections themselves are per-account, not per-scene
+    func checkForDisconnectedExternalSignalingConnection() {
         keepAliveTimer?.invalidate()
         keepAliveBGTask?.stopBackgroundTask()
 
