@@ -95,8 +95,7 @@ public class NCSettingsController: NSObject {
 
     private func resetPerAppLaunchSettings() {
         // Reset "threadsLastCheckTimestamp" on every app fresh launch
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { _ in
             for case let account as TalkAccount in TalkAccount.allObjects() {
                 account.threadsLastCheckTimestamp = 0
             }
@@ -292,8 +291,7 @@ public class NCSettingsController: NSObject {
         // Migration from global setting to per-account setting
         if (UserDefaults.standard.object(forKey: kContactSyncEnabled) as? NSNumber)?.boolValue == true {
             // If global setting was enabled then we enable contact sync for all accounts
-            let realm = RLMRealm.default()
-            try? realm.transaction {
+            RLMRealm.writeTransaction { _ in
                 for case let account as TalkAccount in TalkAccount.allObjects() {
                     account.hasContactSyncEnabled = true
                 }
@@ -308,8 +306,7 @@ public class NCSettingsController: NSObject {
     }
 
     public func setContactSync(_ enabled: Bool) {
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { _ in
             let account = TalkAccount.objects(where: "active = true").firstObject() as? TalkAccount
             account?.hasContactSyncEnabled = enabled
         }
@@ -340,9 +337,7 @@ public class NCSettingsController: NSObject {
 
             let email = (userProfile[UserProfileField.email] as? String) ?? ""
 
-            let bgTask = BGTaskHelper.startBackgroundTask(withName: "NCSetUserProfile")
-            let realm = RLMRealm.default()
-            try? realm.transaction {
+            RLMRealm.writeTransaction("NCSetUserProfile") { _ in
                 guard let managedActiveAccount = TalkAccount.objects(where: "accountId = %@", account.accountId).firstObject() as? TalkAccount else {
                     block(OcsError.genericError())
                     return
@@ -370,7 +365,6 @@ public class NCSettingsController: NSObject {
 
                 block(nil)
             }
-            bgTask.stopBackgroundTask()
         }
     }
 
@@ -385,17 +379,10 @@ public class NCSettingsController: NSObject {
                 return
             }
 
-            let bgTask = BGTaskHelper.startBackgroundTask(withName: "NCSetUserGroups")
-            let realm = RLMRealm.default()
-            try? realm.transaction {
-                guard let managedActiveAccount = TalkAccount.objects(where: "accountId = %@", account.accountId).firstObject() as? TalkAccount else {
-                    return
-                }
-
+            NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: account.accountId, "NCSetUserGroups") { managedActiveAccount in
                 managedActiveAccount.groupIds.removeAllObjects()
                 managedActiveAccount.groupIds.addObjects((groupIds ?? []) as NSArray)
             }
-            bgTask.stopBackgroundTask()
         }
 
         NCAPIController.sharedInstance().getUserTeams(forAccount: account) { teamIds, error in
@@ -404,17 +391,10 @@ public class NCSettingsController: NSObject {
                 return
             }
 
-            let bgTask = BGTaskHelper.startBackgroundTask(withName: "NCSetUserTeams")
-            let realm = RLMRealm.default()
-            try? realm.transaction {
-                guard let managedActiveAccount = TalkAccount.objects(where: "accountId = %@", account.accountId).firstObject() as? TalkAccount else {
-                    return
-                }
-
+            NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: account.accountId, "NCSetUserTeams") { managedActiveAccount in
                 managedActiveAccount.teamIds.removeAllObjects()
                 managedActiveAccount.teamIds.addObjects((teamIds ?? []) as NSArray)
             }
-            bgTask.stopBackgroundTask()
         }
     }
 
@@ -710,13 +690,11 @@ public class NCSettingsController: NSObject {
                 return
             }
 
-            let realm = RLMRealm.default()
-            realm.beginWriteTransaction()
-            let managedAccount = TalkAccount.objects(where: "accountId = %@", accountId).firstObject() as? TalkAccount
-            managedAccount?.userPublicKey = publicKey
-            managedAccount?.deviceIdentifier = deviceIdentifier
-            managedAccount?.deviceSignature = signature
-            try? realm.commitWriteTransaction()
+            NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: accountId) { managedAccount in
+                managedAccount.userPublicKey = publicKey
+                managedAccount.deviceIdentifier = deviceIdentifier
+                managedAccount.deviceSignature = signature
+            }
 
             NCAPIController.sharedInstance().subscribeAccount(account, toPushServerWithCompletionBlock: { error in
                 guard error == nil else {
@@ -730,11 +708,8 @@ public class NCSettingsController: NSObject {
                     return
                 }
 
-                let realm = RLMRealm.default()
-                realm.beginWriteTransaction()
-                let managedAccount = TalkAccount.objects(where: "accountId = %@", accountId).firstObject() as? TalkAccount
-                managedAccount?.lastPushSubscription = Int(Date().timeIntervalSince1970)
-                try? realm.commitWriteTransaction()
+                NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: accountId) { $0.lastPushSubscription = Int(Date().timeIntervalSince1970) }
+
                 NCKeyChainController.sharedInstance().setPushNotificationPublicKey(keyPair.publicKey, forAccountId: accountId)
                 NCKeyChainController.sharedInstance().setPushNotificationPrivateKey(keyPair.privateKey, forAccountId: accountId)
                 NCLog.log("Subscribed to Push Notification server successfully.")
