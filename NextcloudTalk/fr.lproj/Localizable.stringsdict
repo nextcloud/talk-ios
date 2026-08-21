@@ -573,9 +573,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted {user0} and %ld more participant to moderators</string>
+			<string>Un administrateur a promu {user0} et %ld autre participant comme modérateur(s)</string>
+			<key>many</key>
+			<string>Un administrateur a promu {user0} et %ld autres participants comme modérateurs</string>
 			<key>other</key>
-			<string>An administrator promoted {user0} and %ld more participants to moderators</string>
+			<string>Un administrateur a promu {user0} et %ld autres participants comme modérateurs</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted you and %ld more participants to moderators</key>
