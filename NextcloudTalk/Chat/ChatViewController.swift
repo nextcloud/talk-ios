@@ -1720,7 +1720,7 @@ import SwiftUI
                         self.lastReadMessage = lastReceivedMessage.messageId
                     }
                 } else {
-                    tableView.performBatchUpdates {
+                    let batchUpdates = {
                         if !update.insertSections.isEmpty {
                             tableView.insertSections(update.insertSections, with: self.newMessageRowAnimation)
                         }
@@ -1732,8 +1732,9 @@ import SwiftUI
                         if !update.reloadIndexPaths.isEmpty {
                             tableView.reloadRows(at: Array(update.reloadIndexPaths), with: .none)
                         }
+                    }
 
-                    } completion: { _ in
+                    let afterBatchUpdates = {
                         // Only scroll to unread message separator if we added it while processing the received messages
                         // Otherwise we would scroll whenever a unread message separator is available
                         if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
@@ -1752,6 +1753,17 @@ import SwiftUI
                         // Set last received message as last read message
                         if let lastReceivedMessage = messages.last {
                             self.lastReadMessage = lastReceivedMessage.messageId
+                        }
+                    }
+
+                    if self.newMessageRowAnimation == .none {
+                        // The rows are already in place here, while the completion can be half a second late,
+                        // showing them behind the textInputbar until the chat finally scrolls
+                        tableView.performBatchUpdates(batchUpdates, completion: nil)
+                        afterBatchUpdates()
+                    } else {
+                        tableView.performBatchUpdates(batchUpdates) { _ in
+                            afterBatchUpdates()
                         }
                     }
                 }
