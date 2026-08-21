@@ -599,9 +599,7 @@ import Toast
         temporaryMessage.isSilent = silently
         temporaryMessage.isMarkdownMessage = NCDatabaseManager.sharedInstance().roomHasTalkCapability(.markdownMessages, for: self.room)
 
-        let realm = RLMRealm.default()
-
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             realm.add(temporaryMessage)
         }
 
@@ -644,9 +642,7 @@ import Toast
     }
 
     internal func removePermanentlyTemporaryMessage(temporaryMessage: NCChatMessage) {
-        let realm = RLMRealm.default()
-
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             if let managedTemporaryMessage = NCChatMessage.objects(where: "referenceId = %@ AND isTemporary = true", temporaryMessage.referenceId).firstObject() {
                 realm.delete(managedTemporaryMessage)
             }

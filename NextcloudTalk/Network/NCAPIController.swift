@@ -3482,7 +3482,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
             var hasCustomAvatar = false
 
-            try? RLMRealm.default().transaction {
+            RLMRealm.writeTransaction { _ in
                 let query = NSPredicate(format: "accountId = %@", account.accountId)
                 if let customHeader = response.value(forHTTPHeaderField: "X-NC-IsCustomAvatar"),
                    let managedAccount = TalkAccount.objects(with: query).firstObject() as? TalkAccount {

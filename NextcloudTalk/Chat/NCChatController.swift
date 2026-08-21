@@ -250,8 +250,7 @@ public class NCChatController: NSObject {
     }
 
     private func storeMessages(_ messages: [[String: Any]]) {
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             self.storeMessages(messages.map { $0 as [AnyHashable: Any] }, with: realm)
         }
     }
@@ -262,8 +261,7 @@ public class NCChatController: NSObject {
     }
 
     private func removeAllStoredMessagesAndChatBlocks() {
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             let query = NSPredicate(format: "accountId = %@ AND token = %@", self.account.accountId, self.room.token)
             realm.deleteObjects(NCChatMessage.objects(with: query))
             realm.deleteObjects(NCChatBlock.objects(with: query))
@@ -273,9 +271,9 @@ public class NCChatController: NSObject {
     }
 
     public func removeExpiredMessages() {
-        let realm = RLMRealm.default()
         let currentTimestamp = Int(Date().timeIntervalSince1970)
-        try? realm.transaction {
+
+        RLMRealm.writeTransaction { realm in
             let query = NSPredicate(format: "accountId = %@ AND token = %@ AND expirationTimestamp > 0 AND expirationTimestamp <= %ld", self.account.accountId, self.room.token, currentTimestamp)
             realm.deleteObjects(NCChatMessage.objects(with: query))
         }
@@ -284,8 +282,7 @@ public class NCChatController: NSObject {
     private func updateLastChatBlock(withNewestKnown newestKnown: Int) {
         guard newestKnown > 0 else { return }
 
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { _ in
             let managedSortedBlocks = self.managedSortedBlocksForRoomOrThread()
             if let lastBlock = managedSortedBlocks.lastObject() as? NCChatBlock, newestKnown > lastBlock.newestMessageId {
                 lastBlock.newestMessageId = newestKnown
@@ -301,8 +298,7 @@ public class NCChatController: NSObject {
         // Safety check: prevent storing a messageId older than the thread's first message as block's oldestMessageId when in a thread controller
         let oldestMessageKnown = (isThreadController && lastKnown < threadId) ? threadId : lastKnown
 
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             let managedSortedBlocks = self.managedSortedBlocksForRoomOrThread()
             guard let lastBlock = managedSortedBlocks.lastObject() as? NCChatBlock else { return }
 
@@ -348,8 +344,7 @@ public class NCChatController: NSObject {
         // Safety check: prevent storing a messageId older than the thread's first message as block's oldestMessageId when in a thread controller
         let oldestMessageKnown = (isThreadController && lastKnown < threadId) ? threadId : lastKnown
 
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             let managedSortedBlocks = self.managedSortedBlocksForRoomOrThread()
 
             // Create new chat block
@@ -397,8 +392,7 @@ public class NCChatController: NSObject {
     }
 
     private func updateHistoryFlagInFirstBlock() {
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { _ in
             let managedSortedBlocks = self.managedSortedBlocksForRoomOrThread()
             let firstChatBlock = managedSortedBlocks.firstObject() as? NCChatBlock
             firstChatBlock?.hasHistory = false
@@ -406,8 +400,7 @@ public class NCChatController: NSObject {
     }
 
     private func transactionForMessage(withReferenceId referenceId: String, block: @escaping (_ message: NCChatMessage?) -> Void) {
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { _ in
             let managedChatMessage = NCChatMessage.objects(where: "referenceId = %@ AND isTemporary = true", referenceId).firstObject() as? NCChatMessage
             block(managedChatMessage)
         }
@@ -744,8 +737,7 @@ public class NCChatController: NSObject {
         let twelveHoursAgoTimestamp = Int(Date().timeIntervalSince1970) - (60 * 60 * 12)
 
         for case let temporaryMessage as NCChatMessage in managedTemporaryMessages where temporaryMessage.timestamp < twelveHoursAgoTimestamp {
-            let realm = RLMRealm.default()
-            try? realm.transaction {
+            RLMRealm.writeTransaction { _ in
                 temporaryMessage.isOfflineMessage = false
                 temporaryMessage.sendingFailed = true
             }

@@ -248,8 +248,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 return
             }
 
-            let realm = RLMRealm.default()
-            try? realm.transaction {
+            RLMRealm.writeTransaction { realm in
                 self.updateRoom(withDict: roomDict, withAccount: account, withTimestamp: Int(Date().timeIntervalSince1970), withRealm: realm)
             }
 
@@ -307,13 +306,11 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     }
 
     private func updateRoom(_ room: NCRoom, withBlock block: @escaping (_ managedRoom: NCRoom) -> Void) {
-        let bgTask = BGTaskHelper.startBackgroundTask()
-        try? RLMRealm.default().transaction {
+        RLMRealm.writeTransaction { _ in
             if let managedRoom = NCRoom.objects(where: "internalId = %@", room.internalId).firstObject() as? NCRoom {
                 block(managedRoom)
             }
         }
-        bgTask.stopBackgroundTask()
     }
 
     public func updatePendingMessage(_ message: String, forRoom room: NCRoom) {
@@ -1299,14 +1296,13 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             query = NSPredicate(format: "isOfflineMessage = true")
         }
 
-        let realm = RLMRealm.default()
         let managedTemporaryMessages = NCChatMessage.objects(with: query)
         let twelveHoursAgoTimestamp = Int(Date().timeIntervalSince1970 - (60 * 60 * 12))
 
         for case let offlineMessage as NCChatMessage in managedTemporaryMessages {
             // If we were unable to send a message after 12 hours, mark as failed
             if offlineMessage.timestamp < twelveHoursAgoTimestamp {
-                try? realm.transaction {
+                RLMRealm.writeTransaction { _ in
                     offlineMessage.isOfflineMessage = false
                     offlineMessage.sendingFailed = true
                 }

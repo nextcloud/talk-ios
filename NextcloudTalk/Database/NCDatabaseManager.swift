@@ -227,16 +227,30 @@ public extension Notification.Name {
         return nil
     }
 
-    public func setActiveAccountWithAccountId(_ accountId: String) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        for case let account as TalkAccount in TalkAccount.allObjects() {
-            account.active = false
+    /// Runs `block` on the managed `TalkAccount` with the given `accountId`, inside a write transaction.
+    ///
+    /// The account passed to `block` is managed, so changes to it are persisted when the transaction
+    /// commits. Does nothing when there's no account with that id.
+    @nonobjc
+    public func updateTalkAccount(forAccountId accountId: String, _ name: String = #function, _ block: (TalkAccount) -> Void) {
+        RLMRealm.writeTransaction(name) { _ in
+            guard let managedAccount = TalkAccount.objects(where: "accountId = %@", accountId).firstObject() as? TalkAccount else { return }
+
+            block(managedAccount)
         }
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        let activeAccount = TalkAccount.objects(with: query).firstObject() as? TalkAccount
-        activeAccount?.active = true
-        try? realm.commitWriteTransaction()
+    }
+
+    public func setActiveAccountWithAccountId(_ accountId: String) {
+        RLMRealm.writeTransaction { _ in
+            for case let account as TalkAccount in TalkAccount.allObjects() {
+                account.active = false
+            }
+
+            let query = NSPredicate(format: "accountId = %@", accountId)
+            let activeAccount = TalkAccount.objects(with: query).firstObject() as? TalkAccount
+            activeAccount?.active = true
+        }
+
         NCLog.log("Set active account to \(accountId)")
     }
 
@@ -250,81 +264,64 @@ public extension Notification.Name {
         account.server = server
         account.user = user
 
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             realm.add(account)
         }
     }
 
     public func removeAccount(withAccountId accountId: String) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let isLastAccount = numberOfAccounts() == 1
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let removeAccount = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-            realm.delete(removeAccount)
+        RLMRealm.writeTransaction { realm in
+            let isLastAccount = self.numberOfAccounts() == 1
+            let query = NSPredicate(format: "accountId = %@", accountId)
+            if let removeAccount = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
+                realm.delete(removeAccount)
+            }
+            if let serverCapabilities = ServerCapabilities.objects(with: query).firstObject() as? ServerCapabilities {
+                realm.delete(serverCapabilities)
+                self.capabilitiesCache.removeObject(forKey: accountId as NSString)
+                self.talkCapabilitiesCache.removeAllObjects()
+            }
+            realm.deleteObjects(NCRoom.objects(with: query))
+            realm.deleteObjects(NCChatMessage.objects(with: query))
+            realm.deleteObjects(NCChatBlock.objects(with: query))
+            realm.deleteObjects(NCThread.objects(with: query))
+            realm.deleteObjects(NCContact.objects(with: query))
+            realm.deleteObjects(FederatedCapabilities.objects(with: query))
+            realm.deleteObjects(NCConversationTag.objects(with: query))
+            if isLastAccount {
+                realm.deleteObjects(ABContact.allObjects())
+            }
         }
-        if let serverCapabilities = ServerCapabilities.objects(with: query).firstObject() as? ServerCapabilities {
-            realm.delete(serverCapabilities)
-            capabilitiesCache.removeObject(forKey: accountId as NSString)
-            talkCapabilitiesCache.removeAllObjects()
-        }
-        realm.deleteObjects(NCRoom.objects(with: query))
-        realm.deleteObjects(NCChatMessage.objects(with: query))
-        realm.deleteObjects(NCChatBlock.objects(with: query))
-        realm.deleteObjects(NCThread.objects(with: query))
-        realm.deleteObjects(NCContact.objects(with: query))
-        realm.deleteObjects(FederatedCapabilities.objects(with: query))
-        realm.deleteObjects(NCConversationTag.objects(with: query))
-        if isLastAccount {
-            realm.deleteObjects(ABContact.allObjects())
-        }
-        try? realm.commitWriteTransaction()
     }
 
     public func removeStoredMessages(forAccountId accountId: String) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        realm.deleteObjects(NCChatMessage.objects(with: query))
-        realm.deleteObjects(NCChatBlock.objects(with: query))
-        realm.deleteObjects(NCThread.objects(with: query))
-        try? realm.commitWriteTransaction()
+        RLMRealm.writeTransaction { realm in
+            let query = NSPredicate(format: "accountId = %@", accountId)
+            realm.deleteObjects(NCChatMessage.objects(with: query))
+            realm.deleteObjects(NCChatBlock.objects(with: query))
+            realm.deleteObjects(NCThread.objects(with: query))
+        }
     }
 
     public func increaseUnreadBadgeNumber(forAccountId accountId: String) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
+        updateTalkAccount(forAccountId: accountId) { account in
             account.unreadBadgeNumber += 1
             account.unreadNotification = true
         }
-        try? realm.commitWriteTransaction()
     }
 
     public func decreaseUnreadBadgeNumber(forAccountId accountId: String) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
+        updateTalkAccount(forAccountId: accountId) { account in
             account.unreadBadgeNumber = (account.unreadBadgeNumber > 0) ? account.unreadBadgeNumber - 1 : 0
             account.unreadNotification = (account.unreadBadgeNumber > 0) ? account.unreadNotification : false
         }
-        try? realm.commitWriteTransaction()
     }
 
     public func resetUnreadBadgeNumber(forAccountId accountId: String) {
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "resetUnreadBadgeNumberForAccountId", expirationHandler: nil)
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
+        updateTalkAccount(forAccountId: accountId) { account in
             account.unreadBadgeNumber = 0
             account.unreadNotification = false
         }
-        try? realm.commitWriteTransaction()
-        bgTask.stopBackgroundTask()
     }
 
     public func numberOfInactiveAccountsWithUnreadNotifications() -> Int {
@@ -344,63 +341,30 @@ public extension Notification.Name {
     }
 
     public func removeUnreadNotificationForInactiveAccounts() {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        for case let account as TalkAccount in TalkAccount.allObjects() {
-            account.unreadNotification = false
+        RLMRealm.writeTransaction { _ in
+            for case let account as TalkAccount in TalkAccount.allObjects() {
+                account.unreadNotification = false
+            }
         }
-        try? realm.commitWriteTransaction()
     }
 
     public func updateTalkConfigurationHash(forAccountId accountId: String, withHash hash: String) {
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "updateTalkConfigurationHashForAccountId", expirationHandler: nil)
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-            account.lastReceivedConfigurationHash = hash
-        }
-        try? realm.commitWriteTransaction()
-        bgTask.stopBackgroundTask()
+        updateTalkAccount(forAccountId: accountId) { $0.lastReceivedConfigurationHash = hash }
     }
 
     public func updateLastModifiedSince(forAccountId accountId: String, with modifiedSince: String) {
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "updateLastModifiedSinceForAccountId", expirationHandler: nil)
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-            account.lastReceivedModifiedSince = modifiedSince
-        }
-        try? realm.commitWriteTransaction()
-        bgTask.stopBackgroundTask()
+        updateTalkAccount(forAccountId: accountId) { $0.lastReceivedModifiedSince = modifiedSince }
     }
 
     public func updateHasThreads(forAccountId accountId: String, with hasThreads: Bool) {
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "updateHasThreadsForAccountId", expirationHandler: nil)
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-            account.hasThreads = hasThreads
-        }
-        try? realm.commitWriteTransaction()
-        bgTask.stopBackgroundTask()
+        updateTalkAccount(forAccountId: accountId) { $0.hasThreads = hasThreads }
 
         let userInfo: [String: Any] = ["accountId": accountId, "hasThreads": hasThreads]
         NotificationCenter.default.post(name: .NCUserHasThreadsFlagUpdated, object: self, userInfo: userInfo)
     }
 
     public func updateThreadsLastCheckTimestamp(forAccountId accountId: String, with lastCheckTimestamp: Int) {
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "updateHasThreadsLastCheckTimestampForAccountId", expirationHandler: nil)
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-            account.threadsLastCheckTimestamp = lastCheckTimestamp
-        }
-        try? realm.commitWriteTransaction()
-        bgTask.stopBackgroundTask()
+        updateTalkAccount(forAccountId: accountId) { $0.threadsLastCheckTimestamp = lastCheckTimestamp }
     }
 
     // MARK: - Rooms
@@ -528,8 +492,7 @@ public extension Notification.Name {
 
         talkCapabilitiesCache.removeAllObjects()
 
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             realm.addOrUpdate(federatedCapabilities)
 
             // Update the hash
@@ -665,8 +628,7 @@ public extension Notification.Name {
             setTalkCapabilities(talkCaps, onTalkCapabilitiesObject: capabilities)
         }
 
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { realm in
             realm.addOrUpdate(capabilities)
         }
 
@@ -703,16 +665,15 @@ public extension Notification.Name {
     }
 
     public func setExternalSignalingServerVersion(_ version: String, forAccountId accountId: String) {
-        let realm = RLMRealm.default()
-        try? realm.transaction {
+        RLMRealm.writeTransaction { _ in
             let query = NSPredicate(format: "accountId = %@", accountId)
             if let managedServerCapabilities = ServerCapabilities.objects(with: query).firstObject() as? ServerCapabilities,
                managedServerCapabilities.externalSignalingServerVersion != version {
                 managedServerCapabilities.externalSignalingServerVersion = version
 
                 let unmanagedServerCapabilities = ServerCapabilities(value: managedServerCapabilities)
-                capabilitiesCache.setObject(unmanagedServerCapabilities, forKey: accountId as NSString)
-                talkCapabilitiesCache.removeAllObjects()
+                self.capabilitiesCache.setObject(unmanagedServerCapabilities, forKey: accountId as NSString)
+                self.talkCapabilitiesCache.removeAllObjects()
             }
         }
     }
@@ -763,35 +724,19 @@ public extension Notification.Name {
     // MARK: - Federation invitations
 
     public func increasePendingFederationInvitation(forAccountId accountId: String) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-            account.pendingFederationInvitations += 1
-        }
-        try? realm.commitWriteTransaction()
+        updateTalkAccount(forAccountId: accountId) { $0.pendingFederationInvitations += 1 }
     }
 
     public func decreasePendingFederationInvitation(forAccountId accountId: String) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
+        updateTalkAccount(forAccountId: accountId) { account in
             account.pendingFederationInvitations = (account.pendingFederationInvitations > 0) ? account.pendingFederationInvitations - 1 : 0
         }
-        try? realm.commitWriteTransaction()
 
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: NCDatabaseManagerPendingFederationInvitationsDidChange), object: self, userInfo: nil)
     }
 
     public func setPendingFederationInvitationForAccountId(_ accountId: String, with numberOfPendingInvitations: Int) {
-        let realm = RLMRealm.default()
-        realm.beginWriteTransaction()
-        let query = NSPredicate(format: "accountId = %@", accountId)
-        if let account = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-            account.pendingFederationInvitations = numberOfPendingInvitations
-        }
-        try? realm.commitWriteTransaction()
+        updateTalkAccount(forAccountId: accountId) { $0.pendingFederationInvitations = numberOfPendingInvitations }
 
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: NCDatabaseManagerPendingFederationInvitationsDidChange), object: self, userInfo: nil)
     }
@@ -822,13 +767,7 @@ public extension Notification.Name {
               let jsonString = String(data: jsonData, encoding: .utf8)
         else { return }
 
-        let realm = RLMRealm.default()
-
-        try? realm.transaction {
-            if let managedTalkAccount = TalkAccount.objects(where: "accountId = %@", account.accountId).firstObject() as? TalkAccount {
-                managedTalkAccount.frequentlyUsedEmojisJSONString = jsonString
-            }
-        }
+        updateTalkAccount(forAccountId: account.accountId) { $0.frequentlyUsedEmojisJSONString = jsonString }
     }
 
     // MARK: - Rooms
@@ -886,30 +825,15 @@ public extension Notification.Name {
     }
 
     func updateConversationTags(_ tags: [NCConversationTag], forAccountId accountId: String) {
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "updateConversationTagsForAccountId", expirationHandler: nil)
-        let realm = RLMRealm.default()
-
-        try? realm.transaction {
-            if bgTask.isExpired {
-                realm.cancelWriteTransaction()
-                return
-            }
-
+        RLMRealm.writeTransaction { realm in
             let query = NSPredicate(format: "accountId = %@", accountId)
             realm.deleteObjects(NCConversationTag.objects(with: query))
 
             for tag in tags {
-                if bgTask.isExpired {
-                    realm.cancelWriteTransaction()
-                    return
-                }
-
                 // Add a copy, so the passed objects stay unmanaged for the caller
                 realm.add(NCConversationTag(value: tag))
             }
         }
-
-        bgTask.stopBackgroundTask()
     }
 }
 
