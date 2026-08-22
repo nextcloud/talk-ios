@@ -1652,6 +1652,9 @@
 /* No comment provided by engineer. */
 "Missed call from" = "Missed call from";
 
+/* '%@' being the display name of the caller */
+"Missed call from %@" = "Missed call from %@";
+
 /* No comment provided by engineer. */
 "Missing phone number information" = "Missing phone number information";
 
@@ -2047,6 +2050,9 @@
 
 /* No comment provided by engineer. */
 "Recording consent required for joining the call" = "Recording consent required for joining the call";
+
+/* '%@' being the display name of the call */
+"Recording consent required for joining the call %@" = "Recording consent required for joining the call %@";
 
 /* No comment provided by engineer. */
 "Recordings" = "Recordings";
