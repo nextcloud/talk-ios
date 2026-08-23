@@ -4,12 +4,14 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+    <key>com.apple.developer.carplay-communication</key>
+    <true/>
 	<key>com.apple.developer.usernotifications.communication</key>
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.nextcloud.Talk</string>
-		<string>group.com.nextcloud.apps</string>
+		<string>group.com.2M.Talk</string>
+		<string>group.com.2M.apps</string>
 	</array>
 </dict>
 </plist>
