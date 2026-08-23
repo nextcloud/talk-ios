@@ -407,9 +407,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added {user0} and %ld more participant</string>
+			<string>Un administrateur a ajouté {user0} et %ld autre participant</string>
+			<key>many</key>
+			<string>Un administrateur a ajouté {user0} et %ld autres participants</string>
 			<key>other</key>
-			<string>An administrator added {user0} and %ld more participants</string>
+			<string>Un administrateur a ajouté {user0} et %ld autres participants</string>
 		</dict>
 	</dict>
 	<key>{actor0} added you and %ld more participants</key>
@@ -439,9 +441,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added {user0} and %ld more participant</string>
+			<string>{actor0} a ajouté {user0} et %ld autre participant</string>
+			<key>many</key>
+			<string>{actor0} a ajouté {user0} et %ld autres participants</string>
 			<key>other</key>
-			<string>{actor0} added {user0} and %ld more participants</string>
+			<string>{actor0} a ajouté {user0} et %ld autres participants</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -523,9 +527,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed {user0} and %ld more participant</string>
+			<string>{actor0} a retiré {user0} et %ld autre participant</string>
+			<key>many</key>
+			<string>{actor0} a retiré {user0} et %ld autres participants</string>
 			<key>other</key>
-			<string>{actor0} removed {user0} and %ld more participants</string>
+			<string>{actor0} a retiré {user0} et %ld autres participants</string>
 		</dict>
 	</dict>
 	<key>You promoted {user0} and %ld more participants to moderators</key>
@@ -607,9 +613,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted {user0} and %ld more participant to moderators</string>
+			<string>{actor0} a promu {user0} et %ld autre participant comme modérateur(s)</string>
+			<key>many</key>
+			<string>{actor0} a promu {user0} et %ld autres participants comme modérateurs</string>
 			<key>other</key>
-			<string>{actor0} promoted {user0} and %ld more participants to moderators</string>
+			<string>{actor0} a promu {user0} et %ld autres participants comme modérateurs</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
