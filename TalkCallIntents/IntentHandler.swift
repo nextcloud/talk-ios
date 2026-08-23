@@ -32,7 +32,7 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
     // MARK: Configuration
 
     private enum Constants {
-        static let userActivityType = "com.2M.Talk.startCall"
+        static let userActivityType = "com.nextcloud.Talk.startCall"
 
         static let activityContactsKey = "contacts"
         static let activityCallCapabilityKey = "callCapability"
