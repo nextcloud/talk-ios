@@ -47,12 +47,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         for intent: INStartCallIntent,
         with completion: @escaping (INStartCallCallCapabilityResolutionResult) -> Void
     ) {
-        /*
-         * CarPlay est volontairement audio-only pour le moment.
-         *
-         * Même si Talk supporte la vidéo, une demande provenant de CarPlay
-         * doit donc être ramenée à un appel audio.
-         */
 
         switch intent.callCapability {
 
@@ -77,11 +71,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         for intent: INStartCallIntent,
         with completion: @escaping (INCallDestinationTypeResolutionResult) -> Void
     ) {
-        /*
-         * Talk ne compose pas un numéro téléphonique.
-         *
-         * On travaille avec une personne / conversation Nextcloud Talk.
-         */
 
         switch intent.destinationType {
 
@@ -119,13 +108,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
             return
         }
 
-        /*
-         * À ce stade, on accepte les INPerson fournis par Siri.
-         *
-         * La résolution réelle vers un NCRoom / userId Talk pourra ensuite
-         * être ajoutée ici sans modifier le routage général de l'extension.
-         */
-
         let results = contacts.map { person -> INPersonResolutionResult in
             .success(with: person)
         }
@@ -160,19 +142,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         intent: INStartCallIntent,
         completion: @escaping (INStartCallIntentResponse) -> Void
     ) {
-        /*
-         * C'est ici qu'on ajoutera plus tard les validations réelles :
-         *
-         * - compte Nextcloud configuré
-         * - utilisateur authentifié
-         * - serveur Talk joignable
-         * - room toujours valide
-         * - droit de démarrer un appel
-         * - aucun autre appel incompatible en cours
-         *
-         * Pour l'instant on valide uniquement que Siri nous fournit
-         * une destination exploitable.
-         */
 
         let hasContacts = !(intent.contacts?.isEmpty ?? true)
         let hasCallRecord = intent.callRecordToCallBack != nil
@@ -202,17 +171,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         intent: INStartCallIntent,
         completion: @escaping (INStartCallIntentResponse) -> Void
     ) {
-        /*
-         * IMPORTANT :
-         *
-         * Ne jamais lancer NCCallController / CallKit depuis l'extension.
-         *
-         * Apple demande explicitement à l'Intents Extension de transférer
-         * le contrôle à l'application principale.
-         *
-         * NextcloudTalk recevra donc le NSUserActivity et démarrera l'appel
-         * via CallKitManager.
-         */
 
         guard
             !(intent.contacts?.isEmpty ?? true)
