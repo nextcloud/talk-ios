@@ -7,6 +7,7 @@ import UIKit
 import Contacts
 import Photos
 import UserNotifications
+import CoreLocation
 
 class DiagnosticsTableViewController: UITableViewController {
 

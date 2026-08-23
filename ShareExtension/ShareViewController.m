@@ -12,7 +12,6 @@
 #import "TalkAccount.h"
 #import "NCIntentController.h"
 #import "NCRoom.h"
-#import "PlaceholderView.h"
 #import "ShareTableViewCell.h"
 #import "NCKeyChainController.h"
 

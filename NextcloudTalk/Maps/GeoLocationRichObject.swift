@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import Foundation
+
 let geoLocationRichObjectType = "geo-location"
 
 @objcMembers public class GeoLocationRichObject: NSObject {

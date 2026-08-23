@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import Foundation
+
 public class NCUserDefaults: NSObject {
 
     private static let preferredCameraFlashModeKey = "ncPreferredCameraFlashMode"

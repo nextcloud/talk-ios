@@ -827,7 +827,7 @@
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
 				Extensions/UITableViewExtension.swift,
-				PlaceholderView.m,
+				PlaceholderView.swift,
 				PlaceholderView.xib,
 			);
 			target = 2C62AFA224C08845007E460A /* ShareExtension */;

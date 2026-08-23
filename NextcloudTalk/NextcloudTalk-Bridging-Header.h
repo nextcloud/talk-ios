@@ -11,7 +11,6 @@
 #import "CallParticipantViewCell.h"
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
-#import "HeaderWithButton.h"
 #import "NCAppBranding.h"
 #import "NCContactsManager.h"
 #import "NCPushNotification.h"
@@ -23,7 +22,6 @@
 #import "NCSignalingController.h"
 #import "NCUserStatus.h"
 #import "NotificationCenterNotifications.h"
-#import "PlaceholderView.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "UIBarButtonItem+LegacyBadge.h"
 #import "ShareTableViewCell.h"
@@ -47,7 +45,6 @@
 #import "UIResponder+SLKAdditions.h"
 
 #import "ShareViewController.h"
-#import "ShareConfirmationCollectionViewCell.h"
 #import "ShareItemController.h"
 #import "NCKeyChainController.h"
 #import "NCIntentController.h"
@@ -58,7 +55,6 @@
 
 #import "AFNetworking.h"
 
-#import "AvatarBackgroundImageView.h"
 #import "NCUser.h"
 #import "ContactsTableViewCell.h"
 
