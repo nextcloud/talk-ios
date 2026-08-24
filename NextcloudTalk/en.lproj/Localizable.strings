@@ -676,6 +676,9 @@
 /* Code block */
 "Code" = "Code";
 
+/* Shown after the code of a code block was copied to the clipboard */
+"Code copied" = "Code copied";
+
 /* No comment provided by engineer. */
 "Configuration" = "Configuration";
 
@@ -2328,7 +2331,7 @@
 /* Title for conversations sorting options */
 "Sort conversations" = "Sort conversations";
 
-/* No comment provided by engineer. */
+/* Title of a view showing the source code of a file or a code block */
 "Source code" = "Source code";
 
 /* speaker = Loudspeaker, device */

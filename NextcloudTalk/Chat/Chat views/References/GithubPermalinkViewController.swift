@@ -70,7 +70,7 @@ import SwiftyAttributes
 
         NCAppBranding.styleViewController(self)
 
-        self.navigationItem.title = NSLocalizedString("Source code", comment: "")
+        self.navigationItem.title = NSLocalizedString("Source code", comment: "Title of a view showing the source code of a file or a code block")
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         if #unavailable(iOS 26.0) {
@@ -148,7 +148,7 @@ import SwiftyAttributes
 
     func copyButtonPressed() {
         UIPasteboard.general.string = self.codeBlock
-        NotificationPresenter.shared().present(text: NSLocalizedString("Code copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+        NotificationPresenter.shared().present(text: NSLocalizedString("Code copied", comment: "Shown after the code of a code block was copied to the clipboard"), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
     func githubButtonPressed() {
