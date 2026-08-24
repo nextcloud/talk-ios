@@ -631,9 +631,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You demoted {user0} and %ld more participant from moderators</string>
+			<string>Vous avez retiré {user0} et %ld autre participant de la liste des modérateurs</string>
+			<key>many</key>
+			<string>Vous avez retiré {user0} et %ld autres participants de la liste des modérateurs</string>
 			<key>other</key>
-			<string>You demoted {user0} and %ld more participants from moderators</string>
+			<string>Vous avez retiré {user0} et %ld autres participants de la liste des modérateurs</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted you and %ld more participants from moderators</key>
@@ -663,9 +665,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted {user0} and %ld more participant from moderators</string>
+			<string>Un administrateur a retiré {user0} et %ld autre participant de la liste des modérateurs</string>
+			<key>many</key>
+			<string>Un administrateur a retiré {user0} et %ld autres participants de la liste des modérateurs</string>
 			<key>other</key>
-			<string>An administrator demoted {user0} and %ld more participants from moderators</string>
+			<string>Un administrateur a retiré {user0} et %ld autres participants de la liste des modérateurs</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted you and %ld more participants from moderators</key>
@@ -695,9 +699,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted {user0} and %ld more participant from moderators</string>
+			<string>{actor0} a retiré {user0} et %ld autre participant de la liste des modérateurs</string>
+			<key>many</key>
+			<string>{actor0} a retiré {user0} et %ld autres participants de la liste des modérateurs</string>
 			<key>other</key>
-			<string>{actor0} demoted {user0} and %ld more participants from moderators</string>
+			<string>{actor0} a retiré {user0} et %ld autres participants de la liste des modérateurs</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants joined the call</key>
