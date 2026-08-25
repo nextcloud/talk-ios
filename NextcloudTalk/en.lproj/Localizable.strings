@@ -1043,6 +1043,12 @@
 "Double tap to change between grid and speaker view" = "Double tap to change between grid and speaker view";
 
 /* No comment provided by engineer. */
+"Double tap to change the quality the images are sent in" = "Double tap to change the quality the images are sent in";
+
+/* No comment provided by engineer. */
+"Double tap to change who can modify the shared files" = "Double tap to change who can modify the shared files";
+
+/* No comment provided by engineer. */
 "Double tap to discard the changes" = "Double tap to discard the changes";
 
 /* No comment provided by engineer. */
@@ -1140,6 +1146,9 @@
 
 /* No comment provided by engineer. */
 "Edit thread details" = "Edit thread details";
+
+/* Other participants can modify the shared files */
+"Editable" = "Editable";
 
 /* A message was edited */
 "edited" = "edited";
@@ -1253,6 +1262,9 @@
 "File" = "File";
 
 /* No comment provided by engineer. */
+"File permissions" = "File permissions";
+
+/* No comment provided by engineer. */
 "Files" = "Files";
 
 /* No comment provided by engineer. */
@@ -1353,6 +1365,15 @@
 
 /* No comment provided by engineer. */
 "If you're using multiple servers, you need to check all of them." = "If you're using multiple servers, you need to check all of them.";
+
+/* No comment provided by engineer. */
+"Image quality" = "Image quality";
+
+/* No comment provided by engineer. */
+"Images are downscaled to save data" = "Images are downscaled to save data";
+
+/* No comment provided by engineer. */
+"Images are sent unchanged" = "Images are sent unchanged";
 
 /* No comment provided by engineer. */
 "Images, files, voice messages…" = "Images, files, voice messages…";
@@ -1880,6 +1901,9 @@
 /* A menu to show additional options for the current conversation */
 "Option menu" = "Option menu";
 
+/* Upload images without downscaling them */
+"Original quality" = "Original quality";
+
 /* No comment provided by engineer. */
 "Other Accounts" = "Other Accounts";
 
@@ -1888,6 +1912,12 @@
 
 /* Category of shared items in a conversation, for everything without its own category */
 "Others" = "Others";
+
+/* No comment provided by engineer. */
+"Others can modify the files" = "Others can modify the files";
+
+/* No comment provided by engineer. */
+"Others can only view the files" = "Others can only view the files";
 
 /* No comment provided by engineer. */
 "Outgoing call" = "Outgoing call";
@@ -2358,6 +2388,9 @@
 /* No comment provided by engineer. */
 "Speech recognition failed" = "Speech recognition failed";
 
+/* Upload images downscaled to a smaller size */
+"Standard quality" = "Standard quality";
+
 /* No comment provided by engineer. */
 "Start a new group conversation" = "Start a new group conversation";
 
@@ -2690,6 +2723,9 @@
 
 /* No comment provided by engineer. */
 "Video quality" = "Video quality";
+
+/* Other participants can only view the shared files */
+"View-only" = "View-only";
 
 /* Conversation visibility settings */
 "Visibility" = "Visibility";
