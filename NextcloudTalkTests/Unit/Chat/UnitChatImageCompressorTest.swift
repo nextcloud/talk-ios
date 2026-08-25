@@ -148,4 +148,26 @@ final class UnitChatImageCompressorTest: XCTestCase {
     private func fileSize(of fileURL: URL) throws -> Int {
         return try XCTUnwrap(FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int)
     }
+
+    // MARK: - Temporary directory
+
+    func testEverySendGetsItsOwnDirectory() throws {
+        let first = try XCTUnwrap(ChatImageCompressor.temporaryDirectory())
+        let second = try XCTUnwrap(ChatImageCompressor.temporaryDirectory())
+        defer {
+            ChatImageCompressor.removeTemporaryDirectory(first)
+            ChatImageCompressor.removeTemporaryDirectory(second)
+        }
+
+        XCTAssertNotEqual(first, second)
+
+        // Cleaning up after one send must not take away what another one still uploads
+        let file = first.appendingPathComponent("IMG_1.jpg")
+        try Data("compressed".utf8).write(to: file)
+
+        ChatImageCompressor.removeTemporaryDirectory(second)
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: second.path))
+    }
 }

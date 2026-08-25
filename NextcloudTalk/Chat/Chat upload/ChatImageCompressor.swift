@@ -95,22 +95,29 @@ enum ChatImageCompressor {
 
     /// Directory the compressed copies of one send operation are written to.
     ///
-    /// Emptied on every call, as the copies of a previous send are not needed anymore: a failed
-    /// upload is retried from the original file.
+    /// Every send gets a directory of its own, so that cleaning up after one can never take away
+    /// what another one is still uploading. Hand it to `removeTemporaryDirectory` when done.
     static func temporaryDirectory() -> URL? {
-        let directory = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload-compressed", isDirectory: true)
-        let fileManager = FileManager.default
-
-        try? fileManager.removeItem(at: directory)
+        let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("upload-compressed", isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
 
         do {
-            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         } catch {
             NCLog.log("Could not create the directory for compressed images: \(error.localizedDescription)")
             return nil
         }
 
         return directory
+    }
+
+    /// Throws away the compressed copies of a send that is over.
+    ///
+    /// The originals are somewhere else, so an upload that failed can still be retried, which
+    /// compresses again into a directory of its own.
+    static func removeTemporaryDirectory(_ directory: URL) {
+        try? FileManager.default.removeItem(at: directory)
     }
 
     // MARK: - Utils

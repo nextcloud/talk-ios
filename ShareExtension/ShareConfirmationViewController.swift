@@ -58,6 +58,9 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     /// Whether the other participants may modify the shared files.
     private var allowUpdate = false
 
+    /// Where the compressed copies of the running send are, to be thrown away when it is over.
+    private var compressedImagesDirectory: URL?
+
     private var imagePicker: UIImagePickerController?
     private var hud: MBProgressHUD?
     private var objectShareMessage: NCChatMessage?
@@ -901,6 +904,8 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
         NCLog.log("Sharing \(shareItems.count) files, compressed \(compressedImages.count) of the \(images.count) images among them")
 
+        self.compressedImagesDirectory = directory
+
         return shareItems.enumerated().map { index, shareItem in
             self.upload(for: shareItem, compressedTo: compressedImages[index])
         }
@@ -925,6 +930,11 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     private func finishUploads(withErrors errors: [String], succeededItems: [ShareItem]) {
         self.stopAnimatingSharingIndicator()
         self.hud?.hide(animated: true)
+
+        if let directory = self.compressedImagesDirectory {
+            ChatImageCompressor.removeTemporaryDirectory(directory)
+            self.compressedImagesDirectory = nil
+        }
 
         guard !errors.isEmpty else {
             self.shareItemController.removeAllItems()
