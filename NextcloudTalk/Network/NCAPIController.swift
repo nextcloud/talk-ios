@@ -3227,6 +3227,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     public func probeConversationAttachmentFolder(inRoom token: String,
                                                   withFileNames fileNames: [String],
+                                                  allowUpdate: Bool = false,
                                                   forAccount account: TalkAccount,
                                                   completionBlock: @escaping (_ folder: String?, _ renames: [[String: String]]?, _ error: Error?) -> Void) {
 
@@ -3239,7 +3240,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         let urlString = self.getRequestURL(forEndpoint: "chat/\(encodedToken)/attachment/folder", withAPIType: .chat, forAccount: account)
         let parameters: [String: Any] = [
-            "fileNames": fileNames
+            "fileNames": fileNames,
+            "allowUpdate": allowUpdate
         ]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
@@ -3254,11 +3256,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
+    // swiftlint:disable:next function_parameter_count
     public func postConversationAttachment(inRoom token: String,
                                            filePath: String,
                                            fileName: String,
                                            referenceId: String?,
                                            talkMetaData: [String: Any]?,
+                                           allowUpdate: Bool = false,
                                            forAccount account: TalkAccount,
                                            completionBlock: @escaping (_ error: Error?) -> Void) {
 
@@ -3273,7 +3277,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         var parameters: [String: Any] = [
             "filePath": filePath,
-            "fileName": fileName
+            "fileName": fileName,
+            "allowUpdate": allowUpdate
         ]
 
         // Required by API: missing referenceId results in a 400 response
@@ -3331,9 +3336,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @MainActor
-    public func probeConversationAttachmentFolder(inRoom token: String, withFileNames fileNames: [String], forAccount account: TalkAccount) async throws -> (folder: String, renames: [[String: String]]) {
+    public func probeConversationAttachmentFolder(inRoom token: String, withFileNames fileNames: [String], allowUpdate: Bool = false, forAccount account: TalkAccount) async throws -> (folder: String, renames: [[String: String]]) {
         return try await withCheckedThrowingContinuation { continuation in
-            probeConversationAttachmentFolder(inRoom: token, withFileNames: fileNames, forAccount: account) { folder, renames, error in
+            probeConversationAttachmentFolder(inRoom: token, withFileNames: fileNames, allowUpdate: allowUpdate, forAccount: account) { folder, renames, error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else if let folder {
@@ -3347,9 +3352,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     @MainActor
     // swiftlint:disable:next function_parameter_count
-    public func postConversationAttachment(inRoom token: String, filePath: String, fileName: String, referenceId: String?, talkMetaData: [String: Any]?, forAccount account: TalkAccount) async throws {
+    public func postConversationAttachment(inRoom token: String, filePath: String, fileName: String, referenceId: String?, talkMetaData: [String: Any]?, allowUpdate: Bool = false, forAccount account: TalkAccount) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            postConversationAttachment(inRoom: token, filePath: filePath, fileName: fileName, referenceId: referenceId, talkMetaData: talkMetaData, forAccount: account) { error in
+            postConversationAttachment(inRoom: token, filePath: filePath, fileName: fileName, referenceId: referenceId, talkMetaData: talkMetaData, allowUpdate: allowUpdate, forAccount: account) { error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {

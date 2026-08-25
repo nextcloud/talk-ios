@@ -23,4 +23,10 @@ struct ChatFileUpload {
 
     /// Reference id of the temporary message this upload belongs to, if there is one.
     var referenceId: String?
+
+    /// Whether the other participants may modify the file, instead of only viewing it.
+    ///
+    /// Only honoured with conversation subfolders enabled: the server keeps updatable files in a
+    /// separate subfolder, so this is a choice per upload and does not affect earlier ones.
+    var allowUpdate = false
 }
