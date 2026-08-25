@@ -833,6 +833,7 @@
 				Extensions/IntExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
+				Extensions/UIImageExtension.swift,
 				Extensions/UITableViewExtension.swift,
 				PlaceholderView.m,
 				PlaceholderView.xib,
