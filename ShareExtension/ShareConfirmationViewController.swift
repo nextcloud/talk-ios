@@ -237,8 +237,9 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     /// Both are filled in from the same choice on purpose: letting the button show the selection of
     /// its menu by itself would leave what the button says and what is uploaded free to drift apart.
     private func updateOptionButtons() {
-        let quality = self.imageQuality == .standard ? self.standardQualityOption : self.originalQualityOption
-        self.apply(quality, to: self.imageQualityButton)
+        let isStandardQuality = self.imageQuality == .standard
+        let quality = isStandardQuality ? self.standardQualityOption : self.originalQualityOption
+        self.apply(quality, isDefault: isStandardQuality, to: self.imageQualityButton)
         self.imageQualityButton.menu = UIMenu(title: NSLocalizedString("Image quality", comment: ""),
                                               options: .singleSelection,
                                               children: [
@@ -247,7 +248,7 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
                                               ])
 
         let permission = self.allowUpdate ? self.editableOption : self.viewOnlyOption
-        self.apply(permission, to: self.sharePermissionButton)
+        self.apply(permission, isDefault: !self.allowUpdate, to: self.sharePermissionButton)
         self.sharePermissionButton.menu = UIMenu(title: NSLocalizedString("File permissions", comment: ""),
                                                  options: .singleSelection,
                                                  children: [
@@ -256,9 +257,8 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
                                                  ])
     }
 
-    private func apply(_ option: UploadOption, to button: UIButton) {
-        button.configuration?.title = option.title
-        button.configuration?.image = option.image
+    private func apply(_ option: UploadOption, isDefault: Bool, to button: UIButton) {
+        button.configuration = self.optionConfiguration(for: option, isDefault: isDefault)
     }
 
     private func action(for option: UploadOption, isChosen: Bool, choose: @escaping () -> Void) -> UIAction {
@@ -294,7 +294,28 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
     /// A button that shows the option it currently has selected and offers the alternatives in a menu.
     private func optionButton() -> UIButton {
-        var configuration = UIButton.Configuration.gray()
+        let button = UIButton(configuration: UIButton.Configuration.gray())
+        button.showsMenuAsPrimaryAction = true
+
+        return button
+    }
+
+    /// The look of an option button: gray as long as it holds the option a share starts with, and
+    /// filled with the theme color once it does not.
+    ///
+    /// The same pair of colors the unread counter and the selected conversation filters use. The
+    /// server picks the text color to be readable on its theme color, which a tinted background of
+    /// the same color could not promise.
+    private func optionConfiguration(for option: UploadOption, isDefault: Bool) -> UIButton.Configuration {
+        var configuration = isDefault ? UIButton.Configuration.gray() : UIButton.Configuration.filled()
+
+        if !isDefault {
+            configuration.baseBackgroundColor = NCAppBranding.themeColor()
+            configuration.baseForegroundColor = NCAppBranding.themeTextColor()
+        }
+
+        configuration.title = option.title
+        configuration.image = option.image
         configuration.imagePadding = 4
         // The arrows that tell the button apart from a label, which the button would only show by
         // itself if it let its menu handle the selection
@@ -311,10 +332,7 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
             return outgoing
         }
 
-        let button = UIButton(configuration: configuration)
-        button.showsMenuAsPrimaryAction = true
-
-        return button
+        return configuration
     }
 
     private lazy var shareCollectionViewLayout: UICollectionViewFlowLayout = {
