@@ -66,6 +66,58 @@ import UIKit
         self.setContentOffset(.zero, animated: false)
     }
 
+    // MARK: - Scroll fade
+
+    /// Width of the fade shown at an edge that has more reactions behind it
+    private static let scrollFadeWidth: CGFloat = 16
+
+    private var scrollFadeLayer: CAGradientLayer?
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // Also called while scrolling, so the fade follows the content offset
+        self.updateScrollFade()
+    }
+
+    /// Fades out the reactions at an edge that can still be scrolled towards, so it becomes visible
+    /// that a message has more reactions than there is room for.
+    private func updateScrollFade() {
+        guard self.bounds.width > 0 else { return }
+
+        let canScrollToLeading = self.contentOffset.x > 1
+        let canScrollToTrailing = self.contentOffset.x + self.bounds.width < self.contentSize.width - 1
+
+        guard canScrollToLeading || canScrollToTrailing else {
+            self.layer.mask = nil
+            self.scrollFadeLayer = nil
+            return
+        }
+
+        let fadeLayer: CAGradientLayer
+        if let scrollFadeLayer {
+            fadeLayer = scrollFadeLayer
+        } else {
+            fadeLayer = CAGradientLayer()
+            fadeLayer.startPoint = .init(x: 0, y: 0.5)
+            fadeLayer.endPoint = .init(x: 1, y: 0.5)
+            self.scrollFadeLayer = fadeLayer
+            self.layer.mask = fadeLayer
+        }
+
+        let opaque = UIColor.white.cgColor
+        let clear = UIColor.clear.cgColor
+        let fade = min(ReactionsView.scrollFadeWidth, self.bounds.width / 3) / self.bounds.width
+
+        // The mask is part of the scroll view's layer, so it has to be moved along with the content
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        fadeLayer.frame = .init(origin: self.contentOffset, size: self.bounds.size)
+        fadeLayer.colors = [canScrollToLeading ? clear : opaque, opaque, opaque, canScrollToTrailing ? clear : opaque]
+        fadeLayer.locations = [0, NSNumber(value: fade), NSNumber(value: 1 - fade), 1]
+        CATransaction.commit()
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return reactions.count
     }

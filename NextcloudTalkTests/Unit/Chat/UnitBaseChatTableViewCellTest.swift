@@ -63,6 +63,31 @@ final class UnitBaseChatTableViewCellTest: TestBaseRealm {
                           "Showing fewer reactions must shrink the view again")
     }
 
+    // When a message has more reactions than the bubble has room for, the remaining ones are only
+    // reachable by scrolling. Fading out the edge that can be scrolled towards is what makes that
+    // visible instead of looking like the message simply has fewer reactions.
+    func testReactionsViewFadesTheEdgeThatCanBeScrolledTowards() throws {
+        let (container, reactionsView) = makeReactionsView(inContainerOfWidth: 120)
+
+        reactionsView.updateReactions(reactions: reactions(["👍", "❤️", "😀", "🎉", "🚀"]))
+        container.setNeedsLayout()
+        container.layoutIfNeeded()
+
+        XCTAssertGreaterThan(reactionsView.contentSize.width, reactionsView.bounds.width,
+                             "This case is only meaningful when the reactions don't fit")
+        XCTAssertNotNil(reactionsView.layer.mask,
+                        "Reactions that don't fit must be faded out at the edge they can be scrolled towards")
+
+        let (roomyContainer, roomyReactionsView) = makeReactionsView(inContainerOfWidth: 1000)
+
+        roomyReactionsView.updateReactions(reactions: reactions(["👍", "❤️"]))
+        roomyContainer.setNeedsLayout()
+        roomyContainer.layoutIfNeeded()
+
+        XCTAssertNil(roomyReactionsView.layer.mask,
+                     "Reactions that all fit must not be faded out, there is nothing to scroll to")
+    }
+
     // A reused view must not keep the scroll position of the message it showed before, or the first
     // reactions of the new message start off screen.
     func testReactionsViewResetsScrollPositionOnReuse() throws {
