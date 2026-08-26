@@ -202,13 +202,13 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
     // SF Symbols has no SD and HD badges, so they are drawn to match the title next to them
     private lazy var standardQualityOption = UploadOption(
-        title: NSLocalizedString("Standard quality", comment: "Upload images downscaled to a smaller size"),
-        subtitle: NSLocalizedString("Images are downscaled to save data", comment: ""),
+        title: NSLocalizedString("Standard quality", comment: "Upload images at a reduced size"),
+        subtitle: NSLocalizedString("Slightly reduced quality, uses less data", comment: ""),
         image: UIImage.badge(withText: "SD", matching: UIFont.preferredFont(forTextStyle: .footnote)))
 
     private lazy var originalQualityOption = UploadOption(
-        title: NSLocalizedString("Original quality", comment: "Upload images without downscaling them"),
-        subtitle: NSLocalizedString("Images are sent unchanged", comment: ""),
+        title: NSLocalizedString("Original quality", comment: "Upload images unchanged"),
+        subtitle: NSLocalizedString("Original resolution and quality are preserved", comment: ""),
         image: UIImage.badge(withText: "HD", matching: UIFont.preferredFont(forTextStyle: .footnote)))
 
     private lazy var viewOnlyOption = UploadOption(
@@ -218,7 +218,7 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
     private lazy var editableOption = UploadOption(
         title: NSLocalizedString("Editable", comment: "Other participants can modify the shared files"),
-        subtitle: NSLocalizedString("Others can modify the files", comment: ""),
+        subtitle: NSLocalizedString("Others can edit the files", comment: ""),
         image: UIImage(systemName: "pencil"))
 
     private lazy var imageQualityButton: UIButton = {
