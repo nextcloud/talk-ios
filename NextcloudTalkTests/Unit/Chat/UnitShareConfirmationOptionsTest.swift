@@ -81,11 +81,18 @@ final class UnitShareConfirmationOptionsTest: TestBaseRealm {
 
     /// A photo sized image, written as JPEG like the ones the photo library hands over.
     private func addPhoto(to viewController: ShareConfirmationViewController) throws -> ShareItem {
+        viewController.shareItemController.addItem(withImageDataAndName: try XCTUnwrap(self.photo(CGSize(width: 2400, height: 1800)).jpegData(compressionQuality: 0.9)),
+                                                  withName: "IMG_0001.jpg")
+
+        return try XCTUnwrap(viewController.shareItemController.shareItems.last)
+    }
+
+    /// A photo sized image, gradients and shapes, so a lossy encoder has something to work with.
+    private func photo(_ size: CGSize) throws -> UIImage {
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = 1
-        let size = CGSize(width: 2400, height: 1800)
 
-        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
             let colors = [UIColor.systemIndigo.cgColor, UIColor.systemPink.cgColor, UIColor.systemYellow.cgColor]
             let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0, 0.5, 1])!
             context.cgContext.drawLinearGradient(gradient, start: .zero, end: CGPoint(x: size.width, y: size.height), options: [])
@@ -96,11 +103,6 @@ final class UnitShareConfirmationOptionsTest: TestBaseRealm {
                 context.cgContext.fillEllipse(in: CGRect(x: CGFloat(index) * side / 2, y: CGFloat(index) * side / 3, width: side, height: side))
             }
         }
-
-        viewController.shareItemController.addItem(withImageDataAndName: try XCTUnwrap(image.jpegData(compressionQuality: 0.9)),
-                                                  withName: "IMG_0001.jpg")
-
-        return try XCTUnwrap(viewController.shareItemController.shareItems.last)
     }
 
     private func pixelSize(ofFileAt path: String) throws -> CGSize {
@@ -159,5 +161,30 @@ final class UnitShareConfirmationOptionsTest: TestBaseRealm {
 
         XCTAssertEqual(upload.localPath, item.filePath)
         XCTAssertEqual(upload.fileName, "Contact_1.vcf")
+    }
+
+    @MainActor
+    func testOriginalQualityKeepsWhatTheCameraDelivered() async throws {
+        let viewController = try self.shareConfirmationViewController(withConversationSubfolders: false)
+
+        // A photo taken with the camera reaches the app as a bitmap, not as a file, so the share
+        // item controller is what encodes it. That must not spend the quality the sender may ask for.
+        let image = try self.photo(CGSize(width: 2400, height: 1800))
+        viewController.shareItemController.addItem(with: image)
+        let item = try XCTUnwrap(viewController.shareItemController.shareItems.last)
+
+        let uploads = await viewController.uploads(for: viewController.shareItemController.shareItems, quality: .original)
+        let upload = try XCTUnwrap(uploads.first)
+        let uploaded = try self.fileSize(ofFileAt: upload.localPath)
+
+        let lossless = try XCTUnwrap(image.jpegData(compressionQuality: 1)).count
+        let lossy = try XCTUnwrap(image.jpegData(compressionQuality: 0.7)).count
+
+        XCTAssertEqual(Double(uploaded), Double(lossless), accuracy: Double(lossless) * 0.05,
+                       "the image was re-encoded before the sender could choose its quality")
+        XCTAssertGreaterThan(uploaded, lossy)
+
+        // Its dimensions are untouched either way
+        XCTAssertEqual(try self.pixelSize(ofFileAt: upload.localPath), CGSize(width: 2400, height: 1800))
     }
 }
